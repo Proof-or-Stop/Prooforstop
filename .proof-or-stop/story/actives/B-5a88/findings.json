@@ -12670,7 +12670,7 @@
       "desc": "Current verifier-owned pre-review evidence is inadmissible: node bin/proof-or-stop.js pre_review_check_read --storyId=B-5a88 returns FAIL with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, while packages/main/src/core/pre-review-check.ts:399-407 recomputes and rejects the stored artifact signature/digest and :331-335 derives the coverage-basis drift. The committed .proof-or-stop/story/actives/B-5a88/pre-review-check.json:1728-1732 still records codes=[] and status=pass, so REVIEW cannot rely on this proof until the owner reissues it through pre_review_check.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-23T14:18:11.897Z",
@@ -12732,7 +12732,11 @@
         "packages/main/src/core/pre-review-check.ts"
       ],
       "signatureTag": "adversarial|json|current-verifier-owned",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a88:F-350, the later current-HEAD quality finding that records the same PR_ARTIFACT_TAMPERED/PR_AUTHORITY_INADMISSIBLE pre-review family.",
+      "resolvedAt": "2026-08-23T19:21:36.000Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-315",
@@ -14662,6 +14666,131 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "signatureTag": "missing|json|current-5a88-acceptance",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-356",
+      "desc": "RI-050 concept-cleanup: active CLI validation errors still emit the retired product spelling Proofbound at packages/main/src/handlers/dev-memory.ts:237 and packages/main/src/handlers/quorum-prune.ts:388. The approved brand-rename mapping classifies Proofbound in active user-facing prose as RENAMED to Proof-or-Stop; these runtime error strings are not historical evidence or compatibility readers, so invalid story-id requests still teach the retired product identity. This is distinct from F-349 package descriptions and the existing pre-review/coverage families F-350 through F-354.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T19:17:43.184Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-469",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "filesTriagedByName": [
+          "packages/lab/package.json",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": "Repository-wide active-brand scan performed; historical schemas, compatibility readers, and the already-recorded package-description family were excluded from this distinct finding."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "fbdb9d0c5c6a635871a9d4fd50ac8f45359b15c8652040d54bd1e961c2775067"
+      },
+      "readDiagnostics": [],
+      "_hash": "cccc35972b59043659e03ff7bee78298c3db5d02ab84bd7c5b1031813b5d260d",
+      "files": [
+        "packages/main/src/handlers/dev-memory.ts",
+        "packages/main/src/handlers/quorum-prune.ts",
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-active",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-357",
+      "desc": "concept-schema-prefix: active runtime/schema producers still emit legacy-only lattice.* identities instead of canonical proof-or-stop.* writes or an explicit dual-read helper: packages/main/src/core/agent-asset-resolution.ts:34,253 emits lattice.agent_asset_resolution.v1; packages/main/src/handlers/done-prepare.ts:191,1089 emits lattice.done_prepare.v1; packages/main/src/handlers/done-closure.ts:35,204 emits lattice.done_closure.v1; packages/main/src/core/proof-admissibility-binding.ts:4 emits lattice.proof_binding.v1; packages/main/src/core/observability-snapshot.ts:31,382 emits lattice.observability_snapshot.v1; and packages/main/src/core/usage-sweep.ts:499,644 emits lattice.usage_sweep.v1. The approved brand mapping says only persisted signature salts are frozen and requires current/future outputs to use proof-or-stop; the new artifact-schema.ts allow-list does not cover these active producers, leaving the retired schema concept in new runtime output and without a bounded legacy-read contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T19:17:50.677Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-470",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/agent-asset-resolution.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/observability-snapshot.ts",
+          "packages/main/src/core/proof-admissibility-binding.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "scanEscalationReason": "RI-050 wave 2 active schema producer scan after excluding the recorded F-349 package-description, F-350 pre-review, and F-351/F-352/F-353/F-354 coverage families."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "fbdb9d0c5c6a635871a9d4fd50ac8f45359b15c8652040d54bd1e961c2775067"
+      },
+      "readDiagnostics": [],
+      "_hash": "abd29b65c6812288e168aa06a694828b39a04074561b0d3cbabd68d5c3bdb22b",
+      "signatureTag": "missing|unknown|concept-schema-prefix",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-358",
+      "desc": "concept-protocol-prefix: active prompt/config protocol writers still emit the retired Proofbound namespace instead of a canonical proof-or-stop form or an explicit bounded compatibility rule: proof-or-stop.config.json:10 writes proofbound.prompt-envelope-rollout.v1; packages/main/templates/agents/proof-or-stop-review-concept.md:7 and the other canonical role templates retain proofbound:modular-role-body:v1; packages/main/src/handlers/agent-prompt.ts:133,194 writes proofbound prompt-envelope/agent-prompt response identities; packages/main/src/core/prompt-contracts.ts:33-202 validates proofbound protocol schemas. The approved brand mapping classifies Proofbound as a legacy spelling to normalize and does not list these active protocol markers/schema writers as frozen evidence. This is distinct from F-349 package descriptions, F-350 through F-354 known blockers, F-356 active validation errors, and F-357 lattice.* artifact producers; current canonical prompt output still teaches and emits the retired concept.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T19:19:22.490Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-474",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": "RI-050 wave 2 active protocol-prefix scan; excluded the already-registered package-description, validation-error, lattice-schema, pre-review, and verification-coverage families."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "fbdb9d0c5c6a635871a9d4fd50ac8f45359b15c8652040d54bd1e961c2775067"
+      },
+      "readDiagnostics": [],
+      "_hash": "9ecd61443a1fe4c610b4d30172e891705cef9581138aca42968a89360a6ff414",
+      "signatureTag": "missing|unknown|concept-protocol-prefix",
       "signatureTagSource": "auto"
     }
   ]
