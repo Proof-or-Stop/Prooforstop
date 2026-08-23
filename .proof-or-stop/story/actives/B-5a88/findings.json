@@ -11831,6 +11831,1115 @@
       "resolvedAt": "2026-08-23T12:27:43.575Z",
       "resolutionType": "partially_mitigated",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-295",
+      "desc": "Current verifier-owned pre-review evidence is not admissible: proof-or-stop pre_review_check_read --storyId=B-5a88 --json returns status=fail and ok=false with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, while the signed artifact still records status=pass at .proof-or-stop/story/actives/B-5a88/pre-review-check.json:1728-1729 and binds its cutoff/plan basis at :5-6. Reissue fresh verifier-owned pre_review_check evidence before certifying this review; the current rename implementation checks are not sufficient to override this evidence failure.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T13:13:17.264Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-387",
+      "_hash": "bd6b22db18a8d9310fef59cab8d7e0a73e325c4426bd960e99cfe08523bf61d2",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|current-verifier-owned",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-296",
+      "desc": "docs/requirements/decisions/proof-or-stop-identity-migration.md:68-73 — the changed migration decision says CHK-006 required a CHANGELOG entry naming the removed aliases and records that entry as the announcement, but CHANGELOG.md is absent from the story diff while .proof-or-stop/story/actives/B-5a88/plan.md:8 and :38 explicitly forbid editing it. The release-removal contract is therefore contradictory and the stated announcement is undelivered; reconcile the decision and plan or add the required announcement before treating the migration documentation as complete.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T13:24:09.463Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-386",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "17c6f8911072e59b6efb260e264211f9b2dd22efad55daf2173023b480c2b59b"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/brand-rename-mapping.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/brand-rename-mapping.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        }
+      ],
+      "_hash": "8df9f64c46ab09460f723b9c33105b89c9f32398243774e852ba19bea1e25934",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        ".proof-or-stop/story/actives/B-5a88/plan.md",
+        "CHANGELOG.md"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-297",
+      "desc": "Acceptance basis/pre-review chain is not currently admissible: proof-or-stop acceptance_basis --storyId=B-5a88 reports Receipt verification AT_ADAPTER_RESULT_DIGEST_MISMATCH (basis semantic discovery digest mismatch), and acceptance_topology_check reports the same structural failure; pre_review_check_read independently returns status=inconclusive, ok=false with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED. The signed acceptance-basis and pre-review artifacts therefore cannot certify the current implementation until the verifier-owned basis is repaired and reissued through acceptance_basis_generate/pre_review_check, then both read-only checks pass. This is distinct from the existing F-295 artifact-admissibility finding because it records the current signed PLAN-basis digest mismatch and topology result.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-23T13:43:25.529Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-389",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "f9f96a74fd3ab28ca9489de81b720c4a247c4b4c06a62e3094204d2243552d28"
+      },
+      "readDiagnostics": [],
+      "_hash": "ad211ac9b5b8a6b8f955eb7402126ea07dd3b948da8d1f65cae9ba9eebd6b4ec",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "missing|json|acceptance-basis-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-298",
+      "desc": "pre-review evidence is tampered/stale: current pre_review_check_read recomputes PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, but the stored verifier artifact still records codes=[] and status=pass at .proof-or-stop/story/actives/B-5a88/pre-review-check.json:1728-1732; the fail-closed signature/basis comparison is implemented at packages/main/src/core/pre-review-check.ts:404-407. Reissue through pre_review_check before REVIEW can be trusted.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T13:45:01.209Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-390",
+      "_hash": "a09315900b5bbaffc3c1faaa44f6c8393c95075a9a76667d775913253c0dec79",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "adversarial|json|review-evidence-tampered",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-299",
+      "desc": "RI-037 is not OPEN and cannot admit this review: .proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json:3196 records state=INVALIDATED with blocker OPEN_REVIEW_INVENTORY_SCOPE_MUTATION at :3222, while :3223-3234 records currentRequiredLanes as legacy lattice-review-* against the epoch canonical requiredLanes. The current reviewer_list emits proof-or-stop lanes, so this stale/tampered inventory binding leaves the required review wave at 0/3 and must be reissued through the inventory protocol before the review can be accepted.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T13:45:19.790Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-390",
+      "_hash": "151be24850109fec903eef48a224e1c3bcdd61e0002f8535043126f4cf9e64a8",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "adversarial|json|open-cannot-admit",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-300",
+      "desc": "CHK-001 through CHK-007: all 21 current verificationEvidence rows are result=pass but stale against the current worktree. checklist_get shows the rows bound to historical headHash values a586127674a4d6bd46e0a81fff1264a5dd8e7fb9, 3792345083404596d4ba6ef487c8940240a7c1f7, and bd5642afe574bdb631a55ad632969e5e61d1b50b (depending on item), while the signed current review run is bound to HEAD b9672a43c721db927b39fb8ba9dd95a80a9ab452 with materialHash 60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a and storyFilesHash 0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22. I re-executed the current producer/consumer checks: CHK-001 role smokes, managed-marker migration, artifact-schema migration, CHK-004 schema smoke, package identity/version/lab checks, npm test:lattice-residue, CLI help, and the 65-case residue self-test all passed; these reruns cannot replace the immutable pinned evidence rows. CHK-007 regression is green but its recorded evidence remains stale.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T13:46:01.618Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-392",
+      "_hash": "3509ea4363c0cb054d87c07d9f6a150390a5db09c7e36bbf60eb0ef82daa8a89",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/package-identity-migration.test.mjs",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|json|through-current-verificationevidence",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-301",
+      "desc": "CHK-003: the pinned verification command node packages/main/tests/artifact-schema-migration.test.mjs passes, but it does not execute the two named archived-story CLI read/signature/freshness checks required by the migration plan. The test exercises direct dist functions and only checks isStoryMetadataPath(\\.lattice/story/actives/B-archived/story.json) plus synthetic freshness/receipt cases; it does not read B-0168 and B-META-framework-audit through the CLI or verify their historical signatures/freshness. Current independent witnesses node bin/proof-or-stop.js story_get for B-0168 and B-META-framework-audit both pass (INIT and META), and node scripts/verify-state-dir-migration.mjs passes both named archives, history-follow, and archiveFloorHeld=true, but those checks are not bound to any CHK-003 verificationEvidence row and cannot be retroactively substituted. The three CHK-003 intents therefore remain under-covered even though the implementation test is green.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T13:46:14.244Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-392",
+      "_hash": "08881f0b79abe88ed98f140d749804ab160d4d405fc2ba03463af8bd1550d69e",
+      "files": [
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "scripts/verify-state-dir-migration.mjs",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "signatureTag": "missing|mjs|pinned-verification-command",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-302",
+      "desc": ".proof-or-stop/story/actives/B-5a88/pre-review-check.json:1 — pre_review_check_read returns FAIL with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED while acceptance basis, rollout, and topology independently pass; the required current signed executable pre-review proof is therefore inadmissible for this canonical migration review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T13:51:53.295Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-394",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fa8de43ed0ecb8aa734288ca1f850e2a8a0440579408ba3eea19b0b1ead0c098",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-303",
+      "desc": "CHK-001 through CHK-007: all 21 stored verificationEvidence rows report result=pass, but none is fresh against the current HEAD b9672a43c721db927b39fb8ba9dd95a80a9ab452; recorded headHash values are a586127674a4d6bd46e0a81fff1264a5dd8e7fb9, 3792345083404596d4ba6ef487c8940240a7c1f7, or bd5642afe574bdb631a55ad632969e5e61d1b50b. The current materialHash 60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a and storyFilesHash 0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22 match the current story, and all 21 pinned commands were re-executed successfully, so this is verified HEAD/provenance staleness rather than a failing implementation test; the reruns cannot replace the immutable stored evidence rows.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T13:52:07.137Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-395",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "scripts/verify-state-dir-migration.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b1706766867ec8e229684c1ab25d08c36caa53761a3515e701fe55c7fe9afa20"
+      },
+      "readDiagnostics": [],
+      "_hash": "cb1881a2b58ced79e4b0446041a4152a2c97366a8eb2dbba2b774aa10811026d",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/package-identity-migration.test.mjs",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|json|through-stored-verificationevidence",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-304",
+      "desc": "CHK-003:happy:0, CHK-003:edge:0, and CHK-003:adversarial:0 are pinned to node packages/main/tests/artifact-schema-migration.test.mjs, which passes but only exercises direct dist freshness/schema/receipt functions at lines 89-113 and a generic isStoryMetadataPath(.lattice/story/actives/B-archived/story.json) assertion at line 269. It does not execute the two named archived-story CLI signature/freshness checks required by the migration plan: node bin/proof-or-stop.js story_get --storyId=B-0168 and node bin/proof-or-stop.js story_get --storyId=B-META-framework-audit. Both CLI reads exited 0, and node scripts/verify-state-dir-migration.mjs exited 0 with B-0168=INIT, B-META-framework-audit=META, historyFollows=true, archiveFloorHeld=true, and state dir migration verified; however those independent witnesses are not bound to any CHK-003 verificationEvidence row and cannot retroactively substitute for the immutable pinned command.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T13:52:12.744Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-395",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "scripts/verify-state-dir-migration.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b1706766867ec8e229684c1ab25d08c36caa53761a3515e701fe55c7fe9afa20"
+      },
+      "readDiagnostics": [],
+      "_hash": "51d60a772218ff605a99e0fb111ccf018e30ff2bcad5731a90431cf6da5ebabd",
+      "files": [
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "scripts/verify-state-dir-migration.mjs",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "signatureTag": "missing|mjs|happy-edge-adversarial",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-305",
+      "desc": "pre-review evidence is not currently admissible: node bin/proof-or-stop.js pre_review_check_read --storyId=B-5a88 returns FAIL with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, while .proof-or-stop/story/actives/B-5a88/pre-review-check.json:1728-1732 still records codes=[] and status=pass. The changed verifier at packages/main/src/core/pre-review-check.ts:399-407 recomputes the expected artifact and rejects a signature/key/digest mismatch. Wave-4 quality requires verifier-owned current signed PASS evidence, so this run cannot pass until the artifact is reissued through the CLI.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T13:53:31.051Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-393",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Full-context quality review used the signed review prompt, targeted changed-file inspection, and verifier execution; this finding is bound to the directly inspected pre-review producer and artifact."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "62e1b23587cd5f4369ff67615800d82d86610835d4882a627daa1527353d5301"
+      },
+      "readDiagnostics": [],
+      "_hash": "647dd32a850e843aac36306e14a493afac8b5961458d0a20f3ae58dfeaeecbe5",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "adversarial|json|review-evidence-currently",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-306",
+      "desc": "Independent topology/completeness recheck: pre_review_check_read for B-5a88 still returns status=fail and ok=false with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED. acceptance_basis and acceptance_topology_check currently report complete/pass, and acceptance_rollout_check reports full-3x2 pass, but those surfaces do not make the verifier-owned executable pre-review artifact admissible. The current pre-review proof must be reissued through proof-or-stop pre_review_check before this review can certify completeness.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-23T14:00:09.924Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-396",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "737580c982d0eb46e2ecc5fcb6607bfcb7304a9ba515312dc6628e5311bf51da"
+      },
+      "readDiagnostics": [],
+      "_hash": "981a58220d41e7bf32f3456b8b25e658d51fe157f453ccbf6896055ba567a577",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|json|independent-topology-completeness",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-307",
+      "desc": "pre-review admissibility remains FAIL for the current signed basis: node bin/proof-or-stop.js pre_review_check_read --storyId=B-5a88 --json returns status=fail, ok=false, blocking=false, and codes=[PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED], while .proof-or-stop/story/actives/B-5a88/pre-review-check.json:1728-1732 still stores codes=[] and status=pass. The verifier-owned executable pre-review proof is therefore inadmissible for review wave 2/3 until it is reissued through pre_review_check; acceptance basis, rollout, and topology PASS results do not repair this artifact mismatch.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T14:05:23.808Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-401",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e7e0e560397ffea610aacaceb5f0d5de737303f7b95b15b1257b41578547980a",
+      "signatureTag": "adversarial|unknown|review-admissibility-remains",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-308",
+      "desc": "Current RR-398 recheck: node packages/main/dist/cli.js pre_review_check_read --storyId=B-5a88 --json returns status=fail with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, while the signed artifact still records codes=[] and status=pass at .proof-or-stop/story/actives/B-5a88/pre-review-check.json:1728-1732. packages/main/src/core/pre-review-check.ts:399-407 recomputes the expected artifact and rejects signature/key/digest mismatch; reissue verifier-owned pre-review evidence before this quality lane can pass.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T14:05:32.432Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-398",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Targeted quality review of the current signed pre-review artifact and its verifier; the read-only CLI witness is bound to this finding."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bed952d11d78186809b432023493a1e33a9cdaf7bd8c6a31873ea7e25321c667",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "adversarial|json|current-recheck-node",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-309",
+      "desc": "CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0 through CHK-007:happy:0, CHK-007:edge:0, CHK-007:adversarial:0: all 21 current verificationEvidence rows report result=pass but are stale against the signed current review run. checklist_get shows stored headHash values a586127674a4d6bd46e0a81fff1264a5dd8e7fb9, 3792345083404596d4ba6ef487c8940240a7c1f7, or bd5642afe574bdb631a55ad632969e5e61d1b50b, while B-5a88:RR-399 is bound to HEAD b9672a43c721db927b39fb8ba9dd95a80a9ab452; materialHash 60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a and storyFilesHash 0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22 match. The pinned rows therefore provide no fresh evidence for the 21 must intents. Successful reruns are independent witnesses and cannot replace immutable stored verificationEvidence rows.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T14:06:20.447Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-399",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/brand-rename-mapping.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/brand-rename-mapping.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        }
+      ],
+      "_hash": "78a1d5732cab588dc195a1f6427a7eaf6f016eaaac9e705698a60ed1840961c3",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/package-identity-migration.test.mjs",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|json|happy-edge-adversarial",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-310",
+      "desc": "CHK-003:happy:0, CHK-003:edge:0, and CHK-003:adversarial:0 are pinned to node packages/main/tests/artifact-schema-migration.test.mjs, which passes but does not execute the two named archived-story CLI signature and freshness checks required by the migration plan: node bin/proof-or-stop.js story_get --storyId=B-0168 and node bin/proof-or-stop.js story_get --storyId=B-META-framework-audit. The current independent CLI reads exited 0, and node scripts/verify-state-dir-migration.mjs exited 0 with B-0168=INIT, B-META-framework-audit=META, historyFollows=true, and archiveFloorHeld=true. Those witnesses are not bound to any CHK-003 verificationEvidence row and cannot retroactively substitute for the immutable pinned command, so all three CHK-003 must intents remain under-covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T14:06:45.457Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-399",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "scripts/verify-state-dir-migration.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b1706766867ec8e229684c1ab25d08c36caa53761a3515e701fe55c7fe9afa20"
+      },
+      "readDiagnostics": [],
+      "_hash": "dbca9b21948d30688f0d9fd35bec4326f95679977b8d3ab0e73470a760bd9306",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "scripts/verify-state-dir-migration.mjs",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "signatureTag": "missing|json|happy-edge-adversarial",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-311",
+      "desc": "CHK-003:happy:0, CHK-003:edge:0, and CHK-003:adversarial:0 are pinned to packages/main/tests/artifact-schema-migration.test.mjs:89-269. The test passes and covers direct command-spec/closeout signature and synthetic freshness cases at :89-160 and :231-244, plus only the generic archived-path predicate at :269. It does not execute the two named archived-story CLI/signature/freshness checks required by this migration: node bin/proof-or-stop.js story_get --storyId=B-0168 and node bin/proof-or-stop.js story_get --storyId=B-META-framework-audit. I independently ran both local CLI reads successfully (B-0168=INIT; B-META-framework-audit=META), but those witnesses are not bound to any CHK-003 verificationEvidence row and cannot substitute for the immutable pinned command.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T14:16:14.296Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-406",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/tests/artifact-schema-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7fa2c3b3d0cbad207c0f905b24b98177cbdbd906b2cc11c21c3734a1422f223f",
+      "files": [
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        ".proof-or-stop/story/actives/B-5a88/checklist.json"
+      ],
+      "signatureTag": "missing|mjs|artifact-schema-migration|archived-story-cli",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-312",
+      "desc": "CHK-001:happy:0 through CHK-007:adversarial:0: all 21 stored verificationEvidence rows report pass, but checklist.json binds them to historical headHash values a586127674a4d6bd46e0a81fff1264a5dd8e7fb9, 3792345083404596d4ba6ef487c8940240a7c1f7, or bd5642afe574bdb631a55ad632969e5e61d1b50b, while signed review run B-5a88:RR-406 is bound to current HEAD b9672a43c721db927b39fb8ba9dd95a80a9ab452. The materialHash 60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a and storyFilesHash 0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22 do match, and the pinned commands independently pass, but no stored verificationEvidence row is bound to the current signed review head; current reruns cannot retroactively replace immutable rows. Coverage therefore remains freshness-stale for all 21 must intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T14:16:31.425Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-406",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bdcd8f33638b57248c67c5af63834d04417c5f41188b06f06666022037234e7f",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/review-runs.json"
+      ],
+      "signatureTag": "missing|json|verificationEvidence|head-hash-freshness",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-313",
+      "desc": "concept-cleanup: proof-or-stop.config.json:12-22 remains the active canonical promptEnvelope.roles map but contains only lattice-* role IDs. loadConfig prefers proof-or-stop.config.json via packages/main/src/core/brand-paths.ts:101,157-160 and packages/main/src/core/config.ts:742-753; packages/main/src/core/prompt-role-contract-registry.ts:551-597 only canonicalizes these legacy keys while reading and does not migrate or write them. CHK-001 therefore leaves the canonical configuration surface advertising legacy agent identities; replace these active keys with proof-or-stop-* while retaining lattice.config.json only as legacy-read compatibility.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T14:17:04.437Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-403",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/lab/src/core/config.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-run.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/brand-rename-mapping.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/brand-rename-mapping.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        }
+      ],
+      "_hash": "811716c697cba4e0a7e596d7ed6d9a6405e8e3a22c1e75d3d6bf80a17f9db6e8",
+      "files": [
+        "proof-or-stop.config.json",
+        "packages/main/src/core/brand-paths.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts"
+      ],
+      "signatureTag": "missing|json|concept-cleanup-proof",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-314",
+      "desc": "Current verifier-owned pre-review evidence is inadmissible: node bin/proof-or-stop.js pre_review_check_read --storyId=B-5a88 returns FAIL with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, while packages/main/src/core/pre-review-check.ts:399-407 recomputes and rejects the stored artifact signature/digest and :331-335 derives the coverage-basis drift. The committed .proof-or-stop/story/actives/B-5a88/pre-review-check.json:1728-1732 still records codes=[] and status=pass, so REVIEW cannot rely on this proof until the owner reissues it through pre_review_check.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T14:18:11.897Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-405",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/version-bump.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": "Full-context quality review used the signed current-round prompt, targeted changed-file inspection, focused build/migration tests, and the current pre_review_check_read verifier witness; no source-level rename-helper defect was found, but the verifier-owned pre-review artifact remains inadmissible."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "0f5adb26a067f7f94b24f28db79a9a4c933ee3ceec2a908bcb07968ad31c2df9",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "adversarial|json|current-verifier-owned",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-315",
+      "desc": "Current verifier-owned pre-review evidence is inadmissible: the read-only command `node bin/proof-or-stop.js pre_review_check_read --storyId=B-5a88 --json` returns status=fail with codes PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, while the acceptance_basis read verifies basisStatus=complete. REVIEW cannot rely on the executable pre-review proof until the owner reissues it through the verifier-owned pre_review_check flow.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T14:30:40.619Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-413",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Read-only CLI verification of the current pre-review artifact and acceptance basis; no source or story files were edited."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "eb54c2f24802613d3871926b9feb61b2c94c38654dc180b56ab48b84a11b16fe",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json"
+      ],
+      "signatureTag": "adversarial|json|current-verifier-owned",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-316",
+      "desc": "Current RR-411 recheck confirms the verifier-owned pre-review artifact is inadmissible: node bin/proof-or-stop.js pre_review_check_read --storyId=B-5a88 returns FAIL with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, while .proof-or-stop/story/actives/B-5a88/pre-review-check.json:1728-1732 still records a passing artifact and packages/main/src/core/pre-review-check.ts:399-407 rejects the stored signature/digest. REVIEW cannot rely on this artifact until the owner reissues it through pre_review_check.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T14:30:55.917Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-411",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": "CLI verifier recheck covered the current pre-review artifact and its source verifier; related decision documents were triaged from the local CLI document index."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "734ece60bec3b8df5cb3b17baf3d2d3096f46797988c7faacf68b1df6f5a66fb"
+      },
+      "readDiagnostics": [],
+      "_hash": "2284c06fcdcc00dea87a50c288a8dd1a117a13bb372ba5e00308c15ee3817749",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "adversarial|json|current-recheck-confirms",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-317",
+      "desc": "Verified blocker: pre_review_check_read for B-5a88 returns status=fail and ok=false with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND, while the signed pre-review-check artifact itself declares status=pass. The verifier-owned acceptance/pre-review chain is therefore inadmissible for REVIEW completion; DEV must reissue valid pre-review evidence before this lane can pass.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T14:41:16.473Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-416",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "951fdf486fc699e0ff697b3749065ea0449231723111e1c0e079132a9953c502",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json"
+      ],
+      "signatureTag": "adversarial|json|verified-blocker-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-318",
+      "desc": "quality-current-round-recheck: node bin/proof-or-stop.js pre_review_check_read --storyId=B-5a88 --json returns status=fail/ok=false with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND, while .proof-or-stop/story/actives/B-5a88/pre-review-check.json:1728-1732 still declares status=pass; packages/main/src/core/pre-review-check.ts:399-407 rejects the stored signature/digest and the current basis/cutoff binding. REVIEW cannot rely on this verifier-owned artifact until DEV reissues it through pre_review_check.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T14:43:42.012Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-417",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": "Read-only local CLI recheck of the current pre-review verifier, stored artifact, and acceptance basis; no source, docs, story, verification, or evidence-refresh commands were run."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "734ece60bec3b8df5cb3b17baf3d2d3096f46797988c7faacf68b1df6f5a66fb"
+      },
+      "readDiagnostics": [],
+      "_hash": "c0e2e6c2a70d91d907a2aff7d23874b99698f645f18a54c9b72369e49296d4f2",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "adversarial|json|quality-current-round",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-319",
+      "desc": "Verified stale evidence: read-only evidence_inspect for B-5a88 reports evidence ref test-evidence with fresh=false and status=stale because its stored storyFilesHash b7a3d2a131b146253a7087c8bf7c3adcb8d0c198026c8ca482ae29f34e502aa4 does not match current storyFilesHash 0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22. No refresh or verification was run; this artifact cannot support current review claims until the owner refreshes it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T14:43:56.884Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-418",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+        ],
+        "scanEscalationReason": "Read-only local CLI evidence_inspect and checklist_get; no source, docs, or story edits and no verification execution."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c27eb6d286d6085063a74ce7d5cda7441e358462c4e92bc98888ae6d194c066a",
+      "files": [
+        "test-evidence.json"
+      ],
+      "signatureTag": "missing%7Cjson%7Ctest-evidence-story-files-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-320",
+      "desc": "Verified CHK-003 coverage gap: CHK-003:happy:0, CHK-003:edge:0, and CHK-003:adversarial:0 all bind only node packages/main/tests/artifact-schema-migration.test.mjs. The stored rows do not bind the two named archived-story CLI checks required by the plan: node bin/proof-or-stop.js story_get --storyId=B-0168 and node bin/proof-or-stop.js story_get --storyId=B-META-framework-audit, including their historical signature and freshness validation. Read-only CLI inspection returned B-0168 phase=INIT and B-META-framework-audit phase=META, but those archive witnesses are not verificationEvidence for any CHK-003 intent and cannot substitute for the pinned command.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T14:44:13.518Z",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "reviewRunId": "B-5a88:RR-418",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "scanEscalationReason": "Read-only local CLI checklist_get, plan_get, and story_get archive reads; no verification, refresh, source, docs, or story edits."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b84df73d343aff897c332eb4b66d259f97d05ee8bd6a10531619b5307d6a6ee3",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/artifact-schema-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|verified-coverage-happy",
+      "signatureTagSource": "auto"
     }
   ]
 }
