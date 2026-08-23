@@ -8606,6 +8606,31 @@
         "scanEscalationReason": null
       },
       "_hash": "62dabbbb6e7759e3b9ab543393896a1205e521a43ddba05e4116432be79f9a67"
+    },
+    {
+      "id": "B-5a88:RP-161",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-055 topology-family review read the complete scoped story context, decision docs, and three producer/consumer sources. F-363, F-364, and F-365 remain the verified baseline families; F-366 through F-371 are duplicate reports. No new distinct topology family was found.",
+      "createdAt": "2026-08-23T22:57:52.168Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-516",
+      "envelopeId": "5010a9b37591adbe7db30c88b743e6e99c24cd7b552049a73f5d939fa4014057",
+      "writerSessionId": "sess-fe8e6bc8da315fac171e008d744c8098",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0171516797a1ad25e3ed1c53e011628ab216a6c1646498edf7d55fda956870a5"
     }
   ]
 }
