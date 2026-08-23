@@ -7309,6 +7309,84 @@
       ],
       "signatureTag": "edge|ts|base-head-manifest-binding",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-143",
+      "desc": "CHK-011:happy:0 lacks valid coverage: the current evidence receipt for node scripts/run-dynamic-validation-replay.mjs --verify-threshold explicitly reports historical replay mode: plan-only and historical replay assurance BLOCKED (plan-only or incomplete), so it does not execute 30-50 historical Stories or prove full failures are a subset of dynamic executed rows.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T08:47:48.440Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-173",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "137c1f9ef620991774e1fe35b6aa50771c7c32099805bb76076da632c0e002d3",
+      "files": [
+        "scripts/run-dynamic-validation-replay.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-lacks-valid",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-144",
+      "desc": "RI-034 wave-2 acceptance topology remains inadmissible at current HEAD 0df101f6da: acceptance_basis is invalid/partial and its receipt verification reports AT_SCOPE_BINDING_MISSING with stale PLAN binding (basis head 3c65657d, material da7ea3cf, storyFiles 664e53bf). acceptance_topology_check is inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, AT_UNMAPPED_SCOPE_REF, and AT_MISSING_TOPOLOGY. pre_review_check_read fails PR_ARTIFACT_TAMPERED and reports missing executable, mutation, transcript, authority, and freshness evidence. acceptance rollout is PASS/full-3x2, but that does not establish acceptance topology or pre-review admissibility. Regenerate verifier-owned current basis and pre-review artifacts and rerun the checks before any review pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T09:19:43.890Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-181",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "80d93ed2dd26ce40519fa1f44302e2ba78cdb7a12477a88dd11c7ec02cce80f0",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "acceptance-topology-incomplete-ri034-wave2",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
