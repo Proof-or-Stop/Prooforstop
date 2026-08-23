@@ -2462,9 +2462,9 @@
       "epochId": "B-5a15:RI-019",
       "storyId": "B-5a15",
       "reviewRound": "2026-08-22T06:10:03.014Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-23T13:33:16.652Z",
-      "updatedAt": "2026-08-23T14:37:15.124Z",
+      "updatedAt": "2026-08-23T14:55:01.934Z",
       "cutoff": {
         "headHash": "f72a99b44aa07dbeb1e1864176a4b80eaac96006",
         "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
@@ -2604,6 +2604,80 @@
           "criticDigest": "24775cc8e46538edce76859b125ce39caaf2023e189b6e9d9ea89f89856e6021",
           "saturated": false,
           "nextRunSequenceBoundary": 345
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-08-23T14:37:15.124Z",
+          "completedAt": "2026-08-23T14:53:50.213Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-348",
+              "terminal": "pass",
+              "hostIdentity": "1ff88cfd01206dba6f757c92fdec6ee9f1c29bfbdad43239ee3b43b02306f66b",
+              "promptIdentity": "b17f2d2cdabf9c6969f85b69cb95d5eaed96ecab2b221ed2cc65df9c8c68529e",
+              "evidenceIds": [
+                "B-5a15:RP-064"
+              ],
+              "coverageDigest": "b8e0ad719ed78fecc5b02ccc9eca5459dd946cc487ea74c496a3037ac6063d17"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-347",
+              "terminal": "finding",
+              "hostIdentity": "1ff88cfd01206dba6f757c92fdec6ee9f1c29bfbdad43239ee3b43b02306f66b",
+              "promptIdentity": "3d31449d916608b30e5bbd9ac8d754531c17026b5441d045047ca790e9935600",
+              "evidenceIds": [
+                "B-5a15:F-207",
+                "B-5a15:F-208",
+                "B-5a15:F-209",
+                "B-5a15:F-210",
+                "B-5a15:F-211",
+                "B-5a15:F-212"
+              ],
+              "coverageDigest": "7fb78e6f4b1e1b7c891828df767309c8ccdc17e6075d219e9a64789b1099c7b2"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-346",
+              "terminal": "finding",
+              "hostIdentity": "1ff88cfd01206dba6f757c92fdec6ee9f1c29bfbdad43239ee3b43b02306f66b",
+              "promptIdentity": "a381a2066659bde164a7060cda24287d978e1d5e3b615dc052ed748a04ebea17",
+              "evidenceIds": [
+                "B-5a15:F-206"
+              ],
+              "coverageDigest": "be791251daa3019c5d99167d9bb6a13c9ab1266aff73b7779595429cd0974e11"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "family:acceptance-basis-unmapped-topology",
+            "family:canonical-import-preflight-transaction",
+            "family:causal-decision-consumer-identity",
+            "family:causal-input-identity-collision",
+            "family:causal-receipt-output-tail-bound",
+            "family:chk003-advisory-admission-coverage",
+            "family:commit-failure-rerun-metric",
+            "family:derived-causal-metrics",
+            "family:preflight-authority-root-binding",
+            "family:preflight-event-ordering",
+            "family:production-empty-causal-dag",
+            "family:production-evidence-batch-boundary",
+            "family:story-files-hash-drift",
+            "family:validation-command-spec-identity",
+            "family:verifier-owned-wave4-coverage",
+            "finding:B-5a15:F-150",
+            "finding:B-5a15:F-173",
+            "finding:B-5a15:F-176",
+            "finding:B-5a15:F-177",
+            "finding:B-5a15:F-182",
+            "finding:B-5a15:F-197",
+            "finding:B-5a15:F-198"
+          ],
+          "verifiedFindingSetDigest": "6d540c424211ae2f60df15df82d752a828b295504947a21f64cc461c4a110681",
+          "newVerifiedFindingCount": 6,
+          "criticDigest": "d330b53d7bc0e516284d94500046b9a1ce2af6ac6d3594ef6817e872eca490e4",
+          "saturated": false,
+          "nextRunSequenceBoundary": 350
         }
       ],
       "baselineFindingIds": [
@@ -2655,7 +2729,10 @@
         "B-5a15:F-198",
         "B-5a15:F-199"
       ],
-      "_hash": "55dbc90a80cbfbb0f6bc0484b015e6c5d59cb7bd3b45fcc31b5ff50acb2cbf0f"
+      "cancelledAt": "2026-08-23T14:55:01.934Z",
+      "cancelReason": "Wave budget exhausted after six verified source blocker families; restart a fresh baseline inventory before DEV remediation.",
+      "terminalRunSequenceBoundary": 350,
+      "_hash": "bd537fcd8c3070a8be52039593801a72d321b78895d1399adac653a84a1c6cb9"
     }
   ],
   "receipts": [
@@ -5551,6 +5628,73 @@
       ],
       "createdAt": "2026-08-23T14:35:11.778Z",
       "_hash": "d442113556424cc51f216cb6e16d0b76434186efae32a50bea8816b2dc57b3e1"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-019:CRIT-03",
+      "epochId": "B-5a15:RI-019",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "f72a99b44aa07dbeb1e1864176a4b80eaac96006",
+        "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
+        "storyFilesHash": "e287c5f32d9aad03e0ce7ea8b20a2684ab0ac2e78ef99c6fc5b18e9b8e9c97e7"
+      },
+      "aggregateFindingSetDigest": "6d540c424211ae2f60df15df82d752a828b295504947a21f64cc461c4a110681",
+      "requiredLaneCoverageDigest": "fab2eefc8a82bf95b10c0e67ef9c9331937c1adca0287262bcbc62b45df7f0fd",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-350",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-066"
+      ],
+      "readEvidenceDigest": "9b3691849d52ca4a64d992f3a90e6a2d2a6c90a87ea493637b3fadeb7220fe1c",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-206",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-198",
+          "reason": "Current-wave representative of the existing missing Wave 4 acceptance coverage family; the finding identifies the same absent verifier-owned acceptance commands and 3-round by 2-host evidence."
+        },
+        {
+          "findingId": "B-5a15:F-207",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-197",
+          "reason": "Current-wave representative of the existing empty production causal DAG family; the production CertificationWindow builder still supplies an empty dependency graph and input set."
+        },
+        {
+          "findingId": "B-5a15:F-208",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-173",
+          "reason": "Current-wave representative of the existing story-files drift family; unchanged dependency inputs and material identity still allow a storyFilesHash-only mismatch to appear fresh."
+        },
+        {
+          "findingId": "B-5a15:F-209",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-176",
+          "reason": "Current-wave representative of the existing outputTail bound family; receipt verification bounds outputProbe but not the durable outputTail."
+        },
+        {
+          "findingId": "B-5a15:F-210",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-177",
+          "reason": "Current-wave representative of the existing lossy validation command identity family; command identity is collapsed from the structured execution specification."
+        },
+        {
+          "findingId": "B-5a15:F-211",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-150",
+          "reason": "Current-wave representative of the existing canonical-import preflight identity family; import omits stamped preflight facts such as Git-index identity and transaction side channels."
+        },
+        {
+          "findingId": "B-5a15:F-212",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-182",
+          "reason": "Current-wave representative of the existing causal-decision identity family; the signed decision is not bound to story identity or the declared dependency graph and input set."
+        }
+      ],
+      "createdAt": "2026-08-23T14:52:38.230Z",
+      "_hash": "8a3073602646ab963ef69d5cd255047c9b6b72c3facb1aa2893cfc5cc3375ef7"
     }
   ]
 }

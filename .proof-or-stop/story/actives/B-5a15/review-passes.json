@@ -2848,6 +2848,68 @@
       },
       "readDiagnostics": [],
       "_hash": "ccc056c3b9259bb3d2daf3d4d8ca85c10f7e00e3d81ab178bc4f65e122e54316"
+    },
+    {
+      "id": "B-5a15:RP-065",
+      "agent": "lattice-review-topology-critic",
+      "note": "Completeness review found no new finding family in the final wave; all seven verified findings map to existing canonical families.",
+      "createdAt": "2026-08-23T14:50:42.143Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-349",
+      "envelopeId": "fe6d08cba36272befe2e564762fc821905f1d9726333fba96f159d53599962f3",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ada16acf68f667c0a9401b913e218c1e55a52a8a6ad7df6bd989e8b0315ae607"
+    },
+    {
+      "id": "B-5a15:RP-066",
+      "agent": "lattice-review-topology-critic",
+      "note": "Completeness review found no new finding family in the final wave; all seven verified findings map to existing canonical families.",
+      "createdAt": "2026-08-23T14:52:14.156Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-350",
+      "envelopeId": "d1bf64f13963d0d28de4205c6bc9475df2088b9c4eea27ec8185a05d4b6fdb73",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "77518f2595020cab4a64ae90af46e0614c6384a996f80061f2af0fe6ee245ede"
     }
   ]
 }
