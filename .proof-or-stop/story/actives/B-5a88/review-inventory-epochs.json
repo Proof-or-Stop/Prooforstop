@@ -2998,6 +2998,29 @@
       "cancelReason": "Rebind the completeness receipt to the current acceptance subject digest before DEV remediation.",
       "terminalRunSequenceBoundary": 374,
       "_hash": "f07bdfde5e70fea102dda9bbaeb68b037b2871ab4e346558eeb6fbc152d0c17d"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RIE-048",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-23T12:05:45.999Z",
+      "updatedAt": "2026-08-23T12:11:01.618Z",
+      "cutoff": {
+        "headHash": "a38a95bdce91c6d99cae5c454506a7284439456d",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "scopeDigest": "20d9dbe8140480dfb6038f779ea5143217c1e065f9c9e3b8a601d1ca05b6d431",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a88:RIE-048:RCP-001",
+      "cancelledAt": "2026-08-23T12:11:01.618Z",
+      "cancelReason": "Cancel the unconsumed completeness-only receipt before reconciling stale and duplicate review findings; no implementation evidence is being discarded.",
+      "terminalRunSequenceBoundary": 374,
+      "_hash": "d16498ccba02dc7d1baaf27da32dadaa92ebc41cbb24c67008f4ef9cfd6c1571"
     }
   ],
   "receipts": [
@@ -3517,6 +3540,30 @@
       "invalidatedAt": "2026-08-23T12:05:35.086Z",
       "invalidationReason": "Rebind the completeness receipt to the current acceptance subject digest before DEV remediation.",
       "_hash": "3984af0564e8f0920d1ad17f441c88a3d59ad4b60469857363975b682ebbd1a7"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a88:RIE-048:RCP-001",
+      "epochId": "B-5a88:RIE-048",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "cutoff": {
+        "headHash": "a38a95bdce91c6d99cae5c454506a7284439456d",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "scopeDigest": "20d9dbe8140480dfb6038f779ea5143217c1e065f9c9e3b8a601d1ca05b6d431",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-23T12:05:45.999Z",
+      "invalidatedAt": "2026-08-23T12:11:01.618Z",
+      "invalidationReason": "Cancel the unconsumed completeness-only receipt before reconciling stale and duplicate review findings; no implementation evidence is being discarded.",
+      "_hash": "0b6f5c289c4a978ae628a8c22b134e813dcd50c5dea0ff8cd4aaeb6246fe5e9a"
     }
   ],
   "criticReceipts": [

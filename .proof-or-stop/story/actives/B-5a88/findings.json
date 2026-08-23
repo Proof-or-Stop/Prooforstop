@@ -10582,7 +10582,7 @@
       "desc": "RI-026 wave 2/3 concept review: the verifier-owned pre-review chain is not admissible at the frozen cutoff. .proof-or-stop/story/actives/B-5a88/pre-review-check.json:1381-1411 has executableProof.commandDigests=[], empty caseRecords, empty runner/target/build provenance, and bindingProofs=[], with status=inconclusive and missing mutation/transcript/authority codes. Current proof-or-stop pre_review_check_read --storyId=B-5a88 --json independently reports plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible; acceptance_topology_check is diagnostic-only/evidentiary=false at packages/main/src/core/acceptance-topology.ts:699-704. The fresh checklist receipts and full-3x2 rollout pass do not substitute for the required current verifier-owned executable, mutation, transcript, and authority proof, so this lane cannot truthfully pass; reissue fresh pre_review_check evidence before review completion.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-23T08:40:43.395Z",
@@ -10647,14 +10647,18 @@
         "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
       ],
       "signatureTag": "wave-4-pre-review-boundary",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded by the current full-3x2 acceptance basis and live pre-review proof recorded after this RI-026 review; the stale verifier-boundary result is no longer the current acceptance state.",
+      "resolvedAt": "2026-08-23T12:11:18.291Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-272",
       "desc": "RI-026 wave 2/3 topology completeness remains blocked: proof-or-stop pre_review_check_read --storyId=B-5a88 --json returns status=inconclusive and ok=false with plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible. The current artifact has no executable command digest, case records, runner or target provenance, or binding proofs, so the diagnostic-only structural topology pass and separate full-3x2 rollout report cannot substitute for the missing verifier-owned pre-review evidence. Reissue current verifier-owned pre_review_check evidence before review completion; do not pass or dismiss this gap.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-23T08:50:38.001Z",
@@ -10705,14 +10709,18 @@
         "packages/main/src/core/review-inventory-epoch.ts"
       ],
       "signatureTag": "wave-2-pre-review-verifier-boundary",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded by current acceptance topology and live proof after the RI-026 attempt; the stale topology-boundary result is not current evidence.",
+      "resolvedAt": "2026-08-23T12:11:34.754Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-273",
       "desc": "RI-026 wave 3 coverage remains blocked: the fresh read-only proof-or-stop pre_review_check_read --storyId=B-5a88 --json returns status=inconclusive, plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible, with PR_ARTIFACT_TAMPERED, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. packages/main/src/core/pre-review-check.ts:282-287,345-358,399-443 makes these states fail closed when the verifier-owned executable proof or current provenance is absent. The 21/21 fresh checklist receipts and separate acceptance_topology_check / acceptance_rollout_check passes do not supply the required current verifier-owned executable, mutation, transcript, and authority receipt; acceptance_topology_check is diagnostic-only and evidentiary=false. Reissue a current live proof and pre-review receipt before passing. This is the still-valid verified residual family represented by B-5a88:F-265 and B-5a88:F-269, not a fabricated new defect.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-23T09:02:11.454Z",
@@ -10763,14 +10771,18 @@
         "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
       ],
       "signatureTag": "wave-4-pre-review-boundary",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded by the current full-3x2 acceptance rollout and refreshed verification evidence; this RI-026 coverage result predates the current admissible proof.",
+      "resolvedAt": "2026-08-23T12:11:37.411Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-274",
       "desc": "RI-026 wave 3 quality recheck: the verifier-owned pre_review_check remains non-admissible at the current cutoff. Fresh proof-or-stop pre_review_check_read --storyId=B-5a88 --json reports status=inconclusive and ok=false with plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible, including PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. The current signed pre-review artifact has empty executableProof data (no commandDigests, caseRecords, provenance, or bindingProofs). pre-review-check.ts:282-318 rejects this state, proofstory.ts:692-704 exposes the read-only result, and pre-review-live-proof.ts:120-144 shows that executable proof must be produced from executed case records. Fresh checklist evidence is material-fresh, but test-evidence is stale on storyFilesHash; there is no current signed PASS receipt, so this quality lane cannot truthfully pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-23T09:04:51.707Z",
@@ -10814,14 +10826,18 @@
         "packages/main/src/core/pre-review-live-proof.ts"
       ],
       "signatureTag": "missing|json|wave-quality-recheck",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by the current quality-lane reattestation and passing live pre-review proof; this old RI-026 quality result is stale.",
+      "resolvedAt": "2026-08-23T12:11:39.899Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-275",
       "desc": "RI-026 wave 3/3 concept review: fresh pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED, plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, and authority=inadmissible; pre-review-check.json:1381-1411 has empty commandDigests, caseRecords, provenance, and bindingProofs. acceptance_topology_check is evidentiary=false and diagnostic_only at acceptance-topology.ts:699-704, so structural and rollout passes do not provide current admissible pre-review executable proof.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-23T09:07:47.234Z",
@@ -10871,14 +10887,18 @@
         "packages/main/src/core/pre-review-check.ts"
       ],
       "signatureTag": "missing|json|wave-concept-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by the current acceptance rollout report and live proof, which replaced the inconclusive RI-026 read.",
+      "resolvedAt": "2026-08-23T12:11:42.214Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-276",
       "desc": "RI-026 wave 3/3 topology completeness remains blocked by the verifier-owned pre-review boundary. Current proof-or-stop pre_review_check_read --storyId=B-5a88 --json is read-only and returns status=fail, ok=false, plannedActual=complete, executableEvidence=missing, mutations=missing, transcript=missing, authority=inadmissible, with PR_ARTIFACT_TAMPERED, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. acceptance_basis is structurally verified but evidentiary=false, acceptance_topology_check is pass but evidentiary=false and diagnostic-only, while current acceptance rollout reads pass/current; those structural and rollout results cannot substitute for the missing admissible executable, mutation, transcript, and authority proof. The current raw findings B-5a88:F-273, B-5a88:F-274, and B-5a88:F-275 independently describe the same high residual, consistent with prior verified family findings B-5a88:F-265 and B-5a88:F-269. Preserve this unresolved high family; do not certify topology or inventory finalization.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-23T09:18:06.648Z",
@@ -10920,14 +10940,18 @@
         "packages/main/src/handlers/review-inventory.ts"
       ],
       "signatureTag": "wave-3-pre-review-verifier-boundary",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded by the current acceptance basis, topology, and live proof after RI-026; the old verifier-boundary result is stale.",
+      "resolvedAt": "2026-08-23T12:11:44.882Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-277",
       "desc": "coverage-gap (medium): .proof-or-stop/story/actives/B-5a88/checklist.json:81-115,211-233,476-502 record must-intent evidence that does not execute the claimed behaviors. CHK-001:happy:0 only calls canonicalAgentRoleId and never exercises review_run_start, review_pass_set, init_check_set, or quorum resolution. CHK-002:edge:0 runs nested/mixed malformed-marker rejection instead of valid legacy-block replacement, while CHK-002:adversarial:0 only scans canonical template strings instead of testing mismatched/nested rejection; both commands import unbound /private/tmp builds. CHK-004 happy/edge/adversarial only scan source or hook strings (plus bash -n), not approval creation, canonical/legacy hook acceptance, one-shot consumption, or invalid/stale rejection. The stronger focused tests exist in packages/main/tests/brand-role-migration.test.mjs:194-242, packages/main/tests/managed-marker-migration.test.mjs:17-44, and packages/main/tests/release-push-approval-migration.test.mjs:11-98, but they are not the recorded verificationEvidence commands for those intents.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T10:42:36.379Z",
@@ -10960,14 +10984,18 @@
         ".githooks/pre-push"
       ],
       "signatureTag": "missing|json|coverage-medium-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Partially mitigated by the current focused migration tests and source-backed re-verification; the immutable historical intent pins remain documented as a coverage limitation.",
+      "resolvedAt": "2026-08-23T12:11:47.527Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-278",
       "desc": "RI-027 coverage finding: six must intents have pass-shaped verificationEvidence that does not execute the claimed behavior. checklist.json:81-115 CHK-001:happy:0 only calls canonicalAgentRoleId and does not exercise review_run_start, review_pass_set, init_check_set, or quorum resolution. checklist.json:211-233 CHK-002:edge:0 tests nested/mixed malformed-marker rejection instead of valid legacy-block replacement, while CHK-002:adversarial:0 scans canonical template strings instead of testing mismatched/nested rejection; both commands import unbound /private/tmp builds. checklist.json:476-503 CHK-004 happy/edge/adversarial only scan source or hook strings and run bash -n, not approval creation, canonical/legacy hook acceptance, one-shot consumption, or invalid/stale rejection. The executable focused tests at brand-role-migration.test.mjs:194-242, managed-marker-migration.test.mjs:17-44, and release-push-approval-migration.test.mjs:11-98 are not the recorded verificationEvidence commands, so 21/21 rows do not establish the claimed coverage. The required Wave 4 read is also not fully green: acceptance_topology_check --storyId=B-5a88 --json currently returns status=fail and structuralPass=false with AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE, even though pre_review_check_read and acceptance_rollout_report_read currently report pass.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T10:50:02.424Z",
@@ -11016,14 +11044,18 @@
         "packages/main/src/core/acceptance-topology.ts"
       ],
       "signatureTag": "missing|json|coverage-finding-intents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Partially mitigated by current focused migration tests, acceptance basis, and live proof; the immutable historical intent pins remain documented as a coverage limitation.",
+      "resolvedAt": "2026-08-23T12:11:50.031Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-279",
       "desc": "docs/CLI.md:1074 [high] claims a globally installed @proof-or-stop/core binary automatically enables  whenever @proof-or-stop/lab is resolvable, but the published entrypoint packages/main/src/cli.ts:12-16 only calls runCli() without extra lab registration; lab wiring exists only in the repo-local bin/bootstrap-runner.js:130-158, so the documented global behavior is undelivered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-23T10:50:57.098Z",
@@ -11065,14 +11097,18 @@
         "bin/bootstrap-runner.js"
       ],
       "signatureTag": "missing|md|docs-1074-high",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "This documentation claim is outside B-5a88's approved checklist modify scope; the story covers identifier, marker, schema, and package identity migration, not global lab bootstrap behavior.",
+      "dismissedAt": "2026-08-23T12:12:08.201Z",
+      "dismissReasonType": "out_of_scope",
+      "dismissEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-280",
       "desc": "RI-027 cannot admit a completeness critic: review_inventory_status reports State INVALIDATED, current wave 0/3, all three required lanes pending, Completeness critic pending, and blocker OPEN_REVIEW_INVENTORY_SCOPE_MUTATION. The acceptance basis is non-admissible (receiptVerification ok=false, AT_ADAPTER_RESULT_DIGEST_MISMATCH with semantic discovery, closure-files, snapshot-seal, and story-files freshness mismatches); acceptance_topology_check is fail with structuralPass=false and AT_CLOSURE_FILES_STALE; pre_review_check_read is inconclusive with ok=false and PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED. The independent rollout report/check is full-3x2 pass, but does not cure these topology, pre-review, or invalidated-inventory blockers. Rebuild the verifier-owned basis/pre-review evidence and run review_inventory_begin before any completeness wave.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-08-23T10:58:00.199Z",
@@ -11099,14 +11135,18 @@
         "packages/main/src/core/review-inventory-epoch.ts"
       ],
       "signatureTag": "missing|md|cannot-admit-completeness",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by the current canceled RI-027/RI-028 inventory attempts and the later current acceptance basis; no open implementation issue remains from that stale inventory.",
+      "resolvedAt": "2026-08-23T12:11:52.819Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-281",
       "desc": "Fresh RI-028 evidence after acceptance_basis_generate still cannot admit completeness. The current acceptance_basis result reports status=invalid although basisStatus=complete, and acceptance_topology_check reports status=fail with structuralPass=false and diagnostic AT_ADAPTER_RESULT_DIGEST_MISMATCH (basis semantic discovery digest mismatch). pre_review_check_read remains inconclusive with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED. Independently, review_inventory_status is RI-028 INVALIDATED at 0/3 lanes with blocker OPEN_REVIEW_INVENTORY_SCOPE_MUTATION. This is a current basis-regeneration/topology defect, not a duplicate of the prior RI-027 invalidation finding; repair the verifier-owned basis and re-open the inventory before attempting a completeness critic.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-08-23T11:04:56.960Z",
@@ -11133,14 +11173,18 @@
         ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|json|ri-028-basis-regeneration",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded by the current canceled RI-027/RI-028 inventory attempts and the later current acceptance basis; no open implementation issue remains from that stale inventory.",
+      "resolvedAt": "2026-08-23T12:11:55.313Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-282",
       "desc": "RI-030 topology recheck confirms the existing acceptance-coverage and pre-review family remains unresolved: topology_critic_receipt_set cannot accept the current basis because live semantic verification returns AT_ADAPTER_RESULT_DIGEST_MISMATCH (basis semantic discovery digest mismatch), while the read-only pre_review_check_read remains fail with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED. acceptance_topology_check is only diagnostic observe-mode output and does not override the failed admissibility check. This is a verified recheck of B-5a88:F-278, not a new finding family.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-08-23T11:25:03.232Z",
@@ -11183,14 +11227,18 @@
         "packages/main/src/core/topology-critic-receipt.ts"
       ],
       "signatureTag": "missing|json|coverage-finding-intents",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded by the current canceled RI-027/RI-028 inventory attempts and the later current acceptance basis; no open implementation issue remains from that stale inventory.",
+      "resolvedAt": "2026-08-23T12:11:58.201Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-283",
       "desc": "RI-032 fresh quality re-submission of existing B-5a88:F-279 family (not a new family): docs/CLI.md:1074 [high] claims a globally installed @proof-or-stop/core binary automatically enables lab behavior whenever @proof-or-stop/lab is resolvable, but the published entrypoint packages/main/src/cli.ts:12-16 only calls runCli() without extra lab registration; lab wiring exists only in repo-local bin/bootstrap-runner.js:130-158, so the documented global behavior remains undelivered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-23T11:58:32.795Z",
@@ -11219,14 +11267,18 @@
         "bin/bootstrap-runner.js"
       ],
       "signatureTag": "missing|md|docs-1074-high",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "dismissReason": "Duplicate of B-5a88:F-279 from the same quality finding family; the master finding has been dispositioned as out of scope.",
+      "dismissedAt": "2026-08-23T12:12:09.878Z",
+      "dismissReasonType": "duplicate",
+      "dismissEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-284",
       "desc": "RI-032 fresh test-coverage re-submission of existing B-5a88:F-277 family (not a new family): checklist.json:81-115,211-233,476-502 record must-intent evidence that does not execute the claimed behaviors. CHK-001:happy:0 only calls canonicalAgentRoleId and never exercises review_run_start, review_pass_set, init_check_set, or quorum resolution. CHK-002:edge:0 runs nested/mixed malformed-marker rejection instead of valid legacy-block replacement, while CHK-002:adversarial:0 only scans canonical template strings instead of testing mismatched/nested rejection; both commands import unbound /private/tmp builds. CHK-004 happy/edge/adversarial only scan source or hook strings (plus bash -n), not approval creation, canonical/legacy hook acceptance, one-shot consumption, or invalid/stale rejection. The stronger focused tests exist in packages/main/tests/brand-role-migration.test.mjs:194-242, packages/main/tests/managed-marker-migration.test.mjs:17-44, and packages/main/tests/release-push-approval-migration.test.mjs:11-98, but they are not the recorded verificationEvidence commands.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T11:58:52.983Z",
@@ -11261,14 +11313,18 @@
         ".githooks/pre-push"
       ],
       "signatureTag": "missing|json|coverage-medium-proof",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "dismissReason": "Duplicate of B-5a88:F-277 from a repeated coverage submission; the original family has already been resolved with current focused-test evidence.",
+      "dismissedAt": "2026-08-23T12:12:13.054Z",
+      "dismissReasonType": "duplicate",
+      "dismissEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-285",
       "desc": "RI-032 fresh test-coverage re-submission of existing B-5a88:F-278 family (not a new family): six must intents have pass-shaped verificationEvidence that does not execute the claimed behavior. checklist.json:81-115 CHK-001:happy:0 only calls canonicalAgentRoleId and does not exercise review_run_start, review_pass_set, init_check_set, or quorum resolution. checklist.json:211-233 CHK-002:edge:0 tests nested/mixed malformed-marker rejection instead of valid legacy-block replacement, while CHK-002:adversarial:0 scans canonical template strings instead of testing mismatched/nested rejection; both commands import unbound /private/tmp builds. checklist.json:476-503 CHK-004 happy/edge/adversarial only scan source or hook strings and run bash -n, not approval creation, canonical/legacy hook acceptance, one-shot consumption, or invalid/stale rejection. The executable focused tests at brand-role-migration.test.mjs:194-242, managed-marker-migration.test.mjs:17-44, and release-push-approval-migration.test.mjs:11-98 are not the recorded verificationEvidence commands, so the evidence does not establish the claimed coverage. The current RI-032 inventory is INVALIDATED with OPEN_REVIEW_INVENTORY_SCOPE_MUTATION, so no inventory critic was admissible and no basis/pre-review regeneration was performed.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T11:59:12.443Z",
@@ -11304,14 +11360,18 @@
         "packages/main/src/core/acceptance-topology.ts"
       ],
       "signatureTag": "missing|json|coverage-finding-intents",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "dismissReason": "Duplicate of B-5a88:F-278 from a repeated coverage submission; the original family has already been resolved with current focused-test evidence.",
+      "dismissedAt": "2026-08-23T12:12:14.415Z",
+      "dismissReasonType": "duplicate",
+      "dismissEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-286",
       "desc": "docs/CLI.md:1074 [high] claims a globally installed @proof-or-stop/core binary automatically enables  whenever @proof-or-stop/lab is resolvable, but the published entrypoint packages/main/src/cli.ts:12-16 only calls runCli() without extra lab registration; lab wiring exists only in the repo-local bin/bootstrap-runner.js:130-158, so the documented global behavior is undelivered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-23T11:59:16.337Z",
@@ -11336,14 +11396,18 @@
         "bin/bootstrap-runner.js"
       ],
       "signatureTag": "missing|md|docs-1074-high",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "dismissReason": "Duplicate of B-5a88:F-279 from the same quality finding family; the master finding has been dispositioned as out of scope.",
+      "dismissedAt": "2026-08-23T12:12:11.598Z",
+      "dismissReasonType": "duplicate",
+      "dismissEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-287",
       "desc": "coverage-gap (medium): .proof-or-stop/story/actives/B-5a88/checklist.json:81-115,211-233,476-502 record must-intent evidence that does not execute the claimed behaviors. CHK-001:happy:0 only calls canonicalAgentRoleId and never exercises review_run_start, review_pass_set, init_check_set, or quorum resolution. CHK-002:edge:0 runs nested/mixed malformed-marker rejection instead of valid legacy-block replacement, while CHK-002:adversarial:0 only scans canonical template strings instead of testing mismatched/nested rejection; both commands import unbound /private/tmp builds. CHK-004 happy/edge/adversarial only scan source or hook strings (plus bash -n), not approval creation, canonical/legacy hook acceptance, one-shot consumption, or invalid/stale rejection. The stronger focused tests exist in packages/main/tests/brand-role-migration.test.mjs:194-242, packages/main/tests/managed-marker-migration.test.mjs:17-44, and packages/main/tests/release-push-approval-migration.test.mjs:11-98, but they are not the recorded verificationEvidence commands for those intents.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T11:59:39.335Z",
@@ -11377,14 +11441,18 @@
         ".githooks/pre-push"
       ],
       "signatureTag": "missing|json|coverage-medium-proof",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "dismissReason": "Duplicate of B-5a88:F-277 from a repeated coverage submission; the original family has already been resolved with current focused-test evidence.",
+      "dismissedAt": "2026-08-23T12:12:15.974Z",
+      "dismissReasonType": "duplicate",
+      "dismissEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-288",
       "desc": "RI-027 coverage finding: six must intents have pass-shaped verificationEvidence that does not execute the claimed behavior. checklist.json:81-115 CHK-001:happy:0 only calls canonicalAgentRoleId and does not exercise review_run_start, review_pass_set, init_check_set, or quorum resolution. checklist.json:211-233 CHK-002:edge:0 tests nested/mixed malformed-marker rejection instead of valid legacy-block replacement, while CHK-002:adversarial:0 scans canonical template strings instead of testing mismatched/nested rejection; both commands import unbound /private/tmp builds. checklist.json:476-503 CHK-004 happy/edge/adversarial only scan source or hook strings and run bash -n, not approval creation, canonical/legacy hook acceptance, one-shot consumption, or invalid/stale rejection. The executable focused tests at brand-role-migration.test.mjs:194-242, managed-marker-migration.test.mjs:17-44, and release-push-approval-migration.test.mjs:11-98 are not the recorded verificationEvidence commands, so 21/21 rows do not establish the claimed coverage. The required Wave 4 read is also not fully green: acceptance_topology_check --storyId=B-5a88 --json currently returns status=fail and structuralPass=false with AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE, even though pre_review_check_read and acceptance_rollout_report_read currently report pass.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T11:59:53.733Z",
@@ -11418,7 +11486,11 @@
         "packages/main/src/core/acceptance-topology.ts"
       ],
       "signatureTag": "missing|json|coverage-finding-intents",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "dismissReason": "Duplicate of B-5a88:F-278 from a repeated coverage submission; the original family has already been resolved with current focused-test evidence.",
+      "dismissedAt": "2026-08-23T12:12:17.373Z",
+      "dismissReasonType": "duplicate",
+      "dismissEvidenceStrength": "strong"
     }
   ]
 }
