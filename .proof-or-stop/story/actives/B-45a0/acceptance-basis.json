@@ -380,8 +380,8 @@
           "scope:file:scripts/run-dynamic-validation-replay.mjs",
           "scope:file:scripts/verify-process-fact-contract.mjs",
           "scope:file:scripts/verify-validation-catalog.mjs",
-          "source-file:packages/main/src/core/dual-revision-impact-graph.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
-          "source-file:packages/main/src/core/story-change-resolver.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+          "source-file:packages/main/src/core/dual-revision-impact-graph.ts:sha256:8d101533009b615078d2660099d1f398dba718f6d52df5598fc6fbc4b2e001c2",
+          "source-file:packages/main/src/core/story-change-resolver.ts:sha256:fdcadf5c4059dc5d248e319660e7f7469e9847db460bf96ae50fbb0c0d314531",
           "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
         ],
         "asymmetryPolicy": {
@@ -458,7 +458,7 @@
             "scope:file:scripts/verify-validation-catalog.mjs"
           ]
         },
-        "resultDigest": "sha256:bb42772bccac4dcc4dd3ab1b20ed20dfe890291ea78f061a90efac1c88288fb7"
+        "resultDigest": "sha256:0538970a506224b75df5fb4230edabb72c555cf417a619afee0fa21ee68b3105"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -468,7 +468,13 @@
           "path:process-fact:acceptance_basis->consumer:<audit-only>",
           "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
-          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
+          "path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
+          "path:static-call:packages/main/src/core/story-change-resolver.ts#buildStoryChangeManifest->consumer:packages/main/src/core/dual-revision-impact-graph.ts#buildStoryChangeManifest",
+          "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext",
+          "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
+          "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
         ],
         "coverageClaim": "complete_for_scope",
         "blindSpots": [],
@@ -483,7 +489,7 @@
           "source-file:package.json:sha256:059e73928cec44cc74265c947b064499c0098ab322b4ab4463fc4a66bb86325e",
           "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
           "source-file:packages/main/src/core/config.ts:sha256:b68298179c7e8838d32a5c672d6b0caea21fd17d4cd1cdfd9f20ccb36a0dc9ca",
-          "source-file:packages/main/src/core/dual-revision-impact-graph.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+          "source-file:packages/main/src/core/dual-revision-impact-graph.ts:sha256:8d101533009b615078d2660099d1f398dba718f6d52df5598fc6fbc4b2e001c2",
           "source-file:packages/main/src/core/dynamic-validation-enforcement.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
           "source-file:packages/main/src/core/dynamic-validation-observer.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
           "source-file:packages/main/src/core/dynamic-validation-report.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
@@ -495,7 +501,7 @@
           "source-file:packages/main/src/core/process-fact-registry.ts:sha256:df6575c775e0585cfebe9223b58c84fdad54ae18725e1a13db00c9dfb6c8cc1d",
           "source-file:packages/main/src/core/runtime-artifact-registry.ts:sha256:aa1f8a62625b346cac8f3bb0f7efaa0bd262be90ead387960462e19cfb474161",
           "source-file:packages/main/src/core/runtime-fact-registry.ts:sha256:d4750e803c4ac8c4584f2d5821e67917f5febfb5452ad0e0ac72f5cadbc6f67e",
-          "source-file:packages/main/src/core/story-change-resolver.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+          "source-file:packages/main/src/core/story-change-resolver.ts:sha256:fdcadf5c4059dc5d248e319660e7f7469e9847db460bf96ae50fbb0c0d314531",
           "source-file:packages/main/src/core/validation-baseline-epoch.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
           "source-file:packages/main/src/core/validation-build-proof.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
           "source-file:packages/main/src/core/validation-catalog.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
@@ -607,7 +613,7 @@
             "scope:file:scripts/verify-validation-catalog.mjs"
           ]
         },
-        "resultDigest": "sha256:55a42002c6fc2c7f6986baf3d9c3b019621542df27d0e453b2a897a53301300b"
+        "resultDigest": "sha256:5a26bf50a6eaef70d36779a370faea1d27761defb46f704c4d254f9e01531c3b"
       }
     ],
     "scopeRefs": [
@@ -814,6 +820,12 @@
       "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
       "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
       "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
+      "path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
+      "path:static-call:packages/main/src/core/story-change-resolver.ts#buildStoryChangeManifest->consumer:packages/main/src/core/dual-revision-impact-graph.ts#buildStoryChangeManifest",
+      "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext",
+      "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
+      "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext",
       "planned:CHK-003:happy:0:VPP-CHK-003"
     ],
     "excludedPathRefs": [],
@@ -822,42 +834,42 @@
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:808f2da2b6edbd4525a1d9e55f01492ada9184ae94f99e023273cace524ee613",
       "inventoryDirectoryCount": 21,
-      "sourceSnapshotDigest": "sha256:aca78cb50f7fffee592a2483a2db3682b5329296027df4c1c9f581132b267703",
+      "sourceSnapshotDigest": "sha256:409a4316e7f721c5027c1ba7e1142fbbb9b247a609185b8ba9ff08f9026a7959",
       "sourceSnapshotCount": 861,
       "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
       "status": "complete",
       "issues": [],
-      "sealDigest": "sha256:29af4cfd6d937fde170807a1518cef6b3f68acaa87e5401ab098ff19aee0684c"
+      "sealDigest": "sha256:deee9a69365ca69294e3d6551de9132604c7b5e55fbafd51d977238fd6d938ac"
     },
     "binding": {
-      "headHash": "bbae388a05c06ec2807eab1673b4a836fa7bfe54",
-      "materialHash": "98add3a880e0ea9205fc7e729a4abae367501f504cbdd467fc64d44ff8ea9e75",
-      "storyFilesHash": "608f338592253bb077f7a212106542bfdd4135f238fbf96c246e2094489dd89c",
+      "headHash": "80de4320c8b89f3284b2c8411be128a8fefd9d4f",
+      "materialHash": "cc1eb31957f3f4cc685bf0c288e514cfcf8a6d293fc826d31d8b8ed50a0e8aae",
+      "storyFilesHash": "2a07222f81459971e02c67fa944d326b950d91df3a8ad04c707fc29ef48cabd1",
       "scopeCheckDigest": "sha256:f1b838291540371b2626f5c27a003064984d9cb454ae1a5814f2091c21c193b5",
       "scopeContractDigest": "sha256:d2eacb969b9b229a90ff58d7b23dc4b806503db1f84c453cbe08dfd232917684",
-      "closureFilesHash": "sha256:a60dc1a78c829e555101b74577d7ac527d9beac491a0203052af7b1073419df1"
+      "closureFilesHash": "sha256:74d18bb3ed55aa28cd4ba82a3b7bfba03ef60d52edb5e43e0aca0e1aadf8d33d"
     },
-    "receiptRef": "receipt:coverage-basis:B-45a0:plan:4eb5cae338aeb8d8",
-    "basisDigest": "sha256:ad89f25e04e504ceb063eeba7b6aef33befab6448f44a6b268fe7109dfb0a7c1"
+    "receiptRef": "receipt:coverage-basis:B-45a0:plan:9b0822f792465c3c",
+    "basisDigest": "sha256:902b13b93ddfc7899b594d22b972ce9b7973d8d164d456ea97d8ef6d4a2c8af1"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-45a0:plan:4eb5cae338aeb8d8",
+    "receiptRef": "receipt:coverage-basis:B-45a0:plan:9b0822f792465c3c",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
     "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
     "storyId": "B-45a0",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:ad89f25e04e504ceb063eeba7b6aef33befab6448f44a6b268fe7109dfb0a7c1",
+    "basisDigest": "sha256:902b13b93ddfc7899b594d22b972ce9b7973d8d164d456ea97d8ef6d4a2c8af1",
     "topologyDigest": "sha256:0a71e566eebd058398e7b336dd448074eab68bd83d4383dd05a0305b70668102",
     "scopeCheckDigest": "sha256:f1b838291540371b2626f5c27a003064984d9cb454ae1a5814f2091c21c193b5",
     "scopeContractDigest": "sha256:d2eacb969b9b229a90ff58d7b23dc4b806503db1f84c453cbe08dfd232917684",
-    "headHash": "bbae388a05c06ec2807eab1673b4a836fa7bfe54",
-    "materialHash": "98add3a880e0ea9205fc7e729a4abae367501f504cbdd467fc64d44ff8ea9e75",
-    "storyFilesHash": "608f338592253bb077f7a212106542bfdd4135f238fbf96c246e2094489dd89c",
-    "closureFilesHash": "sha256:a60dc1a78c829e555101b74577d7ac527d9beac491a0203052af7b1073419df1",
-    "sealDigest": "sha256:29af4cfd6d937fde170807a1518cef6b3f68acaa87e5401ab098ff19aee0684c",
+    "headHash": "80de4320c8b89f3284b2c8411be128a8fefd9d4f",
+    "materialHash": "cc1eb31957f3f4cc685bf0c288e514cfcf8a6d293fc826d31d8b8ed50a0e8aae",
+    "storyFilesHash": "2a07222f81459971e02c67fa944d326b950d91df3a8ad04c707fc29ef48cabd1",
+    "closureFilesHash": "sha256:74d18bb3ed55aa28cd4ba82a3b7bfba03ef60d52edb5e43e0aca0e1aadf8d33d",
+    "sealDigest": "sha256:deee9a69365ca69294e3d6551de9132604c7b5e55fbafd51d977238fd6d938ac",
     "workspaceIdentityDigest": "sha256:3982df8a3a496488d75aa257cf83262705901996a517a2a911848309f9519ccd",
-    "signature": "1WzJVOiqgeeCo+s8Y/jjgRwgGUf9yWYY0N7ijasgJVEGDfS9EATPsdtYd4y0/vxLWFG3QCQWPNOLgLX8Y3MNCw=="
+    "signature": "097WwqtdKUgS3OVf7SUIpT4BfFB3FWqoONTwkoUlZ8RSSlBQEwZtFzW8yxB4d6qBio0/PpqyouEGMH63Qy9XAQ=="
   }
 }
