@@ -1240,6 +1240,23 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
       for (const file of files) if (!closure.has(file)) { closure.add(file); changed = true; }
     }
   }
+  // A planned source endpoint is only useful when the runtime can reach it.
+  // Keep the closure bounded by retaining only source-inventory files that
+  // import one of the declared endpoint modules; this captures the real
+  // handler binding without turning the discovery graph into a whole-tree
+  // call graph.
+  const plannedEndpointFiles = new Set(input.plannedPathRecords.flatMap(record =>
+    [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)));
+  const plannedEndpointBasenames = [...plannedEndpointFiles].map(file => file.split('/').at(-1)?.replace(/\.[^.]+$/, '') ?? file);
+  for (const file of sourceInventory.files) {
+    if (closure.has(file) || !supportsBindingAnalysis(file)) continue;
+    const source = analysisContext.sourceFiles.get(file);
+    if (!source || !plannedEndpointBasenames.some(name => source.text.includes(name))) continue;
+    const scan = analyzeLocalImportCalls(analysisContext, file);
+    if (!scan.imports.some(binding => plannedEndpointFiles.has(binding.sourceFile))) continue;
+    closure.add(file);
+    sourceScans.set(file, scan);
+  }
   for (const file of closure) {
     blindSpots.push(...(analysisContext.readBlindSpots.get(file) ?? []));
     if (supportsBindingAnalysis(file)) sourceScans.set(file, analyzeLocalImportCalls(analysisContext, file));
