@@ -14431,7 +14431,7 @@
       "desc": "B-5a88 checklist verificationEvidence is stale for all 21 must intents: every entry is bound to RR-414 with head d0fa9df2, material c11118fd, and storyFiles 1dfdbd24, while current review run B-5a88:RR-465 is bound to head 0ced23fc, material 54478644, and storyFiles 06648257. No current-hash evidence can support the REVIEW coverage gate.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T18:48:17.228Z",
@@ -14476,7 +14476,11 @@
         "packages/main/src/core/review-run.ts"
       ],
       "signatureTag": "missing|json|5a88-checklist-verificationevidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by the later canonical freshness finding B-5a88:F-359. The stale 21-intent evidence family was re-attested by verification_evidence_refresh_stale and the current test-coverage review now records 21/21 must intents with current executable receipts.",
+      "resolvedAt": "2026-08-23T21:07:48.762Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-352",
