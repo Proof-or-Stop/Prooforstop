@@ -1480,7 +1480,7 @@
       "desc": "concept-current-evidence-stale: all 21 must verificationEvidence receipts are bound to prior head/material/storyFiles hashes, while the current REVIEW run is bound to head 152318f and the current story material. No current mechanical evidence exists for the integrated checklist, so the required verification intents cannot be accepted until their pinned commands are re-executed and refreshed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-20T15:35:17.493Z",
@@ -1525,7 +1525,11 @@
         ".proof-or-stop/story/actives/B-5a88/checklist.json"
       ],
       "signatureTag": "missing|json|concept-current-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by current canonical stale-evidence finding B-5a88:F-359, which records the same 21-intent freshness failure against the newer HEAD and current review run; no coverage claim is discarded.",
+      "resolvedAt": "2026-08-23T20:13:43.765Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-036",
@@ -14799,6 +14803,55 @@
       "readDiagnostics": [],
       "_hash": "9ecd61443a1fe4c610b4d30172e891705cef9581138aca42968a89360a6ff414",
       "signatureTag": "missing|unknown|concept-protocol-prefix",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-359",
+      "desc": "All 21 B-5a88 must-intent verificationEvidence entries are stale against the current review run: evidence_inspect reports every CHK-001..CHK-007 intent bound to head 2180e94a, material 36e1cad3, and storyFiles efb0d67, while current HEAD is 24fff454, current material is b54b7b5c, and current storyFilesHash is 55f59524. The current executable reruns pass, but until fresh receipts are recorded the REVIEW coverage gate has no current-hash evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T20:05:40.599Z",
+      "reviewRound": "2026-08-23T20:01:20.269Z",
+      "reviewRunId": "B-5a88:RR-485",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/cli.js",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "59a4a51c1b90cc0dd28d7f7d6347edee3da22a4eca411f83d40a3d6376ec9c91"
+      },
+      "readDiagnostics": [],
+      "_hash": "bd25d9031c4d217a5b760d514513aced3f97941abd3497faddd5a5c2b2162117",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json"
+      ],
+      "signatureTag": "missing|json|5a88-intent-verificationevidence",
       "signatureTagSource": "auto"
     }
   ]
