@@ -1290,8 +1290,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         args.dynamicMode
         || process.env.PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE
         || process.env.LATTICE_DYNAMIC_VALIDATION_MODE
-        || (projectConfig as unknown as { validation?: { dynamic?: { mode?: unknown } }; validate?: { dynamic?: { mode?: unknown } } }).validation?.dynamic?.mode
-        || (projectConfig as unknown as { validate?: { dynamic?: { mode?: unknown } } }).validate?.dynamic?.mode,
+            || projectConfig.validation?.dynamic?.mode
+            || projectConfig.validate?.dynamic?.mode,
       );
       const configuredGitRootExpected = Boolean(projectConfig.gitRoot?.trim());
       const resolvedProjectGitRoot = args.story

@@ -53,6 +53,11 @@ const catalog = compileValidationCatalog(inventory, { inputRoots: ['packages/mai
 const catalogCheck = validateValidationCatalog(inventory, catalog);
 assert.equal(catalogCheck.ok, true, catalogCheck.errors.join('; '));
 const catalogDigest = stableDigest(catalog);
+assert.throws(
+  () => buildStoryChangeManifest({ storyId: 'B-mutation-invalid-base', gitCwd: '.', baseHead: 'missing-base-head', head: 'HEAD' }),
+  /could not resolve a merge base|diff failed/,
+  'unresolvable base/head must fail closed instead of signing an empty change manifest',
+);
 const closures = new Map(catalog.map((entry) => [entry.id, createValidationClosureCertificate({
   commandId: entry.id,
   baseHead: 'base',

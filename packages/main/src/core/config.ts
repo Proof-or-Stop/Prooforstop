@@ -54,6 +54,17 @@ export interface ProofAdmissibilityConfig {
   highRiskConsumers?: Array<'DONE_REQUIRED' | 'REVIEW' | 'HANDOFF' | 'AUTHORITY_GATE_DECISION'>;
 }
 
+export type DynamicValidationModeConfig = 'off' | 'observe' | 'shadow' | 'enforce-low-risk';
+
+export interface DynamicValidationPolicyDefaults {
+  assurance?: string;
+  riskTier?: string;
+  closurePolicy?: string;
+  fullBaselineReusePolicy?: string;
+  cpuWeight?: number;
+  expectedP50Ms?: number;
+}
+
 export interface ReproFirstPreflightConfig {
   mode?: 'off' | 'warn' | 'enforce';
 }
@@ -205,6 +216,10 @@ export interface ProofOrStopConfig {
   /** 项目级验证命令；没有 validate.ts/js 时由 proof-or-stop validate 使用 */
   validate?: {
     command?: string;
+    dynamic?: {
+      mode?: DynamicValidationModeConfig;
+      policyDefaults?: DynamicValidationPolicyDefaults;
+    };
     commands?: Array<string | {
       label?: string;
       command: string;
@@ -217,6 +232,8 @@ export interface ProofOrStopConfig {
       focus?: string[] | string;
     }>;
   };
+  /** Legacy config alias accepted by the verifier for dynamic validation. */
+  validation?: ProofOrStopConfig['validate'];
   /**
    * Opt-in DONE-required validation commands. Missing config is advisory only;
    * malformed opted-in config is consumed by the DONE gate as fail-closed.
