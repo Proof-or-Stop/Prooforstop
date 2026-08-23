@@ -10280,6 +10280,49 @@
       ],
       "signatureTag": "coverage|verification-evidence|stale-current-head",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-190",
+      "desc": "topology/acceptance-basis-incomplete: Current verifier outputs cannot establish a complete acceptance topology. acceptance_basis is status=invalid with basisStatus=partial and receiptVerification.ok=false/AT_SCOPE_BINDING_MISSING; acceptance_topology_check is inconclusive with structuralPass=false and topologyState=legacy_missing, reporting AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY for B-45a0-complete-dynamic-validation. pre_review_check_read remains inconclusive with stale/inadmissible evidence, while the historical rollout PASS is not current-bound. The topology critic must request changes; no pass or new completeness claim is admissible. Source refs: packages/main/src/core/acceptance-coverage-basis.ts, packages/main/src/core/acceptance-topology.ts, packages/main/src/core/pre-review-check.ts, packages/main/src/core/acceptance-rollout.ts, packages/main/src/handlers/proofstory.ts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T11:42:46.187Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-289",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Verifier-owned acceptance basis/topology/pre-review/rollout outputs were inspected with targeted source triage."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "709873dcd42d531f3e82f8b54f7d974c9cddea7170607e675adaebdfc4675dea",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|topology-acceptance-basis",
+      "signatureTagSource": "auto"
     }
   ]
 }

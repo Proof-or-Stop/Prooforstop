@@ -3042,6 +3042,321 @@
       },
       "readDiagnostics": [],
       "_hash": "6b60f6900dc944712cc83547bae7324bdebef2f9d026fefe3bc88f1c1a73a46a"
+    },
+    {
+      "id": "B-45a0:RP-065",
+      "agent": "lattice-review-quality",
+      "note": "Rechecked both resolver failure branches at the current head. objectIdsAtRef now throws an explicit story change manifest error on git ls-tree failure; resolveStoryChangedFiles throws on missing merge base and wraps git diff failures. buildStoryChangeManifest does not swallow these exceptions, so these failures cannot fabricate an ordinary no-change manifest. No current quality blocker.",
+      "createdAt": "2026-08-23T11:18:05.280Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-253",
+      "envelopeId": "23d9f2174a53422d1690bdf27719efa370e2bb25de9c85f27d59a5bd0571c9ea",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "44960e2198d2480552fd02af9f85d2e67d244970c842948b2aac2b449a5bf4e3"
+    },
+    {
+      "id": "B-45a0:RP-066",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 4 contract symbols: validate.dynamic.mode, validation.dynamic.mode, --dynamic-mode, and validate.dynamic.policyDefaults. Step 2 compared 4 contract sections across docs/CLI.md, docs/requirements/decisions/dynamic-validation-operations.md, packages/main/src/core/config.ts, and packages/main/src/handlers/verifier.ts. No blockers: documented mode selection and legacy alias, typed validate.dynamic fields, and verifier access paths remain aligned at the current head.",
+      "createdAt": "2026-08-23T11:19:45.689Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-255",
+      "envelopeId": "5c76763191dd8cef729200473770d26c320302d4381041a4937fa5c162b352f9",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "5e5390d1c8448aa5a5dd27cd166570e5a3c637f654a38be6e962950a679015a8"
+      },
+      "readDiagnostics": [],
+      "_hash": "a613396444b54e00f2f2d088b8fdd2dbf0550c41fb8dfcf1641992466b4aa91a"
+    },
+    {
+      "id": "B-45a0:RP-067",
+      "agent": "lattice-review-quality",
+      "note": "Current-head quality review rechecked both resolver failure branches and manifest construction. Missing merge-base now throws, objectIdsAtRef propagates an explicit tree-read error, and git diff failures are wrapped and thrown; buildStoryChangeManifest does not swallow them into an ordinary no-change manifest. No current blocker.",
+      "createdAt": "2026-08-23T11:24:14.724Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-261",
+      "envelopeId": "3d41d2e3eb733445a139e4a2cff994fba07d3f80044e7167fdaaf975a88c8c5d",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a08c1523dcf824fe8440ff6388f048b51e5ef1e96bd848eb95ed97137afc8d91"
+    },
+    {
+      "id": "B-45a0:RP-068",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 4 contract symbols: validate.dynamic.mode, validation.dynamic.mode, --dynamic-mode, and validate.dynamic.policyDefaults. Step 2 compared 4 contract sections across docs/CLI.md, docs/requirements/decisions/dynamic-validation-operations.md, packages/main/src/core/config.ts, and packages/main/src/handlers/verifier.ts. No blockers: documented mode selection and alias, typed dynamic config, and verifier access remain aligned at the current head.",
+      "createdAt": "2026-08-23T11:25:40.802Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-262",
+      "envelopeId": "342ec12c937095fa979c3e2e0251f2ebc78f0dc2d2cb0cfeb1cd4de7e290c1bc",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "5e5390d1c8448aa5a5dd27cd166570e5a3c637f654a38be6e962950a679015a8"
+      },
+      "readDiagnostics": [],
+      "_hash": "3dddaf0132b484f2d0ca7ef392324c542d965e54ee699f3a5a9b67a89f7070a2"
+    },
+    {
+      "id": "B-45a0:RP-069",
+      "agent": "lattice-review-quality",
+      "note": "Current-head quality review rechecked both resolver failure branches. Missing merge-base throws before manifest creation, objectIdsAtRef propagates tree-read failures, and git diff failures are wrapped and thrown; buildStoryChangeManifest does not convert these errors into an ordinary no-change result. No current blocker.",
+      "createdAt": "2026-08-23T11:28:45.310Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-269",
+      "envelopeId": "4f38def1d7971a389485bbaf3bf011e53b69a19ad0338ad1f07a780c759c84f3",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "084f547af732233c6ab837272ecf8bbcc31aa8b3e66a8e5d7642c8238e85439d"
+    },
+    {
+      "id": "B-45a0:RP-070",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 4 contract symbols: validate.dynamic.mode, validation.dynamic.mode, --dynamic-mode, and validate.dynamic.policyDefaults. Step 2 compared 4 contract sections across docs/CLI.md, docs/requirements/decisions/dynamic-validation-operations.md, packages/main/src/core/config.ts, and packages/main/src/handlers/verifier.ts. No blockers: documented modes and legacy alias, typed dynamic config, and verifier access remain aligned at the current head.",
+      "createdAt": "2026-08-23T11:29:47.049Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-270",
+      "envelopeId": "3b7efaa5cb620334538920c5597bf9d7721f0c9f94bb58c867849cb5a9759774",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "5e5390d1c8448aa5a5dd27cd166570e5a3c637f654a38be6e962950a679015a8"
+      },
+      "readDiagnostics": [],
+      "_hash": "32d1e15f1a309f0c0180f5f48d6d1b6a15922a8081b3c018a11e481270e90879"
+    },
+    {
+      "id": "B-45a0:RP-071",
+      "agent": "lattice-review-quality",
+      "note": "Current-head quality review confirms fail-closed resolver behavior. Missing merge-base throws, git ls-tree errors are rethrown as explicit tree-read errors, git diff failures are wrapped and thrown, and buildStoryChangeManifest propagates resolver errors instead of signing a fabricated no-change manifest. No current blocker.",
+      "createdAt": "2026-08-23T11:32:08.799Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-274",
+      "envelopeId": "1c5b3fcdf7473c9bc1cf2f238167abd31eedc6b9066addcb86d585adb625283f",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4f5286b0c555431addf1d6fcdfca68ed2650988698bada64506381a42db4c5bf"
+    },
+    {
+      "id": "B-45a0:RP-072",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 4 contract symbols: validate.dynamic.mode, validation.dynamic.mode, --dynamic-mode, and validate.dynamic.policyDefaults. Step 2 compared 4 contract sections across docs/CLI.md, docs/requirements/decisions/dynamic-validation-operations.md, packages/main/src/core/config.ts, and packages/main/src/handlers/verifier.ts. No blockers: documentation, typed dynamic config, and verifier access remain aligned at the current head.",
+      "createdAt": "2026-08-23T11:33:06.857Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-276",
+      "envelopeId": "e94c50b1fcd87b8bc792a9a14c859f68846b58c8ed57659e3c5052b43f0660ab",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "5e5390d1c8448aa5a5dd27cd166570e5a3c637f654a38be6e962950a679015a8"
+      },
+      "readDiagnostics": [],
+      "_hash": "2d0583d22a8b2b91c0d35437499e1f6eb30aca92aee1fcea8f4d49a581a8defa"
+    },
+    {
+      "id": "B-45a0:RP-073",
+      "agent": "lattice-review-quality",
+      "note": "Current-head quality review confirms all resolver failure branches are fail-closed: missing merge-base throws, git ls-tree failures are rethrown, and git diff failures are wrapped and thrown. buildStoryChangeManifest propagates these errors instead of signing a fabricated no-change manifest. No current blocker.",
+      "createdAt": "2026-08-23T11:38:25.828Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-283",
+      "envelopeId": "b288c9660b00074051d2d7b494db0c6ea50a46422227f2a51a424ac9725364fb",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3a2ed0b2528cf0db25b0e6f599675cc4a9f62ee87b4fab23ad2446e8aea4a15d"
+    },
+    {
+      "id": "B-45a0:RP-074",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 4 contract symbols: validate.dynamic.mode, validation.dynamic.mode, --dynamic-mode, and validate.dynamic.policyDefaults. Step 2 compared 4 contract sections across docs/CLI.md, docs/requirements/decisions/dynamic-validation-operations.md, packages/main/src/core/config.ts, and packages/main/src/handlers/verifier.ts. No blockers: documented modes and alias, typed dynamic configuration, and verifier access remain aligned at the current head.",
+      "createdAt": "2026-08-23T11:38:52.005Z",
+      "reviewRound": "2026-08-23T08:18:33.747Z",
+      "reviewRunId": "B-45a0:RR-284",
+      "envelopeId": "5ed79089c606b212dc61cedcb335bc2b0e9e17589e92b1a392d5999f88f4fc93",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "5e5390d1c8448aa5a5dd27cd166570e5a3c637f654a38be6e962950a679015a8"
+      },
+      "readDiagnostics": [],
+      "_hash": "09152a27fd25bfdec3b1f475394a06fce080e3a087f400c443ccd9b0021ee432"
     }
   ]
 }
