@@ -825,7 +825,7 @@
       "desc": "checklist.json:116-118 and all 21 verificationEvidence records remain bound to head eb6b5a12/material bd93b090/story 7454053b, while signed review run B-5a88:RR-050 is bound to head 152318f/material 2ce77f36/story 04856e7; test-evidence.json:4-6 records validate FAIL and its coverage snapshot reports 5 missing required intents after stale invalidation. Re-execute all 21 pinned verification intents and record fresh mechanical evidence before coverage can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-20T14:58:14.907Z",
@@ -837,7 +837,11 @@
         ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
       ],
       "signatureTag": "missing|json|checklist-json-verificationevidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by the later current-round all-evidence-stale finding B-5a88:F-344; the stale evidence condition remains represented by the latest finding rather than this earlier duplicate.",
+      "resolvedAt": "2026-08-23T18:07:21.322Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-018",
@@ -12940,6 +12944,1297 @@
       ],
       "signatureTag": "missing|json|verified-coverage-happy",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-321",
+      "desc": "packages/main/tests/artifact-schema-migration.test.mjs:26-45 only invokes the local CLI for B-0168 and B-META-framework-audit and asserts requested ID, phase, checklist array, and review array. It does not verify either named archives historical signature/integrity or freshness, nor snapshot and compare the named archive bytes before and after. The CHK-003 requirement in docs/requirements/decisions/proof-or-stop-identity-migration.md:121-125 requires two named archives from different eras with signature/freshness verification; the synthetic checks at :112-183 and generic metadata-path predicate at :292 cannot substitute for those archives. All three CHK-003 verificationEvidence rows therefore remain under-covered despite the passing selector.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T15:20:07.669Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-424",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/tests/artifact-schema-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "scanEscalationReason": "Coverage-only review of all 21 current verificationEvidence rows and the story-level archive requirement; no verification or refresh command was run."
+      },
+      "_hash": "d3291254584c4e0414125e4b8616fd5cbb75b9b8ba3b0937dc02fbb071f23921",
+      "files": [
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-322",
+      "desc": "concept-cleanup: packages/main/src/handlers/reviewer-list.ts:112 synthesizes `lattice-review-${raw}` when normalizing a bare forceReviewer name, even though isReviewRunLane() already canonicalizes explicit legacy aliases and the rest of this handler emits proof-or-stop lanes. Replacing this temporary construction with `proof-or-stop-review-${raw}` preserves forceReviewer=concept behavior while removing the un-commented legacy-role construction from the active canonical path; current source contains no compatibility rationale for this branch.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T15:24:27.274Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-423",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/reviewer-list.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5078fb21fae00a938066baebd254e807239c18cb0b21c8660d714ca41c495691",
+      "files": [
+        "packages/main/src/handlers/reviewer-list.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-packages",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-323",
+      "desc": "concept-cleanup: scripts/verify-lattice-residue.mjs:708-719 still declares an `@lattice/core/dev-host` import to be an expected false case. The identity-migration record at docs/requirements/decisions/proof-or-stop-identity-migration.md:200-210 explicitly says this exemption rationale is stale and CHK-007 owns flipping @lattice/core from exempt to forbidden. Because the check-4 detector is only applied to deprecated path-decision patterns, this active verifier spec does not enforce the required ban on a reintroduced bare legacy core import; that is a verifier blind spot, not historical read compatibility.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T15:24:42.086Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-423",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/review-run.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "97e6809a785ebf788e664ef43dc5ea97f89873e1f36c871221d8999e1704d974",
+      "files": [
+        "scripts/verify-lattice-residue.mjs",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "signatureTag": "missing|mjs|concept-cleanup-scripts",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-324",
+      "desc": "doc-promise-undelivered: packages/lab/package.json:3 and packages/utils/package.json:3 now publish @proof-or-stop/lab and @proof-or-stop/utils, but CHANGELOG.md:29-33 still tells users that @lattice/lab and @lattice/utils are unchanged. The migration decision at docs/requirements/decisions/proof-or-stop-identity-migration.md:66-73 makes the release announcement the floor for this identity cut, so the shipped documentation contradicts the actual package graph and leaves the CHK-006 rename incomplete until that announcement is reconciled.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T15:24:47.962Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-422",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/lab/package.json",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/utils/package.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "CHANGELOG.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7ab8b858bb2cd788af13bbe8471393fc3972b0cecdf8d238268598e17cedcd94",
+      "files": [
+        "packages/lab/package.json",
+        "packages/utils/package.json",
+        "CHANGELOG.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "signatureTag": "doc-promise-undelivered|json|promise-undelivered-packages",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-325",
+      "desc": "doc-code-drift: CLAUDE.md:1070 tells operators that the remote-push approval is at `.lattice/tmp/remote-push-approval.json` only. packages/main/src/core/release-push-approval.ts:5-9 writes the canonical schema and path under `.proof-or-stop/tmp`, while .githooks/pre-push:70-74 checks the canonical path first and the legacy path second. The instruction therefore points new approvals at a deprecated path and omits the canonical-first behavior; document `.proof-or-stop/tmp` first and `.lattice/tmp` as legacy read-only compatibility.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T15:24:58.156Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-423",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/release-push-approval.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/release.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0cca44c75d1ab8e61d400b176dc5ff0b8738a1b75201994b2fc9dfb4e28541ed",
+      "files": [
+        "CLAUDE.md",
+        "packages/main/src/core/release-push-approval.ts",
+        ".githooks/pre-push"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-claude",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-326",
+      "desc": "CHANGELOG.md:37-41 contradicts the shipped bin migration: it says the `lattice` npm bin alias remains retained and `lattice --version` still resolves, but packages/main/package.json:14-16 publishes only `proof-or-stop`, and docs/requirements/decisions/proof-or-stop-identity-migration.md:19 records both lattice wrapper aliases as REMOVED. The current release documentation therefore tells users to rely on a command the package no longer installs; correct the stale Not affected paragraph while preserving the separate downstream local-bin compatibility note.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T15:39:16.222Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-425",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "CLAUDE.md",
+          "packages/main/package.json",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0750441dd2c83882902b094462c576a3382a4eb403767baad710992e0dae6b11"
+      },
+      "readDiagnostics": [],
+      "_hash": "2533d683dd83d1958b9d2aa139d9c89da0bec25ab49d167a2e4594fdad99b962",
+      "files": [
+        "CHANGELOG.md",
+        "packages/main/package.json",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "signatureTag": "missing|md|changelog-contradicts-shipped",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-327",
+      "desc": "concept-cleanup: proof-or-stop.config.json:12-22 remains the active canonical promptEnvelope.roles map but contains only lattice-* role IDs. packages/main/src/core/brand-paths.ts:101,157-160 and packages/main/src/core/config.ts:742-753 select proof-or-stop.config.json before the deprecated lattice.config.json, while packages/main/src/core/prompt-role-contract-registry.ts:551-597 only canonicalizes these legacy keys while reading and does not migrate or write them. CHK-001 therefore leaves the canonical configuration surface advertising legacy agent identities; replace these active keys with proof-or-stop-* while retaining lattice.config.json only as legacy-read compatibility.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T15:47:38.020Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-429",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/brand-rename-mapping.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/brand-rename-mapping.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        }
+      ],
+      "_hash": "2b4cbb20681db17c20a240ae2b5757183512456cda301752274054f67fb92dda",
+      "files": [
+        "proof-or-stop.config.json",
+        "packages/main/src/core/brand-paths.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts"
+      ],
+      "signatureTag": "missing|json|concept-cleanup-proof",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-328",
+      "desc": "CHK-001:happy:0 through CHK-007:adversarial:0: all 21 stored verificationEvidence rows in .proof-or-stop/story/actives/B-5a88/checklist.json report pass but are bound to RI-039-era headHash d0fa9df2d2eada9cd8bb5a1243db065dc08b2009, materialHash c11118fd7da602726e82117174691d1bc678c6665bc7ea3a896f5909e1aeca78, and storyFilesHash 1dfdbd2495319eb158aa76ab767d2c95874b3f2f41b3f8e913cc07c7ded4c58b, not the current RI-042/RR-428 cutoff headHash e2fe686625338e05a3b41f5122f1929aa2f19e57, materialHash 9fb65be0aa9d8a84f8d2067768b64b67917385d99ca839700a5dd42d8da20137, and storyFilesHash f4c58507af0daa947611ee2e22c624b0f2d370568ae3ba965b870f095b0207bd. No must-intent verificationEvidence row is current, so coverage cannot pass until the 21 intents are re-executed and rebound.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T15:47:53.016Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-428",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/tests/artifact-schema-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json"
+        ],
+        "scanEscalationReason": "Coverage-only review of the 21 stored evidence rows and the named CHK-003 archive test; no verification_run or evidence refresh was run."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0750441dd2c83882902b094462c576a3382a4eb403767baad710992e0dae6b11"
+      },
+      "readDiagnostics": [],
+      "_hash": "05c428a8af7646e7b8ae68faec22de4c6fc679a178beca9bad2900dc22fb35c3",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+        "packages/main/tests/artifact-schema-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|happy-through-adversarial",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-329",
+      "desc": "docs/requirements/decisions/brand-rename-mapping.md:171-180 states that the current packages/main/templates/agents directory contains 17 registry templates, 13 with lattice- filenames, and enumerates those old paths. The current migration has renamed the live templates to proof-or-stop- filenames; the old lattice names remain compatibility aliases in the role-identity mapping, not current template files. This stale post-migration fact misstates the active asset surface and can make reviewers treat canonical templates as missing. Update the enumeration to identify the lattice names as pre-migration aliases and document the canonical filenames.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T15:48:53.279Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-430",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "fbdb9d0c5c6a635871a9d4fd50ac8f45359b15c8652040d54bd1e961c2775067"
+      },
+      "readDiagnostics": [],
+      "_hash": "855b29276550fe07fa4bfe91b02fbabe8751ac60b95a96a0288e097fb0afe391",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-330",
+      "desc": "CHK-001:happy:0 through CHK-007:adversarial:0: all 21 stored verificationEvidence rows in .proof-or-stop/story/actives/B-5a88/checklist.json report result=pass but remain bound to RI-039-era headHash d0fa9df2d2eada9cd8bb5a1243db065dc08b2009, materialHash c11118fd7da602726e82117174691d1bc678c666bc5bc7ea3a896f5909e1aeca78, and storyFilesHash 1dfdbd2495319eb158aa76ab767d2c95874b3f2f41b3f8e913cc07c7ded4c58b, while signed current run B-5a88:RR-433 is bound to headHash ca347fffc8d5572a028858cd2d4ecee52d9cec7d, materialHash c7b175124d14aa1133f068f9ac8d396ddc19ee132a5c9172fb6b072d757fb81f, and storyFilesHash 1f286d4fbdd7f55542df9e48b023f93f2d93051c2c0438aead6a3d0073b68b7d. The current artifact-schema-migration.test.mjs does exercise the two named archive CLI reads and byte/signature checks, but its older receipt is not current evidence; no must-intent row is fresh for RI-043, so coverage cannot pass until the 21 intents are re-executed and rebound.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T15:59:26.850Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-433",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/tests/artifact-schema-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "scanEscalationReason": "Coverage-only review of the 21 stored evidence rows and the named CHK-003 archive test; no verification or evidence refresh was run."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "174349e68e08632dae2183048fb008843ff1f40d65f2039ddcb0027451932461"
+      },
+      "readDiagnostics": [],
+      "_hash": "f2e7b9ef2c930b24fc23fb3dc0d4c9c68f0beb573d6d1ece6d51ace725e894aa",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+        "packages/main/tests/artifact-schema-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|happy-through-adversarial",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-331",
+      "desc": "packages/main/src/core/config.ts:162-172: ProofOrStopConfig.promptEnvelope.roles still declares only deprecated lattice-* keys, while proof-or-stop.config.json:12-22 and docs/requirements/decisions/brand-rename-mapping.md:173-179 make proof-or-stop-* the active canonical configuration. Typed config consumers cannot represent the final config; update the type to canonical role IDs while keeping explicit legacy-read compatibility. [medium]",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T15:59:42.569Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-432",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "packages/main/src/core/config.ts"
+        ],
+        "scanEscalationReason": "Focused concept review of the final canonical promptEnvelope configuration and the two migration decision documents; no verification run or evidence refresh."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "641a089e09c85b961f3676eff375b08ab8f41b2b53a5ba3ee7a80d04a0df2db8",
+      "files": [
+        "packages/main/src/core/config.ts",
+        "proof-or-stop.config.json",
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-332",
+      "desc": "packages/main/src/core/global-agents.ts:248-252 now writes canonical proof-or-stop role filenames, but the maintained test:product-reviewer and test:implementation-reviewer smoke paths still probe the removed legacy product-reviewer.md and implementation-reviewer.md basenames in scripts/verify-product-reviewer.mjs:63-66 and scripts/verify-implementation-reviewer.mjs:22-25. The final asset migration therefore leaves these repository quality checks unable to run against the canonical assets.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T16:01:35.511Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-431",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package.json",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/templates/agents/proof-or-stop-implementation-reviewer.md",
+          "packages/main/templates/agents/proof-or-stop-product-reviewer.md",
+          "README.md",
+          "scripts/verify-implementation-reviewer.mjs",
+          "scripts/verify-product-reviewer.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "62e1b23587cd5f4369ff67615800d82d86610835d4882a627daa1527353d5301"
+      },
+      "readDiagnostics": [],
+      "_hash": "70630918a31644621573a94f99fc971d935dcdc858a8724e8fc9205758aa9fc9",
+      "files": [
+        "packages/main/src/core/global-agents.ts",
+        "scripts/verify-product-reviewer.mjs",
+        "scripts/verify-implementation-reviewer.mjs",
+        "package.json"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-333",
+      "desc": "Coverage is stale at the frozen RI-044 material binding: all 21 must intents from CHK-001:happy:0 through CHK-007:adversarial:0 have result=pass records whose storyFilesHash is 1dfdbd2495319eb158aa76ab767d2c95874b3f2f41b3f8e913cc07c7ded4c58b, while the current review snapshot is storyFilesHash 09ded3b19556aa9b46ce4690999c03578fc4633b597ca82d4deece84e63943c4 at materialHash c8dded8445b08d18e2428d7163c0ceca11773911870b63ec5d415661795dbab3. The read-only evidence_plan classifies every required intent as refresh-only, so the passing archive/test snapshot cannot establish current verificationIntent coverage; do not pass this lane without refreshed evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T16:13:05.553Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-435",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "278e2fd85409923dd7640380233216c66c1fc00bd6df20311bf5f64b3b75bf32"
+      },
+      "readDiagnostics": [],
+      "_hash": "ee1ac6de90583636686d5560dde41c4c5433ed81ed4d2622917421a7ebfb37ce",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+        "packages/main/tests/artifact-schema-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|coverage-stale-frozen",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-334",
+      "desc": "packages/lab/src/core/config.ts:38-39 — lab default targets still point only to deprecated role basenames .proof-or-stop-codex/agents/test-case-reviewer.md and test-intent.md, with .lattice-codex fallbacks, but the canonical full-asset tree now contains only proof-or-stop-test-case-reviewer.md and proof-or-stop-test-intent.md. packages/lab/src/handlers/lab.ts:81-86 hard-fails when the configured target is absent, so lab_create for test-case-reviewer or test-intent produces an unusable editableFiles whitelist and cannot read the canonical prompt. Update these defaults to canonical role basenames while retaining explicit legacy fallback reads.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T16:14:02.201Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-434",
+      "_hash": "89ad8488114beba5e145f84c4ac2a84a65382ea3ec220a3a4c66eac6daccc147",
+      "signatureTag": "missing|unknown|packages-core-config",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-335",
+      "desc": "packages/verify-lab-foundation.mjs:47-49 imports packages/lab/dist/handlers/lab.js directly, but package.json:11 builds only packages/main and packages/utils while package.json:122 exposes test:lab-foundation without a build:lab prerequisite; packages/lab/dist is ignored and untracked. A clean checkout therefore fails before exercising this smoke path with ERR_MODULE_NOT_FOUND unless the operator manually runs npm run build:lab. Keep the smoke self-bootstrapping or route it through the existing optional lab bootstrap.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T16:26:16.117Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-438",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "bin/bootstrap-runner.js",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/ensure-dist.mjs",
+          "scripts/verify-lab-foundation.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/lab/src/core/config.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/brand-paths.ts",
+          "scripts/verify-implementation-reviewer.mjs",
+          "scripts/verify-product-reviewer.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ce8ed5889462e5703da7c6faba7b379dca54ad2971f82bc888abf2de631886fe",
+      "files": [
+        "scripts/verify-lab-foundation.mjs",
+        "package.json",
+        "scripts/ensure-dist.mjs"
+      ],
+      "signatureTag": "missing|mjs|packages-verify-foundation",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-336",
+      "desc": "concept-cleanup: packages/lab/src/core/config.ts:73 still emits new experiment configs with \"$schema\":\"lattice-lab/experiment.v1\"; packages/lab/src/tool-defs.ts:19,30 and packages/lab/src/handlers/lab.ts:84,180 still expose lattice-lab in active lab output after @lattice/lab was renamed to @proof-or-stop/lab, so the canonical lab migration still propagates the retired concept.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T16:48:47.746Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-444",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop-codex/proof-or-stop.json",
+          ".proof-or-stop/proof-or-stop.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/lab/src/core/config.ts",
+          "packages/lab/src/handlers/lab.ts",
+          "packages/lab/src/tool-defs.ts",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/utils/package.json",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "62e1b23587cd5f4369ff67615800d82d86610835d4882a627daa1527353d5301"
+      },
+      "readDiagnostics": [],
+      "_hash": "4de0062c19e6d18b88468977904ae3105b94f7006b431bd7969baf105dfbb754",
+      "files": [
+        "packages/lab/src/core/config.ts",
+        "packages/lab/src/tool-defs.ts",
+        "packages/lab/src/handlers/lab.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-packages",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-337",
+      "desc": "Gate-consuming false proof in packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:227-240,1140-1154. In --proof-scenarios mode the runner executes only the fixed canonical scenario IDs, then adaptCanonicalScenarioRecordsToActiveTopology clones a canonical record by kind (index modulo the available templates) and rewrites only assertion ID, kind, and sourceRef. The --live-proof path consumes those projected records at lines 276-294; pre-review-live-proof.ts:64-97 validates only expected ID/kind/sourceRef and the verifier at pre-review-check.ts:174-204 validates shape, aggregate digest, mutation uniqueness, outcome equality, and transcript event ordering. It does not bind the active assertion to the operation, mutation target, or distinct transcript events that were actually executed. B-5a88 has 7 positive, 14 mutation, and 21 transcript assertions, so its 21 transcript records can all be cloned from the one canonical transcript record and still pass exact-ID/source/order checks. This allows an unexecuted or semantically mismatched active topology to produce accepted pre-review evidence; each active assertion must instead be executed and emitted with assertion-specific evidence, or the verifier must prove a canonical case-to-topology semantic binding before admission.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T16:49:27.302Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-447",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "365cb85424f0e0eb7f263502bce7e7b963097fdb3c09d61425c300bd6123f90f",
+      "files": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "adversarial|ts|gate-consuming-false",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-338",
+      "desc": "concept-cleanup: packages/lab/src/core/profile.ts:36 and packages/lab/src/core/scoring.ts:35 still emit the retired lattice-lab brand in active error output after the @lattice/lab -> @proof-or-stop/lab migration. resolveProfile(missing-profile) produces \"未知 lattice-lab profile...\" and non-finite scoring produces \"lattice-lab invalid ...\". The new lab-brand migration test scans only config.ts, tool-defs.ts, and handlers/lab.ts, so these live producer paths remain uncanonicalized and unprotected; use proof-or-stop-lab and extend coverage.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T17:14:16.160Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-450",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/lab/src/core/config.ts",
+          "packages/lab/src/core/profile.ts",
+          "packages/lab/src/core/scoring.ts",
+          "packages/lab/src/tool-defs.ts",
+          "packages/main/tests/lab-brand-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "CHANGELOG.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "proof-or-stop.config.json",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lab-foundation.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1173906ba1398256c8e835da38c71b99c0fba490a6b23213ad8e2b12717e65d0"
+      },
+      "readDiagnostics": [],
+      "_hash": "a5f087a4b71de4d975438b24dcbdea67b9ece7db2c44d21bec74838075d7c211",
+      "files": [
+        "packages/lab/src/core/profile.ts",
+        "packages/lab/src/core/scoring.ts",
+        "packages/main/tests/lab-brand-migration.test.mjs"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-packages",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-339",
+      "desc": "packages/main/src/core/pre-review-live-proof.ts:39-45,83-105: F-337's replacement still admits semantically unrelated operations for active verification intents. The verifier-owned map binds CHK-006:happy:0, whose active claim is sibling package metadata/lockfile/dependency-graph consistency, to A-POS-1's role-guidance/mirror operation; it binds CHK-007:happy:0, whose active claim is bin/residue behavior, to A-POS-2's frozen cohort-receipt operation. preReviewCaseSemanticMatches only compares the hardcoded target/mutationKind/operation and never derives or validates that tuple from the referenced verificationIntent; packages/main/src/core/pre-review-check.ts:198-212 consumes it as sufficient. A current signed proof can therefore satisfy this map while never executing the CHK-006/CHK-007 claims, preserving F-337's gate-consuming false-proof class. Bind each sourceRef to its actual intent semantic operation or execute each active assertion, and reject unrelated mappings.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T17:14:31.294Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-451",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-quality.md",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "737580c982d0eb46e2ecc5fcb6607bfcb7304a9ba515312dc6628e5311bf51da"
+      },
+      "readDiagnostics": [],
+      "_hash": "c0e019b89ba1b75f7fc84a8518800d22ebaaea4062d7a44db0f5f72451959298",
+      "files": [
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-340",
+      "desc": "CHK-001:happy:0 through CHK-007:adversarial:0: all 21 stored verificationEvidence rows report result=pass but remain bound to RI-039-era headHash d0fa9df2d2eada9cd8bb5a1243db065dc08b2009, materialHash c11118fd7da602726e82117174691d1bc678c6665bc7ea3a896f5909e1aeca78, and storyFilesHash 1dfdbd2495319eb158aa76ab767d2c95874b3f2f41b3f8e913cc07c7ded4c58b, not the current RI-047/RR-448 headHash dfde55fcfe5c288fe6dfb85f4373e6650e4d14df, materialHash 253e1b0481bea0f1f689356648e72cc74ff41b3c814b46b8fd0b8cc04f44f399, and storyFilesHash 7740ea406cfe01090313a941e0a05e41210eeb6423357f41fb04abdf2f18615a. The current packages/main/tests/artifact-schema-migration.test.mjs does cover CLI reads of B-0168 and B-META-framework-audit plus archive byte/signature preservation, but its stored evidence row is one of the same stale 21 rows. F-337 semantic-binding source and adversarial tests were inspected separately and do not rebind these checklist evidence rows; no must-intent verificationEvidence row is current.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T17:14:44.406Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-448",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": "Coverage-only review of the 21 stored evidence rows, the named CHK-003 archive test, and F-337 semantic/adversarial coverage; no verification_run or evidence refresh was run."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9369461a640de6752d41d1db58bdd2060ea4712644a6ce4cc3857aa91caf6464",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "signatureTag": "missing|json|happy-through-adversarial",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-341",
+      "desc": "Current verifier-owned gate evidence does not substantiate the F-337/F-339 semantic pre-review binding at HEAD 5ae626d: pre_review_check_read for .proof-or-stop/story/actives/B-5a88/pre-review-check.json returns status=fail with PR_ARTIFACT_TAMPERED and PR_AUTHORITY_INADMISSIBLE; acceptance_topology_check returns AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE; acceptance_rollout_check returns blocking AR_REPORT_STALE. The embedded pre-review and rollout records claim pass but are bound to stale story-owned/basis/closure/material hashes, so the current code path cannot support REVIEW until verifier-owned basis, pre-review proof, and rollout receipts are reissued for this HEAD. This is the current gate-consuming false-proof risk after the F-337/F-339 code changes, not a claim that the older CHK-006/A-POS-1 mapping remains in source.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T17:37:48.058Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-456",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "abbe656cf8fa442aaa58644a6bf699166b8aab70186a8c8e3bde5dcb7bde0603",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "adversarial|json|current-verifier-owned",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-342",
+      "desc": "concept-cleanup: packages/lab/src/core/patch-policy.ts:4,8; packages/lab/src/core/storage.ts:4,8; packages/lab/src/core/sandbox.ts:4,8; and packages/lab/src/core/diff.ts:4 still retain the active lattice-lab title/description in shipped lab source. Unlike the explicit .lattice-codex and lattice.config.json compatibility readers, these are not historical-evidence readers; the sibling-package migration and concept boundary require source-facing identities to be canonical. The lab-brand migration test scans config.ts, profile.ts, scoring.ts, tool-defs.ts, and handlers/lab.ts but omits these four modules, so it passes while repository-wide lab migration residue remains.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T17:37:57.883Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-454",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/lab/src/core/config.ts",
+          "packages/lab/src/core/diff.ts",
+          "packages/lab/src/core/patch-policy.ts",
+          "packages/lab/src/core/profile.ts",
+          "packages/lab/src/core/sandbox.ts",
+          "packages/lab/src/core/scoring.ts",
+          "packages/lab/src/core/storage.ts",
+          "packages/lab/src/handlers/lab.ts",
+          "packages/lab/src/tool-defs.ts",
+          "packages/main/tests/lab-brand-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "CHANGELOG.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "proof-or-stop.config.json",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lab-foundation.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "e64ff994b00a526d38fe10588e55e6683b849e42db2887b6de72c4bb0224b193"
+      },
+      "readDiagnostics": [],
+      "_hash": "3bc35ada04e6147898996a038ea0d1870860404499cfe85c7acaf31a75a1961d",
+      "files": [
+        "packages/lab/src/core/patch-policy.ts",
+        "packages/lab/src/core/storage.ts",
+        "packages/lab/src/core/sandbox.ts",
+        "packages/lab/src/core/diff.ts",
+        "packages/main/tests/lab-brand-migration.test.mjs",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-packages",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-343",
+      "desc": ".proof-or-stop/story/actives/B-5a88/checklist.json:111-965 — all 21 verificationEvidence rows for CHK-001:happy:0 through CHK-007:adversarial:0 report result=pass and mechanical=true, but every row remains bound to RI-039 hashes headHash d0fa9df2d2eada9cd8bb5a1243db065dc08b2009, materialHash c11118fd7da602726e82117174691d1bc678c6665bc7ea3a896f5909e1aeca78, and storyFilesHash 1dfdbd2495319eb158aa76ab767d2c95874b3f2f41b3f8e913cc07c7ded4c58b. The signed current reviewer run B-5a88:RR-455 is bound to headHash 5ae626dfec1081db2145c6bd7a7bfa28c826a363, materialHash 7ddb8c35e6cd30d51787d3d7a11fa4daeaad40d6224aa88cfda2affc92943807, and storyFilesHash e2cd5bef5548c4c259751e831da8a8bb25b704410f8465f55067ee7ad48b1610. packages/main/tests/artifact-schema-migration.test.mjs:28-140 now executes the two named archive reads, signature/freshness checks, and byte-preservation assertions, but its stored CHK-003 receipt is still one of the stale rows. Re-execute and rebind all 21 intent rows at the current HEAD/material/storyFiles hashes before this coverage lane can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T17:39:45.750Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-455",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b1706766867ec8e229684c1ab25d08c36caa53761a3515e701fe55c7fe9afa20"
+      },
+      "readDiagnostics": [],
+      "_hash": "37f6a6656fe5e87cd53fe1bb5664a6598584c088957f7210893fdcdba8ffa645",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-344",
+      "desc": ".proof-or-stop/story/actives/B-5a88/checklist.json:verificationEvidence and evidence_inspect --storyId=B-5a88 --sourceHost=codex --format=json: all 21 CHK-001:happy:0 through CHK-007:adversarial:0 rows report result=pass/mechanical=true but are stale. Every row is bound to headHash d0fa9df2d2eada9cd8bb5a1243db065dc08b2009, materialHash c11118fd7da602726e82117174691d1bc678c6665bc7ea3a896f5909e1aeca78, and storyFilesHash 1dfdbd2495319eb158aa76ab767d2c95874b3f2f41b3f8e913cc07c7ded4c58b, while the current signed run B-5a88:RR-457 is at headHash 8b447c37513e1c2a408d53c87b378ba539fb7092, materialHash 8a9c5b40ec3f50a8764cf56d65d2ac6cd5d1789f842280e6d478b85c9513c575, and storyFilesHash 749b591b371ad16b37812aafd80a876092be3a046b143a9a98bdf23eec85440b. The read-only inspection reports all 21 intent refs stale, including the CHK-003 archive-test receipt; no must-intent verificationEvidence row is current, so this lane cannot pass until the intents are re-executed and rebound. No refresh was run.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T17:47:56.914Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-457",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "911ed94d438c7b4175192de02b22aac226a548198a588bfbff7e67cab839a314",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/artifact-schema-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|ri049-all-evidence-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-345",
+      "desc": ".proof-or-stop/story/actives/B-5a88/checklist.json:CHK-002:adversarial:0 — its bound CHK-002-TEMPLATE-PASS evidence command only imports init-assets and asserts canonical proof-or-stop start/end strings plus absence of lattice markers. It never calls inspectManagedBlock or replaceManagedBlock on nested or mismatched marker pairs, which is the intent's required rejection/non-destructive behavior. The malformed-marker assertions are instead in packages/main/tests/managed-marker-migration.test.mjs:22-24 and are not the command bound to this adversarial ref; the current bound malformed check is recorded under CHK-002:edge:0. The required semantic adversarial intent therefore has no directly corresponding evidence, independently of the stale hashes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-23T17:48:21.642Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-457",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ff9ac85995eb7aeb0ced8a8796b9e0e87ba6729e1e44d3e9dc6692ab2fe6a2ce",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/tests/managed-marker-migration.test.mjs"
+      ],
+      "signatureTag": "adversarial|json|chk002-intent-binding",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-346",
+      "desc": "scripts/verify-lattice-residue.mjs:27-29 and 703-705 still describe the 13 lattice-* role IDs as FROZEN/FROZEN-THIS-STORY and keep their self-test examples in the frozen-identifier exemption. B-5a88 explicitly supersedes that freeze: proof-or-stop-* IDs are canonical new writes and lattice-* values are compatibility-only legacy reads. The stale verifier comments/classification misstate the active migration boundary and can preserve the retired role concept as if it were an active freeze; update the rationale to compatibility-only while retaining the historical fixture behavior.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-23T17:49:30.796Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-458",
+      "readManifest": {
+        "filesReadFully": [
+          "background.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "plan.md",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "The dispatched proof-or-stop-review-concept lane requires a final concept-residue scan; the verifier and migration decision documents were read fully to compare the current comments with the authoritative B-5a88 boundary."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "1a2397b6da691257fddf43c57d6da5348c0d5f83f075b006edf6e3d6a5bd2276"
+      },
+      "readDiagnostics": [],
+      "_hash": "2eda92072f7c800fee9ffa2c7d9446868bd9c57bc621d13626117940529b38ab",
+      "files": [
+        "scripts/verify-lattice-residue.mjs",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "signatureTag": "missing|mjs|scripts-verify-lattice",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-347",
+      "desc": "Current verifier-owned pre-review gate evidence is not admissible for the canonical quality run: node bin/proof-or-stop.js pre_review_check_read --storyId=B-5a88 reports status=fail with PR_ARTIFACT_TAMPERED and PR_AUTHORITY_INADMISSIBLE, authority=inadmissible; acceptance_topology_check reports AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE; acceptance_rollout_report_read reports AR_REPORT_STALE; and enforce acceptance_rollout_check reports blocking=true. packages/main/src/core/pre-review-check.ts:407-415 recomputes the signed artifact and rejects non-current executable provenance or receipt integrity, while packages/main/src/handlers/transition-orchestrator.ts:122-132 consumes the report and throws when blocking. The signed pre-review/rollout evidence therefore cannot support current REVIEW admission until verifier-owned basis, pre-review proof, and rollout receipts are reissued for this HEAD. This is distinct from the already-fixed CHK-006/CHK-007 semantic mapping defect; packages/main/src/core/pre-review-live-proof.ts:39-163 now binds those active assertions to their own migration operations.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T17:50:36.478Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-459",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-quality.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f9bf6c17d3953fbe352bee300677014bad85e14ab85ad30ca1d8ed28bcb02441",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "signatureTag": "adversarial|json|current-verifier-owned",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
