@@ -7295,6 +7295,225 @@
       },
       "readDiagnostics": [],
       "_hash": "d7336d0911e6bd258171b83333dd89aa04c9df83a5884d1bf2afa71912894b1b"
+    },
+    {
+      "id": "B-5a88:RP-138",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Wave 2 topology review found no topology family distinct from B-5a88:F-355. The identity migration decision document was read in full, and the current acceptance, pre-review, and rollout artifacts were triaged.",
+      "createdAt": "2026-08-23T19:24:16.002Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-476",
+      "envelopeId": "23bbd26387ac754cf5117d6d356e34f28e6a888011e104b6c4fabf44192aca89",
+      "writerSessionId": "sess-6a7263ce54c1cc2841e00d53ac125132",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0750441dd2c83882902b094462c576a3382a4eb403767baad710992e0dae6b11"
+      },
+      "readDiagnostics": [],
+      "_hash": "6be3b882f8862b2cafe980745beba70ca0895068ddf9240ce1cc899a7bed2e1a"
+    },
+    {
+      "id": "B-5a88:RP-139",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-050 final wave 3 quality review covered the integrated main...HEAD migration diff, changed role/marker/schema/approval/package/bin seams, dead-code and type-safety risks, I/O isolation, and the Wave 4 verifier-owned acceptance boundary. Existing canonical-process-fact, finding-agent, acceptance/pre-review evidence, fingerprint, runtime-guidance, prompt-alias, and other migration families were rechecked and not duplicated. No distinct new quality blocker was found; current HEAD remained 421d2c5e7f18e0274dc850a0e3d979c652819c37.",
+      "createdAt": "2026-08-23T19:28:57.629Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-479",
+      "envelopeId": "c6a7ccb197596fdfcaf5bd9c7a58ea609af4d57d2ad74f1952d5aa0ad278afea",
+      "writerSessionId": "sess-c8037c68ec62c4d9d22c0871faebcb61",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/reviewer-opt-in.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "bin/bootstrap-runner.js",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0750441dd2c83882902b094462c576a3382a4eb403767baad710992e0dae6b11"
+      },
+      "readDiagnostics": [],
+      "_hash": "b2ec30fac1ce7003e6b08f31818e434ae6dd8f844d8c3926f572d136437b0e8e"
+    },
+    {
+      "id": "B-5a88:RP-140",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-050 final wave 3 concept review completed: source-wide residue checks found no distinct new concept family or blocker beyond known F-349, F-356, F-357, and F-358; compatibility and frozen evidence references were excluded by the migration decisions.",
+      "createdAt": "2026-08-23T19:29:50.094Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-481",
+      "envelopeId": "0ead00380ad252fa0250bce23e25770dec7ff91b240a6629b0dbe524277ac372",
+      "writerSessionId": "sess-90e0b5509d9cd9b66631d4ecae6fdde8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "e64ff994b00a526d38fe10588e55e6683b849e42db2887b6de72c4bb0224b193"
+      },
+      "readDiagnostics": [],
+      "_hash": "2e4120b996bbd0b89a9fb3d6d14d6d79f2b2f08adbeb4984aa297c459bcc2fb8"
+    },
+    {
+      "id": "B-5a88:RP-141",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-050 wave 3 coverage review completed: all 21 intents and current evidence were checked; stale and intent-specific gaps are already F-351 through F-354, with no distinct new blocker.",
+      "createdAt": "2026-08-23T19:30:49.746Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-480",
+      "envelopeId": "723856daeadf4af67c23bbb989064c1beed2ae1fcd95a2c9c580db881cad172b",
+      "writerSessionId": "sess-064e8a2ff6d69c9f67a75c4c2f7ec5d9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-migration-contract.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "e64ff994b00a526d38fe10588e55e6683b849e42db2887b6de72c4bb0224b193"
+      },
+      "readDiagnostics": [],
+      "_hash": "c0f3072f58808b85691fddb476301102ef9fbc3747c3139ef57183423323d023"
+    },
+    {
+      "id": "B-5a88:RP-142",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Final wave 3 topology review found no new topology family beyond B-5a88:F-355 and the known wave 1 and wave 2 findings. The identity migration decision document was read in full, and the current acceptance, pre-review, and rollout artifacts were triaged.",
+      "createdAt": "2026-08-23T19:31:59.085Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-482",
+      "envelopeId": "add09b3a847e06d44346e96066e4ea55c1b7526090e9a97c3465a3e4a2595e8b",
+      "writerSessionId": "sess-6a7263ce54c1cc2841e00d53ac125132",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0750441dd2c83882902b094462c576a3382a4eb403767baad710992e0dae6b11"
+      },
+      "readDiagnostics": [],
+      "_hash": "82780cefddd2b4dd56cec973416f8936d4eda3568920e1e42fded2c6eba9271e"
     }
   ]
 }
