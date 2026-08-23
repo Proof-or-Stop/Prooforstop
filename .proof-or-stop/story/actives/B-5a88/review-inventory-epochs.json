@@ -2807,9 +2807,9 @@
       "epochId": "B-5a88:RIE-041",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-23T10:36:59.797Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-23T11:40:56.943Z",
-      "updatedAt": "2026-08-23T11:40:56.943Z",
+      "updatedAt": "2026-08-23T11:43:55.076Z",
       "cutoff": {
         "headHash": "dbef043b06604319a797ad1ade9ac4f331bb7ea9",
         "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
@@ -2820,7 +2820,62 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-5a88:RIE-041:RCP-001",
-      "_hash": "b74403ae8d1c2e21964f2dd39ee31c4477b7bd6083e1723b69336f97e9912e98"
+      "cancelledAt": "2026-08-23T11:43:55.076Z",
+      "cancelReason": "Human convergence-breaker acknowledgement changed the finalized receipt binding; reissue the remediation receipt on the acknowledged stable HEAD.",
+      "terminalRunSequenceBoundary": 368,
+      "_hash": "468ca73b5f0609204f00e95d0512e03199d8c322e90c1576b6e682432644d2b2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-031",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-23T11:43:57.262Z",
+      "updatedAt": "2026-08-23T11:44:04.715Z",
+      "cutoff": {
+        "headHash": "a2cc4c986ed26e70cfb40332c3704d5b3257a0fd",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "scopeDigest": "e080db7a10d4bd24e5267bd46bace1ad44140b7c25f8850e08d9c32e170512a1",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 368,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-5a88:F-278",
+        "B-5a88:F-279",
+        "B-5a88:F-282"
+      ],
+      "cancelledAt": "2026-08-23T11:44:04.715Z",
+      "cancelReason": "No new review wave is being admitted; use the already completed prior inventory evidence to issue the acknowledged remediation receipt.",
+      "terminalRunSequenceBoundary": 368,
+      "_hash": "335b2ab610ef36be90ae4835e4c9103c03c32e19b0e384ddb35abcd3af2a66f6"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RIE-043",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-23T11:44:07.344Z",
+      "updatedAt": "2026-08-23T11:44:07.344Z",
+      "cutoff": {
+        "headHash": "a2cc4c986ed26e70cfb40332c3704d5b3257a0fd",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "scopeDigest": "0493d8dbaab746722fb4ee3146db2df350e58d18e285564df594a4095f409acd",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a88:RIE-043:RCP-001",
+      "_hash": "228aa00c54ff1f245779ba0af371839217a1b1965ecc9b286b0717f124d46e8b"
     }
   ],
   "receipts": [
@@ -3241,7 +3296,31 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-23T11:40:56.943Z",
-      "_hash": "d48987bad831a3ad17015cd8aad61c721237bf92739ea12ea81af87c340f6c35"
+      "invalidatedAt": "2026-08-23T11:43:55.076Z",
+      "invalidationReason": "Human convergence-breaker acknowledgement changed the finalized receipt binding; reissue the remediation receipt on the acknowledged stable HEAD.",
+      "_hash": "20484aa714ff2851b3bb00b4900b48bff67b1c71b53fa4a1b74b36505af74984"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a88:RIE-043:RCP-001",
+      "epochId": "B-5a88:RIE-043",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "cutoff": {
+        "headHash": "a2cc4c986ed26e70cfb40332c3704d5b3257a0fd",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "scopeDigest": "0493d8dbaab746722fb4ee3146db2df350e58d18e285564df594a4095f409acd",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-23T11:44:07.344Z",
+      "_hash": "128301997b7294f85b0d81382adc9c8923a5a856901f0e5ad0eaed984834aa47"
     }
   ],
   "criticReceipts": [
