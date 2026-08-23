@@ -10434,6 +10434,56 @@
       ],
       "signatureTag": "ri-018-wave2-topology-basis-partial",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-196",
+      "desc": "Fresh RI-018 topology review at committed head 94744c1 confirms the signed verifier-owned acceptance basis remains partial: acceptance_basis reports AT_UNMAPPED_SCOPE_REF for path:static-call:packages/main/src/core/causal-evidence.ts#hasCausalDependencyDecisionIdentityBinding->consumer:packages/main/src/core/certification-window.ts#hasCausalDependencyDecisionIdentityBinding, and acceptance_topology_check emits AT_COVERAGE_BASIS_PARTIAL. The current full-3x2 acceptance rollout is a separate positive rollout artifact and does not repair this structural basis gap, so topology cannot receive pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T13:17:37.259Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-325",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": 6
+        },
+        "digest": "23b2f08bdf3524c0913cc5cee491b578d2e779787681b41ca911d8adcd01033c"
+      },
+      "readDiagnostics": [],
+      "_hash": "d940010defd82640107112a6b3f6c554ee0fb56c7a52c17138675611ceba5ad1",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "missing|ts|fresh-topology-review",
+      "signatureTagSource": "auto"
     }
   ]
 }

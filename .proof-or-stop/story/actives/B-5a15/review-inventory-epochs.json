@@ -2220,7 +2220,7 @@
       "reviewRound": "2026-08-22T06:10:03.014Z",
       "state": "OPEN",
       "begunAt": "2026-08-23T12:21:01.933Z",
-      "updatedAt": "2026-08-23T12:53:26.733Z",
+      "updatedAt": "2026-08-23T13:19:37.699Z",
       "cutoff": {
         "headHash": "35354c6038de4476f2c5f18e6d9cde4589f57d16",
         "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
@@ -2321,6 +2321,95 @@
           "criticDigest": "741322942cf93715bb13500cd4a5b160de9fb99d97c286f687035da1ec6677ba",
           "saturated": false,
           "nextRunSequenceBoundary": 319
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-23T12:53:26.733Z",
+          "completedAt": "2026-08-23T13:19:37.699Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-322",
+              "terminal": "pass",
+              "hostIdentity": "e660a4118e09449fbad209b0f799a4b47b4723e5d5d9a5aec6822167b67603a3",
+              "promptIdentity": "502bcf1c83adf3956673d19f87bbb66da1ae89590ba8210768e6704de6749b28",
+              "evidenceIds": [
+                "B-5a15:RP-059"
+              ],
+              "coverageDigest": "2ae7b18361bd31b8c88ba7a06e201f7af0fdd19e795aa77606b24c16fe18d339"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-321",
+              "terminal": "finding",
+              "hostIdentity": "e660a4118e09449fbad209b0f799a4b47b4723e5d5d9a5aec6822167b67603a3",
+              "promptIdentity": "390669d6bc5f10b62777095685b0e2c15e351e51877d1ae85fc63fc691432bda",
+              "evidenceIds": [
+                "B-5a15:F-194"
+              ],
+              "coverageDigest": "5eb655be9090f56607837b091c7edc73637275be5fde27d324d1330f23ef7cc1"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-320",
+              "terminal": "finding",
+              "hostIdentity": "e660a4118e09449fbad209b0f799a4b47b4723e5d5d9a5aec6822167b67603a3",
+              "promptIdentity": "9ea41a81780d16068de80d4f2ccf95327c024c900d1b24a3194179faf181a36f",
+              "evidenceIds": [
+                "B-5a15:F-193"
+              ],
+              "coverageDigest": "adebb8d21536c1ed6647fd43bc7e3bd2d036f1eb65726150505419558f1af8f5"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "ri-018-wave2-coverage-missing",
+            "ri-018-wave2-production-causal-dag",
+            "ri-018:f-152",
+            "ri-018:f-153",
+            "ri-018:f-154",
+            "ri-018:f-155",
+            "ri-018:f-156",
+            "ri-018:f-157",
+            "ri-018:f-158",
+            "ri-018:f-159",
+            "ri-018:f-160",
+            "ri-018:f-161",
+            "ri-018:f-162",
+            "ri-018:f-163",
+            "ri-018:f-164",
+            "ri-018:f-165",
+            "ri-018:f-166",
+            "ri-018:f-167",
+            "ri-018:f-168",
+            "ri-018:f-169",
+            "ri-018:f-170",
+            "ri-018:f-171",
+            "ri-018:f-172",
+            "ri-018:f-173",
+            "ri-018:f-174",
+            "ri-018:f-175",
+            "ri-018:f-176",
+            "ri-018:f-177",
+            "ri-018:f-178",
+            "ri-018:f-179",
+            "ri-018:f-180",
+            "ri-018:f-181",
+            "ri-018:f-182",
+            "ri-018:f-183",
+            "ri-018:f-184",
+            "ri-018:f-185",
+            "ri-018:f-186",
+            "ri-018:f-187",
+            "ri-018:f-188",
+            "ri-018:f-189",
+            "ri-018:f-191",
+            "ri-018:f-192"
+          ],
+          "verifiedFindingSetDigest": "8521332ec9f85ba4cb95e8c6bd605272054d3d1c87a85a34d02b56641c96a49c",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "e8f5002bab855c6fbb41ae041740e523cae3c08a555e7aac768595ec29068706",
+          "saturated": false,
+          "nextRunSequenceBoundary": 325
         }
       ],
       "baselineFindingIds": [
@@ -2363,7 +2452,7 @@
         "B-5a15:F-188",
         "B-5a15:F-189"
       ],
-      "_hash": "ced2e416ed3e7cf7cfb6a75f344bf6bca2a630830cb996ffe6c52c6a1dafa7b8"
+      "_hash": "11f8e9a1563fbfe4e80b0431d3f3e11365951985fc26b5c5ab99367b68c6be53"
     }
   ],
   "receipts": [
@@ -4787,6 +4876,43 @@
       ],
       "createdAt": "2026-08-23T12:51:12.183Z",
       "_hash": "239ed0ed627f4c92413ca6076b7b4bdfb7bdf9cf431a6c5e8016cd44703130dd"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-018:CRIT-02",
+      "epochId": "B-5a15:RI-018",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "35354c6038de4476f2c5f18e6d9cde4589f57d16",
+        "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
+        "storyFilesHash": "e287c5f32d9aad03e0ce7ea8b20a2684ab0ac2e78ef99c6fc5b18e9b8e9c97e7"
+      },
+      "aggregateFindingSetDigest": "8521332ec9f85ba4cb95e8c6bd605272054d3d1c87a85a34d02b56641c96a49c",
+      "requiredLaneCoverageDigest": "f7929d25b671a6324ebfe0c56a7804ad396e36c705b01bae4ec0071fd1958391",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-325",
+      "terminalEvidenceIds": [
+        "B-5a15:F-196"
+      ],
+      "readEvidenceDigest": "a7d488ae689ba995bbbfa67a47c28dbf291fc7972fe92df993a5c5425433521c",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-193",
+          "disposition": "verified_family",
+          "familyKey": "ri-018-wave2-coverage-missing",
+          "reason": "Fresh RI-018 wave-2 coverage review independently confirms a high missing-coverage family: current-story executable Wave 4 evidence is absent for the four verifier-owned acceptance commands across CHK-001 through CHK-005."
+        },
+        {
+          "findingId": "B-5a15:F-194",
+          "disposition": "verified_family",
+          "familyKey": "ri-018-wave2-production-causal-dag",
+          "reason": "Fresh RI-018 wave-2 quality review independently confirms a high missing-implementation family: the production CertificationWindow path still supplies an empty causal DAG, so related dependency changes cannot drive affected-node reruns."
+        }
+      ],
+      "createdAt": "2026-08-23T13:18:29.435Z",
+      "_hash": "8244a49f9e6f181c2787cd4ad3fc0e519fce5b45579c95b04da0bb5bedbb5ada"
     }
   ]
 }
