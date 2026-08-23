@@ -11171,6 +11171,49 @@
       ],
       "signatureTag": "missing|ts|topology-wave-acceptance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-211",
+      "desc": "coverage/RI-042-executable-boundary-missing: At current HEAD 236a6f0, checklist_get reports 13/13 done, 45 verification intents (39 must), 45 passing verificationEvidence rows, zero failing and zero waivers. However, verifier-owned acceptance_topology_check is only diagnostic_only with row result inconclusive_basis_unverified, and pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, PR_COVERAGE_BASIS_CHANGED, PR_COVERAGE_INCONCLUSIVE, PR_PLANNED_PATH_UNRESOLVED, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, and PR_AUTHORITY_INADMISSIBLE; plannedActual, executableEvidence, mutations, transcript, and authority are respectively incomplete/missing/missing/missing/inadmissible. acceptance_rollout_report_read/check remain receipt=current full-3x2 PASS, but that downstream projection cannot substitute for current executable pre-review coverage. The required acceptance boundary therefore remains unproven for this RI-042 coverage review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T14:39:38.888Z",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "reviewRunId": "B-45a0:RR-336",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Checklist coverage counts and canonical current-head acceptance verifier outputs were inspected; acceptance topology, pre-review, and rollout paths were targeted-triaged."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "16f1dc31087c81fa26ded630989505637aee049c278fcfd5c4bc3b9fc3254e59",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|coverage-executable-boundary",
+      "signatureTagSource": "auto"
     }
   ]
 }
