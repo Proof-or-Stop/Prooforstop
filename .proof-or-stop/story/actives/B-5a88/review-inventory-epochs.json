@@ -3113,6 +3113,34 @@
       },
       "terminalRunSequenceBoundary": 381,
       "_hash": "1f0d6d480a03d6734cdb68453f73fbc00e7bb7ac342791dac114c1174176d6f8"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-035",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-23T13:03:54.338Z",
+      "updatedAt": "2026-08-23T13:04:05.376Z",
+      "cutoff": {
+        "headHash": "01d990af51a0a7aa193f63b822f947d481513201",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "scopeDigest": "e080db7a10d4bd24e5267bd46bace1ad44140b7c25f8850e08d9c32e170512a1",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 383,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-08-23T13:04:05.376Z",
+      "cancelReason": "Refresh verifier-owned acceptance basis on the stable HEAD before opening the final inventory epoch.",
+      "terminalRunSequenceBoundary": 383,
+      "_hash": "0a61a0c5a0ec11e95c927ebb31811ae5d2130637317f85b8de814a1c65299b2d"
     }
   ],
   "receipts": [
