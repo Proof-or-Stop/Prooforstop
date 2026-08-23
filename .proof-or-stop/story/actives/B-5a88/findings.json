@@ -14487,7 +14487,7 @@
       "desc": "CHK-002:adversarial:0 has no intent-matching evidence: its recorded selector CHK-002-TEMPLATE-PASS only checks that init templates contain proof-or-stop markers and never exercises rejection/unchanged behavior for mismatched or nested marker pairs. The implementation test covers those cases at packages/main/tests/managed-marker-migration.test.mjs:21-22 and :30-62, but that proof is not the evidence bound to this adversarial intent.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T18:48:35.141Z",
@@ -14532,7 +14532,11 @@
         "packages/main/src/init-assets.ts"
       ],
       "signatureTag": "adversarial|mjs|adversarial-intent-matching",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Partially mitigated: managed-marker-migration.test.mjs now executes mismatched, nested, mixed, and unchanged marker cases, and the current focused migration checks pass. The immutable historical selector CHK-002-TEMPLATE-PASS remains narrower than the adversarial behavior proof, so this is intentionally retained as a bounded evidence-quality limitation.",
+      "resolvedAt": "2026-08-23T21:07:52.647Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-353",
