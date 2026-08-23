@@ -3350,6 +3350,93 @@
       },
       "readDiagnostics": [],
       "_hash": "ae1dc60dd171b38beda92ad45770c417e4f920a4cb87318277135051b5f3e693"
+    },
+    {
+      "id": "B-5a15:RP-077",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed at current HEAD d6a9617d2b: inspected the causal execution key, CAS receipt and import retry, preflight and launch revalidation, dependency invalidation and CertificationWindow consumer, verifier/checklist integration, discovery binding, runtime receipt registration, focused tests, and refreshed Wave 4 acceptance evidence. Build and focused tests passed; acceptance topology, pre-review, and rollout checks are current/pass; no blocker found.",
+      "createdAt": "2026-08-23T17:39:23.208Z",
+      "reviewRound": "2026-08-23T17:28:15.667Z",
+      "reviewRunId": "B-5a15:RR-382",
+      "envelopeId": "b9685b8ef5d6abd648b26debb324662519bd45e23673c6e13004d2269859135c",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e7a66577210313ae555670c9f1a455b4a0e321ac39426ee7b72a6b7d93a3e222"
+    },
+    {
+      "id": "B-5a15:RP-078",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: all 50 verification intents have concrete passing executable evidence, all 22 mandatory intents are covered, refreshed topology/pre-review/rollout checks are admissible, and no blocker was found.",
+      "createdAt": "2026-08-23T17:39:37.941Z",
+      "reviewRound": "2026-08-23T17:28:15.667Z",
+      "reviewRunId": "B-5a15:RR-381",
+      "envelopeId": "31a1536d138b5c2f8b1abe1602955c002b1f3355429e3e60d5ded87345c07082",
+      "writerSessionId": "sess-1ff81192c8f5688bf40ac6afd86a20f7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/run-proofstory-pre-review-live-proof.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9be0a922c29acb2fb1393568affa5c59bb5bd8ecb0a20673088d213e2f8ab9ae"
     }
   ]
 }
