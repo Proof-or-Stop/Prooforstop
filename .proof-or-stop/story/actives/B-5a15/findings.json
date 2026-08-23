@@ -11215,6 +11215,558 @@
       "_hash": "f7ab27a024f4c68c7e04d5827751c0423635efd4d79b677333d2645bf11a5316",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-213",
+      "desc": "Wave 4 acceptance coverage is missing: CHK-001 through CHK-005 verificationEvidence points only to packages/main/tests/causal-evidence.test.mjs and contains no executable evidence for the verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check paths. The story therefore lacks admissible coverage for the current signed receipt, full 3 rounds x 2 hosts (codex-cli + claude-cli), degraded 3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history required by the Wave 4 boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T14:58:08.491Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-352",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "125d677a041aaa3aacb5f78333cd8fe89b1031e03a21e4ebe09153191445887c",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|wave-acceptance-coverage",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-214",
+      "desc": "packages/main/src/handlers/certification-window.ts:97-100 [high/missing] buildCertificationDecision supplies nodes: [] and currentInputHashes: {}, so the production CertificationWindow never evaluates the declared causal dependency DAG or affected-node closure. Story-owned changes can therefore bypass precise invalidation and the promised affected-node rerun metrics.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T14:59:41.587Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-355",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "71e07c0547353b6834eef30eacc2b28962bef725b6fcebc968e2e5a5582e35fa",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-215",
+      "desc": "packages/main/src/handlers/certification-window.ts:97-106 [high/missing] buildCertificationDecision passes nodes: [] and currentInputHashes: {}, so the production CertificationWindow never evaluates the declared causal dependency DAG or affected-node closure. Related story-owned changes can therefore bypass precise invalidation and the promised affected-node rerun metrics.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T14:59:45.564Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-353",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "22098ea477f12199002f998184916807965cc3831f5ab4c1a96ff6b493ad73a3",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-216",
+      "desc": "packages/main/src/core/causal-evidence.ts:1164-1188 [high/adversarial] evaluateCausalDependencies computes storyFilesMatch only for equality but has no branch that rejects a storyFilesHash-only mismatch. With dependency inputs and materialHash unchanged, a signed old decision can return fresh and gateAdmissible=true after story-owned files changed, allowing stale evidence to pass the specialized gate.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T14:59:51.551Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-355",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "70a429701582431714bc96153557310883b36d1f77eda3fa5eb02bb240d00650",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-217",
+      "desc": "packages/main/src/core/causal-evidence.ts:1161-1193 [high/adversarial] evaluateCausalDependencies computes storyFilesMatch only when the previous and current storyFilesHash are equal, but has no branch that rejects a storyFilesHash-only mismatch. With dependency inputs and materialHash unchanged, a signed old decision can return fresh and gateAdmissible=true after story-owned files changed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T14:59:56.725Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-353",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2eb877b2e6ee8ece77363741ea14f734ca129d161e12c07106de8cdf73cdb22e",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-218",
+      "desc": "packages/main/src/core/causal-evidence.ts:504-525 [medium/edge] verifyCausalEvidenceReceipt validates the bounded outputProbe but never validates outputTail against CAUSAL_OUTPUT_TAIL_CHARS, even though outputTail is durable receipt data consumed by selectorVerdict. A valid signed receipt can therefore carry an oversized tail through the CAS/import boundary.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T15:00:01.989Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-355",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d82590d880e452225e4deca99e4ec984011f2aefe54830a5fb59ef47d2d6397c",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-219",
+      "desc": "packages/main/src/core/causal-evidence.ts:504-525 [medium/edge] verifyCausalEvidenceReceipt validates the bounded outputProbe but never validates outputTail against CAUSAL_OUTPUT_TAIL_CHARS, even though outputTail is durable receipt data and selectorVerdict scans it. A valid signed receipt can therefore carry an oversized tail through the CAS/import boundary.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T15:00:06.636Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-353",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8911a5d714ac1654d1a9aa7e6dbfd101d498ed34a804ba97f694897ece11fcc0",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-220",
+      "desc": "packages/main/src/handlers/verifier.ts:616-629 [high/adversarial] createValidationCausalPreflightGate collapses the structured validation plan into command plus args.join(' '), omitting exact argument boundaries and command execution semantics. Distinct validation plans can share one causal identity and preflight report while executing differently, allowing the wrong readiness contract to authorize a run.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T15:00:10.894Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-355",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "85925fe40d63604a2ec24b51a11da70f7967008df9cb6e5a3307bb3c1afd1fe2",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-221",
+      "desc": "packages/main/src/handlers/verifier.ts:616-649 [high/adversarial] createValidationCausalPreflightGate collapses the structured validation plan into command plus args.join(' '), omitting exact argument boundaries and command cwd, env, shell, and other execution semantics. Distinct validation plans can share one causal identity and preflight report while executing differently, allowing the wrong readiness contract to authorize a run.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T15:00:15.627Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-353",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c5840e7585bb8b95070fc6dc1792cffd3b601a1ed04165bf0d37169f7c15bed9",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-222",
+      "desc": "packages/main/src/handlers/checklist.ts:1566-1631 [high/adversarial] canonical causal import rechecks only HEAD/material/storyFiles hashes, the CAS index, and receipt material/timeout fields. It reconstructs a fresh preflight from current facts without comparing the stamped Git-index digest, writer lease, provider capability, evidence target, or side-channel facts, so a different ready transaction can commit the same receipt after execution.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T15:00:20.065Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-355",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f1f9cd1a122b0378d02fb3664f9262de42094a81a37be08174ef6321f59d4347",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-223",
+      "desc": "packages/main/src/handlers/checklist.ts:1566-1630 [high/adversarial] canonical causal import rechecks only HEAD/material/storyFiles hashes and the CAS index. It rebuilds the import identity from receipt inputs and does not compare the stamped Git-index digest, writer lease, provider capability, evidence target, or side-channel facts, so a different ready transaction can commit the same receipt after execution.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T15:00:24.657Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-353",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "36486130c0195524b10a903f2866661918bb03b8740d23b8364c756d5876c8ab",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-224",
+      "desc": "packages/main/src/core/causal-evidence.ts:1021-1028,1212-1235 and packages/main/src/core/certification-window.ts:717-727 [high/adversarial] the signed CausalDependencyDecision binds aggregate material/story/head hashes but omits story identity and a digest of the declared dependency graph and current input set. CertificationWindow admission therefore cannot reject a valid gate-admissible decision from another story or graph that shares the same aggregate hash tuple.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T15:00:29.114Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-355",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1c0cba0cdf4edbf4169a1c29a7232877ba76545fe0749a1b874a3fe93314f1aa",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-225",
+      "desc": "packages/main/src/core/causal-evidence.ts:1021-1283 and packages/main/src/core/certification-window.ts:443-456 [high/adversarial] the signed CausalDependencyDecision binds aggregate hashes but omits story identity and a digest of the declared dependency graph and current input set. CertificationWindow admission compares only live aggregate hashes, so a valid gate-admissible decision from another story or graph with the same tuple cannot be rejected.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T15:00:33.331Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-353",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "66f7b6a29e80353a8ff794f60572cbcd122f4b3740191cc340d5dcb3502b4d53",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
