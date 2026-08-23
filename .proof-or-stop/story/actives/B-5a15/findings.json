@@ -10162,7 +10162,7 @@
       "desc": "Fresh RI-017 final-wave topology review confirms the verifier-owned acceptance basis remains partial and cannot receive a pass: acceptance_topology_check reports AT_COVERAGE_BASIS_PARTIAL and AT_UNMAPPED_SCOPE_REF for the causal-decision identity-binding producer/consumer path. The review also inspected pre_review_check_read and the rollout checks; this is the same structural blocker represented by existing F-188.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-23T12:18:09.294Z",
@@ -10203,6 +10203,50 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|ts|fresh-final-wave",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-5a15:F-188: the fresh topology evidence reports the same AT_COVERAGE_BASIS_PARTIAL and AT_UNMAPPED_SCOPE_REF structural blocker, with no distinct defect.",
+      "resolvedAt": "2026-08-23T12:20:35.120Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a15:F-191",
+      "desc": "doc-promise-undelivered: packages/main/src/handlers/certification-window.ts:97-107 (high) buildCertificationDecision passes nodes: [] and currentInputHashes: {} into evaluateCausalDependencies, so the production CertificationWindow never evaluates or reruns actual causal DAG dependencies; material/story hashes alone can yield an advisory or fresh decision and admission without dependency evidence, leaving the promised precise freshness invalidation unimplemented.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T12:23:25.049Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-310",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "955d9df3e676a5947d6ae9ec85765f11f229ec4dc821d032ff20160f0ae2c198",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-packages",
       "signatureTagSource": "auto"
     }
   ]
