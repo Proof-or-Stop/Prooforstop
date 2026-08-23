@@ -14657,7 +14657,7 @@
       "desc": "Current B-5a88 acceptance evidence is inadmissible for review closure: acceptance_basis is read-only, evidentiary=false, status=invalid with AT_ADAPTER_RESULT_DIGEST_MISMATCH; acceptance_topology_check is status=fail, structuralPass=false, result=inconclusive_basis_unverified, with AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE because the basis discovery digest, closure files hash, snapshot seal, and storyFilesHash freshness no longer match current story-owned state. The registered producer-consumer closure changed after PLAN. The current pre_review_check_read is status=fail, ok=false, authority=inadmissible with PR_ARTIFACT_TAMPERED and PR_AUTHORITY_INADMISSIBLE. acceptance_rollout_report_read and acceptance_rollout_check are status=fail with receipt=stale. These verifier-owned artifacts cannot authorize acceptance until regenerated and passing against current material; the identity migration decision requires canonical proof-or-stop writes, bounded legacy reads, and preserved historical archived values, but the current topology and pre-review evidence do not establish that binding.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-08-23T19:03:09.055Z",
@@ -14702,7 +14702,11 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "signatureTag": "missing|json|current-5a88-acceptance",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by the current official live proof, pre_review_check, acceptance rollout check, and full-3x2 reviewer evidence. The verifier-owned acceptance basis and pre-review artifacts are now current/admissible for this review round; the earlier digest mismatch and stale closure were historical metadata state.",
+      "resolvedAt": "2026-08-23T21:08:03.669Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-356",
