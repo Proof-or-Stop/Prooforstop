@@ -7202,6 +7202,99 @@
         "scanEscalationReason": null
       },
       "_hash": "ac664ebe9efe585740e400155a25c8848dc8613d24152c0806f7192755fe3dbf"
+    },
+    {
+      "id": "B-5a88:RP-136",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-050 wave 2 coverage review passed: reviewed all 7 checklist items and 21 must intents; F-351 through F-354 are the known coverage families and were not duplicated. The identity-migration decision document was read in full, and all relevant migration tests were triaged by name. No distinct new coverage blocker was found. Routine validate remains unverified because its active same-worktree owner lease rejected this reviewer session; no takeover was used.",
+      "createdAt": "2026-08-23T19:18:29.582Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-471",
+      "envelopeId": "f8ba4c3e7924243d8c16207bcb49b0bd0bf40cef726cb0b54d680eb5230f69a0",
+      "writerSessionId": "sess-84f9ee6273e91be37632ca5db4650555",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/lab-brand-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0750441dd2c83882902b094462c576a3382a4eb403767baad710992e0dae6b11"
+      },
+      "readDiagnostics": [],
+      "_hash": "dfaae458b902e32561666c41db6ffde2ad14b7f96168c90e336d164c41319d42"
+    },
+    {
+      "id": "B-5a88:RP-137",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality lane reviewed the changed identity-migration seams and triaged the pre-review producer/consumer sources; no distinct blocker beyond existing registered findings.",
+      "createdAt": "2026-08-23T19:19:35.980Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-475",
+      "envelopeId": "2a41c9b83d8cd91f1ba4e59eaa02551a1df7653cb933513e18e66b7bb598054e",
+      "writerSessionId": "sess-83a4aadd1ae87519664651c232ef322c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/reviewer-opt-in.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0750441dd2c83882902b094462c576a3382a4eb403767baad710992e0dae6b11"
+      },
+      "readDiagnostics": [],
+      "_hash": "d7336d0911e6bd258171b83333dd89aa04c9df83a5884d1bf2afa71912894b1b"
     }
   ]
 }
