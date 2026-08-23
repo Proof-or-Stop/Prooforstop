@@ -3115,6 +3115,26 @@
       "cancelReason": "RI-041 exhausted its three-wave budget after a terminal topology finding; cancel for a controlled replan and implementation repair.",
       "terminalRunSequenceBoundary": 333,
       "_hash": "b648ccdf8fe1665d231781de5baa787e098490caa14968b75bd53a2c1df42a69"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RIE-042",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-23T14:31:14.922Z",
+      "updatedAt": "2026-08-23T14:31:14.922Z",
+      "cutoff": {
+        "headHash": "1952eb80bdfc8e86f31684087d6ecbe0dffbe885",
+        "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
+        "storyFilesHash": "cc7ed81b116ac565f747818a589cb8156963be09cb009bc7e55f715cf97fd619"
+      },
+      "scopeDigest": "058afdce2fe92b173398813c37beae69825721bcff4f313c32dce6196ba09e5b",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-45a0:RIE-042:RCP-001",
+      "_hash": "02685fc5128ca00d756ee6b8b2640a88a426e26f0e78cbfec4871bf06fa22076"
     }
   ],
   "receipts": [
@@ -3257,6 +3277,28 @@
       "issuedAt": "2026-08-23T12:38:50.742Z",
       "consumedAt": "2026-08-23T12:39:58.312Z",
       "_hash": "c7cf0b270ccfbf8cd216591c7e9a04e5051457c15dd674b13de7894037dc18f5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-45a0:RIE-042:RCP-001",
+      "epochId": "B-45a0:RIE-042",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-23T13:46:47.948Z",
+      "cutoff": {
+        "headHash": "1952eb80bdfc8e86f31684087d6ecbe0dffbe885",
+        "materialHash": "aa5beaab4316c22ebcfd403395a217d890edac9bd1dbbca1d8221554cd13dda0",
+        "storyFilesHash": "cc7ed81b116ac565f747818a589cb8156963be09cb009bc7e55f715cf97fd619"
+      },
+      "scopeDigest": "058afdce2fe92b173398813c37beae69825721bcff4f313c32dce6196ba09e5b",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-23T14:31:14.922Z",
+      "_hash": "b2550d19283f4d9e9ee7dabad7080f33c1c9f75f95929f4bd1e49ca2b1b02ee4"
     }
   ],
   "criticReceipts": [
