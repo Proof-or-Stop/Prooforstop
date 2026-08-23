@@ -2220,7 +2220,7 @@
       "reviewRound": "2026-08-22T06:10:03.014Z",
       "state": "OPEN",
       "begunAt": "2026-08-23T12:21:01.933Z",
-      "updatedAt": "2026-08-23T12:21:01.933Z",
+      "updatedAt": "2026-08-23T12:53:26.733Z",
       "cutoff": {
         "headHash": "35354c6038de4476f2c5f18e6d9cde4589f57d16",
         "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
@@ -2234,7 +2234,95 @@
       ],
       "initialRunSequenceBoundary": 309,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-23T12:21:01.933Z",
+          "completedAt": "2026-08-23T12:53:26.733Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-311",
+              "terminal": "pass",
+              "hostIdentity": "41a711305cfefdc4707b609171dc4867925a69d233a0801f157113741f8ce57e",
+              "promptIdentity": "b55175de3ddc97a6d8d639472dba90cd9ce17f368e2a1f5d75d63ad48b9bdc4b",
+              "evidenceIds": [
+                "B-5a15:RP-057"
+              ],
+              "coverageDigest": "33d2ded54b145abc5b7fc7540e30ae4acc59a4557cdc57fa445964f4e82fb613"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-310",
+              "terminal": "finding",
+              "hostIdentity": "41a711305cfefdc4707b609171dc4867925a69d233a0801f157113741f8ce57e",
+              "promptIdentity": "8e261221e472089715c45ba04ccc522d5d6b3c193b5814dbff157dd12a780b47",
+              "evidenceIds": [
+                "B-5a15:F-191"
+              ],
+              "coverageDigest": "f5e01913f4ef3278fc2d4655ec142228c4a5b28a1da7d110d5f7c44b103146ec"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-312",
+              "terminal": "finding",
+              "hostIdentity": "66e73ee811cf2bc9ee3cef5daa021a9872a6f18f8e53a6bb2fdb8a6cd19f4f36",
+              "promptIdentity": "439b4191bb667195a8659a62f02d45a6eca67a1a13d77d1d78896bc22a0eb653",
+              "evidenceIds": [
+                "B-5a15:F-192"
+              ],
+              "coverageDigest": "ed06c1aa75e86df63085b31f9f5bfcfb5fd53a2838ad949ce0bf2af47c359767"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "ri-018:f-152",
+            "ri-018:f-153",
+            "ri-018:f-154",
+            "ri-018:f-155",
+            "ri-018:f-156",
+            "ri-018:f-157",
+            "ri-018:f-158",
+            "ri-018:f-159",
+            "ri-018:f-160",
+            "ri-018:f-161",
+            "ri-018:f-162",
+            "ri-018:f-163",
+            "ri-018:f-164",
+            "ri-018:f-165",
+            "ri-018:f-166",
+            "ri-018:f-167",
+            "ri-018:f-168",
+            "ri-018:f-169",
+            "ri-018:f-170",
+            "ri-018:f-171",
+            "ri-018:f-172",
+            "ri-018:f-173",
+            "ri-018:f-174",
+            "ri-018:f-175",
+            "ri-018:f-176",
+            "ri-018:f-177",
+            "ri-018:f-178",
+            "ri-018:f-179",
+            "ri-018:f-180",
+            "ri-018:f-181",
+            "ri-018:f-182",
+            "ri-018:f-183",
+            "ri-018:f-184",
+            "ri-018:f-185",
+            "ri-018:f-186",
+            "ri-018:f-187",
+            "ri-018:f-188",
+            "ri-018:f-189",
+            "ri-018:f-191",
+            "ri-018:f-192"
+          ],
+          "verifiedFindingSetDigest": "14c186b60b1f21a6a47cad33fcda3d7d83dec2794a923be8f6ad03c8cb9f13bb",
+          "newVerifiedFindingCount": 40,
+          "criticDigest": "741322942cf93715bb13500cd4a5b160de9fb99d97c286f687035da1ec6677ba",
+          "saturated": false,
+          "nextRunSequenceBoundary": 319
+        }
+      ],
       "baselineFindingIds": [
         "B-5a15:F-152",
         "B-5a15:F-153",
@@ -2275,7 +2363,7 @@
         "B-5a15:F-188",
         "B-5a15:F-189"
       ],
-      "_hash": "4e31d5491e319a4f60725aefb188dbac8524f98fb4a812a6a401da8a60520d23"
+      "_hash": "ced2e416ed3e7cf7cfb6a75f344bf6bca2a630830cb996ffe6c52c6a1dafa7b8"
     }
   ],
   "receipts": [
