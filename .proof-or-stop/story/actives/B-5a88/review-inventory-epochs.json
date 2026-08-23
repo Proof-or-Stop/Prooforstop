@@ -3881,7 +3881,7 @@
       "reviewRound": "2026-08-23T15:15:00.463Z",
       "state": "OPEN",
       "begunAt": "2026-08-23T17:54:54.098Z",
-      "updatedAt": "2026-08-23T17:54:54.098Z",
+      "updatedAt": "2026-08-23T19:13:32.032Z",
       "cutoff": {
         "headHash": "ca10361840f26530b8e0b861f85b3d05ccf28002",
         "materialHash": "544786440be5b48ed4d03f09919d40fb880d2c51147cd490e0cfdaf0152c03dd",
@@ -3895,9 +3895,68 @@
       ],
       "initialRunSequenceBoundary": 459,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-23T17:54:54.098Z",
+          "completedAt": "2026-08-23T19:13:32.032Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-5a88:RR-461",
+              "terminal": "finding",
+              "hostIdentity": "4477c0832d4d59a1f3260e79738b9d166e82f9e8ba443d8ffa49813fc5afd6a0",
+              "promptIdentity": "e136abde57d4aae70fffee70975049ee3aff544d50147cd449de060af26d8c07",
+              "evidenceIds": [
+                "B-5a88:F-349"
+              ],
+              "coverageDigest": "568f4b5bc1521d676c228f4ee0dd1169d2541dd6339115058159cfbe53137479"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-5a88:RR-462",
+              "terminal": "finding",
+              "hostIdentity": "4477c0832d4d59a1f3260e79738b9d166e82f9e8ba443d8ffa49813fc5afd6a0",
+              "promptIdentity": "3eeef41c19c0271e5a3eb6e12c5dba19bd6ded50739120d1aabee22ad637b58d",
+              "evidenceIds": [
+                "B-5a88:F-348",
+                "B-5a88:F-350"
+              ],
+              "coverageDigest": "311928b11a6502864606f47b3ddf68ef4c8567caf6a7134d48911ca34f9075af"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-465",
+              "terminal": "finding",
+              "hostIdentity": "07647046ac8b807c8b8d8c5374c399ffb4837e6a079d153c1e0df4011d540e16",
+              "promptIdentity": "87c1351ddef87a6cb878043d82ea375f537e2b84f6f6b17d873c404f4c842967",
+              "evidenceIds": [
+                "B-5a88:F-351",
+                "B-5a88:F-352",
+                "B-5a88:F-353",
+                "B-5a88:F-354"
+              ],
+              "coverageDigest": "657ac163ea6b1d68db9521f1fe84b103e62a20f4cac2465b7a35262d403f89ac"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "finding:B-5a88:F-348",
+            "finding:B-5a88:F-349",
+            "finding:B-5a88:F-350",
+            "finding:B-5a88:F-351",
+            "finding:B-5a88:F-352",
+            "finding:B-5a88:F-353",
+            "finding:B-5a88:F-354"
+          ],
+          "verifiedFindingSetDigest": "5f474b2bcef519b0b648fe491482cd092a927ad861d4cb03dc58bf2229c62030",
+          "newVerifiedFindingCount": 7,
+          "criticDigest": "f7fafbb51f09bf263a09d775b3ad2b1fcf0c3ef519c79bcdfc254adede39b84d",
+          "saturated": false,
+          "nextRunSequenceBoundary": 468
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "91a7add83b87950d6b68959a69eba44aca2f90342a366377291b7b18206eb7ed"
+      "_hash": "0ff40ffd3ac7b9ccc5dc9c070ce00d3b4b60274f57dac0e41d84a6b7517e05d1"
     }
   ],
   "receipts": [
@@ -6550,6 +6609,73 @@
       ],
       "createdAt": "2026-08-23T14:50:24.958Z",
       "_hash": "d9c8749a22d6df7bdbf398c1ca85150056697e99a2b19b4738bb0015c527512b"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-050:CRIT-01",
+      "epochId": "B-5a88:RI-050",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "ca10361840f26530b8e0b861f85b3d05ccf28002",
+        "materialHash": "544786440be5b48ed4d03f09919d40fb880d2c51147cd490e0cfdaf0152c03dd",
+        "storyFilesHash": "06648257c19c4796548654b34efcf1c45531938ccd943cdc39a330cb2b116440"
+      },
+      "aggregateFindingSetDigest": "5f474b2bcef519b0b648fe491482cd092a927ad861d4cb03dc58bf2229c62030",
+      "requiredLaneCoverageDigest": "3e77e77c45b4e0cae3265868debbaa1cbbf9e9fcc5b185db626cdbd8b7da431a",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-468",
+      "terminalEvidenceIds": [
+        "B-5a88:F-355"
+      ],
+      "readEvidenceDigest": "284172024cb7065d623542836d2755749c9d7c2fd52d6d4d9ec6b5dbc37295c2",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-348",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-348",
+          "reason": "Current pre-review artifact blocker remains independently evidenced."
+        },
+        {
+          "findingId": "B-5a88:F-349",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-349",
+          "reason": "Current package-description branding residue remains independently evidenced."
+        },
+        {
+          "findingId": "B-5a88:F-350",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-350",
+          "reason": "Current HEAD pre-review artifact remains tampered/inadmissible."
+        },
+        {
+          "findingId": "B-5a88:F-351",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-351",
+          "reason": "Current all-21 verification receipts remain stale."
+        },
+        {
+          "findingId": "B-5a88:F-352",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-352",
+          "reason": "Current CHK-002 adversarial binding gap remains evidenced."
+        },
+        {
+          "findingId": "B-5a88:F-353",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-353",
+          "reason": "Current CHK-006 edge coverage gap remains evidenced."
+        },
+        {
+          "findingId": "B-5a88:F-354",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-354",
+          "reason": "Current CHK-007 edge coverage gap remains evidenced."
+        }
+      ],
+      "createdAt": "2026-08-23T19:13:11.581Z",
+      "_hash": "3833ac21b76dc73f7e5ef9958408c6bbccd938d5645cb78ddaf468c7c3432763"
     }
   ]
 }
