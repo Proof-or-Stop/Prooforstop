@@ -2703,9 +2703,9 @@
       "epochId": "B-5a88:RIE-039",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-23T10:36:59.797Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-23T11:09:17.139Z",
-      "updatedAt": "2026-08-23T11:09:17.139Z",
+      "updatedAt": "2026-08-23T11:10:46.064Z",
       "cutoff": {
         "headHash": "1fad65ffdb4554e9ae1bffd3dfd6bf549276b279",
         "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
@@ -2716,7 +2716,88 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-5a88:RIE-039:RCP-001",
-      "_hash": "480f18d3a3421936507052804fb067fc6af57c4b20c449bbaedafd446dfd73b7"
+      "cancelledAt": "2026-08-23T11:10:46.064Z",
+      "cancelReason": "Late evidence refresh changed the finalized receipt binding; reopen a stable inventory receipt before DEV remediation.",
+      "terminalRunSequenceBoundary": 360,
+      "_hash": "b3c92238045bdeb208d380f4a80b4bf71da7e7303c3fdc8fdf35874c234a8138"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-030",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-23T11:10:50.983Z",
+      "updatedAt": "2026-08-23T11:27:01.467Z",
+      "cutoff": {
+        "headHash": "b4867e419e2ab5725e010e4ced38cbb18f0258d3",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "scopeDigest": "e080db7a10d4bd24e5267bd46bace1ad44140b7c25f8850e08d9c32e170512a1",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 360,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-23T11:10:50.983Z",
+          "completedAt": "2026-08-23T11:27:01.467Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-5a88:RR-363",
+              "terminal": "pass",
+              "hostIdentity": "221f8d1ef403b74b458ebbdf79159d95eddf23535ab5e233d62e28e26f5ec0af",
+              "promptIdentity": "b453a1eb84fda269fe98223c74955d76b30d70549cfbf4c4d5ba4e2c85d75576",
+              "evidenceIds": [
+                "B-5a88:RP-115"
+              ],
+              "coverageDigest": "65e31a740c0766f1b3dea220e7b6e82267f2bc1bad3485374afbded0e6af8470"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-5a88:RR-361",
+              "terminal": "pass",
+              "hostIdentity": "221f8d1ef403b74b458ebbdf79159d95eddf23535ab5e233d62e28e26f5ec0af",
+              "promptIdentity": "151caeb261b53e00e003f7aabedb9643a9684efec91abb4598a82b77f87e6a3c",
+              "evidenceIds": [
+                "B-5a88:RP-116"
+              ],
+              "coverageDigest": "89dbe6a25ad8896329f41989cb472a72e400c0d5042cc4d4eb95d288d93912bf"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-362",
+              "terminal": "pass",
+              "hostIdentity": "221f8d1ef403b74b458ebbdf79159d95eddf23535ab5e233d62e28e26f5ec0af",
+              "promptIdentity": "84d8b7089877a449d5f615b3aa14b9695c1211cf031c1ea2a801275a3ecae660",
+              "evidenceIds": [
+                "B-5a88:RP-117"
+              ],
+              "coverageDigest": "f9130df9219531b0e5a0201eb837061264cb74742a8ce6c4843da41fb78ec395"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "finding:B-5a88:F-278",
+            "finding:B-5a88:F-279"
+          ],
+          "verifiedFindingSetDigest": "254b8deb4161f4ed89afd761c8333cbe63d4de792320f4e8152a34b986fad05b",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "30b50f6b0a3c50e9d91103f4f248537d381a22ed97cd7a136147f61304f26649",
+          "saturated": false,
+          "nextRunSequenceBoundary": 364
+        }
+      ],
+      "baselineFindingIds": [
+        "B-5a88:F-278",
+        "B-5a88:F-279"
+      ],
+      "_hash": "46200deb82fcfeb90af465b577c4014e8a7e2f6ed9bee3b0c81ee019a68095ff"
     }
   ],
   "receipts": [
@@ -3113,7 +3194,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-23T11:09:17.139Z",
-      "_hash": "5da27008df9b370fda19a17c6bb923a2ed0837c505b623b444767e4690636870"
+      "invalidatedAt": "2026-08-23T11:10:46.064Z",
+      "invalidationReason": "Late evidence refresh changed the finalized receipt binding; reopen a stable inventory receipt before DEV remediation.",
+      "_hash": "5f512e1ed5c0dc85a827371da08a33a7c82eb7a5d6ab0931adafbbd29031a551"
     }
   ],
   "criticReceipts": [
@@ -4843,6 +4926,43 @@
       ],
       "createdAt": "2026-08-23T09:18:32.806Z",
       "_hash": "a76f1447304078ca5ed83cb356110e57a0dd572ccb74a44ccb21940782cddcf5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-030:CRIT-01",
+      "epochId": "B-5a88:RI-030",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-23T10:36:59.797Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "b4867e419e2ab5725e010e4ced38cbb18f0258d3",
+        "materialHash": "60f80f78a14e8d006ba59b55639603a154ae90a636d665978264ff83acc73b8a",
+        "storyFilesHash": "0a84bdcbd6ee5b9115b0cc367978fba393aa597a24688ad24fad7245b14dbd22"
+      },
+      "aggregateFindingSetDigest": "254b8deb4161f4ed89afd761c8333cbe63d4de792320f4e8152a34b986fad05b",
+      "requiredLaneCoverageDigest": "ff6d8882b6b91f5cf857c38a9e00d88850c9b8b161641c51a826576357b9f899",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-364",
+      "terminalEvidenceIds": [
+        "B-5a88:F-282"
+      ],
+      "readEvidenceDigest": "cfbb2d3035f018b1446fbbaf6d40ed56cfd1afa058e45b534b92964d86b68ad6",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-278",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-278",
+          "reason": "Existing signed baseline family remains unresolved."
+        },
+        {
+          "findingId": "B-5a88:F-279",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-279",
+          "reason": "Existing signed baseline family remains unresolved."
+        }
+      ],
+      "createdAt": "2026-08-23T11:26:31.353Z",
+      "_hash": "abd6e516b337f41c2632752be90674d81676ba060b543a979a64b56c33dc140f"
     }
   ]
 }
