@@ -45,6 +45,10 @@ function createTempProject() {
 }
 
 const temp = createTempProject();
+execFileSync('npm', ['--prefix', 'packages/lab', 'run', 'build'], {
+  cwd: repoRoot,
+  stdio: 'inherit',
+});
 const { createLabHandlers } = await import(pathToFileURL(join(repoRoot, 'packages', 'lab', 'dist', 'handlers', 'lab.js')).href);
 const lab = createLabHandlers({ root: temp });
 
