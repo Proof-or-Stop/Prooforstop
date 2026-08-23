@@ -8414,6 +8414,44 @@
         "scanEscalationReason": "High-risk global identity migration and candidate ambiguity required a repository-wide concept-residue scan; current scan was bounded to tracked source, markdown, and JSON while excluding node_modules, dist, and .git."
       },
       "_hash": "e3131061e22625f95c27f91d950b33bad98d72a79fc6662189e7bab7a037f287"
+    },
+    {
+      "id": "B-5a88:RP-157",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-054 quality review found no new distinct family in the frozen candidate. F-363/F-364/F-365 remain separately tracked; F-366..F-371 are duplicate reports and are not re-added.",
+      "createdAt": "2026-08-23T22:46:18.629Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-511",
+      "envelopeId": "6e857eb78794e10b09ef1898e518bc92412cf7071a95abb84cec177520523f36",
+      "writerSessionId": "sess-f76f4e90cd0f0b89ffdadc7dc8452d82",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-quality.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/handlers/evidence-pin-guard.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": "RI-054 quality review covered the frozen candidate and its three verified baseline families; focused guard/smoke/residue checks and diff hygiene were run. F-363/F-364/F-365 remain separately tracked, while F-366..F-371 are duplicate reports; no new distinct family was registered."
+      },
+      "_hash": "11d9e8fae2e1cfdba34aabadf9cc20aace407c0b481e8a3a45302d82d303e617"
     }
   ]
 }
