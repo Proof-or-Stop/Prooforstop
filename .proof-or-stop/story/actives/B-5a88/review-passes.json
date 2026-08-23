@@ -8206,6 +8206,58 @@
         "scanEscalationReason": null
       },
       "_hash": "0cc00834de0ec0c3c056ddc5fbb91095af54c19010b3e1b99513f8e982e401ab"
+    },
+    {
+      "id": "B-5a88:RP-152",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed for RI-052: 7/7 checklist items and 21/21 must verification intents have passing mechanical evidence with zero waivers or failures. Wave 4 executable checks were reviewed: pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check pass; the signed rollout report has six baseline/candidate pairs, full 3 rounds x 2 hosts, zero false pass/block, omission detection 1/1, freshness/forgery/omission mutations, mode-invariant diagnostics, and control restoration. Current acceptance_topology_check is diagnostic-only nonblocking with stale-plan AT diagnostics, not a coverage gap.",
+      "createdAt": "2026-08-23T22:05:37.319Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-497",
+      "envelopeId": "25e38b566aec750b8dee4514794c11da4776b2c23bf409e78d657ecc6ca7443c",
+      "writerSessionId": "sess-c90d84b889d9474734008f3ce24b1bbf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/utils/package.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+          "packages/main/templates/agents/proof-or-stop-evaluator.md",
+          "packages/main/templates/agents/proof-or-stop-implementation-reviewer.md",
+          "packages/main/templates/agents/proof-or-stop-implementer.md",
+          "packages/main/templates/agents/proof-or-stop-product-reviewer.md",
+          "packages/main/templates/agents/proof-or-stop-review-behavior.md",
+          "packages/main/templates/agents/proof-or-stop-review-channel.md",
+          "packages/main/templates/agents/proof-or-stop-review-concept.md",
+          "packages/main/templates/agents/proof-or-stop-review-delivery.md",
+          "packages/main/templates/agents/proof-or-stop-review-docs.md",
+          "packages/main/templates/agents/proof-or-stop-review-quality.md",
+          "packages/main/templates/agents/proof-or-stop-review-scope-plan.md",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+          "packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "packages/main/templates/agents/proof-or-stop-test-case-reviewer.md",
+          "packages/main/templates/agents/proof-or-stop-test-intent.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5c7696ed3df4cb6dee1a36aaa18e293726c7855c3f7f545218583bd8624c77a1"
     }
   ]
 }
