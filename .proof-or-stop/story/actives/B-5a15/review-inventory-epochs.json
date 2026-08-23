@@ -2464,7 +2464,7 @@
       "reviewRound": "2026-08-22T06:10:03.014Z",
       "state": "OPEN",
       "begunAt": "2026-08-23T13:33:16.652Z",
-      "updatedAt": "2026-08-23T13:33:16.652Z",
+      "updatedAt": "2026-08-23T14:12:55.369Z",
       "cutoff": {
         "headHash": "f72a99b44aa07dbeb1e1864176a4b80eaac96006",
         "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
@@ -2478,7 +2478,71 @@
       ],
       "initialRunSequenceBoundary": 329,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-23T13:33:16.652Z",
+          "completedAt": "2026-08-23T14:12:55.369Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-330",
+              "terminal": "pass",
+              "hostIdentity": "dd79394c57eab1126bb91443c3f05a6b5c40ffc30fa1d8edf9c852cc388fe4e9",
+              "promptIdentity": "a658f30423837ca965e862a517422b45276d3f955a2e812d286b27a506c10202",
+              "evidenceIds": [
+                "B-5a15:RP-061"
+              ],
+              "coverageDigest": "3b57e959791cc1ca70b992439d6af98867d7dc4d6ea61c96ce875b8575a94bbc"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-333",
+              "terminal": "finding",
+              "hostIdentity": "dd79394c57eab1126bb91443c3f05a6b5c40ffc30fa1d8edf9c852cc388fe4e9",
+              "promptIdentity": "f2f217040b7cca30eed001d4d71df92e59ea3924dbb7c7f352e6f6bb11dae04a",
+              "evidenceIds": [
+                "B-5a15:F-201",
+                "B-5a15:F-202"
+              ],
+              "coverageDigest": "daf108f52bfef8d973ec2965a2c74db8882a18ecf32c0d1afb41e235436d8039"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-332",
+              "terminal": "finding",
+              "hostIdentity": "dd79394c57eab1126bb91443c3f05a6b5c40ffc30fa1d8edf9c852cc388fe4e9",
+              "promptIdentity": "71178215b25b271dd5026cd8542f7e2deeb21c706cfe827ffa68d4bf198abc7f",
+              "evidenceIds": [
+                "B-5a15:F-200"
+              ],
+              "coverageDigest": "f8c41a6f834687370119bb5e356c541470558ce8fe61a405f76bc443d81f75ce"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "family:acceptance-basis-unmapped-topology",
+            "family:canonical-import-preflight-transaction",
+            "family:causal-decision-consumer-identity",
+            "family:causal-input-identity-collision",
+            "family:causal-receipt-output-tail-bound",
+            "family:chk003-advisory-admission-coverage",
+            "family:commit-failure-rerun-metric",
+            "family:derived-causal-metrics",
+            "family:preflight-authority-root-binding",
+            "family:preflight-event-ordering",
+            "family:production-empty-causal-dag",
+            "family:production-evidence-batch-boundary",
+            "family:story-files-hash-drift",
+            "family:validation-command-spec-identity",
+            "family:verifier-owned-wave4-coverage"
+          ],
+          "verifiedFindingSetDigest": "24a94be385f0c8fd556ff1198a5e030ed1415fec2940758bd837b07a4845dcde",
+          "newVerifiedFindingCount": 15,
+          "criticDigest": "510488902b0365f367cc741a268f6ac350c78f51859d84c0110ec1d6618a8890",
+          "saturated": false,
+          "nextRunSequenceBoundary": 338
+        }
+      ],
       "baselineFindingIds": [
         "B-5a15:F-152",
         "B-5a15:F-153",
@@ -2528,7 +2592,7 @@
         "B-5a15:F-198",
         "B-5a15:F-199"
       ],
-      "_hash": "ab923a50177aa7841fb3425b95379196ffe4a02b6de223849ab38c30d88a2a98"
+      "_hash": "69c1075628093561b19021f0acd133fd0490f94597455e366b87955f9b276c1e"
     }
   ],
   "receipts": [
@@ -5026,6 +5090,366 @@
       ],
       "createdAt": "2026-08-23T13:32:45.119Z",
       "_hash": "7eb3df91b6cfcb8803e6fb1da9c67d0f2e8ff90fd68f6ecc16bb17bdfd89a7ab"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-019:CRIT-01",
+      "epochId": "B-5a15:RI-019",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "f72a99b44aa07dbeb1e1864176a4b80eaac96006",
+        "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6",
+        "storyFilesHash": "e287c5f32d9aad03e0ce7ea8b20a2684ab0ac2e78ef99c6fc5b18e9b8e9c97e7"
+      },
+      "aggregateFindingSetDigest": "24a94be385f0c8fd556ff1198a5e030ed1415fec2940758bd837b07a4845dcde",
+      "requiredLaneCoverageDigest": "98ed6d10a6993128579b2e0bb0b7cfeac43cc20f19a9d086f28949743308baf7",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-338",
+      "terminalEvidenceIds": [
+        "B-5a15:F-203"
+      ],
+      "readEvidenceDigest": "bd8f5f66c3383faebc36d4669f0314004a7af1baaecbf530bb1dbb7f7d9b60ec",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-152",
+          "disposition": "verified_family",
+          "familyKey": "family:chk003-advisory-admission-coverage",
+          "reason": "Independent current-wave evidence establishes the canonical family:chk003-advisory-admission-coverage family."
+        },
+        {
+          "findingId": "B-5a15:F-153",
+          "disposition": "verified_family",
+          "familyKey": "family:causal-receipt-output-tail-bound",
+          "reason": "Independent current-wave evidence establishes the canonical family:causal-receipt-output-tail-bound family."
+        },
+        {
+          "findingId": "B-5a15:F-154",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-196 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-155",
+          "disposition": "duplicate",
+          "familyKey": "family:chk003-advisory-admission-coverage",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-152 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-156",
+          "disposition": "verified_family",
+          "familyKey": "family:validation-command-spec-identity",
+          "reason": "Independent current-wave evidence establishes the canonical family:validation-command-spec-identity family."
+        },
+        {
+          "findingId": "B-5a15:F-157",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-196 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-158",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-196 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-159",
+          "disposition": "duplicate",
+          "familyKey": "family:chk003-advisory-admission-coverage",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-152 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-160",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-198",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-198 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-161",
+          "disposition": "verified_family",
+          "familyKey": "family:causal-input-identity-collision",
+          "reason": "Independent current-wave evidence establishes the canonical family:causal-input-identity-collision family."
+        },
+        {
+          "findingId": "B-5a15:F-162",
+          "disposition": "duplicate",
+          "familyKey": "family:chk003-advisory-admission-coverage",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-152 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-163",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-198",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-198 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-164",
+          "disposition": "verified_family",
+          "familyKey": "family:preflight-authority-root-binding",
+          "reason": "Independent current-wave evidence establishes the canonical family:preflight-authority-root-binding family."
+        },
+        {
+          "findingId": "B-5a15:F-165",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-198",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-198 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-166",
+          "disposition": "duplicate",
+          "familyKey": "family:chk003-advisory-admission-coverage",
+          "canonicalFindingId": "B-5a15:F-152",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-152 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-167",
+          "disposition": "verified_family",
+          "familyKey": "family:commit-failure-rerun-metric",
+          "reason": "Independent current-wave evidence establishes the canonical family:commit-failure-rerun-metric family."
+        },
+        {
+          "findingId": "B-5a15:F-168",
+          "disposition": "verified_family",
+          "familyKey": "family:derived-causal-metrics",
+          "reason": "Independent current-wave evidence establishes the canonical family:derived-causal-metrics family."
+        },
+        {
+          "findingId": "B-5a15:F-169",
+          "disposition": "verified_family",
+          "familyKey": "family:preflight-event-ordering",
+          "reason": "Independent current-wave evidence establishes the canonical family:preflight-event-ordering family."
+        },
+        {
+          "findingId": "B-5a15:F-170",
+          "disposition": "verified_family",
+          "familyKey": "family:production-evidence-batch-boundary",
+          "reason": "Independent current-wave evidence establishes the canonical family:production-evidence-batch-boundary family."
+        },
+        {
+          "findingId": "B-5a15:F-171",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-196 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-172",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-196 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-173",
+          "disposition": "verified_family",
+          "familyKey": "family:story-files-hash-drift",
+          "reason": "Independent current-wave evidence establishes the canonical family:story-files-hash-drift family."
+        },
+        {
+          "findingId": "B-5a15:F-174",
+          "disposition": "verified_family",
+          "familyKey": "family:canonical-import-preflight-transaction",
+          "reason": "Independent current-wave evidence establishes the canonical family:canonical-import-preflight-transaction family."
+        },
+        {
+          "findingId": "B-5a15:F-175",
+          "disposition": "duplicate",
+          "familyKey": "family:production-empty-causal-dag",
+          "canonicalFindingId": "B-5a15:F-197",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-197 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-176",
+          "disposition": "duplicate",
+          "familyKey": "family:causal-receipt-output-tail-bound",
+          "canonicalFindingId": "B-5a15:F-153",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-153 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-177",
+          "disposition": "duplicate",
+          "familyKey": "family:validation-command-spec-identity",
+          "canonicalFindingId": "B-5a15:F-156",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-156 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-178",
+          "disposition": "duplicate",
+          "familyKey": "family:causal-input-identity-collision",
+          "canonicalFindingId": "B-5a15:F-161",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-161 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-179",
+          "disposition": "duplicate",
+          "familyKey": "family:preflight-authority-root-binding",
+          "canonicalFindingId": "B-5a15:F-164",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-164 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-180",
+          "disposition": "duplicate",
+          "familyKey": "family:story-files-hash-drift",
+          "canonicalFindingId": "B-5a15:F-173",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-173 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-181",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-196 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-182",
+          "disposition": "verified_family",
+          "familyKey": "family:causal-decision-consumer-identity",
+          "reason": "Independent current-wave evidence establishes the canonical family:causal-decision-consumer-identity family."
+        },
+        {
+          "findingId": "B-5a15:F-183",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-196 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-184",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-198",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-198 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-185",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-196 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-186",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-198",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-198 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-187",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-198",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-198 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-188",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-196 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-189",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-198",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-198 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-191",
+          "disposition": "duplicate",
+          "familyKey": "family:production-empty-causal-dag",
+          "canonicalFindingId": "B-5a15:F-197",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-197 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-192",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-198",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-198 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-193",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-198",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-198 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-194",
+          "disposition": "duplicate",
+          "familyKey": "family:production-empty-causal-dag",
+          "canonicalFindingId": "B-5a15:F-197",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-197 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-195",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-196 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-196",
+          "disposition": "verified_family",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "reason": "Independent current-wave evidence establishes the canonical family:acceptance-basis-unmapped-topology family."
+        },
+        {
+          "findingId": "B-5a15:F-197",
+          "disposition": "verified_family",
+          "familyKey": "family:production-empty-causal-dag",
+          "reason": "Independent current-wave evidence establishes the canonical family:production-empty-causal-dag family."
+        },
+        {
+          "findingId": "B-5a15:F-198",
+          "disposition": "verified_family",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "reason": "Independent current-wave evidence establishes the canonical family:verifier-owned-wave4-coverage family."
+        },
+        {
+          "findingId": "B-5a15:F-199",
+          "disposition": "duplicate",
+          "familyKey": "family:acceptance-basis-unmapped-topology",
+          "canonicalFindingId": "B-5a15:F-196",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-196 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-200",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-198",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-198 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-201",
+          "disposition": "duplicate",
+          "familyKey": "family:production-empty-causal-dag",
+          "canonicalFindingId": "B-5a15:F-197",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-197 in the same semantic family."
+        },
+        {
+          "findingId": "B-5a15:F-202",
+          "disposition": "duplicate",
+          "familyKey": "family:verifier-owned-wave4-coverage",
+          "canonicalFindingId": "B-5a15:F-198",
+          "reason": "Unchanged recurring evidence; duplicate of canonical B-5a15:F-198 in the same semantic family."
+        }
+      ],
+      "createdAt": "2026-08-23T14:12:08.312Z",
+      "_hash": "59f2f029fd83756c1e443376acf63725e6a72023c3bc3dd6a99b7b0c30a00ddc"
     }
   ]
 }
