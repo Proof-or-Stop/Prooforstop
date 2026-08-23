@@ -1,7 +1,7 @@
 /**
  * @task B-a591
  * @checklist CHK-001
- * @title lattice-lab scoring core turns metric bundles into comparable scores
+ * @title proof-or-stop-lab scoring core turns metric bundles into comparable scores
  * @type feature
  * @priority high
  * @description
@@ -32,7 +32,7 @@ function clamp01(value: number): number {
 
 function ensureFinite(label: string, value: number): void {
   if (!Number.isFinite(value)) {
-    throw new Error(`lattice-lab invalid ${label}: ${value}`);
+    throw new Error(`proof-or-stop-lab invalid ${label}: ${value}`);
   }
 }
 
