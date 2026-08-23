@@ -14908,7 +14908,7 @@
       "desc": "Current REVIEW topology cannot certify the verifier-owned pre-review and acceptance closure as current admissible evidence: the existing pre-review artifact is bound to an older head/material/story-files state and reports stale or tampered evidence, so this is the same pre-review-admissibility family already tracked by B-5a88:F-355. No distinct migration defect is claimed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-08-23T20:28:19.357Z",
@@ -14949,6 +14949,25 @@
         "packages/main/src/core/pre-review-check.ts"
       ],
       "signatureTag": "missing|json|current-review-topology",
+      "signatureTagSource": "auto",
+      "resolvedReason": "This topology finding duplicates the canonical current pre-review admissibility family B-5a88:F-355; it claims no distinct migration defect and points to the same stale verifier-owned pre-review and acceptance closure. Keep F-355 as the sole canonical finding.",
+      "resolvedAt": "2026-08-23T20:58:03.292Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-362",
+      "desc": "quality-cleanup: packages/main/src/core/agent-role-identity.ts:104-107 exports isCanonicalAgentRoleId, but no in-repository production caller or test uses it; remove the dead helper or wire it into canonical role validation to avoid unused API surface.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-23T20:59:10.368Z",
+      "reviewRound": "2026-08-23T20:56:20.268Z",
+      "reviewRunId": "B-5a88:RR-493",
+      "_hash": "c8732d0e69723bc22f607593e63861d0bc13c820ee00aa5051dec4565cbc518f",
+      "signatureTag": "missing|unknown|quality-cleanup-packages",
       "signatureTagSource": "auto"
     }
   ]
