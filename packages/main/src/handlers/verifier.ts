@@ -518,18 +518,19 @@ function probeVerifierIndex(cwd: string): { readable: boolean; path?: string; co
 }
 
 function probeVerifierTarget(path: string): { writable: boolean; probe: string; reason?: string } {
+  const stableProbe = `access_w:${path}`;
   let probePath = path;
   while (!existsSync(probePath)) {
     const parent = dirname(probePath);
-    if (parent === probePath) return { writable: false, probe: probePath, reason: 'evidence_target_parent_unavailable' };
+    if (parent === probePath) return { writable: false, probe: stableProbe, reason: 'evidence_target_parent_unavailable' };
     probePath = parent;
   }
   try {
-    if (!statSync(probePath).isDirectory()) return { writable: false, probe: probePath, reason: 'evidence_target_parent_not_directory' };
+    if (!statSync(probePath).isDirectory()) return { writable: false, probe: stableProbe, reason: 'evidence_target_parent_not_directory' };
     accessSync(probePath, constants.W_OK);
-    return { writable: true, probe: `access_w:${probePath}` };
+    return { writable: true, probe: stableProbe };
   } catch {
-    return { writable: false, probe: probePath, reason: 'evidence_target_access_denied' };
+    return { writable: false, probe: stableProbe, reason: 'evidence_target_access_denied' };
   }
 }
 
@@ -619,7 +620,22 @@ export function createValidationCausalPreflightGate(
   commands: ValidationCommand[],
   cwd: string,
 ): { beforeLaunch: () => void } {
-  const command = commands.map(entry => `${entry.command} ${entry.args.join(' ')}`.trim()).join('\n');
+  const validationPlan = commands.map(entry => ({
+    label: entry.label,
+    executable: entry.command,
+    args: [...entry.args],
+    shell: entry.shell === true,
+    cwd: entry.cwd ?? cwd,
+    env: { ...(entry.env ?? {}) },
+    timeoutMs: entry.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+    optional: entry.optional === true,
+    focus: [...(entry.focus ?? [])],
+    resources: [...(entry.resources ?? [])],
+  }));
+  // Keep the preflight probe's legacy string field, but make it a canonical
+  // serialization of the complete validation plan. Concatenating args loses
+  // boundaries and execution semantics (cwd/env/shell/resources/timeouts).
+  const command = causalCanonical(validationPlan);
   const timeoutMs = Math.max(
     DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
     ...commands.map(entry => entry.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS),
@@ -638,7 +654,13 @@ export function createValidationCausalPreflightGate(
     cwd,
     command,
     bootstrap: { executable: 'proof-or-stop', args: ['validate'] },
-    inputs: { storyId, materialHash: initialFacts.gitMaterial?.materialHash ?? null, timeoutMs },
+    inputs: {
+      storyId,
+      materialHash: initialFacts.gitMaterial?.materialHash ?? null,
+      timeoutMs,
+      validationPlan,
+      preflightFacts: initialFacts,
+    },
     storyFilesHash: initialFacts.gitMaterial?.storyFilesHash,
     effectiveEnvironment: effectiveCausalEnvironment(undefined, cwd),
     runtimeVersion: process.version,

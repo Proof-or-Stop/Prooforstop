@@ -12,7 +12,10 @@ import {
   EMPTY_STORY_FILES_HASH,
 } from '../core/evidence-freshness.js';
 import {
+  CAUSAL_DEPENDENCY_DOMAINS,
+  causalDependencyContextDigests,
   evaluateCausalDependencies,
+  type CausalDependencyNode,
   type CausalDependencyDecision,
 } from '../core/causal-evidence.js';
 import { resolveEffectiveBlockingSeverities } from '../core/guard-utils.js';
@@ -80,10 +83,12 @@ function readInventoryPair(
 }
 
 function buildCertificationDecision(
+  storyId: string,
   current: CertificationWindowCurrentIdentity,
   frozen?: CertificationWindowFrozenIdentity,
 ): CausalDependencyDecision | undefined {
   if (!current.materialHash || !current.storyFilesHash) return undefined;
+  const currentStoryFilesHash = current.storyFilesHash;
   const previous = frozen ?? {
     headHash: current.headHash ?? '',
     materialHash: current.materialHash,
@@ -94,13 +99,33 @@ function buildCertificationDecision(
   };
   const emptyStoryFilesHash = previous.storyFilesHash === EMPTY_STORY_FILES_HASH
     || current.storyFilesHash === EMPTY_STORY_FILES_HASH;
+  // CertificationWindow is the production consumer of the declared causal
+  // DAG. Its current materialization has one authoritative story-owned
+  // snapshot, so each domain is represented explicitly while the snapshot is
+  // fanned through the transitive domain graph. This keeps the production path
+  // fail-closed and observable instead of silently evaluating nodes: [].
+  const inputIds = CAUSAL_DEPENDENCY_DOMAINS.map(domain => `certification:${domain}`);
+  const nodes: CausalDependencyNode[] = CAUSAL_DEPENDENCY_DOMAINS.map((domain, index) => ({
+    id: `certification-${domain}`,
+    domain,
+    inputIds: [inputIds[index]],
+    ...(index > 0 ? { dependencyIds: [`certification-${CAUSAL_DEPENDENCY_DOMAINS[index - 1]}`] } : {}),
+    recordedInputHashes: { [inputIds[index]]: previous.storyFilesHash },
+  }));
+  const currentInputHashes: Record<string, string> = Object.fromEntries(
+    inputIds.map(inputId => [inputId, currentStoryFilesHash] as const),
+  );
+  const contextDigests = causalDependencyContextDigests(nodes, currentInputHashes);
+  current.causalDependencyGraphDigest = contextDigests.dependencyGraphDigest;
+  current.causalInputHashesDigest = contextDigests.currentInputHashesDigest;
   return evaluateCausalDependencies({
-    nodes: [],
-    currentInputHashes: {},
+    storyId,
+    nodes,
+    currentInputHashes,
     previousMaterialHash: previous.materialHash,
     currentMaterialHash: current.materialHash,
     previousStoryFilesHash: previous.storyFilesHash,
-    currentStoryFilesHash: current.storyFilesHash,
+    currentStoryFilesHash,
     ...(previous.headHash !== undefined ? { previousHeadHash: previous.headHash } : {}),
     ...(current.headHash !== undefined ? { currentHeadHash: current.headHash } : {}),
     doneRequired: emptyStoryFilesHash,
@@ -173,6 +198,8 @@ function collectAdmitFacts(
     dirtyNonRuntimePaths,
     gitIndexReadable: isDonePrepareGitIndexReadable(gitCwd),
     evidenceTargetWritable: isEvidenceTargetWritable(ctx.store.storyDirPath(storyId)),
+    causalDependencyGraphDigest: identity.causalDependencyGraphDigest,
+    causalInputHashesDigest: identity.causalInputHashesDigest,
     causalDecision: identity.causalDecision,
   };
 }
@@ -192,6 +219,7 @@ export function currentCertificationIdentity(
   const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
   const gitRepo = existsSync(join(gitCwd, '.git'));
   const identity: CertificationWindowCurrentIdentity = {
+    storyId,
     headHash,
     materialHash,
     storyFilesHash,
@@ -204,7 +232,7 @@ export function currentCertificationIdentity(
     const frozen = loaded.window?.state === 'ADMITTED' || loaded.window?.state === 'RUNNING'
       ? loaded.window.frozen
       : undefined;
-    identity.causalDecision = buildCertificationDecision(identity, frozen);
+    identity.causalDecision = buildCertificationDecision(storyId, identity, frozen);
   }
   return identity;
 }

@@ -372,20 +372,21 @@ function probeGitIndex(cwd: string): {
 }
 
 function probeWritableEvidenceTarget(path: string): { writable: boolean; probe: string; reason?: string } {
+  const stableProbe = `access_w:${path}`;
   let probePath = path;
   while (!existsSync(probePath)) {
     const parent = dirname(probePath);
-    if (parent === probePath) return { writable: false, probe: probePath, reason: 'evidence_target_parent_unavailable' };
+    if (parent === probePath) return { writable: false, probe: stableProbe, reason: 'evidence_target_parent_unavailable' };
     probePath = parent;
   }
   try {
     if (!statSync(probePath).isDirectory()) {
-      return { writable: false, probe: probePath, reason: 'evidence_target_parent_not_directory' };
+      return { writable: false, probe: stableProbe, reason: 'evidence_target_parent_not_directory' };
     }
     accessSync(probePath, constants.W_OK);
-    return { writable: true, probe: `access_w:${probePath}` };
+    return { writable: true, probe: stableProbe };
   } catch {
-    return { writable: false, probe: probePath, reason: 'evidence_target_access_denied' };
+    return { writable: false, probe: stableProbe, reason: 'evidence_target_access_denied' };
   }
 }
 
@@ -1046,7 +1047,12 @@ async function enforceAndStampEvidence(
     cwd: deps.cwd,
     command: pinCommand,
     bootstrap: { executable: 'proof-or-stop', args: ['verification-evidence'] },
-    inputs: { storyId: deps.storyId, materialHash: hashes.materialHash ?? null, timeoutMs: timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS },
+    inputs: {
+      storyId: deps.storyId,
+      materialHash: hashes.materialHash ?? null,
+      timeoutMs: timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+      preflightFacts: initialPreflightFacts,
+    },
     storyFilesHash: hashes.storyFilesHash,
     effectiveEnvironment: effectiveCausalEnvironment(undefined, deps.cwd),
     runtimeVersion: process.version,
@@ -1587,12 +1593,20 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         // snapshots, while retaining fail-closed current writer/index checks.
         const effectiveEnvironment = effectiveCausalEnvironment(undefined, input.cwd);
         const toolVersion = resolveCausalToolVersion(root) ?? '';
+        const recordedInputs = sourceReceipt.identity.inputs && typeof sourceReceipt.identity.inputs === 'object'
+          && !Array.isArray(sourceReceipt.identity.inputs)
+          ? sourceReceipt.identity.inputs as Record<string, unknown>
+          : {};
         const identity: CausalExecutionIdentityInput = {
           storyId,
           cwd: input.cwd,
           command: input.command,
           bootstrap: { executable: 'proof-or-stop', args: ['verification-evidence'] },
-          inputs: sourceReceipt.identity.inputs,
+          // Keep the receipt-bound preflight facts in the execution identity so
+          // the CAS receipt remains byte-for-byte bound to its original run.
+          // The live snapshot is independently signed and verified below; it
+          // must not be smuggled into a different execution key at import time.
+          inputs: recordedInputs,
           storyFilesHash: currentHashes.storyFilesHash,
           effectiveEnvironment,
           runtimeVersion: process.version,

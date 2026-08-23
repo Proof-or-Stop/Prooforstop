@@ -6,7 +6,6 @@ import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './ev
 import { withMkdirLock } from './mkdir-lock.js';
 import {
   causalDependencyDecisionMatchesCurrentIdentity,
-  hasCausalDependencyDecisionIdentityBinding,
   verifyCausalDependencyDecision,
   type CausalDependencyDecision,
 } from './causal-evidence.js';
@@ -177,6 +176,8 @@ export interface CertificationWindowAdmitFacts {
   dirtyNonRuntimePaths: string[];
   gitIndexReadable: boolean;
   evidenceTargetWritable: boolean;
+  causalDependencyGraphDigest?: string;
+  causalInputHashesDigest?: string;
   /** Optional signed decision used only by the explicit specialized consumer. */
   causalDecision?: CausalDependencyDecision;
 }
@@ -445,9 +446,12 @@ export function evaluateCertificationWindowAdmit(
   }
   const causalDecisionBindingAdmissible = !facts.causalDecision
     || causalDependencyDecisionMatchesCurrentIdentity(facts.causalDecision, {
+      storyId: facts.currentStoryId,
       materialHash: facts.materialHash,
       storyFilesHash: facts.storyFilesHash,
       headHash: facts.headHash,
+      dependencyGraphDigest: facts.causalDependencyGraphDigest,
+      currentInputHashesDigest: facts.causalInputHashesDigest,
     });
   if (facts.causalDecision && (
     !verifyCausalDependencyDecision(facts.causalDecision)
@@ -703,6 +707,7 @@ export function loadVerifiedCertificationWindow(
 }
 
 export interface CertificationWindowCurrentIdentity {
+  storyId?: string;
   materialHash?: string;
   storyFilesHash?: string;
   verifierIdentity?: string;
@@ -710,6 +715,8 @@ export interface CertificationWindowCurrentIdentity {
   headHash?: string;
   /** True when the workspace is a git repo but current hashes could not be read. */
   hashUnavailable?: boolean;
+  causalDependencyGraphDigest?: string;
+  causalInputHashesDigest?: string;
   /** Signed specialized decision; absent keeps the existing strict hash gate. */
   causalDecision?: CausalDependencyDecision;
 }
@@ -719,8 +726,14 @@ function causalDecisionMatchesCertificationSnapshot(
   frozen: CertificationWindowFrozenIdentity,
   current: CertificationWindowCurrentIdentity,
 ): boolean {
-  if (!hasCausalDependencyDecisionIdentityBinding(decision)) return false;
-  if (!causalDependencyDecisionMatchesCurrentIdentity(decision, current)) return false;
+  if (!causalDependencyDecisionMatchesCurrentIdentity(decision, {
+    storyId: current.storyId,
+    materialHash: current.materialHash,
+    storyFilesHash: current.storyFilesHash,
+    headHash: current.headHash,
+    dependencyGraphDigest: current.causalDependencyGraphDigest,
+    currentInputHashesDigest: current.causalInputHashesDigest,
+  })) return false;
   const binding = decision.identityBinding!;
   return binding.previousMaterialHash === frozen.materialHash
     && binding.previousStoryFilesHash === frozen.storyFilesHash
