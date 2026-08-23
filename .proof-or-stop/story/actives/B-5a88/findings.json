@@ -14850,7 +14850,7 @@
       "desc": "All 21 B-5a88 must-intent verificationEvidence entries are stale against the current review run: evidence_inspect reports every CHK-001..CHK-007 intent bound to head 2180e94a, material 36e1cad3, and storyFiles efb0d67, while current HEAD is 24fff454, current material is b54b7b5c, and current storyFilesHash is 55f59524. The current executable reruns pass, but until fresh receipts are recorded the REVIEW coverage gate has no current-hash evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T20:05:40.599Z",
@@ -14892,7 +14892,11 @@
         ".proof-or-stop/story/actives/B-5a88/checklist.json"
       ],
       "signatureTag": "missing|json|5a88-intent-verificationevidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by verification_evidence_refresh_stale refreshing all 21/21 must-intent receipts, followed by current round 40 test-coverage pass RP-148 covering 7/7 checklist items and 21/21 must intents. The refreshed evidence is bound to the current story state and the current reviewer pass.",
+      "resolvedAt": "2026-08-23T21:08:07.631Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-360",
