@@ -13532,7 +13532,7 @@
       "desc": "Coverage is stale at the frozen RI-044 material binding: all 21 must intents from CHK-001:happy:0 through CHK-007:adversarial:0 have result=pass records whose storyFilesHash is 1dfdbd2495319eb158aa76ab767d2c95874b3f2f41b3f8e913cc07c7ded4c58b, while the current review snapshot is storyFilesHash 09ded3b19556aa9b46ce4690999c03578fc4633b597ca82d4deece84e63943c4 at materialHash c8dded8445b08d18e2428d7163c0ceca11773911870b63ec5d415661795dbab3. The read-only evidence_plan classifies every required intent as refresh-only, so the passing archive/test snapshot cannot establish current verificationIntent coverage; do not pass this lane without refreshed evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T16:13:05.553Z",
@@ -13570,7 +13570,11 @@
         "packages/main/tests/artifact-schema-migration.test.mjs"
       ],
       "signatureTag": "missing|json|coverage-stale-frozen",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by B-5a88:F-351, the later current-round coverage finding that records the same stale all-21 verificationEvidence family.",
+      "resolvedAt": "2026-08-23T19:13:47.685Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-334",
@@ -14606,6 +14610,58 @@
         "packages/main/src/cli/help-renderer.ts"
       ],
       "signatureTag": "edge|mjs|edge-lacks-intent",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-355",
+      "desc": "Current B-5a88 acceptance evidence is inadmissible for review closure: acceptance_basis is read-only, evidentiary=false, status=invalid with AT_ADAPTER_RESULT_DIGEST_MISMATCH; acceptance_topology_check is status=fail, structuralPass=false, result=inconclusive_basis_unverified, with AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE because the basis discovery digest, closure files hash, snapshot seal, and storyFilesHash freshness no longer match current story-owned state. The registered producer-consumer closure changed after PLAN. The current pre_review_check_read is status=fail, ok=false, authority=inadmissible with PR_ARTIFACT_TAMPERED and PR_AUTHORITY_INADMISSIBLE. acceptance_rollout_report_read and acceptance_rollout_check are status=fail with receipt=stale. These verifier-owned artifacts cannot authorize acceptance until regenerated and passing against current material; the identity migration decision requires canonical proof-or-stop writes, bounded legacy reads, and preserved historical archived values, but the current topology and pre-review evidence do not establish that binding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-23T19:03:09.055Z",
+      "reviewRound": "2026-08-23T15:15:00.463Z",
+      "reviewRunId": "B-5a88:RR-468",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0750441dd2c83882902b094462c576a3382a4eb403767baad710992e0dae6b11"
+      },
+      "readDiagnostics": [],
+      "_hash": "36659a9895570ea67b72678ec5020c0bf348d7e06fc172852d21e9d5798f891b",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "signatureTag": "missing|json|current-5a88-acceptance",
       "signatureTagSource": "auto"
     }
   ]
