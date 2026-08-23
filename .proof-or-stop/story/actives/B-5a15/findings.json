@@ -10674,6 +10674,88 @@
       ],
       "signatureTag": "missing|ts|wave-coverage-missing",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-201",
+      "desc": "Unchanged canonical family B-5a15:F-197: packages/main/src/handlers/certification-window.ts:97-107 still passes nodes: [] and currentInputHashes: {} to evaluateCausalDependencies. This production CertificationWindow path cannot derive affected dependency nodes or enforce related-drift reruns, so the promised causal invalidation remains undelivered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T13:39:44.856Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-333",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "47aff862ebe47692900455101a1228f38062e24cfa0a4d612d3fe60f83d44ebc",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "missing|ts|certification-window-high",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-202",
+      "desc": "Unchanged canonical family B-5a15:F-198: current B-5a15 checklist_get reports 50/50 verificationEvidence rows, all backed only by node --test packages/main/tests/causal-evidence.test.mjs. No current-story evidence executes acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check, so the required verifier-owned Wave 4 chain and its full-3x2, degraded-3x1, mutation, mode-invariance, enforce-only, and rollback-history assertions remain uncovered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-23T13:40:08.717Z",
+      "reviewRound": "2026-08-22T06:10:03.014Z",
+      "reviewRunId": "B-5a15:RR-333",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0ac5e6ea46b45ba404f6b1108bad3eee49848804a0282680aceba67209ca4b27",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "missing|ts|wave-coverage-missing",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
