@@ -12437,6 +12437,66 @@
       ],
       "signatureTag": "adversarial|ts|causal-decision-cross",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-240",
+      "desc": "Wave-4 verifier-owned acceptance coverage is not admissible at current RI-021 HEAD 5e1ffb2e4a. acceptance_topology_check --storyId=B-5a15 --json returns status=fail with AT_SCOPE_BINDING_MISSING at acceptance-basis.json.receipt (scope-contract digest mismatch), and pre_review_check_read --storyId=B-5a15 --json returns status=inconclusive, ok=false with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED. The checklist has 50/50 passing causal-evidence rows, including 22 must intents and zero waivers, but those rows do not provide current executable evidence for the verifier-owned topology/pre-review chain. acceptance_rollout_report_read and acceptance_rollout_check are independently pass/current with full-3x2, but cannot substitute for the failed topology and pre-review prerequisites. Regenerate the verifier-owned artifacts at the current binding and rerun the read-only consumers before passing this lane.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-23T17:06:05.908Z",
+      "reviewRound": "2026-08-23T16:46:31.561Z",
+      "reviewRunId": "B-5a15:RR-374",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/scope-path-classifier.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7a379ae896039fe0c16b2c085c3556d762b9b36c0418c9ea00328f86c8b59d97"
+      },
+      "readDiagnostics": [],
+      "_hash": "76246c746b6491974c9c5efe64790c033153bc87980da1f275afbdb006aa720c",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|wave-verifier-owned",
+      "signatureTagSource": "auto"
     }
   ]
 }
