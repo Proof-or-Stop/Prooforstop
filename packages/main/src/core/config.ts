@@ -159,6 +159,18 @@ export interface ProofOrStopConfig {
   promptEnvelope?: {
     version?: 'proofbound.prompt-envelope-rollout.v1';
     roles?: Partial<Record<
+      | 'proof-or-stop-review-behavior'
+      | 'proof-or-stop-review-concept'
+      | 'proof-or-stop-review-docs'
+      | 'proof-or-stop-review-quality'
+      | 'proof-or-stop-review-test-coverage'
+      | 'proof-or-stop-review-topology-critic'
+      | 'proof-or-stop-review-story-init'
+      | 'proof-or-stop-review-scope-plan'
+      | 'proof-or-stop-implementer'
+      | 'proof-or-stop-review-delivery'
+      | 'proof-or-stop-evaluator'
+      // Deprecated keys remain readable for pre-migration configurations.
       | 'lattice-review-behavior'
       | 'lattice-review-concept'
       | 'lattice-review-docs'
