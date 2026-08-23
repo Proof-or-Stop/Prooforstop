@@ -8,6 +8,8 @@ const repoRoot = resolve(fileURLToPath(new URL('../../..', import.meta.url)));
 const labRoot = join(repoRoot, 'packages', 'lab');
 const sourcePaths = [
   'src/core/config.ts',
+  'src/core/profile.ts',
+  'src/core/scoring.ts',
   'src/tool-defs.ts',
   'src/handlers/lab.ts',
 ];
@@ -16,22 +18,42 @@ const sources = sourcePaths.map((relativePath) => [
   relativePath,
   readFileSync(join(labRoot, relativePath), 'utf8'),
 ]);
+const sourceByPath = new Map(sources);
 
 for (const [relativePath, source] of sources) {
   assert.equal(source.includes('lattice-lab'), false, `${relativePath} must not emit the retired lattice-lab brand`);
 }
-assert.match(sources[0][1], /\$schema:\s*'proof-or-stop-lab\/experiment\.v1'/);
-assert.match(sources[1][1], /proof-or-stop-lab/);
-assert.match(sources[2][1], /proof-or-stop-lab/);
+assert.match(sourceByPath.get('src/core/config.ts'), /\$schema:\s*'proof-or-stop-lab\/experiment\.v1'/);
+assert.match(sourceByPath.get('src/tool-defs.ts'), /proof-or-stop-lab/);
+assert.match(sourceByPath.get('src/handlers/lab.ts'), /proof-or-stop-lab/);
 
 const distConfigPath = join(labRoot, 'dist', 'core', 'config.js');
 assert.equal(existsSync(distConfigPath), true, 'build the lab package before running the lab brand migration test');
 const { buildExperimentConfig } = await import(distConfigPath);
+const { resolveProfile } = await import(join(labRoot, 'dist', 'core', 'profile.js'));
+const { validateMetrics } = await import(join(labRoot, 'dist', 'core', 'scoring.js'));
 const config = buildExperimentConfig({
   target: 'test-case-reviewer',
   profile: 'reviewer-quality-v1',
 });
 assert.equal(config.$schema, 'proof-or-stop-lab/experiment.v1');
+assert.throws(
+  () => resolveProfile('unknown-profile'),
+  /未知 proof-or-stop-lab profile: unknown-profile/,
+  'unknown profile errors must use the canonical lab brand',
+);
+assert.throws(
+  () => validateMetrics({
+    profile: 'reviewer-quality-v1',
+    quality: Number.NaN,
+    latencyPenalty: 0,
+    complexityPenalty: 0,
+    stabilityPenalty: 0,
+    submetrics: {},
+  }),
+  /proof-or-stop-lab invalid quality: NaN/,
+  'invalid metrics errors must use the canonical lab brand',
+);
 
 const scratchRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-lab-brand-'));
 try {

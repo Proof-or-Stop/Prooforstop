@@ -171,7 +171,7 @@ const cases = {
         run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
       } catch (error) {
         const text = String(error.stdout || '') + String(error.stderr || '');
-        failed = text.includes('未知 lattice-lab profile');
+        failed = text.includes('未知 proof-or-stop-lab profile');
       }
       assert(failed, 'unknown profile should fail with explicit error');
     } finally {
