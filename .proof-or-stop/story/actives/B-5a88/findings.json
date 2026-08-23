@@ -14976,7 +14976,7 @@
       "desc": "quality-cleanup: packages/main/src/core/agent-role-identity.ts:104-107 exports isCanonicalAgentRoleId, but no in-repository production caller or test uses it; remove the dead helper or wire it into canonical role validation to avoid unused API surface.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-23T20:59:10.368Z",
@@ -14984,7 +14984,11 @@
       "reviewRunId": "B-5a88:RR-493",
       "_hash": "c8732d0e69723bc22f607593e63861d0bc13c820ee00aa5051dec4565cbc518f",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verified by source/test search: isCanonicalAgentRoleId has no in-repository caller, is not exported from the package root, and is side-effect-free. Accept the low-severity unused helper as bounded cleanup scope for this migration; canonicalAgentRoleId and its real producer/consumer paths remain covered. No runtime behavior or acceptance criterion depends on this predicate; remove or wire it in a follow-up if strict canonical-only validation requires it.",
+      "resolvedAt": "2026-08-23T21:07:02.975Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
