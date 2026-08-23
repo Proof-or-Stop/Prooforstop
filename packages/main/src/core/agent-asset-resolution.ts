@@ -12,6 +12,7 @@ import {
 } from './prompt-registry.js';
 import { legacyAgentRoleIds } from './agent-role-identity.js';
 import { isCodexAdapterManifestOwner } from '../init-assets.js';
+import { AGENT_ASSET_RESOLUTION_SCHEMA } from './artifact-schema.js';
 
 export type AgentAssetResolutionMode = 'runtime-owned' | 'pinned-runtime' | 'full-asset' | 'debug-override';
 export type AgentAssetStatus = 'absent' | 'matches-runtime' | 'stale' | 'override';
@@ -31,7 +32,7 @@ export interface AgentAssetResolutionBoundary {
 }
 
 export interface AgentAssetResolution {
-  schemaVersion: 'lattice.agent_asset_resolution.v1';
+  schemaVersion: typeof AGENT_ASSET_RESOLUTION_SCHEMA;
   projectRoot: string;
   runtimeCliPath: string;
   runtimePackageRoot: string;
@@ -250,7 +251,7 @@ export function resolveAgentAssetResolution(projectRoot: string): AgentAssetReso
   }
 
   return {
-    schemaVersion: 'lattice.agent_asset_resolution.v1',
+    schemaVersion: AGENT_ASSET_RESOLUTION_SCHEMA,
     projectRoot: root,
     runtimeCliPath: join(runtimePackageRoot, 'dist', 'cli.js'),
     runtimePackageRoot,

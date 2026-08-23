@@ -157,7 +157,7 @@ export interface ProofOrStopConfig {
   requirementsDir: string;
   /** Approved reviewer and Story-6 complex-role rollouts. Missing roles remain byte-exact legacy-full-context. */
   promptEnvelope?: {
-    version?: 'proofbound.prompt-envelope-rollout.v1';
+    version?: 'proof-or-stop.prompt-envelope-rollout.v1' | 'proofbound.prompt-envelope-rollout.v1';
     roles?: Partial<Record<
       | 'proof-or-stop-review-behavior'
       | 'proof-or-stop-review-concept'

@@ -159,7 +159,7 @@ for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
   assert.notEqual(modular.bodyDigest, legacy.bodyDigest, `${roleId} bodies are independently content-addressed`);
   assert.equal(modular.body, readFileSync(entry.sourcePath, 'utf8'), `${roleId} package asset is the actual modular body`);
   assert.equal(extractLatticeBlock(modular.body), null, `${roleId} modular body contains no legacy Runtime Guide`);
-  assert.ok(modular.body.includes('proofbound:modular-role-body:v1'), `${roleId} keeps the legacy reconstruction anchor`);
+  assert.ok(modular.body.includes('proof-or-stop:modular-role-body:v1'), `${roleId} keeps the modular reconstruction anchor`);
   for (const host of ['claude', 'codex'] as const) {
     const identity = reviewerHostRenderIdentity(projectRoot, roleId, host, 'full-envelope');
     assert.equal(identity.rolloutMode, 'full-envelope');

@@ -99,7 +99,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-behavior',
-    templateHash: 'ff3926a26d0a5ea2c9f77682df750c47b3c9707c41a6eced0f67fbadfbe7c27d',
+    templateHash: 'a52510668fbdb3275df55635bc1e5d1babdb938ea4b021a6f57ed7c3a985cdec',
   },
   {
     role: 'proof-or-stop-review-channel',
@@ -109,7 +109,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-concept',
-    templateHash: 'a8b1ecd5020c6d0d091678d8c31f9c09bb12110e8da2658932570120fd86e0ca',
+    templateHash: 'b2699f1f18877711c1167adc4fbe55ba71a756c07d451f749576c8d744fa6fd4',
   },
   {
     role: 'proof-or-stop-review-delivery',
@@ -117,11 +117,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-docs',
-    templateHash: '6808a26c1be23445dbb342d2e7110181c4e2d6b9ce581cfa41a2dfdea2a16d1e',
+    templateHash: 'bf145604d69f4f8390889a709e407f64cc9240745e368abc98f4b09016f37728',
   },
   {
     role: 'proof-or-stop-review-quality',
-    templateHash: 'bf99a4151d4406490259efb51a037d28be730115f07b18d5abd63ac21598f32d',
+    templateHash: 'ec5c7375386c5c0ae04db878a426dee0efe3858e159cd280b863ea768ef42c67',
   },
   {
     role: 'proof-or-stop-review-scope-plan',
@@ -133,7 +133,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-test-coverage',
-    templateHash: '5d1f5bac9cb33991d591189f9b944b307e96600a1dd89e2d24fda6dd0f352f90',
+    templateHash: '995717ea7e03b31de502d0289acd48caeac6240ca6ff42b966d81f9d1c2a86ca',
   },
   {
     role: 'proof-or-stop-review-topology-critic',
@@ -2135,7 +2135,7 @@ async function verifyPromptMeasurementSidecar(failures) {
     failures.push('role-prompt measurement sidecar lifecycle partition must remain 13 active / 3 compatibility / 1 retired');
   }
   for (const [index, record] of (current.records ?? []).entries()) {
-    if (record.schemaVersion !== 'proofbound.prompt-measurement.v1') {
+    if (record.schemaVersion !== 'proof-or-stop.prompt-measurement.v1') {
       failures.push(`role-prompt measurement record ${index} has unsupported schema`);
     }
     if (record.knownDispatchInputTokens?.availability !== 'unavailable') {

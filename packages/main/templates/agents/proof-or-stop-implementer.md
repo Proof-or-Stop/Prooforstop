@@ -9,7 +9,7 @@ tools:
   - Grep
   - Bash
 ---
-<!-- proofbound:modular-role-body:v1 -->
+<!-- proof-or-stop:modular-role-body:v1 -->
 Acceptance-basis boundary: only `proof-or-stop acceptance_basis_generate` may write the signed PLAN coverage-basis receipt. `proof-or-stop acceptance_basis` is read-only diagnostic output; never submit or replay it as gate evidence or authority.
 Acceptance-topology boundary: before PLAN→DEV, use `proof-or-stop acceptance_topology_check --storyId=<id>` to inspect the canonical structural report. The independent default-observe project `proofStory.acceptanceTopologyGateMode` changes admission blocking only, never status or diagnostics; never submit caller status/mode/authority, substitute executable evidence, or treat this PLAN check as production readiness.
 

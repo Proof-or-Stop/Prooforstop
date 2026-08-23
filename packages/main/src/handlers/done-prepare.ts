@@ -54,6 +54,7 @@ import {
 } from '../core/done-prepare-validation-reuse.js';
 import { CliWatchdogTimeoutError, donePreparePhaseBudget, doneRequiredDerivedBudget, timeoutLayerFromReason, type TimeoutBudgetSource } from '../core/done-required-timeout-budget.js';
 import { readBrandEnv } from '../core/brand-env.js';
+import { DONE_PREPARE_SCHEMA } from '../core/artifact-schema.js';
 import {
   buildReviewEscalationGuidance,
   buildReviewAssuranceFloorGuidance,
@@ -188,7 +189,7 @@ interface CloseoutPhase {
 }
 
 export interface DonePrepareJsonResult {
-  schemaVersion: 'lattice.done_prepare.v1';
+  schemaVersion: typeof DONE_PREPARE_SCHEMA;
   storyId: string;
   status: 'pass' | 'blocked' | 'unknown';
   transcript: string;
@@ -1086,7 +1087,7 @@ export function donePrepareJsonResult(storyId: string, transcript: string): Done
     /convergence: metadataRollbacks=(\d+) reviewerReattestations=(\d+) postTestReviewerReattestations=(\d+) humanConfirmations=(\d+) unchangedSuiteExecutions=(\d+)(?: reviewWindowSuiteExecutions=(\d+))? successfulCloseout=(\d+)/,
   );
   return {
-    schemaVersion: 'lattice.done_prepare.v1',
+    schemaVersion: DONE_PREPARE_SCHEMA,
     storyId,
     status,
     transcript,

@@ -78,7 +78,7 @@ const LEGACY_LOAD_BEARING_PROMPT_SLICE = LOAD_BEARING_LATTICE_PROMPT_SLICE
   .replace('<!-- proof-or-stop:end -->', '<!-- lattice:end -->');
 
 const modularReviewerSafetyPhrases = [
-  'proofbound:modular-role-body:v1',
+  'proof-or-stop:modular-role-body:v1',
   'review_run_start',
   'review_pass_set',
   'finding_add',
@@ -150,7 +150,7 @@ function assertPromptReductions(): void {
       // Complex roles are assembled from the package registry. Their package
       // templates carry the role body marker; the load-bearing runtime slice is
       // injected only by the host renderer.
-      assert.match(content, /<!-- proofbound:modular-role-body:v1 -->/, `${file} keeps the modular role-body marker`);
+      assert.match(content, /<!-- proof-or-stop:modular-role-body:v1 -->/, `${file} keeps the modular role-body marker`);
       assert.doesNotMatch(content, /<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/, `${file} does not inline the host runtime slice`);
     } else {
       const expectedLoadBearingSlice = file === 'proof-or-stop-review-channel.md'

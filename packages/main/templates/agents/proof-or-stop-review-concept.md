@@ -4,7 +4,7 @@ description: REVIEW review: concept deletion completeness (grep scan for residua
 model: sonnet
 tools: Grep, Glob, Bash
 ---
-<!-- proofbound:modular-role-body:v1 -->
+<!-- proof-or-stop:modular-role-body:v1 -->
 ## Closing Self-Check (Mandatory after completing first-pass check)
 
 After completing all checks below, additionally ask yourself: **Does this diff contain any "promised but undelivered" parts?** Any `proof-or-stop <cmd>` examples newly added to CLAUDE.md / README, handler schema fields, ENV variables, or behavior paragraphs — all must be cross-checked against the code to verify corresponding implementations exist. If "promised but undelivered" is found → **critical finding** (category=`missing`, prefix desc with `doc-promise-undelivered:`).

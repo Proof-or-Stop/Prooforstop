@@ -29,6 +29,20 @@ export const EVIDENCE_HASH_SNAPSHOT_SCHEMA = 'proof-or-stop.evidence_hash_snapsh
 /** Historical freshness snapshot accepted only for dual-read compatibility. */
 export const EVIDENCE_HASH_SNAPSHOT_SCHEMA_LEGACY = 'lattice.evidence_hash_snapshot.v1' as const;
 
+/** Current lifecycle projection schemas. Readers may accept the exact legacy literal. */
+export const AGENT_ASSET_RESOLUTION_SCHEMA = 'proof-or-stop.agent_asset_resolution.v1' as const;
+export const AGENT_ASSET_RESOLUTION_SCHEMA_LEGACY = 'lattice.agent_asset_resolution.v1' as const;
+export const DONE_PREPARE_SCHEMA = 'proof-or-stop.done_prepare.v1' as const;
+export const DONE_PREPARE_SCHEMA_LEGACY = 'lattice.done_prepare.v1' as const;
+export const DONE_CLOSURE_SCHEMA = 'proof-or-stop.done_closure.v1' as const;
+export const DONE_CLOSURE_SCHEMA_LEGACY = 'lattice.done_closure.v1' as const;
+export const PROOF_BINDING_SCHEMA = 'proof-or-stop.proof_binding.v1' as const;
+export const PROOF_BINDING_SCHEMA_LEGACY = 'lattice.proof_binding.v1' as const;
+export const OBSERVABILITY_SNAPSHOT_SCHEMA = 'proof-or-stop.observability_snapshot.v1' as const;
+export const OBSERVABILITY_SNAPSHOT_SCHEMA_LEGACY = 'lattice.observability_snapshot.v1' as const;
+export const USAGE_SWEEP_SCHEMA = 'proof-or-stop.usage_sweep.v1' as const;
+export const USAGE_SWEEP_SCHEMA_LEGACY = 'lattice.usage_sweep.v1' as const;
+
 export type DoneRequiredEvidenceSchema =
   | typeof DONE_REQUIRED_EVIDENCE_SCHEMA
   | typeof DONE_REQUIRED_EVIDENCE_SCHEMA_LEGACY;
