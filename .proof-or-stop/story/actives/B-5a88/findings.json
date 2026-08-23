@@ -10872,6 +10872,55 @@
       ],
       "signatureTag": "missing|json|wave-concept-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-276",
+      "desc": "RI-026 wave 3/3 topology completeness remains blocked by the verifier-owned pre-review boundary. Current proof-or-stop pre_review_check_read --storyId=B-5a88 --json is read-only and returns status=fail, ok=false, plannedActual=complete, executableEvidence=missing, mutations=missing, transcript=missing, authority=inadmissible, with PR_ARTIFACT_TAMPERED, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. acceptance_basis is structurally verified but evidentiary=false, acceptance_topology_check is pass but evidentiary=false and diagnostic-only, while current acceptance rollout reads pass/current; those structural and rollout results cannot substitute for the missing admissible executable, mutation, transcript, and authority proof. The current raw findings B-5a88:F-273, B-5a88:F-274, and B-5a88:F-275 independently describe the same high residual, consistent with prior verified family findings B-5a88:F-265 and B-5a88:F-269. Preserve this unresolved high family; do not certify topology or inventory finalization.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-23T09:18:06.648Z",
+      "reviewRound": "2026-08-22T07:35:25.372Z",
+      "reviewRunId": "B-5a88:RR-351",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ff701bfbb9ef3041ae021a549e54d2536039414dbd26d38f5f5555b150442ccc",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "signatureTag": "wave-3-pre-review-verifier-boundary",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
