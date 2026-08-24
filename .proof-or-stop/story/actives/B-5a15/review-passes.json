@@ -4818,6 +4818,55 @@
         "scanEscalationReason": null
       },
       "_hash": "c57dfb86255fa360bec0804470cdcf6399a4426c9b601c401deeb7c5ee8784f0"
+    },
+    {
+      "id": "B-5a15:RP-108",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-026 wave 2 RR-431 coverage review: inspected all 51 verification intent refs and 51 mechanical evidence rows; 22 strict intents are represented, there are 0 waivers and 0 new must-gaps or verified families. Existing baseline F-247 and F-248 remain untouched and were not recreated.",
+      "createdAt": "2026-08-24T08:01:05.440Z",
+      "reviewRound": "2026-08-24T06:58:21.638Z",
+      "reviewRunId": "B-5a15:RR-431",
+      "envelopeId": "cc50a42c16a6ebdcfab9d2193cef48424d8bf484a1f6a7d47140fcf17ede80fa",
+      "writerSessionId": "sess-619b5315a812633ef34d822626d516c2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "6811ce1b71f8641f674ed69a0ed23ca2f5366d06fb2c86664af58995ebadb8b0"
+      },
+      "readDiagnostics": [],
+      "_hash": "1ad92330c2ef14efd11c2808b5ae6c12cf75b7482a5d18b9106c866294e9c9d1"
     }
   ]
 }
