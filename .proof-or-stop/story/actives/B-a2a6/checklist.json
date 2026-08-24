@@ -1,0 +1,503 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reuse one prompt-envelope snapshot across reviewer evidence collection",
+      "context": "Thread a per-collection immutable envelope list through collectReviewerEvidenceState, validateEvidenceRunBinding, verifyReviewRunPromptEnvelope, and the incremental eligibility lookup.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-24T02:32:18.193Z",
+      "endTime": "2026-08-24T02:42:42.914Z",
+      "userSees": "Lifecycle readiness completes faster and reports the same reviewer evidence verdicts after reusing one prompt-envelope snapshot.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For one collectReviewerEvidenceState call covering multiple bound reviewer records, create one per-collection immutable prompt-envelope snapshot and pass that same snapshot to validateEvidenceRunBinding, verifyReviewRunPromptEnvelope, and the incremental eligibility lookup. All records must see identical envelope content, prompt-envelope reads must be reduced to one collection-scoped read, and evidence, eligibility cutoff, reviewer binding, and lifecycle gate decisions must match uncached behavior.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+              "selector": "review-incremental-context-smoke: PASS"
+            }
+          },
+          {
+            "desc": "Independent direct callers of verifyReviewRunPromptEnvelope or validateEvidenceRunBinding that omit the optional snapshot retain the existing direct-read/default behavior, including the same successful result for valid evidence and the same fail-closed result for invalid evidence.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+              "selector": "review-incremental-context-smoke: CACHE SNAPSHOT"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When the collection has no envelope ledger, an empty ledger, a malformed envelope, or an unreadable envelope source, the cached snapshot is not treated as a valid fallback: the existing refusal and diagnostic remain, and no reviewer record becomes eligible or gate-passing.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+              "selector": "review-incremental-context-smoke: CACHE SNAPSHOT"
+            }
+          },
+          {
+            "desc": "When a collection mixes valid, stale, duplicate, and ineligible reviewer records, including incremental baseline cutoffs and records at the cutoff boundary, every record sees the same snapshot and ordering, deduplication, cutoff inclusivity, stale classification, and eligibility outcomes remain unchanged.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+              "selector": "review-incremental-context-smoke: CACHE SNAPSHOT"
+            }
+          },
+          {
+            "desc": "When the shared envelope list is presented to multiple verifier calls and one call attempts to mutate or replace an entry, the per-collection snapshot remains immutable or isolated; later checks observe the original validated content and no cross-record or cross-collection state is contaminated.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+              "selector": "review-incremental-context-smoke: CACHE SNAPSHOT"
+            }
+          },
+          {
+            "desc": "When the pipeline runs more than once or processes two collections sequentially with different envelope sources, each collection receives its own correct snapshot; snapshots are never reused across collections or runs, and a source change cannot be hidden by stale cached state.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+              "selector": "review-incremental-context-smoke: CACHE SNAPSHOT"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "For a reviewer run whose reviewRunId, lane, reviewRound, signature, promptHash, headHash, materialHash, storyFilesHash, scope, or envelope identity does not match the collection context, all existing fail-closed binding and prompt-envelope integrity checks still execute and reject the record; a cached snapshot never upgrades a mismatch to a pass.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+              "selector": "review-incremental-context-smoke: CACHE SNAPSHOT"
+            }
+          },
+          {
+            "desc": "If undefined, an empty substitute, a snapshot from another collection, or a snapshot captured before the relevant source was replaced is supplied to the verifier or incremental lookup, the implementation refuses unsafe data or follows only the documented safe default path; it never treats missing or foreign data as valid and preserves refusal, diagnostics, and gate blocking.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+              "selector": "review-incremental-context-smoke: CACHE SNAPSHOT"
+            }
+          },
+          {
+            "desc": "If a later reviewer record is forced to observe a mutated, truncated, reordered, or selectively filtered cached list, no integrity, signature, freshness, scope, review-run, prompt-hash, or eligibility check is bypassed; every record is evaluated against the complete collection snapshot and remains fail-closed.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+              "selector": "review-incremental-context-smoke: CACHE SNAPSHOT"
+            }
+          },
+          {
+            "desc": "When cached and uncached executions are compared while injecting envelope read failures or changing the envelope source between individual record checks, both modes agree on pass, refusal, stale, and gate outcomes for the same collection input; a read or consistency failure remains a refusal rather than fabricated evidence-ready state.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+              "selector": "review-incremental-context-smoke: CACHE SNAPSHOT"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Full smoke passes with deep frozen prompt-envelope snapshots.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "15e13947b334b905a74282570dddc0c4220cf09e85c416ec5f0600e1f12ab3f9",
+            "outputTail": "tten).\nreview-incremental-context-smoke: MIXED WRITER LOCK ABA: actual review_run_start + agent_prompt preserve two envelopes and valid signed ReviewRun\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED MASK 31 iteration 1: five concurrent legacy/full runs + pass/finding writers preserved gate evidence\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED MASK 10 iteration 1: five concurrent legacy/full runs + pass/finding writers preserved gate evidence\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED MASK 21 iteration 1: five concurrent legacy/full runs + pass/finding writers preserved gate evidence\nreview-incremental-context-smoke: INCREMENTAL_GUARD_CLASSES=review-run-identity,mixed-envelope-selection,pass-finding-write-serialization,signed-result-admissibility,lane-no-overwrite,real-review-gate\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED MASK 21 iteration 2: five concurrent legacy/full runs + pass/finding writers preserved gate evidence\nINCREMENTAL_STRESS_RECEIPT={\"deterministicSeed\":\"fixed-mask-v1\",\"schedule\":[31,10,21],\"shards\":{\"enabled\":false,\"deterministic\":false,\"timeoutIsolated\":false,\"observedSequentialCases\":true},\"replay\":{\"mask\":21,\"repetitions\":1,\"sameGuardClassOutcome\":true,\"observed\":{\"review-run-identity\":true,\"mixed-envelope-selection\":true,\"pass-finding-write-serialization\":true,\"signed-result-admissibility\":true,\"lane-no-overwrite\":true,\"real-review-gate\":true}},\"mutationKillMap\":{\"review-run-identity\":{\"executed\":false,\"detected\":false},\"mixed-envelope-selection\":{\"executed\":false,\"detected\":false},\"pass-finding-write-serialization\":{\"executed\":false,\"detected\":false},\"signed-result-admissibility\":{\"executed\":false,\"detected\":false},\"lane-no-overwrite\":{\"executed\":false,\"detected\":false},\"real-review-gate\":{\"executed\":false,\"detected\":false}},\"scheduleMutation\":{\"executed\":false,\"completed\":false,\"threw\":false,\"baselinePassed\":false,\"reorderedPassed\":false,\"orderViolation\":false,\"missingSeedRejected\":false,\"detected\":false},\"iterations\":[{\"iteration\":1,\"guardClasses\":{\"review-run-identity\":true,\"mixed-envelope-selection\":true,\"pass-finding-write-serialization\":true,\"signed-result-admissibility\":true,\"lane-no-overwrite\":true,\"real-review-gate\":true}}],\"aba\":{\"observedDurationMs\":3395.5492920000106},\"cutoff\":{\"observedDurationMs\":35224.258291},\"restoration\":{\"completedCases\":1,\"expectedCases\":1}}\nLATTICE_FULL_SUITE_SUMMARY={\"assertions\":[\"canonical-iteration\",\"guard-class-equivalence\",\"restoration\"],\"mutations\":[]}\n\nreview-incremental-context-smoke: PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:41:36.811Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:42:49.401Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+          "result": "pass",
+          "note": "Focused smoke passes production collector snapshot isolation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8bc597d8620cf578362fb06242ef91a597e18679a84d993b1847976fd7679dae",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:42:12.790Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:42:49.401Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+          "result": "pass",
+          "note": "Nested arrays and projection objects are independently cloned and frozen.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8bc597d8620cf578362fb06242ef91a597e18679a84d993b1847976fd7679dae",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:42:49.160Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:42:49.401Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+          "result": "pass",
+          "note": "Direct fallback remains available when no snapshot is supplied.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8bc597d8620cf578362fb06242ef91a597e18679a84d993b1847976fd7679dae",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:43:34.747Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:44:43.875Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+          "result": "pass",
+          "note": "Deep nested snapshot fields remain isolated from source mutation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8bc597d8620cf578362fb06242ef91a597e18679a84d993b1847976fd7679dae",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:44:08.840Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:44:43.875Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+          "result": "pass",
+          "note": "Sequential collections use separate immutable snapshots.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8bc597d8620cf578362fb06242ef91a597e18679a84d993b1847976fd7679dae",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:44:43.650Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:44:43.875Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+          "result": "pass",
+          "note": "Foreign, mismatched, stale, and missing snapshots remain refusal-safe.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8bc597d8620cf578362fb06242ef91a597e18679a84d993b1847976fd7679dae",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:45:29.800Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:46:44.621Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+          "result": "pass",
+          "note": "Nested source replacement and cross-collection isolation preserve verifier semantics.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8bc597d8620cf578362fb06242ef91a597e18679a84d993b1847976fd7679dae",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:46:06.085Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:46:44.621Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+          "result": "pass",
+          "note": "Only collection-scoped immutable snapshots are accepted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8bc597d8620cf578362fb06242ef91a597e18679a84d993b1847976fd7679dae",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:46:44.380Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:46:44.621Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+          "result": "pass",
+          "note": "Single-record mutation and bounded-read regressions pass.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8bc597d8620cf578362fb06242ef91a597e18679a84d993b1847976fd7679dae",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:47:33.897Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:48:51.549Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "0f1ee78bde7c77d5f31f6a73ca4e23f6e96ae324d667bcb92bb1960fcbfb2308",
+        "storyFilesHash": "2022f5734a52473c28fbff76e31aaff7001dd91cb8a58f48b2720d6536074945",
+        "headHash": "fafac9b5378cdd2e6215da0a064d8b87b2ada154",
+        "attestedAt": "2026-08-24T02:42:43.201Z",
+        "materialHash": "25f924441188039699ddc0d29b03dea53096bfa1452e6bd9e98ffcf8906f4314"
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove cached and uncached verification preserve identical evidence semantics",
+      "context": "Add a regression seam that counts envelope reads for multiple bound reviewer records and asserts integrity, incremental cutoff, and gate outcomes remain unchanged.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/review-run-binding-race.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-24T02:36:50.135Z",
+      "endTime": "2026-08-24T02:42:52.151Z",
+      "userSees": "The readiness gate keeps identical integrity, cutoff, and pass/finding outcomes while avoiding repeated prompt-envelope reads.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For a collection containing multiple current-round reviewer records bound to one valid immutable prompt-envelope snapshot, compare cached verification with the uncached direct-read baseline. Require identical accepted and rejected records, integrity verdicts, incremental eligibility and cutoff, reviewer evidence state, open-finding or pass classification, and lifecycle-gate outcome. Instrument envelope reads and require the cached path to read the snapshot at most once for the whole collection, with no per-record rereads; the bound must remain constant as the number of records grows.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+              "selector": "review-incremental-context-smoke: CACHE SNAPSHOT"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exercise zero, one, and many bound reviewer records, repeated references to one envelope, and incremental cutoffs before, between, and after records. Cached and uncached outputs must remain field-for-field equivalent, including the empty collection; the cutoff must exclude exactly the same records with no reorder or off-by-one difference; zero records must cause no unnecessary envelope read and a multi-record cached collection must use at most one envelope snapshot read.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+              "selector": "review-incremental-context-smoke: CACHE SNAPSHOT"
+            }
+          },
+          {
+            "desc": "Mix valid records with stale material or scope bindings, invalid integrity data, missing or mismatched envelope entries, duplicate bindings, and non-latest same-round runs. Both paths must fail closed identically for each record and in the aggregate, never fabricate, repair, or hide evidence, and must preserve the same gate result. The read counter must show that rejected and mixed records do not cause cached rereads proportional to record count.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+              "selector": "review-incremental-context-smoke: CACHE SNAPSHOT"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Vary adversarial record ordering and place the incremental cutoff at every boundary while comparing cached and uncached verification. Require identical integrity verdicts, baseline selection, cutoff, evidence state, finding visibility, and REVIEW or TEST gate outcome; fail if caching creates a pass-only or block-only result, hides a stale or corrupt record, or changes a duplicate or non-latest binding decision.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+              "selector": "review-incremental-context-smoke: CACHE SNAPSHOT"
+            }
+          },
+          {
+            "desc": "Instrument every verifier and incremental-eligibility envelope-read call site for N bound records. The cached operation must use one immutable collection-scoped snapshot, perform no second read during integrity or prompt-envelope verification, and keep the read count within a constant bound independent of N. The uncached independent-call contract must retain its documented direct reads and remain semantically equivalent; cache misses, changed snapshot identity, integrity failure, and boundary mismatch must fail closed with the same evidence and gate result.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+              "selector": "review-incremental-context-smoke: CACHE SNAPSHOT"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+          "result": "pass",
+          "note": "Incremental context reuse matches the uncached baseline.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8bc597d8620cf578362fb06242ef91a597e18679a84d993b1847976fd7679dae",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:48:10.074Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:48:51.549Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+          "result": "pass",
+          "note": "Incremental no-cutoff and direct-read paths remain equivalent.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8bc597d8620cf578362fb06242ef91a597e18679a84d993b1847976fd7679dae",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:48:51.250Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:48:51.549Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+          "result": "pass",
+          "note": "Incremental snapshot inputs remain collection-scoped and deeply immutable.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8bc597d8620cf578362fb06242ef91a597e18679a84d993b1847976fd7679dae",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:49:54.090Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:51:47.287Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+          "result": "pass",
+          "note": "Incremental foreign and stale snapshot cases fail closed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8bc597d8620cf578362fb06242ef91a597e18679a84d993b1847976fd7679dae",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:50:48.163Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:51:47.287Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+          "result": "pass",
+          "note": "Incremental read counts remain bounded while uncached behavior is unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8bc597d8620cf578362fb06242ef91a597e18679a84d993b1847976fd7679dae",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T06:51:46.856Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1bc45b02cdc70ee256422b28f6d40baa50800d56",
+          "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+          "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+          "timestamp": "2026-08-24T06:51:47.287Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "4e7a9aef414774b3b5afbe7eb8cecd8c7292fc992c241f940e9d309885ede0a0",
+        "storyFilesHash": "2022f5734a52473c28fbff76e31aaff7001dd91cb8a58f48b2720d6536074945",
+        "headHash": "899f508b6e875e1f518afee561a2dd63bef0b99f",
+        "attestedAt": "2026-08-24T02:42:52.381Z",
+        "materialHash": "25f924441188039699ddc0d29b03dea53096bfa1452e6bd9e98ffcf8906f4314"
+      }
+    }
+  ]
+}

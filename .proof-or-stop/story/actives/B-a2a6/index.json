@@ -1,0 +1,201 @@
+{
+  "storyId": "B-a2a6",
+  "name": "cache-review-prompt-envelopes-in-readiness",
+  "title": "Cache the prompt-envelope snapshot across reviewer evidence readiness checks",
+  "description": "Runtime preflight currently reparses the same prompt-envelopes.json ledger once per bound reviewer run while collecting REVIEW evidence. On 2026-08-24, B-dc83 produced a repeatable multi-minute stall and prevented the official REVIEW-to-DEV transition. Reuse one immutable in-memory snapshot per evidence collection and pass it through incremental verification without weakening integrity, signature, scope, freshness, or task-semantic checks. The user-visible outcome is a faster and more predictable lifecycle readiness gate with identical evidence decisions.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "medium",
+  "keywords": [
+    "prompt-envelope",
+    "review-evidence",
+    "runtime-preflight",
+    "ledger-cache"
+  ],
+  "createdAt": "2026-08-24T02:07:36.592Z",
+  "startedAt": "2026-08-24T02:07:36.592Z",
+  "endedAt": "2026-08-24T11:48:35.913Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-24T02:07:37.421Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-41e0efe6dc132e8ecd94b353cb4fbab8",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-24T02:13:56.387Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-1265d093a7edc51b336b8a123d15943c",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-24T02:14:11.876Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-1265d093a7edc51b336b8a123d15943c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-24T02:26:20.603Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-1265d093a7edc51b336b8a123d15943c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-24T02:48:07.675Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-1265d093a7edc51b336b8a123d15943c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-24T04:30:12.031Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-24T04:30:22.131Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-24T04:30:53.926Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-24T04:58:08.051Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-24T05:39:00.110Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-24T05:50:34.045Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-24T06:30:17.034Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-24T06:58:22.362Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-24T08:02:14.280Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-24T08:02:30.238Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-24T09:47:18.249Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-24T10:39:17.609Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-24T10:39:34.629Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-24T11:40:20.589Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-08-24T11:48:35.913Z",
+      "branch": "story/B-a2a6",
+      "user": "Pan Qi",
+      "sessionId": "sess-7b7cfa8765dd0b1a43896b9e36b1b12d",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-08-24T10:39:34.629Z"
+}

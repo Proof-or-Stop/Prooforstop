@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-a2a6",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+    "npm --prefix packages/main run build",
+    "proof-or-stop checklist_*",
+    "proof-or-stop review_*",
+    "proof-or-stop story_*",
+    "proof-or-stop validate"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".proof-or-stop/story/actives/B-dc83",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User approved a separate scoped prompt-envelope cache maintenance story.",
+  "createdAt": "2026-08-24T02:07:36.592Z",
+  "updatedAt": "2026-08-24T02:07:36.592Z",
+  "_hash": "e28c2e9f2a52cb3a2129d9271bc22f6c2d05375fb1838ccdc817ce3a4730e59d"
+}
