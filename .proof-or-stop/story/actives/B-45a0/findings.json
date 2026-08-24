@@ -14592,6 +14592,556 @@
       ],
       "signatureTag": "ri058-wave2-acceptance-evidence-stale",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-285",
+      "desc": "RI-059 concept review is blocked by a verifier-owned scope binding mismatch at .proof-or-stop/story/actives/B-45a0/acceptance-basis.json:1: acceptance_topology_check reports AT_SCOPE_BINDING_MISSING because the acceptance receipt scope-contract digest does not match the current acknowledged scope. The basis is therefore non-evidentiary and cannot support a current concept terminal until the PLAN basis is regenerated and rebound.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-24T18:17:10.755Z",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "reviewRunId": "B-45a0:RR-507",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d12b2e1026a19a831653ba27c52808ff0b1daa33222c210f7a47b54c7d484530",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+        ".proof-or-stop/story/actives/B-45a0/plan.md",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json"
+      ],
+      "signatureTag": "ri059-current-scope-binding",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-286",
+      "desc": "RI-059 current-head concept review is blocked at HEAD 1f8876e6ee29cd3fa4a69646c8fc7bc89619156b: acceptance_basis is invalid because the verifier-owned receipt lacks the current scope binding (AT_SCOPE_BINDING_MISSING), and acceptance_topology_check fails with that diagnostic; pre_review_check_read is non-pass. The basis artifact is bound to an older head and cannot support a current concept/acceptance claim. Regenerate the signed PLAN basis with the current scope acknowledgement before accepting this round.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-24T18:18:00.912Z",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "reviewRunId": "B-45a0:RR-506",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "55b7ee704d65c7ea7f6789609fe30c6ba51630cbe7047d0d41d53257780f55c0",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "ri059-acceptance-scope-binding-missing",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-287",
+      "desc": "RI-059 quality review finds current verifier evidence inadmissible at HEAD 1f8876e6ee: acceptance_topology_check reports AT_SCOPE_BINDING_MISSING for .proof-or-stop/story/actives/B-45a0/acceptance-basis.json:1, and pre_review_check_read reports PR_ARTIFACT_TAMPERED for .proof-or-stop/story/actives/B-45a0/pre-review-check.json:1. Although acceptance_rollout_report_read and acceptance_rollout_check pass, the scope mismatch and tampered pre-review artifact prevent a truthful current-head quality pass; regenerate and rebind the verifier artifacts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T18:18:06.570Z",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "reviewRunId": "B-45a0:RR-508",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c6e634152f6b46999f0fda3bbf4ca1133496fafb36678809831ab56192fec7a2",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "ri059-current-verifier-artifacts",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-288",
+      "desc": "RI-059 documentation review cannot establish a current admissible contract: docs/CLI.md:44 and docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md:1 describe verifier-owned acceptance behavior, but current acceptance_basis is invalid with AT_SCOPE_BINDING_MISSING and acceptance_topology_check fails at HEAD 1f8876e6ee29cd3fa4a69646c8fc7bc89619156b; pre_review_check_read is non-pass. Regenerate the signed scope-bound basis before treating these documented promises as current gate evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-24T18:18:48.111Z",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "reviewRunId": "B-45a0:RR-509",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c0688b095c87e9bc33a4d09fb2320a985a81f28e67e489d38180e9002c89463c"
+      },
+      "readDiagnostics": [],
+      "_hash": "0ba8e5c9b3f52d3a7f61be325a0e52f468c70d64246843b0a117ddfa900c6272",
+      "files": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "ri059-acceptance-scope-binding-missing",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-289",
+      "desc": "RI-059 coverage cannot be admitted at .proof-or-stop/story/actives/B-45a0/checklist.json:1 despite 13 done items, 45 verification intents (39 must), and 45 evidence rows. acceptance_topology_check reports AT_SCOPE_BINDING_MISSING because acceptance-basis.json:1 carries a scope-contract digest mismatch, and pre_review_check_read reports PR_ARTIFACT_TAMPERED at pre-review-check.json:1. The rollout report/check pass, but coverage evidence is not bound to the acknowledged current scope; regenerate the basis and pre-review artifact before claiming coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T18:18:52.467Z",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "reviewRunId": "B-45a0:RR-510",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a0284804d65758807be0f966ddc1ecd8a7c6b731360c910a37b61dff3cfa82c2",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+      ],
+      "signatureTag": "ri059-current-coverage-binding",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-290",
+      "desc": "RI-059 docs review cannot claim a current executable contract because .proof-or-stop/story/actives/B-45a0/acceptance-basis.json:1 is rejected by AT_SCOPE_BINDING_MISSING and .proof-or-stop/story/actives/B-45a0/pre-review-check.json:1 is rejected as PR_ARTIFACT_TAMPERED at HEAD 1f8876e6ee. The rollout report/check pass, but documented promises in docs/CLI.md:44 and docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md:1 are not currently bound to the acknowledged scope and pre-review artifact; regenerate the verifier artifacts before accepting the docs lane.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-24T18:19:29.860Z",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "reviewRunId": "B-45a0:RR-511",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "1d2b4ec73beb590c29c620b71d05f6acae3d9aba4f38fdbc61341f9bcfe4fc35"
+      },
+      "readDiagnostics": [],
+      "_hash": "2375c48cae664436ec1a7c787368ed7d370c5410589b26a3e82b817495365367",
+      "files": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+      ],
+      "signatureTag": "ri059-doc-contract-binding",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-291",
+      "desc": "RI-059 topology critic finds the current verifier-owned acceptance chain inadmissible at HEAD 1f8876e6ee29cd3fa4a69646c8fc7bc89619156b: acceptance_basis is invalid and acceptance_topology_check fails with AT_SCOPE_BINDING_MISSING; pre_review_check_read is non-pass while rollout report/check are current pass. The request_changes receipt is truthful. Regenerate the scope-bound PLAN basis and pre-review artifact before review inventory can advance.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T18:20:16.311Z",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "reviewRunId": "B-45a0:RR-512",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "cc0357d96ae9e89593e15d66fefe631f28ae6808b01f512d70c7d08e0d9964a6",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "ri059-acceptance-scope-binding-missing",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-292",
+      "desc": "RI-059 wave-2 concept re-attestation remains blocked at .proof-or-stop/story/actives/B-45a0/acceptance-basis.json:1: acceptance_topology_check reports AT_SCOPE_BINDING_MISSING because the receipt scope-contract digest does not match the acknowledged current scope. The basis is non-evidentiary, so this wave cannot receive a concept pass until the verifier-owned PLAN basis is regenerated and rebound.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-24T18:22:47.218Z",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "reviewRunId": "B-45a0:RR-513",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e69b55b47dfcbf355de79267a5df63212f077f26384b21add58c44199dbf6c6f",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+        ".proof-or-stop/story/actives/B-45a0/plan.md",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json"
+      ],
+      "signatureTag": "ri059-wave2-scope-binding",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-293",
+      "desc": "RI-059 wave-2 quality re-attestation remains blocked at HEAD 1f8876e6ee: .proof-or-stop/story/actives/B-45a0/acceptance-basis.json:1 fails acceptance_topology_check with AT_SCOPE_BINDING_MISSING, and .proof-or-stop/story/actives/B-45a0/pre-review-check.json:1 fails pre_review_check_read with PR_ARTIFACT_TAMPERED. Rollout report/check pass, but the scope mismatch and tampered pre-review artifact prevent a truthful current quality pass; regenerate and rebind both verifier artifacts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T18:23:11.140Z",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "reviewRunId": "B-45a0:RR-514",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c29438f6be3424ac3cba2edbd69595e3ed549c465e26bc0723bf521b995b3ff4",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "ri059-wave2-verifier-binding",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-294",
+      "desc": "RI-059 wave-2 coverage re-attestation remains inadmissible at .proof-or-stop/story/actives/B-45a0/checklist.json:1 despite 13 done items, 45 verification intents (39 must), and 45 evidence rows: acceptance_topology_check reports AT_SCOPE_BINDING_MISSING for acceptance-basis.json:1, and pre_review_check_read reports PR_ARTIFACT_TAMPERED for pre-review-check.json:1. Rollout report/check pass, but the evidence set is not bound to the acknowledged current scope; regenerate and rebind the basis and pre-review artifact before claiming coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T18:24:00.905Z",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "reviewRunId": "B-45a0:RR-515",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8b18e691b2188cf0f7a6b348202a6d5baee4d8ca74711071d46683f4f42bafdf",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+      ],
+      "signatureTag": "ri059-wave2-coverage-scope-binding",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-295",
+      "desc": "RI-059 wave-2 docs re-attestation cannot pass because .proof-or-stop/story/actives/B-45a0/acceptance-basis.json:1 fails AT_SCOPE_BINDING_MISSING and .proof-or-stop/story/actives/B-45a0/pre-review-check.json:1 fails PR_ARTIFACT_TAMPERED at HEAD 1f8876e6ee. The rollout report/check pass, but promises documented in docs/CLI.md:44 and docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md:1 are not bound to the acknowledged scope and valid pre-review artifact; regenerate and rebind verifier evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-24T18:24:36.027Z",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "reviewRunId": "B-45a0:RR-516",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "1d2b4ec73beb590c29c620b71d05f6acae3d9aba4f38fdbc61341f9bcfe4fc35"
+      },
+      "readDiagnostics": [],
+      "_hash": "070cddb2f3d48d2c86c5a7b425cc9f0820e10f3f5c99ca56173e5aeda831230a",
+      "files": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+      ],
+      "signatureTag": "ri059-wave2-doc-scope-binding",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-296",
+      "desc": "RI-059 wave-2 topology is inadmissible at HEAD 1f8876e6ee29cd3fa4a69646c8fc7bc89619156b: acceptance_basis/acceptance_topology_check report AT_SCOPE_BINDING_MISSING and pre_review_check_read is non-pass, while the rollout report/check pass. The request_changes receipt is truthful; regenerate the acknowledged-scope-bound PLAN basis and pre-review artifact before accepting wave 2.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T18:26:50.886Z",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "reviewRunId": "B-45a0:RR-517",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "04018c562488203473d5f8f432a6a14a7a72d598bd80d9700af4aec07f548b63",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "ri059-wave2-acceptance-scope-binding-missing",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

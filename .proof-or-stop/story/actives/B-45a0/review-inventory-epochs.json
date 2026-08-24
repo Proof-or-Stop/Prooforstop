@@ -4995,6 +4995,152 @@
       "consumedAt": "2026-08-24T17:37:53.239Z",
       "consumedByReviewRound": "2026-08-24T16:36:17.230Z",
       "_hash": "e2ac7840c717b596de5c99de3715f8b52d166e2626d38e7ae61aac2d1e27ee04"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-059",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-24T18:15:49.030Z",
+      "updatedAt": "2026-08-24T18:27:38.673Z",
+      "cutoff": {
+        "headHash": "1f8876e6ee29cd3fa4a69646c8fc7bc89619156b",
+        "materialHash": "e2d0d37bb659048bbabf951c0188779242b9edf3af60619ea5d9a3dcf7335a44",
+        "storyFilesHash": "73ab5542e384ecbc6ee53692642f4752f1f7279aa0455ca7f4088ba63d3c3521"
+      },
+      "scopeDigest": "bcb8782eddae9623cb7d579937d8d00d678e0b19c7562f17b32c5b0304ec2bcf",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 505,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-24T18:15:49.030Z",
+          "completedAt": "2026-08-24T18:21:42.110Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-507",
+              "terminal": "finding",
+              "hostIdentity": "184be926dc58e2e1968be98de55912cbcf188054fcb8732ab7cccf98aec75928",
+              "promptIdentity": "5a8d2839b0766a1f0da1b73a0659f22f36ca6bc1d9962b9e1f1ed72d8ce89f30",
+              "evidenceIds": [
+                "B-45a0:F-285"
+              ],
+              "coverageDigest": "dd1ba5e937be8e87d54946833bb41d95b243f93449f6236127e889dea0d940ca"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-508",
+              "terminal": "finding",
+              "hostIdentity": "184be926dc58e2e1968be98de55912cbcf188054fcb8732ab7cccf98aec75928",
+              "promptIdentity": "1d9c7861a955c48584762821887b0ea3f01c3d41f00ecf8dd7db41ea46b64835",
+              "evidenceIds": [
+                "B-45a0:F-287"
+              ],
+              "coverageDigest": "9ca469d7d0d5313d57c4105d4116ac767625e3046782a763f43d0cd9db51aeae"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-510",
+              "terminal": "finding",
+              "hostIdentity": "184be926dc58e2e1968be98de55912cbcf188054fcb8732ab7cccf98aec75928",
+              "promptIdentity": "38db609327500c43d466eaa749df35c96bb4e17fa6bb81ddb96aeab34127b14d",
+              "evidenceIds": [
+                "B-45a0:F-289"
+              ],
+              "coverageDigest": "b8c4ab93f3cba4e127b1466f56a0b64ebfc2870b1b158740edb3b56777ec1784"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-511",
+              "terminal": "finding",
+              "hostIdentity": "184be926dc58e2e1968be98de55912cbcf188054fcb8732ab7cccf98aec75928",
+              "promptIdentity": "e331d0f66afbf1d46a28b06758065a3643020706c36f80af71677e8aaa142206",
+              "evidenceIds": [
+                "B-45a0:F-290"
+              ],
+              "coverageDigest": "a3d58346cfd4168143d93aef81e9bdc9ceb3abed54ed3d932e24208d09411ebd"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-scope-binding-missing"
+          ],
+          "verifiedFindingSetDigest": "01e1015978f331e1284a11efe6ae15bcd895c4119e84627af64d372ee6c54d7c",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "a06c469c84e9e32e51f421de1d83881ad707ec6326c106972bdee2f390bfb329",
+          "saturated": false,
+          "nextRunSequenceBoundary": 512
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-24T18:21:42.110Z",
+          "completedAt": "2026-08-24T18:27:38.673Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-513",
+              "terminal": "finding",
+              "hostIdentity": "184be926dc58e2e1968be98de55912cbcf188054fcb8732ab7cccf98aec75928",
+              "promptIdentity": "803398397faae666ee0af1832eb3eefccd1631129a8fa603001958e96cb38e50",
+              "evidenceIds": [
+                "B-45a0:F-292"
+              ],
+              "coverageDigest": "f44ff9eec02e39435c70ada4d9337016242b7843e549f35d7bc25c5471485aaf"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-514",
+              "terminal": "finding",
+              "hostIdentity": "184be926dc58e2e1968be98de55912cbcf188054fcb8732ab7cccf98aec75928",
+              "promptIdentity": "640e8ad9ce1d727da2d27458fccb4346bd959af7c76804d8cbd79add0a973f03",
+              "evidenceIds": [
+                "B-45a0:F-293"
+              ],
+              "coverageDigest": "115d97a5b29cb2d046e3b65dbef80a736b8867d81d71e9d9b3de7d00812d8a47"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-515",
+              "terminal": "finding",
+              "hostIdentity": "184be926dc58e2e1968be98de55912cbcf188054fcb8732ab7cccf98aec75928",
+              "promptIdentity": "71ca135bd2ecdee0d45a92d490aaa0c9eb9e63d049888de66f629676a2c124f2",
+              "evidenceIds": [
+                "B-45a0:F-294"
+              ],
+              "coverageDigest": "b9e04579209cc5a644fe73c878d574f8adc9cded190d0f03d5e5680bfc223d27"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-516",
+              "terminal": "finding",
+              "hostIdentity": "184be926dc58e2e1968be98de55912cbcf188054fcb8732ab7cccf98aec75928",
+              "promptIdentity": "aa53d933f4fd9bca8c51ed1fbc72d71c7f451aa3d686e4cd8e02a4d3aa0b2604",
+              "evidenceIds": [
+                "B-45a0:F-295"
+              ],
+              "coverageDigest": "433ca74a530229435ee7a90e44813286ce70f83896818f8ab1d618a2008381a4"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-scope-binding-missing"
+          ],
+          "verifiedFindingSetDigest": "01e1015978f331e1284a11efe6ae15bcd895c4119e84627af64d372ee6c54d7c",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "6bae79cec6fd5e307cad3b0426bf76ab15c8ca3cc2083de4df3ec7c88922dce4",
+          "saturated": true,
+          "nextRunSequenceBoundary": 517
+        }
+      ],
+      "baselineFindingIds": [],
+      "receiptId": "B-45a0:RI-059:RCP-001",
+      "_hash": "d8deab57009e9c4a780498aa0f983255fce1f4044bffa4d95835a10388a3ca7c"
     }
   ],
   "receipts": [
@@ -5505,6 +5651,33 @@
       "issuedAt": "2026-08-24T17:36:55.248Z",
       "consumedAt": "2026-08-24T17:37:53.239Z",
       "_hash": "49ae74192ea84fc4c764788899c2251ca65a9473d6d8ec58de04c53eeb474501"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-45a0:RI-059:RCP-001",
+      "epochId": "B-45a0:RI-059",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "cutoff": {
+        "headHash": "1f8876e6ee29cd3fa4a69646c8fc7bc89619156b",
+        "materialHash": "e2d0d37bb659048bbabf951c0188779242b9edf3af60619ea5d9a3dcf7335a44",
+        "storyFilesHash": "73ab5542e384ecbc6ee53692642f4752f1f7279aa0455ca7f4088ba63d3c3521"
+      },
+      "scopeDigest": "bcb8782eddae9623cb7d579937d8d00d678e0b19c7562f17b32c5b0304ec2bcf",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "waveCount": 2,
+      "findingSetDigest": "01e1015978f331e1284a11efe6ae15bcd895c4119e84627af64d372ee6c54d7c",
+      "coverageDigest": "973072a929e7034e288ec2a0c6327784ed26b3e868ba0c8ed94c65ab095b24ff",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-24T18:27:38.673Z",
+      "_hash": "87433a013131568fda2a88015d747a6e68661e1f16a7edbb5fa26d133e4b1a30"
     }
   ],
   "criticReceipts": [
@@ -8015,6 +8188,116 @@
       ],
       "createdAt": "2026-08-24T17:35:59.162Z",
       "_hash": "b8061568fb40667320d03e4aa3d1c9ceec58384339a66ae92f31c3a6a64e07e6"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-059:CRIT-01",
+      "epochId": "B-45a0:RI-059",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "1f8876e6ee29cd3fa4a69646c8fc7bc89619156b",
+        "materialHash": "e2d0d37bb659048bbabf951c0188779242b9edf3af60619ea5d9a3dcf7335a44",
+        "storyFilesHash": "73ab5542e384ecbc6ee53692642f4752f1f7279aa0455ca7f4088ba63d3c3521"
+      },
+      "aggregateFindingSetDigest": "01e1015978f331e1284a11efe6ae15bcd895c4119e84627af64d372ee6c54d7c",
+      "requiredLaneCoverageDigest": "436a0c1dd1b9a448c689077efbd4e0b0b02b19d8050253343645b4a5d97cb15c",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-512",
+      "terminalEvidenceIds": [
+        "B-45a0:F-291"
+      ],
+      "readEvidenceDigest": "b1da42775b4a832abfbe7c86d2e7312bbce213defd73cb4d2a48bcc1a1de6908",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-285",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-scope-binding-missing",
+          "reason": "Prior RI-059 concept evidence independently confirms the current scope-contract binding mismatch reported by AT_SCOPE_BINDING_MISSING."
+        },
+        {
+          "findingId": "B-45a0:F-286",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-scope-binding-missing",
+          "reason": "Current-head concept evidence confirms the same missing current scope binding and non-evidentiary PLAN basis."
+        },
+        {
+          "findingId": "B-45a0:F-287",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-scope-binding-missing",
+          "reason": "Current quality evidence confirms the same scope-binding failure and resulting PR_ARTIFACT_TAMPERED pre-review artifact."
+        },
+        {
+          "findingId": "B-45a0:F-288",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-scope-binding-missing",
+          "reason": "Current documentation evidence confirms documented gate claims lack the acknowledged-scope binding because the same verifier artifacts are invalid."
+        },
+        {
+          "findingId": "B-45a0:F-289",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-scope-binding-missing",
+          "reason": "Current coverage evidence confirms the same scope mismatch prevents admission despite complete intent/evidence rows."
+        },
+        {
+          "findingId": "B-45a0:F-290",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-scope-binding-missing",
+          "reason": "Latest current docs evidence independently confirms AT_SCOPE_BINDING_MISSING and PR_ARTIFACT_TAMPERED while rollout remains pass; it is the same stale scope-binding family."
+        }
+      ],
+      "createdAt": "2026-08-24T18:20:38.353Z",
+      "_hash": "e94de26d581db85fad5deeffb52971cfe30f8eadf3192c1be829a9b9b563875a"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-059:CRIT-02",
+      "epochId": "B-45a0:RI-059",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-24T18:14:38.736Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "1f8876e6ee29cd3fa4a69646c8fc7bc89619156b",
+        "materialHash": "e2d0d37bb659048bbabf951c0188779242b9edf3af60619ea5d9a3dcf7335a44",
+        "storyFilesHash": "73ab5542e384ecbc6ee53692642f4752f1f7279aa0455ca7f4088ba63d3c3521"
+      },
+      "aggregateFindingSetDigest": "01e1015978f331e1284a11efe6ae15bcd895c4119e84627af64d372ee6c54d7c",
+      "requiredLaneCoverageDigest": "ceff265e0967d5ea9a3b5853b936853fd35280cd02615c5ed4bcd83a5923a000",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-517",
+      "terminalEvidenceIds": [
+        "B-45a0:F-296"
+      ],
+      "readEvidenceDigest": "0dda613bbb867ca31a5192c0d8c03c7c455519491827fa197d60f622eaf03de2",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-292",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-scope-binding-missing",
+          "reason": "Current wave-2 concept evidence confirms the verifier-owned PLAN basis is not bound to the acknowledged scope; AT_SCOPE_BINDING_MISSING is reproduced."
+        },
+        {
+          "findingId": "B-45a0:F-293",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-scope-binding-missing",
+          "reason": "Current wave-2 quality evidence confirms the same scope-binding failure and resulting non-admissible pre-review artifact."
+        },
+        {
+          "findingId": "B-45a0:F-294",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-scope-binding-missing",
+          "reason": "Current wave-2 coverage evidence confirms complete intents/evidence cannot be admitted while the scope-bound basis is invalid."
+        },
+        {
+          "findingId": "B-45a0:F-295",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-scope-binding-missing",
+          "reason": "Current wave-2 documentation evidence confirms the same missing scope binding prevents current gate claims from being authoritative."
+        }
+      ],
+      "createdAt": "2026-08-24T18:27:01.541Z",
+      "_hash": "5e88d4af65a341b54e07453a75dcb1af025ed28f25d4a7b5992ac690fc6771e5"
     }
   ]
 }
