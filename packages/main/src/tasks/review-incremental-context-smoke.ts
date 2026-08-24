@@ -62,7 +62,7 @@ import {
   reviewIncrementalContext,
 } from '../core/review-incremental-context.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
-import { domainSeparatedDigest } from '../core/prompt-contracts.js';
+import { domainSeparatedDigest, type PromptEnvelope } from '../core/prompt-contracts.js';
 import {
   assembleFullPromptEnvelope,
   buildFullTaskContext,
@@ -575,6 +575,56 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       verifierWithoutCutoff.eligibilityDigest,
       'mutation bite: a verifier without passesCutoffAt rejects the production B envelope',
     );
+
+    const candidateRuns = [runA, runB, runC];
+    const makeEnvelopeStore = (envelopes: PromptEnvelope[]): StoryStore => {
+      const candidateStore = Object.create(store) as StoryStore;
+      candidateStore.readPromptEnvelopes = () => ({ envelopes });
+      return candidateStore;
+    };
+    const compareAggregate = (
+      label: string,
+      candidateStore: StoryStore,
+      promptEnvelopeSnapshot: PromptEnvelope[],
+      runsToCompare = candidateRuns,
+    ): void => {
+      const cached = runsToCompare.map(run => verifyReviewRunPromptEnvelope(candidateStore, run, promptEnvelopeSnapshot));
+      const uncached = runsToCompare.map(run => verifyReviewRunPromptEnvelope(candidateStore, run));
+      assert.deepEqual(cached, uncached, `${label}: N-record cached and uncached verifier results must match`);
+    };
+    const promptEnvelopeSnapshot = store.readPromptEnvelopes(storyId).envelopes;
+    compareAggregate('ordered mixed records', makeEnvelopeStore(promptEnvelopeSnapshot), promptEnvelopeSnapshot);
+    compareAggregate('reverse-ordered mixed records', makeEnvelopeStore([...promptEnvelopeSnapshot].reverse()), [...promptEnvelopeSnapshot].reverse());
+    compareAggregate('duplicate envelope record', makeEnvelopeStore([...promptEnvelopeSnapshot, promptEnvelopeSnapshot[0]!]), [...promptEnvelopeSnapshot, promptEnvelopeSnapshot[0]!]);
+    compareAggregate('missing envelope record', makeEnvelopeStore(promptEnvelopeSnapshot.slice(0, -1)), promptEnvelopeSnapshot.slice(0, -1));
+    compareAggregate(
+      'mismatched envelope record',
+      makeEnvelopeStore(promptEnvelopeSnapshot.map((envelope, index) => index === 0
+        ? { ...envelope, reviewRunId: `${envelope.reviewRunId}-mismatch` }
+        : envelope)),
+      promptEnvelopeSnapshot.map((envelope, index) => index === 0
+        ? { ...envelope, reviewRunId: `${envelope.reviewRunId}-mismatch` }
+        : envelope),
+    );
+    const staleRun = { ...runC, headHash: 'd'.repeat(40) };
+    compareAggregate('stale non-latest run', makeEnvelopeStore(promptEnvelopeSnapshot), promptEnvelopeSnapshot, [runA, runB, staleRun]);
+    for (const cutoff of [runA.startedAt, runB.startedAt, runC.startedAt]) {
+      assert.deepEqual(
+        reviewIncrementalContext(store, root, storyId, role, {
+          excludedReviewRunId: runB.reviewRunId,
+          findingsCutoffAt: runB.startedAt,
+          passesCutoffAt: cutoff,
+          promptEnvelopes: promptEnvelopeSnapshot,
+        }),
+        reviewIncrementalContext(store, root, storyId, role, {
+          excludedReviewRunId: runB.reviewRunId,
+          findingsCutoffAt: runB.startedAt,
+          passesCutoffAt: cutoff,
+        }),
+        `cutoff ${cutoff}: cached and uncached incremental context must match`,
+      );
+    }
+    console.log(`${MARKER} MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached`);
 
     const reviewPhaseStory = store.readStory(storyId);
     store.writeStory(storyId, { ...reviewPhaseStory, phase: 'TEST' });
