@@ -4667,6 +4667,94 @@
       },
       "readDiagnostics": [],
       "_hash": "9dd21bba24c56cb121fc4939ef6ea868a06503147fb84cbdd8edb29f3aa5516e"
+    },
+    {
+      "id": "B-5a15:RP-105",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology review completed: verifier-owned acceptance basis and pre-review chain are stale and unbound; no additional raw finding beyond the two frozen RI-026 baseline findings.",
+      "createdAt": "2026-08-24T07:43:06.637Z",
+      "reviewRound": "2026-08-24T06:58:21.638Z",
+      "reviewRunId": "B-5a15:RR-428",
+      "envelopeId": "f46cc5dd953d22b692bb4c798e7688420b5a797e43e83dc78b77dba48f85b693",
+      "writerSessionId": "sess-4e05ce813121f23b783b023ff7b14f29",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/topology-critic-receipt.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bb664db598d18bc58937662e2c0d0d60a02f9edde00c3dbb04947b8ea7bb5c20"
+    },
+    {
+      "id": "B-5a15:RP-106",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology review completed: verifier-owned acceptance basis and pre-review chain are stale and unbound; no additional raw finding beyond the two frozen RI-026 baseline findings.",
+      "createdAt": "2026-08-24T07:44:42.268Z",
+      "reviewRound": "2026-08-24T06:58:21.638Z",
+      "reviewRunId": "B-5a15:RR-429",
+      "envelopeId": "563b4dfb1f16c961cb65cce768637d19004b902f4789ded394280b747667e6ac",
+      "writerSessionId": "sess-4e05ce813121f23b783b023ff7b14f29",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/topology-critic-receipt.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "e8c18c4feaf181ca2d8385db47794c2534817b52e4a718745c6e7021545dc4b0"
     }
   ]
 }
