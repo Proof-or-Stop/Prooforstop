@@ -3450,9 +3450,9 @@
       "epochId": "B-5a15:RI-026",
       "storyId": "B-5a15",
       "reviewRound": "2026-08-24T06:58:21.638Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-08-24T07:19:05.697Z",
-      "updatedAt": "2026-08-24T07:47:39.845Z",
+      "updatedAt": "2026-08-24T08:20:43.689Z",
       "cutoff": {
         "headHash": "aa646655130fd6637a9a43367a82bd481fd78c82",
         "materialHash": "84b306befb2d3da045ff3ff950e6166511abb101ca64dcda773b748455031ed6",
@@ -3515,13 +3515,63 @@
           "criticDigest": "3c4c9125b34652524e951c1bf7c2cab42ab02a35a8129cb30a586b2a0192d2b0",
           "saturated": false,
           "nextRunSequenceBoundary": 429
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-24T07:47:39.845Z",
+          "completedAt": "2026-08-24T08:20:43.689Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-5a15:RR-430",
+              "terminal": "pass",
+              "hostIdentity": "cf7dccbbf4da79c40cc22e3b94f824bdb1db5eb4df2c7c1f5f5c668211b923e1",
+              "promptIdentity": "923c3420111752af655949e8b9a89bcee345bb13c336edbbcdd4ff01cbe2228c",
+              "evidenceIds": [
+                "B-5a15:RP-107"
+              ],
+              "coverageDigest": "1de06fbc8ebfbd6de83ad249874edfd93c31974081e84a6b106def49482d0af6"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-5a15:RR-432",
+              "terminal": "pass",
+              "hostIdentity": "4f148eb33f9eafe7a2905deed3e3e8d061aa0897ae9980d090b002b8ed22cd9d",
+              "promptIdentity": "d0baf94652f844a350606b33bd8b341ab2bbace74ba72d812079addc55706f64",
+              "evidenceIds": [
+                "B-5a15:RP-109"
+              ],
+              "coverageDigest": "60507baba17298571cd1d523d47ba182eb5c9205552996b2fbe0b8b4ae0aee10"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-5a15:RR-431",
+              "terminal": "pass",
+              "hostIdentity": "cf7dccbbf4da79c40cc22e3b94f824bdb1db5eb4df2c7c1f5f5c668211b923e1",
+              "promptIdentity": "cc50a42c16a6ebdcfab9d2193cef48424d8bf484a1f6a7d47140fcf17ede80fa",
+              "evidenceIds": [
+                "B-5a15:RP-108"
+              ],
+              "coverageDigest": "2e343df3c9be9f14031bd97049d8cb7b4a19782ec1a5eda5cd3a61fb8cfe69b1"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "finding:B-5a15:F-247",
+            "finding:B-5a15:F-248"
+          ],
+          "verifiedFindingSetDigest": "725c5af4ba63fbcfb78751ab64a4c6a59369aa37cc991b522da72de081b464db",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "a5d3a95f7fa7e0bf858e613231ab84758dbc2a09a668e806b940b99cf179ffbc",
+          "saturated": true,
+          "nextRunSequenceBoundary": 434
         }
       ],
       "baselineFindingIds": [
         "B-5a15:F-247",
         "B-5a15:F-248"
       ],
-      "_hash": "593ac06439d59b1fe6fff6bd0ce50dff009635f37f3bd2e04a7c827e25525c21"
+      "receiptId": "B-5a15:RI-026:RCP-001",
+      "_hash": "42598f20e9d7c8727c0dd220a5fee297ce17c2dbbb94911974e8548c565a2842"
     }
   ],
   "receipts": [
@@ -3916,6 +3966,32 @@
       "issuedAt": "2026-08-24T06:53:22.455Z",
       "consumedAt": "2026-08-24T07:03:01.294Z",
       "_hash": "2d12bd1e03947d723404538969e9e27f482c9919f547f3122a70080711e6e5fa"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a15:RI-026:RCP-001",
+      "epochId": "B-5a15:RI-026",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T06:58:21.638Z",
+      "cutoff": {
+        "headHash": "aa646655130fd6637a9a43367a82bd481fd78c82",
+        "materialHash": "84b306befb2d3da045ff3ff950e6166511abb101ca64dcda773b748455031ed6",
+        "storyFilesHash": "88744166aeeb03373b6a05ef4831f4da58eac9c0c2ac441b5dbd62cac0e33c61"
+      },
+      "scopeDigest": "2f43e4df6a61fadc6793554e8f439f44051f590227a802c942cb0cc330e21bd5",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "waveCount": 2,
+      "findingSetDigest": "725c5af4ba63fbcfb78751ab64a4c6a59369aa37cc991b522da72de081b464db",
+      "coverageDigest": "25b3ce0f17211912caa2c6694f7fcd7140029821a5f4d69ecf2fbc1e97c34d04",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-24T08:20:43.689Z",
+      "_hash": "7eb6b031fcf71ce064aa8b83c2156b2094a8217c6c172b2a9c4b53e2f63b363f"
     }
   ],
   "criticReceipts": [
@@ -7466,6 +7542,30 @@
       ],
       "createdAt": "2026-08-24T07:45:02.099Z",
       "_hash": "0c391515d2fe148d1e16aacf0b82c79a6f0d20d401621daa93d38850418202a1"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-026:CRIT-02",
+      "epochId": "B-5a15:RI-026",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T06:58:21.638Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "aa646655130fd6637a9a43367a82bd481fd78c82",
+        "materialHash": "84b306befb2d3da045ff3ff950e6166511abb101ca64dcda773b748455031ed6",
+        "storyFilesHash": "88744166aeeb03373b6a05ef4831f4da58eac9c0c2ac441b5dbd62cac0e33c61"
+      },
+      "aggregateFindingSetDigest": "725c5af4ba63fbcfb78751ab64a4c6a59369aa37cc991b522da72de081b464db",
+      "requiredLaneCoverageDigest": "25cf93c36d19a39e7f9bbe27d94e797c97ea7f4604e968b3c088c8d175e149bf",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-434",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-110"
+      ],
+      "readEvidenceDigest": "61bbe6af8d35b13e48c8d496d7b0868583448148ada1ea2f240d34e3ebe3351d",
+      "findingDispositions": [],
+      "createdAt": "2026-08-24T08:20:16.437Z",
+      "_hash": "9ef08e21d74ee17ea91d50ecafcc4f6f4bb3eb033dec64b9d43b0339abe3e0b7"
     }
   ]
 }
