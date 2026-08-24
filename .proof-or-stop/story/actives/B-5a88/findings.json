@@ -18357,7 +18357,7 @@
       "desc": ".proof-or-stop/story/actives/B-5a88/checklist.json:verificationEvidence — all 21 must intents have pass rows, but every row is bound to stale HEAD caaa9e6afbe90494d26a3f6bce62b0cfcd9c3f8a while this signed review run is bound to current HEAD e2993c1881c1c01db89e44c0c304ed201c852b87; acceptance-basis.json:receipt.headHash and acceptance-rollout-report.json:receipt.headHash are also stale at 54d42f014299abe0687824bb55e52b27cf1ca5c0, so no must-intent coverage is admissible for the current full-set review. Refresh verifier-owned receipts and verificationEvidence at the current HEAD before REVIEW can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-24T20:12:47.631Z",
@@ -18370,7 +18370,11 @@
         ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|json|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-5a88:F-410: both findings are the same verifier-owned stale-proof family. F-410 is the canonical acceptance-topology/coverage family; F-412 narrows the same failure to checklist verificationEvidence plus acceptance-basis/rollout headHash drift after the REVIEW metadata commit. The remediation is identical: regenerate and commit the current verifier-owned receipts/evidence before the next review.",
+      "resolvedAt": "2026-08-24T20:16:14.457Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
