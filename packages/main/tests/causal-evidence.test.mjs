@@ -49,6 +49,18 @@ function emitIntentMarker(intentRef, selector) {
   process.stdout.write(`B-5a15|${intentRef}|PASS|${selector}\n`);
 }
 
+function runProofOrStopJson(command, args) {
+  const output = execFileSync(
+    process.execPath,
+    ['bin/proof-or-stop.js', command, JSON.stringify(args)],
+    { cwd: repoRoot, encoding: 'utf8' },
+  );
+  const start = output.indexOf('{');
+  const end = output.lastIndexOf('}');
+  assert.ok(start >= 0 && end >= start, `${command} did not return structured JSON: ${output}`);
+  return JSON.parse(output.slice(start, end + 1));
+}
+
 function ledgerWithFields(ledger, fields) {
   const { _hash: _ignored, ...payload } = ledger;
   const next = { ...ledger, ...fields };
@@ -1825,7 +1837,7 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
   assert.equal(importRetryResult.receiptHash, importRetrySource.receipt.receiptHash);
   emitIntentMarker(
     'CHK-005:happy:1',
-    'receipt-first import retry preserves receiptHash and commandReruns=0 while transaction retry is counted separately',
+    'receipt-first import retry reports commitFailureReruns=1, commandReruns=0, and preserves receiptHash',
   );
 
   const incompleteMetricsBatch = createCausalEvidenceBatch();
@@ -1950,5 +1962,33 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
   emitIntentMarker(
     'CHK-005:adversarial:0',
     'tampering with any metric field, execution ledger count, receipt reuse flag, or falseFresh value is detected from canonical inputs and cannot manufacture a passing metrics report',
+  );
+});
+
+test('F-247: verifier-owned topology and pre-review checks are executable and current', () => {
+  const topology = runProofOrStopJson('acceptance_topology_check', { storyId: 'B-5a15', json: true });
+  assert.equal(topology.readOnly, true);
+  assert.equal(topology.authority, 'diagnostic_only');
+  assert.equal(topology.status, 'pass');
+  assert.equal(topology.basisStatus, 'complete');
+  assert.equal(topology.structuralPass, true);
+  assert.deepEqual(topology.diagnostics, []);
+  emitIntentMarker(
+    'CHK-004:happy:2',
+    'acceptance_topology_check reports current complete structural PASS',
+  );
+
+  const preReview = runProofOrStopJson('pre_review_check_read', { storyId: 'B-5a15', json: true });
+  assert.equal(preReview.readOnly, true);
+  assert.equal(preReview.status, 'pass');
+  assert.equal(preReview.ok, true);
+  assert.equal(preReview.executableEvidence, 'current');
+  assert.equal(preReview.mutations, 'biting');
+  assert.equal(preReview.transcript, 'related');
+  assert.equal(preReview.authority, 'admissible');
+  assert.deepEqual(preReview.codes, []);
+  emitIntentMarker(
+    'CHK-004:happy:3',
+    'pre_review_check_read reports current admissible executable PASS',
   );
 });

@@ -1194,6 +1194,26 @@
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
               "selector": "repeated valid preflight remains PASS-before-launch with one committed evidence result and no duplicate child launch"
             }
+          },
+          {
+            "desc": "The verifier-owned acceptance_topology_check runs against the current PLAN binding and reports status=pass, basisStatus=complete, and structuralPass=true; stale closure or scope bindings fail closed instead of being accepted.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "B-5a15|CHK-004:happy:2|PASS|acceptance_topology_check reports current complete structural PASS"
+            }
+          },
+          {
+            "desc": "The verifier-owned pre_review_check_read runs against the current executable artifact and reports ok=true, status=pass, readOnly=true, executableEvidence=current, mutations=biting, transcript=related, and authority=admissible.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node --test packages/main/tests/causal-evidence.test.mjs",
+              "selector": "B-5a15|CHK-004:happy:3|PASS|pre_review_check_read reports current admissible executable PASS"
+            }
           }
         ],
         "edge": [
@@ -1659,12 +1679,12 @@
             }
           },
           {
-            "desc": "A receipt-first import failure followed by a successful retry reports commitFailureReruns=0 and preserves the original receipt hash in the metrics block.",
+            "desc": "A receipt-first import failure followed by a successful retry reports commitFailureReruns=1 for the one canonical transaction retry, commandReruns=0 for the command, and preserves the original receipt hash in the metrics block.",
             "type": "cli",
             "priority": "must",
             "verification": {
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
-              "selector": "B-5a15|CHK-005:happy:1|PASS|receipt-first import retry preserves receiptHash and commandReruns=0 while transaction retry is counted separately"
+              "selector": "B-5a15|CHK-005:happy:1|PASS|receipt-first import retry reports commitFailureReruns=1, commandReruns=0, and preserves receiptHash"
             }
           },
           {
