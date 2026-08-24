@@ -176,6 +176,10 @@ function buildFixtureStore(input: FixtureStoreInput): StoryStore {
   } as unknown as StoryStore;
 }
 
+function freezePromptEnvelopeSnapshot(envelopes: readonly PromptEnvelope[]): readonly PromptEnvelope[] {
+  return Object.freeze(envelopes.map(envelope => Object.freeze({ ...envelope })));
+}
+
 // ── Signed reviewer evidence helpers (use the production sign functions) ──
 
 const BASE_MS = Date.parse('2026-06-16T00:00:00.000Z');
@@ -577,44 +581,120 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     );
 
     const candidateRuns = [runA, runB, runC];
-    const makeEnvelopeStore = (envelopes: PromptEnvelope[]): StoryStore => {
+    const makeEnvelopeStore = (envelopes: readonly PromptEnvelope[], readCount?: { value: number }): StoryStore => {
       const candidateStore = Object.create(store) as StoryStore;
-      candidateStore.readPromptEnvelopes = () => ({ envelopes });
+      candidateStore.readPromptEnvelopes = () => {
+        if (readCount) readCount.value += 1;
+        return { envelopes: [...envelopes] };
+      };
       return candidateStore;
     };
     const compareAggregate = (
       label: string,
-      candidateStore: StoryStore,
-      promptEnvelopeSnapshot: PromptEnvelope[],
+      sourceEnvelopes: readonly PromptEnvelope[],
+      promptEnvelopeSnapshot: readonly PromptEnvelope[],
       runsToCompare = candidateRuns,
     ): void => {
-      const cached = runsToCompare.map(run => verifyReviewRunPromptEnvelope(candidateStore, run, promptEnvelopeSnapshot));
-      const uncached = runsToCompare.map(run => verifyReviewRunPromptEnvelope(candidateStore, run));
+      const cachedReads = { value: 0 };
+      const uncachedReads = { value: 0 };
+      const cachedStore = makeEnvelopeStore(sourceEnvelopes, cachedReads);
+      const uncachedStore = makeEnvelopeStore(sourceEnvelopes, uncachedReads);
+      const cached = runsToCompare.map(run => verifyReviewRunPromptEnvelope(cachedStore, run, promptEnvelopeSnapshot));
+      const uncached = runsToCompare.map(run => verifyReviewRunPromptEnvelope(uncachedStore, run));
       assert.deepEqual(cached, uncached, `${label}: N-record cached and uncached verifier results must match`);
+      assert.equal(cachedReads.value, 0, `${label}: cached verifier must not reread the envelope ledger`);
+      assert.equal(uncachedReads.value, runsToCompare.length, `${label}: uncached verifier must read once per record`);
     };
     const promptEnvelopeSnapshot = store.readPromptEnvelopes(storyId).envelopes;
-    compareAggregate('ordered mixed records', makeEnvelopeStore(promptEnvelopeSnapshot), promptEnvelopeSnapshot);
-    compareAggregate('reverse-ordered mixed records', makeEnvelopeStore([...promptEnvelopeSnapshot].reverse()), [...promptEnvelopeSnapshot].reverse());
-    compareAggregate('duplicate envelope record', makeEnvelopeStore([...promptEnvelopeSnapshot, promptEnvelopeSnapshot[0]!]), [...promptEnvelopeSnapshot, promptEnvelopeSnapshot[0]!]);
-    compareAggregate('missing envelope record', makeEnvelopeStore(promptEnvelopeSnapshot.slice(0, -1)), promptEnvelopeSnapshot.slice(0, -1));
+    const frozenPromptEnvelopeSnapshot = freezePromptEnvelopeSnapshot(promptEnvelopeSnapshot);
+    assert.ok(Object.isFrozen(frozenPromptEnvelopeSnapshot), 'collection snapshot array must be immutable');
+    assert.ok(Object.isFrozen(frozenPromptEnvelopeSnapshot[0]), 'collection snapshot entries must be isolated');
+    assert.throws(
+      () => ((frozenPromptEnvelopeSnapshot as PromptEnvelope[])[0] = promptEnvelopeSnapshot[1]!),
+      TypeError,
+      'replacing a captured envelope entry must fail closed',
+    );
+    compareAggregate('ordered mixed records', promptEnvelopeSnapshot, frozenPromptEnvelopeSnapshot);
+    compareAggregate('single record', promptEnvelopeSnapshot, frozenPromptEnvelopeSnapshot, [runB]);
+    compareAggregate('reverse-ordered mixed records', [...promptEnvelopeSnapshot].reverse(), [...frozenPromptEnvelopeSnapshot].reverse());
+    compareAggregate('duplicate envelope record', [...promptEnvelopeSnapshot, promptEnvelopeSnapshot[0]!], [...frozenPromptEnvelopeSnapshot, frozenPromptEnvelopeSnapshot[0]!]);
+    compareAggregate('missing envelope record', promptEnvelopeSnapshot.slice(0, -1), frozenPromptEnvelopeSnapshot.slice(0, -1));
     compareAggregate(
       'mismatched envelope record',
-      makeEnvelopeStore(promptEnvelopeSnapshot.map((envelope, index) => index === 0
-        ? { ...envelope, reviewRunId: `${envelope.reviewRunId}-mismatch` }
-        : envelope)),
       promptEnvelopeSnapshot.map((envelope, index) => index === 0
         ? { ...envelope, reviewRunId: `${envelope.reviewRunId}-mismatch` }
         : envelope),
+      freezePromptEnvelopeSnapshot(promptEnvelopeSnapshot.map((envelope, index) => index === 0
+        ? { ...envelope, reviewRunId: `${envelope.reviewRunId}-mismatch` }
+        : envelope)),
     );
     const staleRun = { ...runC, headHash: 'd'.repeat(40) };
-    compareAggregate('stale non-latest run', makeEnvelopeStore(promptEnvelopeSnapshot), promptEnvelopeSnapshot, [runA, runB, staleRun]);
+    compareAggregate('stale non-latest run', promptEnvelopeSnapshot, frozenPromptEnvelopeSnapshot, [runA, runB, staleRun]);
+    const foreignSnapshot = freezePromptEnvelopeSnapshot(promptEnvelopeSnapshot.map(envelope => ({
+      ...envelope,
+      storyId: 'B-foreign-collection',
+    })));
+    const foreignResult = verifyReviewRunPromptEnvelope(makeEnvelopeStore(foreignSnapshot), runB, foreignSnapshot);
+    assert.equal(foreignResult.ok, false, 'a snapshot from a different collection must be refused');
+    let sourceReads = 0;
+    const sourceChangingStore = Object.create(store) as StoryStore;
+    sourceChangingStore.readPromptEnvelopes = () => {
+      sourceReads += 1;
+      return { envelopes: sourceReads === 1 ? [...promptEnvelopeSnapshot] : promptEnvelopeSnapshot.slice(0, -1) };
+    };
+    const cachedSourceResults = candidateRuns.map(run => verifyReviewRunPromptEnvelope(
+      sourceChangingStore,
+      run,
+      frozenPromptEnvelopeSnapshot,
+    ));
+    assert.equal(sourceReads, 0, 'cached verification must not observe source replacement between records');
+    const uncachedSourceResults = candidateRuns.map(run => verifyReviewRunPromptEnvelope(sourceChangingStore, run));
+    assert.equal(sourceReads, candidateRuns.length, 'uncached verification must expose each source read');
+    assert.ok(uncachedSourceResults.some(result => !result.ok), 'source replacement between records must remain refusal-safe');
+    assert.ok(cachedSourceResults.some(result => result.ok), 'the captured collection snapshot must preserve valid records');
+    const incrementalCachedReads = { value: 0 };
+    const incrementalUncachedReads = { value: 0 };
+    const incrementalCachedStore = makeEnvelopeStore(promptEnvelopeSnapshot, incrementalCachedReads);
+    const incrementalUncachedStore = makeEnvelopeStore(promptEnvelopeSnapshot, incrementalUncachedReads);
+    for (const cutoff of [runA.startedAt, runB.startedAt, runC.startedAt]) {
+      assert.deepEqual(
+        reviewIncrementalContext(incrementalCachedStore, root, storyId, role, {
+          excludedReviewRunId: runB.reviewRunId,
+          findingsCutoffAt: runB.startedAt,
+          passesCutoffAt: cutoff,
+          promptEnvelopes: frozenPromptEnvelopeSnapshot,
+        }),
+        reviewIncrementalContext(incrementalUncachedStore, root, storyId, role, {
+          excludedReviewRunId: runB.reviewRunId,
+          findingsCutoffAt: runB.startedAt,
+          passesCutoffAt: cutoff,
+        }),
+        `cutoff ${cutoff}: cached and uncached incremental context must match`,
+      );
+    }
+    assert.equal(incrementalCachedReads.value, 0, 'cached incremental eligibility must not reread envelopes');
+    const noCutoffOptions = {
+      excludedReviewRunId: runB.reviewRunId,
+      findingsCutoffAt: runB.startedAt,
+    };
+    const noCutoffCached = reviewIncrementalContext(incrementalCachedStore, root, storyId, role, {
+      ...noCutoffOptions,
+      promptEnvelopes: frozenPromptEnvelopeSnapshot,
+    });
+    const noCutoffUncached = reviewIncrementalContext(incrementalUncachedStore, root, storyId, role, noCutoffOptions);
+    assert.deepEqual(noCutoffCached, noCutoffUncached, 'cached and uncached no-cutoff incremental context must match');
+    assert.equal(incrementalCachedReads.value, 0, 'cached incremental eligibility must not reread envelopes');
+    assert.ok(
+      incrementalUncachedReads.value > 0,
+      'uncached incremental eligibility must expose direct envelope reads while cached eligibility performs none',
+    );
     for (const cutoff of [runA.startedAt, runB.startedAt, runC.startedAt]) {
       assert.deepEqual(
         reviewIncrementalContext(store, root, storyId, role, {
           excludedReviewRunId: runB.reviewRunId,
           findingsCutoffAt: runB.startedAt,
           passesCutoffAt: cutoff,
-          promptEnvelopes: promptEnvelopeSnapshot,
+          promptEnvelopes: frozenPromptEnvelopeSnapshot,
         }),
         reviewIncrementalContext(store, root, storyId, role, {
           excludedReviewRunId: runB.reviewRunId,
