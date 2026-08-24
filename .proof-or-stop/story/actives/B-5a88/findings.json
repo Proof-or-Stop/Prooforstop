@@ -16646,7 +16646,7 @@
       "desc": "RR-595 coverage recheck: all 21 must verificationEvidence refs for CHK-001..CHK-007 and test-evidence.json remain stale. evidence_inspect binds them to prior HEAD f54c555/f2a11c4 and storyFilesHash 99af18, while current HEAD is 216cf92, current materialHash is 3db33bd4, and current storyFilesHash is 505ed974. The current flow-stability-smoke test passes the canonical proof-or-stop.done_closure.v1 expectation, but stale validation and intent receipts still prevent a signed coverage pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-24T09:01:25.982Z",
@@ -16680,7 +16680,11 @@
         "packages/main/src/tasks/flow-stability-smoke.ts"
       ],
       "signatureTag": "missing|json|coverage-recheck-verificationevidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by verification_evidence_refresh_stale (21/21 refreshed) followed by the current serial routine validate PASS: 112/112 configured commands passed, including flow-stability-smoke with the canonical proof-or-stop.done_closure.v1 expectation; validation evidence is bound to HEAD eaf9d7dfbdab0af38aecb0b8acec50cd16e005cc and current material/storyFiles hashes.",
+      "resolvedAt": "2026-08-24T09:27:02.067Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
