@@ -1126,10 +1126,32 @@
       "anchors": [
         "acceptance_topology_gate"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These four smoke fixtures assert the proof binding schema migration; updating them is required to prove canonical writers while preserving the legacy reader compatibility fix.",
+      "timestamp": "2026-08-24T17:51:52.229Z",
+      "paths": [
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/observability-snapshot-smoke.ts",
+        "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/observability-snapshot-smoke.ts",
+        "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "d27c32a7edabd05dafd3ff197e652e5f0c709a64",
+      "materialHash": "55b311774a7b8c5270b0e9790ddb6a8d6443436d1f89fd77ad9a510aa5ac0621"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-24T15:09:54.649Z",
+  "updatedAt": "2026-08-24T17:51:52.229Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1386,6 +1408,10 @@
     "packages/main/src/tasks/story-metadata-protection-smoke.ts": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
     "packages/main/src/tasks/worktree-authority-smoke.ts": "packages/main/src/tasks/worktree-authority-smoke.ts",
     "packages/main/src/core/audit-scan.ts": "packages/main/src/core/audit-scan.ts",
-    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+    "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+    "packages/main/src/tasks/observability-snapshot-smoke.ts": "packages/main/src/tasks/observability-snapshot-smoke.ts",
+    "packages/main/src/tasks/review-assurance-surfacing-smoke.ts": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
   }
 }
