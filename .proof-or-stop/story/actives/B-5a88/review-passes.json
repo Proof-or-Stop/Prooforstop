@@ -13940,6 +13940,192 @@
         "scanEscalationReason": "Repository-wide active-surface scan covered shipped prompt assets, runtime source, scripts, package metadata, active docs, and migration decision docs. Legacy hits were triaged as explicit compatibility readers, frozen signature salts, historical evidence, or migration fixtures per brand-rename-mapping.md; no new unsupported concept residue remained."
       },
       "_hash": "0fc69ddf0a2fcd77f90dea1966603a29f0de860a0475510f84626cdf4666727c"
+    },
+    {
+      "id": "B-5a88:RP-211",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Topology review found no additional distinct finding beyond the current verified inventory; current acceptance evidence remains blocked by the existing F-395 recurrence and stale pre-review/rollout receipts.",
+      "createdAt": "2026-08-24T12:46:17.964Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-611",
+      "envelopeId": "ac8940e6c0ed55cb1f20594f5117940157e6aa820f85130f285b3da5331d7cb6",
+      "writerSessionId": "prooforstop-B-5a88-RI-067-topology-critic-20260824",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "416444fade36403a4253d4994498875fb2a153a460058e77027d3479b1620c77"
+    },
+    {
+      "id": "B-5a88:RP-212",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Topology review found no additional distinct finding beyond the current verified inventory; current acceptance evidence remains blocked by the existing F-395 recurrence and stale pre-review/rollout receipts.",
+      "createdAt": "2026-08-24T12:48:48.468Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-612",
+      "envelopeId": "3d20e4aec362f1a042e0218933c34a1fc02dfcc230c9c3945e5568312c97de57",
+      "writerSessionId": "prooforstop-B-5a88-RI-067-topology-critic-20260824",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9a846ec8d5b4c475299a920bd1f1ba45fd62ec4e84f245283df575d00dd4ea16"
+    },
+    {
+      "id": "B-5a88:RP-213",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-067 Wave 2 quality re-review after run boundary 612 found no new verified quality family at the unchanged cutoff. Existing Wave 1 family acceptance-current-cutoff-pre-review-rollout-admissibility is already recorded by F-395 and is not duplicated here. Current materialHash and storyFilesHash remain unchanged; intervening changes are review metadata only. No additional dead-code, type-safety, I/O-isolation, or promised-but-undelivered quality issue was found.",
+      "createdAt": "2026-08-24T12:54:37.175Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-615",
+      "envelopeId": "813e48b7db47ca9f62a5007114d4873ecee393e742d61b05f2f188e50e0006a0",
+      "writerSessionId": "codex-review-quality-B-5a88-RI-067-W2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/lab/src",
+          "packages/main/src",
+          "packages/main/templates/agents/",
+          "packages/main/tests/",
+          "packages/utils/src",
+          "scripts/"
+        ],
+        "scanEscalationReason": "Wave 2 quality re-review was bounded to RI-067 cutoff and post-boundary metadata diff; no full decisions-directory escalation was necessary."
+      },
+      "_hash": "7adba0462885ec63599f0d7549b7946859af794b4cee723b545977b1f89114ed"
+    },
+    {
+      "id": "B-5a88:RP-214",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Wave 2 coverage review at the same RI-067 material/story cutoff found no new verified finding family beyond existing F-395. Rechecked all 21 must intents and current acceptance topology, pre-review, rollout, and topology-critic evidence; current failures are the same stale/unbound acceptance family already recorded in Wave 1.",
+      "createdAt": "2026-08-24T12:56:05.057Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-613",
+      "envelopeId": "84e32eff9900908e837cc316c2ebbbc28b44287f1275b7b2f8e471c11afd0ab5",
+      "writerSessionId": "codex-b5a88-ri067-wave2-coverage-20260824",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "e64ff994b00a526d38fe10588e55e6683b849e42db2887b6de72c4bb0224b193"
+      },
+      "readDiagnostics": [],
+      "_hash": "ed36ded989064602a98095d619ac1eafc2203aae2dcd873bbeedb904134a6c09"
     }
   ]
 }
