@@ -37,6 +37,7 @@ import {
   domainSeparatedDigest,
   reviewerDispatchBindingDigest,
   reviewerDispatchPromptDigest,
+  type PromptEnvelope,
 } from './prompt-contracts.js';
 import { BASELINE_RUNTIME_CONTRACT } from './prompt-measurement.js';
 import { readPromptRegistry, type PromptHost } from './prompt-registry.js';
@@ -684,9 +685,11 @@ function verifyLegacyReviewRunPromptBinding(
 export function verifyReviewRunPromptEnvelope(
   store: StoryStore,
   run: ReviewRun,
+  promptEnvelopes?: readonly PromptEnvelope[],
 ): { ok: boolean; reason?: string } {
   if (!run.envelopeId) return verifyLegacyReviewRunPromptBinding(store, run);
-  const matching = store.readPromptEnvelopes(run.storyId).envelopes.filter(
+  const envelopes = promptEnvelopes ?? store.readPromptEnvelopes(run.storyId).envelopes;
+  const matching = envelopes.filter(
     envelope => envelope.envelopeId === run.envelopeId,
   );
   if (matching.length !== 1) {
@@ -769,6 +772,7 @@ export function verifyReviewRunPromptEnvelope(
           // appended its own metadata commit.
           passesCutoffAt: run.startedAt,
           findingProjection: envelope.findingProjection,
+          promptEnvelopes: envelopes,
         },
       );
     } catch (error) {
@@ -1309,6 +1313,7 @@ function validateEvidenceRunBinding(
   runs: ReviewRun[],
   evidence: ReviewerEvidenceRecord,
   scopeContext: CurrentScopeContext | null,
+  promptEnvelopes: readonly PromptEnvelope[],
   advisories?: ReviewRunIssue[],
 ): ReviewRunIssue | null {
   if (!story.currentReviewRound) return null;
@@ -1399,7 +1404,7 @@ function validateEvidenceRunBinding(
       message: `${evidence.kind} ${evidence.id} is bound to a legacy run while ${run.lane} requires full-envelope`,
     };
   }
-  const envelopeVerification = verifyReviewRunPromptEnvelope(store, run);
+  const envelopeVerification = verifyReviewRunPromptEnvelope(store, run, promptEnvelopes);
   if (!envelopeVerification.ok) {
     return {
       code: 'prompt_envelope_tampered',
@@ -1578,13 +1583,23 @@ export function collectReviewerEvidenceState(
   // unprotected/legacy stories → no scope-binding enforcement, fully backward
   // compatible).
   const scopeContext = currentScopeContextForStory(store, storyId, projectRoot);
+  const promptEnvelopes = store.readPromptEnvelopes(storyId).envelopes;
 
   const valid: ReviewerEvidenceRecord[] = [];
   const rawInvalid: ReviewRunIssue[] = [];
   const advisories: ReviewRunIssue[] = [];
 
   for (const evidence of [...reviewerFindings, ...reviewerPasses]) {
-    const issue = validateEvidenceRunBinding(store, story, projectRoot, runs, evidence, scopeContext, advisories);
+    const issue = validateEvidenceRunBinding(
+      store,
+      story,
+      projectRoot,
+      runs,
+      evidence,
+      scopeContext,
+      promptEnvelopes,
+      advisories,
+    );
     if (issue) {
       rawInvalid.push(issue);
     } else {

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-a2a6",
+  "sourceText": "I approve creating and implementing a separate scoped prompt-envelope cache fix so B-dc83 can continue.",
+  "normalizedOutcome": "When an operator runs the lifecycle readiness transition, the command completes predictably and reports the same reviewer evidence verdicts while reading the prompt-envelope ledger once per evidence collection.",
+  "acceptanceClaim": "B-a2a6 proves that per-collection prompt-envelope caching reduces repeated reads without changing any integrity, freshness, scope, signature, or gate verdict.",
+  "keyRequirementIds": [
+    "REQ-CACHE-001",
+    "REQ-CACHE-002"
+  ],
+  "requestHash": "sha256:b16494a95ab2152fad55f1ff7c29a5c02d5afa9bc990831a914da65bc10e7153",
+  "createdAt": "2026-08-24T02:24:20.155Z",
+  "updatedAt": "2026-08-24T02:24:20.155Z"
+}

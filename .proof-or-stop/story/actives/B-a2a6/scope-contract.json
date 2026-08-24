@@ -1,0 +1,52 @@
+{
+  "storyId": "B-a2a6",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/review-incremental-context-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/prompt-contracts.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/B-dc83 business implementation files",
+    "docs/story",
+    "tests/fixtures",
+    "packages/main/src/Claude reviewers and non-Codex evidence",
+    "packages/main/src/runtime-enforcement bypasses",
+    "packages/main/src/global or cross-command caching",
+    "packages/main/src/Authority or remote claims",
+    "packages/main/src/lifecycle-phase bypasses"
+  ],
+  "scopeChangeReason": "The approved fix is limited to one per-collection snapshot; protected runtime and contract modules must not change.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-24T02:24:36.322Z",
+  "updatedAt": "2026-08-24T02:24:36.322Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/review-run.ts": "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+    "packages/main/src/core/lifecycle-readiness.ts": "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/prompt-contracts.ts": "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/B-dc83 business implementation files": "B-dc83 business implementation files",
+    "docs/story": "docs/story",
+    "tests/fixtures": "tests/fixtures",
+    "packages/main/src/Claude reviewers and non-Codex evidence": "Claude reviewers and non-Codex evidence",
+    "packages/main/src/runtime-enforcement bypasses": "runtime-enforcement bypasses",
+    "packages/main/src/global or cross-command caching": "global or cross-command caching",
+    "packages/main/src/Authority or remote claims": "Authority or remote claims",
+    "packages/main/src/lifecycle-phase bypasses": "lifecycle-phase bypasses"
+  }
+}
