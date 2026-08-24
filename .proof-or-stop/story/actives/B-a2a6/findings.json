@@ -43,7 +43,7 @@
       "desc": "packages/main/src/core/review-run.ts:1582-1602 — collectReviewerEvidenceState unconditionally reads prompt-envelopes.json at line 1586 before iterating reviewer evidence, so a collection with zero bound records still performs one ledger read, contradicting CHK-002:edge:0, which requires zero records to cause no unnecessary envelope read. packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 exercises only the three-pass fixture and never covers the empty collection.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T02:52:50.763Z",
@@ -55,7 +55,11 @@
         "packages/main/src/tasks/review-incremental-context-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The collector now builds the shared snapshot only when reviewer evidence exists; the empty-collection smoke asserts zero reads, and the current tool-owned receipts are fresh.",
+      "resolvedAt": "2026-08-24T03:19:09.231Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a2a6:F-004",
