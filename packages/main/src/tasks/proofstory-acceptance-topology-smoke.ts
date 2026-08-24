@@ -446,17 +446,17 @@ try {
   // B-ec67 F-007: checklist_update no longer accepts executable-intent evidence (it does
   // not execute pinned commands); a non-matrix row is now refused with the F-007 code
   // (NOT the matrix-projection code), directing callers to verification_evidence_add.
+  const beforeUnenforcedExecutableEvidence = JSON.stringify(store.readChecklist(storyId));
   assert.match(
     run(writerCliRoot, 'checklist_update', {
       storyId,
       itemId: 'CHK-001',
       verificationEvidence: [{ intentRef: 'INT-001', kind: 'logic_test', command: 'rg acceptance_matrix packages/main/src/core/command-policy.ts', result: 'pass', note: 'Registry source assertion passed.' }],
-    }, false, 'main-agent'),
-    /verificationEvidence updated/,
+    }, true, 'main-agent'),
+    /checklist_update_executable_evidence_unenforced/,
+    'checklist_update must refuse a fresh executable evidence row instead of pretending to execute it',
   );
-  const preservedNonMechanical = store.readChecklist(storyId).items[0].verificationEvidence?.[0];
-  assert.equal(preservedNonMechanical?.mechanical, false, 'checklist_update preserves trusted non-mechanical provenance on re-persist');
-  assert.equal(preservedNonMechanical?.nonMechanicalReason, nonMatrixEscape, 'checklist_update preserves the audited non-mechanical reason rather than caller provenance');
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), beforeUnenforcedExecutableEvidence, 'refused executable evidence leaves the audited checklist row unchanged');
 
   const freshChecklist = store.readChecklist(storyId);
   freshChecklist.items.push({
