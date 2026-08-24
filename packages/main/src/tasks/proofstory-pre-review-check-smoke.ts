@@ -270,12 +270,29 @@ function executeActiveScenarioWitnesses(
     }
 
     if (assertion.kind === 'transcript') {
+      // A transcript row must prove two distinct operations.  The producer
+      // command issues a fresh signed pre-review artifact from the canonical
+      // verifier; the lifecycle gate then consumes that artifact as the
+      // consumer.  Recording a second event without executing the consumer
+      // would let a broken consumer or mismatched binding hide behind an
+      // apparently ordered transcript.
       const producerEvent = scenarioEvent(`producer-evaluated:${id}`);
-      const verification = invokeVerifier();
-      assert.equal(verification.ok, true, `transcript producer gate failed for ${id}: ${verification.output}`);
-      assert.match(verification.output, /status=pass/, `transcript producer gate failed for ${id}: ${verification.output}`);
+      const producerOutput = cli(ctx.root, 'pre_review_check', { storyId: fixtureStoryId, json: true });
+      let producerReport: { ok?: unknown; status?: unknown; blocking?: unknown };
+      try {
+        producerReport = JSON.parse(producerOutput) as typeof producerReport;
+      } catch (error) {
+        throw new Error(`transcript producer command returned malformed JSON for ${id}: ${String(error)}`);
+      }
+      assert.equal(producerReport.ok, true, `transcript producer command failed for ${id}: ${producerOutput}`);
+      assert.equal(producerReport.blocking, false, `transcript producer command blocked for ${id}: ${producerOutput}`);
+
+      const consumerOutput = invokeVerifier();
+      assert.equal(consumerOutput.ok, true, `transcript consumer gate failed for ${id}: ${consumerOutput.output}`);
+      assert.match(consumerOutput.output, /status=pass/, `transcript consumer gate failed for ${id}: ${consumerOutput.output}`);
       const consumerEvent = scenarioEvent(`consumer-verified:${id}`);
-      recordExecutedCase([id, 'transcript', `active-transcript:${id}`, `active-transcript-verifier:${id}`, `execute producer gate before consumer verifier for ${id}`, 'ORDERED', producerEvent < consumerEvent ? 'ORDERED' : 'UNORDERED', true, [['producer-evaluated', producerEvent], ['consumer-verified', consumerEvent]]]);
+      const ordered = producerEvent < consumerEvent ? 'ORDERED' : 'UNORDERED';
+      recordExecutedCase([id, 'transcript', `active-transcript:${id}`, `active-transcript-consumer:${id}`, `execute canonical producer command and consume its signed artifact through the lifecycle gate for ${id}`, 'ORDERED', ordered, true, [['producer-evaluated', producerEvent], ['consumer-verified', consumerEvent]]]);
       continue;
     }
 
