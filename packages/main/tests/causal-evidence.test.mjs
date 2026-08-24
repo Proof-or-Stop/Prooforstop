@@ -21,6 +21,7 @@ const {
 
 const {
   CAUSAL_DEPENDENCY_DOMAINS,
+  CAUSAL_MAX_OUTPUT_CHARS,
   CAUSAL_OUTPUT_TAIL_CHARS,
   CAUSAL_RECEIPT_INDEX_FILE,
   DEFAULT_CAUSAL_SELECTOR_POLICY,
@@ -480,6 +481,43 @@ test('CHK-001: keys bind all identity fields, deduplicate exact complete work, a
     executeCausalEvidence({ identity: incompleteIdentity, selector: 'MARKER-A', run: async () => { incompleteExecutions++; return { code: 0, output: 'MARKER-A' }; }, batch, preflight: preflightFor(incompleteIdentity), revalidateBeforeRun: () => true }),
   ]);
   assert.equal(incompleteExecutions, 2, 'incomplete identities are never reused as PASS');
+});
+
+test('CHK-001: oversized output probes stay within the receipt verification bound', async () => {
+  const identity = baseIdentity('B-causal-output-probe-boundary');
+  const store = new MemoryReceiptStore();
+  const output = 'x'.repeat(CAUSAL_MAX_OUTPUT_CHARS + 1);
+  const run = async () => ({ code: 0, output });
+
+  const first = await executeCausalEvidence({
+    identity,
+    selector: 'BOUNDARY-PASS',
+    intentRef: 'CHK-001:edge:oversized-output-probe',
+    run,
+    receiptStore: store,
+    batch: createCausalEvidenceBatch(),
+    preflight: preflightFor(identity),
+    revalidateBeforeRun: () => true,
+  });
+  assert.equal(first.receipt.outputLength, CAUSAL_MAX_OUTPUT_CHARS + 1);
+  assert.equal(first.receipt.outputProbe.length, CAUSAL_MAX_OUTPUT_CHARS);
+  assert.equal(first.receipt.outputProbe.includes('<causal-output-gap>'), true);
+  assert.equal(first.receipt.reusable, true);
+  assert.equal(verifyCausalEvidenceReceipt(first.receipt, first.key.key), true);
+
+  const second = await executeCausalEvidence({
+    identity,
+    selector: 'BOUNDARY-PASS',
+    intentRef: 'CHK-001:edge:oversized-output-probe-reuse',
+    run: async () => ({ code: 0, output: 'must-not-rerun' }),
+    receiptStore: store,
+    batch: createCausalEvidenceBatch(),
+    preflight: preflightFor(identity),
+    revalidateBeforeRun: () => true,
+  });
+  assert.equal(second.disposition, 'reused');
+  assert.equal(second.receipt.receiptHash, first.receipt.receiptHash);
+  emitIntentMarker('CHK-001:edge:oversized-output-probe', 'bounded oversized output probe verifies and reuses');
 });
 
 test('B-5a15 F-007: non-PASS outcomes never occupy a reusable receipt key or batch cache', async () => {

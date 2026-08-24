@@ -547,8 +547,11 @@ function boundedOutputTail(output: string): string {
 
 function boundedOutputProbe(output: string): string {
   if (output.length <= CAUSAL_MAX_OUTPUT_CHARS) return output;
-  const half = Math.floor(CAUSAL_MAX_OUTPUT_CHARS / 2);
-  return `${output.slice(0, half)}\n<causal-output-gap>\n${output.slice(-half)}`;
+  const gap = '\n<causal-output-gap>\n';
+  const available = Math.max(0, CAUSAL_MAX_OUTPUT_CHARS - gap.length);
+  const headLength = Math.ceil(available / 2);
+  const tailLength = available - headLength;
+  return `${output.slice(0, headLength)}${gap}${output.slice(-tailLength)}`;
 }
 
 function redactCausalOutput(output: string, effectiveEnvironment: Record<string, unknown> | undefined): string {
