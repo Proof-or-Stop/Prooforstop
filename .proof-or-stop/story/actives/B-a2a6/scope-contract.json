@@ -27,9 +27,36 @@
     "packages/main/src/lifecycle-phase bypasses"
   ],
   "scopeChangeReason": "The approved fix is limited to one per-collection snapshot; protected runtime and contract modules must not change.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "The scoped runtime behavior fix requires the repository-mandated patch version bump and synchronized lockfile metadata.",
+      "timestamp": "2026-08-24T02:47:56.653Z",
+      "paths": [
+        "package.json",
+        "package-lock.json",
+        "packages/main/package.json",
+        "packages/main/package-lock.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package.json",
+        "package-lock.json",
+        "packages/main/package.json",
+        "packages/main/package-lock.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "dd5e21bee0228f62c05f41d69d8e6ac9eca36bc1",
+      "materialHash": "25f924441188039699ddc0d29b03dea53096bfa1452e6bd9e98ffcf8906f4314",
+      "anchors": [
+        "runtime_patch_version_bump",
+        "package_metadata_sync"
+      ]
+    }
+  ],
   "createdAt": "2026-08-24T02:24:36.322Z",
-  "updatedAt": "2026-08-24T02:24:36.322Z",
+  "updatedAt": "2026-08-24T02:47:56.653Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -47,6 +74,10 @@
     "packages/main/src/runtime-enforcement bypasses": "runtime-enforcement bypasses",
     "packages/main/src/global or cross-command caching": "global or cross-command caching",
     "packages/main/src/Authority or remote claims": "Authority or remote claims",
-    "packages/main/src/lifecycle-phase bypasses": "lifecycle-phase bypasses"
+    "packages/main/src/lifecycle-phase bypasses": "lifecycle-phase bypasses",
+    "package.json": "package.json",
+    "package-lock.json": "package-lock.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/package-lock.json": "packages/main/package-lock.json"
   }
 }
