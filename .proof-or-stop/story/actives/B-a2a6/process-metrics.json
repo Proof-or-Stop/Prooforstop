@@ -1,13 +1,13 @@
 {
   "storyId": "B-a2a6",
-  "generatedAt": "2026-08-24T03:32:24.968Z",
+  "generatedAt": "2026-08-24T04:30:54.161Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
-    "hasPlan": false,
+    "hasPlan": true,
     "checklistItems": 2,
     "reviewRounds": 2,
-    "findings": 6,
+    "findings": 12,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -80,7 +80,7 @@
       },
       "metrics": {
         "planArtifactsPresent": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -99,7 +99,7 @@
           ]
         },
         "missingFindingCount": {
-          "value": 2,
+          "value": 6,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -107,7 +107,7 @@
           ]
         },
         "replanCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -183,7 +183,7 @@
     },
     "planning": {
       "effective": {
-        "value": false,
+        "value": true,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -193,7 +193,7 @@
       },
       "metrics": {
         "hasPlanArtifact": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -201,7 +201,7 @@
           ]
         },
         "planCoverageRatio": {
-          "value": 0,
+          "value": 1,
           "unit": "ratio",
           "confidence": "high",
           "sources": [
@@ -210,16 +210,15 @@
           ]
         },
         "itemsWithVerifyRatio": {
-          "value": null,
+          "value": 1,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "high",
           "sources": [
             "plan.md"
-          ],
-          "note": "no plan.md"
+          ]
         },
         "devToPlanBounceCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -227,7 +226,7 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 14,
+          "value": 26,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -276,7 +275,7 @@
           "note": "express channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 5,
+          "value": 6,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -317,7 +316,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 6,
+          "value": 12,
           "unit": "count",
           "confidence": "high",
           "sources": [
