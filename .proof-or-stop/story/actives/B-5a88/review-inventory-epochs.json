@@ -5357,9 +5357,9 @@
       "epochId": "B-5a88:RIE-086",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-24T10:16:55.408Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-24T11:52:05.861Z",
-      "updatedAt": "2026-08-24T11:52:05.861Z",
+      "updatedAt": "2026-08-24T12:14:11.314Z",
       "cutoff": {
         "headHash": "40e94dc26bb8ba07068a14acdf09eb8276d82027",
         "materialHash": "cd63b3cd4d7da068127baaf20fac5d9fde983e0c8946c24e30a9ab3c3c9959b0",
@@ -5370,7 +5370,35 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-5a88:RIE-086:RCP-001",
-      "_hash": "060d09a791b76ae246d927c56f258266f5073cb4e726e2f1d75ccf5bba1edcbb"
+      "cancelledAt": "2026-08-24T12:14:11.314Z",
+      "cancelReason": "completeness-only receipt cannot authorize remediation DEV; begin a full frozen review wave",
+      "terminalRunSequenceBoundary": 606,
+      "_hash": "71d36ca210c0bd81a8efdbfe055fc0d1884a5e14ba5753e242486365883d98fa"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-067",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-24T12:14:20.245Z",
+      "updatedAt": "2026-08-24T12:14:20.245Z",
+      "cutoff": {
+        "headHash": "a5f7c09b0ca7a004d4d80633629b8d8d944f5087",
+        "materialHash": "cd63b3cd4d7da068127baaf20fac5d9fde983e0c8946c24e30a9ab3c3c9959b0",
+        "storyFilesHash": "e3f657d2b03ed48ed1211eb4e701c16e563648e82b453d610940dffecda04042"
+      },
+      "scopeDigest": "40b6b350d5e12e443a59ff33422eaf98c717609148452af127b438684d6f330f",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 606,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "37181f4fa7a4d04cb0b9278c24544a12f19f2559a3618a481c7c77edf1ea3976"
     }
   ],
   "receipts": [
@@ -6166,7 +6194,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-24T11:52:05.861Z",
-      "_hash": "07c775724defd5feecf12bb4a64b1799c138751ddfdb886336aee22962d1e48c"
+      "invalidatedAt": "2026-08-24T12:14:11.314Z",
+      "invalidationReason": "completeness-only receipt cannot authorize remediation DEV; begin a full frozen review wave",
+      "_hash": "88eea7cce0ad040965ae22986dfb6f75fa951ac70b4e8e214de6f98e24f1a3c7"
     }
   ],
   "criticReceipts": [
