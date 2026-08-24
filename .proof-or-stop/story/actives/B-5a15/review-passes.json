@@ -4256,6 +4256,66 @@
       },
       "readDiagnostics": [],
       "_hash": "58ec88c9a4a85b2b58c6d07f20c14d949c1a97c3b0855cd8f126f5ed1290168e"
+    },
+    {
+      "id": "B-5a15:RP-098",
+      "agent": "lattice-review-topology-critic",
+      "note": "Wave-2 completeness review checked the frozen inventory at material 84b306befb2d3da045ff3ff950e6166511abb101ca64dcda773b748455031ed6 and storyFiles 88744166aeeb03373b6a05ef4831f4da58eac9c0c2ac441b5dbd62cac0e33c61, with all three required lanes terminal and passing. The sole raw finding B-5a15:F-246 is historical stale-evidence state; the official 50/50 refresh restored 51/51 fresh coverage in quality and test-coverage, so it is not_verified for the current wave and is not a completeness blocker.",
+      "createdAt": "2026-08-24T05:59:04.010Z",
+      "reviewRound": "2026-08-24T04:36:48.410Z",
+      "reviewRunId": "B-5a15:RR-416",
+      "envelopeId": "7c8663d45002f507f06f39280559582890f976ea718e852d5f6322ee2e2f3503",
+      "writerSessionId": "sess-8cb69002039da9b76c3a71743584f334",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "822e451fab71b7b7cfe0779628a048dd9ba34f457ee578b8c399d7f7e96feab6"
+    },
+    {
+      "id": "B-5a15:RP-099",
+      "agent": "lattice-review-topology-critic",
+      "note": "Wave-2 completeness review checked the frozen inventory at material 84b306befb2d3da045ff3ff950e6166511abb101ca64dcda773b748455031ed6 and storyFiles 88744166aeeb03373b6a05ef4831f4da58eac9c0c2ac441b5dbd62cac0e33c61, with all three required lanes terminal and passing. The sole raw finding B-5a15:F-246 is historical stale-evidence state; the official 50/50 refresh restored 51/51 fresh coverage in quality and test-coverage, so it is not_verified for the current wave and is not a completeness blocker.",
+      "createdAt": "2026-08-24T06:01:06.546Z",
+      "reviewRound": "2026-08-24T04:36:48.410Z",
+      "reviewRunId": "B-5a15:RR-417",
+      "envelopeId": "7528c07cfb72c20927f3473070e24bb0b62e8d4b04b2192ade6b00b3545f8396",
+      "writerSessionId": "sess-8cb69002039da9b76c3a71743584f334",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8b1006e12168341e24d7634e1d641d90c8ae9600a49c279576e2e0d46675ef2d"
     }
   ]
 }
