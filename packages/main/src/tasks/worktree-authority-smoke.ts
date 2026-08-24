@@ -230,7 +230,7 @@ function assertRecordedWorktreeRejectsMainCwd(): void {
     process.chdir(root);
     assert.throws(
       () => assertCwdInWorktree(store, storyId),
-      /must execute lattice commands inside the worktree/,
+      /must execute proof-or-stop commands inside the worktree/,
     );
     process.chdir(worktreePath);
     assert.doesNotThrow(() => assertCwdInWorktree(store, storyId));
@@ -274,7 +274,7 @@ function assertInitCheckChecklistMutationRejectsMainCwd(): void {
       title: 'Should not land in main',
       context: 'INIT_CHECK linked stories must still use the story worktree authority.',
     });
-    assert.match(output, /must execute lattice commands inside the worktree/);
+    assert.match(output, /must execute proof-or-stop commands inside the worktree/);
     assert.equal(new StoryStore(root).readChecklist(storyId).items.length, 1);
   } finally {
     process.chdir(previousCwd);
