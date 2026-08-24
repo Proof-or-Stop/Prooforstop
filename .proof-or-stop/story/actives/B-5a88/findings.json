@@ -16627,7 +16627,7 @@
       "desc": "Coverage is not current at REVIEW: all 21 must verificationEvidence refs (CHK-001..CHK-007 happy/edge/adversarial) and test-evidence.json are marked stale by evidence_inspect because their bindings (HEAD f54c555/f2a11c4, materialHash f8e126..., storyFilesHash 99af18...) do not match current HEAD 455c809245, materialHash 3db33bd4..., storyFilesHash 505ed974.... The corrected flow-stability-smoke expectation itself passes, but current validation and every pinned intent receipt must be rerun and re-recorded before coverage can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-24T08:58:20.491Z",
@@ -16639,7 +16639,11 @@
         "packages/main/src/tasks/flow-stability-smoke.ts"
       ],
       "signatureTag": "missing|json|coverage-current-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of canonical B-5a88:F-387: both findings identify the same 21 stale verificationEvidence refs and stale test-evidence.json after the flow-stability schema assertion change; F-387 was rechecked in RR-595, then fixed by the official 21/21 evidence refresh and current 112/112 serial validate PASS. Retain F-387 as the canonical record.",
+      "resolvedAt": "2026-08-24T09:30:20.045Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-387",
