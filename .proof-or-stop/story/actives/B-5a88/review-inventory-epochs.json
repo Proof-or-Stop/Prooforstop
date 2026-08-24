@@ -5351,6 +5351,26 @@
       "cancelReason": "Cancel the stale open review epoch so DEV-only acceptance producers can regenerate current signed artifacts before a fresh review.",
       "terminalRunSequenceBoundary": 606,
       "_hash": "194ab67b80181e940e18e1d8d4215519ef0287630a391dc1de086d9945dab428"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RIE-086",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-24T11:52:05.861Z",
+      "updatedAt": "2026-08-24T11:52:05.861Z",
+      "cutoff": {
+        "headHash": "40e94dc26bb8ba07068a14acdf09eb8276d82027",
+        "materialHash": "cd63b3cd4d7da068127baaf20fac5d9fde983e0c8946c24e30a9ab3c3c9959b0",
+        "storyFilesHash": "e3f657d2b03ed48ed1211eb4e701c16e563648e82b453d610940dffecda04042"
+      },
+      "scopeDigest": "9cec0a15573530241c7aa12ee0693b2c60425d8f1a517ee2f2c7e9e0c56e4664",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a88:RIE-086:RCP-001",
+      "_hash": "060d09a791b76ae246d927c56f258266f5073cb4e726e2f1d75ccf5bba1edcbb"
     }
   ],
   "receipts": [
@@ -6125,6 +6145,28 @@
       "issuedAt": "2026-08-24T09:43:55.716Z",
       "consumedAt": "2026-08-24T09:44:08.823Z",
       "_hash": "d5f3010b0351d5ecb85b72b7bce210b69ca0c5f8482c8c3151a359f7ef341659"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a88:RIE-086:RCP-001",
+      "epochId": "B-5a88:RIE-086",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "cutoff": {
+        "headHash": "40e94dc26bb8ba07068a14acdf09eb8276d82027",
+        "materialHash": "cd63b3cd4d7da068127baaf20fac5d9fde983e0c8946c24e30a9ab3c3c9959b0",
+        "storyFilesHash": "e3f657d2b03ed48ed1211eb4e701c16e563648e82b453d610940dffecda04042"
+      },
+      "scopeDigest": "9cec0a15573530241c7aa12ee0693b2c60425d8f1a517ee2f2c7e9e0c56e4664",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-24T11:52:05.861Z",
+      "_hash": "07c775724defd5feecf12bb4a64b1799c138751ddfdb886336aee22962d1e48c"
     }
   ],
   "criticReceipts": [
