@@ -3557,6 +3557,94 @@
         "scanEscalationReason": null
       },
       "_hash": "43dd61f340b02f0af8850f641e5b1becb41ca1c3f9a2df0c89d5dcebdc2e052d"
+    },
+    {
+      "id": "B-5a15:RP-082",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced. The current implementation, story context, related decision documents, verifier-owned acceptance chain, and repository-wide residue scan were reviewed; only retained legacy testIntent compatibility/history references remain, so there is no concept-lane blocker.",
+      "createdAt": "2026-08-24T03:08:43.256Z",
+      "reviewRound": "2026-08-24T02:49:45.599Z",
+      "reviewRunId": "B-5a15:RR-386",
+      "envelopeId": "0bbbba07b8080481948d534fee1f2f68f38a163a52a2073268f1f795e2a900c6",
+      "writerSessionId": "sess-3e5b61c528c373ec",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b03c2c51125a3612bfcf89c1f7aae589370fdfc03592d840aab6c0a2e3254e85"
+    },
+    {
+      "id": "B-5a15:RP-083",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed: all 50 verification intents have current non-failing evidence, all 22 strict intents are covered, acceptance topology and pre-review are current and admissible, and rollout is current full-3x2 with no blocker.",
+      "createdAt": "2026-08-24T03:08:56.932Z",
+      "reviewRound": "2026-08-24T02:49:45.599Z",
+      "reviewRunId": "B-5a15:RR-388",
+      "envelopeId": "27a505313ef3b768be9fa110d272c38264679ecdc7f1902e9e0904b484060f59",
+      "writerSessionId": "sess-3e5b61c528c373ec",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "744779563997b1967545a393acdc9581066f4f532a1f6edef917523c61d9e1f4"
     }
   ]
 }

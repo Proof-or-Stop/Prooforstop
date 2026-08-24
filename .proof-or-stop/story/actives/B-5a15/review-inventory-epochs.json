@@ -3102,9 +3102,9 @@
       "epochId": "B-5a15:RI-022",
       "storyId": "B-5a15",
       "reviewRound": "2026-08-23T17:28:15.667Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-23T17:40:17.086Z",
-      "updatedAt": "2026-08-23T17:40:17.086Z",
+      "updatedAt": "2026-08-24T03:03:20.829Z",
       "cutoff": {
         "headHash": "9b4fadd740a747af287c15b1abc175987c0db3ed",
         "materialHash": "41c6cc5292244472d1c39f14ff24db385986581252fdd7774d615019e35042e5",
@@ -3120,7 +3120,35 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "127324c16daaf559865182db770ff42b69313c00ef3bcd77d53dc34d2d976238"
+      "cancelledAt": "2026-08-24T03:03:20.829Z",
+      "cancelReason": "RI-022 was frozen to a superseded REVIEW round; reopening against the current round after reviewer evidence completed.",
+      "terminalRunSequenceBoundary": 385,
+      "_hash": "87b115cac44d36849b232ab99417ee7a63e5963c7656ad93f07b79c22e273bc5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-023",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T02:49:45.599Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-24T03:03:29.463Z",
+      "updatedAt": "2026-08-24T03:03:29.463Z",
+      "cutoff": {
+        "headHash": "e4195164fdce44b5cebf7dba307819c2c9371072",
+        "materialHash": "41c6cc5292244472d1c39f14ff24db385986581252fdd7774d615019e35042e5",
+        "storyFilesHash": "0d7a9df645e064c99c3609c6fdfa049d8bb4d22bd7461c737e40c231ab415f7b"
+      },
+      "scopeDigest": "8eca0d23d3b6264fce9c15915a525beb9be4a18f7a8e0fd7197ab2a60495d8af",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 385,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "f75929d1c82e4d48daa44b91e86eb6d20db4c241a9c043daa42939ca49f1f52f"
     }
   ],
   "receipts": [
