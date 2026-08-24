@@ -37,7 +37,8 @@
       "resolvedReason": "Fixed in commit 1626c43455: the launch-boundary callback now compares a canonical snapshot of all causal preflight facts, and checklist-causal-preflight-batch.test.mjs verifies the wiring and metrics response.",
       "resolvedAt": "2026-08-20T14:36:21.135Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "clusterId": "CL-001"
     },
     {
       "id": "B-5a15:F-002",
@@ -60,7 +61,8 @@
       "resolvedReason": "Fixed in bd9ba8e3e9 and verified by causal-evidence.test.mjs plus certification-window-smoke.js: the dependency decision now carries an identity-bound authority signature and certification-window evaluation rejects stale or forged causal advisory identity.",
       "resolvedAt": "2026-08-20T16:47:48.298Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-003",
@@ -79,7 +81,8 @@
         ".proof-or-stop/story/actives/B-5a15/proofstory.json"
       ],
       "signatureTag": "missing|json|high-acceptance-contract",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-004",
@@ -100,7 +103,8 @@
         "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
       ],
       "signatureTag": "missing|json|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-005",
@@ -120,7 +124,8 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|.proof-or-stop|acceptance-rollout-canonical",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-006",
@@ -141,7 +146,8 @@
         "packages/main/src/core/pre-review-check.ts"
       ],
       "signatureTag": "missing|json|acceptance-chain-current",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-007",
@@ -160,7 +166,8 @@
       "resolvedReason": "Fixed in bd9ba8e3e9 and verified by causal-evidence.test.mjs: failed, timed-out, cancelled, partial, or otherwise non-pass receipts are not reusable and are removed from the single-flight batch before a later PASS can execute.",
       "resolvedAt": "2026-08-20T16:47:50.160Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-008",
@@ -179,7 +186,8 @@
       "resolvedReason": "Fixed in bd9ba8e3e9 and verified by causal-evidence.test.mjs: verifyCausalPreflight requires the complete canonical check set, all checks to pass, no failedChecks, and a valid readiness hash.",
       "resolvedAt": "2026-08-20T16:47:51.851Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-009",
@@ -198,7 +206,8 @@
       "resolvedReason": "Fixed in bd9ba8e3e9 and verified by causal-evidence.test.mjs: missing material identity is incomplete and fails closed with gateAdmissible=false.",
       "resolvedAt": "2026-08-20T16:47:53.537Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-010",
@@ -217,7 +226,8 @@
       "resolvedReason": "Fixed in bd9ba8e3e9 and verified by causal-evidence.test.mjs: dependency decisions bind the identity and advisory fields through an authority signature, so caller-side content-hash recomputation cannot forge a decision.",
       "resolvedAt": "2026-08-20T16:47:55.280Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-011",
@@ -236,7 +246,8 @@
       "resolvedReason": "Fixed in bd9ba8e3e9 and verified by causal-evidence.test.mjs: redaction uses the raw effective environment and masks secret-key values before output construction, including short secrets.",
       "resolvedAt": "2026-08-20T16:47:57.052Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-012",
@@ -255,7 +266,8 @@
       "resolvedReason": "Fixed in bd9ba8e3e9 and verified by verifier-causal-preflight.test.mjs: verifier execution supplies a beforeLaunch causal preflight gate and refuses to launch a child after the canonical facts drift.",
       "resolvedAt": "2026-08-20T16:47:58.898Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-013",
@@ -274,7 +286,8 @@
       "resolvedReason": "Fixed for the current implementation scope: all paths named by this finding now have explicit reviewer-visible scope acknowledgements, including the generated causal-evidence artifacts; the current scope gate classifies them as nonblocking warnings.",
       "resolvedAt": "2026-08-20T16:48:00.638Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "medium"
+      "resolveEvidenceStrength": "medium",
+      "clusterId": "CL-003"
     },
     {
       "id": "B-5a15:F-014",
@@ -289,7 +302,8 @@
       "reviewRunId": "B-5a15:RR-020",
       "_hash": "2277f447d790a301a37b157782f1aec37d8fc70b9cc5ebdf9e55009b1e496296",
       "signatureTag": "missing|unknown|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-004"
     },
     {
       "id": "B-5a15:F-015",
@@ -304,7 +318,8 @@
       "reviewRunId": "B-5a15:RR-020",
       "_hash": "39ac395cbc4309ceb556ae77ed8ba60bdb822e469eb1a4c3feda839467bfdb92",
       "signatureTag": "missing|unknown|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-005"
     },
     {
       "id": "B-5a15:F-016",
@@ -319,7 +334,8 @@
       "reviewRunId": "B-5a15:RR-020",
       "_hash": "83b3e619562da5b3fdd973aa6b8f7a5333cf9a3df433edba788232685a150793",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-017",
@@ -334,7 +350,8 @@
       "reviewRunId": "B-5a15:RR-020",
       "_hash": "40b3fb9c0ca4bea99235f1a86b81375e8608389e8cbb9c8948d5e3c585eaa0ab",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-018",
@@ -352,7 +369,8 @@
         ".proof-or-stop/story/actives/B-5a15/checklist.json"
       ],
       "signatureTag": "missing|json|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-019",
@@ -367,7 +385,8 @@
       "reviewRunId": "B-5a15:RR-021",
       "_hash": "025237257061d819dc989335823a8989b2b90ce14dc0c5743e9152513a383bd6",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-020",
@@ -382,7 +401,8 @@
       "reviewRunId": "B-5a15:RR-021",
       "_hash": "6a266f83e9c3f38d897773b8dcd2224ed0ce1c0f6040da572796b0c101ec1d6d",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-021",
@@ -397,7 +417,8 @@
       "reviewRunId": "B-5a15:RR-021",
       "_hash": "629e71cc70c25154b70195fa908b94212d9cc22bbfa0caafc0dd5c8fe419dbf1",
       "signatureTag": "missing|unknown|scope-contract-current",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-003"
     },
     {
       "id": "B-5a15:F-022",
@@ -479,7 +500,8 @@
         "packages/main/src/core/acceptance-rollout.ts"
       ],
       "signatureTag": "missing|json|acceptance-admissibility-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-023",
@@ -532,7 +554,8 @@
         ".proof-or-stop/story/actives/B-5a15/checklist.json"
       ],
       "signatureTag": "missing|json|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-024",
@@ -586,7 +609,8 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|json|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-025",
@@ -640,7 +664,8 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|json|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-026",
@@ -694,7 +719,8 @@
         "packages/main/src/core/acceptance-rollout.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-027",
@@ -740,7 +766,8 @@
         "packages/main/src/core/certification-window.ts"
       ],
       "signatureTag": "adversarial|ts|causal-dependency-authority",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-028",
@@ -785,7 +812,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|unknown-input-keys",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-029",
@@ -831,7 +859,8 @@
         "packages/main/src/core/store.ts"
       ],
       "signatureTag": "adversarial|ts|receipt-integrity-unkeyed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-030",
@@ -897,7 +926,8 @@
       "readDiagnostics": [],
       "_hash": "9210f90ad951b0831e64a98739ca1a1396b8c3e3b250099ee8279cea2f112c4c",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-031",
@@ -963,7 +993,8 @@
       "readDiagnostics": [],
       "_hash": "0128fe8b198bc6d00b0218d4d3b6aeab162b1081036dc4e12b9cc9387277f4b1",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-032",
@@ -1024,7 +1055,8 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-033",
@@ -1085,7 +1117,8 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-034",
@@ -1146,7 +1179,8 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-035",
@@ -1207,7 +1241,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-036",
@@ -1229,7 +1264,8 @@
       "resolvedReason": "Superseded by commit c4e3510524. Current causal-evidence.ts signs executionIdentity, executionIdentityDigest, and executionKey into each preflight and verifyCausalPreflight(report, expectedIdentity) compares that binding before executeCausalEvidence can launch a child. Repro against the current built artifact: a preflight signed for command A passed to command B returned missing_or_forged_preflight with runs=0. The stale finding's pre-change premise is disproven.",
       "resolvedAt": "2026-08-20T21:11:32.470Z",
       "resolutionType": "superseded",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-037",
@@ -1248,7 +1284,8 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|json|wave-live-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-038",
@@ -1263,7 +1300,8 @@
       "reviewRunId": "B-5a15:RR-055",
       "_hash": "545e08e9a21ed1345d396c1d52996497e27cdcf61277bb8a4d0e605893bcf5a7",
       "signatureTag": "missing|unknown|wave-live-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-005"
     },
     {
       "id": "B-5a15:F-039",
@@ -1283,7 +1321,8 @@
         "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
       ],
       "signatureTag": "missing|md|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-007"
     },
     {
       "id": "B-5a15:F-040",
@@ -1298,7 +1337,8 @@
       "reviewRunId": "B-5a15:RR-057",
       "_hash": "e05fcae08dfaae75255425c8903444e4c22827284ed1dd4c7719b4b886441549",
       "signatureTag": "missing|unknown|current-review-acceptance",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-008"
     },
     {
       "id": "B-5a15:F-041",
@@ -1313,7 +1353,8 @@
       "reviewRunId": "B-5a15:RR-058",
       "_hash": "d295c75d9cd460b52db9c8c90a45247e9e6257b6b45b7f89fee9060e044ca35a",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-009"
     },
     {
       "id": "B-5a15:F-042",
@@ -1362,7 +1403,8 @@
         "packages/main/tests/verifier-causal-preflight.test.mjs"
       ],
       "signatureTag": "missing|json|current-test-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-010"
     },
     {
       "id": "B-5a15:F-043",
@@ -1377,7 +1419,8 @@
       "reviewRunId": "B-5a15:RR-068",
       "_hash": "653b3f4c67cf9989b0a6e29f0e83609fa08f83c2c9e0361b0cdda49c77164655",
       "signatureTag": "missing|unknown|concept-input-missing",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-007"
     },
     {
       "id": "B-5a15:F-044",
@@ -1416,7 +1459,8 @@
         "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|focused-acceptance-smoke",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-045",
@@ -1431,7 +1475,8 @@
       "reviewRunId": "B-5a15:RR-079",
       "_hash": "3f598e0ecd92be9f2d8ca1b871dbcdbc1720f9c79eece17263d5c7fb56624180",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-011"
     },
     {
       "id": "B-5a15:F-046",
@@ -1486,7 +1531,8 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|json|acceptance-proof-currently",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-047",
@@ -1504,7 +1550,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-048",
@@ -1523,7 +1570,8 @@
         ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
       ],
       "signatureTag": "missing|json|concept-wave-verifier",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-012"
     },
     {
       "id": "B-5a15:F-049",
@@ -1541,7 +1589,8 @@
         "test-evidence.json"
       ],
       "signatureTag": "missing|json|test-evidence-json",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-013"
     },
     {
       "id": "B-5a15:F-050",
@@ -1561,7 +1610,8 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|json|wave-verifier-owned",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-051",
@@ -1579,7 +1629,8 @@
         "pre-review-check.json"
       ],
       "signatureTag": "missing|json|review-check-json",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-014"
     },
     {
       "id": "B-5a15:F-052",
@@ -1597,7 +1648,8 @@
         "test-evidence.json"
       ],
       "signatureTag": "missing|json|test-evidence-json",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-013"
     },
     {
       "id": "B-5a15:F-053",
@@ -1612,7 +1664,8 @@
       "reviewRunId": "B-5a15:RR-110",
       "_hash": "8ba39a565c787db3888d3dde3cc29b57d3c7ce9daea0aa84d7530c126c447500",
       "signatureTag": "missing|unknown|required-docs-missing",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-007"
     },
     {
       "id": "B-5a15:F-054",
@@ -1627,7 +1680,8 @@
       "reviewRunId": "B-5a15:RR-112",
       "_hash": "b4bc779bb50056fe9272307e813fb49eca6f5e6a97f8159435e7dbfe61b97801",
       "signatureTag": "missing|unknown|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-005"
     },
     {
       "id": "B-5a15:F-055",
@@ -1642,7 +1696,8 @@
       "reviewRunId": "B-5a15:RR-112",
       "_hash": "c3529ea63085c7710f2f54a38f7db0befd97d20028f7275f7538106178af34ce",
       "signatureTag": "missing|unknown|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-015"
     },
     {
       "id": "B-5a15:F-056",
@@ -1657,7 +1712,8 @@
       "reviewRunId": "B-5a15:RR-111",
       "_hash": "abf8436a954d3cf7240178e5164afd548c8b47d27a64d84a329c9092b3bf7fb5",
       "signatureTag": "missing|unknown|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-005"
     },
     {
       "id": "B-5a15:F-057",
@@ -1672,7 +1728,8 @@
       "reviewRunId": "B-5a15:RR-111",
       "_hash": "9d27befa96e96c5590e61986e6e20ff88863e3fbaf07d1e6e2042aa3b499de03",
       "signatureTag": "missing|unknown|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-015"
     },
     {
       "id": "B-5a15:F-058",
@@ -1721,7 +1778,8 @@
         "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
       ],
       "signatureTag": "missing|md|concept-review-required",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-007"
     },
     {
       "id": "B-5a15:F-059",
@@ -1771,7 +1829,8 @@
         "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
       ],
       "signatureTag": "missing|json|concept-review-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-007"
     },
     {
       "id": "B-5a15:F-060",
@@ -1823,7 +1882,8 @@
         ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
       ],
       "signatureTag": "missing|json|review-check-json",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-061",
@@ -1875,7 +1935,8 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-062",
@@ -1922,7 +1983,8 @@
         ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
       ],
       "signatureTag": "missing|json|wave-verifier-owned",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-063",
@@ -1975,7 +2037,8 @@
         "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
       ],
       "signatureTag": "missing|md|concept-review-required",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-007"
     },
     {
       "id": "B-5a15:F-064",
@@ -2034,7 +2097,8 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json"
       ],
       "signatureTag": "missing|json|review-check-json",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-065",
@@ -2093,7 +2157,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-066",
@@ -2146,7 +2211,8 @@
         "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
       ],
       "signatureTag": "missing|md|concept-review-required",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-007"
     },
     {
       "id": "B-5a15:F-067",
@@ -2205,7 +2271,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-068",
@@ -2269,7 +2336,8 @@
       "readDiagnostics": [],
       "_hash": "c55484c641a11c3dcdebff729aa898aa00774e548d1055d5b03b201c9559691c",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-016"
     },
     {
       "id": "B-5a15:F-069",
@@ -2357,7 +2425,8 @@
         "packages/main/src/tasks/certification-window-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-070",
@@ -2420,7 +2489,8 @@
         "packages/main/src/core/acceptance-rollout.ts"
       ],
       "signatureTag": "\"missing|json|wave4-verifier-owned\"",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-071",
@@ -2467,7 +2537,8 @@
         ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json"
       ],
       "signatureTag": "verifier-owned-acceptance-chain-stale",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-072",
@@ -2519,7 +2590,8 @@
         "packages/main/src/core/acceptance-rollout.ts"
       ],
       "signatureTag": "verifier-owned-acceptance-chain-stale",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-073",
@@ -2589,7 +2661,8 @@
       "readDiagnostics": [],
       "_hash": "b9a9f505dc8e16f0087ce99362c9a95164d264b18a5df7726a84fb1f35f9f8d5",
       "signatureTag": "missing|unknown|quality-freshness-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-004"
     },
     {
       "id": "B-5a15:F-074",
@@ -2643,7 +2716,8 @@
         ".proof-or-stop/story/actives/B-5a15/checklist.json"
       ],
       "signatureTag": "missing|json|current-verifier-owned",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-075",
@@ -2691,7 +2765,8 @@
         ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json"
       ],
       "signatureTag": "verifier-owned-acceptance-chain-stale",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-076",
@@ -2764,7 +2839,8 @@
         ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json"
       ],
       "signatureTag": "verifier-owned-acceptance-chain-stale",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-077",
@@ -2840,7 +2916,8 @@
       "resolvedReason": "Canonical remediation commit 4061d19a1c (lattice-implementer) refreshed all 50 verificationEvidence rows and regenerated acceptance-basis.json, pre-review-check.json, and acceptance-rollout-report.json at one current HEAD/materialHash/storyFilesHash/scope binding. acceptance_topology_check, pre_review_check_read, and acceptance_rollout_check now pass with full-3x2 rollout assurance; source review found no producer/consumer defect.",
       "resolvedAt": "2026-08-21T17:49:31.122Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-078",
@@ -2928,7 +3005,8 @@
       "resolvedReason": "Canonical remediation commit 4061d19a1c (lattice-implementer) refreshed all 50 verificationEvidence rows and regenerated acceptance-basis.json, pre-review-check.json, and acceptance-rollout-report.json at one current HEAD/materialHash/storyFilesHash/scope binding. acceptance_topology_check, pre_review_check_read, and acceptance_rollout_check now pass with full-3x2 rollout assurance; source review found no producer/consumer defect.",
       "resolvedAt": "2026-08-21T17:49:33.730Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-079",
@@ -3017,7 +3095,8 @@
       "resolvedReason": "Canonical remediation commit 4061d19a1c (lattice-implementer) refreshed all 50 verificationEvidence rows and regenerated acceptance-basis.json, pre-review-check.json, and acceptance-rollout-report.json at one current HEAD/materialHash/storyFilesHash/scope binding. acceptance_topology_check, pre_review_check_read, and acceptance_rollout_check now pass with full-3x2 rollout assurance; source review found no producer/consumer defect.",
       "resolvedAt": "2026-08-21T17:49:36.676Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-080",
@@ -3089,7 +3168,8 @@
       "resolvedReason": "Canonical remediation commit 4061d19a1c (lattice-implementer) refreshed all 50 verificationEvidence rows and regenerated acceptance-basis.json, pre-review-check.json, and acceptance-rollout-report.json at one current HEAD/materialHash/storyFilesHash/scope binding. acceptance_topology_check, pre_review_check_read, and acceptance_rollout_check now pass with full-3x2 rollout assurance; source review found no producer/consumer defect.",
       "resolvedAt": "2026-08-21T17:49:39.437Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-081",
@@ -3142,7 +3222,8 @@
         "packages/main/tests/verifier-causal-preflight.test.mjs"
       ],
       "signatureTag": "doc-promise-undelivered|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-082",
@@ -3157,7 +3238,8 @@
       "reviewRunId": "B-5a15:RR-158",
       "_hash": "a3d11e2264a186814153dcc6081d45fc41d634a4f172fbb6b06139ff6948567f",
       "signatureTag": "missing|unknown|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-083",
@@ -3208,7 +3290,8 @@
         "packages/main/tests/verifier-causal-preflight.test.mjs"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-084",
@@ -3258,7 +3341,8 @@
         "packages/main/dist/tasks/verifier-causal-preflight-smoke.js"
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-085",
@@ -3308,7 +3392,8 @@
         "packages/main/dist/tasks/verifier-causal-preflight-smoke.js"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-086",
@@ -3358,7 +3443,8 @@
         "packages/main/dist/tasks/verifier-causal-preflight-smoke.js"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-087",
@@ -3417,7 +3503,8 @@
         "packages/main/dist/tasks/verifier-causal-preflight-smoke.js"
       ],
       "signatureTag": "missing|md|promise-undelivered-verifier",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-088",
@@ -3466,7 +3553,8 @@
         "packages/main/dist/tasks/verifier-causal-preflight-smoke.js"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-089",
@@ -3516,7 +3604,8 @@
         "packages/main/dist/tasks/verifier-causal-preflight-smoke.js"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-090",
@@ -3566,7 +3655,8 @@
         "packages/main/dist/tasks/verifier-causal-preflight-smoke.js"
       ],
       "signatureTag": "missing|md|promise-undelivered-current",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-091",
@@ -3624,7 +3714,8 @@
         "packages/main/dist/tasks/verifier-causal-preflight-smoke.js"
       ],
       "signatureTag": "missing|md|promise-undelivered-current",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-092",
@@ -3676,7 +3767,8 @@
         "packages/main/tests/verifier-causal-preflight.test.mjs"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-093",
@@ -3730,7 +3822,8 @@
         "packages/main/tests/verifier-causal-preflight.test.mjs"
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-094",
@@ -3784,7 +3877,8 @@
         "packages/main/tests/verifier-causal-preflight.test.mjs"
       ],
       "signatureTag": "missing|md|promise-undelivered-verifier",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-095",
@@ -3828,7 +3922,8 @@
         "packages/main/tests/verifier-causal-preflight.test.mjs"
       ],
       "signatureTag": "missing|md|promise-undelivered-verifier",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-096",
@@ -3880,7 +3975,8 @@
         ".proof-or-stop/story/actives/B-5a15/scope-contract.json"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-097",
@@ -3929,7 +4025,8 @@
         "packages/main/dist/tasks/verifier-causal-preflight-smoke.js"
       ],
       "signatureTag": "missing|md|coverage-executable-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-098",
@@ -3980,7 +4077,8 @@
         "packages/main/dist/tasks/verifier-causal-preflight-smoke.js"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-099",
@@ -4034,7 +4132,8 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json"
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-100",
@@ -4078,7 +4177,8 @@
         "packages/main/dist/tasks/verifier-causal-preflight-smoke.js"
       ],
       "signatureTag": "doc-promise-undelivered|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-101",
@@ -4127,7 +4227,8 @@
         "packages/main/dist/tasks/verifier-causal-preflight-smoke.js"
       ],
       "signatureTag": "missing|md:136|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-102",
@@ -4179,7 +4280,8 @@
         "packages/main/dist/tasks/verifier-causal-preflight-smoke.js"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-103",
@@ -4232,7 +4334,8 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json"
       ],
       "signatureTag": "missing|md|verified-critical-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-104",
@@ -4283,7 +4386,8 @@
         "packages/main/tests/verifier-causal-preflight.test.mjs"
       ],
       "signatureTag": "missing|md|required-executable-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-105",
@@ -4335,7 +4439,8 @@
         ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
       ],
       "signatureTag": "verifier-causal-preflight-missing-artifact-family",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-106",
@@ -4383,7 +4488,8 @@
         ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
       ],
       "signatureTag": "missing|md|canonical-missing-artifact",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-107",
@@ -4433,7 +4539,8 @@
         "packages/main/tests/verifier-causal-preflight.test.mjs"
       ],
       "signatureTag": "verifier-causal-preflight-missing-artifact-family",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-108",
@@ -4493,7 +4600,8 @@
         ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
       ],
       "signatureTag": "verifier-causal-preflight-missing-artifact-family",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-109",
@@ -4546,7 +4654,8 @@
         "packages/main/tests/verifier-causal-preflight.test.mjs"
       ],
       "signatureTag": "missing|md|canonical-missing-verifier",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-110",
@@ -4603,7 +4712,8 @@
         ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
       ],
       "signatureTag": "verifier-causal-preflight-missing-artifact-family",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-111",
@@ -4649,7 +4759,8 @@
         "packages/main/tests/verifier-causal-preflight.test.mjs"
       ],
       "signatureTag": "verifier-causal-preflight-missing-artifact-family",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-112",
@@ -4698,7 +4809,8 @@
         "packages/main/tests/verifier-causal-preflight.test.mjs"
       ],
       "signatureTag": "verifier-causal-preflight-missing-artifact-family",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-113",
@@ -4757,7 +4869,8 @@
         ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
       ],
       "signatureTag": "verifier-causal-preflight-missing-artifact",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-017"
     },
     {
       "id": "B-5a15:F-114",
@@ -4820,7 +4933,8 @@
         "packages/main/src/handlers/review-inventory.ts"
       ],
       "signatureTag": "topology-acceptance-closeout-not-admissible",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-018"
     },
     {
       "id": "B-5a15:F-115",
@@ -4883,7 +4997,8 @@
         "packages/main/src/handlers/review-inventory.ts"
       ],
       "signatureTag": "topology-acceptance-closeout-not-admissible",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-018"
     },
     {
       "id": "B-5a15:F-116",
@@ -4922,7 +5037,8 @@
         "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136"
       ],
       "signatureTag": "missing|json|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-117",
@@ -4970,7 +5086,8 @@
         "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
       ],
       "signatureTag": "missing|json|review-admissibility-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-118",
@@ -5009,7 +5126,8 @@
         "packages/main/src/core/evidence-freshness.ts"
       ],
       "signatureTag": "missing|ts|promise-undelivered-wired",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-119",
@@ -5047,7 +5165,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-120",
@@ -5107,7 +5226,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "B-5a15:F-116-current-stale-verification",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-121",
@@ -5168,7 +5288,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "B-5a15:F-117-current-pre-review-inconclusive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-122",
@@ -5230,7 +5351,8 @@
         "packages/main/src/core/evidence-freshness.ts"
       ],
       "signatureTag": "B-5a15:F-118-production-causal-consumer-unwired",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-123",
@@ -5291,7 +5413,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "B-5a15:F-119-cross-snapshot-advisory-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-124",
@@ -5343,7 +5466,8 @@
         "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
       ],
       "signatureTag": "missing|json|coverage-review-cannot",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-125",
@@ -5669,7 +5793,8 @@
         "packages/main/src/core/evidence-freshness.ts"
       ],
       "signatureTag": "causal-consumer-not-wired",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-126",
@@ -5994,7 +6119,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "causal-advisory-cross-snapshot",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-127",
@@ -6319,7 +6445,8 @@
         ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
       ],
       "signatureTag": "pre-review-admissibility-stale",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-128",
@@ -6643,7 +6770,8 @@
         ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ed28534544f5eee6957b570ed5189b1c05ca250ba9de801a703233ace09022cf.json"
       ],
       "signatureTag": "scope-contract-unacknowledged-receipts",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-019"
     },
     {
       "id": "B-5a15:F-129",
@@ -6687,7 +6815,8 @@
         "packages/main/src/core/acceptance-topology.ts"
       ],
       "signatureTag": "topology-acceptance-pre-review-inconclusive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-130",
@@ -6742,7 +6871,8 @@
         "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
       ],
       "signatureTag": "missing|json|through-verification-intents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-131",
@@ -6801,7 +6931,8 @@
         ".proof-or-stop/story/actives/B-5a15/checklist.json"
       ],
       "signatureTag": "B-5a15:F-116-current-stale-verification",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-132",
@@ -6862,7 +6993,8 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "B-5a15:F-117-current-pre-review-inconclusive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-133",
@@ -6921,7 +7053,8 @@
         ".proof-or-stop/story/actives/B-5a15/scope-contract.json"
       ],
       "signatureTag": "scope-contract-unacknowledged-receipts",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-020"
     },
     {
       "id": "B-5a15:F-134",
@@ -6983,7 +7116,8 @@
         "packages/main/src/core/certification-window.ts"
       ],
       "signatureTag": "causal-consumer-not-wired",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-021"
     },
     {
       "id": "B-5a15:F-135",
@@ -7044,7 +7178,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "B-5a15:F-119-cross-snapshot-advisory-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-136",
@@ -7085,7 +7220,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "ri-012-wave2-current-causal-consumer-unwired",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-137",
@@ -7124,7 +7260,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "ri-012-wave2-current-causal-cross-snapshot",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-138",
@@ -7166,7 +7303,8 @@
         "packages/main/src/core/acceptance-rollout.ts"
       ],
       "signatureTag": "ri-012-wave2-current-pre-review-inconclusive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-139",
@@ -7203,7 +7341,8 @@
         ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/05f7b12f2debde8acc4dd937cfe5a28f868632cc5318646fbf42e8cc22082179.json"
       ],
       "signatureTag": "ri-012-wave2-current-scope-unacknowledged-receipts",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-020"
     },
     {
       "id": "B-5a15:F-140",
@@ -7254,7 +7393,8 @@
         "packages/main/src/core/topology-critic-receipt.ts"
       ],
       "signatureTag": "topology-critic-current-admissibility",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-141",
@@ -7305,7 +7445,8 @@
         "packages/main/src/core/topology-critic-receipt.ts"
       ],
       "signatureTag": "topology-critic-current-admissibility",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-142",
@@ -7368,7 +7509,8 @@
         "packages/main/src/core/certification-window.ts"
       ],
       "signatureTag": "doc-promise-undelivered|md|promise-undelivered-current",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-021"
     },
     {
       "id": "B-5a15:F-143",
@@ -7444,7 +7586,8 @@
         "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
       ],
       "signatureTag": "ri-012-wave3-current-intent-evidence-stale",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-144",
@@ -7506,7 +7649,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "adversarial|ts|current-source-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-145",
@@ -7556,7 +7700,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "ri-012-wave3-current-causal-consumer-unwired",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-146",
@@ -7605,7 +7750,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "ri-012-wave3-current-causal-cross-snapshot",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-147",
@@ -7654,7 +7800,8 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "ri-012-wave3-current-pre-review-inconclusive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-148",
@@ -7702,7 +7849,8 @@
         ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/05f7b12f2debde8acc4dd937cfe5a28f868632cc5318646fbf42e8cc22082179.json"
       ],
       "signatureTag": "ri-012-wave3-current-scope-unacknowledged-receipts",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-020"
     },
     {
       "id": "B-5a15:F-149",
@@ -7751,7 +7899,8 @@
         "packages/main/src/handlers/review-inventory.ts"
       ],
       "signatureTag": "topology-critic-final-wave-current-admissibility",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-018"
     },
     {
       "id": "B-5a15:F-150",
@@ -7801,7 +7950,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-151",
@@ -7852,7 +8002,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "missing|ts|promise-undelivered-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-152",
@@ -7912,7 +8063,8 @@
         "packages/main/src/handlers/certification-window.ts"
       ],
       "signatureTag": "missing|mjs|happy-validly-covered",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-153",
@@ -7979,7 +8131,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-154",
@@ -8027,7 +8180,8 @@
         "packages/main/src/core/pre-review-check.ts"
       ],
       "signatureTag": "missing|ts|current-topology-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-155",
@@ -8093,7 +8247,8 @@
         "packages/main/src/handlers/certification-window.ts"
       ],
       "signatureTag": "B-5a15:F-152-current-round-coverage",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-156",
@@ -8152,7 +8307,8 @@
         "packages/main/src/core/validation-types.ts"
       ],
       "signatureTag": "adversarial|ts|quality-blocker-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-157",
@@ -8202,7 +8358,8 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "ri-014-wave2-current-topology-incomplete",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-158",
@@ -8252,7 +8409,8 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "ri-014-wave2-current-topology-incomplete",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-159",
@@ -8318,7 +8476,8 @@
         "packages/main/src/handlers/certification-window.ts"
       ],
       "signatureTag": "missing|mjs|happy-remains-uncovered",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-160",
@@ -8387,7 +8546,8 @@
         "packages/main/src/core/acceptance-rollout.ts"
       ],
       "signatureTag": "missing|json|wave-coverage-boundary",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-161",
@@ -8452,7 +8612,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-162",
@@ -8504,7 +8665,8 @@
         "packages/main/src/handlers/certification-window.ts"
       ],
       "signatureTag": "missing|mjs|happy-lacks-valid",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-163",
@@ -8560,7 +8722,8 @@
         "packages/main/src/core/acceptance-rollout.ts"
       ],
       "signatureTag": "missing|json|verifier-owned-wave",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-164",
@@ -8639,7 +8802,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-165",
@@ -8695,7 +8859,8 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|json|wave-verifier-owned",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-166",
@@ -8750,7 +8915,8 @@
         "packages/main/src/core/certification-window.ts"
       ],
       "signatureTag": "missing|mjs|happy-remains-uncovered",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-167",
@@ -8806,7 +8972,8 @@
         ".proof-or-stop/story/actives/B-5a15/plan.md"
       ],
       "signatureTag": "missing|mjs|happy-covered-current",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-168",
@@ -8861,7 +9028,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "missing|mjs|happy-synthetic-metric",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-169",
@@ -8916,7 +9084,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "missing|mjs|happy-happy-verify",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-170",
@@ -8971,7 +9140,8 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "missing|mjs|happy-exercise-authored",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-171",
@@ -9037,7 +9207,8 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|json|ri015-wave2-topology-completeness",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-172",
@@ -9104,7 +9275,8 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|json|ri015-wave2-topology-completeness-refresh",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-173",
@@ -9172,7 +9344,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-174",
@@ -9248,7 +9421,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-175",
@@ -9324,7 +9498,8 @@
         "packages/main/src/core/certification-window.ts"
       ],
       "signatureTag": "missing|ts|promise-undelivered-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-176",
@@ -9399,7 +9574,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-177",
@@ -9475,7 +9651,8 @@
         "packages/main/src/core/validation-executor.ts"
       ],
       "signatureTag": "adversarial|ts|quality-blocker-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-178",
@@ -9550,7 +9727,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-179",
@@ -9625,7 +9803,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-180",
@@ -9700,7 +9879,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-181",
@@ -9748,7 +9928,8 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|ts|wave-topology-completeness",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-182",
@@ -9800,7 +9981,8 @@
         "packages/main/src/core/certification-window.ts"
       ],
       "signatureTag": "ri-016-wave2-causal-decision-consumer-identity",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-183",
@@ -9860,7 +10042,8 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "ri-016-wave2-topology-completeness",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-184",
@@ -9903,7 +10086,8 @@
         "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
       ],
       "signatureTag": "missing|ts|through-executable-wave",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-185",
@@ -9944,7 +10128,8 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|ts|frozen-acceptance-basis",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-186",
@@ -9997,7 +10182,8 @@
         "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
       ],
       "signatureTag": "missing|ts|wave-coverage-remains",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-187",
@@ -10050,7 +10236,8 @@
         "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
       ],
       "signatureTag": "missing|ts|wave-coverage-remains",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-188",
@@ -10099,7 +10286,8 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "ri-017-wave2-topology-basis-partial",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-189",
@@ -10155,7 +10343,8 @@
         ".proof-or-stop/story/actives/B-5a15/checklist.json"
       ],
       "signatureTag": "missing|ts|fresh-final-wave",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-190",
@@ -10207,7 +10396,8 @@
       "resolvedReason": "Duplicate of B-5a15:F-188: the fresh topology evidence reports the same AT_COVERAGE_BASIS_PARTIAL and AT_UNMAPPED_SCOPE_REF structural blocker, with no distinct defect.",
       "resolvedAt": "2026-08-23T12:20:35.120Z",
       "resolutionType": "duplicate",
-      "resolveEvidenceStrength": "strong"
+      "resolveEvidenceStrength": "strong",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-191",
@@ -10247,7 +10437,8 @@
         "packages/main/src/core/certification-window.ts"
       ],
       "signatureTag": "missing|ts|promise-undelivered-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-192",
@@ -10289,7 +10480,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "missing|json|wave-coverage-missing",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-022"
     },
     {
       "id": "B-5a15:F-193",
@@ -10336,7 +10528,8 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|json|through-lack-executable",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-194",
@@ -10380,7 +10573,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "missing|ts|production-causal-wired",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-195",
@@ -10433,7 +10627,8 @@
         "packages/main/src/handlers/certification-window.ts"
       ],
       "signatureTag": "ri-018-wave2-topology-basis-partial",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-196",
@@ -10483,7 +10678,8 @@
         "packages/main/src/core/topology-critic-receipt.ts"
       ],
       "signatureTag": "missing|ts|fresh-topology-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-197",
@@ -10522,7 +10718,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "missing|ts|certification-window-high",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-198",
@@ -10573,7 +10770,8 @@
         "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
       ],
       "signatureTag": "missing|ts|wave-coverage-missing",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-199",
@@ -10626,7 +10824,8 @@
         "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
       ],
       "signatureTag": "ri-018-final-wave-topology-basis-partial",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-200",
@@ -10673,7 +10872,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "missing|ts|wave-coverage-missing",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-201",
@@ -10712,7 +10912,8 @@
         "packages/main/src/core/certification-window.ts"
       ],
       "signatureTag": "missing|ts|certification-window-high",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-202",
@@ -10755,7 +10956,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "missing|ts|wave-coverage-missing",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-203",
@@ -10818,7 +11020,8 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|ts|fresh-topology-review",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-204",
@@ -10858,7 +11061,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "missing|ts|certification-window-high",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-205",
@@ -10911,7 +11115,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "missing|ts|wave-coverage-missing",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-206",
@@ -10950,7 +11155,8 @@
         "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
       ],
       "signatureTag": "wave4-acceptance-coverage",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-207",
@@ -10994,7 +11200,8 @@
       "readDiagnostics": [],
       "_hash": "93715954cca5922580f006766e98f77a2fa01b0077906cf169aa469b010123b2",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-208",
@@ -11038,7 +11245,8 @@
       "readDiagnostics": [],
       "_hash": "d0d44e02a596932bd7b8283947d3d066af7357e3294fe68eb258a8b09f52f39b",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-209",
@@ -11082,7 +11290,8 @@
       "readDiagnostics": [],
       "_hash": "9df585b4483523c6e24aa95e325988b79d22a9b7096298bef863f4e666c71038",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-210",
@@ -11126,7 +11335,8 @@
       "readDiagnostics": [],
       "_hash": "d52046f98aeec44c7a0b46d101ea8905003746549f89a1d55f93d57ad3411f51",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-211",
@@ -11170,7 +11380,8 @@
       "readDiagnostics": [],
       "_hash": "c04149e8600fd677fd0141e3c900ef82465bbffb5a5ee3f80954568fc53b0ed7",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-212",
@@ -11214,7 +11425,8 @@
       "readDiagnostics": [],
       "_hash": "f7ab27a024f4c68c7e04d5827751c0423635efd4d79b677333d2645bf11a5316",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-213",
@@ -11259,7 +11471,8 @@
         "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
       ],
       "signatureTag": "missing|ts|wave-acceptance-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-214",
@@ -11300,7 +11513,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-215",
@@ -11344,7 +11558,8 @@
       "readDiagnostics": [],
       "_hash": "22098ea477f12199002f998184916807965cc3831f5ab4c1a96ff6b493ad73a3",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-216",
@@ -11384,7 +11599,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-217",
@@ -11428,7 +11644,8 @@
       "readDiagnostics": [],
       "_hash": "2eb877b2e6ee8ece77363741ea14f734ca129d161e12c07106de8cdf73cdb22e",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-218",
@@ -11468,7 +11685,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-219",
@@ -11512,7 +11730,8 @@
       "readDiagnostics": [],
       "_hash": "8911a5d714ac1654d1a9aa7e6dbfd101d498ed34a804ba97f694897ece11fcc0",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-220",
@@ -11552,7 +11771,8 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-221",
@@ -11596,7 +11816,8 @@
       "readDiagnostics": [],
       "_hash": "c5840e7585bb8b95070fc6dc1792cffd3b601a1ed04165bf0d37169f7c15bed9",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-222",
@@ -11637,7 +11858,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-223",
@@ -11681,7 +11903,8 @@
       "readDiagnostics": [],
       "_hash": "36486130c0195524b10a903f2866661918bb03b8740d23b8364c756d5876c8ab",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-224",
@@ -11722,7 +11945,8 @@
         "packages/main/src/core/certification-window.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-225",
@@ -11766,7 +11990,8 @@
       "readDiagnostics": [],
       "_hash": "66f7b6a29e80353a8ff794f60572cbcd122f4b3740191cc340d5dcb3502b4d53",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-226",
@@ -11818,7 +12043,8 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|ts|wave-concept-residue",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-227",
@@ -11863,7 +12089,8 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "wave4-acceptance-coverage",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-228",
@@ -11911,7 +12138,8 @@
         "packages/main/src/handlers/certification-window.ts"
       ],
       "signatureTag": "missing|ts|production-certification-empty",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-229",
@@ -11952,7 +12180,8 @@
         "packages/main/src/handlers/live-smoke-transcript.ts"
       ],
       "signatureTag": "missing|mjs|wave-acceptance-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-023"
     },
     {
       "id": "B-5a15:F-230",
@@ -12000,7 +12229,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "edge|ts|receipt-output-tail",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-231",
@@ -12048,7 +12278,8 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "adversarial|ts|validation-command-identity",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-232",
@@ -12097,7 +12328,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|canonical-import-preflight",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-233",
@@ -12146,7 +12378,8 @@
         "packages/main/src/handlers/certification-window.ts"
       ],
       "signatureTag": "adversarial|ts|causal-decision-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-234",
@@ -12194,7 +12427,8 @@
         "packages/main/src/handlers/certification-window.ts"
       ],
       "signatureTag": "missing|ts|production-certification-empty",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-235",
@@ -12242,7 +12476,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|story-files-drift",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-236",
@@ -12290,7 +12525,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "edge|ts|receipt-output-tail",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-237",
@@ -12338,7 +12574,8 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "adversarial|ts|validation-command-identity",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-238",
@@ -12387,7 +12624,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|canonical-import-preflight",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-239",
@@ -12436,7 +12674,8 @@
         "packages/main/src/handlers/certification-window.ts"
       ],
       "signatureTag": "adversarial|ts|causal-decision-cross",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-240",
@@ -12496,7 +12735,8 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|json|wave-verifier-owned",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-241",
@@ -12560,7 +12800,8 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|json|wave-verifier-owned",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-242",
@@ -12618,7 +12859,8 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
       ],
       "signatureTag": "wave2-verifier-owned-binding",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "clusterId": "CL-002"
     },
     {
       "id": "B-5a15:F-243",
@@ -12693,7 +12935,8 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-244",
@@ -12743,7 +12986,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "edge|ts|5a15-remains-verified",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-245",
@@ -12782,7 +13026,8 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "missing|ts|regression-coverage-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-006"
     },
     {
       "id": "B-5a15:F-246",
@@ -12819,7 +13064,8 @@
         ".proof-or-stop/story/actives/B-5a15/checklist.json"
       ],
       "signatureTag": "missing|mjs|coverage-current-intents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002"
     }
   ]
 }

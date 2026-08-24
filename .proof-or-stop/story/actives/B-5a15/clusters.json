@@ -1,0 +1,591 @@
+{
+  "clusters": [
+    {
+      "clusterId": "CL-001",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-5a15:F-001"
+      ],
+      "files": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-002",
+      "rootCause": "Multiple findings all involve packages/main/src/core/causal-evidence.ts, packages/main/src/core/certification-window.ts",
+      "findingIds": [
+        "B-5a15:F-002",
+        "B-5a15:F-003",
+        "B-5a15:F-004",
+        "B-5a15:F-005",
+        "B-5a15:F-006",
+        "B-5a15:F-007",
+        "B-5a15:F-008",
+        "B-5a15:F-009",
+        "B-5a15:F-010",
+        "B-5a15:F-011",
+        "B-5a15:F-012",
+        "B-5a15:F-016",
+        "B-5a15:F-017",
+        "B-5a15:F-018",
+        "B-5a15:F-019",
+        "B-5a15:F-020",
+        "B-5a15:F-022",
+        "B-5a15:F-023",
+        "B-5a15:F-024",
+        "B-5a15:F-025",
+        "B-5a15:F-026",
+        "B-5a15:F-027",
+        "B-5a15:F-028",
+        "B-5a15:F-029",
+        "B-5a15:F-030",
+        "B-5a15:F-032",
+        "B-5a15:F-033",
+        "B-5a15:F-034",
+        "B-5a15:F-036",
+        "B-5a15:F-037",
+        "B-5a15:F-046",
+        "B-5a15:F-047",
+        "B-5a15:F-050",
+        "B-5a15:F-060",
+        "B-5a15:F-062",
+        "B-5a15:F-064",
+        "B-5a15:F-069",
+        "B-5a15:F-070",
+        "B-5a15:F-071",
+        "B-5a15:F-072",
+        "B-5a15:F-074",
+        "B-5a15:F-075",
+        "B-5a15:F-076",
+        "B-5a15:F-077",
+        "B-5a15:F-078",
+        "B-5a15:F-079",
+        "B-5a15:F-080",
+        "B-5a15:F-116",
+        "B-5a15:F-117",
+        "B-5a15:F-118",
+        "B-5a15:F-119",
+        "B-5a15:F-120",
+        "B-5a15:F-121",
+        "B-5a15:F-122",
+        "B-5a15:F-123",
+        "B-5a15:F-124",
+        "B-5a15:F-125",
+        "B-5a15:F-126",
+        "B-5a15:F-127",
+        "B-5a15:F-129",
+        "B-5a15:F-130",
+        "B-5a15:F-131",
+        "B-5a15:F-132",
+        "B-5a15:F-135",
+        "B-5a15:F-136",
+        "B-5a15:F-137",
+        "B-5a15:F-138",
+        "B-5a15:F-140",
+        "B-5a15:F-141",
+        "B-5a15:F-143",
+        "B-5a15:F-144",
+        "B-5a15:F-145",
+        "B-5a15:F-146",
+        "B-5a15:F-147",
+        "B-5a15:F-150",
+        "B-5a15:F-151",
+        "B-5a15:F-152",
+        "B-5a15:F-154",
+        "B-5a15:F-155",
+        "B-5a15:F-156",
+        "B-5a15:F-157",
+        "B-5a15:F-158",
+        "B-5a15:F-159",
+        "B-5a15:F-160",
+        "B-5a15:F-162",
+        "B-5a15:F-163",
+        "B-5a15:F-164",
+        "B-5a15:F-165",
+        "B-5a15:F-166",
+        "B-5a15:F-167",
+        "B-5a15:F-168",
+        "B-5a15:F-169",
+        "B-5a15:F-170",
+        "B-5a15:F-171",
+        "B-5a15:F-172",
+        "B-5a15:F-173",
+        "B-5a15:F-174",
+        "B-5a15:F-175",
+        "B-5a15:F-177",
+        "B-5a15:F-179",
+        "B-5a15:F-180",
+        "B-5a15:F-181",
+        "B-5a15:F-182",
+        "B-5a15:F-183",
+        "B-5a15:F-184",
+        "B-5a15:F-185",
+        "B-5a15:F-186",
+        "B-5a15:F-187",
+        "B-5a15:F-188",
+        "B-5a15:F-189",
+        "B-5a15:F-190",
+        "B-5a15:F-191",
+        "B-5a15:F-193",
+        "B-5a15:F-194",
+        "B-5a15:F-195",
+        "B-5a15:F-196",
+        "B-5a15:F-197",
+        "B-5a15:F-198",
+        "B-5a15:F-199",
+        "B-5a15:F-200",
+        "B-5a15:F-201",
+        "B-5a15:F-202",
+        "B-5a15:F-203",
+        "B-5a15:F-204",
+        "B-5a15:F-205",
+        "B-5a15:F-206",
+        "B-5a15:F-207",
+        "B-5a15:F-208",
+        "B-5a15:F-210",
+        "B-5a15:F-211",
+        "B-5a15:F-212",
+        "B-5a15:F-213",
+        "B-5a15:F-214",
+        "B-5a15:F-215",
+        "B-5a15:F-216",
+        "B-5a15:F-217",
+        "B-5a15:F-220",
+        "B-5a15:F-221",
+        "B-5a15:F-222",
+        "B-5a15:F-223",
+        "B-5a15:F-224",
+        "B-5a15:F-225",
+        "B-5a15:F-226",
+        "B-5a15:F-227",
+        "B-5a15:F-228",
+        "B-5a15:F-230",
+        "B-5a15:F-231",
+        "B-5a15:F-232",
+        "B-5a15:F-233",
+        "B-5a15:F-234",
+        "B-5a15:F-235",
+        "B-5a15:F-236",
+        "B-5a15:F-237",
+        "B-5a15:F-238",
+        "B-5a15:F-239",
+        "B-5a15:F-240",
+        "B-5a15:F-241",
+        "B-5a15:F-242",
+        "B-5a15:F-246"
+      ],
+      "files": [
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/certification-window.ts",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/proofstory.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        ".proof-or-stop/story/actives/B-5a15",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/checklist.ts",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/core/milestone-status.ts",
+        "packages/main/src/core/proofstory.ts",
+        ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136",
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/tests/verifier-causal-preflight.test.mjs",
+        ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/core/validation-types.ts",
+        ".proof-or-stop/story/actives/B-5a15/plan.md",
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/core/pre-review-live-proof.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-003",
+      "rootCause": "Multiple findings all involve packages/main/src/core/process-fact-levels.ts, packages/main/src/handlers/context.ts",
+      "findingIds": [
+        "B-5a15:F-013",
+        "B-5a15:F-021"
+      ],
+      "files": [
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/handlers/context.ts",
+        "packages/main/tests/causal-evidence-concurrency.test.mjs",
+        "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+        "scope-contract.js",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/tests/verifier-causal-preflight.test.mjs"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-004",
+      "rootCause": "Multiple findings all involve .proof-or-stop/story/actives/B-5a15/acceptance-basis.js",
+      "findingIds": [
+        "B-5a15:F-014",
+        "B-5a15:F-073"
+      ],
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.js"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-005",
+      "rootCause": "Multiple findings all involve .proof-or-stop/story/actives/B-5a15/pre-review-check.js",
+      "findingIds": [
+        "B-5a15:F-015",
+        "B-5a15:F-038",
+        "B-5a15:F-054",
+        "B-5a15:F-056"
+      ],
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.js"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-006",
+      "rootCause": "Multiple findings all involve packages/main/src/core/causal-evidence.ts, packages/main/src/handlers/checklist.ts",
+      "findingIds": [
+        "B-5a15:F-031",
+        "B-5a15:F-035",
+        "B-5a15:F-044",
+        "B-5a15:F-061",
+        "B-5a15:F-065",
+        "B-5a15:F-067",
+        "B-5a15:F-153",
+        "B-5a15:F-161",
+        "B-5a15:F-176",
+        "B-5a15:F-178",
+        "B-5a15:F-209",
+        "B-5a15:F-218",
+        "B-5a15:F-219",
+        "B-5a15:F-243",
+        "B-5a15:F-244",
+        "B-5a15:F-245"
+      ],
+      "files": [
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-007",
+      "rootCause": "Multiple findings all involve docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md, docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+      "findingIds": [
+        "B-5a15:F-039",
+        "B-5a15:F-043",
+        "B-5a15:F-053",
+        "B-5a15:F-058",
+        "B-5a15:F-059",
+        "B-5a15:F-063",
+        "B-5a15:F-066"
+      ],
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/plan.md",
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-008",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-5a15:F-040"
+      ],
+      "files": [],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-009",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-5a15:F-041"
+      ],
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-010",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-5a15:F-042"
+      ],
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/evidence/live-smoke-transcript.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a15/scope-check.json",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+        "packages/main/tests/verifier-causal-preflight.test.mjs"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-011",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-5a15:F-045"
+      ],
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/verification.ts",
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-012",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-5a15:F-048"
+      ],
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-013",
+      "rootCause": "Multiple findings all involve test-evidence.json",
+      "findingIds": [
+        "B-5a15:F-049",
+        "B-5a15:F-052"
+      ],
+      "files": [
+        "test-evidence.json"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-014",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-5a15:F-051"
+      ],
+      "files": [
+        "pre-review-check.json"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-015",
+      "rootCause": "Multiple findings all involve .proof-or-stop/story/actives/B-5a15/process-events.js",
+      "findingIds": [
+        "B-5a15:F-055",
+        "B-5a15:F-057"
+      ],
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/process-events.js"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-016",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-5a15:F-068"
+      ],
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "acceptance-basis.js"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-017",
+      "rootCause": "Multiple findings all involve docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md, packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+      "findingIds": [
+        "B-5a15:F-081",
+        "B-5a15:F-082",
+        "B-5a15:F-083",
+        "B-5a15:F-084",
+        "B-5a15:F-085",
+        "B-5a15:F-086",
+        "B-5a15:F-087",
+        "B-5a15:F-088",
+        "B-5a15:F-089",
+        "B-5a15:F-090",
+        "B-5a15:F-091",
+        "B-5a15:F-092",
+        "B-5a15:F-093",
+        "B-5a15:F-094",
+        "B-5a15:F-095",
+        "B-5a15:F-096",
+        "B-5a15:F-097",
+        "B-5a15:F-098",
+        "B-5a15:F-099",
+        "B-5a15:F-100",
+        "B-5a15:F-101",
+        "B-5a15:F-102",
+        "B-5a15:F-103",
+        "B-5a15:F-104",
+        "B-5a15:F-105",
+        "B-5a15:F-106",
+        "B-5a15:F-107",
+        "B-5a15:F-108",
+        "B-5a15:F-109",
+        "B-5a15:F-110",
+        "B-5a15:F-111",
+        "B-5a15:F-112",
+        "B-5a15:F-113"
+      ],
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+        "packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
+        "packages/main/tests/verifier-causal-preflight.test.mjs",
+        "packages/main/src/handlers/verifier.ts",
+        ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-018",
+      "rootCause": "Multiple findings all involve .proof-or-stop/story/actives/B-5a15/acceptance-basis.json, .proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+      "findingIds": [
+        "B-5a15:F-114",
+        "B-5a15:F-115",
+        "B-5a15:F-149"
+      ],
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-019",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-5a15:F-128"
+      ],
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d60dc99c7796a66b1ed7d28028ddd46f387377d20fa3b5ab1c40da252fd16448.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ed28534544f5eee6957b570ed5189b1c05ca250ba9de801a703233ace09022cf.json"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-020",
+      "rootCause": "Multiple findings all involve .proof-or-stop/story/actives/B-5a15/scope-contract.json",
+      "findingIds": [
+        "B-5a15:F-133",
+        "B-5a15:F-139",
+        "B-5a15:F-148"
+      ],
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/05f7b12f2debde8acc4dd937cfe5a28f868632cc5318646fbf42e8cc22082179.json"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-021",
+      "rootCause": "Multiple findings all involve docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md, docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+      "findingIds": [
+        "B-5a15:F-134",
+        "B-5a15:F-142"
+      ],
+      "files": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-022",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-5a15:F-192"
+      ],
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/test-evidence.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    },
+    {
+      "clusterId": "CL-023",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-5a15:F-229"
+      ],
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/handlers/live-smoke-transcript.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-24T06:55:19.644Z"
+    }
+  ]
+}
