@@ -5586,7 +5586,7 @@
       "reviewRound": "2026-08-24T15:11:15.383Z",
       "state": "OPEN",
       "begunAt": "2026-08-24T15:12:07.789Z",
-      "updatedAt": "2026-08-24T15:12:07.789Z",
+      "updatedAt": "2026-08-24T15:55:31.021Z",
       "cutoff": {
         "headHash": "40447992617d1ce59a96cbfb3ae7ce88a827cf8c",
         "materialHash": "cd63b3cd4d7da068127baaf20fac5d9fde983e0c8946c24e30a9ab3c3c9959b0",
@@ -5600,9 +5600,58 @@
       ],
       "initialRunSequenceBoundary": 629,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-24T15:12:07.789Z",
+          "completedAt": "2026-08-24T15:55:31.021Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-5a88:RR-631",
+              "terminal": "pass",
+              "hostIdentity": "a77f647e61f4fe7a4efaf669887b2b19eec65feb95f380ff671778a8780033f6",
+              "promptIdentity": "a9e0ad53a95fcd72481fbb7d0b0707cc014e8e4ec02e75fdc08c690fcdc27b1e",
+              "evidenceIds": [
+                "B-5a88:RP-229"
+              ],
+              "coverageDigest": "11ac6d05629d64dbf047c957e580e7e062fc67a1ff9b84d94493351fb66b5981"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-5a88:RR-632",
+              "terminal": "finding",
+              "hostIdentity": "a77f647e61f4fe7a4efaf669887b2b19eec65feb95f380ff671778a8780033f6",
+              "promptIdentity": "6fc983053896e98d13e0436792e86967b8122f69b2b9ef63f221bb0a3213d644",
+              "evidenceIds": [
+                "B-5a88:F-396"
+              ],
+              "coverageDigest": "2fc5a67468a479f053c802b17c7895a01dc7dbbda31f0743d57b1e65243ea6cf"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-630",
+              "terminal": "pass",
+              "hostIdentity": "a77f647e61f4fe7a4efaf669887b2b19eec65feb95f380ff671778a8780033f6",
+              "promptIdentity": "5e22af9c8a452a684e85db3bb37340ebe729079332fbb06a31806d695a9809d6",
+              "evidenceIds": [
+                "B-5a88:RP-228"
+              ],
+              "coverageDigest": "b5f8e282487e38a2e8600b9cb06f31b2c724eb9c527248e313dc03eea2f396a8"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "proof-binding-legacy-schema-reader"
+          ],
+          "verifiedFindingSetDigest": "31af55e33cf37bc12d23809d9ecfa9d3e7f86a004af56235dd527cbbe7d911b9",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "d666100e3cb3b0710be15dc4cbfe1e9a814da9e7c1f2100701181c17ebeb8b2d",
+          "saturated": false,
+          "nextRunSequenceBoundary": 634
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "c5981d622b0ae83d876ab188ee07ef0bb4a7f6d7e87c900acf3c014f205c461e"
+      "_hash": "0b82112b00db614bdd4fb7a8f380901317b3afd1dd9e524039c270d032b2b0f1"
     }
   ],
   "receipts": [
@@ -9188,6 +9237,49 @@
       ],
       "createdAt": "2026-08-24T15:52:14.250Z",
       "_hash": "c49fcf6746d43a62849e56e5ab5594f212388886bd73c19603e9a07394ede809"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-069:CRIT-02",
+      "epochId": "B-5a88:RI-069",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-24T15:11:15.383Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "40447992617d1ce59a96cbfb3ae7ce88a827cf8c",
+        "materialHash": "cd63b3cd4d7da068127baaf20fac5d9fde983e0c8946c24e30a9ab3c3c9959b0",
+        "storyFilesHash": "e3f657d2b03ed48ed1211eb4e701c16e563648e82b453d610940dffecda04042"
+      },
+      "aggregateFindingSetDigest": "31af55e33cf37bc12d23809d9ecfa9d3e7f86a004af56235dd527cbbe7d911b9",
+      "requiredLaneCoverageDigest": "921481bc932146560384d8df5c09e882f823e1796d5ccfaa7f7f5d5746b5292f",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-640",
+      "terminalEvidenceIds": [
+        "B-5a88:F-401"
+      ],
+      "readEvidenceDigest": "50f08d55ebd9d8fbca352ca802a3535fc76ff1ad73fb12514f6bf398b76b242b",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-398",
+          "disposition": "verified_family",
+          "familyKey": "proof-binding-legacy-schema-reader",
+          "reason": "Current RI-069 wave-2 coverage evidence independently confirms the declared legacy-reader contract is not exercised and the real reader rejects the lattice proof-binding schema; this is the same verified family first recorded by F-396."
+        },
+        {
+          "findingId": "B-5a88:F-399",
+          "disposition": "verified_family",
+          "familyKey": "proof-binding-legacy-schema-reader",
+          "reason": "Current RI-069 wave-2 quality evidence independently confirms the same legacy-reader implementation gap and stale migrated assertions at the frozen HEAD; retain it in the established F-396 family."
+        },
+        {
+          "findingId": "B-5a88:F-400",
+          "disposition": "verified_family",
+          "familyKey": "proof-binding-legacy-schema-reader",
+          "reason": "Current RI-069 wave-2 quality evidence independently confirms the same blocked legacy-reader contract at the frozen HEAD; classify it once in the established F-396 family."
+        }
+      ],
+      "createdAt": "2026-08-24T16:28:40.336Z",
+      "_hash": "808c10411c4f9123c8927811656516a4054473c072ceb61cad30927042f25b98"
     }
   ]
 }
