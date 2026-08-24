@@ -514,6 +514,34 @@
       "consumedAt": "2026-08-24T05:39:00.498Z",
       "consumedByReviewRound": "2026-08-24T04:58:08.051Z",
       "_hash": "3533023695eb32d1ca32910732ef692f9554cae71849da4c63c5040a3c22c776"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-a2a6:RI-008",
+      "storyId": "B-a2a6",
+      "reviewRound": "2026-08-24T05:50:34.045Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-24T05:50:45.955Z",
+      "updatedAt": "2026-08-24T06:02:00.469Z",
+      "cutoff": {
+        "headHash": "3544ca9a2c044f738f588e92e8a292fb466c02b2",
+        "materialHash": "22a0bab456cbfffd9b977d35b82f158f283e7cbbabf89a48cf862698cd9a5a49",
+        "storyFilesHash": "ecfdd188d12b293bf32e971db9a94d1b09c85e08641184718e23dee6dfe77e3e"
+      },
+      "scopeDigest": "cf2e146afa4cb4778ba177ae47199eb43602939e420268ef133c2058b06bdbea",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 37,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-08-24T06:02:00.469Z",
+      "cancelReason": "The RI-008 review began before the approved nested prompt-envelope isolation change; cancel the obsolete epoch so the actual deep-clone implementation can be reviewed from DEV.",
+      "terminalRunSequenceBoundary": 40,
+      "_hash": "54a58f87e38a0dbe4a5370670a1845c71e8d8e3b135ff2fbc927b220c066d196"
     }
   ],
   "receipts": [

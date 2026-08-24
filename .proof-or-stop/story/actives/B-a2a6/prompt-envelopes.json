@@ -5075,6 +5075,657 @@
       "incrementalContextBytes": 20325,
       "escalatedToFull": true,
       "escalationReason": "SAFETY_REQUIRES_FULL"
+    },
+    {
+      "schemaVersion": "proofbound.prompt-envelope.v1",
+      "roleId": "lattice-review-quality",
+      "storyId": "B-a2a6",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-a2a6:RR-038",
+      "reviewRound": "2026-08-24T05:50:34.045Z",
+      "lane": "lattice-review-quality",
+      "dispatchPromptDigest": "e7ac8d813383bcba60d69e088ae92b1c23cbebc05bdafb28570fd71894f6e1bc",
+      "hostRenderIdentityDigest": "6a03665eff57fd36d78d26f6dd9511d468387888ce6c7c6cb53fd121f1af6320",
+      "createdAt": "2026-08-24T05:51:39.435Z",
+      "headHash": "3544ca9a2c044f738f588e92e8a292fb466c02b2",
+      "runtimeContractVersion": "proofbound.agent-runtime.v1",
+      "runtimeSemanticDigest": "b62d11379b513f77a921a18a93c00e1a620e636c978441a0d1301ff875f5063a",
+      "runtimeRenderDigest": "2ed90580d07e50b86852b451625a813960d49ba33bab0a5ad90e504d75c59b1b",
+      "roleContractVersion": "proofbound.role-contract.v1",
+      "roleSemanticDigest": "ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0",
+      "roleRenderDigest": "e7d61a313c3a370c312634f2a0fde6875e96da9ab52a9c656ede18cff207798f",
+      "contextMode": "full",
+      "contextDigest": "1d87f0246233d69049a7a06c0cffafb203844f5079697bf369399a98b3604269",
+      "materialHash": "22a0bab456cbfffd9b977d35b82f158f283e7cbbabf89a48cf862698cd9a5a49",
+      "storyFilesHash": "ecfdd188d12b293bf32e971db9a94d1b09c85e08641184718e23dee6dfe77e3e",
+      "policyHash": "a9518fb9b7611530cfb5975ba6ce713a63386cb5790dfe3c685aeae16d0e0e61",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "4b08d9039154a04e71fa62192db51fad0ebe2a5266fff9bdcc5af7c7015a34fb",
+      "knownExecutionEnvironmentDigest": "9e4965b9323ee84bf5e5f20276aa5d72ad647b663176c0cd7d8ee99b1634ac1e",
+      "assemblerVersion": "proofbound.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proofbound.prompt-dispatch.v1",
+      "launcherSpecDigest": "f06c1265cd6137cc1eec814a6ed38fa6190ca22d16e2bfcddc8544e1b8de3506",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "527ba07528b7307b1d1760488928549dfb9db1344f6815da917360779ed166f4",
+      "bytes": 19796,
+      "lines": 138,
+      "estimatedTokens": 4949,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "14e7841c2fe5d0150ab2b2cafeaa4b6ec80aa44d008c3da03acb6e595b67e178",
+      "priorPassRef": "B-a2a6:RP-012",
+      "freshnessClassification": "RELATED_STORY_MATERIAL_DRIFT",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_FRESHNESS_RELATED_STORY_MATERIAL_DRIFT",
+        "FULL_PRIVATE_IMPLEMENTATION_V1"
+      ],
+      "changedFilesDigest": "f9e9fab88105560f76bfdc184b1c53baefb495cc4be140299cd30a67ec4b353f",
+      "impactedFilesDigest": "3d7ff501521a0bd42827790089b953a09a07cdbdfef74edd8895b884534418b0",
+      "taskSemanticDigest": "fcf00e3ad8febfe62a1f0450379b2562f38d1b36b58ea7be257134a8d8511b9c",
+      "findingProjection": [
+        {
+          "id": "B-a2a6:F-001",
+          "createdAt": "2026-08-24T02:52:41.690Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/review-run.ts:1586 [medium] collectReviewerEvidenceState unconditionally reads prompt-envelopes.json even when reviewerFindings and reviewerPasses are both empty. This violates CHK-002:edge:0 explicit zero-record no-unnecessary-envelope-read contract and adds ledger I/O to every empty readiness check; the pre-change collector did not read the envelope ledger on that path. Guard snapshot creation on the presence of evidence while retaining the shared snapshot for non-empty collections."
+        },
+        {
+          "id": "B-a2a6:F-002",
+          "createdAt": "2026-08-24T02:52:43.066Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 and .proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json:1423-1427 — the mandatory Wave 4 coverage is not executable evidence for this story: the smoke only asserts one collector read plus one valid B pass, while the signed rollout inventory lists acceptance_topology_check, pre_review_check, and acceptance_rollout_check only. There is no executable receipt for pre_review_check_read or acceptance_rollout_report_read, degraded-3x1 rejection, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history. Prompt prose and inventory metadata cannot satisfy this boundary."
+        },
+        {
+          "id": "B-a2a6:F-003",
+          "createdAt": "2026-08-24T02:52:50.763Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/review-run.ts:1582-1602 — collectReviewerEvidenceState unconditionally reads prompt-envelopes.json at line 1586 before iterating reviewer evidence, so a collection with zero bound records still performs one ledger read, contradicting CHK-002:edge:0, which requires zero records to cause no unnecessary envelope read. packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 exercises only the three-pass fixture and never covers the empty collection."
+        },
+        {
+          "id": "B-a2a6:F-004",
+          "createdAt": "2026-08-24T02:52:57.680Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": ".proof-or-stop/story/actives/B-a2a6/red-evidence.json:8-19 — the only red record targets CHK-001:happy:0 but records B-dc83 as both failing and expected green command, and its note explicitly says green is only expected after the separate cache fix; it contains no observed green exit code, receipt, output digest, or current HEAD/material binding for B-a2a6. The checklist receipts at .proof-or-stop/story/actives/B-a2a6/checklist.json:115-120 and 404-422 are smoke-test receipts and are not linked to RED-20260824022500 or the failing story_advance command, so the required red-to-green regression is not proven."
+        },
+        {
+          "id": "B-a2a6:F-005",
+          "createdAt": "2026-08-24T02:53:08.931Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 and .proof-or-stop/story/actives/B-a2a6/checklist.json:357-399 — the cached-vs-uncached and adversarial verificationIntent is overclaimed: the fixture checks one three-pass collection read count and that passB is valid, but never captures an uncached aggregate baseline or compares accepted/rejected records, integrity, cutoff, findings/pass classification, and gate outcome. It also does not inject read failures or source changes, exercise empty/single/many records, duplicate/stale/scope-invalid records, or vary order/cutoff boundaries. Reusing the same CACHE SNAPSHOT selector for all five CHK-002 intents is not concrete coverage of those mutations."
+        },
+        {
+          "id": "B-a2a6:F-006",
+          "createdAt": "2026-08-24T03:27:25.357Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-739 [medium] The RI-001 recheck is hash-fresh at materialHash 0787da2506fe076fa880a2ce0d400196c38200c8db0e37edf18b2dad3c720a3e, but the executable CACHE SNAPSHOT path compares cached versus uncached verification for one valid B candidate, an injected uncached read failure, phase/title/checklist mutations, cutoff cases, and read-count/empty-collection behavior only. It does not execute the declared CHK-002:edge:1 or CHK-002:adversarial:0/:1 coverage for mixed stale or scope-invalid records, invalid or missing/mismatched envelopes, duplicate/non-latest bindings, adversarial ordering at every cutoff boundary, or N-record aggregate cached-versus-uncached equality/read-count invariance. The same --cutoff-verifier-only receipt is therefore insufficient for those intents even though its materialHash and storyFilesHash are current; checklist evidence overclaims complete cached/uncached adversarial coverage."
+        },
+        {
+          "id": "B-a2a6:F-007",
+          "createdAt": "2026-08-24T03:46:25.044Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": ".proof-or-stop/story/actives/B-a2a6/plan.md: required trusted review input is absent; the story-level concept-deletion review cannot be completed without substituting another artifact (medium)"
+        },
+        {
+          "id": "B-a2a6:F-008",
+          "createdAt": "2026-08-24T03:56:42.898Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json:8441-8445 — the signed Wave 4 receipt says verdict=pass but is bound to stale headHash/materialHash/storyFilesHash; acceptance_rollout_report_read returns AR_REPORT_STALE and acceptance_rollout_check reports blocking=true, so the current story lacks the required current verifier-owned full-3x2 PASS receipt for this quality review."
+        },
+        {
+          "id": "B-a2a6:F-009",
+          "createdAt": "2026-08-24T04:02:11.233Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:582-626,676-710 — CHK-001:edge:2, CHK-001:edge:3, CHK-001:adversarial:1, and CHK-001:adversarial:3 remain under-covered. The smoke passes prebuilt reordered, duplicated, sliced, and mismatched arrays and injects one uncached read failure, but never mutates or replaces an entry after snapshot capture, supplies a foreign/second-collection snapshot, or changes the source between individual record checks. Those cases are required to prove immutable per-collection isolation, no cross-run reuse, and refusal-safe source-change behavior; the current receipts cannot substantiate those claims."
+        },
+        {
+          "id": "B-a2a6:F-010",
+          "createdAt": "2026-08-24T04:02:22.023Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:591-625,699-710 — CHK-002:edge:0 and CHK-002:adversarial:1 are still not mechanically covered at their read-bound requirement. The fixture compares three-record cached and uncached verifier results and separately counts one collectReviewerEvidenceState read, but it has no one-record case and no counter around each cached/uncached verifyReviewRunPromptEnvelope or reviewIncrementalContext call for N records. Therefore it does not prove a constant envelope-read bound, absence of per-record rereads in the verifier and incremental lookup, or the claimed field-for-field aggregate/read-count invariance as N changes."
+        },
+        {
+          "id": "B-a2a6:F-011",
+          "createdAt": "2026-08-24T04:02:41.909Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:410-816 — the trusted Wave 4 coverage boundary is still absent from executable changed-test coverage. No smoke path invokes or receipts acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check, and there is no executable coverage for the current signed full 3-round x 2-host codex-cli/claude-cli receipt, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history. The cached-verifier receipts and the stale acceptance-rollout report cannot substantiate this mandatory boundary."
+        },
+        {
+          "id": "B-a2a6:F-012",
+          "createdAt": "2026-08-24T04:09:00.526Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "The verifier-derived acceptance basis is partial and invalid at the current HEAD: acceptance_topology_check is inconclusive with stale closure/scope bindings and unmapped process-fact paths, pre_review_check_read fails with PR_ARTIFACT_MISSING, and acceptance_rollout_report_read plus acceptance_rollout_check fail on AR_REPORT_STALE. The topology critic cannot issue a pass or attest acceptance closure until these verifier-owned artifacts are regenerated and current."
+        },
+        {
+          "id": "B-a2a6:F-013",
+          "createdAt": "2026-08-24T05:02:49.036Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "CHK-001:edge:2 lacks executable coverage of the production snapshot immutability/ isolation guarantee: packages/main/src/core/review-run.ts:1587-1588 passes store.readPromptEnvelopes(storyId).envelopes directly to every verifier, but packages/main/src/tasks/review-incremental-context-smoke.ts:609-615 freezes only a test-local copy via freezePromptEnvelopeSnapshot; the collector regression at smoke.ts:779-790 checks only one read. No current test invokes collectReviewerEvidenceState with a mutating verifier or asserts that the production-passed snapshot is frozen/isolated, so this evidence cannot support the stated edge intent."
+        },
+        {
+          "id": "B-a2a6:F-014",
+          "createdAt": "2026-08-24T05:07:54.952Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Fresh RR-027 topology review confirms the verifier-derived acceptance basis is partial and invalid: acceptance_topology_check is inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY; pre_review_check_read fails PR_ARTIFACT_MISSING. The rollout report and check are current PASS/full-3x2, but that independent rollout result cannot cure the missing or stale acceptance basis and missing pre-review proof, so acceptance topology remains non-admissible."
+        },
+        {
+          "id": "B-a2a6:F-015",
+          "createdAt": "2026-08-24T05:17:01.106Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "F-013 remains valid: packages/main/src/core/review-run.ts:1587-1603 passes store.readPromptEnvelopes(storyId).envelopes directly into every verifier without freezing or cloning the array/entries, while packages/main/src/tasks/review-incremental-context-smoke.ts:179-181 freezes only a test-local copy. The production collectReviewerEvidenceState path is not exercised with a mutating verifier, so CHK-001:edge:2 still lacks executable production-path isolation coverage."
+        },
+        {
+          "id": "B-a2a6:F-016",
+          "createdAt": "2026-08-24T05:17:05.845Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "F-014 remains valid: .proof-or-stop/story/actives/B-a2a6/acceptance-basis.json:7,236-294 is partial and bound to stale story-owned closure/snapshot hashes; current acceptance_topology_check reports inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY, while pre_review_check_read reports PR_ARTIFACT_MISSING. The independent .proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json:8422-8426 pass/full-3x2 receipt does not cure the missing verifier-owned acceptance basis."
+        },
+        {
+          "id": "B-a2a6:F-017",
+          "createdAt": "2026-08-24T05:21:23.152Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Current verifier-derived acceptance topology is non-admissible: acceptance_basis is invalid with basisStatus=partial and AT_SCOPE_BINDING_MISSING (semantic discovery, scope-contract, closure, snapshot-seal, and storyFilesHash freshness mismatches); acceptance_topology_check is inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY; pre_review_check_read fails PR_ARTIFACT_MISSING. The current rollout report/check cannot cure the missing or stale acceptance basis, so topology closure must remain request_changes until verifier-owned basis and pre-review artifacts are regenerated and verified current."
+        },
+        {
+          "id": "B-a2a6:F-018",
+          "createdAt": "2026-08-24T05:29:05.143Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-007 wave 3 recheck: packages/main/src/core/review-run.ts:1587-1603 passes the mutable result of store.readPromptEnvelopes(storyId).envelopes directly to every verifier; verifyReviewRunPromptEnvelope only filters it and reviewIncrementalContext receives it as readonly at compile time, without runtime freezing or cloning. The only Object.freeze and entry clone are the test-local helper at packages/main/src/tasks/review-incremental-context-smoke.ts:179-181, so the production collectReviewerEvidenceState path still does not enforce the per-collection snapshot immutability/isolation required by CHK-001:edge:2. The current cached-vs-uncached tests do not invoke collectReviewerEvidenceState with a mutating verifier. Carried F-013/F-015 remains valid."
+        },
+        {
+          "id": "B-a2a6:F-019",
+          "createdAt": "2026-08-24T05:29:09.360Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "RI-007 wave 3 recheck: .proof-or-stop/story/actives/B-a2a6/acceptance-basis.json:7,236-294 remains verifier-non-admissible with basis.status=partial and stale head/material/storyFiles/closure/snapshot bindings. The read-only acceptance_topology_check currently returns inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY; pre_review_check_read returns fail with PR_ARTIFACT_MISSING. The current acceptance-rollout-report.json pass/full-3x2 receipt is independent rollout evidence and cannot cure the missing or stale verifier-owned acceptance basis. Carried F-014/F-016/F-017 remains valid."
+        },
+        {
+          "id": "B-a2a6:F-020",
+          "createdAt": "2026-08-24T05:33:47.184Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "RI-007 wave 3: current acceptance_basis is partial and invalid, acceptance_topology_check is inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY, while pre_review_check_read fails PR_ARTIFACT_MISSING. The current full-3x2 acceptance rollout PASS is independent and cannot cure the stale or non-admissible basis; topology critic must request_changes until verifier-owned basis, topology closure, and pre-review proof are regenerated and reverified current."
+        }
+      ],
+      "findingProjectionDigest": "44626b35418398dd599c3352ba4d4b96b75029aa5d7a0a5aa63482ea2bb150e2",
+      "reviewBasisDigest": "000449ba6dfadf7c9cc1463c15071cfa127549b3dc59cc6f63b548db5bdd5e34",
+      "incrementalContextDigest": "fa55991c70ab472bfc76b3640070eb10651b9ae6d3c82d6fbdb41bfba47760dd",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 19796,
+      "incrementalContextBytes": 24666,
+      "escalatedToFull": true,
+      "escalationReason": "SAFETY_REQUIRES_FULL"
+    },
+    {
+      "schemaVersion": "proofbound.prompt-envelope.v1",
+      "roleId": "lattice-review-concept",
+      "storyId": "B-a2a6",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-a2a6:RR-039",
+      "reviewRound": "2026-08-24T05:50:34.045Z",
+      "lane": "lattice-review-concept",
+      "dispatchPromptDigest": "08199f3c69e81636ba9b6ee204ba4bdbc9c00bca3ca5de6ad20c8e2c27577bee",
+      "hostRenderIdentityDigest": "3b9553fc49ac2e907a51b163fcf6fe19cbf7df5e6db61d26e581e50018e6bea4",
+      "createdAt": "2026-08-24T05:52:09.934Z",
+      "headHash": "3544ca9a2c044f738f588e92e8a292fb466c02b2",
+      "runtimeContractVersion": "proofbound.agent-runtime.v1",
+      "runtimeSemanticDigest": "b62d11379b513f77a921a18a93c00e1a620e636c978441a0d1301ff875f5063a",
+      "runtimeRenderDigest": "2ed90580d07e50b86852b451625a813960d49ba33bab0a5ad90e504d75c59b1b",
+      "roleContractVersion": "proofbound.role-contract.v1",
+      "roleSemanticDigest": "197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2",
+      "roleRenderDigest": "49cd9020c9fe9e657a170805a1e957aa4df79b9f9d6797b008c3612d53de416a",
+      "contextMode": "full",
+      "contextDigest": "1d87f0246233d69049a7a06c0cffafb203844f5079697bf369399a98b3604269",
+      "materialHash": "22a0bab456cbfffd9b977d35b82f158f283e7cbbabf89a48cf862698cd9a5a49",
+      "storyFilesHash": "ecfdd188d12b293bf32e971db9a94d1b09c85e08641184718e23dee6dfe77e3e",
+      "policyHash": "a9518fb9b7611530cfb5975ba6ce713a63386cb5790dfe3c685aeae16d0e0e61",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "f79fe53883de6795fe6ac41c165d84801496204dac3acba17aba140eff425811",
+      "knownExecutionEnvironmentDigest": "9e4965b9323ee84bf5e5f20276aa5d72ad647b663176c0cd7d8ee99b1634ac1e",
+      "assemblerVersion": "proofbound.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proofbound.prompt-dispatch.v1",
+      "launcherSpecDigest": "1a9eba15d13c96d8b83a933add924db4c635efe98b320ff2071650015449f604",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "9669afa885b57dc8e7bb518d6c911f274104d583d5d5862664835c5c88ef8b92",
+      "bytes": 19328,
+      "lines": 114,
+      "estimatedTokens": 4832,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "27e2c80551667a0d6aef8f6dfe5ed78b14710751f2befd80105d900728d0633a",
+      "priorPassRef": "B-a2a6:RP-016",
+      "freshnessClassification": "RELATED_STORY_MATERIAL_DRIFT",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_FRESHNESS_RELATED_STORY_MATERIAL_DRIFT",
+        "FULL_PRIVATE_IMPLEMENTATION_V1"
+      ],
+      "changedFilesDigest": "f9e9fab88105560f76bfdc184b1c53baefb495cc4be140299cd30a67ec4b353f",
+      "impactedFilesDigest": "3d7ff501521a0bd42827790089b953a09a07cdbdfef74edd8895b884534418b0",
+      "taskSemanticDigest": "fcf00e3ad8febfe62a1f0450379b2562f38d1b36b58ea7be257134a8d8511b9c",
+      "findingProjection": [
+        {
+          "id": "B-a2a6:F-001",
+          "createdAt": "2026-08-24T02:52:41.690Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/review-run.ts:1586 [medium] collectReviewerEvidenceState unconditionally reads prompt-envelopes.json even when reviewerFindings and reviewerPasses are both empty. This violates CHK-002:edge:0 explicit zero-record no-unnecessary-envelope-read contract and adds ledger I/O to every empty readiness check; the pre-change collector did not read the envelope ledger on that path. Guard snapshot creation on the presence of evidence while retaining the shared snapshot for non-empty collections."
+        },
+        {
+          "id": "B-a2a6:F-002",
+          "createdAt": "2026-08-24T02:52:43.066Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 and .proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json:1423-1427 — the mandatory Wave 4 coverage is not executable evidence for this story: the smoke only asserts one collector read plus one valid B pass, while the signed rollout inventory lists acceptance_topology_check, pre_review_check, and acceptance_rollout_check only. There is no executable receipt for pre_review_check_read or acceptance_rollout_report_read, degraded-3x1 rejection, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history. Prompt prose and inventory metadata cannot satisfy this boundary."
+        },
+        {
+          "id": "B-a2a6:F-003",
+          "createdAt": "2026-08-24T02:52:50.763Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/review-run.ts:1582-1602 — collectReviewerEvidenceState unconditionally reads prompt-envelopes.json at line 1586 before iterating reviewer evidence, so a collection with zero bound records still performs one ledger read, contradicting CHK-002:edge:0, which requires zero records to cause no unnecessary envelope read. packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 exercises only the three-pass fixture and never covers the empty collection."
+        },
+        {
+          "id": "B-a2a6:F-004",
+          "createdAt": "2026-08-24T02:52:57.680Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": ".proof-or-stop/story/actives/B-a2a6/red-evidence.json:8-19 — the only red record targets CHK-001:happy:0 but records B-dc83 as both failing and expected green command, and its note explicitly says green is only expected after the separate cache fix; it contains no observed green exit code, receipt, output digest, or current HEAD/material binding for B-a2a6. The checklist receipts at .proof-or-stop/story/actives/B-a2a6/checklist.json:115-120 and 404-422 are smoke-test receipts and are not linked to RED-20260824022500 or the failing story_advance command, so the required red-to-green regression is not proven."
+        },
+        {
+          "id": "B-a2a6:F-005",
+          "createdAt": "2026-08-24T02:53:08.931Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 and .proof-or-stop/story/actives/B-a2a6/checklist.json:357-399 — the cached-vs-uncached and adversarial verificationIntent is overclaimed: the fixture checks one three-pass collection read count and that passB is valid, but never captures an uncached aggregate baseline or compares accepted/rejected records, integrity, cutoff, findings/pass classification, and gate outcome. It also does not inject read failures or source changes, exercise empty/single/many records, duplicate/stale/scope-invalid records, or vary order/cutoff boundaries. Reusing the same CACHE SNAPSHOT selector for all five CHK-002 intents is not concrete coverage of those mutations."
+        },
+        {
+          "id": "B-a2a6:F-006",
+          "createdAt": "2026-08-24T03:27:25.357Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-739 [medium] The RI-001 recheck is hash-fresh at materialHash 0787da2506fe076fa880a2ce0d400196c38200c8db0e37edf18b2dad3c720a3e, but the executable CACHE SNAPSHOT path compares cached versus uncached verification for one valid B candidate, an injected uncached read failure, phase/title/checklist mutations, cutoff cases, and read-count/empty-collection behavior only. It does not execute the declared CHK-002:edge:1 or CHK-002:adversarial:0/:1 coverage for mixed stale or scope-invalid records, invalid or missing/mismatched envelopes, duplicate/non-latest bindings, adversarial ordering at every cutoff boundary, or N-record aggregate cached-versus-uncached equality/read-count invariance. The same --cutoff-verifier-only receipt is therefore insufficient for those intents even though its materialHash and storyFilesHash are current; checklist evidence overclaims complete cached/uncached adversarial coverage."
+        },
+        {
+          "id": "B-a2a6:F-007",
+          "createdAt": "2026-08-24T03:46:25.044Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": ".proof-or-stop/story/actives/B-a2a6/plan.md: required trusted review input is absent; the story-level concept-deletion review cannot be completed without substituting another artifact (medium)"
+        },
+        {
+          "id": "B-a2a6:F-008",
+          "createdAt": "2026-08-24T03:56:42.898Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json:8441-8445 — the signed Wave 4 receipt says verdict=pass but is bound to stale headHash/materialHash/storyFilesHash; acceptance_rollout_report_read returns AR_REPORT_STALE and acceptance_rollout_check reports blocking=true, so the current story lacks the required current verifier-owned full-3x2 PASS receipt for this quality review."
+        },
+        {
+          "id": "B-a2a6:F-009",
+          "createdAt": "2026-08-24T04:02:11.233Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:582-626,676-710 — CHK-001:edge:2, CHK-001:edge:3, CHK-001:adversarial:1, and CHK-001:adversarial:3 remain under-covered. The smoke passes prebuilt reordered, duplicated, sliced, and mismatched arrays and injects one uncached read failure, but never mutates or replaces an entry after snapshot capture, supplies a foreign/second-collection snapshot, or changes the source between individual record checks. Those cases are required to prove immutable per-collection isolation, no cross-run reuse, and refusal-safe source-change behavior; the current receipts cannot substantiate those claims."
+        },
+        {
+          "id": "B-a2a6:F-010",
+          "createdAt": "2026-08-24T04:02:22.023Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:591-625,699-710 — CHK-002:edge:0 and CHK-002:adversarial:1 are still not mechanically covered at their read-bound requirement. The fixture compares three-record cached and uncached verifier results and separately counts one collectReviewerEvidenceState read, but it has no one-record case and no counter around each cached/uncached verifyReviewRunPromptEnvelope or reviewIncrementalContext call for N records. Therefore it does not prove a constant envelope-read bound, absence of per-record rereads in the verifier and incremental lookup, or the claimed field-for-field aggregate/read-count invariance as N changes."
+        },
+        {
+          "id": "B-a2a6:F-011",
+          "createdAt": "2026-08-24T04:02:41.909Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:410-816 — the trusted Wave 4 coverage boundary is still absent from executable changed-test coverage. No smoke path invokes or receipts acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check, and there is no executable coverage for the current signed full 3-round x 2-host codex-cli/claude-cli receipt, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history. The cached-verifier receipts and the stale acceptance-rollout report cannot substantiate this mandatory boundary."
+        },
+        {
+          "id": "B-a2a6:F-012",
+          "createdAt": "2026-08-24T04:09:00.526Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "The verifier-derived acceptance basis is partial and invalid at the current HEAD: acceptance_topology_check is inconclusive with stale closure/scope bindings and unmapped process-fact paths, pre_review_check_read fails with PR_ARTIFACT_MISSING, and acceptance_rollout_report_read plus acceptance_rollout_check fail on AR_REPORT_STALE. The topology critic cannot issue a pass or attest acceptance closure until these verifier-owned artifacts are regenerated and current."
+        },
+        {
+          "id": "B-a2a6:F-013",
+          "createdAt": "2026-08-24T05:02:49.036Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "CHK-001:edge:2 lacks executable coverage of the production snapshot immutability/ isolation guarantee: packages/main/src/core/review-run.ts:1587-1588 passes store.readPromptEnvelopes(storyId).envelopes directly to every verifier, but packages/main/src/tasks/review-incremental-context-smoke.ts:609-615 freezes only a test-local copy via freezePromptEnvelopeSnapshot; the collector regression at smoke.ts:779-790 checks only one read. No current test invokes collectReviewerEvidenceState with a mutating verifier or asserts that the production-passed snapshot is frozen/isolated, so this evidence cannot support the stated edge intent."
+        },
+        {
+          "id": "B-a2a6:F-014",
+          "createdAt": "2026-08-24T05:07:54.952Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Fresh RR-027 topology review confirms the verifier-derived acceptance basis is partial and invalid: acceptance_topology_check is inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY; pre_review_check_read fails PR_ARTIFACT_MISSING. The rollout report and check are current PASS/full-3x2, but that independent rollout result cannot cure the missing or stale acceptance basis and missing pre-review proof, so acceptance topology remains non-admissible."
+        },
+        {
+          "id": "B-a2a6:F-015",
+          "createdAt": "2026-08-24T05:17:01.106Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "F-013 remains valid: packages/main/src/core/review-run.ts:1587-1603 passes store.readPromptEnvelopes(storyId).envelopes directly into every verifier without freezing or cloning the array/entries, while packages/main/src/tasks/review-incremental-context-smoke.ts:179-181 freezes only a test-local copy. The production collectReviewerEvidenceState path is not exercised with a mutating verifier, so CHK-001:edge:2 still lacks executable production-path isolation coverage."
+        },
+        {
+          "id": "B-a2a6:F-016",
+          "createdAt": "2026-08-24T05:17:05.845Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "F-014 remains valid: .proof-or-stop/story/actives/B-a2a6/acceptance-basis.json:7,236-294 is partial and bound to stale story-owned closure/snapshot hashes; current acceptance_topology_check reports inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY, while pre_review_check_read reports PR_ARTIFACT_MISSING. The independent .proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json:8422-8426 pass/full-3x2 receipt does not cure the missing verifier-owned acceptance basis."
+        },
+        {
+          "id": "B-a2a6:F-017",
+          "createdAt": "2026-08-24T05:21:23.152Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Current verifier-derived acceptance topology is non-admissible: acceptance_basis is invalid with basisStatus=partial and AT_SCOPE_BINDING_MISSING (semantic discovery, scope-contract, closure, snapshot-seal, and storyFilesHash freshness mismatches); acceptance_topology_check is inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY; pre_review_check_read fails PR_ARTIFACT_MISSING. The current rollout report/check cannot cure the missing or stale acceptance basis, so topology closure must remain request_changes until verifier-owned basis and pre-review artifacts are regenerated and verified current."
+        },
+        {
+          "id": "B-a2a6:F-018",
+          "createdAt": "2026-08-24T05:29:05.143Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-007 wave 3 recheck: packages/main/src/core/review-run.ts:1587-1603 passes the mutable result of store.readPromptEnvelopes(storyId).envelopes directly to every verifier; verifyReviewRunPromptEnvelope only filters it and reviewIncrementalContext receives it as readonly at compile time, without runtime freezing or cloning. The only Object.freeze and entry clone are the test-local helper at packages/main/src/tasks/review-incremental-context-smoke.ts:179-181, so the production collectReviewerEvidenceState path still does not enforce the per-collection snapshot immutability/isolation required by CHK-001:edge:2. The current cached-vs-uncached tests do not invoke collectReviewerEvidenceState with a mutating verifier. Carried F-013/F-015 remains valid."
+        },
+        {
+          "id": "B-a2a6:F-019",
+          "createdAt": "2026-08-24T05:29:09.360Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "RI-007 wave 3 recheck: .proof-or-stop/story/actives/B-a2a6/acceptance-basis.json:7,236-294 remains verifier-non-admissible with basis.status=partial and stale head/material/storyFiles/closure/snapshot bindings. The read-only acceptance_topology_check currently returns inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY; pre_review_check_read returns fail with PR_ARTIFACT_MISSING. The current acceptance-rollout-report.json pass/full-3x2 receipt is independent rollout evidence and cannot cure the missing or stale verifier-owned acceptance basis. Carried F-014/F-016/F-017 remains valid."
+        },
+        {
+          "id": "B-a2a6:F-020",
+          "createdAt": "2026-08-24T05:33:47.184Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "RI-007 wave 3: current acceptance_basis is partial and invalid, acceptance_topology_check is inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY, while pre_review_check_read fails PR_ARTIFACT_MISSING. The current full-3x2 acceptance rollout PASS is independent and cannot cure the stale or non-admissible basis; topology critic must request_changes until verifier-owned basis, topology closure, and pre-review proof are regenerated and reverified current."
+        }
+      ],
+      "findingProjectionDigest": "44626b35418398dd599c3352ba4d4b96b75029aa5d7a0a5aa63482ea2bb150e2",
+      "reviewBasisDigest": "4101e8b876a4e2e7684a2956ccee7a238c4ae2222b3e024ed8d8a4cf2fee3664",
+      "incrementalContextDigest": "0356d3d1a4c43d53a69bb71da6b596b92f5c4e3ee1b1bae5a1755983774d03b7",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 19328,
+      "incrementalContextBytes": 23895,
+      "escalatedToFull": true,
+      "escalationReason": "SAFETY_REQUIRES_FULL"
+    },
+    {
+      "schemaVersion": "proofbound.prompt-envelope.v1",
+      "roleId": "lattice-review-test-coverage",
+      "storyId": "B-a2a6",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-a2a6:RR-040",
+      "reviewRound": "2026-08-24T05:50:34.045Z",
+      "lane": "lattice-review-test-coverage",
+      "dispatchPromptDigest": "911bfd95813a9feb2a5c883b64ba0961f6177ea20313f13ffbd31365460c0874",
+      "hostRenderIdentityDigest": "c5c2e18e7c470718b2a2faab195b7732d11baf22c11317476f8c45e452d6d130",
+      "createdAt": "2026-08-24T05:53:04.756Z",
+      "headHash": "3544ca9a2c044f738f588e92e8a292fb466c02b2",
+      "runtimeContractVersion": "proofbound.agent-runtime.v1",
+      "runtimeSemanticDigest": "b62d11379b513f77a921a18a93c00e1a620e636c978441a0d1301ff875f5063a",
+      "runtimeRenderDigest": "2ed90580d07e50b86852b451625a813960d49ba33bab0a5ad90e504d75c59b1b",
+      "roleContractVersion": "proofbound.role-contract.v1",
+      "roleSemanticDigest": "9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7",
+      "roleRenderDigest": "14e30fd77897dc778dbcccb3f30420f27b46d5c8affb9b1c635cf4f7f40ac1fe",
+      "contextMode": "full",
+      "contextDigest": "1d87f0246233d69049a7a06c0cffafb203844f5079697bf369399a98b3604269",
+      "materialHash": "22a0bab456cbfffd9b977d35b82f158f283e7cbbabf89a48cf862698cd9a5a49",
+      "storyFilesHash": "ecfdd188d12b293bf32e971db9a94d1b09c85e08641184718e23dee6dfe77e3e",
+      "policyHash": "a9518fb9b7611530cfb5975ba6ce713a63386cb5790dfe3c685aeae16d0e0e61",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "ebbbaf90e9d91e6b344d1750833f08ac3bf4f8ed88b9bb37da9d3d862fd97c6e",
+      "knownExecutionEnvironmentDigest": "9e4965b9323ee84bf5e5f20276aa5d72ad647b663176c0cd7d8ee99b1634ac1e",
+      "assemblerVersion": "proofbound.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proofbound.prompt-dispatch.v1",
+      "launcherSpecDigest": "3855919ec310a9ab86e8c53ddfc0c336026ee3dfd14d09da6b142d66e76f6cbd",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "74461f1bbde1396b482bff0bb85d7da2e1dc63ebac53204574448b695b368388",
+      "bytes": 17077,
+      "lines": 98,
+      "estimatedTokens": 4270,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "a8bf5a24aa0e5ca39e5a6467f63c83568989bc3a2c233ff016a7fe3bec96a1a3",
+      "priorPassRef": "B-a2a6:RP-017",
+      "freshnessClassification": "RELATED_STORY_MATERIAL_DRIFT",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_FRESHNESS_RELATED_STORY_MATERIAL_DRIFT",
+        "FULL_PRIVATE_IMPLEMENTATION_V1"
+      ],
+      "changedFilesDigest": "f9e9fab88105560f76bfdc184b1c53baefb495cc4be140299cd30a67ec4b353f",
+      "impactedFilesDigest": "3d7ff501521a0bd42827790089b953a09a07cdbdfef74edd8895b884534418b0",
+      "taskSemanticDigest": "fcf00e3ad8febfe62a1f0450379b2562f38d1b36b58ea7be257134a8d8511b9c",
+      "findingProjection": [
+        {
+          "id": "B-a2a6:F-001",
+          "createdAt": "2026-08-24T02:52:41.690Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/review-run.ts:1586 [medium] collectReviewerEvidenceState unconditionally reads prompt-envelopes.json even when reviewerFindings and reviewerPasses are both empty. This violates CHK-002:edge:0 explicit zero-record no-unnecessary-envelope-read contract and adds ledger I/O to every empty readiness check; the pre-change collector did not read the envelope ledger on that path. Guard snapshot creation on the presence of evidence while retaining the shared snapshot for non-empty collections."
+        },
+        {
+          "id": "B-a2a6:F-002",
+          "createdAt": "2026-08-24T02:52:43.066Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 and .proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json:1423-1427 — the mandatory Wave 4 coverage is not executable evidence for this story: the smoke only asserts one collector read plus one valid B pass, while the signed rollout inventory lists acceptance_topology_check, pre_review_check, and acceptance_rollout_check only. There is no executable receipt for pre_review_check_read or acceptance_rollout_report_read, degraded-3x1 rejection, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history. Prompt prose and inventory metadata cannot satisfy this boundary."
+        },
+        {
+          "id": "B-a2a6:F-003",
+          "createdAt": "2026-08-24T02:52:50.763Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/review-run.ts:1582-1602 — collectReviewerEvidenceState unconditionally reads prompt-envelopes.json at line 1586 before iterating reviewer evidence, so a collection with zero bound records still performs one ledger read, contradicting CHK-002:edge:0, which requires zero records to cause no unnecessary envelope read. packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 exercises only the three-pass fixture and never covers the empty collection."
+        },
+        {
+          "id": "B-a2a6:F-004",
+          "createdAt": "2026-08-24T02:52:57.680Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": ".proof-or-stop/story/actives/B-a2a6/red-evidence.json:8-19 — the only red record targets CHK-001:happy:0 but records B-dc83 as both failing and expected green command, and its note explicitly says green is only expected after the separate cache fix; it contains no observed green exit code, receipt, output digest, or current HEAD/material binding for B-a2a6. The checklist receipts at .proof-or-stop/story/actives/B-a2a6/checklist.json:115-120 and 404-422 are smoke-test receipts and are not linked to RED-20260824022500 or the failing story_advance command, so the required red-to-green regression is not proven."
+        },
+        {
+          "id": "B-a2a6:F-005",
+          "createdAt": "2026-08-24T02:53:08.931Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 and .proof-or-stop/story/actives/B-a2a6/checklist.json:357-399 — the cached-vs-uncached and adversarial verificationIntent is overclaimed: the fixture checks one three-pass collection read count and that passB is valid, but never captures an uncached aggregate baseline or compares accepted/rejected records, integrity, cutoff, findings/pass classification, and gate outcome. It also does not inject read failures or source changes, exercise empty/single/many records, duplicate/stale/scope-invalid records, or vary order/cutoff boundaries. Reusing the same CACHE SNAPSHOT selector for all five CHK-002 intents is not concrete coverage of those mutations."
+        },
+        {
+          "id": "B-a2a6:F-006",
+          "createdAt": "2026-08-24T03:27:25.357Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-739 [medium] The RI-001 recheck is hash-fresh at materialHash 0787da2506fe076fa880a2ce0d400196c38200c8db0e37edf18b2dad3c720a3e, but the executable CACHE SNAPSHOT path compares cached versus uncached verification for one valid B candidate, an injected uncached read failure, phase/title/checklist mutations, cutoff cases, and read-count/empty-collection behavior only. It does not execute the declared CHK-002:edge:1 or CHK-002:adversarial:0/:1 coverage for mixed stale or scope-invalid records, invalid or missing/mismatched envelopes, duplicate/non-latest bindings, adversarial ordering at every cutoff boundary, or N-record aggregate cached-versus-uncached equality/read-count invariance. The same --cutoff-verifier-only receipt is therefore insufficient for those intents even though its materialHash and storyFilesHash are current; checklist evidence overclaims complete cached/uncached adversarial coverage."
+        },
+        {
+          "id": "B-a2a6:F-007",
+          "createdAt": "2026-08-24T03:46:25.044Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": ".proof-or-stop/story/actives/B-a2a6/plan.md: required trusted review input is absent; the story-level concept-deletion review cannot be completed without substituting another artifact (medium)"
+        },
+        {
+          "id": "B-a2a6:F-008",
+          "createdAt": "2026-08-24T03:56:42.898Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json:8441-8445 — the signed Wave 4 receipt says verdict=pass but is bound to stale headHash/materialHash/storyFilesHash; acceptance_rollout_report_read returns AR_REPORT_STALE and acceptance_rollout_check reports blocking=true, so the current story lacks the required current verifier-owned full-3x2 PASS receipt for this quality review."
+        },
+        {
+          "id": "B-a2a6:F-009",
+          "createdAt": "2026-08-24T04:02:11.233Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:582-626,676-710 — CHK-001:edge:2, CHK-001:edge:3, CHK-001:adversarial:1, and CHK-001:adversarial:3 remain under-covered. The smoke passes prebuilt reordered, duplicated, sliced, and mismatched arrays and injects one uncached read failure, but never mutates or replaces an entry after snapshot capture, supplies a foreign/second-collection snapshot, or changes the source between individual record checks. Those cases are required to prove immutable per-collection isolation, no cross-run reuse, and refusal-safe source-change behavior; the current receipts cannot substantiate those claims."
+        },
+        {
+          "id": "B-a2a6:F-010",
+          "createdAt": "2026-08-24T04:02:22.023Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:591-625,699-710 — CHK-002:edge:0 and CHK-002:adversarial:1 are still not mechanically covered at their read-bound requirement. The fixture compares three-record cached and uncached verifier results and separately counts one collectReviewerEvidenceState read, but it has no one-record case and no counter around each cached/uncached verifyReviewRunPromptEnvelope or reviewIncrementalContext call for N records. Therefore it does not prove a constant envelope-read bound, absence of per-record rereads in the verifier and incremental lookup, or the claimed field-for-field aggregate/read-count invariance as N changes."
+        },
+        {
+          "id": "B-a2a6:F-011",
+          "createdAt": "2026-08-24T04:02:41.909Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:410-816 — the trusted Wave 4 coverage boundary is still absent from executable changed-test coverage. No smoke path invokes or receipts acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check, and there is no executable coverage for the current signed full 3-round x 2-host codex-cli/claude-cli receipt, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history. The cached-verifier receipts and the stale acceptance-rollout report cannot substantiate this mandatory boundary."
+        },
+        {
+          "id": "B-a2a6:F-012",
+          "createdAt": "2026-08-24T04:09:00.526Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "The verifier-derived acceptance basis is partial and invalid at the current HEAD: acceptance_topology_check is inconclusive with stale closure/scope bindings and unmapped process-fact paths, pre_review_check_read fails with PR_ARTIFACT_MISSING, and acceptance_rollout_report_read plus acceptance_rollout_check fail on AR_REPORT_STALE. The topology critic cannot issue a pass or attest acceptance closure until these verifier-owned artifacts are regenerated and current."
+        },
+        {
+          "id": "B-a2a6:F-013",
+          "createdAt": "2026-08-24T05:02:49.036Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "CHK-001:edge:2 lacks executable coverage of the production snapshot immutability/ isolation guarantee: packages/main/src/core/review-run.ts:1587-1588 passes store.readPromptEnvelopes(storyId).envelopes directly to every verifier, but packages/main/src/tasks/review-incremental-context-smoke.ts:609-615 freezes only a test-local copy via freezePromptEnvelopeSnapshot; the collector regression at smoke.ts:779-790 checks only one read. No current test invokes collectReviewerEvidenceState with a mutating verifier or asserts that the production-passed snapshot is frozen/isolated, so this evidence cannot support the stated edge intent."
+        },
+        {
+          "id": "B-a2a6:F-014",
+          "createdAt": "2026-08-24T05:07:54.952Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Fresh RR-027 topology review confirms the verifier-derived acceptance basis is partial and invalid: acceptance_topology_check is inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY; pre_review_check_read fails PR_ARTIFACT_MISSING. The rollout report and check are current PASS/full-3x2, but that independent rollout result cannot cure the missing or stale acceptance basis and missing pre-review proof, so acceptance topology remains non-admissible."
+        },
+        {
+          "id": "B-a2a6:F-015",
+          "createdAt": "2026-08-24T05:17:01.106Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "F-013 remains valid: packages/main/src/core/review-run.ts:1587-1603 passes store.readPromptEnvelopes(storyId).envelopes directly into every verifier without freezing or cloning the array/entries, while packages/main/src/tasks/review-incremental-context-smoke.ts:179-181 freezes only a test-local copy. The production collectReviewerEvidenceState path is not exercised with a mutating verifier, so CHK-001:edge:2 still lacks executable production-path isolation coverage."
+        },
+        {
+          "id": "B-a2a6:F-016",
+          "createdAt": "2026-08-24T05:17:05.845Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "F-014 remains valid: .proof-or-stop/story/actives/B-a2a6/acceptance-basis.json:7,236-294 is partial and bound to stale story-owned closure/snapshot hashes; current acceptance_topology_check reports inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY, while pre_review_check_read reports PR_ARTIFACT_MISSING. The independent .proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json:8422-8426 pass/full-3x2 receipt does not cure the missing verifier-owned acceptance basis."
+        },
+        {
+          "id": "B-a2a6:F-017",
+          "createdAt": "2026-08-24T05:21:23.152Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Current verifier-derived acceptance topology is non-admissible: acceptance_basis is invalid with basisStatus=partial and AT_SCOPE_BINDING_MISSING (semantic discovery, scope-contract, closure, snapshot-seal, and storyFilesHash freshness mismatches); acceptance_topology_check is inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY; pre_review_check_read fails PR_ARTIFACT_MISSING. The current rollout report/check cannot cure the missing or stale acceptance basis, so topology closure must remain request_changes until verifier-owned basis and pre-review artifacts are regenerated and verified current."
+        },
+        {
+          "id": "B-a2a6:F-018",
+          "createdAt": "2026-08-24T05:29:05.143Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-007 wave 3 recheck: packages/main/src/core/review-run.ts:1587-1603 passes the mutable result of store.readPromptEnvelopes(storyId).envelopes directly to every verifier; verifyReviewRunPromptEnvelope only filters it and reviewIncrementalContext receives it as readonly at compile time, without runtime freezing or cloning. The only Object.freeze and entry clone are the test-local helper at packages/main/src/tasks/review-incremental-context-smoke.ts:179-181, so the production collectReviewerEvidenceState path still does not enforce the per-collection snapshot immutability/isolation required by CHK-001:edge:2. The current cached-vs-uncached tests do not invoke collectReviewerEvidenceState with a mutating verifier. Carried F-013/F-015 remains valid."
+        },
+        {
+          "id": "B-a2a6:F-019",
+          "createdAt": "2026-08-24T05:29:09.360Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "RI-007 wave 3 recheck: .proof-or-stop/story/actives/B-a2a6/acceptance-basis.json:7,236-294 remains verifier-non-admissible with basis.status=partial and stale head/material/storyFiles/closure/snapshot bindings. The read-only acceptance_topology_check currently returns inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY; pre_review_check_read returns fail with PR_ARTIFACT_MISSING. The current acceptance-rollout-report.json pass/full-3x2 receipt is independent rollout evidence and cannot cure the missing or stale verifier-owned acceptance basis. Carried F-014/F-016/F-017 remains valid."
+        },
+        {
+          "id": "B-a2a6:F-020",
+          "createdAt": "2026-08-24T05:33:47.184Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "RI-007 wave 3: current acceptance_basis is partial and invalid, acceptance_topology_check is inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY, while pre_review_check_read fails PR_ARTIFACT_MISSING. The current full-3x2 acceptance rollout PASS is independent and cannot cure the stale or non-admissible basis; topology critic must request_changes until verifier-owned basis, topology closure, and pre-review proof are regenerated and reverified current."
+        }
+      ],
+      "findingProjectionDigest": "44626b35418398dd599c3352ba4d4b96b75029aa5d7a0a5aa63482ea2bb150e2",
+      "reviewBasisDigest": "d27c971516e921d419d419c29c1936312f9b531f0d0db4c2fafe7751585c7f02",
+      "incrementalContextDigest": "65ff6679889e7201be011f25149b329cb3d9a92d417cba7ac44231d64e968018",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 17077,
+      "incrementalContextBytes": 21650,
+      "escalatedToFull": true,
+      "escalationReason": "SAFETY_REQUIRES_FULL"
     }
   ]
 }

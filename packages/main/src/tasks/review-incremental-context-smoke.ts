@@ -66,6 +66,7 @@ import { domainSeparatedDigest, type PromptEnvelope } from '../core/prompt-contr
 import {
   assembleFullPromptEnvelope,
   buildFullTaskContext,
+  computePromptEnvelopeId,
   fullTaskSemanticDigest,
 } from '../core/prompt-envelope.js';
 import {
@@ -796,7 +797,27 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       'done_prepare and story_advance DONE must not disagree about B Prompt Envelope validity',
     );
 
-    const productionCollectorSource = promptEnvelopeSnapshot.map(envelope => ({ ...envelope }));
+    const nestedProbeBase = promptEnvelopeSnapshot[0]!;
+    const nestedProbeWithoutId = {
+      ...nestedProbeBase,
+      eligibilityReasonCodes: [...(nestedProbeBase.eligibilityReasonCodes ?? ['CACHE_SNAPSHOT_NESTED_PROBE'])],
+      findingProjection: [...(nestedProbeBase.findingProjection ?? [{
+        id: 'nested-probe-finding',
+        createdAt: nestedProbeBase.createdAt,
+        status: 'open',
+        severity: 'medium',
+        category: 'edge',
+        desc: 'nested prompt-envelope mutation probe',
+      }])],
+    };
+    const nestedProbeEnvelope = {
+      ...nestedProbeWithoutId,
+      envelopeId: computePromptEnvelopeId(nestedProbeWithoutId),
+    };
+    const productionCollectorSource = [
+      ...promptEnvelopeSnapshot.map(envelope => ({ ...envelope })),
+      nestedProbeEnvelope,
+    ];
     let productionCollectorReads = 0;
     const productionCollectorStore = Object.create(store) as StoryStore;
     productionCollectorStore.readPromptEnvelopes = (readStoryId: string) => {
@@ -826,6 +847,36 @@ function runProductionVerifierTemporalCutoffRegression(): void {
           capturedRunId,
           'mutating the store-owned source after capture must not alter the production snapshot',
         );
+        const nestedProbe = suppliedSnapshot.find(envelope => envelope.envelopeId === nestedProbeEnvelope.envelopeId);
+        assert.ok(nestedProbe, 'production snapshot must preserve the nested probe envelope');
+        assert.ok(
+          Object.isFrozen(nestedProbe.eligibilityReasonCodes),
+          'production snapshot reason-code arrays must be frozen',
+        );
+        assert.ok(
+          Object.isFrozen(nestedProbe.findingProjection),
+          'production snapshot finding-projection arrays must be frozen',
+        );
+        assert.ok(
+          nestedProbe.findingProjection?.every(projection => Object.isFrozen(projection)),
+          'production snapshot finding-projection entries must be frozen',
+        );
+        const sourceNestedProbe = productionCollectorSource.find(
+          envelope => envelope.envelopeId === nestedProbeEnvelope.envelopeId,
+        )!;
+        const capturedReasonCode = nestedProbe.eligibilityReasonCodes?.[0];
+        assert.ok(capturedReasonCode, 'nested probe must include a reason code');
+        sourceNestedProbe.eligibilityReasonCodes![0] = `${capturedReasonCode}-source-mutated`;
+        assert.equal(
+          nestedProbe.eligibilityReasonCodes?.[0],
+          capturedReasonCode,
+          'mutating a source-owned nested array must not alter the production snapshot',
+        );
+        assert.throws(
+          () => nestedProbe.eligibilityReasonCodes!.push('verifier-mutation'),
+          TypeError,
+          'a mutating verifier must not be able to append to a production nested array',
+        );
         assert.throws(
           () => ((suppliedSnapshot as PromptEnvelope[])[0] = suppliedSnapshot[0]!),
           TypeError,
@@ -849,8 +900,8 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     assert.equal(productionCollectorReads, 1, 'production collector must read one envelope collection per call');
     assert.ok(observedProductionSnapshot, 'the production collector must invoke the injected verifier');
     assert.ok(
-      isolatedCollectorEvidence.valid.some(evidence => evidence.id === passB.id),
-      'production collector must preserve valid evidence after source mutation by a verifier',
+      isolatedCollectorEvidence.valid.some(evidence => evidence.id === passC.id),
+      `production collector must preserve valid evidence after source mutation by a verifier: valid=${JSON.stringify(isolatedCollectorEvidence.valid.map(evidence => evidence.id))} invalid=${JSON.stringify(isolatedCollectorEvidence.invalid)}`,
     );
     console.log(`${MARKER} PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier`);
 
