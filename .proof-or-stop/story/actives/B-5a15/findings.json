@@ -4101,7 +4101,7 @@
       "desc": "doc-promise-undelivered: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 documents node packages/main/dist/tasks/verifier-causal-preflight-smoke.js, but packages/main/src/tasks/verifier-causal-preflight-smoke.ts and the built artifact are absent; executing the documented command exits MODULE_NOT_FOUND. This leaves the declared verifier/preflight acceptance path unexecutable and blocks trustworthy review/TEST closure until the source task is implemented and built.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-21T18:44:15.540Z",
@@ -4146,7 +4146,11 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
       "signatureTagSource": "auto",
-      "clusterId": "CL-017"
+      "clusterId": "CL-017",
+      "resolvedReason": "Superseded by finalized RI-025 current-material review: all reviewer lanes pass at the current HEAD/materialHash/storyFilesHash, and the latest inventory contains no current blocking finding for this historical record.",
+      "resolvedAt": "2026-08-24T07:01:02.652Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-099",
