@@ -5009,7 +5009,7 @@
       "desc": "Current HEAD cannot receive a topology-critic pass: acceptance_basis is stale/inconclusive for the registered topology projection, pre_review_check is inconclusive with artifact/path/basis diagnostics, scope_contract_check fails with unacknowledged violations, and rollout evidence is historical rather than current. The truthful closeout receipt is request_changes; no admissible current basis, topology, scope, rollout, or closure proof exists.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-21T20:14:15.833Z",
@@ -5066,7 +5066,11 @@
       ],
       "signatureTag": "topology-acceptance-closeout-not-admissible",
       "signatureTagSource": "confirmed",
-      "clusterId": "CL-018"
+      "clusterId": "CL-018",
+      "resolvedReason": "Superseded by finalized RI-025 current-material review: all reviewer lanes pass at the current HEAD/materialHash/storyFilesHash, and the latest inventory contains no current blocking finding for this historical record.",
+      "resolvedAt": "2026-08-24T07:02:30.386Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-115",
