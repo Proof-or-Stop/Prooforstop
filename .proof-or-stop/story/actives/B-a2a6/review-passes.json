@@ -721,6 +721,37 @@
         "scanEscalationReason": null
       },
       "_hash": "afc0d5dab305eb84921ac27e7c58fe092d84890ec1c62f57ef46313b2f63e39d"
+    },
+    {
+      "id": "B-a2a6:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement in this snapshot-isolation change; RI-008 scope and both checklist implementations were reviewed, with no concept-residue blocker.",
+      "createdAt": "2026-08-24T05:54:46.031Z",
+      "reviewRound": "2026-08-24T05:50:34.045Z",
+      "reviewRunId": "B-a2a6:RR-039",
+      "envelopeId": "27e2c80551667a0d6aef8f6dfe5ed78b14710751f2befd80105d900728d0633a",
+      "writerSessionId": "sess-1546ad371cd84f44b8d27f4eb22d1d6a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3b66674ff9a577317ee5706ba1188854438dd59f73edba729eb4bbc52ebfaf12"
     }
   ]
 }

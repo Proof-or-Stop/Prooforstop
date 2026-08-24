@@ -849,6 +849,102 @@
       ],
       "signatureTag": "missing|json|wave-current-acceptance",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-021",
+      "desc": "RI-008 residual: packages/main/src/core/review-run.ts:130-133 claims an immutable per-collection PromptEnvelope snapshot but only shallow-clones/freezes the envelope entries. PromptEnvelope nested arrays eligibilityReasonCodes and findingProjection are left mutable (packages/main/src/core/prompt-contracts.ts:228,232); a verifier can push into either array and mutate the store-owned source plus the shared snapshot seen by later verifiers. The direct runtime check on the built production helper reports outer=true, entry=true, nested arrays=false and source/snapshot both change. The new production-path smoke only attempts top-level entry replacement, so it does not prove nested isolation. Freeze/clone nested mutable fields or narrow the contract and add a nested mutation regression. Severity: medium.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T05:56:03.254Z",
+      "reviewRound": "2026-08-24T05:50:34.045Z",
+      "reviewRunId": "B-a2a6:RR-038",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "62de6c9b1a448be797ca8c9fff5b541dacf115a1a7c362505ada5e85ae2679df",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|residual-packages-main",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-022",
+      "desc": "Residual snapshot-isolation gap: packages/main/src/core/review-run.ts:130-134 shallow-copies and freezes only each PromptEnvelope object, while PromptEnvelope.findingProjection and PromptEnvelope.eligibilityReasonCodes are nested mutable arrays (packages/main/src/core/prompt-contracts.ts:228,232). A current runtime probe shows the captured nested array is not frozen and is the same reference as the store-owned array; mutating snapshot[0].eligibilityReasonCodes[0] succeeds and changes the source. The new production collector smoke at packages/main/src/tasks/review-incremental-context-smoke.ts:808-840 checks only top-level entry replacement/source-field mutation, so it does not prove later verifiers cannot observe nested mutation. Deep-copy/freeze nested envelope data or otherwise enforce the declared immutable per-collection snapshot before treating the prior snapshot-isolation family as fully fixed.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T05:59:11.683Z",
+      "reviewRound": "2026-08-24T05:50:34.045Z",
+      "reviewRunId": "B-a2a6:RR-040",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "4226c8dc443e61e929b5c4f9f4b5e3ac824209ae474f9a39a66f9ba2e8b0fe9b"
+      },
+      "readDiagnostics": [],
+      "_hash": "3d21d034425752ccaa28a3fbed79699e64bb9007586ebd9d30993a3b442b9ba2",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "nested-prompt-envelope-isolation",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

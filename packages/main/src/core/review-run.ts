@@ -130,7 +130,26 @@ export interface ReviewerEvidenceState {
 export function snapshotPromptEnvelopes(
   envelopes: readonly PromptEnvelope[],
 ): readonly PromptEnvelope[] {
-  return Object.freeze(envelopes.map(envelope => Object.freeze({ ...envelope })));
+  return Object.freeze(envelopes.map(envelope => {
+    const cloned: PromptEnvelope = {
+      ...envelope,
+      eligibilityReasonCodes: envelope.eligibilityReasonCodes
+        ? [...envelope.eligibilityReasonCodes]
+        : undefined,
+      findingProjection: envelope.findingProjection
+        ? envelope.findingProjection.map(projection => ({ ...projection }))
+        : undefined,
+    };
+    return Object.freeze({
+      ...cloned,
+      eligibilityReasonCodes: cloned.eligibilityReasonCodes
+        ? Object.freeze(cloned.eligibilityReasonCodes)
+        : undefined,
+      findingProjection: cloned.findingProjection
+        ? Object.freeze(cloned.findingProjection.map(projection => Object.freeze({ ...projection })))
+        : undefined,
+    }) as unknown as PromptEnvelope;
+  }));
 }
 
 export interface ReviewerEvidenceCollectionOptions {
