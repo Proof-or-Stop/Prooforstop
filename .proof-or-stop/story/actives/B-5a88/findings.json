@@ -16621,6 +16621,25 @@
       "resolvedAt": "2026-08-24T08:20:14.972Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-386",
+      "desc": "Coverage is not current at REVIEW: all 21 must verificationEvidence refs (CHK-001..CHK-007 happy/edge/adversarial) and test-evidence.json are marked stale by evidence_inspect because their bindings (HEAD f54c555/f2a11c4, materialHash f8e126..., storyFilesHash 99af18...) do not match current HEAD 455c809245, materialHash 3db33bd4..., storyFilesHash 505ed974.... The corrected flow-stability-smoke expectation itself passes, but current validation and every pinned intent receipt must be rerun and re-recorded before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-24T08:58:20.491Z",
+      "reviewRound": "2026-08-24T08:51:00.357Z",
+      "reviewRunId": "B-5a88:RR-592",
+      "_hash": "9668daa79320ededb2600489c1c448fbb0216b81d8b6e916becff85dfdea3c51",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "missing|json|coverage-current-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
