@@ -5382,7 +5382,7 @@
       "reviewRound": "2026-08-24T10:16:55.408Z",
       "state": "OPEN",
       "begunAt": "2026-08-24T12:14:20.245Z",
-      "updatedAt": "2026-08-24T12:14:20.245Z",
+      "updatedAt": "2026-08-24T12:50:40.263Z",
       "cutoff": {
         "headHash": "a5f7c09b0ca7a004d4d80633629b8d8d944f5087",
         "materialHash": "cd63b3cd4d7da068127baaf20fac5d9fde983e0c8946c24e30a9ab3c3c9959b0",
@@ -5396,9 +5396,58 @@
       ],
       "initialRunSequenceBoundary": 606,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-24T12:14:20.245Z",
+          "completedAt": "2026-08-24T12:50:40.263Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-5a88:RR-608",
+              "terminal": "pass",
+              "hostIdentity": "e2380a1b03d4e4ae6da5adc1c2bcfded75b79543bde984b097d3a34b31b8e56d",
+              "promptIdentity": "e0b407f053806d2378ffe377ba53475bf265016015b87a8722448c52c9a690f3",
+              "evidenceIds": [
+                "B-5a88:RP-210"
+              ],
+              "coverageDigest": "2f842d3e553f8ae7ced3908347f3cbc3fab28d01865289e9dd2e98b89dab6d35"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-5a88:RR-607",
+              "terminal": "pass",
+              "hostIdentity": "e2380a1b03d4e4ae6da5adc1c2bcfded75b79543bde984b097d3a34b31b8e56d",
+              "promptIdentity": "18ae0796e3f69c3483a4d9678e739deb67b63d64117e75d8fbe386df1b1f4a6e",
+              "evidenceIds": [
+                "B-5a88:RP-209"
+              ],
+              "coverageDigest": "27573653dcf3df5c8107a2dd58df2a93413a990e6ce7557a725c9482f997ce3e"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-609",
+              "terminal": "finding",
+              "hostIdentity": "e2380a1b03d4e4ae6da5adc1c2bcfded75b79543bde984b097d3a34b31b8e56d",
+              "promptIdentity": "b332676fd941b5e046bd5181c8e950b22a84beba29e0b65303dedeaca63f3e62",
+              "evidenceIds": [
+                "B-5a88:F-395"
+              ],
+              "coverageDigest": "163b37aaf7d54d3ef9bc4a9f1ac879abae4c85b819849f933a07c99f91701bd9"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-current-cutoff-pre-review-rollout-admissibility"
+          ],
+          "verifiedFindingSetDigest": "dcc071df21e19e3a62987f93760eae7069e1799d3ed488cf41a80845d5901264",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "d576094061fed4f719200e19218b5f0fe3716af0dd936c395e47e9c53f4ffda3",
+          "saturated": false,
+          "nextRunSequenceBoundary": 612
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "37181f4fa7a4d04cb0b9278c24544a12f19f2559a3618a481c7c77edf1ea3976"
+      "_hash": "b3ab5339b1b1b04bc33e12c3fd8df9de4bcbe320495dd10a8a3cb1e46149d1cc"
     }
   ],
   "receipts": [
@@ -8815,6 +8864,37 @@
       "findingDispositions": [],
       "createdAt": "2026-08-24T02:50:31.939Z",
       "_hash": "7bd5d8ad57ad132fd390eee464ed358d247d9a9fe214e8f6819f9bdbb0eecffa"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-067:CRIT-01",
+      "epochId": "B-5a88:RI-067",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "a5f7c09b0ca7a004d4d80633629b8d8d944f5087",
+        "materialHash": "cd63b3cd4d7da068127baaf20fac5d9fde983e0c8946c24e30a9ab3c3c9959b0",
+        "storyFilesHash": "e3f657d2b03ed48ed1211eb4e701c16e563648e82b453d610940dffecda04042"
+      },
+      "aggregateFindingSetDigest": "dcc071df21e19e3a62987f93760eae7069e1799d3ed488cf41a80845d5901264",
+      "requiredLaneCoverageDigest": "8a5c0c0040ab5b1cb8ac276572014ef170e109ae64863d332d7ef7fcdde3c58e",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-612",
+      "terminalEvidenceIds": [
+        "B-5a88:RP-212"
+      ],
+      "readEvidenceDigest": "0fde70fd7e285d69e6c844d95f977717497da93834c81e03873dae7f7e1a03f5",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-395",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-current-cutoff-pre-review-rollout-admissibility",
+          "reason": "Current F-395 is open and verified; CLI reads reproduce its stale pre-review and rollout evidence, so retain it as a verified family."
+        }
+      ],
+      "createdAt": "2026-08-24T12:49:13.499Z",
+      "_hash": "442a7350710330d9cc35270b9ad8635fd5282c04c0ae35db869d541de5cc54e0"
     }
   ]
 }
