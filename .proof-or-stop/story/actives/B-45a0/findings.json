@@ -13429,6 +13429,47 @@
       ],
       "signatureTag": "missing|json|final-wave-coverage",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-257",
+      "desc": "Current-head topology review is incomplete. acceptance_basis reports status=invalid with AT_UNMAPPED_SCOPE_REF for path:static-call:packages/main/src/core/story-change-resolver.ts#buildStoryChangeManifest->consumer:packages/main/src/core/dual-revision-impact-graph.ts#buildStoryChangeManifest. acceptance_topology_check reports status=fail with AT_ADAPTER_RESULT_DIGEST_MISMATCH, AT_CLOSURE_FILES_STALE, and AT_UNMAPPED_SCOPE_REF. pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. acceptance_rollout_report_read is blocking with AR_REPORT_STALE. The verifier-owned basis/topology/pre-review/rollout evidence must be regenerated and rebound at the current head.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T10:58:57.629Z",
+      "reviewRound": "2026-08-24T07:57:39.087Z",
+      "reviewRunId": "B-45a0:RR-442",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "Reran current-head acceptance_basis, acceptance_topology_check, pre_review_check_read, and acceptance_rollout_report_read after the clean metadata head; inspected verifier-owned basis, topology, pre-review, and rollout paths."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "18aed1d5282ade29178595d8eebed041d39247b3724ab3fd03d17f1d0210c39d",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "acceptance-topology-current-basis-unverified",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
