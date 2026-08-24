@@ -12741,6 +12741,167 @@
       ],
       "signatureTag": "missing|json|ri050-transcript-consumer",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-243",
+      "desc": "Current-head topology remains incomplete at committed HEAD 94f872b386: acceptance_basis is status=invalid and remains bound to head 38b7573a4666 with AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_UNMAPPED_SCOPE_REF; acceptance_topology_check is structuralPass=false/evidentiary=false with AT_ADAPTER_RESULT_DIGEST_MISMATCH, AT_CLOSURE_FILES_STALE, and AT_UNMAPPED_SCOPE_REF; pre_review_check_read is inconclusive with plannedActual=incomplete and PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED. Rollout check is current PASS/full-3x2, but does not override the invalid basis. Regenerate and rebind the verifier-owned basis before topology completeness can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T06:26:34.323Z",
+      "reviewRound": "2026-08-24T03:44:38.087Z",
+      "reviewRunId": "B-45a0:RR-412",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "Ran current-head acceptance_basis, acceptance_topology_check, pre_review_check_read, and acceptance_rollout_check; inspected verifier-owned topology, basis, pre-review, and rollout implementation paths."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3c62800bae81e8dfef9fcc8f51a5e20737c5692fb270e0c5facc69277dc9043c",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "acceptance-topology-current-basis-unverified",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-244",
+      "desc": "ri050-wave2-transcript-consumer-not-executed: packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:272-278 invokes runPreReviewCheckGate only once for each transcript assertion, then creates a consumer-verified event with scenarioEvent without a second consumer verification or verifier-bound result. The recorded row therefore claims an ordered producer/consumer transcript while only the producer gate ran; a consumer-side failure or binding mismatch can pass unnoticed, so acceptance transcript evidence remains non-genuine.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T06:28:38.582Z",
+      "reviewRound": "2026-08-24T03:44:38.087Z",
+      "reviewRunId": "B-45a0:RR-413",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-change-resolver.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": "RI-050 wave-2 quality review inspected the per-assertion witness implementation at the current head. The transcript branch still records a consumer event without a separate verifier-bound consumer operation."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "e18cc3993b32e7d10f71e43a2ece810b1226972e75dc797599b16ef17b118fcd"
+      },
+      "readDiagnostics": [],
+      "_hash": "a830266e94f29ea91c67be35d960f3be8a553d76bdb7b98b30d4e62b55dbd91a",
+      "files": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/core/dual-revision-impact-graph.ts",
+        "packages/main/src/core/story-change-resolver.ts"
+      ],
+      "signatureTag": "missing|ts|ri050-wave2-transcript",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-245",
+      "desc": "ri050-wave2-transcript-consumer-not-executed: packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:272-278 invokes runPreReviewCheckGate only once for each transcript assertion, then creates a consumer-verified event with scenarioEvent without a second consumer verification or verifier-bound result. The recorded row therefore claims an ordered producer/consumer transcript while only the producer gate ran; a consumer-side failure or binding mismatch can pass unnoticed, so acceptance transcript evidence remains incomplete.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T06:29:18.507Z",
+      "reviewRound": "2026-08-24T03:44:38.087Z",
+      "reviewRunId": "B-45a0:RR-417",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": "RI-050 wave-2 coverage review inspected the current per-assertion witness implementation. Transcript rows still record a consumer event without a separate verifier-bound consumer operation."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "e18cc3993b32e7d10f71e43a2ece810b1226972e75dc797599b16ef17b118fcd"
+      },
+      "readDiagnostics": [],
+      "_hash": "9a4ac65743340996bac1a504196497bf14eeac32cf7c74d35dc60f089977fb99",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+        ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "signatureTag": "missing|json|ri050-wave2-transcript",
+      "signatureTagSource": "auto"
     }
   ]
 }
