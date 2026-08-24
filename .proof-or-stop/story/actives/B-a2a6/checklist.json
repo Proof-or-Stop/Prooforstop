@@ -222,20 +222,20 @@
           "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
           "result": "pass",
-          "note": "Sequential collections receive separate correct snapshots and do not reuse state across runs.",
+          "note": "Sequential collections use separate snapshots and do not reuse cache state across runs.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ef815e3b715c7f56d4f71e743d5d4fef9582e92f6379adc7565853a08db3e6ad",
             "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-24T03:37:53.218Z",
+            "executedAt": "2026-08-24T04:46:36.871Z",
             "timeoutMs": 270000
           },
-          "headHash": "e5223db6c6a5d3f4d5937b65ddd910feb6f5d3a5",
-          "materialHash": "44f2222155642d68f7caaf36e505195a71d3f1192b0d90563b37c6b590cbfe06",
-          "storyFilesHash": "200684e2e356da514f2e575a0fccc3ade8d96586d0d9aa6017cfbe32d676127f",
-          "timestamp": "2026-08-24T03:39:26.513Z"
+          "headHash": "4520a68a7ee34996e799bf9df5b958ca875ea5e7",
+          "materialHash": "ebe0177b5c5afa439446a276169739ce99fdc01d43dc0a36b973c1eb56d49948",
+          "storyFilesHash": "51d33ca1a2b2329d00bbc1ba6c2d83914e1fe95f7032d9910b2c9d761628f2c9",
+          "timestamp": "2026-08-24T04:48:47.900Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -243,20 +243,20 @@
           "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
           "result": "pass",
-          "note": "Mismatched run, lane, envelope, and integrity inputs remain fail-closed and cannot be upgraded by the snapshot.",
+          "note": "Foreign, mismatched, stale, and integrity-invalid run inputs remain fail-closed.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ef815e3b715c7f56d4f71e743d5d4fef9582e92f6379adc7565853a08db3e6ad",
             "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-24T03:38:26.438Z",
+            "executedAt": "2026-08-24T04:47:29.763Z",
             "timeoutMs": 270000
           },
-          "headHash": "e5223db6c6a5d3f4d5937b65ddd910feb6f5d3a5",
-          "materialHash": "44f2222155642d68f7caaf36e505195a71d3f1192b0d90563b37c6b590cbfe06",
-          "storyFilesHash": "200684e2e356da514f2e575a0fccc3ade8d96586d0d9aa6017cfbe32d676127f",
-          "timestamp": "2026-08-24T03:39:26.513Z"
+          "headHash": "4520a68a7ee34996e799bf9df5b958ca875ea5e7",
+          "materialHash": "ebe0177b5c5afa439446a276169739ce99fdc01d43dc0a36b973c1eb56d49948",
+          "storyFilesHash": "51d33ca1a2b2329d00bbc1ba6c2d83914e1fe95f7032d9910b2c9d761628f2c9",
+          "timestamp": "2026-08-24T04:48:47.900Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -264,20 +264,20 @@
           "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
           "result": "pass",
-          "note": "Undefined, empty, truncated, reordered, and selectively filtered snapshots remain refusal-safe.",
+          "note": "Foreign snapshots, filtered lists, source replacement, and missing entries remain refusal-safe.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ef815e3b715c7f56d4f71e743d5d4fef9582e92f6379adc7565853a08db3e6ad",
             "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-24T03:38:54.484Z",
+            "executedAt": "2026-08-24T04:48:08.858Z",
             "timeoutMs": 270000
           },
-          "headHash": "e5223db6c6a5d3f4d5937b65ddd910feb6f5d3a5",
-          "materialHash": "44f2222155642d68f7caaf36e505195a71d3f1192b0d90563b37c6b590cbfe06",
-          "storyFilesHash": "200684e2e356da514f2e575a0fccc3ade8d96586d0d9aa6017cfbe32d676127f",
-          "timestamp": "2026-08-24T03:39:26.513Z"
+          "headHash": "4520a68a7ee34996e799bf9df5b958ca875ea5e7",
+          "materialHash": "ebe0177b5c5afa439446a276169739ce99fdc01d43dc0a36b973c1eb56d49948",
+          "storyFilesHash": "51d33ca1a2b2329d00bbc1ba6c2d83914e1fe95f7032d9910b2c9d761628f2c9",
+          "timestamp": "2026-08-24T04:48:47.900Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -285,20 +285,20 @@
           "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
           "result": "pass",
-          "note": "The implementation uses a per-collection snapshot and introduces no global cache.",
+          "note": "The implementation uses only a collection-scoped snapshot and introduces no global or cross-command cache.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ef815e3b715c7f56d4f71e743d5d4fef9582e92f6379adc7565853a08db3e6ad",
             "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-24T03:39:26.275Z",
+            "executedAt": "2026-08-24T04:48:47.636Z",
             "timeoutMs": 270000
           },
-          "headHash": "e5223db6c6a5d3f4d5937b65ddd910feb6f5d3a5",
-          "materialHash": "44f2222155642d68f7caaf36e505195a71d3f1192b0d90563b37c6b590cbfe06",
-          "storyFilesHash": "200684e2e356da514f2e575a0fccc3ade8d96586d0d9aa6017cfbe32d676127f",
-          "timestamp": "2026-08-24T03:39:26.513Z"
+          "headHash": "4520a68a7ee34996e799bf9df5b958ca875ea5e7",
+          "materialHash": "ebe0177b5c5afa439446a276169739ce99fdc01d43dc0a36b973c1eb56d49948",
+          "storyFilesHash": "51d33ca1a2b2329d00bbc1ba6c2d83914e1fe95f7032d9910b2c9d761628f2c9",
+          "timestamp": "2026-08-24T04:48:47.900Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
