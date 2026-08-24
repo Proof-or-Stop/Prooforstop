@@ -12369,6 +12369,96 @@
       ],
       "signatureTag": "missing|json|ri046-acceptance-basis-unmapped",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-236",
+      "desc": "RI-046 wave-2 fresh concept review cannot pass at current HEAD 5ffb1a091e: acceptance_basis remains invalid and bound to prior HEAD 38b7573a46, with AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_UNMAPPED_SCOPE_REF for story-change-resolver.ts#buildStoryChangeManifest to dual-revision-impact-graph.ts#buildStoryChangeManifest. acceptance_topology_check is structural fail/evidentiary=false with inconclusive_basis_unverified, and pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED. The current full-3x2 rollout cannot override this invalid basis.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-24T02:24:27.733Z",
+      "reviewRound": "2026-08-23T18:51:54.245Z",
+      "reviewRunId": "B-45a0:RR-396",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/story-change-resolver.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Fresh RI-046 wave-2 basis/topology/pre-review outputs were inspected; digest mismatch and unmapped scope reference were confirmed, and targeted producer/consumer paths were triaged."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "08114508f29bbf5a288d1aef1fcf56fd46f29a898edf7fa7470d258437684a40",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/story-change-resolver.ts",
+        "packages/main/src/core/dual-revision-impact-graph.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|ri046-acceptance-basis-unmapped",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-237",
+      "desc": "RI-046 wave-2 post-terminal topology critic run at current HEAD 98893a7942 cannot pass: acceptance_basis remains invalid and bound to prior HEAD 38b7573a46, with AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_UNMAPPED_SCOPE_REF for story-change-resolver.ts#buildStoryChangeManifest to dual-revision-impact-graph.ts#buildStoryChangeManifest. acceptance_topology_check is structural fail/evidentiary=false with inconclusive_basis_unverified; pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED. Current full-3x2 rollout cannot override the invalid basis.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T02:25:39.120Z",
+      "reviewRound": "2026-08-23T18:51:54.245Z",
+      "reviewRunId": "B-45a0:RR-397",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/story-change-resolver.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Fresh post-terminal RI-046 wave-2 basis/topology/pre-review/rollout outputs were inspected; digest mismatch and unmapped scope reference were confirmed, and targeted producer/consumer paths were triaged."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b2a217adfe63333f09ec4f5b23278fb4ed0918b447d9dd2df5fcb730baafbc46",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/story-change-resolver.ts",
+        "packages/main/src/core/dual-revision-impact-graph.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|ri046-acceptance-basis-unmapped",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
