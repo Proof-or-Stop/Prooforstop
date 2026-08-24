@@ -13940,6 +13940,280 @@
       ],
       "signatureTag": "missing|json|wave-test-coverage",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-266",
+      "desc": "packages/main/tests/causal-evidence.test.mjs:1975-2025,2144-2327 — RI-031 coverage evidence is stale: checklist_get reports 53 passing rows bound to prior head d00654cbc726b71525e150865ecf5c2e3503d4d4 and prior material/story hashes, while RR-507 is bound to current head 1ef55743d9c8f74a4c4c26da311e5a0e4d7f8ece and frozen materialHash 5686932137192751fbd07343f8bb4da31aab8d7b7e157175b836f4c270deea18. Refresh current-round evidence before REVIEW can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T14:53:33.693Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-507",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "05f38353c36e862319e1381afcdafde279a94671624f8077c29b638f521d662c",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-267",
+      "desc": "packages/main/src/core/causal-evidence.ts:369-380 — TRANSPORT_ENV_KEY drops every environment key ending in SESSION or SESSION_ID (for example APP_SESSION) before hashing, while effectiveValidationCommandEnvironment preserves non-listed environment variables for the child. Changing APP_SESSION therefore leaves the execution key and cached receipt unchanged even though the command sees a different value, violating exact effective-environment binding and allowing stale PASS reuse; add a regression and align this filter with the canonical transport allowlist.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T14:55:49.924Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-504",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "42b7eae6b0d7aa944bf63f9b52a2058e9fd955b31f829c85cd9470a9ff7254f6"
+      },
+      "readDiagnostics": [],
+      "_hash": "1fdfc2f84393acbccb3c3623df89ac9e0ada0002fd7f9d077e97ce2072383100",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-268",
+      "desc": "The current verifier-derived acceptance basis is not admissible for RI-031: proof-or-stop acceptance_basis --storyId=B-5a15 --json reports status=invalid with receiptVerification.ok=false, code AT_ADAPTER_RESULT_DIGEST_MISMATCH, basis semantic discovery digest mismatch, closure files hash mismatch, snapshot seal digest mismatch, and a freshness mismatch for story-owned files. The basis is therefore stale or tampered and cannot support a topology/completeness pass until regenerated and reverified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T15:05:27.560Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-509",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "scanEscalationReason": "CLI-only inspection used acceptance_basis, finding_list, and review_inventory_status; no implementation or story JSON was edited."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "765c6e936ee8a70d0d56b2ab8357d2f877a3b90e549374dda548197d898fe52a",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts"
+      ],
+      "signatureTag": "same-family:B-5a15:F-003",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-269",
+      "desc": "packages/main/tests/causal-evidence.test.mjs:2144-2335 contains the required executable RI-031 Wave-4 assertions for acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, acceptance_rollout_check, current receipt/full-3x2, degraded-host rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and rollback-history preservation; however checklist_get shows 53 passing evidence rows bound to the prior 13-test receipt at head d00654cbc726b71525e150865ecf5c2e3503d4d4 with prior materialHash/storyFilesHash, while RR-511 is bound to head 1ef55743d9c8f74a4c4c26da311e5a0e4d7f8ece and current hashes. The current RI-031 wave 2 coverage therefore has no admissible current signed evidence for this required boundary; refresh and bind the current receipt before coverage can pass. This is distinct from B-5a15:F-266 by identifying the required acceptance-rollout coverage boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T15:15:31.604Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-511",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": 19000
+        },
+        "digest": "05ff157752368ec82084351fab6333c9be4f2122f5d085bfc317e27c8def1cb7"
+      },
+      "readDiagnostics": [],
+      "_hash": "befa058400c6c56dcab49e4ddf02fecf72c2f1053f50ba3935c364a655c922ee",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json"
+      ],
+      "signatureTag": "missing|mjs|ri-031-wave-2-current-evidence",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-270",
+      "desc": "packages/main/tests/causal-evidence.test.mjs:2169-2175 — current-wave verifier-owned acceptance chain is not promotable: acceptance_topology_check is FAIL with AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE, pre_review_check_read is FAIL with PR_ARTIFACT_TAMPERED, and acceptance_rollout_report_read/acceptance_rollout_check are FAIL with AR_REPORT_STALE, so the required current signed full-3x2 PASS receipt is absent even though the stored quorum shape is full-3x2.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-24T15:16:20.075Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-514",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "eb09d75c684e4cb0785207bc02e44329b5cfab27cedda0249ef2c93a90dd96f8"
+      },
+      "readDiagnostics": [],
+      "_hash": "04858ebe2b3b85d30bef40d09f438a590dcd55c4f2e29acf21185a423b978ac1",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-271",
+      "desc": ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json:1; packages/main/src/core/acceptance-discovery-adapters.ts:1287 [high] RI-031 wave 2 cannot admit a quality pass: acceptance_rollout_report_read and acceptance_rollout_check both return blocking AR_REPORT_STALE, pre_review_check_read returns PR_ARTIFACT_TAMPERED, and acceptance_topology_check returns AT_ADAPTER_RESULT_DIGEST_MISMATCH plus AT_CLOSURE_FILES_STALE. There is no current signed PASS receipt proving the required full 3 rounds x 2 hosts and mode-invariant gate state; verifier-owned acceptance evidence must be refreshed before relying on this review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T15:18:10.537Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-512",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d7bd22ded7712bd656de24fb21f452878b7fcacfe4ca41c59b0088ded4c2f811",
+      "signatureTag": "missing|unknown|proof-stop-story",
+      "signatureTagSource": "auto"
     }
   ]
 }
