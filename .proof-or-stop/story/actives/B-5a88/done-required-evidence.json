@@ -1,14 +1,14 @@
 {
-  "schema": "lattice.done-required-evidence",
+  "schema": "proof-or-stop.done-required-evidence",
   "version": 1,
   "storyId": "B-5a88",
   "status": "FAIL",
-  "startedAt": "2026-08-22T07:19:18.704Z",
-  "endedAt": "2026-08-22T07:19:44.808Z",
-  "durationMs": 26104,
-  "headHash": "26a55519df0ba610e7f9b5fdf35999826b2e9a39",
-  "materialHash": "a883261785bc024d6209525b43bc89374a323206a9318a57c96e49180c7ea0be",
-  "storyFilesHash": "b7a3d2a131b146253a7087c8bf7c3adcb8d0c198026c8ca482ae29f34e502aa4",
+  "startedAt": "2026-08-24T08:40:38.671Z",
+  "endedAt": "2026-08-24T08:41:03.053Z",
+  "durationMs": 24382,
+  "headHash": "019b92321e736297c9075983416906b345fdd074",
+  "materialHash": "f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c",
+  "storyFilesHash": "99af18c7e794cf9714b43cd073722c4b01ab2c385f6e95d1535e5b581078ea24",
   "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
   "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
   "receipts": [
@@ -22,7 +22,7 @@
         "build"
       ],
       "commandSpec": {
-        "schema": "lattice.command-spec.v2",
+        "schema": "proof-or-stop.command-spec.v2",
         "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
         "command": "npm",
         "args": [
@@ -40,17 +40,17 @@
       "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-5a88",
       "status": "PASS",
       "exitCode": 0,
-      "durationMs": 682,
+      "durationMs": 1001,
       "outputDigest": "be2e2bfac9b47b359e45b6a08fca25dc998471874c4e84eba5e007a992d1c3d1",
       "outputTail": "\n> @proof-or-stop/core@0.3.268 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
-      "startedAt": "2026-08-22T07:19:18.705Z",
-      "endedAt": "2026-08-22T07:19:19.387Z",
-      "effectiveEnvironmentDigest": "7d2922980f79991925e0a6bd077604a67ce7be273bf02eb93ce0f88968781fdb",
+      "startedAt": "2026-08-24T08:40:38.672Z",
+      "endedAt": "2026-08-24T08:40:39.673Z",
+      "effectiveEnvironmentDigest": "9cb834d5bc246c9fda1240bc46fb3a3d148d3b7b680efb452d12ab5a749340b5",
       "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
       "shellExecutableDigest": null,
-      "headHash": "26a55519df0ba610e7f9b5fdf35999826b2e9a39",
-      "materialHash": "a883261785bc024d6209525b43bc89374a323206a9318a57c96e49180c7ea0be",
-      "storyFilesHash": "b7a3d2a131b146253a7087c8bf7c3adcb8d0c198026c8ca482ae29f34e502aa4"
+      "headHash": "019b92321e736297c9075983416906b345fdd074",
+      "materialHash": "f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c",
+      "storyFilesHash": "99af18c7e794cf9714b43cd073722c4b01ab2c385f6e95d1535e5b581078ea24"
     },
     {
       "label": "root full test suite",
@@ -59,7 +59,7 @@
         "test"
       ],
       "commandSpec": {
-        "schema": "lattice.command-spec.v2",
+        "schema": "proof-or-stop.command-spec.v2",
         "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
         "command": "npm",
         "args": [
@@ -74,17 +74,17 @@
       "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-5a88",
       "status": "FAIL",
       "exitCode": 1,
-      "durationMs": 25014,
-      "outputDigest": "f4801d703c27946489488399945c42a46cc21f7d2a05a369886d437d2f61f94b",
-      "outputTail": "ch '{\\\\\"storyId\\\\\":\\\\\"B-smoke\\\\\",\\\\\"agentType\\\\\":\\\\\"proof-or-stop-review-test-coverage\\\\\"}' to get the standard story-level prompt, then follow it (baseline)\" })\\n` +\n  '→ reviewer liveness: each reviewer should first output REVIEW_START after starting\\n' +\n  'Host-native task liveness policy:\\n' +\n  '- Elapsed time or silence alone never proves a stall and never authorizes a replacement.\\n' +\n  '- Query the host-native task status for the original task identity.\\n' +\n  '- If status is foreground, running, or background, continue bounded polling/waits on that same task identity; do not dispatch a duplicate, including after 10 minutes/600s.\\n' +\n  '- If status is unknown or temporarily unavailable, record the uncertainty and keep monitoring the same task identity; do not dispatch a duplicate.\\n' +\n  '- If status is completed, consume the original result exactly once.\\n' +\n  '- Only an authoritative failed, cancelled, missing, or dead status (or explicit operator cancellation) authorizes at most one replacement.\\n' +\n  '- Before replacing, record the terminal reason and ensure the former task can no longer write results or evidence.\\n' +\n  '- Explicit configured subprocess deadlines (including provider.codex and cross_host_review) are separate execution contracts and remain enforced.\\n' +\n  '→ After all return, proof-or-stop finding_list to aggregate\\n' +\n  '→ Once critical/high are all resolved: story_advance(B-smoke, TEST)\\n' +\n  '→ Need code changes: review_inventory_begin(B-smoke), finish all required lanes, dispatch topology critic and submit complete findingDispositions, then review_inventory_finalize(B-smoke); only its signed receipt authorizes story_advance(B-smoke, DEV)\\n' +\n  '⚠ When reviewers call finding_add they must pass the agent parameter (e.g. \"agent\":\"proof-or-stop-review-behavior\"), otherwise the finding will be marked as main agent and the TEST gate will refuse to advance\\n' +\n  'Pre-review check:\\n' +\n  '  mode=observe; status=fail; blocking=false\\n' +\n  '  plannedActual=incomplete; executableEvidence=missing; mutations=missing; transcript=missing; authority=inadmissible; criticReattestation=not_required\\n' +\n  '  codes=PR_ARTIFACT_MISSING\\n' +\n  '  remediation=Run proof-or-stop pre_review_check --storyId=<id> after recording a current canonical live_smoke_transcript proof.\\n' +\n  'Acceptance rollout enforcement:\\n' +\n  '  mode=observe; status=missing; blocking=false\\n' +\n  '  receipt=missing; quorum=degraded-or-missing\\n' +\n  '  codes=AR_REPORT_MISSING\\n' +\n  '\\n' +\n  '⚠ Scope protection: none (legacy story — checklist items have no file declarations; add files to checklist items and run scope_contract_init_from_plan to enable scope enforcement)\\n' +\n  '\\n' +\n  'Runtime memory advisory (not gate evidence):\\n' +\n  '## Memory Runtime Preflight\\n' +\n  '  authority=non_authoritative gateEvidence=false\\n' +\n  '  packDigest: 5fe4efa43647073e125f0eb2182a25a98334aecbab1a722106a91fd4ff7536d6\\n' +\n  '  topHitIds: none\\n' +\n  '  freshness: fresh\\n' +\n  '  sourceDigests: project=none global=none playbooks=none signatures=none\\n' +\n  '  empty: no relevant active playbooks or dev-memory entries surfaced\\n' +\n  '  render: maxLines=60 omittedCount=0'\n\n    at assertStoryAdvanceReviewEchoOmitsRetiredChannel (file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-5a88/packages/main/dist/tasks/flow-stability-smoke.js:1894:16)\n    at async file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-5a88/packages/main/dist/tasks/flow-stability-smoke.js:4163:1 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: 'Story B-smoke advanced to REVIEW\\n' +\n    '✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-smoke REVIEW metadata (d6ebfd3) (coexisting non-metadata dirt left untouched: runtime_artifact_changes=1)\\n' +\n    '→ Active reviewers: proof-or-stop-review-concept (legacy alias: lattice-review-concept), proof-or-stop-review-quality (legacy alias: lattice-review-quality), proof-or-st\n...[truncated 7619 chars]",
-      "startedAt": "2026-08-22T07:19:19.602Z",
-      "endedAt": "2026-08-22T07:19:44.616Z",
-      "effectiveEnvironmentDigest": "7d2922980f79991925e0a6bd077604a67ce7be273bf02eb93ce0f88968781fdb",
+      "durationMs": 23083,
+      "outputDigest": "ad146ae81d11180fd2e33b6fb49d2c7b05559a28d2118e85e1b37ea315887481",
+      "outputTail": "ed name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'proof-or-stop.done_closure.v1'\n- 'lattice.done_closure.v1'\n\n    at assertDoneClosureProjectionSeparatesAuthority (file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-5a88/packages/main/dist/tasks/flow-stability-smoke.js:2536:16)\n    at file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-5a88/packages/main/dist/tasks/flow-stability-smoke.js:4177:1 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: 'proof-or-stop.done_closure.v1',\n  expected: 'lattice.done_closure.v1',\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v26.7.0\n\n\n--- test:review-assurance-floor-smoke INTERRUPTED ---\n\n\n--- test:proofstory-intent-hardening-smoke INTERRUPTED ---\n\n> proof-or-stop@0.3.268 test:proofstory-intent-hardening-smoke\n> npm --prefix packages/main run test:proofstory-intent-hardening-smoke\n\n\n> @proof-or-stop/core@0.3.268 test:proofstory-intent-hardening-smoke\n> node dist/tasks/proofstory-intent-hardening-smoke.js\n\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n\n\n--- test:scope-shrinkage-withdrawal-floor-smoke INTERRUPTED ---\n\n\n--- test:withdrawn-disposition-smoke INTERRUPTED ---\n\n\n--- test:milestone-status INTERRUPTED ---\n\n\n--- test:global-core-realpath INTERRUPTED ---\n\n\n--- test:brand-path-resolver-smoke INTERRUPTED ---\n\n\n--- test:config-filename-migration-smoke INTERRUPTED ---\n\n\n--- test:core-package-rename INTERRUPTED ---\n\n\n--- test:state-dir-migration INTERRUPTED ---\n\n\n--- test:migration-contract INTERRUPTED ---\n\n\n--- test:review-incremental-context-smoke INTERRUPTED ---\n\n\n--- test:review-assurance-floor-storyfileshash-smoke INTERRUPTED ---\n\n\n--- test:docs-drift-smoke INTERRUPTED ---\n\n\n--- test:docs-drift-wrapper-root INTERRUPTED ---\n\n\n--- test:gitroot-cwd-contract INTERRUPTED ---\n\n\n--- test:process-fact-contract INTERRUPTED ---\n\n\n--- test:closeout-trust INTERRUPTED ---\n\n\n--- test:runtime-fact-contract INTERRUPTED ---\n\n\n--- test:evidence-quality INTERRUPTED ---\n\n\n--- test:anti-stall INTERRUPTED ---\n\n\n--- test:storydir-inside-gitroot-smoke INTERRUPTED ---\n\n\n--- test:gitroot-cwd-routing INTERRUPTED ---\n\n\n--- test:bare-gate-gitroot-cwd INTERRUPTED ---\n\n\n--- test:project-gitroot-cwd INTERRUPTED ---\n\n\n--- test:done-oracle-wrapper-root INTERRUPTED ---\n\n\n--- test:done-premerge-mainsha-recheck INTERRUPTED ---\n\n\n--- test:done-escalation-drift-advisory INTERRUPTED ---\n\n\n--- test:review-escalation-freshness-root INTERRUPTED ---\n\n\n--- test:dispatch-checklist-doctor-wrapper-root INTERRUPTED ---\n\n\n--- test:graceful-sites-gitroot-cwd INTERRUPTED ---\n\n\n--- test:experience-hint-worktree-cache INTERRUPTED ---\n\n\n--- test:done-merge-\n...[truncated 754 chars]",
+      "startedAt": "2026-08-24T08:40:39.824Z",
+      "endedAt": "2026-08-24T08:41:02.907Z",
+      "effectiveEnvironmentDigest": "9cb834d5bc246c9fda1240bc46fb3a3d148d3b7b680efb452d12ab5a749340b5",
       "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
       "shellExecutableDigest": null,
-      "headHash": "26a55519df0ba610e7f9b5fdf35999826b2e9a39",
-      "materialHash": "a883261785bc024d6209525b43bc89374a323206a9318a57c96e49180c7ea0be",
-      "storyFilesHash": "b7a3d2a131b146253a7087c8bf7c3adcb8d0c198026c8ca482ae29f34e502aa4"
+      "headHash": "019b92321e736297c9075983416906b345fdd074",
+      "materialHash": "f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c",
+      "storyFilesHash": "99af18c7e794cf9714b43cd073722c4b01ab2c385f6e95d1535e5b581078ea24"
     }
   ],
   "reasons": [
