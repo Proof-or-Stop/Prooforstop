@@ -48,6 +48,7 @@ const HEARTBEAT_MS = 250;
 // their guards wide so only rows explicitly named "max" exercise a tight max.
 const NON_MAX_OUTER_TIMEOUT_MS = 120_000;
 const NON_MAX_HARNESS_CEILING_MS = 60_000;
+const DESCENDANT_PID_READY_TIMEOUT_MS = 30_000;
 
 type CliResult = {
   status: number | null;
@@ -479,7 +480,7 @@ async function assertOuterWatchdogsKillDescendants(): Promise<void> {
       const parsed = JSON.parse(result.stdout);
       assert.equal(parsed.result, 'timed_out');
       assert.equal(parsed.timeoutLayer, testCase.name);
-      await waitForFile(pidFile, 5_000);
+      await waitForFile(pidFile, DESCENDANT_PID_READY_TIMEOUT_MS);
       await new Promise((resolve) => setTimeout(resolve, 150));
       const descendantPid = Number(readFileSync(pidFile, 'utf8'));
       assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, `${testCase.name} watchdog must kill descendants before structured return`);
