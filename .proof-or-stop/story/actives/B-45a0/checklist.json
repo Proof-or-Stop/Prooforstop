@@ -1590,13 +1590,25 @@
           "kind": "logic_test",
           "command": "node scripts/run-dynamic-validation-replay.mjs --verify-threshold",
           "result": "pass",
-          "note": "verification_run executed the pinned verifier for CHK-011:happy:0",
-          "headHash": "57c0a2bdbe6197cdb75518550b14fedf5f208806",
+          "note": "Run the historical replay threshold verifier with its approved long-running campaign budget at the current Story head.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2d1413898b4e414bfec6286e73b881064eee8f40115483df66f42ee00834c995",
+            "outputTail": "historical stories: 50\nhistorical categories: docs-only, intentional red/failing change, lifecycle gate, local handler, package/config, process fact, rename/delete, shared core, test-only, validation runtime\nhistorical replay mode: plan-only\nhistorical replay report: /Users/qipan/work/repo/Prooforstop/.worktrees/B-45a0/.proof-or-stop/runtime/dynamic-validation/historical-replay/report.json\ndynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\nhistorical replay assurance BLOCKED (plan-only or incomplete)\nhistorical replay discovery threshold PASS\nhistorical replay threshold PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T13:24:29.190Z",
+            "timeoutMs": 7200000,
+            "timeoutOverride": {
+              "timeoutMs": 7200000,
+              "defaultTimeoutMs": 270000,
+              "reason": "Historical replay executes the complete 50-story campaign and needs a bounded long-running witness budget."
+            }
+          },
+          "headHash": "46d3ddeddbb8023aa7962d0909230d6280c51b6d",
           "materialHash": "479b808fdf1d5929bea3996d57f677550ad2dc3cfb8b90f7e29a84c56493f4fd",
           "storyFilesHash": "125f05a4bc30f30ac52319087ab18ef207e23f9a00d6e8dfaaf3d2d4fd9037d1",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-24T12:57:49.766Z"
+          "timestamp": "2026-08-24T13:24:29.415Z"
         },
         {
           "intentRef": "CHK-011:edge:0",
@@ -1623,13 +1635,25 @@
           "kind": "logic_test",
           "command": "node scripts/run-dynamic-validation-replay.mjs --mutation=missing-evidence",
           "result": "pass",
-          "note": "verification_run executed the pinned verifier for CHK-011:adversarial:0",
-          "headHash": "57c0a2bdbe6197cdb75518550b14fedf5f208806",
+          "note": "Run the missing-evidence replay mutation with its approved long-running campaign budget at the current Story head.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c3c07a8263b9a0d0ece61ef1bc67a7010abfd3f8ee432cf0e8344dbc46de3028",
+            "outputTail": "historical stories: 50\nhistorical categories: docs-only, intentional red/failing change, lifecycle gate, local handler, package/config, process fact, rename/delete, shared core, test-only, validation runtime\nhistorical replay mode: plan-only\nhistorical replay report: /Users/qipan/work/repo/Prooforstop/.worktrees/B-45a0/.proof-or-stop/runtime/dynamic-validation/historical-replay/report.json\ndynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\nhistorical replay assurance BLOCKED (plan-only or incomplete)\nenforcement threshold blocked\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T13:37:14.550Z",
+            "timeoutMs": 7200000,
+            "timeoutOverride": {
+              "timeoutMs": 7200000,
+              "defaultTimeoutMs": 270000,
+              "reason": "The missing-evidence mutation executes the complete replay campaign and needs a bounded long-running witness budget."
+            }
+          },
+          "headHash": "46d3ddeddbb8023aa7962d0909230d6280c51b6d",
           "materialHash": "479b808fdf1d5929bea3996d57f677550ad2dc3cfb8b90f7e29a84c56493f4fd",
           "storyFilesHash": "125f05a4bc30f30ac52319087ab18ef207e23f9a00d6e8dfaaf3d2d4fd9037d1",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-24T12:57:49.766Z"
+          "timestamp": "2026-08-24T13:37:15.027Z"
         }
       ],
       "userSeesSnapshot": {
