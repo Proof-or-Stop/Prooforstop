@@ -9691,6 +9691,37 @@
       ],
       "createdAt": "2026-08-24T20:53:52.479Z",
       "_hash": "59e71f94ee0b54433e368d465b257602de3f12fed60ae6f99c69bc36ed5a0a9e"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-073:CRIT-01",
+      "epochId": "B-5a88:RI-073",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-24T20:09:03.823Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "c65b70bc3383772c6ce88313ddcc356e3759ad1e",
+        "materialHash": "4f50257c1405593662b2cbfa743f767e577f30a4c6bdbacbfacca97a5f1f2ff2",
+        "storyFilesHash": "788e552ef0188cb7bc62075f03e99e932f56fa5cf845247ea144aa48aefaeded"
+      },
+      "aggregateFindingSetDigest": "b3a689939031ce75459d1f78264ba8fa3c326a1c78e82095a624ba27ae1bdff6",
+      "requiredLaneCoverageDigest": "2fbe3e177b971d3119040b090c450bb73f1a1c6b4dc80136e44f6bea3e273167",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-677",
+      "terminalEvidenceIds": [
+        "B-5a88:RP-250"
+      ],
+      "readEvidenceDigest": "2262bd13f6214e2ed4556c74934f029f8a7c3d66d102b8d5251a0a0528ddfe91",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-413",
+          "disposition": "verified_family",
+          "familyKey": "prompt-registry-canonical-review-quality-guidance",
+          "reason": "F-413 is an independently verified edge finding: prompt-registry-smoke.ts checks the retired lattice-review-quality.md filename while the canonical registry emits proof-or-stop-review-quality.md, leaving the required proof-metadata assertion branch unreachable. It is a distinct verified family for this frozen RI-073 aggregate; no resolution or duplicate relationship is asserted."
+        }
+      ],
+      "createdAt": "2026-08-24T21:32:22.969Z",
+      "_hash": "434b94a02b327e4c97dbc49f4b76ca28c60852e6059e7c57db42baf679d509aa"
     }
   ]
 }

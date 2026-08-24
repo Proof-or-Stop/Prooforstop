@@ -15889,6 +15889,76 @@
         "scanEscalationReason": null
       },
       "_hash": "c89993bc011c2ccdec279affb52dabd97966d6fc21d0b2847a4bf7b53a588dee"
+    },
+    {
+      "id": "B-5a88:RP-249",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-073 wave 1 topology completeness pass: the frozen acceptance basis, rollout, pre-review, scope artifacts, and topology producers are current and structurally complete; all three required lane terminal receipts RP-246, RP-247, and RP-248 pass at the frozen material/story cutoff. The aggregate baseline contains only existing F-413, which is classified separately without creating or resolving a finding.",
+      "createdAt": "2026-08-24T21:17:40.053Z",
+      "reviewRound": "2026-08-24T20:09:03.823Z",
+      "reviewRunId": "B-5a88:RR-676",
+      "envelopeId": "58c64503de965cc7f4df22408e91e51ec5e4cd364c9254d42dc5578584800f4f",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-contract.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2bcb417bcc59d2e8207999496642f373c4a8d44fd89894999504bd664e9b762e"
+    },
+    {
+      "id": "B-5a88:RP-250",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Reviewed the current RI-073 acceptance basis, rollout, pre-review, scope, inventory, findings, and topology producer closure. The evidence is complete for this frozen cutoff and there is no new independent blocker; existing F-413 is classified as one verified family.",
+      "createdAt": "2026-08-24T21:32:00.143Z",
+      "reviewRound": "2026-08-24T20:09:03.823Z",
+      "reviewRunId": "B-5a88:RR-677",
+      "envelopeId": "000494fc22a027d04ade1ad1887318c51dc387d186d18caec29c9a3a23e489e0",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-contract.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "f7a15657eb9e4d2791e403b5c9a5cce657dbc1f05f5ef01cdca7f75262dd78b6"
+      },
+      "readDiagnostics": [],
+      "_hash": "84988f68104e0e0bfb27c0003f4e25c11ee5d846989d89d738b4ddb7aaf46066"
     }
   ]
 }
