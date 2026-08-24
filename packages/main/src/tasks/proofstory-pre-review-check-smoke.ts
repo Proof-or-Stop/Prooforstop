@@ -277,7 +277,12 @@ function executeActiveScenarioWitnesses(
       // would let a broken consumer or mismatched binding hide behind an
       // apparently ordered transcript.
       const producerEvent = scenarioEvent(`producer-evaluated:${id}`);
-      const producerOutput = cli(ctx.root, 'pre_review_check', { storyId: fixtureStoryId, json: true });
+      // Invoke the real producer handler in-process.  This keeps the smoke's
+      // per-assertion producer/consumer pair bounded while still traversing
+      // the registered `pre_review_check` producer path (including artifact
+      // issuance and verification), rather than fabricating a producer event
+      // or spawning a second full CLI process for every transcript row.
+      const producerOutput = createProofStoryHandlers(ctx).pre_review_check({ storyId: fixtureStoryId, json: true });
       let producerReport: { ok?: unknown; status?: unknown; blocking?: unknown };
       try {
         producerReport = JSON.parse(producerOutput) as typeof producerReport;
