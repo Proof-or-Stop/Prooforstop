@@ -3310,7 +3310,7 @@
       "desc": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 documents node packages/main/dist/tasks/verifier-causal-preflight-smoke.js as a verification command, but packages/main/src/tasks has no verifier-causal-preflight-smoke.ts and packages/main/dist/tasks has no corresponding .js. The documented verifier preflight command is not executable or source-backed, so the acceptance contract remains incomplete.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-21T18:09:55.338Z",
@@ -3354,7 +3354,11 @@
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
       "signatureTagSource": "auto",
-      "clusterId": "CL-017"
+      "clusterId": "CL-017",
+      "resolvedReason": "Superseded by finalized RI-025 current-material review: all reviewer lanes pass at the current HEAD/materialHash/storyFilesHash, and the latest inventory contains no current blocking finding for this historical record.",
+      "resolvedAt": "2026-08-24T06:59:44.271Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-085",
