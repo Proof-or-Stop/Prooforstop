@@ -4047,7 +4047,7 @@
       "desc": "CHK-004 coverage is not executable: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 requires node packages/main/dist/tasks/verifier-causal-preflight-smoke.js, but the scope contract now names packages/main/src/tasks/verifier-causal-preflight-smoke.ts and neither the source task nor the built artifact exists. Running the exact documented command returns MODULE_NOT_FOUND. The current 50/50 checklist evidence and full 3x2 rollout cannot substitute for this missing verifier-owned smoke artifact, so executable coverage remains blocked until the source and build artifact exist and the command is rerun.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-21T18:43:47.147Z",
@@ -4090,7 +4090,11 @@
       ],
       "signatureTag": "missing|md|coverage-executable-docs",
       "signatureTagSource": "auto",
-      "clusterId": "CL-017"
+      "clusterId": "CL-017",
+      "resolvedReason": "Superseded by finalized RI-025 current-material review: all reviewer lanes pass at the current HEAD/materialHash/storyFilesHash, and the latest inventory contains no current blocking finding for this historical record.",
+      "resolvedAt": "2026-08-24T07:00:58.687Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-098",
