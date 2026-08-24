@@ -132,6 +132,58 @@
       },
       "readDiagnostics": [],
       "_hash": "2c4d65166aa0636fcd95cff652613a680be1df75be0ef7b1bdd83e74fcb387e1"
+    },
+    {
+      "id": "B-a2a6:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "RI-004 wave-1 quality review completed for the integrated scoped change: checked both checklist items, story context and related decisions, the three changed implementation/test files, and changed package metadata for scope. No dead code, unused imports, swallowed errors, type-safety regression, I/O isolation issue, proof-metadata inconsistency, or undelivered documentation promise was found. The current-head focused cache smoke passed with mixed records, cutoff boundaries, read-failure behavior, and empty-collection no-read coverage.",
+      "createdAt": "2026-08-24T03:40:21.831Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-012",
+      "envelopeId": "275d199e028bc090c74af5056722eca6421e37a0e6b38d47366b77d7ba516e8e",
+      "writerSessionId": "sess-4e4ca17cfbe31c56a6a5fdc1eb8d3318",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/decision.json",
+          ".proof-or-stop/story/actives/B-a2a6/scope-check.json",
+          ".proof-or-stop/story/actives/B-a2a6/scope-contract.json",
+          ".proof-or-stop/story/actives/B-a2a6/understanding.json",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "4226c8dc443e61e929b5c4f9f4b5e3ac824209ae474f9a39a66f9ba2e8b0fe9b"
+      },
+      "readDiagnostics": [],
+      "_hash": "cf0146c49bef20a81b77d796afdbd87270bde1f16c4add6da7c6dcf9a7dcfdb0"
     }
   ]
 }

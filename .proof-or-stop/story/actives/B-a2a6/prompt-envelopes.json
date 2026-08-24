@@ -955,6 +955,111 @@
       "incrementalContextBytes": 17911,
       "escalatedToFull": true,
       "escalationReason": "SAFETY_REQUIRES_FULL"
+    },
+    {
+      "schemaVersion": "proofbound.prompt-envelope.v1",
+      "roleId": "lattice-review-quality",
+      "storyId": "B-a2a6",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-a2a6:RR-012",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "lane": "lattice-review-quality",
+      "dispatchPromptDigest": "e7ac8d813383bcba60d69e088ae92b1c23cbebc05bdafb28570fd71894f6e1bc",
+      "hostRenderIdentityDigest": "6a03665eff57fd36d78d26f6dd9511d468387888ce6c7c6cb53fd121f1af6320",
+      "createdAt": "2026-08-24T03:40:07.222Z",
+      "headHash": "ddfabdabb077d2c581b2b3260d041c6c70d55bda",
+      "runtimeContractVersion": "proofbound.agent-runtime.v1",
+      "runtimeSemanticDigest": "b62d11379b513f77a921a18a93c00e1a620e636c978441a0d1301ff875f5063a",
+      "runtimeRenderDigest": "2ed90580d07e50b86852b451625a813960d49ba33bab0a5ad90e504d75c59b1b",
+      "roleContractVersion": "proofbound.role-contract.v1",
+      "roleSemanticDigest": "ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0",
+      "roleRenderDigest": "e7d61a313c3a370c312634f2a0fde6875e96da9ab52a9c656ede18cff207798f",
+      "contextMode": "full",
+      "contextDigest": "cd1a81c41bbac025bb66d1e86375c1675bdcac63bc4996534e34471c36d0a00a",
+      "materialHash": "44f2222155642d68f7caaf36e505195a71d3f1192b0d90563b37c6b590cbfe06",
+      "storyFilesHash": "200684e2e356da514f2e575a0fccc3ade8d96586d0d9aa6017cfbe32d676127f",
+      "policyHash": "a9518fb9b7611530cfb5975ba6ce713a63386cb5790dfe3c685aeae16d0e0e61",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "2ec11e17d2c4c50448e25cd248321514f8954afeee761772c55e8087d2fcbf8a",
+      "knownExecutionEnvironmentDigest": "9e4965b9323ee84bf5e5f20276aa5d72ad647b663176c0cd7d8ee99b1634ac1e",
+      "assemblerVersion": "proofbound.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proofbound.prompt-dispatch.v1",
+      "launcherSpecDigest": "3d15ecf59ec6f46ce031d8139000ec6683efe2eaefd48e603366f70484c429b7",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "6c8806fe60be9030c6c6ad8dfe0ca57ac23249b1aa2f9191d7c27c3dfa2c06b4",
+      "bytes": 19796,
+      "lines": 138,
+      "estimatedTokens": 4949,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "275d199e028bc090c74af5056722eca6421e37a0e6b38d47366b77d7ba516e8e",
+      "priorPassRef": "B-a2a6:RP-003",
+      "freshnessClassification": "RELATED_STORY_MATERIAL_DRIFT",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_FIXTURE_BINDING_INCOMPLETE",
+        "FULL_FRESHNESS_RELATED_STORY_MATERIAL_DRIFT"
+      ],
+      "changedFilesDigest": "169c2033e52948049cd77c03aef39272c8041975e49c7b21dc4f4a0b66605d9f",
+      "impactedFilesDigest": "6faefd9e80ff47b651cab9237edef5040ebd2cb59696d893930f4b179a7249ab",
+      "taskSemanticDigest": "fcf00e3ad8febfe62a1f0450379b2562f38d1b36b58ea7be257134a8d8511b9c",
+      "findingProjection": [
+        {
+          "id": "B-a2a6:F-001",
+          "createdAt": "2026-08-24T02:52:41.690Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/review-run.ts:1586 [medium] collectReviewerEvidenceState unconditionally reads prompt-envelopes.json even when reviewerFindings and reviewerPasses are both empty. This violates CHK-002:edge:0 explicit zero-record no-unnecessary-envelope-read contract and adds ledger I/O to every empty readiness check; the pre-change collector did not read the envelope ledger on that path. Guard snapshot creation on the presence of evidence while retaining the shared snapshot for non-empty collections."
+        },
+        {
+          "id": "B-a2a6:F-002",
+          "createdAt": "2026-08-24T02:52:43.066Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 and .proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json:1423-1427 — the mandatory Wave 4 coverage is not executable evidence for this story: the smoke only asserts one collector read plus one valid B pass, while the signed rollout inventory lists acceptance_topology_check, pre_review_check, and acceptance_rollout_check only. There is no executable receipt for pre_review_check_read or acceptance_rollout_report_read, degraded-3x1 rejection, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history. Prompt prose and inventory metadata cannot satisfy this boundary."
+        },
+        {
+          "id": "B-a2a6:F-003",
+          "createdAt": "2026-08-24T02:52:50.763Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/review-run.ts:1582-1602 — collectReviewerEvidenceState unconditionally reads prompt-envelopes.json at line 1586 before iterating reviewer evidence, so a collection with zero bound records still performs one ledger read, contradicting CHK-002:edge:0, which requires zero records to cause no unnecessary envelope read. packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 exercises only the three-pass fixture and never covers the empty collection."
+        },
+        {
+          "id": "B-a2a6:F-004",
+          "createdAt": "2026-08-24T02:52:57.680Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": ".proof-or-stop/story/actives/B-a2a6/red-evidence.json:8-19 — the only red record targets CHK-001:happy:0 but records B-dc83 as both failing and expected green command, and its note explicitly says green is only expected after the separate cache fix; it contains no observed green exit code, receipt, output digest, or current HEAD/material binding for B-a2a6. The checklist receipts at .proof-or-stop/story/actives/B-a2a6/checklist.json:115-120 and 404-422 are smoke-test receipts and are not linked to RED-20260824022500 or the failing story_advance command, so the required red-to-green regression is not proven."
+        },
+        {
+          "id": "B-a2a6:F-005",
+          "createdAt": "2026-08-24T02:53:08.931Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 and .proof-or-stop/story/actives/B-a2a6/checklist.json:357-399 — the cached-vs-uncached and adversarial verificationIntent is overclaimed: the fixture checks one three-pass collection read count and that passB is valid, but never captures an uncached aggregate baseline or compares accepted/rejected records, integrity, cutoff, findings/pass classification, and gate outcome. It also does not inject read failures or source changes, exercise empty/single/many records, duplicate/stale/scope-invalid records, or vary order/cutoff boundaries. Reusing the same CACHE SNAPSHOT selector for all five CHK-002 intents is not concrete coverage of those mutations."
+        },
+        {
+          "id": "B-a2a6:F-006",
+          "createdAt": "2026-08-24T03:27:25.357Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-739 [medium] The RI-001 recheck is hash-fresh at materialHash 0787da2506fe076fa880a2ce0d400196c38200c8db0e37edf18b2dad3c720a3e, but the executable CACHE SNAPSHOT path compares cached versus uncached verification for one valid B candidate, an injected uncached read failure, phase/title/checklist mutations, cutoff cases, and read-count/empty-collection behavior only. It does not execute the declared CHK-002:edge:1 or CHK-002:adversarial:0/:1 coverage for mixed stale or scope-invalid records, invalid or missing/mismatched envelopes, duplicate/non-latest bindings, adversarial ordering at every cutoff boundary, or N-record aggregate cached-versus-uncached equality/read-count invariance. The same --cutoff-verifier-only receipt is therefore insufficient for those intents even though its materialHash and storyFilesHash are current; checklist evidence overclaims complete cached/uncached adversarial coverage."
+        }
+      ],
+      "findingProjectionDigest": "5bccf7634dbc6c39fe1ccd862c04023bfe58982e8101929c6548e63a0be82f7e",
+      "reviewBasisDigest": "fe81c310a9193257342edeb420aadac8f2918ec409062eb1992d60ffb62b6adc",
+      "incrementalContextDigest": "782b82d8190327ec0d7be087b6b032685ea394c27c7c3a1381b1d5725c5ee2c0",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 19796,
+      "incrementalContextBytes": 17911,
+      "escalatedToFull": true,
+      "escalationReason": "SAFETY_REQUIRES_FULL"
     }
   ]
 }
