@@ -3099,7 +3099,7 @@ function assertDoneClosureProjectionSeparatesAuthority(): void {
     }, storyId);
     const byId = new Map(runbook.blockers.map(row => [row.id, row]));
 
-    assert.equal(runbook.schemaVersion, 'lattice.done_closure.v1');
+    assert.equal(runbook.schemaVersion, 'proof-or-stop.done_closure.v1');
     assert.equal(runbook.phase, 'TEST');
     assert.equal(runbook.canAttemptDone, false, 'TEST PASS with missing closure artifacts must not be DONE-ready');
     assert.equal(byId.get('test-evidence')?.status, 'pass');
