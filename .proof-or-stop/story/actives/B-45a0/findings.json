@@ -13702,6 +13702,81 @@
       ],
       "signatureTag": "ri054-current-head-evidence-stale",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-264",
+      "desc": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:311 uses an untyped `observed: any` even though every assignment comes from invokeVerifier() with the explicit { ok: boolean; output: string } result type. The subsequent diagnostic and output accesses therefore bypass compile-time checking in the verifier-owned mutation witness; use ReturnType<typeof invokeVerifier> (or the explicit result type) so a drift in the witness contract cannot silently weaken the acceptance smoke.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T13:52:59.241Z",
+      "reviewRound": "2026-08-24T13:40:06.701Z",
+      "reviewRunId": "B-45a0:RR-464",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "05035c1a93754055410dcc3cf4147c43cc14db7fa57e9c442b79970c16894ba5",
+      "files": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "signatureTag": "cleanup|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-265",
+      "desc": "Current-head Wave-4 acceptance coverage is not admissible: proof-or-stop acceptance_topology_check --storyId=B-45a0 --json returns status=fail, structuralPass=false, evidentiary=false, and diagnostic AT_SCOPE_BINDING_MISSING at acceptance-basis.json.receipt (scope-contract digest mismatch), while acceptance_rollout_check and pre_review_check_read pass. The topology receipt is therefore not verifier-bound to the current scope contract; regenerate the verifier-owned PLAN acceptance basis/receipt at HEAD a7f4940dc9 and rerun acceptance_topology_check before treating the 45 intent rows as complete coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T13:54:33.395Z",
+      "reviewRound": "2026-08-24T13:40:06.701Z",
+      "reviewRunId": "B-45a0:RR-465",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7da506b5435faa2ad9b46a379e8698809ec130361c0c5b7aa27b34c9971837d1",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "signatureTag": "missing|json|current-head-wave",
+      "signatureTagSource": "auto"
     }
   ]
 }
