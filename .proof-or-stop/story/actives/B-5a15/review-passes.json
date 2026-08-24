@@ -7546,6 +7546,48 @@
       },
       "readDiagnostics": [],
       "_hash": "9e14059a10e6b11e8a32e12b446b3a1443a8770741b86c2936ea30c1368320db"
+    },
+    {
+      "id": "B-5a15:RP-169",
+      "agent": "lattice-review-quality",
+      "note": "Current quality review found no blocker in the causal preflight implementation or the owner-lease regression fixture; the focused closeout smoke passes and the change remains fail-closed.",
+      "createdAt": "2026-08-24T22:02:46.923Z",
+      "reviewRound": "2026-08-24T21:59:04.791Z",
+      "reviewRunId": "B-5a15:RR-588",
+      "envelopeId": "d81b952600e69c21239824c8a93798ef849be189e3dd4f7c8f044461df392959",
+      "writerSessionId": "sess-6c13d18e69b1b89f9abbd318dc62e74b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "19c5d2ca611cfa65f840b7cc5ec7d16ffe8d7b9a220bcc64f4ec7922e7654a56"
+      },
+      "readDiagnostics": [],
+      "_hash": "096150657df4054691093b25771c2007713beb03d64e25c6a4a5049ebe08edd7"
     }
   ]
 }
