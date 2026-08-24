@@ -4195,9 +4195,9 @@
       "epochId": "B-5a15:RI-032",
       "storyId": "B-5a15",
       "reviewRound": "2026-08-24T14:21:39.929Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-24T15:28:37.097Z",
-      "updatedAt": "2026-08-24T16:06:39.039Z",
+      "updatedAt": "2026-08-24T16:31:15.154Z",
       "cutoff": {
         "headHash": "2c4f89dbea7a37e523ce39df26a25b0aa47bd795",
         "materialHash": "5686932137192751fbd07343f8bb4da31aab8d7b7e157175b836f4c270deea18",
@@ -4276,7 +4276,45 @@
         "B-5a15:F-270",
         "B-5a15:F-271"
       ],
-      "_hash": "91b2f2c39e781dbac8fda0bb7bdeb53d35397dd9d95d9b2c8299877d60b67d3d"
+      "cancelledAt": "2026-08-24T16:31:15.154Z",
+      "cancelReason": "Acceptance basis was refreshed and committed after RI-032 exposed stale topology/pre-review closeout artifacts; cancel RI-032 and restart review inventory at the repaired current material.",
+      "terminalRunSequenceBoundary": 533,
+      "_hash": "feb234c3279e7556dd9eef1e1b74d20838a22e225f488e3b92f90465d13cbb84"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-033",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-24T16:31:23.151Z",
+      "updatedAt": "2026-08-24T16:31:23.151Z",
+      "cutoff": {
+        "headHash": "e5e3c509ce2e0912f9d74f9b7bb9dd643122eecc",
+        "materialHash": "5686932137192751fbd07343f8bb4da31aab8d7b7e157175b836f4c270deea18",
+        "storyFilesHash": "4e1b0708cc7e1e6c6fc949eda72456b5ab4c98dda36107ac15c388d19cf0697f"
+      },
+      "scopeDigest": "e16dffc6c632b36b3fad901b37bed272b835ee350a4e6c956041abc87432403c",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 533,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-5a15:F-266",
+        "B-5a15:F-267",
+        "B-5a15:F-268",
+        "B-5a15:F-269",
+        "B-5a15:F-270",
+        "B-5a15:F-271",
+        "B-5a15:F-272",
+        "B-5a15:F-273",
+        "B-5a15:F-274"
+      ],
+      "_hash": "70c346b3e50d909cfde8dac32e58de4e4f90ba9b3f865f064be668b37ff1e859"
     }
   ],
   "receipts": [

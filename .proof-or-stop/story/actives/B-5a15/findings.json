@@ -14364,6 +14364,95 @@
       "_hash": "386cdde3c959d526fe521e2553306010db858b4bb04640567cd607b8a6fa6327",
       "signatureTag": "adversarial|unknown|same-family-5a15",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-275",
+      "desc": "packages/main/tests/causal-evidence.test.mjs:1975-2025,2144-2327 and .proof-or-stop/story/actives/B-5a15/checklist.json:verificationEvidence — RI-033 wave 1 coverage is not admissible at current HEAD e5e3c509ce: all 53 verificationEvidence rows are bound to stale head d00654cbc7, materialHash 2bbc7108cfe5b2405d9a151d72dfc343daa716967eeec99a010f680465e85b24, and storyFilesHash 1b035b009f2d844d0e526beda2a73d9234145efbb08239639ecf839782011019, while RR-534 is bound to materialHash 5686932137192751fbd07343f8bb4da31aab8d7b7e157175b836f4c270deea18 and storyFilesHash 4e1b0708cc7e1e6c6fc949eda72456b5ab4c98dda36107ac15c388d19cf0697f. The current four-command regression has no current CLI evidence covering acceptance_rollout_report_read and acceptance_rollout_check with the required full-3x2, degraded-3x1, threshold/membership/freshness, mode-invariant, enforce-only, and non-destructive rollback checks; coverage cannot pass until fresh evidence is recorded.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T16:37:51.485Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-534",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "8ed7966151e1de5b71a51f2e53d9b82d77d6369c0c8cdf6ebaaf0b68f082aa5a"
+      },
+      "readDiagnostics": [],
+      "_hash": "02eeacd89e980f409311d3357ac73d5ed3932ce2ba97827084daa43fdb10c78e",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-276",
+      "desc": "packages/main/src/handlers/verifier.ts:1641,1785 [medium] createValidationCausalPreflightGate is passed projectRoot even though handlerGitCwd is the resolved authoritative story git cwd at lines 1447-1449; the preflight probes HEAD, material/storyFiles hashes, Git index, worktree, and lease from its cwd. On a configured wrapper-root layout this runs readiness from the metadata root, so story validation is refused or bound to the wrong tree before child launch. Pass handlerGitCwd to both causal-preflight gates.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T16:43:12.815Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-536",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9b87d867ddb7bbd5b4cadc0d742f240480184a7ad35d422a0b30c0613a80fb37",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
