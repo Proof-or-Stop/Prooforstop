@@ -13585,6 +13585,123 @@
       ],
       "signatureTag": "missing|ts|current-topology-acceptance",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-261",
+      "desc": "Current-head verifier evidence is still stale in REVIEW: pre_review_check_read and acceptance_rollout_report_read reject the receipts after the runtime repair and metadata binding at HEAD b3f1b2ed7e; the sole writers are DEV-only, so remediation must enter DEV before these artifacts can authorize the lane.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T12:13:24.641Z",
+      "reviewRound": "2026-08-24T11:28:14.268Z",
+      "reviewRunId": "B-45a0:RR-455",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "efe565a852ff939782da91eb041e8aa8d7cba3abea921f5a6daa638eba108d09",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "signatureTag": "ri054-current-head-evidence-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-262",
+      "desc": "Current-head coverage evidence remains inadmissible: the executable pre-review and full-3x2 rollout receipts are not bound to HEAD b3f1b2ed7e after the runtime repair; regenerate them in DEV before claiming coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T12:13:33.007Z",
+      "reviewRound": "2026-08-24T11:28:14.268Z",
+      "reviewRunId": "B-45a0:RR-456",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "218cbbf12cc4545d6e86ee22c1b58c9e934526067d9da7597751c5458b0e1727",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "signatureTag": "ri054-current-head-evidence-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-263",
+      "desc": "Fresh topology terminal cannot be recorded as a clean pass because the verifier closeout receipt is stale after the metadata commit at HEAD b3f1b2ed7e: acceptance-basis.json and live-smoke-transcript.json remain bound to the prior head, so REVIEW evidence retention is inadmissible until DEV regenerates and binds them.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T12:14:22.996Z",
+      "reviewRound": "2026-08-24T11:28:14.268Z",
+      "reviewRunId": "B-45a0:RR-457",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/closeout-write-receipts.jsonl",
+          ".proof-or-stop/story/actives/B-45a0/evidence/live-smoke-transcript.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "11c35c7707d732d990d1a8073b7dca0f4debae72fbabe96124399874be712cc3",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/evidence/live-smoke-transcript.json",
+        ".proof-or-stop/story/actives/B-45a0/closeout-write-receipts.jsonl"
+      ],
+      "signatureTag": "ri054-current-head-evidence-stale",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
