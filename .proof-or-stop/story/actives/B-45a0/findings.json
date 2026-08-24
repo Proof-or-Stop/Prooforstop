@@ -12116,6 +12116,169 @@
       ],
       "signatureTag": "missing|json|ri044-current-coverage",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-231",
+      "desc": "ri046-scenario-witness-integrity: packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:215-253 and 1111-1113 synthesize records for active topology assertions by structuredClone of one executed witness per scenario kind, rewriting only assertion ID/sourceRef and selected labels, then pass those clones through selectActiveScenarioRecords with allowDynamicIds=true. An assertion with no real verifier-bound producer/consumer, mutation, or transcript execution can therefore be reported as executed PASS, defeating the required fail-closed missing-record check and making current acceptance evidence non-genuine. Each active assertion must execute its own witness or remain missing and block the terminal.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T02:15:46.041Z",
+      "reviewRound": "2026-08-23T18:51:54.245Z",
+      "reviewRunId": "B-45a0:RR-388",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-change-resolver.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": "RI-046 current-head quality review was bounded to changed implementation and related acceptance code. The active scenario materialization path remains a concrete quality and evidence-integrity blocker."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "e18cc3993b32e7d10f71e43a2ece810b1226972e75dc797599b16ef17b118fcd"
+      },
+      "readDiagnostics": [],
+      "_hash": "82b5ce8e57a2544302c5e3fa8d16bef6a106be97b27f9b4ddb5d8ffa2a96cc8d",
+      "files": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/dual-revision-impact-graph.ts",
+        "packages/main/src/core/story-change-resolver.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|ri046-scenario-witness",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-232",
+      "desc": "ri046-coverage-gap: current checklist evidence cannot establish genuine verifier-owned acceptance coverage. packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:215-253,1111-1113 clones one executed witness per scenario kind into missing active assertion IDs and allows dynamic IDs, so 45/45 passing rows can include assertion-specific PASS records without executing each assertion's verifier-bound producer/consumer, mutation, or transcript. A truthful terminal still lacks acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check across full 3 rounds x 2 hosts, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and rollback-history preservation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T02:16:11.153Z",
+      "reviewRound": "2026-08-23T18:51:54.245Z",
+      "reviewRunId": "B-45a0:RR-390",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": "RI-046 current-head coverage review checked current checklist evidence and verifier-owned acceptance artifacts. Active assertion cloning leaves a concrete missing executable-coverage gap."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "e18cc3993b32e7d10f71e43a2ece810b1226972e75dc797599b16ef17b118fcd"
+      },
+      "readDiagnostics": [],
+      "_hash": "a507512d18b6df4b06f981ee7e0872762c764e09440a75bfa371b7957b8cd181",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+        ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "signatureTag": "missing|json|ri046-coverage-current",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-233",
+      "desc": "RI-046 fresh concept/topology review cannot pass at current run HEAD 0e3a383110: acceptance_basis is invalid and remains bound to prior HEAD 38b7573a46, with AT_ADAPTER_RESULT_DIGEST_MISMATCH, semantic discovery/closure/snapshot digest mismatches, and AT_UNMAPPED_SCOPE_REF for story-change-resolver.ts#buildStoryChangeManifest to dual-revision-impact-graph.ts#buildStoryChangeManifest. acceptance_topology_check is structural fail and evidentiary=false; pre_review_check_read is inconclusive with PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED. Full-3x2 rollout is current but cannot override the invalid basis.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-24T02:16:17.443Z",
+      "reviewRound": "2026-08-23T18:51:54.245Z",
+      "reviewRunId": "B-45a0:RR-389",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/story-change-resolver.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Fresh RI-046 acceptance basis/topology/pre-review/rollout outputs were inspected; digest mismatch and unmapped scope reference were confirmed, and targeted producer/consumer paths were triaged."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a7968275b7f90bcb637b9cbe71619f7dfc032497bd9ada64a3ce9609a9402b4c",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/story-change-resolver.ts",
+        "packages/main/src/core/dual-revision-impact-graph.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|ri046-acceptance-basis-unmapped",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
