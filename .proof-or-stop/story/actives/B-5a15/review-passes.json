@@ -3531,6 +3531,32 @@
         "scanEscalationReason": null
       },
       "_hash": "e905f5fbd9babda1ec15fe419de1e0a08d4ecdb38d6ba40ca0b2ca2b3c63c2dc"
+    },
+    {
+      "id": "B-5a15:RP-081",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: all 50 verification intents have one passing evidence row, all 22 strict intents are covered, no waivers exist, and current signed pre-review and rollout artifacts cover topology, pre-review, full-3x2 hosts/rounds, mutation controls, freshness, enforce diagnostics, and rollback integrity. The routine validate attempt was fail-closed before child launch with state_changed_before_launch and is not claimed as a pass.",
+      "createdAt": "2026-08-24T03:00:54.631Z",
+      "reviewRound": "2026-08-24T02:49:45.599Z",
+      "reviewRunId": "B-5a15:RR-384",
+      "envelopeId": "ae177724640dcc1c1dd6432916759806c3000e73d2a313183c215f0cce5b1d0b",
+      "writerSessionId": "sess-3e5b61c528c373ec",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "43dd61f340b02f0af8850f641e5b1becb41ca1c3f9a2df0c89d5dcebdc2e052d"
     }
   ]
 }
