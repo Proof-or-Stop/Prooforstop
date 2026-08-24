@@ -16640,6 +16640,47 @@
       ],
       "signatureTag": "missing|json|coverage-current-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-387",
+      "desc": "RR-595 coverage recheck: all 21 must verificationEvidence refs for CHK-001..CHK-007 and test-evidence.json remain stale. evidence_inspect binds them to prior HEAD f54c555/f2a11c4 and storyFilesHash 99af18, while current HEAD is 216cf92, current materialHash is 3db33bd4, and current storyFilesHash is 505ed974. The current flow-stability-smoke test passes the canonical proof-or-stop.done_closure.v1 expectation, but stale validation and intent receipts still prevent a signed coverage pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-24T09:01:25.982Z",
+      "reviewRound": "2026-08-24T08:51:00.357Z",
+      "reviewRunId": "B-5a88:RR-595",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/dist/tasks/flow-stability-smoke.js",
+          "packages/main/package.json",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "788d26c7c66207df8cd5da8507d385094218a3054cafdcc09d3c49b392acd2d4",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "missing|json|coverage-recheck-verificationevidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
