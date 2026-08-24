@@ -417,6 +417,310 @@
       },
       "readDiagnostics": [],
       "_hash": "e594bfe848b2ad957506344ba5433dbc863591a0b03341bbc4d972fce10986c0"
+    },
+    {
+      "id": "B-a2a6:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement is present in the scoped snapshot-threading diff. The plan, checklist, changed implementation/test diff, current evidence inspection, and RI-007 cutoff were reviewed; repository-wide scans found no supported concept residue, and every newly promised snapshot seam is implemented with direct-read fallback preserved.",
+      "createdAt": "2026-08-24T05:01:49.946Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-024",
+      "envelopeId": "529a500140d01729a775ecd0020ce691d6b13567ce12679f30d85d1957d7b157",
+      "writerSessionId": "sess-a121c8cf08a40c80a794bd6c40cd6840",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f7ddaa02e842109124f087a0208c728c41dd2cd7d80896fca0d29877fe8924a5"
+    },
+    {
+      "id": "B-a2a6:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of the current integrated snapshot-threading diff found no blocker: the shared snapshot is threaded through evidence binding and incremental lookup, empty collections avoid ledger I/O, direct callers retain uncached fallback, and RI-007 plus current evidence were checked with no new quality issue.",
+      "createdAt": "2026-08-24T05:02:54.319Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-026",
+      "envelopeId": "5a48082bc0d949ba691774f1b7b64cc9f7ae60eff18e9775723008b6564ac135",
+      "writerSessionId": "sess-ffc734c180365c9155e91ee5c00c2ea5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/findings.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-passes.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-runs.json",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "4226c8dc443e61e929b5c4f9f4b5e3ac824209ae474f9a39a66f9ba2e8b0fe9b"
+      },
+      "readDiagnostics": [],
+      "_hash": "250f082286304cd7c12a87170d878939c8e08f3839ee62eb5b364d24166f10ab"
+    },
+    {
+      "id": "B-a2a6:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "RI-007 wave-2 concept review of unchanged current material: the scoped change is additive snapshot threading, with direct-read fallbacks preserved; no concept deletion or replacement, no concept residue, and no new concept blocker. Existing F-013 remains an open production snapshot isolation coverage finding, and F-014 remains an open acceptance-topology admissibility finding; neither is dismissed or duplicated by this concept lane.",
+      "createdAt": "2026-08-24T05:16:26.190Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-031",
+      "envelopeId": "2dbd1c340b98ddc25c105e926f0b1402be9fcc5faf5ff802fc45057d01f254d4",
+      "writerSessionId": "sess-8c522a36ab484ffd512b9e13803cf118",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/findings.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-passes.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-runs.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "4226c8dc443e61e929b5c4f9f4b5e3ac824209ae474f9a39a66f9ba2e8b0fe9b"
+      },
+      "readDiagnostics": [],
+      "_hash": "cb91fd3d01cf92c169b816497490554a707c111e0e4a112316ff91009c21c4c5"
+    },
+    {
+      "id": "B-a2a6:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Concept review complete: no concept deletion or replacement is present, so no residue finding applies. Existing F-013 remains valid for the unisolated production snapshot coverage gap, and existing F-014 remains valid for the current partial acceptance basis and failed pre-review proof; neither is duplicated or treated as resolved.",
+      "createdAt": "2026-08-24T05:16:31.090Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-030",
+      "envelopeId": "93a641a36f712b5ccf23119d61d8964ba040d67ced052c3d336fda4e3988dae1",
+      "writerSessionId": "sess-24a2913ef83e58faf6eb9308fd356251",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "24ae0c4f04bff954a4994a768c1829d7be1009a8f9da90c321bc7286c439438f"
+    },
+    {
+      "id": "B-a2a6:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed with no new finding family: 15 of 15 verification intents have passing logic evidence and zero waivers. Existing B-a2a6:F-013 remains a verified open production snapshot immutability/isolation coverage gap because the collector still passes the store array directly while the smoke freezes only a test-local copy. Existing B-a2a6:F-014 also remains a verified open acceptance-topology/pre-review admissibility finding: acceptance_topology_check is inconclusive and pre_review_check_read reports PR_ARTIFACT_MISSING; the independent rollout PASS/full-3x2 does not cure those facts. Existing findings were carried, not duplicated, under RI-007 wave 2 saturation review.",
+      "createdAt": "2026-08-24T05:16:52.965Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-029",
+      "envelopeId": "3b539806bb29288af1f644a0e580e4696a00c613de198602eca28e382688f0f4",
+      "writerSessionId": "sess-a1473708c404f07cb994c5fdad63debe",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-a2a6/findings.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-passes.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-runs.json",
+          ".proof-or-stop/story/actives/B-a2a6/topology-critic-receipt.json",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e1a04eb06fa463179b41936de0edf3734cf79eeeec9cf11678c7d61c6cc68b8a"
+    },
+    {
+      "id": "B-a2a6:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Concept review complete for RI-007 wave 3: the diff introduces no concept deletion or replacement and no concept residue blocker. Independent checks confirm carried snapshot-isolation and acceptance-basis findings remain valid in their existing finding families; this lane pass does not dismiss or supersede them.",
+      "createdAt": "2026-08-24T05:28:30.359Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-035",
+      "envelopeId": "aa56a29cc7b31e18312a6bfc622f119665a7be2198f8184af31664b30f2daec5",
+      "writerSessionId": "sess-d3c819cbbf1fc4183d84bee5ad02f786",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "4226c8dc443e61e929b5c4f9f4b5e3ac824209ae474f9a39a66f9ba2e8b0fe9b"
+      },
+      "readDiagnostics": [],
+      "_hash": "0aa0e31a09d27ae4e78ea8b4df8928dde4c28756498182d2609b05379f23533d"
+    },
+    {
+      "id": "B-a2a6:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed: 15 of 15 verification intents have passing logic evidence, zero must-gaps, and zero waivers. RI-007 wave 3 material is unchanged. Carried F-015 snapshot-isolation coverage and F-016 acceptance-basis admissibility findings remain valid and open; no new finding family was found or duplicated.",
+      "createdAt": "2026-08-24T05:28:44.745Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-034",
+      "envelopeId": "56de55587e81ae39e0a3119de7f06edf42c434243242cad71f43b5e3c7873554",
+      "writerSessionId": "sess-4fdeaf17c38352112bde99dcc224a446",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-passes.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-runs.json",
+          ".proof-or-stop/story/actives/B-a2a6/topology-critic-receipt.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "afc0d5dab305eb84921ac27e7c58fe092d84890ec1c62f57ef46313b2f63e39d"
     }
   ]
 }

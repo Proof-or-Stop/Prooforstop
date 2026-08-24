@@ -176,7 +176,7 @@
       "desc": ".proof-or-stop/story/actives/B-a2a6/plan.md: required trusted review input is absent; the story-level concept-deletion review cannot be completed without substituting another artifact (medium)",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-24T03:46:25.044Z",
@@ -204,14 +204,18 @@
         ".proof-or-stop/story/actives/B-a2a6/plan.md"
       ],
       "signatureTag": "missing|md|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Restored the complete plan.md through plan_set in PLAN and re-entered DEV; the required trusted review artifact is now present.",
+      "resolvedAt": "2026-08-24T04:58:21.655Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a2a6:F-008",
       "desc": ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json:8441-8445 — the signed Wave 4 receipt says verdict=pass but is bound to stale headHash/materialHash/storyFilesHash; acceptance_rollout_report_read returns AR_REPORT_STALE and acceptance_rollout_check reports blocking=true, so the current story lacks the required current verifier-owned full-3x2 PASS receipt for this quality review.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-24T03:56:42.898Z",
@@ -248,14 +252,18 @@
         ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|json|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Regenerated the current verifier-owned acceptance rollout report; the report is PASS with sampleCount=3, seededDetection=100%, falseBlockRate=0%, and quorum=full-3x2.",
+      "resolvedAt": "2026-08-24T04:58:25.236Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a2a6:F-009",
       "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:582-626,676-710 — CHK-001:edge:2, CHK-001:edge:3, CHK-001:adversarial:1, and CHK-001:adversarial:3 remain under-covered. The smoke passes prebuilt reordered, duplicated, sliced, and mismatched arrays and injects one uncached read failure, but never mutates or replaces an entry after snapshot capture, supplies a foreign/second-collection snapshot, or changes the source between individual record checks. Those cases are required to prove immutable per-collection isolation, no cross-run reuse, and refusal-safe source-change behavior; the current receipts cannot substantiate those claims.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T04:02:11.233Z",
@@ -287,14 +295,18 @@
         "packages/main/src/tasks/review-incremental-context-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added frozen snapshot isolation, foreign snapshot refusal, source-changing refusal, and sequential collection regression coverage; the current focused smoke passed.",
+      "resolvedAt": "2026-08-24T04:58:28.879Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a2a6:F-010",
       "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:591-625,699-710 — CHK-002:edge:0 and CHK-002:adversarial:1 are still not mechanically covered at their read-bound requirement. The fixture compares three-record cached and uncached verifier results and separately counts one collectReviewerEvidenceState read, but it has no one-record case and no counter around each cached/uncached verifyReviewRunPromptEnvelope or reviewIncrementalContext call for N records. Therefore it does not prove a constant envelope-read bound, absence of per-record rereads in the verifier and incremental lookup, or the claimed field-for-field aggregate/read-count invariance as N changes.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T04:02:22.023Z",
@@ -326,7 +338,11 @@
         "packages/main/src/tasks/review-incremental-context-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added per-record verifier read counters, single-record coverage, and cached-versus-uncached incremental read-bound checks; the current focused smoke passed.",
+      "resolvedAt": "2026-08-24T04:58:32.274Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a2a6:F-011",
@@ -419,6 +435,419 @@
         "packages/main/src/handlers/review-inventory.ts"
       ],
       "signatureTag": "missing|json|verifier-derived-acceptance",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-013",
+      "desc": "CHK-001:edge:2 lacks executable coverage of the production snapshot immutability/ isolation guarantee: packages/main/src/core/review-run.ts:1587-1588 passes store.readPromptEnvelopes(storyId).envelopes directly to every verifier, but packages/main/src/tasks/review-incremental-context-smoke.ts:609-615 freezes only a test-local copy via freezePromptEnvelopeSnapshot; the collector regression at smoke.ts:779-790 checks only one read. No current test invokes collectReviewerEvidenceState with a mutating verifier or asserts that the production-passed snapshot is frozen/isolated, so this evidence cannot support the stated edge intent.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T05:02:49.036Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-025",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 5,
+          "tokenCount": null
+        },
+        "digest": "09d01d36b20b943de69288998c3d51f838c2776fab4703866638e497335f4ac3"
+      },
+      "readDiagnostics": [],
+      "_hash": "8d146e33823dcd61357ed580a25165b40d648ad21d1c48313bb1b20ffad15a3a",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|edge-lacks-executable",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-014",
+      "desc": "Fresh RR-027 topology review confirms the verifier-derived acceptance basis is partial and invalid: acceptance_topology_check is inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY; pre_review_check_read fails PR_ARTIFACT_MISSING. The rollout report and check are current PASS/full-3x2, but that independent rollout result cannot cure the missing or stale acceptance basis and missing pre-review proof, so acceptance topology remains non-admissible.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T05:07:54.952Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-027",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "07bf544c9997f3891bbeac83ff18d50586637f4b1c58406ddcade30cc5b7ced7",
+      "files": [
+        ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "signatureTag": "missing|json|fresh-topology-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-015",
+      "desc": "F-013 remains valid: packages/main/src/core/review-run.ts:1587-1603 passes store.readPromptEnvelopes(storyId).envelopes directly into every verifier without freezing or cloning the array/entries, while packages/main/src/tasks/review-incremental-context-smoke.ts:179-181 freezes only a test-local copy. The production collectReviewerEvidenceState path is not exercised with a mutating verifier, so CHK-001:edge:2 still lacks executable production-path isolation coverage.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T05:17:01.106Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-a2a6/topology-critic-receipt.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "4e89d49ca30f47d4967f4247a2c8d610926ffc9af34ba546b863f38adab92f4e"
+      },
+      "readDiagnostics": [],
+      "_hash": "fd5d0a7fc4c7ef2827dd3ae31ebefb25fd69d1eff0842a7d681cbf978d8aca7e",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|remains-valid-packages",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-016",
+      "desc": "F-014 remains valid: .proof-or-stop/story/actives/B-a2a6/acceptance-basis.json:7,236-294 is partial and bound to stale story-owned closure/snapshot hashes; current acceptance_topology_check reports inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY, while pre_review_check_read reports PR_ARTIFACT_MISSING. The independent .proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json:8422-8426 pass/full-3x2 receipt does not cure the missing verifier-owned acceptance basis.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T05:17:05.845Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/plan.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-a2a6/topology-critic-receipt.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "4e89d49ca30f47d4967f4247a2c8d610926ffc9af34ba546b863f38adab92f4e"
+      },
+      "readDiagnostics": [],
+      "_hash": "7d0e8f472edb839f1c4fbe2531a013045519e11c35623c8ce39f1e3d32ab58e2",
+      "files": [
+        ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|remains-valid-proof",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-017",
+      "desc": "Current verifier-derived acceptance topology is non-admissible: acceptance_basis is invalid with basisStatus=partial and AT_SCOPE_BINDING_MISSING (semantic discovery, scope-contract, closure, snapshot-seal, and storyFilesHash freshness mismatches); acceptance_topology_check is inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY; pre_review_check_read fails PR_ARTIFACT_MISSING. The current rollout report/check cannot cure the missing or stale acceptance basis, so topology closure must remain request_changes until verifier-owned basis and pre-review artifacts are regenerated and verified current.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T05:21:23.152Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-032",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fde523a46929ce3350e55af6b295d360878f5b84d78e9b322914170fc92a1570",
+      "files": [
+        ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "missing|json|current-verifier-derived",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-018",
+      "desc": "RI-007 wave 3 recheck: packages/main/src/core/review-run.ts:1587-1603 passes the mutable result of store.readPromptEnvelopes(storyId).envelopes directly to every verifier; verifyReviewRunPromptEnvelope only filters it and reviewIncrementalContext receives it as readonly at compile time, without runtime freezing or cloning. The only Object.freeze and entry clone are the test-local helper at packages/main/src/tasks/review-incremental-context-smoke.ts:179-181, so the production collectReviewerEvidenceState path still does not enforce the per-collection snapshot immutability/isolation required by CHK-001:edge:2. The current cached-vs-uncached tests do not invoke collectReviewerEvidenceState with a mutating verifier. Carried F-013/F-015 remains valid.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T05:29:05.143Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-036",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "e82947e80dc8faed56a5cd617580c00cbd6f47ebdbd7475408707a7e270652fc"
+      },
+      "readDiagnostics": [],
+      "_hash": "fabd52bf443dd1d8b09ade82b32ffd132517ff3d01e1f4e7874b1423c670ea3a",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|wave-recheck-packages",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-019",
+      "desc": "RI-007 wave 3 recheck: .proof-or-stop/story/actives/B-a2a6/acceptance-basis.json:7,236-294 remains verifier-non-admissible with basis.status=partial and stale head/material/storyFiles/closure/snapshot bindings. The read-only acceptance_topology_check currently returns inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY; pre_review_check_read returns fail with PR_ARTIFACT_MISSING. The current acceptance-rollout-report.json pass/full-3x2 receipt is independent rollout evidence and cannot cure the missing or stale verifier-owned acceptance basis. Carried F-014/F-016/F-017 remains valid.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T05:29:09.360Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-036",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "e82947e80dc8faed56a5cd617580c00cbd6f47ebdbd7475408707a7e270652fc"
+      },
+      "readDiagnostics": [],
+      "_hash": "6d87fb2f8d21488144de48aea27e5207f95d841714f99534625c912ed4686ebb",
+      "files": [
+        ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|wave-recheck-proof",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-020",
+      "desc": "RI-007 wave 3: current acceptance_basis is partial and invalid, acceptance_topology_check is inconclusive with AT_CLOSURE_FILES_STALE, AT_COVERAGE_BASIS_PARTIAL, AT_SCOPE_BINDING_MISSING, four AT_UNMAPPED_SCOPE_REF diagnostics, and AT_MISSING_TOPOLOGY, while pre_review_check_read fails PR_ARTIFACT_MISSING. The current full-3x2 acceptance rollout PASS is independent and cannot cure the stale or non-admissible basis; topology critic must request_changes until verifier-owned basis, topology closure, and pre-review proof are regenerated and reverified current.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T05:33:47.184Z",
+      "reviewRound": "2026-08-24T04:58:08.051Z",
+      "reviewRunId": "B-a2a6:RR-037",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "54990844bfb0d9414c25572576ae4dc35b86583ef3e99db67d8daa4730933e51",
+      "files": [
+        ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|json|wave-current-acceptance",
       "signatureTagSource": "auto"
     }
   ]
