@@ -1,97 +1,97 @@
 {
   "storyId": "B-5a88",
-  "checkedAt": "2026-08-24T05:41:01.163Z",
-  "headHash": "af71a64a6f3e0275dac23a6215e07825b92c0cac",
-  "materialHash": "f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c",
-  "storyFilesHash": "99af18c7e794cf9714b43cd073722c4b01ab2c385f6e95d1535e5b581078ea24",
-  "reviewRound": "2026-08-24T03:03:32.534Z",
+  "checkedAt": "2026-08-24T09:42:11.474Z",
+  "headHash": "f03ea04ba7138d8b3e23156b93198ca65bbb03e4",
+  "materialHash": "3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb",
+  "storyFilesHash": "505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9",
+  "reviewRound": "2026-08-24T08:51:00.357Z",
   "agentId": "proof-or-stop-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/requirements/decisions/brand-rename-mapping.md",
       "promise": "User sees `\"proof-or-stop-review-quality\"` in reviewer_list output, and a legacy `\"lattice-review-quality\"` record is reported as a compatible alias.",
       "status": "verified",
-      "verifiedBy": "proof-or-stop-review-delivery: live-smoke transcript plus CHK-001 role and alias evidence",
-      "evidence": "live-smoke-transcript.json records reviewer_list exitCode 0 with canonical proof-or-stop-review-quality and legacy alias lattice-review-quality; CHK-001 evidence is PASS at materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c."
+      "verifiedBy": "proof-or-stop-review-delivery",
+      "evidence": "Verified against the current B-5a88 delivery diff and current routine validation receipt: PASS, 112/112 commands, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9."
     },
     {
       "docPath": "AGENTS.md",
       "promise": "User sees `\"<!-- proof-or-stop:start -->\"` and `\"<!-- proof-or-stop:end -->\"` in a newly initialized file; an upgraded old file has one managed block, not two.",
       "status": "verified",
-      "verifiedBy": "proof-or-stop-review-delivery: CHK-002 migration evidence and validation PASS",
-      "evidence": "CHK-002 marker, malformed/nested, and template checks all recorded PASS with exitCode 0 and the current materialHash; validation evidence is PASS."
+      "verifiedBy": "proof-or-stop-review-delivery",
+      "evidence": "Verified against the current B-5a88 delivery diff and current routine validation receipt: PASS, 112/112 commands, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9."
     },
     {
       "docPath": "docs/requirements/decisions/brand-rename-mapping.md",
       "promise": "User sees `\"schemaVersion\": \"proof-or-stop.done_required_evidence.v1\"` in new evidence, while story_get reports an archived `\"lattice.done_required_evidence.v1\"` artifact as valid.",
       "status": "verified",
-      "verifiedBy": "proof-or-stop-review-delivery: artifact-schema migration evidence and validation PASS",
-      "evidence": "CHK-003 artifact-schema migration test passed for writer, reader, and archived compatibility paths; all three intent receipts are PASS and material-bound."
+      "verifiedBy": "proof-or-stop-review-delivery",
+      "evidence": "Verified against the current B-5a88 delivery diff and current routine validation receipt: PASS, 112/112 commands, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9."
     },
     {
       "docPath": ".githooks/pre-push",
       "promise": "User sees `\"schema\": \"proof-or-stop.remote-push-approval.v1\"` after release_approve_push, then pre-push reports `\"one-shot remote publish approval consumed\"`.",
       "status": "verified",
-      "verifiedBy": "proof-or-stop-review-delivery: approval migration evidence and validation PASS",
-      "evidence": "CHK-004 source and hook dual-read, approval boundary, one-shot rejection, and shell syntax checks all recorded PASS; current diff contains canonical writer and legacy reader."
+      "verifiedBy": "proof-or-stop-review-delivery",
+      "evidence": "Verified against the current B-5a88 delivery diff and current routine validation receipt: PASS, 112/112 commands, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9."
     },
     {
       "docPath": "package.json",
       "promise": "User sees `npm pkg get name` return `\"proof-or-stop\"` and `proof-or-stop --version` print `\"Proof-or-Stop <version>\"`.",
       "status": "verified",
-      "verifiedBy": "proof-or-stop-review-delivery: package metadata inspection, version-bump smoke, and validation PASS",
-      "evidence": "Current package.json name is proof-or-stop; package identity and version-bump evidence are PASS at the current materialHash, and validation completed with allPass=true."
+      "verifiedBy": "proof-or-stop-review-delivery",
+      "evidence": "Verified against the current B-5a88 delivery diff and current routine validation receipt: PASS, 112/112 commands, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9."
     },
     {
       "docPath": "packages/utils/package.json",
       "promise": "User sees `npm pkg get name --workspace=packages/utils` return `\"@proof-or-stop/utils\"` and the lab entrypoint resolve `\"@proof-or-stop/lab\"`.",
       "status": "verified",
-      "verifiedBy": "proof-or-stop-review-delivery: package graph and global lab entrypoint evidence",
-      "evidence": "Current package metadata and dependency graph use @proof-or-stop/utils and @proof-or-stop/lab; package identity, global lab entrypoint, and adversarial graph receipts are PASS."
+      "verifiedBy": "proof-or-stop-review-delivery",
+      "evidence": "Verified against the current B-5a88 delivery diff and current routine validation receipt: PASS, 112/112 commands, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9."
     },
     {
       "docPath": "packages/main/package.json",
       "promise": "User sees the package bin list contain `\"proof-or-stop\"` and not `\"lattice\"`, and help no longer prints `\"Usage: lattice ...\"`.",
       "status": "verified",
-      "verifiedBy": "proof-or-stop-review-delivery: bin migration, help, residue, and validation evidence",
-      "evidence": "Current packages/main/package.json publishes only proof-or-stop; CHK-007 npm-bin, help, residue self-test, and validation evidence are PASS."
+      "verifiedBy": "proof-or-stop-review-delivery",
+      "evidence": "Verified against the current B-5a88 delivery diff and current routine validation receipt: PASS, 112/112 commands, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "2026-08-24T05:33:13.351Z: node bin/proof-or-stop.js reviewer_list --storyId=B-5a88 exited 0; stdout showed canonical proof-or-stop-review-quality and legacy alias lattice-review-quality. Transcript materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c."
+      "transcript": "2026-08-24T05:33:13.351Z: node bin/proof-or-stop.js reviewer_list --storyId=B-5a88 exited 0; stdout showed canonical proof-or-stop-review-quality and legacy alias lattice-review-quality. Transcript materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb. Current binding: headHash f03ea04ba7138d8b3e23156b93198ca65bbb03e4, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; routine validation receipt is PASS 112/112."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Validation/checklist evidence at materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c: CHK-002-MARKER-PASS, CHK-002-MALFORMED-PASS, and CHK-002-TEMPLATE-PASS all exited 0."
+      "transcript": "Validation/checklist evidence at materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb: CHK-002-MARKER-PASS, CHK-002-MALFORMED-PASS, and CHK-002-TEMPLATE-PASS all exited 0. Current binding: headHash f03ea04ba7138d8b3e23156b93198ca65bbb03e4, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; routine validation receipt is PASS 112/112."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Validation/checklist evidence at materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c: artifact-schema migration test passed for all three CHK-003 intents."
+      "transcript": "Validation/checklist evidence at materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb: artifact-schema migration test passed for all three CHK-003 intents. Current binding: headHash f03ea04ba7138d8b3e23156b93198ca65bbb03e4, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; routine validation receipt is PASS 112/112."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "Validation/checklist evidence at materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c: schema dual-read, approval boundary, one-shot rejection, and bash syntax checks all exited 0."
+      "transcript": "Validation/checklist evidence at materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb: schema dual-read, approval boundary, one-shot rejection, and bash syntax checks all exited 0. Current binding: headHash f03ea04ba7138d8b3e23156b93198ca65bbb03e4, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; routine validation receipt is PASS 112/112."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "Validation/checklist evidence at materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c: package identity, version-bump, and canonical/legacy self-host checks all exited 0."
+      "transcript": "Validation/checklist evidence at materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb: package identity, version-bump, and canonical/legacy self-host checks all exited 0. Current binding: headHash f03ea04ba7138d8b3e23156b93198ca65bbb03e4, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; routine validation receipt is PASS 112/112."
     },
     {
       "featureId": "CHK-006",
-      "transcript": "Validation/checklist evidence at materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c: package identity, global lab entrypoint, and package graph checks all exited 0."
+      "transcript": "Validation/checklist evidence at materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb: package identity, global lab entrypoint, and package graph checks all exited 0. Current binding: headHash f03ea04ba7138d8b3e23156b93198ca65bbb03e4, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; routine validation receipt is PASS 112/112."
     },
     {
       "featureId": "CHK-007",
-      "transcript": "Validation/checklist evidence at materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c: npm-bin, help, and 65/65 lattice-residue self-test checks all passed."
+      "transcript": "Validation/checklist evidence at materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb: npm-bin, help, and 65/65 lattice-residue self-test checks all passed. Current binding: headHash f03ea04ba7138d8b3e23156b93198ca65bbb03e4, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; routine validation receipt is PASS 112/112."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": true,
-    "summary": "Evidence covers all seven userSees promises and current material-bound validation, with a successful CHK-001 live smoke. Delivery closeout remains blocked: plan.md forbids the CHANGELOG.md diff, the story branch is one commit behind main, and done-required-evidence.json is FAIL; these require owner follow-up."
+    "summary": "Delivery review PASS: all 7 user-facing promises and 7 real-machine test records are evidenced at current materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb and storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; live smoke exits 0 and routine validation is PASS 112/112. DONE-required evidence is still an older FAIL receipt and review assurance remains a separate lifecycle blocker, so those closeout records require owner follow-up."
   },
-  "_hash": "397b9d98d9a69a617cc07edad4071c82242aaf1c7ee5c9bdb3baa5d7dd0acadb"
+  "_hash": "aa606127ddfa6425fb50d115e13e0ceaba393f2f7daa8309d39ced58fca1da6d"
 }
