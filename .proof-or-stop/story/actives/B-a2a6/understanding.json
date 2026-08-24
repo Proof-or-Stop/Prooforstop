@@ -1,0 +1,25 @@
+{
+  "task": "Stop REVIEW readiness preflight from reparsing the same prompt-envelope ledger for every bound reviewer run.",
+  "outcome": "When an operator runs the lifecycle readiness transition, the command completes predictably and reports the same reviewer evidence verdicts while reading the prompt-envelope ledger once per evidence collection.",
+  "facts": [
+    "B-dc83 reproduced a multi-minute REVIEW-to-DEV stall in runtime closure preflight.",
+    "collectReviewerEvidenceState validates multiple current-round reviewer records through validateEvidenceRunBinding and verifyReviewRunPromptEnvelope.",
+    "verifyReviewRunPromptEnvelope and reviewIncrementalContext independently read prompt-envelopes.json when verifying a bound run."
+  ],
+  "constraints": [
+    "Keep signature, envelope-integrity, scope, freshness, dispatch-binding, and task-semantic checks fail-closed.",
+    "Cache only within one read-only evidence collection; independent verifier callers retain direct-read behavior.",
+    "Do not change B-dc83 business implementation files, docs/story, or tests/fixtures.",
+    "Use Codex-only review evidence."
+  ],
+  "unknowns": [
+    "Whether the incremental prior-pass lookup and envelope verifier can share one typed snapshot without changing legacy caller behavior.",
+    "Which existing smoke-test fixture is the narrowest seam that proves multiple evidence records use one snapshot."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts"
+  ],
+  "timestamp": "2026-08-24T02:14:26.706Z"
+}
