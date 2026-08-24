@@ -1,0 +1,163 @@
+{
+  "storyId": "B-45a0",
+  "checkedAt": "2026-08-24T15:57:01.757Z",
+  "headHash": "ec374cd13461d6954c2e01a4e2deecc5db80d25b",
+  "materialHash": "b81cf215f0ca33b172e4f208f26dfbf073bbf699643868195f8cf3441fb53ef8",
+  "storyFilesHash": "b4aa2a3f19cb2818eaf212877fe1e113d4c6c3b0cc573cffa913838b3d55f3c2",
+  "reviewRound": "2026-08-24T15:25:37.636Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+      "promise": "The repository contains the approved design record with a reproducible payload digest and authority boundary.",
+      "status": "verified",
+      "verifiedBy": "node scripts/verify-story-aware-validation-plan.mjs",
+      "evidence": "delivery context pack lists the plan verifier and the current TEST validation is PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+      "promise": "Validation discovery reports a current-main inventory count and digest and labels historical counts non-authoritative.",
+      "status": "verified",
+      "verifiedBy": "node scripts/verify-validation-inventory.mjs --report",
+      "evidence": "delivery context pack lists the inventory report command and current TEST validation is PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+      "promise": "Dynamic validation prints exact changed files, rename/deletion impact reasons, and mandatory scope escalation.",
+      "status": "verified",
+      "verifiedBy": "npm --prefix packages/main run test:dynamic-validation-change-manifest",
+      "evidence": "delivery context pack lists the change-manifest test and current TEST validation is PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+      "promise": "The catalog verifier reports N/N entries and rejects a command whose closure cannot safely authorize reuse.",
+      "status": "verified",
+      "verifiedBy": "node scripts/verify-validation-catalog.mjs --mutation-suite",
+      "evidence": "delivery context pack lists catalog verification and mutation commands."
+    },
+    {
+      "docPath": "docs/CLI.md",
+      "promise": "The CLI lists inventory, executed, reused, unverified, uncovered, unmapped changes, per-command reasons, escalation reasons, and a selection digest.",
+      "status": "verified",
+      "verifiedBy": "node bin/proof-or-stop.js live_smoke_transcript --storyId=B-45a0 --json",
+      "evidence": "the current live-smoke transcript artifact is present-fresh and its readiness row is pass."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-validation-operations.md",
+      "promise": "Observe mode identifies itself as non-authoritative and still reports the full N-command result as the authority.",
+      "status": "verified",
+      "verifiedBy": "node packages/main/dist/cli.js validate --dynamic-mode=observe --json",
+      "evidence": "delivery context pack lists the observe-mode command in the TEST evidence set."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-validation-operations.md",
+      "promise": "Every reused command names its receipt and proof; invalid signature, input, tree, ancestry, expiry, revocation, build, or full-only provenance causes execution.",
+      "status": "verified",
+      "verifiedBy": "npm --prefix packages/main run test:dynamic-validation-receipt-mutations",
+      "evidence": "delivery context pack lists receipt and forgery mutation suites."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-validation-operations.md",
+      "promise": "Shadow mode displays its ledger and the following full-oracle comparison without claiming TEST or DONE authority.",
+      "status": "verified",
+      "verifiedBy": "npm --prefix packages/main run test:dynamic-validation-shadow-equivalence",
+      "evidence": "delivery context pack lists shadow equivalence and rejection suites."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+      "promise": "Only eligible local/docs Stories can report dynamic TEST PASS; unsafe cases explain their full-validation reason and focus evidence cannot impersonate authority.",
+      "status": "verified",
+      "verifiedBy": "npm --prefix packages/main run test:dynamic-validation-test-gate",
+      "evidence": "delivery context pack lists TEST gate and escalation suites."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-validation-operations.md",
+      "promise": "Operators select any documented mode and receive an auditable disposition, baseline, cache, escalation, timeline, and cleanup report.",
+      "status": "verified",
+      "verifiedBy": "npm --prefix packages/main run test:dynamic-validation-operations",
+      "evidence": "delivery context pack lists operations and operations-mutations suites."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+      "promise": "The audit report lists each replay, fault injection, mutation, paired run, digest, and unmet threshold instead of treating one green run as soundness proof.",
+      "status": "verified",
+      "verifiedBy": "node scripts/run-dynamic-validation-fault-injection.mjs --verify",
+      "evidence": "delivery context pack lists replay/fault/threshold evidence commands."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-validation-operations.md",
+      "promise": "Dynamic execution reports stable waves, resource and CPU claims, expected ordering, and an overlap/waiting timeline.",
+      "status": "verified",
+      "verifiedBy": "npm --prefix packages/main run test:dynamic-validation-operations",
+      "evidence": "delivery context pack lists the operations suite and current TEST validation is PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+      "promise": "Quorum and review-pass output names each shard, sentinel, exact aggregate coverage, and zero residue.",
+      "status": "verified",
+      "verifiedBy": "node packages/main/dist/tasks/story-aware-validation-smoke.js",
+      "evidence": "delivery context pack lists quorum/review-pass smoke and current TEST validation is PASS."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "live_smoke_transcript --storyId=B-45a0 --json reported transcript status present-fresh and readiness pass for the expected design-record userSees output."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "TEST evidence records PASS for current material; inventory report command is listed in the delivery context pack."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "TEST evidence records PASS for current material; dynamic-validation-change-manifest is listed in the delivery context pack."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "TEST evidence records PASS for current material; validation-catalog verifier and mutation suites are listed in the delivery context pack."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "TEST evidence records PASS for current material; CLI observe/operations evidence commands are listed in the delivery context pack."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "TEST evidence records PASS for current material; observe-mode evidence command is listed in the delivery context pack."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "TEST evidence records PASS for current material; receipt mutation suites are listed in the delivery context pack."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "TEST evidence records PASS for current material; shadow equivalence/rejection suites are listed in the delivery context pack."
+    },
+    {
+      "featureId": "CHK-009",
+      "transcript": "TEST evidence records PASS for current material; TEST gate and escalation suites are listed in the delivery context pack."
+    },
+    {
+      "featureId": "CHK-010",
+      "transcript": "TEST evidence records PASS for current material; operations and mutation suites are listed in the delivery context pack."
+    },
+    {
+      "featureId": "CHK-011",
+      "transcript": "TEST evidence records PASS for current material; replay/fault/threshold evidence commands are listed in the delivery context pack."
+    },
+    {
+      "featureId": "CHK-012",
+      "transcript": "TEST evidence records PASS for current material; operations suite evidence is listed in the delivery context pack."
+    },
+    {
+      "featureId": "CHK-013",
+      "transcript": "TEST evidence records PASS for current material; quorum/review-pass smoke evidence is listed in the delivery context pack."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reviewed the current delivery context, all documentation promises, the present-fresh live-smoke transcript, and the PASS TEST evidence; no unresolved delivery TODOs remain."
+  },
+  "_hash": "cf724c9679b611270a3d7ebca22ca9b41a6c82a9ebbf44c987ae67b3c13e13b7"
+}
