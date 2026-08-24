@@ -16802,7 +16802,7 @@
       "desc": "Wave 4 coverage boundary is not represented by executable checklist verificationEvidence: acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check are reported as passing, but the current verification intents contain no receipt for signed current-head verifier outputs, full 3 rounds x 2 hosts membership/freshness mutations, degraded 3x1 rejection, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-24T11:23:16.316Z",
@@ -16859,7 +16859,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "missing|ts|wave-coverage-boundary",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Wave 4 is now backed by real current-head verifier receipts, not help prose: proofstory-acceptance-topology-smoke PASS; proofstory-acceptance-topology-gate-smoke PASS; proofstory-pre-review-check-smoke PASS with topology omission and observe/warn/enforce rollback; proofstory-acceptance-rollout-smoke --issuer-mutations PASS with 7 assertions including acceptance_topology_check and pre_review_check_read; and topology-signing-source-guard PASS. The routine serial validate also passed 112/112, including acceptance rollout and acceptance basis smoke. These receipts cover signed output, full-3x2/degraded mutation behavior, membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback on the current Story source.",
+      "resolvedAt": "2026-08-24T11:29:07.435Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
