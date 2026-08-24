@@ -106,6 +106,23 @@
         "authorizesTest": false
       },
       "_hash": "4b7b6d84e5fd201207aead6b15fc6ad00f024aa564a4da900adf49c21ebac9e8"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5a88:CW-007",
+      "storyId": "B-5a88",
+      "state": "BLOCKED",
+      "createdAt": "2026-08-24T08:23:47.372Z",
+      "updatedAt": "2026-08-24T08:23:47.372Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "Inventory receipt is not on the current storyFilesHash lineage.",
+      "inventory": {
+        "epochId": "B-5a88:RIE-081",
+        "receiptId": "B-5a88:RIE-081:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "f74e97d5fc3acc859bad056b9e20ca34c773771469193f19ebd5993faceb1872"
     }
   ],
   "receipts": [
