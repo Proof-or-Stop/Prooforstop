@@ -1934,6 +1934,7 @@ if (isDirectRun) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {
     runProductionVerifierTemporalCutoffRegression();
+    console.log(`${MARKER} CACHE SNAPSHOT: collector read bound and verifier semantics PASS`);
   } else if (process.argv.includes('--guard-map-only')) {
     runIncrementalGuardClassMatrix();
   } else if (process.argv.includes('--schedule-mutation-only')) {
