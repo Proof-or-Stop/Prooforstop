@@ -16414,6 +16414,127 @@
       "resolvedAt": "2026-08-24T01:51:11.382Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-383",
+      "desc": "Current coverage cannot be signed for B-5a88 at RR-568: all 21 checklist verificationEvidence records across CHK-001 through CHK-007 are bound to headHash ba2ab0787e246a2b99d1221ef1a0a1a882c5619c, materialHash b54b7b5c7f26b83d5b49f9746fbde422f265b724f2dd120605dd12c3011d0a06, and storyFilesHash 55f595242b6269cb4093768accad374c332d2088c82f7474c84eb080079c3950, while the current story and RR-568 bind headHash 506ed3376b18e92264f3acaad5da0208be9ae2eb, materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c, and storyFilesHash 99af18c7e794cf9714b43cd073722c4b01ab2c385f6e95d1535e5b581078ea24. Because the storyFilesHash changed, these old passes are not current evidence; refresh and re-record all 21 evidence entries at the current story-owned HEAD before accepting coverage. This is distinct from F-380 six unresolved behavior families.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-24T02:14:03.982Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-568",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/review-incremental-context.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        }
+      ],
+      "_hash": "cc1fa50f54237e34a1d979f86c376f1da5793ebe786c4cdbec8739db69997565",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "signatureTag": "stale-verification-evidence-current-story-head",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-384",
+      "desc": "Wave 2 coverage revalidation confirms the existing B-5a88:F-383 family remains unresolved: all 21 checklist verificationEvidence records are still bound to old headHash ba2ab0787e246a2b99d1221ef1a0a1a882c5619c, materialHash b54b7b5c7f26b83d5b49f9746fbde422f265b724f2dd120605dd12c3011d0a06, and storyFilesHash 55f595242b6269cb4093768accad374c332d2088c82f7474c84eb080079c3950, while current B-5a88 remains at headHash 506ed3376b18e92264f3acaad5da0208be9ae2eb, materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c, and storyFilesHash 99af18c7e794cf9714b43cd073722c4b01ab2c385f6e95d1535e5b581078ea24. This is verified duplicate evidence of canonical B-5a88:F-383, not a pass and not a new distinct family; refresh and re-record all 21 evidence entries before accepting coverage.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-24T02:31:44.229Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-574",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9de1ee658f4be1c7d75044a4612ea100960da25c4edf310b267a000767b26fd2",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "signatureTag": "stale-verification-evidence-current-story-head",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Evidence-backed duplicate of canonical B-5a88:F-383: both findings identify the same 21 checklist verificationEvidence records remaining bound to the old head/material/storyFiles hashes; B-5a88:F-384 is the current-wave duplicate record, so retain B-5a88:F-383 as the canonical finding.",
+      "resolvedAt": "2026-08-24T02:36:14.135Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }

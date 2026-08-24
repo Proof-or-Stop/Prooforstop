@@ -12534,6 +12534,442 @@
         "scanEscalationReason": "Focused current implementation, documentation, and smoke review; the eight canonical open families were checked for distinctness and no duplicate finding was created."
       },
       "_hash": "23cbb149edda183a40e6bcb99f70e1c3cd47ba01d9c441870037bf18d599e480"
+    },
+    {
+      "id": "B-5a88:RP-186",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality review pass for current HEAD 506ed3376b: fully reviewed the canonical reviewer-actor smoke change and related role, inventory, and review-run contracts; no additional distinct quality blocker found. Existing story findings and other-lane blockers remain unchanged and this pass does not clear them.",
+      "createdAt": "2026-08-24T02:08:42.058Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-566",
+      "envelopeId": "ab7c027c794b27b8bb2905edd8b2be4c913d18f4c7717a08e0a052ff2301956e",
+      "writerSessionId": "sess-fb839975d0fb00332fc21408e118baee",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": "Focused full-scope quality review at HEAD 506ed3376b; fully read the changed review-inventory-handler-smoke.ts and checked canonical reviewer actor paths, role registry, inventory handler, review-run lane logic, and related migration docs. No additional quality defect found; no duplicate finding created."
+      },
+      "_hash": "52eff08b57e325291fe95ae9d0c571b1fc9f3be27300a1ca0822a6024459ed41"
+    },
+    {
+      "id": "B-5a88:RP-187",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-064 concept review at HEAD 506ed3376b: canonical reviewer actor and review-inventory smoke updates are covered; no new distinct concept family was found. Preserve open canonical families F-363,F-364,F-365,F-373,F-374,F-375,F-380,F-381; F-381 remains open for residual worktree-authority/context/machine assertions. No duplicate finding.",
+      "createdAt": "2026-08-24T02:11:09.505Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-567",
+      "envelopeId": "8d2ab137d9c6847ae4abe6b795bd64f6be1ab823b3332d0eba2052ed4f000d04",
+      "writerSessionId": "sess-f80eced0e726a7351031a90d9aa73f5e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "bin/bootstrap-runner.js",
+          "packages/lab/package.json",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/utils/package.json"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CHANGELOG.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2587cfd4e3c0984eba1a0248e9be77f20346b35b5f508f39afd2b891776f1d4e"
+    },
+    {
+      "id": "B-5a88:RP-188",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Completeness critic read the current acceptance basis, aggregate findings, RI-064 inventory, review runs/passes, scope and topology closure. No additional distinct topology family was found; F-383 remains an independently verified current-wave family for inventory disposition.",
+      "createdAt": "2026-08-24T02:22:10.161Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-570",
+      "envelopeId": "9d2a73b362e38ea929d23915608069b532bf5e033cce8886fa57c21bd635bfe2",
+      "writerSessionId": "sess-f27fee707d1d0365067e6004ba6a7803",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "624a556795ad45278e5cf84a66cc64ba6bb2ee2b5ada32799183c11c8a7545bd"
+      },
+      "readDiagnostics": [],
+      "_hash": "e0b5471c2c145fae5008151d463101d27c3e76d911a43e7646d3bf1e88d2e53f"
+    },
+    {
+      "id": "B-5a88:RP-189",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Wave 2 concept lane review at current HEAD/material found no new distinct concept family. Existing canonical concept families F-363,F-364,F-365,F-373,F-375,F-381 remain preserved; existing coverage finding F-383 remains open and is not duplicated. Current reviewer selection, acceptance topology, current hashes, and full finding ledger were checked. review_inventory_status is owner-gated by the active same-worktree owner; no takeover or bypass was used. This is a concept-lane pass, not story closure.",
+      "createdAt": "2026-08-24T02:28:56.482Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-572",
+      "envelopeId": "84a223ecd80cc3ec6c96ce880546c92dc588dd061ab6bba17eca5aef8cba9504",
+      "writerSessionId": "sess-f80eced0e726a7351031a90d9aa73f5e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "bin/bootstrap-runner.js",
+          "packages/lab/package.json",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/utils/package.json"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CHANGELOG.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3e828561d0050229517424889c82ca76f7e86cbc55f6b83b0408349d74308cf5"
+    },
+    {
+      "id": "B-5a88:RP-190",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-064 wave 2 quality pass at current HEAD 506ed3376b18e92264f3acaad5da0208be9ae2eb. Reviewed the current story scope, CLI-reported finding inventory including open F-383, and the quality-relevant canonical reviewer/inventory/review-run implementation paths. No additional distinct quality defect was found, so no duplicate finding was created. Existing F-380, F-381, and F-383 remain unchanged; this lane pass does not clear them or certify global review assurance.",
+      "createdAt": "2026-08-24T02:29:35.256Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-573",
+      "envelopeId": "232287323d8b60e26ceb42d35f9900f0a241b28de04b57a84c778ce44bc117aa",
+      "writerSessionId": "sess-fb839975d0fb00332fc21408e118baee",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ],
+        "scanEscalationReason": "Wave 2 quality review was bound to current HEAD 506ed3376b18e92264f3acaad5da0208be9ae2eb, materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c, and storyFilesHash 99af18c7e794cf9714b43cd073722c4b01ab2c385f6e95d1535e5b581078ea24. Current inventory status is owner-gated under an active same-worktree lease and was not accessed with takeover; the CLI-reported current findings and review context were used, and no new distinct quality finding was created."
+      },
+      "_hash": "48ab4e39a6cd5b53edf3f731dd912432bd2b1b779358821c78d826c90fe1b2db"
+    },
+    {
+      "id": "B-5a88:RP-191",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Completeness critic read the current acceptance basis, full aggregate findings including F-383 and F-384, RI-064 wave 2 state, review runs/passes, and topology closure. No additional distinct family exists: F-384 is duplicate evidence of canonical F-383; the existing F-383 family remains verified_family. This pass records no new topology blocker and does not assert acceptance-basis validity.",
+      "createdAt": "2026-08-24T02:34:25.836Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-575",
+      "envelopeId": "1465bba1905804a830567bcfd7f19fa5369cad795df558019e50984e3a102df4",
+      "writerSessionId": "sess-f27fee707d1d0365067e6004ba6a7803",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "829999ddaef15162cabaf7d2e9983525df8dc2924f1be0b22841b78522eb704a"
+    },
+    {
+      "id": "B-5a88:RP-192",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Fresh topology critic read the full current acceptance basis, full findings aggregate, RI-064 wave 2 status, and current review run/pass inventory. F-384 is resolved as an evidence-backed duplicate of canonical F-383 and is excluded from current raw disposition. No additional distinct family is introduced. The acceptance basis is invalid/stale with scope-binding and freshness/closure diagnostics, so this pass is inventory terminal evidence only and is not an acceptance pass.",
+      "createdAt": "2026-08-24T02:41:26.614Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-576",
+      "envelopeId": "c5d6922d9c202dece4ef598357dfc805c2ca627186e981c92ecee4dd286bdc14",
+      "writerSessionId": "sess-f27fee707d1d0365067e6004ba6a7803",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3db1ba4b2bc736ad85797c8b59f8e71183eaa36cd000d6d3285ebeb3a0e0b896"
+    },
+    {
+      "id": "B-5a88:RP-193",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Wave 3 concept review completed against the current acceptance/evidence state. F-384 resolution was read and is an evidence-backed duplicate of canonical F-383; evidence_inspect and evidence_plan show the same 21 stale refresh-only verification records. This is a coverage freshness issue, not a new concept family. Existing concept families remain preserved; no duplicate or new finding is registered. Pass is lane-scoped and does not claim story closure.",
+      "createdAt": "2026-08-24T02:47:27.871Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-577",
+      "envelopeId": "26f9d5c9f1a09956c679e7050fdb839f1b4d65def4c6f7f394bc31a617f38d1f",
+      "writerSessionId": "sess-f80eced0e726a7351031a90d9aa73f5e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a85be4d45b5d8a542ad71dd1fe719fc75e60776e754a1f58e421c8644440cb0a"
+    },
+    {
+      "id": "B-5a88:RP-194",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-064 wave 3 quality pass at current HEAD 506ed3376b18e92264f3acaad5da0208be9ae2eb. Read the current F-383/F-384 records, their resolution state, and current checklist evidence status: F-384 is an evidence-backed duplicate of canonical open F-383, while all 21 evidence records remain stale against the current binding. This is an existing coverage/freshness blocker, not a new quality defect; no duplicate finding was created. Existing F-380, F-381, and F-383 remain unchanged, and this pass does not clear them or certify global review assurance.",
+      "createdAt": "2026-08-24T02:47:47.387Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-578",
+      "envelopeId": "74d39377361f8236912d76709f6acf5f30468cdd23a66e925a9bdec29b5d6305",
+      "writerSessionId": "sess-fb839975d0fb00332fc21408e118baee",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ],
+        "scanEscalationReason": "Wave 3 quality review was bound to current HEAD 506ed3376b18e92264f3acaad5da0208be9ae2eb, materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c, and storyFilesHash 99af18c7e794cf9714b43cd073722c4b01ab2c385f6e95d1535e5b581078ea24. F-384 was checked through the CLI as an evidence-backed duplicate of F-383; current checklist evidence remains 21/21 passing records but stale for the current binding. No new distinct quality finding was warranted."
+      },
+      "_hash": "617b29baa116f92b8ebf80c3c3371c83e38af1aaad22b9e8b51ab34e1ef0b357"
+    },
+    {
+      "id": "B-5a88:RP-195",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Wave 3 coverage revalidation read the current story/checklist, acceptance basis, full findings aggregate, review inventory, and lane evidence. The stale 21-record coverage evidence remains represented by the existing canonical open family B-5a88:F-383; B-5a88:F-384 is already resolved as its duplicate. Wave 3 introduces no new distinct coverage family, so no duplicate finding is created. This is inventory-wave terminal evidence only and does not claim the stale F-383 evidence is accepted or make the acceptance basis valid.",
+      "createdAt": "2026-08-24T02:49:25.459Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-579",
+      "envelopeId": "6a0cc94c4c43efced137360aed477a1c01a058f55b8e0d91a2792aca8eaf78ac",
+      "writerSessionId": "sess-f27fee707d1d0365067e6004ba6a7803",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "919e70aed14e8cb998f92ac7c1bc337971320b8d36a54cac798e6129ec10f0a7"
+    },
+    {
+      "id": "B-5a88:RP-196",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Wave 3 completeness critic read the current acceptance basis, complete findings aggregate, RI-064 wave 3 lane terminals, review runs, and review passes. All required lanes are terminal and the current wave has zero raw/new verified findings: canonical open F-383 remains an existing prior family and resolved F-384 remains its duplicate, so neither is a current-wave disposition row. No additional distinct family exists. The acceptance basis remains invalid/stale, so this is inventory terminal evidence only and not an acceptance pass.",
+      "createdAt": "2026-08-24T02:50:12.903Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-580",
+      "envelopeId": "0c26bfbe6479c3daecc5aa76e82d4e8c6a38e9b1a6ef1b65ee4d7276191596a6",
+      "writerSessionId": "sess-f27fee707d1d0365067e6004ba6a7803",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "25bf8dbfa1726a66da71e3b1611c8b66dcb98d2a780d82a732e9833b80fc7899"
     }
   ]
 }
