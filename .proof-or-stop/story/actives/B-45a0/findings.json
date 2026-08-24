@@ -14019,6 +14019,86 @@
       ],
       "signatureTag": "acceptance-topology-current-basis-unverified",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-272",
+      "desc": "RI-057 wave-2 quality evidence is not admissible at HEAD 4ddcf1a2b6: pre_review_check_read returns PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND, while acceptance_topology_check is structuralPass=false/evidentiary=false with AT_SCOPE_BINDING_MISSING (scope-contract digest mismatch). The rollout report remains pass/full-3x2 but cannot substitute for the missing verifier-owned pre-review/topology chain; regenerate and rebind those receipts before claiming a quality pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T14:36:33.598Z",
+      "reviewRound": "2026-08-24T13:40:06.701Z",
+      "reviewRunId": "B-45a0:RR-478",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "55b61ec92f420753098266226b7a7a3464f68d7a5b997a815c9b9ac553f60423",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json"
+      ],
+      "signatureTag": "missing|json|wave-quality-evidence",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-273",
+      "desc": "RI-057 wave-2 coverage is not admissible despite the current checklist evidence set: acceptance_topology_check at HEAD 4ddcf1a2b6 is structuralPass=false/evidentiary=false with AT_SCOPE_BINDING_MISSING (scope-contract digest mismatch), and pre_review_check_read fails PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND. The rollout report is pass/full-3x2, but Wave-4 coverage requires current verifier-owned topology and pre-review receipts; regenerate those artifacts at this wave-2 head before accepting coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T14:37:36.729Z",
+      "reviewRound": "2026-08-24T13:40:06.701Z",
+      "reviewRunId": "B-45a0:RR-481",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7f0e9de05112fc0a59b6a4ed49d653313b7edc2cec1e66689e97407af3314577",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json"
+      ],
+      "signatureTag": "missing|json|wave-coverage-admissible",
+      "signatureTagSource": "auto"
     }
   ]
 }
