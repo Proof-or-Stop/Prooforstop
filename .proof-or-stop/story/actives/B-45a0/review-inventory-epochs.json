@@ -4691,6 +4691,38 @@
       "cancelReason": "RI-056 exhausted its one-wave budget while carrying verified findings; reopen a bounded two-wave inventory for remediation handoff.",
       "terminalRunSequenceBoundary": 471,
       "_hash": "d90f26791901825333e9507c523175c5541090f808c27a8217463f8d500949ee"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-057",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-24T13:40:06.701Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-24T14:22:50.365Z",
+      "updatedAt": "2026-08-24T14:22:50.365Z",
+      "cutoff": {
+        "headHash": "458b5e2aed4d6c84238164382a1e911b3e45780d",
+        "materialHash": "479b808fdf1d5929bea3996d57f677550ad2dc3cfb8b90f7e29a84c56493f4fd",
+        "storyFilesHash": "125f05a4bc30f30ac52319087ab18ef207e23f9a00d6e8dfaaf3d2d4fd9037d1"
+      },
+      "scopeDigest": "d10a9815098fa08ba3be7afb746c6c5faf2b0d5d0c88c687dab89e25dcaf1147",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 471,
+      "maxWaves": 2,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-45a0:F-264",
+        "B-45a0:F-265",
+        "B-45a0:F-266",
+        "B-45a0:F-267",
+        "B-45a0:F-268"
+      ],
+      "_hash": "e297c39310c73c6ef9f87d37861ce3516313f398f92c1d8a852566c6f62ff0ec"
     }
   ],
   "receipts": [
