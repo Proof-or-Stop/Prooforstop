@@ -6299,6 +6299,143 @@
       },
       "readDiagnostics": [],
       "_hash": "7b48512612bd5e704254bdc734abb4fc95904430aef1640f1e44ad7a1396895c"
+    },
+    {
+      "id": "B-5a15:RP-142",
+      "agent": "lattice-review-concept",
+      "note": "Current RI-031 concept review at RR-506: reviewed the B-5a15 background, plan, checklist, all related U-03 decision documents, integrated main...HEAD diff, and repository-wide source/docs/metadata residue scans. The only internal replacement is sameFileCallableCalls to sameFileCallableReachable; no implementation or requirements residue remains. Historical review-pass references are audit history, not runtime concept residue. Added CausalEvidence commands, smoke surfaces, and documentation promises have corresponding source/tests. No concept-lane blocker; this pass makes no quality, coverage, topology, or pre-review admissibility claim.",
+      "createdAt": "2026-08-24T14:53:45.516Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-506",
+      "envelopeId": "d7292c061f92bbba2b5411ee014489dc07efaaf8b21a14f5eddd0190c95981bd",
+      "writerSessionId": "sess-3e5b61c528c373ec",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "eb09d75c684e4cb0785207bc02e44329b5cfab27cedda0249ef2c93a90dd96f8"
+      },
+      "readDiagnostics": [],
+      "_hash": "5b809dc43ad68131d8b21719147d1fb731da49f7ac483e010c8026cdbef42ed7"
+    },
+    {
+      "id": "B-5a15:RP-143",
+      "agent": "lattice-review-topology-critic",
+      "note": "No additional completeness family beyond the two RI-031 verified raw findings; both are dispositioned below, while the signed acceptance basis remains inadmissible.",
+      "createdAt": "2026-08-24T15:03:47.459Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-509",
+      "envelopeId": "4755e2dba0e746b5646839376be63cc4cddc8a8f9f773e5fc33f90d1afbeeb4b",
+      "writerSessionId": "sess-3e5b61c528c373ec",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "scanEscalationReason": "CLI-only inspection used acceptance_basis, finding_list, and review_inventory_status; no implementation or story JSON was edited."
+      },
+      "_hash": "6572063126db6b070f0be1edeb65f6b13b92c56dfef37e405a3134a211ecd541"
+    },
+    {
+      "id": "B-5a15:RP-144",
+      "agent": "lattice-review-topology-critic",
+      "note": "No additional completeness family beyond the two RI-031 verified raw findings; both are dispositioned below, while the signed acceptance basis remains inadmissible.",
+      "createdAt": "2026-08-24T15:07:10.443Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-510",
+      "envelopeId": "6f0c9af16773cf9a531403f75f73258cc75ae5bb8b1a4ed30f4bcd0d1d45a3a6",
+      "writerSessionId": "sess-3e5b61c528c373ec",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "scanEscalationReason": "CLI-only inspection used acceptance_basis, finding_list, and review_inventory_status; no implementation or story JSON was edited."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "05026b77b50e43be0bb72714450a98f14d5b5809102206b0339e560569dfc037"
     }
   ]
 }
