@@ -16961,7 +16961,7 @@
       "desc": "Wave 4 current verifier evidence is not admissible for RR-606 (high): evidence_inspect reports test-evidence stale because its storyFilesHash 0931685d773c870710e3f491d4b5aae236015b8b4b19f64bc97980f5bb1ba6ed differs from current e3f657d2b03ed48ed1211eb4e701c16e563648e82b453d610940dffecda04042; acceptance_rollout_report_read returns AR_REPORT_STALE; pre_review_check_read returns PR_ARTIFACT_TAMPERED and PR_EVIDENCE_STALE; acceptance_topology_check returns AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING; topology_critic_receipt_check rejects. The prior F-391 resolution cannot be consumed by this current review without fresh verifier receipts bound to the current story files.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-24T11:41:47.233Z",
@@ -17008,7 +17008,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "missing|json|wave-current-verifier",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of F-392: the coverage lane reported the same stale rollout, pre-review, topology, and critic receipt bindings; retain F-392 as the canonical remediation record.",
+      "resolvedAt": "2026-08-24T11:49:23.528Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
