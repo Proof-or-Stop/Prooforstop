@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { createHmac } from 'node:crypto';
+import { createHash, createHmac } from 'node:crypto';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -20,10 +20,19 @@ const schema = await import(join(distRoot, 'core/artifact-schema.js'));
 const validation = await import(join(distRoot, 'core/done-required-validation.js'));
 const closeout = await import(join(distRoot, 'core/closeout-trust.js'));
 const freshness = await import(join(distRoot, 'core/evidence-freshness.js'));
+const proofBinding = await import(join(distRoot, 'core/proof-admissibility-binding.js'));
 const artifactStore = await import(join(distRoot, 'core/evidence/artifact-store.js'));
 const checklistStatus = await import(join(distRoot, 'core/checklist-status.js'));
 const processFacts = await import(join(distRoot, 'core/process-fact-registry.js'));
 const findingVerification = await import(join(distRoot, 'core/finding-verify.js'));
+
+const stableJson = (value) => {
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(',')}]`;
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
+};
 
 // CHK-003 migration witness: exercise the local worktree CLI against two named
 // archives from different eras. The schema/integrity/freshness/byte assertions
@@ -276,6 +285,51 @@ try {
     artifactPath: 'summary.json',
     artifactBytes,
   }).ok, false, 'unknown closeout schemas fail closed and are not rewritten');
+
+  const canonicalProofBindingPayload = {
+    schemaVersion: proofBinding.PROOF_BINDING_SCHEMA_VERSION,
+    verifierVersion: 'v1',
+    artifactKind: 'done-required-evidence',
+    claim: 'done-readiness',
+    storyId: 'B-schema',
+    headHash: 'head',
+    materialHash: 'material',
+    verdict: 'pass',
+    reason: 'verified',
+    producerId: 'artifact-schema-migration-test',
+    signatureDigest: 'sha256:signature',
+  };
+  const canonicalProofBinding = proofBinding.buildProofBindingDigestPayload(canonicalProofBindingPayload);
+  assert.equal(canonicalProofBinding.schemaVersion, schema.PROOF_BINDING_SCHEMA, 'proof binding writers retain the canonical schema');
+  assert.equal(
+    proofBinding.verifyProofBindingDigest(canonicalProofBindingPayload, canonicalProofBinding.digest).ok,
+    true,
+    'canonical proof binding verifies',
+  );
+
+  const legacyProofBindingPayload = {
+    ...canonicalProofBindingPayload,
+    schemaVersion: schema.PROOF_BINDING_SCHEMA_LEGACY,
+  };
+  const legacyProofBindingDigest = `sha256:${createHash('sha256')
+    .update(stableJson(legacyProofBindingPayload), 'utf8')
+    .digest('hex')}`;
+  assert.equal(
+    proofBinding.verifyProofBindingDigest(legacyProofBindingPayload, legacyProofBindingDigest).ok,
+    true,
+    'exact historical lattice proof binding schema remains readable',
+  );
+  assert.throws(
+    () => proofBinding.buildProofBindingDigestPayload(legacyProofBindingPayload),
+    /unsupported proof binding schemaVersion/,
+    'canonical proof binding writer does not emit the historical schema',
+  );
+  const unknownProofBinding = proofBinding.verifyProofBindingDigest(
+    { ...canonicalProofBindingPayload, schemaVersion: 'lattice.proof_binding.v99' },
+    canonicalProofBinding.digest,
+  );
+  assert.equal(unknownProofBinding.ok, false, 'unknown proof binding schemas fail closed');
+  assert.deepEqual(unknownProofBinding.reasons, ['unsupported_schema_version']);
 
   // Global CLI/package interop can interleave the two exact supported schema
   // aliases: canonical seq1..18, legacy seq1..3, then canonical seq4..5.
