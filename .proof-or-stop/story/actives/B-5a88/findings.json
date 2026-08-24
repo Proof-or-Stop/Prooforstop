@@ -18109,6 +18109,164 @@
       ],
       "signatureTag": "edge|ts:264-279|medium-edge-normalizepromptregistrymanifest",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-409",
+      "desc": "RI-071 coverage is not current at the signed review cutoff: all 21 must verification intents have pass records, but checklist.json records are only RI-039/RR-414 evidence; test-evidence.json is bound to materialHash 55b311774a7b8c5270b0e9790ddb6a8d6443436d1f89fd77ad9a510aa5ac0621 and storyFilesHash 0d71d4773d553736ae95c7dc37f2910e0f28f1cfd5fbc8b29ee9be45c3f59f6f, pre-review-check.json to materialHash cd63b3cd4d7da068127baaf20fac5d9fde983e0c8946c24e30a9ab3c3c9959b0 and storyFilesHash e3f657d2b03ed48ed1211eb4e701c16e563648e82b453d610940dffecda04042, acceptance-basis.json to the same cd63/e3f hashes, and acceptance-rollout-report.json to 55b/0d7 hashes, while RI-071 and RR-648 require materialHash 05f7e8029fc308fac1e4eee223a0dbc179929147ee63f5348be36e25b1d8c511 and storyFilesHash 6b5e7c99dadc61feba4b8a7e8961b1cfdb53f0939feba10abe510331dfb2393f. Therefore current executable coverage for acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, acceptance_rollout_check, and the required Wave 4 3-round x 2-host, degraded rejection, threshold/membership/freshness mutation, mode-invariant, enforce-only, and non-destructive rollback cases is unproven.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-24T18:52:53.759Z",
+      "reviewRound": "2026-08-24T17:52:26.292Z",
+      "reviewRunId": "B-5a88:RR-648",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/templates/agents/proof-or-stop-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/templates/agents/",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/lab-brand-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "954616403dd11e9eb01e3bfdbe74b43c245bd2145fcfb5f09cd9179da942b819"
+      },
+      "readDiagnostics": [],
+      "_hash": "bf497990fb98015b20bdc1441ecd5b8ddf574c1065547dabf5daeaa9a0297150",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|coverage-current-signed",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of current topology critic blocker F-410: both independently report stale pre-review and acceptance-topology receipts at the same current material/story cutoff; retain F-410 as the canonical blocker.",
+      "resolvedAt": "2026-08-24T19:14:30.217Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-410",
+      "desc": "RI-071 current acceptance topology and verifier coverage are inadmissible at the frozen cutoff. acceptance_basis returns status=invalid despite basisStatus=complete; acceptance_topology_check returns observe status=fail with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING; pre_review_check_read returns fail with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND; and acceptance_rollout_report_read plus acceptance_rollout_check return fail with AR_REPORT_STALE. These producer-owned receipts cannot support RR-651/RI-071 until regenerated through their verifier CLI commands.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-24T19:10:34.221Z",
+      "reviewRound": "2026-08-24T17:52:26.292Z",
+      "reviewRunId": "B-5a88:RR-651",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-contract.json",
+          "AGENTS.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/proof-admissibility-binding.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "164133db2f74d07d2aac335ba040be8168288e2b71926d062a30b4c38e23b571"
+      },
+      "readDiagnostics": [],
+      "_hash": "10b3961fa154dc1d062fd1a9db6916e083214c491fb9c00df89b59b92a28d882",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/proof-admissibility-binding.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|current-acceptance-topology",
+      "signatureTagSource": "auto"
     }
   ]
 }
