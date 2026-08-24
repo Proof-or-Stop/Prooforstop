@@ -85,7 +85,7 @@
       "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 and .proof-or-stop/story/actives/B-a2a6/checklist.json:357-399 — the cached-vs-uncached and adversarial verificationIntent is overclaimed: the fixture checks one three-pass collection read count and that passB is valid, but never captures an uncached aggregate baseline or compares accepted/rejected records, integrity, cutoff, findings/pass classification, and gate outcome. It also does not inject read failures or source changes, exercise empty/single/many records, duplicate/stale/scope-invalid records, or vary order/cutoff boundaries. Reusing the same CACHE SNAPSHOT selector for all five CHK-002 intents is not concrete coverage of those mutations.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T02:53:08.931Z",
@@ -97,7 +97,11 @@
         ".proof-or-stop/story/actives/B-a2a6/checklist.json"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Expanded the smoke with cached-versus-uncached equality checks across valid and mutated envelopes, empty versus non-empty collections, and an injected uncached ledger-read failure; refreshed tool-owned receipts are all passing.",
+      "resolvedAt": "2026-08-24T03:19:17.384Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
