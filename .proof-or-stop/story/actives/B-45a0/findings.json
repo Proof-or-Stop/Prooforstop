@@ -13135,6 +13135,153 @@
       ],
       "signatureTag": "missing|json|current-coverage-incomplete",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-251",
+      "desc": "Current-head topology evidence is not passable at HEAD 1a9bb2d8d9: acceptance_basis is status=invalid/evidentiary=false with AT_UNMAPPED_SCOPE_REF for the story-change-resolver to dual-revision-impact-graph static call; acceptance_topology_check is status=fail/structuralPass=false with AT_ADAPTER_RESULT_DIGEST_MISMATCH, AT_CLOSURE_FILES_STALE, and AT_UNMAPPED_SCOPE_REF; pre_review_check_read is inconclusive with plannedActual=incomplete; acceptance_rollout_report_read is status=fail/ok=false/blocking=true with AR_REPORT_STALE despite full-3x2 quorum. Regenerate and rebind verifier-owned basis, pre-review, and rollout artifacts before topology PASS.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T10:37:06.817Z",
+      "reviewRound": "2026-08-24T07:57:39.087Z",
+      "reviewRunId": "B-45a0:RR-430",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "Ran current-head acceptance_basis, acceptance_topology_check, pre_review_check_read, and acceptance_rollout_report_read; inspected verifier-owned topology, basis, pre-review, and rollout paths."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6e4670af4877e325ff1012b95fe3647f85ac85bda2dd8a990ee9c3d4e14fa3c6",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "acceptance-topology-current-basis-unverified",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-252",
+      "desc": "Wave-2 current HEAD 1a9bb2d8d9 remains blocked by stale verifier-owned review artifacts: pre_review_check_read returns PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND, while acceptance_rollout_check is blocking with AR_REPORT_STALE. Regenerate and rebind the pre-review and rollout receipts to the current material/head before treating the quality gate as current.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T10:41:57.470Z",
+      "reviewRound": "2026-08-24T07:57:39.087Z",
+      "reviewRunId": "B-45a0:RR-433",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": "Wave-2 current-head CLI checks at 1a9bb2d8d91 show acceptance basis/topology pass but pre-review and rollout verifier artifacts remain stale and blocking."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4ba1989b94974f2bf98434a201962d6b684916010538b003b336f307b97c1c78",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "signatureTag": "missing|json|wave-current-head",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-253",
+      "desc": "Wave-2 coverage is incomplete at HEAD 1a9bb2d8d9 despite 45 passing checklist evidence rows: required executable pre_review_check_read fails with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND, and acceptance_rollout_report_read/acceptance_rollout_check fail blocking with AR_REPORT_STALE. Regenerate and rebind the verifier-owned pre-review and rollout artifacts before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T10:42:19.090Z",
+      "reviewRound": "2026-08-24T07:57:39.087Z",
+      "reviewRunId": "B-45a0:RR-434",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": "Wave-2 coverage checks at HEAD 1a9bb2d8d91 show 45 passing evidence rows, but required executable pre-review and rollout surfaces remain stale/failing."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d3ca606ea0fc3348704f0688d9dc34b6550c84dbbda2dd2f975b657d293de9dc",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "signatureTag": "missing|json|wave-coverage-incomplete",
+      "signatureTagSource": "auto"
     }
   ]
 }
