@@ -357,7 +357,7 @@ const approvedLegacyDeliveryCompatUsages = new Map<string, {
 
 const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   [LEGACY_DELIVERY_COMPAT_MODULE, 'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98'],
-  ['packages/main/src/core/closeout-trust.ts', '6691abe30f5dd7ae7323e74aa18dc6f3829d9d9c893b2b8deaa66b5acc237f25'],
+  ['packages/main/src/core/closeout-trust.ts', 'eaa9538e6ae7ab2b6895e504d981b0e543c87c1b0a311ecbe2d9d595deeaddfc'],
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
   ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
