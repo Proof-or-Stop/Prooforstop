@@ -14809,6 +14809,48 @@
       ],
       "signatureTag": "missing|json|wave-topology-recheck",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-285",
+      "desc": "topology-pre-review-binding: current acceptance_topology_check is structurally PASS, but topology_critic_receipt_set correctly refuses a PASS because the stored pre-review basis is stale after the current scope-contract acknowledgement (basis semantic discovery and scope-contract digest mismatch); pre_review_check is DEV-only, so the story must return to DEV to regenerate the verifier-owned pre-review artifact before REVIEW can close.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T19:10:29.396Z",
+      "reviewRound": "2026-08-24T18:50:34.923Z",
+      "reviewRunId": "B-5a15:RR-570",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/topology-critic-receipt.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4b86ffa9d050173630f88a088f2b4790fd8ce1d1db56c9a91a207610b65ed857",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|topology-review-binding",
+      "signatureTagSource": "auto"
     }
   ]
 }
