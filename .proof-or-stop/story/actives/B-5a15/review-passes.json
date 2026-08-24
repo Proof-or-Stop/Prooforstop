@@ -4157,6 +4157,30 @@
       },
       "readDiagnostics": [],
       "_hash": "c87c017b7e1a0d137774c7fc186083bc742f99d0cbffdbf82337715982031cdc"
+    },
+    {
+      "id": "B-5a15:RP-096",
+      "agent": "lattice-review-quality",
+      "note": "RI-025 wave 2 quality pass: current evidence_plan reports 51/51 fresh at material/story-files binding; F-246 stale-row condition is no longer current after official 50/50 refresh; bounded output probe is exactly 12,000 characters with gap marker, receipt verification passes, exact replay reuses unchanged receipt hash, and focused test passes.",
+      "createdAt": "2026-08-24T05:49:59.519Z",
+      "reviewRound": "2026-08-24T04:36:48.410Z",
+      "reviewRunId": "B-5a15:RR-414",
+      "envelopeId": "a692c8efebb2127098f7224dea77a428315fee8f0e4b6cd73c90096dd81ff943",
+      "writerSessionId": "sess-87db633a419a29d368c5bedfe63992ae",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a0395836575f099fb2ceb5cd3b130809f72c2ea61f10838d871b87d003c4133d"
     }
   ]
 }
