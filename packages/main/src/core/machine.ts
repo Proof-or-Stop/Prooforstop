@@ -1296,11 +1296,11 @@ export function getGuardFailureReason(
         const inventory = reviewInventoryRemediationGate(store, storyId, story.currentReviewRound);
         if (!inventory.ok) {
           return `Cannot enter remediation DEV: ${inventory.reason}. ` +
-            `Next: ${inventory.nextCommand ?? `lattice review_inventory_status --storyId=${storyId}`}`;
+            `Next: ${inventory.nextCommand ?? `proof-or-stop review_inventory_status --storyId=${storyId}`}`;
         }
       } catch (error) {
         return `Cannot enter remediation DEV: inventory evidence is unreadable or invalid (${error instanceof Error ? error.message : String(error)}). ` +
-          `Next: lattice review_inventory_status --storyId=${storyId}`;
+          `Next: proof-or-stop review_inventory_status --storyId=${storyId}`;
       }
     }
     let tookExpressChannel = false;

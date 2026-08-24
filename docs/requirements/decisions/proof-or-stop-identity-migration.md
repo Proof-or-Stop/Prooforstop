@@ -195,8 +195,9 @@ the same commit: `scripts/verify-runtime-fact-contract.mjs` and
 - **Managed assets and remote approvals are canonical-write migrations**: generated blocks use
   `proof-or-stop` markers and approval creation uses `proof-or-stop.remote-push-approval.v1`;
   exact legacy forms remain only at the readers named in the active rows above.
-- `CHANGELOG.md` records the release announcement for the root and sibling package
-  renames; it is historical release documentation, not an unchanged-package exception.
+- `CHANGELOG.md` records the release announcement for the root and the explicit sibling
+  package renames (`@proof-or-stop/utils` and `@proof-or-stop/lab`); it is historical
+  release documentation, not an unchanged-package exception.
 
 ### CHK-007 residue decision (resolved by B-5a88)
 

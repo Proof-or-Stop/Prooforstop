@@ -60,7 +60,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 // A build is "in progress" only when a LIVE holder is heartbeating `<target>.lock`. Gate on lock
 // FRESHNESS, not mere existence: a build interrupted by Ctrl-C/SIGKILL/crash skips its finally-release
 // and leaves the `.lock` dir ORPHANED. The atomic swap already left dist complete in that case, so the
-// orphan must NOT block readers — otherwise every bin/lattice.js call would wait then fail until the
+// orphan must NOT block readers — otherwise every bin/proof-or-stop.js call would wait then fail until the
 // next build reclaims it. A live holder heartbeats the mtime every `update` (10s); proper-lockfile
 // treats it stale past `stale` (30s), so an orphan ages out within `stale` and we ignore it. The
 // threshold and lock target are imported from the dependency-free build-lock-target.mjs (single source
