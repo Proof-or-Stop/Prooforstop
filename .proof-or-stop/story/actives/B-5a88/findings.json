@@ -15023,7 +15023,7 @@
       "desc": "packages/main/src/core/evidence-pin-guard.ts:57-62,108-110 — the canonical proof-or-stop evidence command is documented but not recognized: hasLatticeMarker() only matches lattice/cli.js, and parseEvidenceCommand(\"proof-or-stop verification_evidence_add {\\\"storyId\\\":\\\"B-5a88\\\",\\\"intentRef\\\":\\\"CHK-001:happy:0\\\"}\") returned null while the legacy lattice form parsed. This leaves the pre-tool immutable-pin seatbelt bypassed for canonical invocations; preserve the legacy read but add the canonical proof-or-stop entrypoint.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T22:04:02.734Z",
@@ -15062,14 +15062,18 @@
         "packages/main/src/core/evidence-pin-guard.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Evidence-backed fix: evidence-pin-guard now supports the canonical proof-or-stop marker, and the focused smoke/build checks pass.",
+      "resolvedAt": "2026-08-24T03:10:39.710Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-364",
       "desc": "packages/main/src/tasks/lattice-only-absence-smoke.ts:11-14,38-63 — this active smoke task still describes the lattice entrypoint and lattice.config.json as the only active CLI/config surfaces and asserts lattice.config.json as the active configuration. That directly contradicts CHK-007/CHK-005 canonical new-write identity (proof-or-stop bin and proof-or-stop.config.json); it is not marked as deprecated or a historical compatibility fixture, so the concept migration remains incomplete in a runnable task.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T22:04:30.523Z",
@@ -15107,14 +15111,18 @@
         "packages/main/src/tasks/lattice-only-absence-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Evidence-backed fix: lattice-only-absence-smoke now uses the canonical proof-or-stop entry/config with the legacy-read fallback preserved, and the focused smoke passes.",
+      "resolvedAt": "2026-08-24T03:10:42.015Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-365",
       "desc": "packages/main/src/core/stale-detector.ts:2,5,138-152 — the active stale-state warning still tells users it is running before the last \"lattice command\" and describes the detector as a lattice command hook, even though the canonical field/output path is idleProofOrStop and the story retires lattice as the supported CLI identity. The idleLattice config key is explicitly documented as a legacy read, but this warning text is not marked compatibility-only and remains visible product residue; canonicalize the message/comments while retaining legacy config reads.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T22:04:56.904Z",
@@ -15150,7 +15158,11 @@
         "packages/main/src/core/stale-detector.ts"
       ],
       "signatureTag": "doc-code-drift|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Evidence-backed fix: stale-detector active warnings now use proof-or-stop while persisted idleLattice compatibility remains, and the focused checks pass.",
+      "resolvedAt": "2026-08-24T03:10:44.502Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-366",
@@ -15495,7 +15507,7 @@
       "desc": "bin/bootstrap-runner.js:63 and packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts:54,116-120 — active bootstrap/test comments and failure guidance still claim current full-suite calls use the removed bin/lattice.js entrypoint. The current package.json test script invokes packages/main/dist/tasks/full-suite-runner.js, and bin/lattice.js is intentionally absent under CHK-007. This is not a legacy-read path; it leaves current diagnostics and a runnable smoke task teaching a retired entrypoint. Canonicalize the text to proof-or-stop or explicitly scope it to historical compatibility.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T23:08:14.448Z",
@@ -15542,14 +15554,18 @@
         "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts"
       ],
       "signatureTag": "missing|js|bootstrap-runner-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Evidence-backed fix: bootstrap-runner and test-suite-utils active guidance is canonicalized, and the autobuild smoke passes.",
+      "resolvedAt": "2026-08-24T03:10:46.923Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-374",
       "desc": "doc-promise-undelivered: packages/lab/package.json:2-4 and packages/utils/package.json:2-4 now publish @proof-or-stop/lab and @proof-or-stop/utils, but CHANGELOG.md:29-33 still tells users that @lattice/lab and @lattice/utils are unchanged. The migration decision at docs/requirements/decisions/proof-or-stop-identity-migration.md:66-73 makes the release announcement the floor for this identity cut, so the shipped documentation contradicts the actual package graph and leaves the CHK-006 rename incomplete until that announcement is reconciled.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-23T23:21:06.469Z",
@@ -16132,14 +16148,18 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "signatureTag": "missing|json|promise-undelivered-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Evidence-backed fix: package identity migration and current package graph checks pass, and no removed lattice npm bin promise remains.",
+      "resolvedAt": "2026-08-24T03:10:49.451Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-375",
       "desc": "Active runtime guidance still exposes the retired lattice command vocabulary outside the already tracked canonical families: packages/main/src/core/machine.ts:1299,1303; packages/main/src/handlers/context.ts:60,156; packages/main/src/handlers/worktree.ts:1062; packages/main/src/core/usage-burn-alert.ts:331; and packages/main/src/tasks/story-metadata-protection-smoke.ts:202,213,269,338. These are active user-facing diagnostics, worktree guidance, or runnable smoke assertions, not archived compatibility evidence, so the migration leaves a distinct guidance-residue family.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-23T23:29:17.467Z",
@@ -16207,7 +16227,11 @@
         "packages/main/src/tasks/story-metadata-protection-smoke.ts"
       ],
       "signatureTag": "active-lattice-command-guidance-residue",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Evidence-backed fix: active runtime guidance consumers are canonicalized, and the worktree, review-inventory, and retired-authority smokes pass.",
+      "resolvedAt": "2026-08-24T03:10:51.912Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-376",
@@ -16330,7 +16354,7 @@
       "desc": "Post-changelog coverage review is blocked: the current story still has six verified open original families B-5a88:F-363, B-5a88:F-364, B-5a88:F-365, B-5a88:F-373, B-5a88:F-374, and B-5a88:F-375. The focused review records leave the canonical evidence-pin-guard command path, lattice-only-absence smoke, stale-detector guidance, bootstrap/test-suite autobuild path, package-name/changelog contract, and active runtime guidance residue unresolved. checklist_get reports 7/7 checklist items and 21/21 passing evidence records, but acceptance_matrix is non-evidentiary with result=inconclusive_basis_unverified; acceptance_topology_check reports AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING, and pre_review_check_read reports PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED. A review pass would overstate completion.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-24T01:39:04.029Z",
@@ -16354,14 +16378,18 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "signatureTag": "missing|review|post-changelog-coverage-blocked",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Evidence-backed fix: after resolving the six original families, final review passes are recorded as RR-581/RP-198, RR-582/RP-197, and RR-583/RP-199; current acceptance rollout is full-3x2 PASS, and the original six families are no longer open.",
+      "resolvedAt": "2026-08-24T03:10:56.528Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-381",
       "desc": "Active regression assertions still require retired lattice guidance: packages/main/src/tasks/worktree-authority-smoke.ts:233 and :277 expect the runtime error text \"must execute lattice commands inside the worktree\", but packages/main/src/handlers/context.ts:156 emits \"must execute proof-or-stop commands inside the worktree\"; packages/main/src/tasks/review-inventory-handler-smoke.ts:1073 expects \"Next: lattice review_inventory_status\", but packages/main/src/core/machine.ts:1303 emits \"Next: proof-or-stop review_inventory_status --storyId=...\". These runnable smoke checks will fail against the current canonical producers and are a distinct post-migration blocker.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-24T01:39:12.053Z",
@@ -16388,7 +16416,11 @@
         "packages/main/src/core/machine.ts"
       ],
       "signatureTag": "missing|ts|active-regression-assertions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Evidence-backed fix: worktree-authority-smoke and review-inventory-handler-smoke now use canonical reviewer actors and diagnostics, and both tests pass.",
+      "resolvedAt": "2026-08-24T03:10:54.122Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-382",
