@@ -1107,10 +1107,29 @@
         "audit_scan.historical_lattice_token_coverage",
         "deprecated_bin_alias_removal"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This Story-owned smoke test verifies the acceptance-topology gate regression and is required to validate the implementation.",
+      "timestamp": "2026-08-24T15:09:54.649Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "621ba544b6fd68f55ea76a864b248122a9fe9295",
+      "materialHash": "cd63b3cd4d7da068127baaf20fac5d9fde983e0c8946c24e30a9ab3c3c9959b0",
+      "anchors": [
+        "acceptance_topology_gate"
+      ]
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-24T10:16:22.122Z",
+  "updatedAt": "2026-08-24T15:09:54.649Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1366,6 +1385,7 @@
     "packages/main/src/core/usage-burn-alert.ts": "packages/main/src/core/usage-burn-alert.ts",
     "packages/main/src/tasks/story-metadata-protection-smoke.ts": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
     "packages/main/src/tasks/worktree-authority-smoke.ts": "packages/main/src/tasks/worktree-authority-smoke.ts",
-    "packages/main/src/core/audit-scan.ts": "packages/main/src/core/audit-scan.ts"
+    "packages/main/src/core/audit-scan.ts": "packages/main/src/core/audit-scan.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
   }
 }
