@@ -267,10 +267,30 @@
         "pre_review_executable_proof",
         "live_transcript_capture"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The bounded incremental-review overflow fix is required to fail safely into full review context when historical findings exceed the bounded basis.",
+      "timestamp": "2026-08-24T13:39:13.234Z",
+      "paths": [
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2e1b5a9ebc077d4c77808cb46a2bee31610f496d",
+      "materialHash": "479b808fdf1d5929bea3996d57f677550ad2dc3cfb8b90f7e29a84c56493f4fd",
+      "anchors": [
+        "review_incremental_basis_overflow",
+        "full_context_reviewer_escalation"
+      ]
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-23T18:51:30.085Z",
+  "updatedAt": "2026-08-24T13:39:13.234Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -344,6 +364,7 @@
     "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
     "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
     "packages/main/src/handlers/live-smoke-transcript.ts": "packages/main/src/handlers/live-smoke-transcript.ts",
-    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts"
   }
 }
