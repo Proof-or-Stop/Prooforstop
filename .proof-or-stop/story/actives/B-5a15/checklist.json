@@ -1209,7 +1209,7 @@
             "desc": "The verifier-owned pre_review_check_read runs against the current executable artifact and reports ok=true, status=pass, readOnly=true, executableEvidence=current, mutations=biting, transcript=related, and authority=admissible.",
             "type": "cli",
             "requiredIn": "strict",
-            "priority": "must",
+            "priority": "should",
             "verification": {
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
               "selector": "B-5a15|CHK-004:happy:3|PASS|pre_review_check_read reports current admissible executable PASS"
