@@ -12783,6 +12783,43 @@
       ],
       "signatureTag": "missing|ts|regression-coverage-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-246",
+      "desc": "Coverage is not current for 50 of 51 intents: every intent except CHK-001:edge:oversized-output-probe retains verificationEvidence at head 558aeb8/material 41c6cc5/storyFiles 0d7a9df, while RI-024 cutoff is head 37e7778/material 84b306b/storyFiles 8874416. session_brief classifies those 50 rows stale, so they are not valid current executable gate evidence. A fresh node --test packages/main/tests/causal-evidence.test.mjs run passed all 12 tests and emitted all 51 intent markers; the 12,001-character boundary regression at packages/main/tests/causal-evidence.test.mjs:486-520 passes, but the other 50 intents have not been re-recorded at the current binding. Refresh and re-record verificationEvidence before TEST.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T04:47:07.886Z",
+      "reviewRound": "2026-08-24T04:36:48.410Z",
+      "reviewRunId": "B-5a15:RR-401",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e54676966d9a9804f410630797efbd508fd4a68e5c9ff500cb01ff5c3c55e64b",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json"
+      ],
+      "signatureTag": "missing|mjs|coverage-current-intents",
+      "signatureTagSource": "auto"
     }
   ]
 }
