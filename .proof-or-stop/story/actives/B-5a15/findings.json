@@ -4376,7 +4376,7 @@
       "desc": "Verified critical coverage blocker: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 documents node packages/main/dist/tasks/verifier-causal-preflight-smoke.js, but packages/main/src/tasks/verifier-causal-preflight-smoke.ts and the dist artifact are both absent; the exact documented command exits MODULE_NOT_FOUND. The required executable verifier coverage cannot run. Independently, proof-or-stop pre_review_check_read reports PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, so the current pre-review evidence binding is not admissible until DEV remediation reissues it.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-21T19:08:50.760Z",
@@ -4423,7 +4423,11 @@
       ],
       "signatureTag": "missing|md|verified-critical-coverage",
       "signatureTagSource": "auto",
-      "clusterId": "CL-017"
+      "clusterId": "CL-017",
+      "resolvedReason": "Superseded by finalized RI-025 current-material review: all reviewer lanes pass at the current HEAD/materialHash/storyFilesHash, and the latest inventory contains no current blocking finding for this historical record.",
+      "resolvedAt": "2026-08-24T07:01:31.492Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-104",
