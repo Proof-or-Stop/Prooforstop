@@ -16906,6 +16906,51 @@
       ],
       "signatureTag": "missing|json|proof-stop-story",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-393",
+      "desc": "concept-cleanup: current Wave 4 verifier chain is stale after the latest B-5a88 material/current-round state; acceptance_topology_check --storyId=B-5a88 --json reports AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING, pre_review_check_read reports PR_ARTIFACT_TAMPERED/PR_COVERAGE_BASIS_CHANGED/PR_POSITIVE_EVIDENCE_MISSING/PR_EVIDENCE_STALE/PR_CUTOFF_UNBOUND, and both acceptance_rollout_report_read and acceptance_rollout_check report blocking AR_REPORT_STALE. Regenerate and rebind the verifier-owned receipts to the current HEAD before REVIEW can claim the required current full-3x2 Wave 4 PASS.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-24T11:40:02.550Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-604",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/audit-scan.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f259e9201f841c38655c61d27bb5d8fa8fd256fc00a2e72200aeb700069e9a5c",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|concept-cleanup-current",
+      "signatureTagSource": "auto"
     }
   ]
 }
