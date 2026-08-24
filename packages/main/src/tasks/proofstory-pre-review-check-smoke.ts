@@ -308,7 +308,7 @@ function executeActiveScenarioWitnesses(
     const mutationApplied = scenarioEvent(`mutation-applied:${id}`);
     const pattern = [...expected.keys()].indexOf(id) % 2;
     let expectedCode: string;
-    let observed: any;
+    let observed: ReturnType<typeof invokeVerifier>;
     if (pattern === 0) {
       const tamperedArtifact = structuredClone(cleanArtifact);
       tamperedArtifact.signature = 'forged';
