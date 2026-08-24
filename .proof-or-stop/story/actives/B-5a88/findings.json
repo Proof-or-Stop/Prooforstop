@@ -18351,6 +18351,26 @@
       "resolvedAt": "2026-08-24T19:29:27.712Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-412",
+      "desc": ".proof-or-stop/story/actives/B-5a88/checklist.json:verificationEvidence — all 21 must intents have pass rows, but every row is bound to stale HEAD caaa9e6afbe90494d26a3f6bce62b0cfcd9c3f8a while this signed review run is bound to current HEAD e2993c1881c1c01db89e44c0c304ed201c852b87; acceptance-basis.json:receipt.headHash and acceptance-rollout-report.json:receipt.headHash are also stale at 54d42f014299abe0687824bb55e52b27cf1ca5c0, so no must-intent coverage is admissible for the current full-set review. Refresh verifier-owned receipts and verificationEvidence at the current HEAD before REVIEW can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-24T20:12:47.631Z",
+      "reviewRound": "2026-08-24T20:09:03.823Z",
+      "reviewRunId": "B-5a88:RR-661",
+      "_hash": "58792b8417fb4061f23c49c3a1e6e8a925aa093e54730f04361beb2a565a8a6f",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
     }
   ]
 }
