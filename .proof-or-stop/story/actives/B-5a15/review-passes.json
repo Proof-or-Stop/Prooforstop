@@ -4867,6 +4867,62 @@
       },
       "readDiagnostics": [],
       "_hash": "1ad92330c2ef14efd11c2808b5ae6c12cf75b7482a5d18b9106c866294e9c9d1"
+    },
+    {
+      "id": "B-5a15:RP-109",
+      "agent": "lattice-review-quality",
+      "note": "RI-026 wave 2/3 quality review completed at current HEAD: inspected the story-level implementation and proof metadata for dead code, type-safety and error handling, receipt/preflight identity, I/O isolation, and promised behavior. No genuinely new quality blocker was found. Build, focused causal-evidence/concurrency tests, and diff checks pass. Existing F-247 and F-248 remain untouched and were not recreated.",
+      "createdAt": "2026-08-24T08:07:48.035Z",
+      "reviewRound": "2026-08-24T06:58:21.638Z",
+      "reviewRunId": "B-5a15:RR-432",
+      "envelopeId": "d0baf94652f844a350606b33bd8b341ab2bbace74ba72d812079addc55706f64",
+      "writerSessionId": "sess-3c0880580803e5321adf693bf1e6ddc6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8de391da98e05a9f082824d67d702dfdaf69c3c2e5330460546256400e858d31"
     }
   ]
 }
