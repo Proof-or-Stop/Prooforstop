@@ -16689,6 +16689,25 @@
       "resolvedAt": "2026-08-24T09:27:02.067Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-388",
+      "desc": "CHK-001 through CHK-007: all 21 must intents have passing verificationEvidence, but every receipt is bound to headHash 2c29efb387c92345f036658fd7dedeb1023e26a5, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, and storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9. The signed current review run B-5a88:RR-599 is bound to dfa1d8fc9c7cf3159b7929169ab706d423959077 / 87d7fb165a4db7a745701ba5c25f10815a14c63d09b993cab79a94120548c94b / 0931685d773c870710e3f491d4b5aae236015b8b4b19f64bc97980f5bb1ba6ed after the scoped audit-scan.ts fix, so no current-head coverage evidence remains. Refresh or rerun the 21 receipts before relying on coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-24T10:24:05.823Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-599",
+      "_hash": "e9fc4f65698d0085f3498b62f6102054e688db42224348c3ce29a05d5937be3d",
+      "files": [
+        "packages/main/src/core/audit-scan.ts",
+        "packages/main/src/tasks/audit-scan-bin-token-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|through-intents-passing",
+      "signatureTagSource": "auto"
     }
   ]
 }
