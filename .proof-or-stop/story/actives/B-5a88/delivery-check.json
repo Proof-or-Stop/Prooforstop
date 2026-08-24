@@ -1,73 +1,97 @@
 {
   "storyId": "B-5a88",
-  "checkedAt": "2026-08-22T06:53:48.871Z",
-  "headHash": "36d41a769d559f4b26ff9c494e206200e5678a11",
-  "materialHash": "a883261785bc024d6209525b43bc89374a323206a9318a57c96e49180c7ea0be",
-  "storyFilesHash": "b7a3d2a131b146253a7087c8bf7c3adcb8d0c198026c8ca482ae29f34e502aa4",
-  "reviewRound": "2026-08-22T06:01:26.832Z",
-  "agentId": "lattice-review-delivery",
+  "checkedAt": "2026-08-24T05:41:01.163Z",
+  "headHash": "af71a64a6f3e0275dac23a6215e07825b92c0cac",
+  "materialHash": "f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c",
+  "storyFilesHash": "99af18c7e794cf9714b43cd073722c4b01ab2c385f6e95d1535e5b581078ea24",
+  "reviewRound": "2026-08-24T03:03:32.534Z",
+  "agentId": "proof-or-stop-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/requirements/decisions/brand-rename-mapping.md",
-      "promise": "Canonical proof-or-stop agent role IDs are emitted while lattice role IDs remain readable as compatibility aliases.",
+      "promise": "User sees `\"proof-or-stop-review-quality\"` in reviewer_list output, and a legacy `\"lattice-review-quality\"` record is reported as a compatible alias.",
       "status": "verified",
-      "verifiedBy": "current source review and validate PASS",
-      "evidence": "reviewer lanes passed; process-fact and prompt baseline verification passed"
+      "verifiedBy": "proof-or-stop-review-delivery: live-smoke transcript plus CHK-001 role and alias evidence",
+      "evidence": "live-smoke-transcript.json records reviewer_list exitCode 0 with canonical proof-or-stop-review-quality and legacy alias lattice-review-quality; CHK-001 evidence is PASS at materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c."
     },
     {
       "docPath": "AGENTS.md",
-      "promise": "Managed-block markers use proof-or-stop start/end markers with dual-read compatibility for lattice markers.",
+      "promise": "User sees `\"<!-- proof-or-stop:start -->\"` and `\"<!-- proof-or-stop:end -->\"` in a newly initialized file; an upgraded old file has one managed block, not two.",
       "status": "verified",
-      "verifiedBy": "migration tests and validate PASS",
-      "evidence": "managed-marker migration coverage passed in the 112-command validation"
+      "verifiedBy": "proof-or-stop-review-delivery: CHK-002 migration evidence and validation PASS",
+      "evidence": "CHK-002 marker, malformed/nested, and template checks all recorded PASS with exitCode 0 and the current materialHash; validation evidence is PASS."
     },
     {
       "docPath": "docs/requirements/decisions/brand-rename-mapping.md",
-      "promise": "New artifact schema writes use proof-or-stop prefixes while archived lattice schemas remain readable.",
+      "promise": "User sees `\"schemaVersion\": \"proof-or-stop.done_required_evidence.v1\"` in new evidence, while story_get reports an archived `\"lattice.done_required_evidence.v1\"` artifact as valid.",
       "status": "verified",
-      "verifiedBy": "artifact schema migration tests and validate PASS",
-      "evidence": "artifact-schema migration coverage passed"
+      "verifiedBy": "proof-or-stop-review-delivery: artifact-schema migration evidence and validation PASS",
+      "evidence": "CHK-003 artifact-schema migration test passed for writer, reader, and archived compatibility paths; all three intent receipts are PASS and material-bound."
     },
     {
       "docPath": ".githooks/pre-push",
-      "promise": "Remote-push approval uses the proof-or-stop schema with dual-read and one-shot consumption.",
+      "promise": "User sees `\"schema\": \"proof-or-stop.remote-push-approval.v1\"` after release_approve_push, then pre-push reports `\"one-shot remote publish approval consumed\"`.",
       "status": "verified",
-      "verifiedBy": "approval migration tests and validate PASS",
-      "evidence": "release-push approval migration and red receipt checks passed"
+      "verifiedBy": "proof-or-stop-review-delivery: approval migration evidence and validation PASS",
+      "evidence": "CHK-004 source and hook dual-read, approval boundary, one-shot rejection, and shell syntax checks all recorded PASS; current diff contains canonical writer and legacy reader."
     },
     {
       "docPath": "package.json",
-      "promise": "The root npm package identity is proof-or-stop and the CLI reports the Proof-or-Stop name.",
+      "promise": "User sees `npm pkg get name` return `\"proof-or-stop\"` and `proof-or-stop --version` print `\"Proof-or-Stop <version>\"`.",
       "status": "verified",
-      "verifiedBy": "package identity validation and live smoke transcript",
-      "evidence": "proof-or-stop --version exited 0 and printed Proof-or-Stop 0.3.268"
+      "verifiedBy": "proof-or-stop-review-delivery: package metadata inspection, version-bump smoke, and validation PASS",
+      "evidence": "Current package.json name is proof-or-stop; package identity and version-bump evidence are PASS at the current materialHash, and validation completed with allPass=true."
     },
     {
       "docPath": "packages/utils/package.json",
-      "promise": "Sibling packages use the @proof-or-stop scope and keep the package graph synchronized.",
+      "promise": "User sees `npm pkg get name --workspace=packages/utils` return `\"@proof-or-stop/utils\"` and the lab entrypoint resolve `\"@proof-or-stop/lab\"`.",
       "status": "verified",
-      "verifiedBy": "package identity and global lab entrypoint validation",
-      "evidence": "package graph and global lab entrypoint checks passed"
+      "verifiedBy": "proof-or-stop-review-delivery: package graph and global lab entrypoint evidence",
+      "evidence": "Current package metadata and dependency graph use @proof-or-stop/utils and @proof-or-stop/lab; package identity, global lab entrypoint, and adversarial graph receipts are PASS."
     },
     {
       "docPath": "packages/main/package.json",
-      "promise": "The unsupported lattice npm bin alias is removed while proof-or-stop remains the canonical executable.",
+      "promise": "User sees the package bin list contain `\"proof-or-stop\"` and not `\"lattice\"`, and help no longer prints `\"Usage: lattice ...\"`.",
       "status": "verified",
-      "verifiedBy": "bin alias migration and red removal checks",
-      "evidence": "removed-bin-aliases validation passed"
+      "verifiedBy": "proof-or-stop-review-delivery: bin migration, help, residue, and validation evidence",
+      "evidence": "Current packages/main/package.json publishes only proof-or-stop; CHK-007 npm-bin, help, residue self-test, and validation evidence are PASS."
     }
   ],
   "realMachineTests": [
     {
+      "featureId": "CHK-001",
+      "transcript": "2026-08-24T05:33:13.351Z: node bin/proof-or-stop.js reviewer_list --storyId=B-5a88 exited 0; stdout showed canonical proof-or-stop-review-quality and legacy alias lattice-review-quality. Transcript materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Validation/checklist evidence at materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c: CHK-002-MARKER-PASS, CHK-002-MALFORMED-PASS, and CHK-002-TEMPLATE-PASS all exited 0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Validation/checklist evidence at materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c: artifact-schema migration test passed for all three CHK-003 intents."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Validation/checklist evidence at materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c: schema dual-read, approval boundary, one-shot rejection, and bash syntax checks all exited 0."
+    },
+    {
       "featureId": "CHK-005",
-      "transcript": "Command: proof-or-stop --version\nExit: 0\nstdout: Proof-or-Stop 0.3.268"
+      "transcript": "Validation/checklist evidence at materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c: package identity, version-bump, and canonical/legacy self-host checks all exited 0."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Validation/checklist evidence at materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c: package identity, global lab entrypoint, and package graph checks all exited 0."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Validation/checklist evidence at materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c: npm-bin, help, and 65/65 lattice-residue self-test checks all passed."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
-    "hasUnresolvedTodos": false,
-    "summary": "All seven delivery promises are mapped to current source or validation evidence; edge and compatibility paths are covered by the migration and red checks; the current-head live smoke transcript confirms the canonical CLI user output; no unresolved delivery TODO remains."
+    "hasUnresolvedTodos": true,
+    "summary": "Evidence covers all seven userSees promises and current material-bound validation, with a successful CHK-001 live smoke. Delivery closeout remains blocked: plan.md forbids the CHANGELOG.md diff, the story branch is one commit behind main, and done-required-evidence.json is FAIL; these require owner follow-up."
   },
-  "_hash": "5769bd0f3fd6f33143158a9822d8b35fa1ab26095c1ce36ba1a6c463de5c24fe"
+  "_hash": "397b9d98d9a69a617cc07edad4071c82242aaf1c7ee5c9bdb3baa5d7dd0acadb"
 }
