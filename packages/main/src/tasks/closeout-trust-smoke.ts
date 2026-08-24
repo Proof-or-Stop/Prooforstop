@@ -60,6 +60,7 @@ import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { createLegacyLocalOnlyDeliveryClaims } from '../core/legacy-delivery-claims-compat.js';
 import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
 
 const legacyPromptHash = (roleId: string): string => hashReviewPrompt(resolvePromptRoleBody(roleId, {
   version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
@@ -544,6 +545,10 @@ try {
   await createDoneRequiredValidationHandlers(handlerCtx).done_required_validate({ storyId: runtimeStoryId });
   assertWriterReceipt('done-required-evidence.json', 'done_required_validate');
   console.log('PASS canonical DONE-required lineage recorded');
+  // Direct handler tests bypass the CLI ownership gate; seed the same owner
+  // lease that a real story-scoped validate command would acquire before the
+  // causal preflight probes writer availability.
+  acquireOwnerLease(store.storyDirPath(runtimeStoryId), { command: 'validate', cwd: repo });
   await createVerifierHandlers(handlerCtx).validate({ storyId: runtimeStoryId, json: true });
   assertWriterReceipt('test-evidence.json', 'validate');
   console.log('PASS canonical routine validation lineage recorded');
