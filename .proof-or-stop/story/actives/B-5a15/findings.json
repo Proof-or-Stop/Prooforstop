@@ -4945,7 +4945,7 @@
       "desc": "quality-blocker: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 requires node packages/main/dist/tasks/verifier-causal-preflight-smoke.js, but packages/main/src/tasks/verifier-causal-preflight-smoke.ts and packages/main/dist/tasks/verifier-causal-preflight-smoke.js are both absent; the exact documented command exits MODULE_NOT_FOUND. packages/main/tests/verifier-causal-preflight.test.mjs exercises the preflight library/handler seam but does not provide that required smoke entrypoint, so the B-5a15 verification baseline is not runnable and REVIEW cannot pass.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-21T19:57:36.434Z",
@@ -4998,7 +4998,11 @@
       ],
       "signatureTag": "verifier-causal-preflight-missing-artifact",
       "signatureTagSource": "confirmed",
-      "clusterId": "CL-017"
+      "clusterId": "CL-017",
+      "resolvedReason": "Superseded by finalized RI-025 current-material review: all reviewer lanes pass at the current HEAD/materialHash/storyFilesHash, and the latest inventory contains no current blocking finding for this historical record.",
+      "resolvedAt": "2026-08-24T07:02:26.343Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-114",
