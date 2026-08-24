@@ -3922,6 +3922,53 @@
       },
       "readDiagnostics": [],
       "_hash": "e27e87efb31123cb07e6354074d28a5d1cf98f9f875b9479bf6e8e6c9120951f"
+    },
+    {
+      "id": "B-5a15:RP-090",
+      "agent": "lattice-review-quality",
+      "note": "RI-025 wave 1 quality recheck found no blocker: boundedOutputProbe reserves the gap marker and stays at the 12,000-character limit; the exact 12,001-character regression verifies the signed receipt and exact replay reuses the unchanged receipt hash. The focused causal-evidence suite passed all 12 tests.",
+      "createdAt": "2026-08-24T05:09:12.238Z",
+      "reviewRound": "2026-08-24T04:36:48.410Z",
+      "reviewRunId": "B-5a15:RR-404",
+      "envelopeId": "822c7914346b22c613eb717ab3ccc823138ff7202737b4962a97384d2968ee1a",
+      "writerSessionId": "sess-71f962da4c556ca8b7cee822fd19758e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fb384b2250b7412c79f2b8491588085b405a35e37318e8cd69f11c8e9b2e73eb"
     }
   ]
 }
