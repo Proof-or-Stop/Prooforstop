@@ -13103,7 +13103,7 @@
       "desc": "doc-promise-undelivered: packages/lab/package.json:3 and packages/utils/package.json:3 now publish @proof-or-stop/lab and @proof-or-stop/utils, but CHANGELOG.md:29-33 still tells users that @lattice/lab and @lattice/utils are unchanged. The migration decision at docs/requirements/decisions/proof-or-stop-identity-migration.md:66-73 makes the release announcement the floor for this identity cut, so the shipped documentation contradicts the actual package graph and leaves the CHK-006 rename incomplete until that announcement is reconciled.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-23T15:24:47.962Z",
@@ -13134,7 +13134,11 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "signatureTag": "doc-promise-undelivered|json|promise-undelivered-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by b0603425fe: CHANGELOG now announces @lattice/core -> @proof-or-stop/core, @lattice/utils -> @proof-or-stop/utils, @lattice/lab -> @proof-or-stop/lab, and removal of the lattice npm bin; package-identity, bin-alias, lattice-residue, and current 112/112 validation checks pass.",
+      "resolvedAt": "2026-08-24T08:20:30.592Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-325",
