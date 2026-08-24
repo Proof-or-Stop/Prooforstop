@@ -7379,6 +7379,43 @@
       "findingDispositions": [],
       "createdAt": "2026-08-24T06:01:25.026Z",
       "_hash": "a9c59dac69503bf7ee788cd33963c7cdc99f4e1153a060312f1249fbe2b7a9fc"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-026:CRIT-01",
+      "epochId": "B-5a15:RI-026",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T06:58:21.638Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "aa646655130fd6637a9a43367a82bd481fd78c82",
+        "materialHash": "84b306befb2d3da045ff3ff950e6166511abb101ca64dcda773b748455031ed6",
+        "storyFilesHash": "88744166aeeb03373b6a05ef4831f4da58eac9c0c2ac441b5dbd62cac0e33c61"
+      },
+      "aggregateFindingSetDigest": "725c5af4ba63fbcfb78751ab64a4c6a59369aa37cc991b522da72de081b464db",
+      "requiredLaneCoverageDigest": "2baab281d17f336498a118daec3e5380c9034741d0ae4e6aa564ec12bd6acfa5",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-429",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-106"
+      ],
+      "readEvidenceDigest": "cd467d7db3645689285147b453221029cac012838d7c6d578e6e6c0c725662b7",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-247",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-247",
+          "reason": "Independent topology review rechecked acceptance_topology_check and pre_review_check_read; the signed verifier-owned basis remains stale and unbound with AT_CLOSURE_FILES_STALE, AT_SCOPE_BINDING_MISSING, and PR stale/tamper/cutoff diagnostics, so F-247 remains a distinct verified family."
+        },
+        {
+          "findingId": "B-5a15:F-248",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-248",
+          "reason": "Independent review rechecked the authored CHK-005 happy:1 intent against the current causal-evidence test; commitFailureReruns remains mismatched at asserted value 1 versus intent 0, so F-248 remains a distinct verified family."
+        }
+      ],
+      "createdAt": "2026-08-24T07:45:02.099Z",
+      "_hash": "0c391515d2fe148d1e16aacf0b82c79a6f0d20d401621daa93d38850418202a1"
     }
   ]
 }
