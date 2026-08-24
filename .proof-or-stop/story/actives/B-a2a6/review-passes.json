@@ -47,6 +47,91 @@
       },
       "readDiagnostics": [],
       "_hash": "47f8cd87b933cd33249944ad9c1ccdb3a937abbd27406e6adbbea2f3d1084366"
+    },
+    {
+      "id": "B-a2a6:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Fresh RI-001 concept recheck found no concept deletion or replacement. The current additive prompt-envelope snapshot change preserves direct-read fallbacks and canonical prompt-envelope references; repository residue scan completed. Prior RP-001/RR-001 was stale at head a7f04f0f, material 25f92444, and storyFiles 2022f573; this pass is bound to current RR-004 hashes head ed90883e, material 0787da25, and storyFiles 6db24e246.",
+      "createdAt": "2026-08-24T03:25:08.770Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-004",
+      "envelopeId": "88a476bd2515da7027bfb65e598d7af40ad3c8cf9a0629196ffbfb27b8440abe",
+      "writerSessionId": "sess-e1e1b3115ec3b14cad518e060d302eac",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/findings.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-passes.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-runs.json",
+          ".proof-or-stop/story/actives/B-a2a6/review.json",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.json",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3c6cd59f643120a4bfc95d0816a0d0585265a972d752a700f9b09438025e69bc"
+    },
+    {
+      "id": "B-a2a6:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of the committed snapshot-threading diff found no blocker: empty collections perform zero ledger reads, non-empty collections reuse one snapshot through binding and incremental verification, direct callers retain uncached fallback, and current hashes/evidence are fresh.",
+      "createdAt": "2026-08-24T03:25:19.088Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-005",
+      "envelopeId": "2a8148c37776a56e92940d2b0a546989fd135799847bd778e69245d4517bb225",
+      "writerSessionId": "sess-302a000e2a1a58eecc9d63af0525ee71",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/decision.json",
+          ".proof-or-stop/story/actives/B-a2a6/understanding.json",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-a2a6/findings.json",
+          ".proof-or-stop/story/actives/B-a2a6/prompt-envelopes.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-passes.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-runs.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "4226c8dc443e61e929b5c4f9f4b5e3ac824209ae474f9a39a66f9ba2e8b0fe9b"
+      },
+      "readDiagnostics": [],
+      "_hash": "2c4d65166aa0636fcd95cff652613a680be1df75be0ef7b1bdd83e74fcb387e1"
     }
   ]
 }
