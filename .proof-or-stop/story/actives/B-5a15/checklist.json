@@ -89,6 +89,15 @@
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
               "selector": "near-duplicate identity groups execute independently while exact-key groups execute once"
             }
+          },
+          {
+            "id": "CHK-001:edge:oversized-output-probe",
+            "desc": "Execute a pinned command producing exactly 12,001 characters; assert the persisted causal output probe is bounded to exactly 12,000 characters with the <causal-output-gap> marker, the receipt remains verifiable and reusable, and an exact replay reuses the receipt without rerunning the command.",
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"process.stdout.write('x'.repeat(12001))\"",
+              "selector": "<causal-output-gap>"
+            }
           }
         ],
         "adversarial": [
