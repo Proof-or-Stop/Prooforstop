@@ -5077,7 +5077,7 @@
       "desc": "Current committed HEAD still cannot receive a topology-critic pass: acceptance_basis is not an admissible current topology proof, pre_review_check remains inconclusive, scope_contract_check reports unacknowledged violations, and rollout evidence is historical rather than current. The preserved closeout receipt is request_changes; no admissible current basis, topology, scope, rollout, or closure proof exists.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-21T20:16:38.073Z",
@@ -5134,7 +5134,11 @@
       ],
       "signatureTag": "topology-acceptance-closeout-not-admissible",
       "signatureTagSource": "confirmed",
-      "clusterId": "CL-018"
+      "clusterId": "CL-018",
+      "resolvedReason": "Superseded by finalized RI-025 current-material review: all reviewer lanes pass at the current HEAD/materialHash/storyFilesHash, and the latest inventory contains no current blocking finding for this historical record.",
+      "resolvedAt": "2026-08-24T07:02:34.304Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-116",
