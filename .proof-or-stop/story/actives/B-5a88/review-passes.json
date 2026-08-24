@@ -16171,6 +16171,159 @@
       },
       "readDiagnostics": [],
       "_hash": "eaaf193cbf924a3461edd067749f34c18a1dc416c94af30b41b05c9f40e86da0"
+    },
+    {
+      "id": "B-5a88:RP-255",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality PASS: reviewed prompt-registry.ts, prompt-registry-smoke.ts, the canonical quality prompt, migration test, and the three relevant identity/prompt migration decisions. Build, prompt-registry smoke (17 agents on Claude and Codex), and prompt-role migration test all passed. The canonical proof-or-stop-review-quality.md assertion covers the former F-413 path; no new independent blocker.",
+      "createdAt": "2026-08-24T22:15:38.610Z",
+      "reviewRound": "2026-08-24T22:10:30.815Z",
+      "reviewRunId": "B-5a88:RR-684",
+      "envelopeId": "e878852b84c37c2c6a48cf2885cbf35436fc21ac658a58c802be3a44a7d22f07",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-quality.md",
+          "packages/main/tests/prompt-role-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-quality.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-quality.md",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "62e1b23587cd5f4369ff67615800d82d86610835d4882a627daa1527353d5301"
+      },
+      "readDiagnostics": [],
+      "_hash": "6e261781d293f5281a13817105e8e0b52aa21d78409706f1abbf3d51c1028cde"
+    },
+    {
+      "id": "B-5a88:RP-256",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test-coverage PASS: all 21 verification intents have unique current logic_test PASS evidence; acceptance basis/rollout/pre-review/live transcript bindings are admissible and migration coverage passed with no independent blocker.",
+      "createdAt": "2026-08-24T22:18:30.148Z",
+      "reviewRound": "2026-08-24T22:10:30.815Z",
+      "reviewRunId": "B-5a88:RR-683",
+      "envelopeId": "1a504017f615476be91a805b192eef382a91a0a88d2e1d147ce6173ca4a0186b",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/evidence/live-smoke-transcript.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "62e1b23587cd5f4369ff67615800d82d86610835d4882a627daa1527353d5301"
+      },
+      "readDiagnostics": [],
+      "_hash": "2fccfdbbb6fbf2df0b15c732f8872ea2bc6e662c81deac479efe01c598353622"
+    },
+    {
+      "id": "B-5a88:RP-257",
+      "agent": "proof-or-stop-review-concept",
+      "note": "\"Concept lane reviewed canonical role marker schema package migration and exact legacy compatibility. Focused migration prompt-registry residue Codex and package verifiers passed. Full entrypoint verifier is unverified after sandbox EPERM unlinking a user-global Claude file; no source blocker found.\"",
+      "createdAt": "2026-08-24T22:27:58.643Z",
+      "reviewRound": "2026-08-24T22:10:30.815Z",
+      "reviewRunId": "B-5a88:RR-685",
+      "envelopeId": "700c67f80944a587e1628b9d14039c89cd5fe08f13a35d951aeefa30bbf2d6f2",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "fdb4b6c09e7df9ba43669d28a48daa089e350df015cc3a22595b76bcf84af129"
+      },
+      "readDiagnostics": [],
+      "_hash": "151d3f74d95180c091a8a258388f48b3599d57f070e3b770ef0c7a868ea5574e"
     }
   ]
 }
