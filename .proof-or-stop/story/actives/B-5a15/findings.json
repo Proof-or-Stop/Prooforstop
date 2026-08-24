@@ -12744,6 +12744,45 @@
       ],
       "signatureTag": "edge|ts|5a15-remains-verified",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-245",
+      "desc": "F-243 regression coverage gap: packages/main/src/core/causal-evidence.ts:548-551 builds boundedOutputProbe from two 6000-character halves plus a gap marker, so a 12001-character output exceeds the 12000-character verification ceiling at lines 524-525. The current 50 verificationEvidence rows contain no focused assertion for this boundary, and F-243 has no reproTest or verificationEvidence binding; a successful verbose command can therefore remain untested at the receipt-persistence boundary.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T03:28:55.904Z",
+      "reviewRound": "2026-08-24T02:49:45.599Z",
+      "reviewRunId": "B-5a15:RR-392",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fd611a6ba4806b1ea94f53a2f25b697756f1d3f5781a8dcc81a5d9bb9b06227a",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "missing|ts|regression-coverage-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
