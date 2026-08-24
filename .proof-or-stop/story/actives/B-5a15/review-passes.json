@@ -6911,6 +6911,142 @@
         "scanEscalationReason": null
       },
       "_hash": "5755bc8f329a2dbd8680bb330570f2fede905ddf76a6caf3704d8fd97486aa1c"
+    },
+    {
+      "id": "B-5a15:RP-155",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed the integrated B-5a15 scope, causal-evidence behavior, acceptance topology, and user-facing promises at the current committed head; no new concept blocker is present.",
+      "createdAt": "2026-08-24T19:28:28.548Z",
+      "reviewRound": "2026-08-24T19:24:54.275Z",
+      "reviewRunId": "B-5a15:RR-572",
+      "envelopeId": "50469eb7dc66c0ac364a3b3e0110d6cd4bac4d4aa732b18a9277a1fb03a73ca2",
+      "writerSessionId": "sess-3e5b61c528c373ec",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": 10800
+        },
+        "digest": "71eb638d74c07f354670781c1bca82b761873fe5fb7f1ff992b26bd48f17e190"
+      },
+      "readDiagnostics": [],
+      "_hash": "ee449e6358b3a01a28f43d19279ff954d428fd9844a02e36bd6c01b2430eef9c"
+    },
+    {
+      "id": "B-5a15:RP-156",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the verifier preflight routing, explicit transport-environment allowlist, causal key binding, and current acceptance artifacts at the committed head; no new quality blocker is present.",
+      "createdAt": "2026-08-24T19:28:34.740Z",
+      "reviewRound": "2026-08-24T19:24:54.275Z",
+      "reviewRunId": "B-5a15:RR-573",
+      "envelopeId": "d39cb48166020a3dbf919be652545eaea3940d7b8aef0bc19295975ff2ee74f0",
+      "writerSessionId": "sess-3e5b61c528c373ec",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": 8000
+        },
+        "digest": "7c82df813667ecf0f80c4548fd209edf6bf6c6e8a0813c830d02a62c09b6367a"
+      },
+      "readDiagnostics": [],
+      "_hash": "b24b092c5067d8b4300084b2ad2a704f09cc3f71dcc8e3a82491de6ef0d5fa1a"
+    },
+    {
+      "id": "B-5a15:RP-157",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed every checklist intent against current causal-evidence tests, verification evidence, pre-review executable proof, and full-3x2 rollout evidence; no new coverage blocker is present.",
+      "createdAt": "2026-08-24T19:28:40.701Z",
+      "reviewRound": "2026-08-24T19:24:54.275Z",
+      "reviewRunId": "B-5a15:RR-574",
+      "envelopeId": "cd44a7a525bb766630724ba8a23d1762ef60c3da16e5611e30286b0d267a5831",
+      "writerSessionId": "sess-3e5b61c528c373ec",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": 8000
+        },
+        "digest": "7c82df813667ecf0f80c4548fd209edf6bf6c6e8a0813c830d02a62c09b6367a"
+      },
+      "readDiagnostics": [],
+      "_hash": "81ac571a7ed2f5d28b8fbd29e9e1d38a2c7f877d5f6f8782e37459f51ea3a429"
     }
   ]
 }
