@@ -4490,7 +4490,7 @@
       "desc": "Canonical missing-artifact family for B-5a15:F-099, F-100, F-101, F-102, F-103, and F-104. The implementation baseline at docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 documents node packages/main/dist/tasks/verifier-causal-preflight-smoke.js, but the acknowledged source task and corresponding build artifact are absent; the exact command exits MODULE_NOT_FOUND. The current pre_review_check_read also fails with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, so this verifier-owned producer/consumer acceptance path is not admissible. These six findings are one verified critical missing-artifact family, not independent defects.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-21T19:15:37.342Z",
@@ -4536,7 +4536,11 @@
       ],
       "signatureTag": "verifier-causal-preflight-missing-artifact-family",
       "signatureTagSource": "confirmed",
-      "clusterId": "CL-017"
+      "clusterId": "CL-017",
+      "resolvedReason": "Superseded by finalized RI-025 current-material review: all reviewer lanes pass at the current HEAD/materialHash/storyFilesHash, and the latest inventory contains no current blocking finding for this historical record.",
+      "resolvedAt": "2026-08-24T07:01:41.014Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-106",
