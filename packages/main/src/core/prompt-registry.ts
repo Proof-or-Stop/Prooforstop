@@ -267,13 +267,13 @@ export function normalizePromptRegistryManifest(value: unknown): PromptRegistryM
   const candidate = value as Record<string, unknown>;
   const schemaVersion = canonicalPromptRegistrySchemaVersion(candidate.schemaVersion);
   if (!schemaVersion
-    || typeof candidate.source !== 'string'
+    || candidate.source !== PROMPT_REGISTRY_SOURCE
     || typeof candidate.agentCount !== 'number'
     || !Number.isInteger(candidate.agentCount)
     || typeof candidate.materialHash !== 'string') return null;
   return {
     schemaVersion,
-    source: candidate.source as typeof PROMPT_REGISTRY_SOURCE,
+    source: PROMPT_REGISTRY_SOURCE,
     agentCount: candidate.agentCount,
     materialHash: candidate.materialHash,
   };
