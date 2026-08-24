@@ -5551,6 +5551,75 @@
       },
       "readDiagnostics": [],
       "_hash": "04f60ed0df486eff2d4ce257a279cab9c9f43d1b1f7b594026531da8ada89ce6"
+    },
+    {
+      "id": "B-45a0:RP-119",
+      "agent": "lattice-review-quality",
+      "note": "Current-head quality review passed: the producer path now executes the canonical pre_review_check handler and the lifecycle consumer independently verifies the signed artifact; pre-review, topology, rollout, and mutation evidence are passing with unchanged material/story hashes.",
+      "createdAt": "2026-08-24T08:02:59.632Z",
+      "reviewRound": "2026-08-24T07:57:39.087Z",
+      "reviewRunId": "B-45a0:RR-419",
+      "envelopeId": "613c9d07ade10ec5bb8e049320cd8a96c66cd2992a174c8c028f8a8ce9b00a02",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a719cfbe8ec3c5614f32377654a72b4878f3624299175371d5db161e323e4bdc"
+    },
+    {
+      "id": "B-45a0:RP-120",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-head test-coverage review passed: all 45 checklist intents have passing evidence with no must-gap or waiver; executable pre-review producer/consumer transcript, topology, mutation, rollout, freshness, membership, degraded quorum, and rollback evidence are present and current in the CLI coverage checks.",
+      "createdAt": "2026-08-24T08:03:10.969Z",
+      "reviewRound": "2026-08-24T07:57:39.087Z",
+      "reviewRunId": "B-45a0:RR-423",
+      "envelopeId": "22ee42968a8efcb38ad1bda7eae6ba8024470a154d35fe08f4dd930254c9d67a",
+      "writerSessionId": "sess-cd77847d60f0dc3f9eeb048a5e3f518d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c2487fb919a5b23e04aa1cdfb735cfc670cfb8c4a2eda8862a83df54ae113497"
     }
   ]
 }
