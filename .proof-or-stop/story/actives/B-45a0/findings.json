@@ -14099,6 +14099,47 @@
       ],
       "signatureTag": "missing|json|wave-coverage-admissible",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-274",
+      "desc": "RI-057 wave-2 current topology remains unverified at HEAD 6e998fbf5a4. acceptance_basis is invalid and non-evidentiary with AT_SCOPE_BINDING_MISSING due scope-contract digest mismatch. acceptance_topology_check fails structurally with AT_SCOPE_BINDING_MISSING and requires regeneration of the verifier-owned PLAN basis/topology. pre_review_check_read is fail despite complete planned/actual coverage. The current verifier-owned scope, basis, topology, pre-review, and rollout evidence must be regenerated and rebound at this head.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T14:40:29.076Z",
+      "reviewRound": "2026-08-24T13:40:06.701Z",
+      "reviewRunId": "B-45a0:RR-483",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "Reran acceptance_basis, acceptance_topology_check, pre_review_check_read, and acceptance_rollout_report_read for RI-057 wave 2 after all four required lanes terminated and inspected verifier-owned scope, basis, topology, pre-review, and rollout paths."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ea9449ef5bb132f8aad517ee18668545351f16753e690e224e2a05df2560a407",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "acceptance-topology-current-basis-unverified",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
