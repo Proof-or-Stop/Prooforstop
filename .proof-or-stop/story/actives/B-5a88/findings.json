@@ -18267,6 +18267,90 @@
       ],
       "signatureTag": "missing|json|current-acceptance-topology",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-411",
+      "desc": "\"RI-071 wave 2 executable coverage is not admissible at the signed cutoff. acceptance_topology_check --storyId=B-5a88 --json returns status=fail with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING; pre_review_check_read returns fail with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND; acceptance_rollout_report_read and acceptance_rollout_check return fail with AR_REPORT_STALE. Therefore the 21 must verification intents and the required verifier-owned acceptance topology, pre-review, rollout, mutation, membership, freshness, mode-invariant, enforce-only, and rollback coverage are not currently proven by admissible current-wave evidence; regenerate the verifier-owned receipts before a pass.\"",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-24T19:25:19.766Z",
+      "reviewRound": "2026-08-24T17:52:26.292Z",
+      "reviewRunId": "B-5a88:RR-653",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/templates/agents/proof-or-stop-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/templates/agents/",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "954616403dd11e9eb01e3bfdbe74b43c245bd2145fcfb5f09cd9179da942b819"
+      },
+      "readDiagnostics": [],
+      "_hash": "2f0128c4d632877dbb7424f8ce694e5a77f57a1b476ec7260bc0651cd8ef3139",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|json|wave-executable-coverage",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-5a88:F-410: both findings cite the same frozen-cutoff producer receipts and identical failure codes (AT_CLOSURE_FILES_STALE, AT_SCOPE_BINDING_MISSING, PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND, AR_REPORT_STALE); F-410 remains the canonical topology/coverage blocker.",
+      "resolvedAt": "2026-08-24T19:29:27.712Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
