@@ -7479,6 +7479,78 @@
       ],
       "createdAt": "2026-08-24T12:14:42.920Z",
       "_hash": "a90f599963b27a658ce180d8e4df8668c397a7ac33c87c57b533ccc48df7e00a"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-057:CRIT-01",
+      "epochId": "B-45a0:RI-057",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-24T13:40:06.701Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "458b5e2aed4d6c84238164382a1e911b3e45780d",
+        "materialHash": "479b808fdf1d5929bea3996d57f677550ad2dc3cfb8b90f7e29a84c56493f4fd",
+        "storyFilesHash": "125f05a4bc30f30ac52319087ab18ef207e23f9a00d6e8dfaaf3d2d4fd9037d1"
+      },
+      "aggregateFindingSetDigest": "c880978510795dffa7d9d9a4d642de530fa2aa1409024a506df984be27bd562d",
+      "requiredLaneCoverageDigest": "bf1f16aebc05372f5d4752269daa2902f3351c759825d94ba36b5971fd42f6d5",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-476",
+      "terminalEvidenceIds": [
+        "B-45a0:F-271"
+      ],
+      "readEvidenceDigest": "e73333d4993b490b9c80f9434953ab0bd30a54cf4d6ab3eadfd3727ab6d0f658",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-264",
+          "disposition": "verified_family",
+          "familyKey": "ri-pre-review-smoke-untyped-observed",
+          "reason": "The source line is directly verified as an untyped mutation witness result and remains a concrete quality issue."
+        },
+        {
+          "findingId": "B-45a0:F-265",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-scope-bound-receipts",
+          "reason": "Independent critic verified the acceptance topology and pre-review receipts share one scope-binding admissibility failure family."
+        },
+        {
+          "findingId": "B-45a0:F-266",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-scope-bound-receipts",
+          "canonicalFindingId": "B-45a0:F-265",
+          "reason": "This topology failure is the same scope-binding receipt family as the canonical acceptance finding."
+        },
+        {
+          "findingId": "B-45a0:F-267",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-scope-bound-receipts",
+          "canonicalFindingId": "B-45a0:F-265",
+          "reason": "This pre-review receipt failure is the same scope-binding admissibility family as the canonical acceptance finding."
+        },
+        {
+          "findingId": "B-45a0:F-268",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-scope-bound-receipts",
+          "canonicalFindingId": "B-45a0:F-265",
+          "reason": "This coverage admissibility failure is the same scope-binding receipt family as the canonical acceptance finding."
+        },
+        {
+          "findingId": "B-45a0:F-269",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-scope-bound-receipts",
+          "canonicalFindingId": "B-45a0:F-265",
+          "reason": "This RI-057 quality finding repeats the same verifier-owned scope-binding receipt failure."
+        },
+        {
+          "findingId": "B-45a0:F-270",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-scope-bound-receipts",
+          "canonicalFindingId": "B-45a0:F-265",
+          "reason": "This RI-057 coverage finding repeats the same verifier-owned scope-binding receipt failure."
+        }
+      ],
+      "createdAt": "2026-08-24T14:29:00.416Z",
+      "_hash": "7648193a4b29078e902731844619e9afaacb15456d407d7ca41541311e7a8688"
     }
   ]
 }
