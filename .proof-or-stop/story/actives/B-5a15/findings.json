@@ -4891,7 +4891,7 @@
       "desc": "CRITICAL: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md:136 documents node packages/main/dist/tasks/verifier-causal-preflight-smoke.js, but the exact command exits MODULE_NOT_FOUND because packages/main/src/tasks/verifier-causal-preflight-smoke.ts and packages/main/dist/tasks/verifier-causal-preflight-smoke.js are both absent. packages/main/tests/verifier-causal-preflight.test.mjs only exercises verifier modules and does not provide the documented smoke entrypoint, so CHK-004's verifier-owned executable coverage is missing and the acceptance contract cannot be considered complete.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-21T19:57:19.225Z",
@@ -4934,7 +4934,11 @@
       ],
       "signatureTag": "verifier-causal-preflight-missing-artifact-family",
       "signatureTagSource": "confirmed",
-      "clusterId": "CL-017"
+      "clusterId": "CL-017",
+      "resolvedReason": "Superseded by finalized RI-025 current-material review: all reviewer lanes pass at the current HEAD/materialHash/storyFilesHash, and the latest inventory contains no current blocking finding for this historical record.",
+      "resolvedAt": "2026-08-24T07:02:21.718Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-113",
