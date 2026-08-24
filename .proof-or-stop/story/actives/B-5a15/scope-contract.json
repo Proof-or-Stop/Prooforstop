@@ -358,10 +358,26 @@
       "phase": "DEV",
       "headHash": "827d1259510cc0433636479035d37c0ae7a8bf4d",
       "materialHash": "84b306befb2d3da045ff3ff950e6166511abb101ca64dcda773b748455031ed6"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This shared allowlist is required to classify session-like environment keys correctly for B-5a15 causal evidence and fail-closed verifier execution.",
+      "timestamp": "2026-08-24T18:50:08.134Z",
+      "paths": [
+        "packages/main/src/core/validation-command-environment.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/validation-command-environment.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "8b617a0f640cae50b087fd3aa71bf169d1c2f1fc",
+      "materialHash": "fd57303f3eced30f2a270d51d6541b4350a2f903f378512c910e7753fc6a452b"
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-08-24T04:35:49.552Z",
+  "updatedAt": "2026-08-24T18:50:08.134Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -423,6 +439,7 @@
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/a076edfedd19fd9fe820a6d89c5e86d5e794e1865ea83c19e435fc109148ccdb.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/a076edfedd19fd9fe820a6d89c5e86d5e794e1865ea83c19e435fc109148ccdb.json",
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/b470e48980c58f11d6bb5718f1e84ad4e20aee9f917e1fc433394fc9011a52e4.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/b470e48980c58f11d6bb5718f1e84ad4e20aee9f917e1fc433394fc9011a52e4.json",
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d60dc99c7796a66b1ed7d28028ddd46f387377d20fa3b5ab1c40da252fd16448.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d60dc99c7796a66b1ed7d28028ddd46f387377d20fa3b5ab1c40da252fd16448.json",
-    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ed28534544f5eee6957b570ed5189b1c05ca250ba9de801a703233ace09022cf.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ed28534544f5eee6957b570ed5189b1c05ca250ba9de801a703233ace09022cf.json"
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ed28534544f5eee6957b570ed5189b1c05ca250ba9de801a703233ace09022cf.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ed28534544f5eee6957b570ed5189b1c05ca250ba9de801a703233ace09022cf.json",
+    "packages/main/src/core/validation-command-environment.ts": "packages/main/src/core/validation-command-environment.ts"
   }
 }
