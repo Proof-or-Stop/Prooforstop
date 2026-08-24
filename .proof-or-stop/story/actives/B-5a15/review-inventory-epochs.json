@@ -4324,6 +4324,131 @@
       },
       "terminalRunSequenceBoundary": 540,
       "_hash": "10e8795b0a1988572ce435106bd5bde5efe1303aced3da0ce0cee29a8bdfc977"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-034",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-24T17:20:27.099Z",
+      "updatedAt": "2026-08-24T17:32:32.969Z",
+      "cutoff": {
+        "headHash": "603b7b3435ede7998cafc645059012f32722ff66",
+        "materialHash": "fd57303f3eced30f2a270d51d6541b4350a2f903f378512c910e7753fc6a452b",
+        "storyFilesHash": "ce97f21fb70e4554cda67313590c02f736a61b77a6c340ac3e14d44a5cab639a"
+      },
+      "scopeDigest": "e16dffc6c632b36b3fad901b37bed272b835ee350a4e6c956041abc87432403c",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 540,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-08-24T17:32:32.969Z",
+      "cancelReason": "Cancel the incomplete RI-034 epoch so the stale verifier-owned pre-review and rollout artifacts can be repaired in DEV and then re-reviewed at a fresh current-material cutoff.",
+      "terminalRunSequenceBoundary": 546,
+      "_hash": "af2d1b342640233981c23bbd2d1e2b07dde35eb3726387cccf4270529488ff09"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RIE-046",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-24T17:35:01.702Z",
+      "updatedAt": "2026-08-24T17:37:27.380Z",
+      "cutoff": {
+        "headHash": "603b7b3435ede7998cafc645059012f32722ff66",
+        "materialHash": "fd57303f3eced30f2a270d51d6541b4350a2f903f378512c910e7753fc6a452b",
+        "storyFilesHash": "ce97f21fb70e4554cda67313590c02f736a61b77a6c340ac3e14d44a5cab639a"
+      },
+      "scopeDigest": "9a99e0c63c57ddf020c5197106e42ebd28fe1b6b2914b4d08c0bf248ee6488ff",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a15:RIE-046:RCP-001",
+      "cancelledAt": "2026-08-24T17:37:27.380Z",
+      "cancelReason": "Invalidate the unconsumed completeness receipt because reviewer metadata changed after it was minted; reopen the current material inventory before entering DEV.",
+      "terminalRunSequenceBoundary": 546,
+      "_hash": "999d3ec4b63eb6a86f697c4420a35759479e30facb0378d0f8351ed425218228"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-035",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-24T17:37:37.340Z",
+      "updatedAt": "2026-08-24T17:44:23.400Z",
+      "cutoff": {
+        "headHash": "603b7b3435ede7998cafc645059012f32722ff66",
+        "materialHash": "fd57303f3eced30f2a270d51d6541b4350a2f903f378512c910e7753fc6a452b",
+        "storyFilesHash": "ce97f21fb70e4554cda67313590c02f736a61b77a6c340ac3e14d44a5cab639a"
+      },
+      "scopeDigest": "e16dffc6c632b36b3fad901b37bed272b835ee350a4e6c956041abc87432403c",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 546,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-08-24T17:44:23.400Z",
+      "cancelReason": "Cancel the incomplete RI-035 epoch because its reviewer terminal evidence cannot be retained while the acceptance basis is untrusted; consume a fresh current-material completeness receipt to enter DEV and repair the verifier-owned artifacts.",
+      "terminalRunSequenceBoundary": 550,
+      "_hash": "3d9af64429d29f16d0051c3d79a1706363178aeef8a71f92c308557525c3170b"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RIE-048",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-24T17:44:30.327Z",
+      "updatedAt": "2026-08-24T17:48:59.441Z",
+      "cutoff": {
+        "headHash": "603b7b3435ede7998cafc645059012f32722ff66",
+        "materialHash": "fd57303f3eced30f2a270d51d6541b4350a2f903f378512c910e7753fc6a452b",
+        "storyFilesHash": "ce97f21fb70e4554cda67313590c02f736a61b77a6c340ac3e14d44a5cab639a"
+      },
+      "scopeDigest": "9a99e0c63c57ddf020c5197106e42ebd28fe1b6b2914b4d08c0bf248ee6488ff",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a15:RIE-048:RCP-001",
+      "cancelledAt": "2026-08-24T17:48:59.441Z",
+      "cancelReason": "Reissue the remediation receipt against the current acceptance-subject digest after the previous consume attempt exposed a post-finalize subject mismatch.",
+      "terminalRunSequenceBoundary": 550,
+      "_hash": "83d9dd7e5571afa17887b37a19b7bd212e9004450bb69c2a7daaa4af586879d5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RIE-049",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-24T17:49:06.825Z",
+      "updatedAt": "2026-08-24T17:50:37.602Z",
+      "cutoff": {
+        "headHash": "603b7b3435ede7998cafc645059012f32722ff66",
+        "materialHash": "fd57303f3eced30f2a270d51d6541b4350a2f903f378512c910e7753fc6a452b",
+        "storyFilesHash": "ce97f21fb70e4554cda67313590c02f736a61b77a6c340ac3e14d44a5cab639a"
+      },
+      "scopeDigest": "9a99e0c63c57ddf020c5197106e42ebd28fe1b6b2914b4d08c0bf248ee6488ff",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a15:RIE-049:RCP-001",
+      "cancelledAt": "2026-08-24T17:50:37.602Z",
+      "cancelReason": "Invalidate the completeness-only receipt; this remediation requires a full acceptance-subject inventory receipt, and the current basis must be committed before fresh reviewer evidence is recorded.",
+      "terminalRunSequenceBoundary": 550,
+      "_hash": "a7a6beea70576154e7ffcc406e3211f55c56ca4ee0f031f5e8399d7db7ed1329"
     }
   ],
   "receipts": [
@@ -4844,6 +4969,78 @@
       "issuedAt": "2026-08-24T13:25:07.364Z",
       "consumedAt": "2026-08-24T13:51:33.996Z",
       "_hash": "023fc998f7e4db9aceb255e5336137e8c6b1b35877068ebb6415aa7c00697d7f"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a15:RIE-046:RCP-001",
+      "epochId": "B-5a15:RIE-046",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "cutoff": {
+        "headHash": "603b7b3435ede7998cafc645059012f32722ff66",
+        "materialHash": "fd57303f3eced30f2a270d51d6541b4350a2f903f378512c910e7753fc6a452b",
+        "storyFilesHash": "ce97f21fb70e4554cda67313590c02f736a61b77a6c340ac3e14d44a5cab639a"
+      },
+      "scopeDigest": "9a99e0c63c57ddf020c5197106e42ebd28fe1b6b2914b4d08c0bf248ee6488ff",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-24T17:35:01.702Z",
+      "invalidatedAt": "2026-08-24T17:37:27.380Z",
+      "invalidationReason": "Invalidate the unconsumed completeness receipt because reviewer metadata changed after it was minted; reopen the current material inventory before entering DEV.",
+      "_hash": "ae6040fff739efc710e7b01ceab5c1e03fa7d9704ac1a67e0c4e17a43ad8b4a8"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a15:RIE-048:RCP-001",
+      "epochId": "B-5a15:RIE-048",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "cutoff": {
+        "headHash": "603b7b3435ede7998cafc645059012f32722ff66",
+        "materialHash": "fd57303f3eced30f2a270d51d6541b4350a2f903f378512c910e7753fc6a452b",
+        "storyFilesHash": "ce97f21fb70e4554cda67313590c02f736a61b77a6c340ac3e14d44a5cab639a"
+      },
+      "scopeDigest": "9a99e0c63c57ddf020c5197106e42ebd28fe1b6b2914b4d08c0bf248ee6488ff",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-24T17:44:30.327Z",
+      "invalidatedAt": "2026-08-24T17:48:59.441Z",
+      "invalidationReason": "Reissue the remediation receipt against the current acceptance-subject digest after the previous consume attempt exposed a post-finalize subject mismatch.",
+      "_hash": "70c0c0ab8c0678d166fb508ca1426348f38a4c0b5b8006e65f4c2531e33e1e08"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a15:RIE-049:RCP-001",
+      "epochId": "B-5a15:RIE-049",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "cutoff": {
+        "headHash": "603b7b3435ede7998cafc645059012f32722ff66",
+        "materialHash": "fd57303f3eced30f2a270d51d6541b4350a2f903f378512c910e7753fc6a452b",
+        "storyFilesHash": "ce97f21fb70e4554cda67313590c02f736a61b77a6c340ac3e14d44a5cab639a"
+      },
+      "scopeDigest": "9a99e0c63c57ddf020c5197106e42ebd28fe1b6b2914b4d08c0bf248ee6488ff",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-24T17:49:06.825Z",
+      "invalidatedAt": "2026-08-24T17:50:37.602Z",
+      "invalidationReason": "Invalidate the completeness-only receipt; this remediation requires a full acceptance-subject inventory receipt, and the current basis must be committed before fresh reviewer evidence is recorded.",
+      "_hash": "6b4bb66052b39e30db61d5cd1c17b5dbbb92ce8309ddd9d55093c88e14cc4162"
     }
   ],
   "criticReceipts": [
