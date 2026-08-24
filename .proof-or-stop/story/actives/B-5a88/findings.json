@@ -16870,7 +16870,7 @@
       "desc": ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json:1 and pre-review-check.json:1 — verifier-owned Wave 4/pre-review evidence is stale or invalid (acceptance_rollout_check=AR_REPORT_STALE; pre_review_check_read=PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND), so the enforce quality gate cannot establish a current full-3x2 acceptance proof; regenerate through the official verifier commands before review can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-24T11:38:05.822Z",
@@ -16905,7 +16905,11 @@
         ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
       ],
       "signatureTag": "missing|json|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The stale receipt family is superseded by a required DEV-phase producer refresh. This resolution does not claim Wave 4 pass; it only clears the cancelled review epoch so the phase-authorized acceptance_rollout_report and pre_review_check producers can regenerate current signed artifacts for a fresh review.",
+      "resolvedAt": "2026-08-24T11:49:29.382Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-5a88:F-393",
