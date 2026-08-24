@@ -3437,6 +3437,51 @@
         "scanEscalationReason": null
       },
       "_hash": "9be0a922c29acb2fb1393568affa5c59bb5bd8ecb0a20673088d213e2f8ab9ae"
+    },
+    {
+      "id": "B-5a15:RP-079",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: this change adds the CausalEvidence boundary and does not delete or replace an existing repository concept. The repository-wide residue scan found only explicitly retained legacy testIntent compatibility references. The verifier-owned Wave-4 chain is structurally complete; pre_review_check_read is current and admissible, and acceptance_rollout_check is current enforce-mode full-3x2 with no diagnostics. No blocker found.",
+      "createdAt": "2026-08-24T02:58:33.235Z",
+      "reviewRound": "2026-08-24T02:49:45.599Z",
+      "reviewRunId": "B-5a15:RR-385",
+      "envelopeId": "1b5a025467a064b28a65c6dd705046fabd8425a1fa321c5b28facc747f8c7535",
+      "writerSessionId": "sess-3e5b61c528c373ec",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/run-proofstory-pre-review-live-proof.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0152c9dc59c9fcbefd556e6b2e6e12d5c9c68ab2e289447725caf9911d0a8da2"
     }
   ]
 }
