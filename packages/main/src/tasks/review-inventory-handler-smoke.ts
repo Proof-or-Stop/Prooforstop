@@ -1070,6 +1070,6 @@ assert.throws(() => unsupported.handlers.review_inventory_critic_set({
   agent: 'lattice-review-topology-critic', findingDispositions: [],
 }), /only lattice-review-topology-critic|agent_dispatch_mutation_denied|LANES_INCOMPLETE/);
 assert.equal(JSON.stringify(unsupported.store.readReviewInventoryEpochs(storyId)), before, 'rejected critic mutation is side-effect free');
-assert.match(unsupportedBegin, /Next: lattice review_inventory_status/);
+assert.match(unsupportedBegin, /Next: proof-or-stop review_inventory_status/);
 
 console.log('review inventory real handler smoke: PASS');
