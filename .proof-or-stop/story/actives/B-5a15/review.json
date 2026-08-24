@@ -847,6 +847,24 @@
         }
       ],
       "_hash": "ee4fea42b0f2d7faff7c98a4879a13572d903434afd64ac3980930b691855b01"
+    },
+    {
+      "timestamp": "2026-08-24T08:49:33.895Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "7bb3e9977e6fd14015db78aed21e1e40c6023b0019437325e6a8aa1dc6550a13"
     }
   ]
 }
