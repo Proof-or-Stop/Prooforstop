@@ -249,6 +249,10 @@ function exerciseFailingLifecycleMode(mode: 'observe' | 'warn' | 'enforce'): { r
       acceptanceClaim: 'The production transition consumes the same structural evaluator as the read-only check.',
     });
     run(root, 'acceptance_basis_generate', { storyId, json: true });
+    run(root, 'dev_memory_preflight_ack', {
+      storyId,
+      reason: 'This isolated topology gate fixture acknowledges lifecycle preflight before testing DEV gate behavior.',
+    });
     const report = parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true }, mode === 'enforce'));
     const previous = process.cwd();
     let coreReport;
@@ -543,6 +547,10 @@ try {
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'record clean plan review']);
   run(root, 'acceptance_basis_generate', { storyId, json: true });
+  run(root, 'dev_memory_preflight_ack', {
+    storyId,
+    reason: 'This isolated topology gate fixture acknowledges lifecycle preflight before testing the clean DEV transition.',
+  });
   const advance = run(root, 'story_advance', { storyId, phase: 'DEV' });
   assert.match(advance, /advanced to DEV/);
   assert.equal(store.readStory(storyId).phase, 'DEV');
