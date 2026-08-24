@@ -692,6 +692,28 @@
       "consumedAt": "2026-08-24T08:02:14.614Z",
       "consumedByReviewRound": "2026-08-24T06:58:22.362Z",
       "_hash": "719c1bf20b3d770e0490c40dff282741c67d9a42d388b5608ffb0a8d3dd73f68"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-a2a6:RIE-011",
+      "storyId": "B-a2a6",
+      "reviewRound": "2026-08-24T08:02:30.238Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-24T10:00:47.366Z",
+      "updatedAt": "2026-08-24T10:00:54.887Z",
+      "cutoff": {
+        "headHash": "cd627f265dfecb46becf56113ab4ff8254a794f2",
+        "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+        "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3"
+      },
+      "scopeDigest": "4581ebb1da098d3475dd31ff3783e4a8096f5dd693e2bb6dd3a33c9acf879be1",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-a2a6:RIE-011:RCP-001",
+      "consumedAt": "2026-08-24T10:00:54.887Z",
+      "consumedByReviewRound": "2026-08-24T08:02:30.238Z",
+      "_hash": "d2b61981d60ae915eb17200535eb5610a9b9300be257cb2ecef18dacd963da11"
     }
   ],
   "receipts": [
@@ -802,6 +824,29 @@
       "issuedAt": "2026-08-24T08:01:58.491Z",
       "consumedAt": "2026-08-24T08:02:14.614Z",
       "_hash": "87a459ff053749ffb5aeec67f7f5a7e826a41c2c7c50f7ded076f369559ede1e"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-a2a6:RIE-011:RCP-001",
+      "epochId": "B-a2a6:RIE-011",
+      "storyId": "B-a2a6",
+      "reviewRound": "2026-08-24T08:02:30.238Z",
+      "cutoff": {
+        "headHash": "cd627f265dfecb46becf56113ab4ff8254a794f2",
+        "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+        "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3"
+      },
+      "scopeDigest": "4581ebb1da098d3475dd31ff3783e4a8096f5dd693e2bb6dd3a33c9acf879be1",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-24T10:00:47.366Z",
+      "consumedAt": "2026-08-24T10:00:54.887Z",
+      "_hash": "0f83cc6e447edfabde51495af20fec2239e9d2e9f0bf5a0508a4ade84e510080"
     }
   ],
   "criticReceipts": [
