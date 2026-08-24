@@ -13777,6 +13777,127 @@
       ],
       "signatureTag": "missing|json|current-head-wave",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-266",
+      "desc": "Current-wave topology is not passable at HEAD 0852fc375620. acceptance_basis is invalid and non-evidentiary with AT_SCOPE_BINDING_MISSING and an empty valid diagnostic set after the scope-contract binding diverged. acceptance_topology_check fails structurally with AT_SCOPE_BINDING_MISSING (scope-contract digest mismatch) and instructs regeneration of the verifier-owned basis/topology. pre_review_check_read is fail despite complete planned/actual coverage, while the rollout report remains a nested pass that cannot cure the invalid basis and scope binding. Regenerate and rebind the verifier-owned scope/basis/topology evidence at the current head.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T14:11:00.849Z",
+      "reviewRound": "2026-08-24T13:40:06.701Z",
+      "reviewRunId": "B-45a0:RR-467",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "Reran acceptance_basis, acceptance_topology_check, pre_review_check_read, and acceptance_rollout_report_read after the current-wave RR-467 metadata head and inspected verifier-owned basis, topology, scope binding, pre-review, and rollout paths."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "408cdca29cb32a6d759517b26394383f29ceaf2546f1bee61636b5c6df5c7dba",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "acceptance-topology-current-basis-unverified",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-267",
+      "desc": "Current-head verifier-owned review evidence is not admissible at HEAD 0852fc3756: pre_review_check_read returns PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND, and acceptance_topology_check remains structuralPass=false/evidentiary=false with AT_SCOPE_BINDING_MISSING (scope-contract digest mismatch). The rollout report is pass/full-3x2 but cannot substitute for the missing current pre-review/topology chain; regenerate the verifier-owned receipts against this head before the quality lane can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T14:11:52.322Z",
+      "reviewRound": "2026-08-24T13:40:06.701Z",
+      "reviewRunId": "B-45a0:RR-468",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "667f46bc72ce903a5b93749c730dcb8be0d6e4dd6a90a89c26e7014554ea13fd",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json"
+      ],
+      "signatureTag": "missing|json|current-head-verifier",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-268",
+      "desc": "RI-056 current-head coverage is not admissible despite 45 evidence rows for 45 intents (39 must, 0 failed rows): pre_review_check_read at HEAD 0852fc3756 fails PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND, and acceptance_topology_check fails structural/evidentiary verification with AT_SCOPE_BINDING_MISSING (scope-contract digest mismatch). acceptance_rollout_check remains pass/full-3x2, but the Wave-4 coverage boundary requires the verifier-owned topology and current pre-review receipts; regenerate those artifacts at this head before accepting coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T14:12:23.587Z",
+      "reviewRound": "2026-08-24T13:40:06.701Z",
+      "reviewRunId": "B-45a0:RR-471",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e117665ca27c0f3a5edb576c0d907cb77909d3101550954f7053308fe2e1d818",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json"
+      ],
+      "signatureTag": "missing|json|current-head-coverage",
+      "signatureTagSource": "auto"
     }
   ]
 }
