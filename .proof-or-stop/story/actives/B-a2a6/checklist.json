@@ -26,7 +26,11 @@
         "happy": [
           {
             "desc": "For one collectReviewerEvidenceState call covering multiple bound reviewer records, create one per-collection immutable prompt-envelope snapshot and pass that same snapshot to validateEvidenceRunBinding, verifyReviewRunPromptEnvelope, and the incremental eligibility lookup. All records must see identical envelope content, prompt-envelope reads must be reduced to one collection-scoped read, and evidence, eligibility cutoff, reviewer binding, and lifecycle gate decisions must match uncached behavior.",
-            "type": "logic"
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+              "selector": "review-incremental-context-smoke: PASS"
+            }
           },
           {
             "desc": "Independent direct callers of verifyReviewRunPromptEnvelope or validateEvidenceRunBinding that omit the optional snapshot retain the existing direct-read/default behavior, including the same successful result for valid evidence and the same fail-closed result for invalid evidence.",
@@ -69,7 +73,30 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "The tool-owned focused smoke proves one prompt-envelope read per collector call and preserves the existing reviewer evidence verdicts.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2d6223719f6ca976dea8905fd7931e5f220ebe48cd9b5bfdac2e73b42d305519",
+            "outputTail": " written).\nreview-incremental-context-smoke: MIXED WRITER LOCK ABA: actual review_run_start + agent_prompt preserve two envelopes and valid signed ReviewRun\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED MASK 31 iteration 1: five concurrent legacy/full runs + pass/finding writers preserved gate evidence\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED MASK 10 iteration 1: five concurrent legacy/full runs + pass/finding writers preserved gate evidence\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED MASK 21 iteration 1: five concurrent legacy/full runs + pass/finding writers preserved gate evidence\nreview-incremental-context-smoke: INCREMENTAL_GUARD_CLASSES=review-run-identity,mixed-envelope-selection,pass-finding-write-serialization,signed-result-admissibility,lane-no-overwrite,real-review-gate\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: MIXED MASK 21 iteration 2: five concurrent legacy/full runs + pass/finding writers preserved gate evidence\nINCREMENTAL_STRESS_RECEIPT={\"deterministicSeed\":\"fixed-mask-v1\",\"schedule\":[31,10,21],\"shards\":{\"enabled\":false,\"deterministic\":false,\"timeoutIsolated\":false,\"observedSequentialCases\":true},\"replay\":{\"mask\":21,\"repetitions\":1,\"sameGuardClassOutcome\":true,\"observed\":{\"review-run-identity\":true,\"mixed-envelope-selection\":true,\"pass-finding-write-serialization\":true,\"signed-result-admissibility\":true,\"lane-no-overwrite\":true,\"real-review-gate\":true}},\"mutationKillMap\":{\"review-run-identity\":{\"executed\":false,\"detected\":false},\"mixed-envelope-selection\":{\"executed\":false,\"detected\":false},\"pass-finding-write-serialization\":{\"executed\":false,\"detected\":false},\"signed-result-admissibility\":{\"executed\":false,\"detected\":false},\"lane-no-overwrite\":{\"executed\":false,\"detected\":false},\"real-review-gate\":{\"executed\":false,\"detected\":false}},\"scheduleMutation\":{\"executed\":false,\"completed\":false,\"threw\":false,\"baselinePassed\":false,\"reorderedPassed\":false,\"orderViolation\":false,\"missingSeedRejected\":false,\"detected\":false},\"iterations\":[{\"iteration\":1,\"guardClasses\":{\"review-run-identity\":true,\"mixed-envelope-selection\":true,\"pass-finding-write-serialization\":true,\"signed-result-admissibility\":true,\"lane-no-overwrite\":true,\"real-review-gate\":true}}],\"aba\":{\"observedDurationMs\":3230.714749999999},\"cutoff\":{\"observedDurationMs\":12391.426},\"restoration\":{\"completedCases\":1,\"expectedCases\":1}}\nLATTICE_FULL_SUITE_SUMMARY={\"assertions\":[\"canonical-iteration\",\"guard-class-equivalence\",\"restoration\"],\"mutations\":[]}\n\nreview-incremental-context-smoke: PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-24T02:35:26.213Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "2d0043b66f6bd3b7672fe0dbf9250e1a6d45a084",
+          "materialHash": "88cee84c76b7dc3df9951855650b0e6c94af4ebb2581a3de80c3419d0c64c69b",
+          "storyFilesHash": "4e5f195cf9d64098eb7b78764fc0db0218642f46fe7058c4fd5046fbcaaac2f6",
+          "timestamp": "2026-08-24T02:35:26.687Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
