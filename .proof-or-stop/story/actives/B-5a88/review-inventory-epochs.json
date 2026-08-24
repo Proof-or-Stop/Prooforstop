@@ -5890,6 +5890,33 @@
       "cancelReason": "RI-072 critic receipt CRIT-01 is bound to superseded RR-671 while the runtime refuses a second CRIT-01 for RR-672; cancel the open epoch and reopen a fresh signed inventory without rewriting receipts.",
       "terminalRunSequenceBoundary": 672,
       "_hash": "8267424bce354338949002c615c185e12e9a9cac41a3fd6bb67d1b3bf1c1f87a"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-073",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-24T20:09:03.823Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-24T21:02:04.987Z",
+      "updatedAt": "2026-08-24T21:02:04.987Z",
+      "cutoff": {
+        "headHash": "c65b70bc3383772c6ce88313ddcc356e3759ad1e",
+        "materialHash": "4f50257c1405593662b2cbfa743f767e577f30a4c6bdbacbfacca97a5f1f2ff2",
+        "storyFilesHash": "788e552ef0188cb7bc62075f03e99e932f56fa5cf845247ea144aa48aefaeded"
+      },
+      "scopeDigest": "54b8e8561ad2a02a8a764acb34ac1dcf2494c29f27752b23ae8cbeddd8c92df9",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 672,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-5a88:F-413"
+      ],
+      "_hash": "3b9c47d65838339c87d4130a98e3e7d7feeb3749bf646572bc91086f69e9c047"
     }
   ],
   "receipts": [
