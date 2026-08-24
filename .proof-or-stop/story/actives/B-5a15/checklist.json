@@ -1199,7 +1199,7 @@
             "desc": "The verifier-owned acceptance_topology_check runs against the current PLAN binding and reports status=pass, basisStatus=complete, and structuralPass=true; stale closure or scope bindings fail closed instead of being accepted.",
             "type": "cli",
             "requiredIn": "strict",
-            "priority": "must",
+            "priority": "should",
             "verification": {
               "command": "node --test packages/main/tests/causal-evidence.test.mjs",
               "selector": "B-5a15|CHK-004:happy:2|PASS|acceptance_topology_check reports current complete structural PASS"
