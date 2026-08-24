@@ -287,10 +287,26 @@
         "review_incremental_basis_overflow",
         "full_context_reviewer_escalation"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The heartbeat smoke fixture readiness timeout is required to validate the production watchdog under the repository full-suite load.",
+      "timestamp": "2026-08-24T18:13:56.625Z",
+      "paths": [
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "fbb728a4cc1c83f222a03b096f118cb27f9223d2",
+      "materialHash": "e2d0d37bb659048bbabf951c0188779242b9edf3af60619ea5d9a3dcf7335a44"
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-24T13:39:13.234Z",
+  "updatedAt": "2026-08-24T18:13:56.625Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -365,6 +381,7 @@
     "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
     "packages/main/src/handlers/live-smoke-transcript.ts": "packages/main/src/handlers/live-smoke-transcript.ts",
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
-    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts"
+    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
   }
 }
