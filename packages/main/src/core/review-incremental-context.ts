@@ -49,6 +49,7 @@ import {
   FULL_TASK_CONTEXT_LIMITS,
   validateIncrementalReviewBasis,
   type IncrementalReviewBasis,
+  type PromptEnvelope,
   type PromptFindingProjection,
 } from './prompt-contracts.js';
 import {
@@ -554,6 +555,7 @@ function latestTrustedPriorPass(
   runs: ReviewRun[],
   excludedReviewRunId?: string,
   passesCutoffAt?: string,
+  promptEnvelopes?: readonly PromptEnvelope[],
 ): TrustedPriorPass | null {
   const candidates: TrustedPriorPass[] = [];
   const cutoff = passesCutoffAt ? verdictTime(passesCutoffAt) : Number.POSITIVE_INFINITY;
@@ -568,7 +570,7 @@ function latestTrustedPriorPass(
     const run = runs.find(candidate => candidate.reviewRunId === pass.reviewRunId);
     if (!run || run.lane !== role || !verifyReviewRun(run)) continue;
     if (!run.envelopeId || pass.envelopeId !== run.envelopeId || !run.assembledPrompt) continue;
-    const envelopes = store.readPromptEnvelopes(storyId).envelopes.filter(
+    const envelopes = (promptEnvelopes ?? store.readPromptEnvelopes(storyId).envelopes).filter(
       envelope => envelope.envelopeId === run.envelopeId,
     );
     if (envelopes.length !== 1) continue;
@@ -700,6 +702,8 @@ export function reviewIncrementalContext(
     excludedReviewRunId?: string;
     findingsCutoffAt?: string;
     passesCutoffAt?: string;
+    /** Immutable prompt-envelope snapshot shared by one evidence collection. */
+    promptEnvelopes?: readonly PromptEnvelope[];
     /** Signed run-start projection; prevents later finding disposition rewrites. */
     findingProjection?: PromptFindingProjection[];
   } = {},
@@ -716,6 +720,7 @@ export function reviewIncrementalContext(
     runs,
     options.excludedReviewRunId,
     options.passesCutoffAt,
+    options.promptEnvelopes,
   );
   const currentHead = currentGitHead(gitCwd) ?? null;
   const currentMaterial = currentMaterialHash(gitCwd, 'HEAD', projectRoot) ?? null;
@@ -954,7 +959,8 @@ export function reviewIncrementalContext(
   const freshnessClassification = classifyEvidenceFreshness(freshness, prior.run.headHash);
   const currentRole = promptRoleContract(role);
   const environmentDigest = domainSeparatedDigest('known-execution-environment.v1', captureKnownExecutionEnvironment());
-  const priorEnvelope = store.readPromptEnvelopes(storyId).envelopes.find(
+  const promptEnvelopes = options.promptEnvelopes ?? store.readPromptEnvelopes(storyId).envelopes;
+  const priorEnvelope = promptEnvelopes.find(
     envelope => envelope.envelopeId === prior.run.envelopeId,
   );
   const currentPolicyHash = scopeContract ? digestScopeContract(scopeContract) : undefined;
