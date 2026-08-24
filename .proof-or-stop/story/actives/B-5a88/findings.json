@@ -16571,6 +16571,48 @@
       "resolvedAt": "2026-08-24T02:36:14.135Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-385",
+      "desc": "CHK-001 through CHK-007 have 21/21 must verification intents with passing mechanical evidence, and the latest Proof-or-Stop validate snapshot is PASS (including package-identity-migration, artifact-schema-migration, bin-alias/residue, and CHANGELOG_ANNOUNCES_REMOVAL checks), but evidence_inspect reports freshness.status=stale with 22 stale refs. The checklist evidence remains bound to headHash bbac1638eedfc44908b385c37b2fd9fb67c1a47e, materialHash 909f927c2d9aefba730e595d17715e903d847b6bd3d56d02d72dbbf37a88d89a, and storyFilesHash 20609b2ad0e286a1c1d28d2d219a00ae2fd8a3a1be3814bb30e3378e55ee3099, while the current review run is headHash 17e83f572cfd23e8fb5e0015598035b4836dcbcc, materialHash f8e126d220d499e6924ce5c265c517671e2e4a4b7d957205ec6bc7e3c9871d3c, and storyFilesHash 99af18c7e794cf9714b43cd073722c4b01ab2c385f6e95d1535e5b581078ea24. Refresh guidance requires rerunning the pinned verifiers and recording fresh evidence before this lane can sign coverage; a passing validate snapshot does not itself refresh the 21 checklist evidence records.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-24T07:53:48.953Z",
+      "reviewRound": "2026-08-24T07:14:44.562Z",
+      "reviewRunId": "B-5a88:RR-588",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json"
+        ],
+        "filesTriagedByName": [
+          "CHANGELOG.md",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4996110b3d5090713c578a4eefdc26637b754bb110423ea5dafc18d12a0ffaac",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "CHANGELOG.md",
+        "package.json",
+        "package-lock.json",
+        "packages/main/package.json",
+        "packages/main/tests/package-identity-migration.test.mjs",
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "packages/main/tests/bin-alias-migration.test.mjs",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "signatureTag": "missing|json|through-verification-intents",
+      "signatureTagSource": "auto"
     }
   ]
 }
