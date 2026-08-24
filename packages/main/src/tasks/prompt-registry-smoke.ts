@@ -118,7 +118,7 @@ for (const entry of registry.agents) {
       assert.ok(source.includes(phrase), `${entry.file} keeps load-bearing prompt phrase: ${phrase}`);
     }
   }
-  if (entry.file === 'lattice-review-quality.md') {
+  if (entry.file === 'proof-or-stop-review-quality.md') {
     for (const phrase of qualityProofMetadataPhrases) {
       assert.ok(source.includes(phrase), `${entry.file} keeps proof metadata review phrase: ${phrase}`);
     }
