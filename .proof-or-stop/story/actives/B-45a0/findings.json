@@ -14140,6 +14140,458 @@
       ],
       "signatureTag": "acceptance-topology-current-basis-unverified",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-275",
+      "desc": "Current post-harness acceptance evidence is stale and cannot support a concept pass: acceptance_topology_check reports AT_ADAPTER_RESULT_DIGEST_MISMATCH because the basis receipt storyFilesHash does not match current story-owned state; pre_review_check_read fails and acceptance_rollout_report_read/check reports AR_REPORT_STALE. Recompute the verifier-owned basis and rollout artifacts for current RI-058 before REVIEW can advance.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-24T17:21:07.335Z",
+      "reviewRound": "2026-08-24T16:36:17.230Z",
+      "reviewRunId": "B-45a0:RR-495",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "Current-head verifier checks were run directly; the signed basis/topology and rollout artifacts are stale against current story-owned state."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0a4abf8320bafc388136ebdf6888002c9c15da552d16d9227aae3e3793dfd5c0",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|current-post-harness",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-276",
+      "desc": "Current RI-058 docs review cannot certify the documented Wave 4 acceptance chain because current verifier-owned artifacts are stale: acceptance_topology_check reports AT_ADAPTER_RESULT_DIGEST_MISMATCH against story-owned state and acceptance_rollout_report_read/check reports AR_REPORT_STALE. Refresh the signed basis/topology/pre-review/rollout evidence before relying on the documented current PASS/full-3x2 boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-24T17:21:47.306Z",
+      "reviewRound": "2026-08-24T16:36:17.230Z",
+      "reviewRunId": "B-45a0:RR-496",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "Targeted Wave 4 docs/code comparison was performed; current verifier checks failed due stale story-owned bindings, so a docs pass is not admissible."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "431e83f7d3f8741d538c77680f93e47216c874d2b55b9981c16d1469cbd22225"
+      },
+      "readDiagnostics": [],
+      "_hash": "486b2a7d7e740797fb475369079cf5224071348de8a3ef8dd093a0591dae8bb3",
+      "files": [
+        "docs/CLI.md",
+        "docs/guide.md",
+        "docs/requirements/NAV.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|md|current-docs-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-277",
+      "desc": "RI-058 current-head quality is blocked by stale verifier-owned evidence: .proof-or-stop/story/actives/B-45a0/acceptance-basis.json (receipt/topology binding), .proof-or-stop/story/actives/B-45a0/pre-review-check.json, and .proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json are inadmissible at HEAD a1c4ba1d168ce6b0d4ab814519eda6d799bdd770. acceptance_topology_check reports AT_ADAPTER_RESULT_DIGEST_MISMATCH, pre_review_check_read reports PR_ARTIFACT_TAMPERED, and acceptance_rollout_report_read/check report blocking AR_REPORT_STALE. The harness-only timeout extension at packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:483 cannot support a clean current-head pass until these artifacts are regenerated and rebound.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T17:23:07.666Z",
+      "reviewRound": "2026-08-24T16:36:17.230Z",
+      "reviewRunId": "B-45a0:RR-494",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e944aef75cbddc7bdcb30923a49d59ee791a01e757f34e343c5ed65c6f2b4afd",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "ri058-current-head-verifier-evidence",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-278",
+      "desc": "RI-058 current-head test coverage is not admissible despite .proof-or-stop/story/actives/B-45a0/checklist.json containing 13 done items, 45 verification intents (39 must), and 45 evidence rows. The verifier-owned acceptance basis reports AT_ADAPTER_RESULT_DIGEST_MISMATCH, pre-review-check reports PR_ARTIFACT_TAMPERED, and acceptance-rollout-report/check reports blocking AR_REPORT_STALE at HEAD a1c4ba1d168ce6b0d4ab814519eda6d799bdd770. The harness change at packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:483 therefore has no current verifier-owned PASS binding; regenerate and rebind topology, pre-review, and rollout evidence before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T17:23:55.215Z",
+      "reviewRound": "2026-08-24T16:36:17.230Z",
+      "reviewRunId": "B-45a0:RR-497",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "cf0d8df57e75968a9738f5b1d8890da7d1bcbe1241eec0c3397115841a0e9699",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "ri058-current-head-coverage-evidence",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-279",
+      "desc": "Topology completeness critic verified current RI-058 acceptance evidence is incomplete: acceptance_basis is invalid against current story-owned state; acceptance_topology_check reports AT_ADAPTER_RESULT_DIGEST_MISMATCH with storyFilesHash freshness mismatch; pre_review_check_read fails; acceptance_rollout_report_read/check reports AR_REPORT_STALE. A truthful topology verdict is request_changes until verifier artifacts are regenerated.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T17:26:03.872Z",
+      "reviewRound": "2026-08-24T16:36:17.230Z",
+      "reviewRunId": "B-45a0:RR-498",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "Current-head verifier commands were run directly and returned the signed basis/topology freshness mismatch and stale rollout diagnostics."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "65c867968cee4b7a862ce852df1c14d4f8028f3cb3e07a641bb6cf8ac6eb8299",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|topology-completeness-critic",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-280",
+      "desc": "RI-058 wave-2 concept review cannot pass because verifier-owned .proof-or-stop/story/actives/B-45a0/acceptance-basis.json:1 has a current receipt/topology/freshness mismatch at HEAD a1c4ba1d168ce6b0d4ab814519eda6d799bdd770; acceptance_topology_check returns AT_ADAPTER_RESULT_DIGEST_MISMATCH and the basis is inconclusive rather than an admissible acceptance contract. Regenerate the PLAN basis and rebind it to the current story-owned files before treating the concept as verified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-24T17:31:45.937Z",
+      "reviewRound": "2026-08-24T16:36:17.230Z",
+      "reviewRunId": "B-45a0:RR-499",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c7a430e5d506fb1f18ad845f4886c955816145cd37549f1253eda4a10f0cc6c0",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+        ".proof-or-stop/story/actives/B-45a0/plan.md",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json"
+      ],
+      "signatureTag": "ri058-wave2-acceptance-basis-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-281",
+      "desc": "RI-058 wave-2 quality review finds verifier-owned evidence still inadmissible at .proof-or-stop/story/actives/B-45a0/pre-review-check.json:1 and .proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json:1. pre_review_check_read returns PR_ARTIFACT_TAMPERED, while acceptance_rollout_report_read and acceptance_rollout_check return blocking AR_REPORT_STALE; acceptance_topology_check also reports AT_ADAPTER_RESULT_DIGEST_MISMATCH. The current implementation/harness at packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:483 cannot receive a clean quality terminal until these current-head artifacts are regenerated and rebound.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T17:32:11.030Z",
+      "reviewRound": "2026-08-24T16:36:17.230Z",
+      "reviewRunId": "B-45a0:RR-501",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "dea8694be8567c9f283e8da85c203f035dd145383f706c748fe63c00c73fc485",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "ri058-wave2-current-verifier-evidence",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-282",
+      "desc": "RI-058 wave-2 coverage is not admissible despite .proof-or-stop/story/actives/B-45a0/checklist.json:1 containing 13 done items, 45 verification intents (39 must), and 45 evidence rows. Current verifier-owned acceptance_topology_check reports AT_ADAPTER_RESULT_DIGEST_MISMATCH, pre_review_check_read reports PR_ARTIFACT_TAMPERED, and acceptance_rollout_report_read/check report blocking AR_REPORT_STALE at HEAD a1c4ba1d168ce6b0d4ab814519eda6d799bdd770. The changed harness at packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:483 has no current verifier-owned PASS binding until those artifacts are regenerated and rebound.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T17:32:35.016Z",
+      "reviewRound": "2026-08-24T16:36:17.230Z",
+      "reviewRunId": "B-45a0:RR-502",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0bc72e0b04e72bf955e866b9c382bef96a2859d8fe0cff0e14eec3d9d2cefd33",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "signatureTag": "ri058-wave2-current-coverage-evidence",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-283",
+      "desc": "RI-058 wave-2 docs review cannot establish a current contract because .proof-or-stop/story/actives/B-45a0/pre-review-check.json:1 and acceptance-rollout-report.json:1 are stale/tampered relative to HEAD a1c4ba1d168ce6b0d4ab814519eda6d799bdd770. The verifier-owned checks report PR_ARTIFACT_TAMPERED, AR_REPORT_STALE, and AT_ADAPTER_RESULT_DIGEST_MISMATCH; documentation claims in docs/CLI.md:44 and docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md:1 therefore lack current admissible gate binding. Regenerate and rebind the verifier artifacts before accepting the documented promises.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-24T17:33:07.613Z",
+      "reviewRound": "2026-08-24T16:36:17.230Z",
+      "reviewRunId": "B-45a0:RR-504",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "1d2b4ec73beb590c29c620b71d05f6acae3d9aba4f38fdbc61341f9bcfe4fc35"
+      },
+      "readDiagnostics": [],
+      "_hash": "c5167d80b24258a9132907dd359a8a94eca6e48b17acb791cf20ec4088912488",
+      "files": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json"
+      ],
+      "signatureTag": "ri058-wave2-doc-evidence-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-284",
+      "desc": "RI-058 wave-2 topology is not admissible at HEAD a1c4ba1d168ce6b0d4ab814519eda6d799bdd770: acceptance_basis is invalid and acceptance_topology_check reports AT_ADAPTER_RESULT_DIGEST_MISMATCH; pre_review_check_read reports PR_ARTIFACT_TAMPERED; acceptance_rollout_report_read and acceptance_rollout_check report blocking AR_REPORT_STALE. The request_changes topology receipt is truthful; regenerate and rebind verifier-owned basis, pre-review, and rollout artifacts before acceptance can advance.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T17:35:16.408Z",
+      "reviewRound": "2026-08-24T16:36:17.230Z",
+      "reviewRunId": "B-45a0:RR-505",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "100621be612fd117267b257aa14a052dfe0c664e4e55a234f48308fa0d4f580b",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "ri058-wave2-acceptance-evidence-stale",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
