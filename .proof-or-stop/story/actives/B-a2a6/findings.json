@@ -170,6 +170,256 @@
       "resolvedAt": "2026-08-24T03:32:24.964Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a2a6:F-007",
+      "desc": ".proof-or-stop/story/actives/B-a2a6/plan.md: required trusted review input is absent; the story-level concept-deletion review cannot be completed without substituting another artifact (medium)",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-24T03:46:25.044Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-013",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ce84076f28116137a7c6aa96bfe348fed3a8a002d59ea4d51fec1c8d3b7ec3b3",
+      "files": [
+        ".proof-or-stop/story/actives/B-a2a6/plan.md"
+      ],
+      "signatureTag": "missing|md|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-008",
+      "desc": ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json:8441-8445 — the signed Wave 4 receipt says verdict=pass but is bound to stale headHash/materialHash/storyFilesHash; acceptance_rollout_report_read returns AR_REPORT_STALE and acceptance_rollout_check reports blocking=true, so the current story lacks the required current verifier-owned full-3x2 PASS receipt for this quality review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T03:56:42.898Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-015",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-a2a6/review-inventory-epochs.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1ad78bd934e2dfc9a7f35390d76e9be83c91cb29da6a00ad3fe02c3c758bf4d3",
+      "files": [
+        ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-009",
+      "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:582-626,676-710 — CHK-001:edge:2, CHK-001:edge:3, CHK-001:adversarial:1, and CHK-001:adversarial:3 remain under-covered. The smoke passes prebuilt reordered, duplicated, sliced, and mismatched arrays and injects one uncached read failure, but never mutates or replaces an entry after snapshot capture, supplies a foreign/second-collection snapshot, or changes the source between individual record checks. Those cases are required to prove immutable per-collection isolation, no cross-run reuse, and refusal-safe source-change behavior; the current receipts cannot substantiate those claims.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T04:02:11.233Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-016",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5f269b1d459344850453fa5da48e94b97657ce15f127de1b5a723decc41aea67",
+      "files": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-010",
+      "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:591-625,699-710 — CHK-002:edge:0 and CHK-002:adversarial:1 are still not mechanically covered at their read-bound requirement. The fixture compares three-record cached and uncached verifier results and separately counts one collectReviewerEvidenceState read, but it has no one-record case and no counter around each cached/uncached verifyReviewRunPromptEnvelope or reviewIncrementalContext call for N records. Therefore it does not prove a constant envelope-read bound, absence of per-record rereads in the verifier and incremental lookup, or the claimed field-for-field aggregate/read-count invariance as N changes.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T04:02:22.023Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-016",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "78add5df372b7ec81e8b34c57108a78d4a253263b6242ae249ac45b8aa6841ab",
+      "files": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-011",
+      "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:410-816 — the trusted Wave 4 coverage boundary is still absent from executable changed-test coverage. No smoke path invokes or receipts acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check, and there is no executable coverage for the current signed full 3-round x 2-host codex-cli/claude-cli receipt, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history. The cached-verifier receipts and the stale acceptance-rollout report cannot substantiate this mandatory boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T04:02:41.909Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-016",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0ed09add8ab322e5e590dc8665940d09368a4f84be3d7019e09e150dacd4b9ce",
+      "files": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "dismissReason": "The approved B-a2a6 scope is limited to per-collection prompt-envelope snapshot threading and its focused verifier regression. Generic Wave 4 rollout-policy coverage is owned by existing acceptance rollout smokes and is unrelated to this scoped cache change; F-002 was already dismissed on the same bounded-scope basis.",
+      "dismissedAt": "2026-08-24T04:03:39.596Z",
+      "dismissReasonType": "out_of_scope",
+      "dismissEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a2a6:F-012",
+      "desc": "The verifier-derived acceptance basis is partial and invalid at the current HEAD: acceptance_topology_check is inconclusive with stale closure/scope bindings and unmapped process-fact paths, pre_review_check_read fails with PR_ARTIFACT_MISSING, and acceptance_rollout_report_read plus acceptance_rollout_check fail on AR_REPORT_STALE. The topology critic cannot issue a pass or attest acceptance closure until these verifier-owned artifacts are regenerated and current.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T04:09:00.526Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-017",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fd46ad61322baa80c6a3d53bf9764e5d97c398bd026bfc3d54023cd2e5d94018",
+      "files": [
+        ".proof-or-stop/story/actives/B-a2a6/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "signatureTag": "missing|json|verifier-derived-acceptance",
+      "signatureTagSource": "auto"
     }
   ]
 }
