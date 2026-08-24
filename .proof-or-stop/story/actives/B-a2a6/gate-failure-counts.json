@@ -1,1 +1,14 @@
-{}
+{
+  "story_advance/636c4fbe7ed3": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Cannot enter DONE: dev_memory_finish_decision has not been recorded. [missing_dev_memory_finish_decision]\n→ Run `proof-or-stop dev_memory_finish_decision --storyId=B-a2a6 --decision=captured|no-reusable-lesson|defer-with-reason`.",
+    "lastAt": "2026-08-24T10:23:36.637Z"
+  },
+  "story_advance/fd2ccd518052": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "DONE Gate Checklist (B-a2a6):\n  [✓] Test evidence: PASS @ 2026-08-24T10:23:17.409Z\n  [✓] Verification intent coverage: 15/15 covered, 0 required missing\n  [✓] Evidence freshness: evidence materialHash matches current entity file state\n  [✗] DONE-required validation: effective-environment-digest-mismatch[0], effective-environment-digest-mismatch[1]\n  [✓] Bugs fixed: no bugs\n  [✓] git working tree: pass: blocking=0 (material_source+fixture+unexpected); passed=3 (lattice_metadata_changes=2,runtime_",
+    "lastAt": "2026-08-24T10:24:20.268Z"
+  }
+}
