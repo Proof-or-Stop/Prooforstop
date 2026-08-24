@@ -9156,6 +9156,38 @@
       "findingDispositions": [],
       "createdAt": "2026-08-24T14:26:06.141Z",
       "_hash": "2778c3ef448f71ad1611f6a384f1f247063a4d0c13d6b31458d2da812813b6f6"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-069:CRIT-01",
+      "epochId": "B-5a88:RI-069",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-24T15:11:15.383Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "40447992617d1ce59a96cbfb3ae7ce88a827cf8c",
+        "materialHash": "cd63b3cd4d7da068127baaf20fac5d9fde983e0c8946c24e30a9ab3c3c9959b0",
+        "storyFilesHash": "e3f657d2b03ed48ed1211eb4e701c16e563648e82b453d610940dffecda04042"
+      },
+      "aggregateFindingSetDigest": "31af55e33cf37bc12d23809d9ecfa9d3e7f86a004af56235dd527cbbe7d911b9",
+      "requiredLaneCoverageDigest": "7eebcbcbcdef8b20d42415550504e09332e722699cb43b5195be23e5c90a76f1",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-634",
+      "terminalEvidenceIds": [
+        "B-5a88:F-397"
+      ],
+      "readEvidenceDigest": "7e86f24b3f5f42f229b1af72af3404d989772338bd4f5e1898049c66e218f120",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-396",
+          "disposition": "verified_family",
+          "familyKey": "proof-binding-legacy-schema-reader",
+          "canonicalFindingId": "B-5a88:F-396",
+          "reason": "Current RI-069 wave evaluation identifies F-396 as the sole raw verified finding. Full reads confirm artifact-schema.ts declares lattice.proof_binding.v1 while proof-admissibility-binding.ts validates only the canonical proof-or-stop schema, and the migration evidence does not prove legacy proof-binding acceptance."
+        }
+      ],
+      "createdAt": "2026-08-24T15:52:14.250Z",
+      "_hash": "c49fcf6746d43a62849e56e5ab5594f212388886bd73c19603e9a07394ede809"
     }
   ]
 }
