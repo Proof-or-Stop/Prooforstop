@@ -3842,6 +3842,55 @@
       "consumedAt": "2026-08-24T02:27:12.369Z",
       "consumedByReviewRound": "2026-08-23T18:51:54.245Z",
       "_hash": "300ef7538db303d9ba470d6d9a59c47960ac809de4cae89b0b84a4096e17e3c5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-047",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-24T03:44:38.087Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-24T03:45:22.136Z",
+      "updatedAt": "2026-08-24T03:51:40.462Z",
+      "cutoff": {
+        "headHash": "f27df2ce82d28acf6c42c6b9ba774f40fbefee32",
+        "materialHash": "5e081211a1ba5de2b709704045b5caa0145822c69670ae37cefbfe180593f17a",
+        "storyFilesHash": "b4d5c8dafe98cc62873b321ed9d655a81fa984dd5a882a057abe42b076e19328"
+      },
+      "scopeDigest": "0cf2a872a02a2732fada9164576ea23498fe8a11e0e7984e678b2c8b04f4ae4e",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 397,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-08-24T03:51:40.462Z",
+      "cancelReason": "Current review inventory is blocked by a stale acceptance basis and an unverified topology critic receipt; return to DEV to repair the consumer witness and regenerate verifier-owned basis artifacts.",
+      "terminalRunSequenceBoundary": 404,
+      "_hash": "a3d461b3335266ddf40d22d237c6d8e00a9bfb60024b4e5b4a9c30d7b5abe324"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RIE-049",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-24T03:44:38.087Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-24T03:52:06.899Z",
+      "updatedAt": "2026-08-24T03:52:06.899Z",
+      "cutoff": {
+        "headHash": "86556ea74070debb7709fa920bb8d77132abd1d3",
+        "materialHash": "5e081211a1ba5de2b709704045b5caa0145822c69670ae37cefbfe180593f17a",
+        "storyFilesHash": "b4d5c8dafe98cc62873b321ed9d655a81fa984dd5a882a057abe42b076e19328"
+      },
+      "scopeDigest": "a37cfb3a5adc73eac2b41cdd9ce6229c3197cc88953c221727822b49acf1cb63",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-45a0:RIE-049:RCP-001",
+      "_hash": "7ffc37b596575a9c04bbf7670b7c873705e37936ecb58ba5f083645e30f55265"
     }
   ],
   "receipts": [
@@ -4092,6 +4141,28 @@
       "issuedAt": "2026-08-24T02:25:59.871Z",
       "consumedAt": "2026-08-24T02:27:12.369Z",
       "_hash": "195b29ba5a3ea0ed8b0f0686c73e8bf8b274e01e7aeec5c24e653214e46b5e75"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-45a0:RIE-049:RCP-001",
+      "epochId": "B-45a0:RIE-049",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-24T03:44:38.087Z",
+      "cutoff": {
+        "headHash": "86556ea74070debb7709fa920bb8d77132abd1d3",
+        "materialHash": "5e081211a1ba5de2b709704045b5caa0145822c69670ae37cefbfe180593f17a",
+        "storyFilesHash": "b4d5c8dafe98cc62873b321ed9d655a81fa984dd5a882a057abe42b076e19328"
+      },
+      "scopeDigest": "a37cfb3a5adc73eac2b41cdd9ce6229c3197cc88953c221727822b49acf1cb63",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-24T03:52:06.899Z",
+      "_hash": "61f5c8c4f6a257768fbdf439430d924a3fcab110aa6665d25b47e315464ebb8b"
     }
   ],
   "criticReceipts": [
