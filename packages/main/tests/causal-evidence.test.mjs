@@ -649,6 +649,33 @@ test('B-5a15 F-047: secret environment mutations split execution receipts withou
   }
 });
 
+test('B-5a15 F-267/F-273/F-274: non-transport SESSION-like environment mutations split execution receipts', () => {
+  const base = baseIdentity('B-5a15-session-like-environment', {
+    effectiveEnvironment: {
+      NODE_ENV: 'test',
+      APP_SESSION: 'alpha',
+      SESSION_MODE: 'safe',
+    },
+  });
+  const appSessionChanged = createCausalExecutionKey({
+    ...base,
+    effectiveEnvironment: { ...base.effectiveEnvironment, APP_SESSION: 'beta' },
+  });
+  const sessionModeChanged = createCausalExecutionKey({
+    ...base,
+    effectiveEnvironment: { ...base.effectiveEnvironment, SESSION_MODE: 'unsafe' },
+  });
+
+  assert.notEqual(appSessionChanged.key, createCausalExecutionKey(base).key);
+  assert.notEqual(sessionModeChanged.key, createCausalExecutionKey(base).key);
+  assert.equal(appSessionChanged.identity.effectiveEnvironment.APP_SESSION, 'beta');
+  assert.equal(sessionModeChanged.identity.effectiveEnvironment.SESSION_MODE, 'unsafe');
+  emitIntentMarker(
+    'CHK-001:adversarial:session-like-environment',
+    'only explicit transport keys are removed; behavior-affecting APP_SESSION and SESSION_MODE values remain bound to causal execution identity',
+  );
+});
+
 test('CHK-002: CAS receipts precede isolated import, retry commit only, and fail closed on tamper', async () => {
   const root = mkdtempSync(join(tmpdir(), 'causal-evidence-store-'));
   try {

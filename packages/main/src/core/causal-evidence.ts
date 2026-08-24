@@ -1,7 +1,10 @@
 import { createHash, createPublicKey, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
+import {
+  effectiveValidationCommandEnvironment,
+  isValidationTransportEnvKey,
+} from './validation-command-environment.js';
 import {
   exportPublicKeyRaw,
   importPrivateKeyRaw,
@@ -366,7 +369,6 @@ function parseCommandString(command: string): { executable: string; args: string
 
 const REDACTED = '<redacted>';
 const SECRET_ENV_KEY = /(token|secret|password|passwd|api[_-]?key|private[_-]?key|credential|authorization|auth)/i;
-const TRANSPORT_ENV_KEY = /^(?:PWD|OLDPWD|SHLVL|_|TERM_SESSION_ID|.*SESSION(?:_ID)?|LATTICE_ACTIVITY_.*)$/i;
 
 /** Redact values while retaining a non-secret identity distinction per credential. */
 export function redactEnvironment(environment: Record<string, unknown>): Record<string, string> {
@@ -377,7 +379,7 @@ export function redactEnvironment(environment: Record<string, unknown>): Record<
     // Normalizing POSIX keys would collapse distinct variables such as Path and
     // PATH and make a receipt reusable under a different child environment.
     const key = process.platform === 'win32' ? rawKey.toUpperCase() : rawKey;
-    if (TRANSPORT_ENV_KEY.test(key)) continue;
+    if (isValidationTransportEnvKey(key)) continue;
     result[key] = SECRET_ENV_KEY.test(key)
       ? `${REDACTED}:sha256:${createHash('sha256').update(String(rawValue), 'utf8').digest('hex')}`
       : String(rawValue);
