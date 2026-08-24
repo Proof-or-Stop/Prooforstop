@@ -7124,6 +7124,37 @@
       ],
       "createdAt": "2026-08-24T03:55:54.530Z",
       "_hash": "1955bb17a47df4627db84467570a0b864e07340297748465093c9afbf04d8e68"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-025:CRIT-01",
+      "epochId": "B-5a15:RI-025",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T04:36:48.410Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "59422ccfad4896ae07b41491db49c31fe008f10b",
+        "materialHash": "84b306befb2d3da045ff3ff950e6166511abb101ca64dcda773b748455031ed6",
+        "storyFilesHash": "88744166aeeb03373b6a05ef4831f4da58eac9c0c2ac441b5dbd62cac0e33c61"
+      },
+      "aggregateFindingSetDigest": "9010066f03f7d7f38f8080775d0e44bfa95bc175029a954a351f99a5d0253476",
+      "requiredLaneCoverageDigest": "b0e58dd5fe65bb7d44091985d3a146a57c2f3970a3a19903bb59ac7f6204d81d",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-410",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-094"
+      ],
+      "readEvidenceDigest": "b27ba5314d8ade05a14702e11ff6f8c8279871869a5201e3807a8d2f68677dd0",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-246",
+          "disposition": "verified_family",
+          "familyKey": "coverage-current-intents",
+          "reason": "F-246 is an open verified current-wave coverage finding: 50 of 51 verification intents remain stale at the RI-025 cutoff, with no duplicate or contrary verified family."
+        }
+      ],
+      "createdAt": "2026-08-24T05:38:01.330Z",
+      "_hash": "09c5ed56f591cbd2ffae7b0f0c5b41a059eb5f0a57d733fae2d4bb1b982a769e"
     }
   ]
 }
