@@ -1,0 +1,43 @@
+{
+  "storyId": "B-a2a6",
+  "name": "cache-review-prompt-envelopes-in-readiness",
+  "title": "Cache the prompt-envelope snapshot across reviewer evidence readiness checks",
+  "description": "Runtime preflight currently reparses the same prompt-envelopes.json ledger once per bound reviewer run while collecting REVIEW evidence. On 2026-08-24, B-dc83 produced a repeatable multi-minute stall and prevented the official REVIEW-to-DEV transition. Reuse one immutable in-memory snapshot per evidence collection and pass it through incremental verification without weakening integrity, signature, scope, freshness, or task-semantic checks. The user-visible outcome is a faster and more predictable lifecycle readiness gate with identical evidence decisions.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "keywords": [
+    "prompt-envelope",
+    "review-evidence",
+    "runtime-preflight",
+    "ledger-cache"
+  ],
+  "createdAt": "2026-08-24T02:07:36.592Z",
+  "startedAt": "2026-08-24T02:07:36.592Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-24T02:07:37.421Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-41e0efe6dc132e8ecd94b353cb4fbab8",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-24T02:13:56.387Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-1265d093a7edc51b336b8a123d15943c",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-a2a6",
+    "branch": "story/B-a2a6",
+    "createdAt": "2026-08-24T02:13:51.891Z"
+  }
+}
