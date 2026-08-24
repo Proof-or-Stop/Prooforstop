@@ -4108,6 +4108,55 @@
       },
       "readDiagnostics": [],
       "_hash": "c0722d8ad7926209520cc400b391f97410f93f3bba785a8e05513690a02b3889"
+    },
+    {
+      "id": "B-5a15:RP-095",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-025 wave 2 coverage pass: rechecked all 51 verificationIntent refs with 51/51 passing executable evidence rows, including 22/22 strict rows and zero waivers; refreshed material/story-files bindings are current, and the focused suite independently passes the 12,001-character bounded-output probe with exact receipt reuse. F-246 is no longer current after refresh because its claimed 50 stale rows are now fresh; the existing historical finding remains untouched.",
+      "createdAt": "2026-08-24T05:47:11.564Z",
+      "reviewRound": "2026-08-24T04:36:48.410Z",
+      "reviewRunId": "B-5a15:RR-412",
+      "envelopeId": "b9895e4f72beaf0774f950319c80924a58f6e3e3a6a4693979aba58fa7ec7023",
+      "writerSessionId": "sess-2c06c94d243c86f149b865bbc05c9b0c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "6811ce1b71f8641f674ed69a0ed23ca2f5366d06fb2c86664af58995ebadb8b0"
+      },
+      "readDiagnostics": [],
+      "_hash": "c87c017b7e1a0d137774c7fc186083bc742f99d0cbffdbf82337715982031cdc"
     }
   ]
 }
