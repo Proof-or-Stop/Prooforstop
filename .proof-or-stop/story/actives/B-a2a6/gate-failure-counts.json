@@ -4,5 +4,11 @@
     "command": "story_advance",
     "lastReason": "pre_review_check requires the verifier-owned PLAN acceptance basis",
     "lastAt": "2026-08-24T02:43:03.115Z"
+  },
+  "story_advance/ed3557ce0dbf": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Cannot enter REVIEW: acceptance rollout enforcement blocked DEV admission.\nAcceptance rollout enforcement:\n  mode=enforce; status=missing; blocking=true\n  receipt=missing; quorum=degraded-or-missing\n  codes=AR_REPORT_MISSING\n\n-> Run proof-or-stop acceptance_rollout_report, then acceptance_rollout_check. Roll back by setting proofStory.acceptanceRolloutGateMode to warn or observe; prior reports remain immutable.",
+    "lastAt": "2026-08-24T02:43:41.714Z"
   }
 }
