@@ -14126,6 +14126,755 @@
       },
       "readDiagnostics": [],
       "_hash": "ed36ded989064602a98095d619ac1eafc2203aae2dcd873bbeedb904134a6c09"
+    },
+    {
+      "id": "B-5a88:RP-215",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-067 Wave 2 concept re-review at the unchanged frozen cutoff found no new verified concept family. Re-read the Story background, plan, checklist, acceptance basis, pre-review and rollout artifacts, the brand migration decisions, and the canonical role, marker, schema, brand, dispatch, reviewer, and review/finding implementation. verify-lattice-residue.mjs and verify-proof-or-stop-prompt-baseline.mjs both pass. Existing coverage family B-5a88:F-395 remains the canonical acceptance-current-cutoff-pre-review-rollout family and is not duplicated by this concept lane.",
+      "createdAt": "2026-08-24T12:59:04.952Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-616",
+      "envelopeId": "572bdd271730b2eeb6a2c0c2e8d7f1df7037d0200156a3b23bf84f5d2219fb7b",
+      "writerSessionId": "codex-review-concept-B-5a88-RI-067-wave2-final",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents",
+          ".githooks/pre-push",
+          ".proof-or-stop-codex/agents",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/lab/src",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/templates/agents",
+          "packages/main/tests",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "packages/utils/src",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Repository-wide active-surface concept scan for the Wave 2 concept lane; legacy references were triaged as explicit compatibility readers, frozen historical evidence/salts, or migration fixtures, and no new unsupported concept residue was found."
+      },
+      "_hash": "f14796be5cf7572953f39b106abfb8f1d0bd3702bbe5e01f335b39fb3ae1d03b"
+    },
+    {
+      "id": "B-5a88:RP-216",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Wave 2 topology review found no additional distinct finding family after the concept, quality, and coverage terminal passes; retain the existing F-395 disposition without resolving it.",
+      "createdAt": "2026-08-24T13:07:52.142Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-617",
+      "envelopeId": "58441d924afb687dd31c07566a0b6b0b1c357b1176b138ee3e0cdd89c828331b",
+      "writerSessionId": "sess-6e8bca37f0300335bac73408500406fb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/process-events.jsonl",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f7971bb7372f4f01d66b502c1f0809c3959704e299e12f0f23f8d2c9996358c4"
+    },
+    {
+      "id": "B-5a88:RP-217",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Wave 2 inventory topology review consumed RI-067 status, all required lane terminal passes, and the raw finding set. Wave 2 produced no raw finding; F-395 remains the Wave 1 verified_family and is retained in the aggregate, with no new topology blocker.",
+      "createdAt": "2026-08-24T13:18:39.566Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-618",
+      "envelopeId": "7c0796d35a83dd385abe34d3558e96178e201f9a5768bc9dca237178e4abbf0b",
+      "writerSessionId": "codex-b5a88-ri067-wave2-topology-critic",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c2ff66a79065b3062c4f7d9d2b5d9848a831a4d2c81e1584942a3ead257d63e6"
+    },
+    {
+      "id": "B-5a88:RP-218",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Wave 2 inventory topology review consumed RI-067 status, all required lane terminal passes, and the raw finding set with mechanical read evidence. Wave 2 produced no raw finding; F-395 remains the Wave 1 verified_family and is retained in the aggregate, with no new topology blocker.",
+      "createdAt": "2026-08-24T13:20:30.868Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-619",
+      "envelopeId": "16c30b978ede606af46798c3a573704063c47186d89dfabeae49d3e7e427f5a3",
+      "writerSessionId": "codex-b5a88-ri067-wave2-topology-critic",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "73aeaffa620ecaeeca5d44c2cda6898a9dc761661e1b8877684b0a1f9dc369fa"
+    },
+    {
+      "id": "B-5a88:RP-219",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RR-620 RI-068 Wave 1 concept review completed across the frozen Story, plan/checklist, implementation diff, shipped assets, schema/marker/approval/package/bin surfaces, and repository-wide residue scan. Remaining lattice literals are documented dual-read compatibility, frozen evidence, or verifier fixtures with explicit compatibility context; no new concept blocker. Existing F-395 from the prior epoch was not duplicated.",
+      "createdAt": "2026-08-24T13:38:54.077Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-620",
+      "envelopeId": "355a4c4bf6178f2929202a7c7165cf7217f80f58966bd18819022d334fad7a4e",
+      "writerSessionId": "codex-B-5a88-RI-068-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-concept.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/",
+          ".githooks/pre-push",
+          ".proof-or-stop-codex/agents/",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "lattice.config.json",
+          "packages/lab/src/",
+          "packages/main/src/",
+          "packages/main/templates/agents/",
+          "packages/utils/src/",
+          "scripts/"
+        ],
+        "scanEscalationReason": "Repository-wide concept-residue scan completed; active matches were triaged against the frozen B-5a88 migration scope and compatibility policy."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ac1045f247e55200ce3062222f80b832059f70bf0e43507db586a30a23a2befd"
+      },
+      "readDiagnostics": [],
+      "_hash": "b2ca244b8be66a855765a4980fe479df35c9b47b9dc757e9c4f0aaa2c229c1fa"
+    },
+    {
+      "id": "B-5a88:RP-220",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-068 Wave 1 coverage review checked all 7 checklist items and 21 must intents plus current test and acceptance artifacts. No new coverage blocker is registered: the reproducible stale acceptance/pre-review/test-evidence family is the existing open verified F-395 from RI-067 and remains canonical; no duplicate is added.",
+      "createdAt": "2026-08-24T13:41:19.809Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-621",
+      "envelopeId": "a5675f2d87520e9fcb54f3d362eb555f20226cc0d5ee17404021027de481cd75",
+      "writerSessionId": "ri-068-wave1-test-coverage",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/index.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/proofstory.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": "Focused story-level coverage read; no decisions-directory escalation was needed because this terminal result records no new requirements interpretation."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "33517e63d118a0f929c6ceff21b9932bc9c6a02420de9d0c23da8cff1025eaf5"
+    },
+    {
+      "id": "B-5a88:RP-221",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-068 Wave 1 quality review checked the frozen B-5a88 Story, plan, checklist, migration decisions, and current implementation diff for dead code, type safety, I/O isolation, migration correctness, and promised-but-undelivered behavior. No new quality blocker found; prior B-5a88:F-395 is an older-epoch open finding and was not duplicated.",
+      "createdAt": "2026-08-24T13:42:43.480Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-622",
+      "envelopeId": "5dbf6baf549fa75d19a3d5b795dd12ab55ba5482ba7239066eb281289aea2016",
+      "writerSessionId": "proof-or-stop-review-quality-B-5a88-RI-068-wave-1",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-quality.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/lab/src/index.ts",
+          "packages/lab/src/register.ts",
+          "packages/lab/src/tool-defs.ts",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/claude-md-sync.ts",
+          "packages/main/src/cli.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/agent-asset-resolution.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/artifact-contract.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/handlers/workflow.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "packages/utils/src/index.ts",
+          "packages/utils/src/register.ts",
+          "packages/utils/src/tool-defs.ts",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "62e1b23587cd5f4369ff67615800d82d86610835d4882a627daa1527353d5301"
+      },
+      "readDiagnostics": [],
+      "_hash": "b49a62bd8462c911106113084939d76f2f0fefc5bb8ee31e5feb574dfbcc999a"
+    },
+    {
+      "id": "B-5a88:RP-222",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent topology review confirmed the RI-068 raw set has only F-395; no additional raw finding family was discovered.",
+      "createdAt": "2026-08-24T13:50:07.897Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-623",
+      "envelopeId": "b1b2fadbb761a098ba33e4effd261dff1bfa6ca5aa653fae1d97abcabad48aa1",
+      "writerSessionId": "sess-42ddf2bf5005e182",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "baaef1ca6573178917417c2a26dc58ead35f07e0df3ad30e7bd6660fc11251d5"
+    },
+    {
+      "id": "B-5a88:RP-223",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-068 Wave 2 quality review at the frozen cutoff checked the B-5a88 Story, plan, checklist, migration decisions, current implementation diff and shipped quality surfaces for dead code, type safety, I/O isolation, migration correctness, and promised-but-undelivered behavior. No new blocker found; existing B-5a88:F-395 remains the canonical prior finding family and was not duplicated.",
+      "createdAt": "2026-08-24T14:01:22.516Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-624",
+      "envelopeId": "12734b771968facd8141c36acc66b5f469720cf7d6e2b5507a83b9759016fcf9",
+      "writerSessionId": "sess-27098aaa298f29e7c4812ad4fc482719",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-quality.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/lab/src/index.ts",
+          "packages/lab/src/register.ts",
+          "packages/lab/src/tool-defs.ts",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/claude-md-sync.ts",
+          "packages/main/src/cli.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/agent-asset-resolution.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/artifact-contract.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/reviewer-batch.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/handlers/workflow.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "packages/utils/src/index.ts",
+          "packages/utils/src/register.ts",
+          "packages/utils/src/tool-defs.ts",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "62e1b23587cd5f4369ff67615800d82d86610835d4882a627daa1527353d5301"
+      },
+      "readDiagnostics": [],
+      "_hash": "85d1d3e52ea9b86692d890ace12aebc989bb8576365c46012490439101d3ccc9"
+    },
+    {
+      "id": "B-5a88:RP-224",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Wave 2 concept review at cutoff HEAD=293baed748ac0844ff12523d8b23e430481f97b5 reviewed CHK-001 through CHK-007 rename scope, canonical-write and legacy-read boundaries, role IDs, managed markers, schemas, package/bin identity, and the active residue gate. verify-lattice-residue passed all five checks; no new concept blocker. Existing B-5a88:F-395 from RI-067 Wave 4 remains open and was preserved without duplicate registration or mutation.",
+      "createdAt": "2026-08-24T14:03:18.953Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-625",
+      "envelopeId": "89b9d95fb423f9d98cb8a1055f73a294a2e1ffaada878b639e272d12dd5ad74c",
+      "writerSessionId": "sess-e30ae91f04bd8450b932f1d598b0d271",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/managed-marker-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/claude-md-sync.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "README.md",
+          "scripts/verify-core-package-rename.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "e64ff994b00a526d38fe10588e55e6683b849e42db2887b6de72c4bb0224b193"
+      },
+      "readDiagnostics": [],
+      "_hash": "5973c75d7a2a205317652e68f4a9c13964b223b9414b039f8a2ee9b7815aca9a"
+    },
+    {
+      "id": "B-5a88:RP-225",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-068 Wave 2 test-coverage terminal pass: all 7 checklist items and all 21 must verification intents have concrete passing evidence at the frozen cutoff; the existing verified F-395 family remains the canonical stale acceptance/pre-review artifact family and is not duplicated.",
+      "createdAt": "2026-08-24T14:03:32.360Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-626",
+      "envelopeId": "651947e52642b81c65a43b4e7f76b78ae03c702fffea17da162f594047dfd367",
+      "writerSessionId": "sess-9db8aabc4d9682fe77e5ea4a21ddfa58",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/index.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/proofstory.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "packages/main/templates/agents/",
+          "packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ac1045f247e55200ce3062222f80b832059f70bf0e43507db586a30a23a2befd"
+      },
+      "readDiagnostics": [],
+      "_hash": "e3281e0eb488c0efa7bdebb2008f5f9036922fd5eb38aa6229fcf14f9bc6aed4"
+    },
+    {
+      "id": "B-5a88:RP-226",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Wave 2 completeness review checked the three required terminal lane passes after the boundary, the verified complete acceptance basis, the passing structural topology check with no diagnostics, and the current zero-new-verified-finding aggregate beyond Wave 1 F-395; no blocker found.",
+      "createdAt": "2026-08-24T14:11:56.590Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-628",
+      "envelopeId": "70162e9aaf3a8616c050f3e745553740740fa0cf1a1f75053b6568485d7b63be",
+      "writerSessionId": "sess-9db8aabc4d9682fe77e5ea4a21ddfa58",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Bounded inventory critic used the structured acceptance_basis, acceptance_topology_check, and review_inventory_status outputs; no decision-document scan was required for this wave completeness check."
+      },
+      "_hash": "00e5b4f939eb6b46637991eac00fc3838a2176d67e48bae889d719b63d6615e5"
+    },
+    {
+      "id": "B-5a88:RP-227",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Reviewed RI-068 wave 2 aggregate: all required ordinary lanes are terminal pass, current wave has zero new verified findings, acceptance basis is complete, topology check passes, and no exclusions require disposition.",
+      "createdAt": "2026-08-24T14:25:36.202Z",
+      "reviewRound": "2026-08-24T10:16:55.408Z",
+      "reviewRunId": "B-5a88:RR-629",
+      "envelopeId": "b8b4fbba57c44d932d6ddf908f4feba88cd66c0c8d79eff8562c9dd47585b661",
+      "writerSessionId": "sess-bddaa56974fdd809a58ff9ede948246c",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/core/topology-critic-receipt.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "9234729ab9c073c1742f67731557d7cfdeb3f95fbcaa77bcdd4262c17ecbb217"
+      },
+      "readDiagnostics": [],
+      "_hash": "69566ed8c96dd8a87881503931b7d651acacb73b1631826357fd4bfe47d5becf"
     }
   ]
 }
