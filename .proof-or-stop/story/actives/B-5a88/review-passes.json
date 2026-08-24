@@ -15786,6 +15786,51 @@
       },
       "readDiagnostics": [],
       "_hash": "03abde98b26b288722e83eaf26a6c09359c1fa7330f42fe15fce84688f20d45d"
+    },
+    {
+      "id": "B-5a88:RP-246",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-073 wave 1 coverage pass: all 21 must verification intents have mechanical logic_test evidence with result=pass, zero waivers, and exact frozen materialHash/storyFilesHash bindings. Historical headHash-only drift is the existing F-412 stale-proof family; no distinct coverage finding is warranted.",
+      "createdAt": "2026-08-24T21:06:21.879Z",
+      "reviewRound": "2026-08-24T20:09:03.823Z",
+      "reviewRunId": "B-5a88:RR-673",
+      "envelopeId": "6c5b5e4a26df4b8549d737eaf7dd9bb9de76b8d006e96ea5d00e6a4b50c81e89",
+      "writerSessionId": "sess-fcece5873b9cd4e1179f3ac1ca0db6b2",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/",
+          "packages/main/tests/",
+          "packages/utils/package.json",
+          "scripts/"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "23be22f544ed09ba8d070ce2d6caa6eb7ac4c123d8e5899835cf5259889b48ff"
     }
   ]
 }
