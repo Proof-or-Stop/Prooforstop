@@ -138,20 +138,20 @@
           "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
           "result": "pass",
-          "note": "The short production regression preserves the reviewer evidence verdicts after snapshot threading.",
+          "note": "The current production regression preserves reviewer evidence verdicts after snapshot threading.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "37f284a360c96d30e9f90096f6e2d7b3f95dd72a07b3f416e26048f977999b90",
-            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "outputDigest": "0c265e118f727d8a2a4218e324e20ab2f78a6d4a575dad775a2bef62099ad1eb",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-24T02:39:48.609Z",
+            "executedAt": "2026-08-24T03:11:27.433Z",
             "timeoutMs": 270000
           },
-          "headHash": "129891c19824229d39295ff237bd3e48482d0ee7",
-          "materialHash": "25f924441188039699ddc0d29b03dea53096bfa1452e6bd9e98ffcf8906f4314",
-          "storyFilesHash": "2022f5734a52473c28fbff76e31aaff7001dd91cb8a58f48b2720d6536074945",
-          "timestamp": "2026-08-24T02:42:35.939Z"
+          "headHash": "2cc979bb97e932b97e8aeb7c6f4c415821ddd164",
+          "materialHash": "0787da2506fe076fa880a2ce0d400196c38200c8db0e37edf18b2dad3c720a3e",
+          "storyFilesHash": "6db24e246f3027fa3d48261d98f4c1d162b017544a4b9cdfd0f9774426fef85b",
+          "timestamp": "2026-08-24T03:12:43.483Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -163,16 +163,16 @@
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "37f284a360c96d30e9f90096f6e2d7b3f95dd72a07b3f416e26048f977999b90",
-            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "outputDigest": "0c265e118f727d8a2a4218e324e20ab2f78a6d4a575dad775a2bef62099ad1eb",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-24T02:40:03.298Z",
+            "executedAt": "2026-08-24T03:11:53.592Z",
             "timeoutMs": 270000
           },
-          "headHash": "129891c19824229d39295ff237bd3e48482d0ee7",
-          "materialHash": "25f924441188039699ddc0d29b03dea53096bfa1452e6bd9e98ffcf8906f4314",
-          "storyFilesHash": "2022f5734a52473c28fbff76e31aaff7001dd91cb8a58f48b2720d6536074945",
-          "timestamp": "2026-08-24T02:42:35.939Z"
+          "headHash": "2cc979bb97e932b97e8aeb7c6f4c415821ddd164",
+          "materialHash": "0787da2506fe076fa880a2ce0d400196c38200c8db0e37edf18b2dad3c720a3e",
+          "storyFilesHash": "6db24e246f3027fa3d48261d98f4c1d162b017544a4b9cdfd0f9774426fef85b",
+          "timestamp": "2026-08-24T03:12:43.483Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -184,16 +184,16 @@
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "37f284a360c96d30e9f90096f6e2d7b3f95dd72a07b3f416e26048f977999b90",
-            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "outputDigest": "0c265e118f727d8a2a4218e324e20ab2f78a6d4a575dad775a2bef62099ad1eb",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-24T02:40:17.255Z",
+            "executedAt": "2026-08-24T03:12:19.221Z",
             "timeoutMs": 270000
           },
-          "headHash": "129891c19824229d39295ff237bd3e48482d0ee7",
-          "materialHash": "25f924441188039699ddc0d29b03dea53096bfa1452e6bd9e98ffcf8906f4314",
-          "storyFilesHash": "2022f5734a52473c28fbff76e31aaff7001dd91cb8a58f48b2720d6536074945",
-          "timestamp": "2026-08-24T02:42:35.939Z"
+          "headHash": "2cc979bb97e932b97e8aeb7c6f4c415821ddd164",
+          "materialHash": "0787da2506fe076fa880a2ce0d400196c38200c8db0e37edf18b2dad3c720a3e",
+          "storyFilesHash": "6db24e246f3027fa3d48261d98f4c1d162b017544a4b9cdfd0f9774426fef85b",
+          "timestamp": "2026-08-24T03:12:43.483Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -205,16 +205,16 @@
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "37f284a360c96d30e9f90096f6e2d7b3f95dd72a07b3f416e26048f977999b90",
-            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
+            "outputDigest": "0c265e118f727d8a2a4218e324e20ab2f78a6d4a575dad775a2bef62099ad1eb",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\nreview-incremental-context-smoke: EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records\nreview-incremental-context-smoke: CACHE SNAPSHOT: collector read bound and verifier semantics PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-24T02:40:29.663Z",
+            "executedAt": "2026-08-24T03:12:43.230Z",
             "timeoutMs": 270000
           },
-          "headHash": "129891c19824229d39295ff237bd3e48482d0ee7",
-          "materialHash": "25f924441188039699ddc0d29b03dea53096bfa1452e6bd9e98ffcf8906f4314",
-          "storyFilesHash": "2022f5734a52473c28fbff76e31aaff7001dd91cb8a58f48b2720d6536074945",
-          "timestamp": "2026-08-24T02:42:35.939Z"
+          "headHash": "2cc979bb97e932b97e8aeb7c6f4c415821ddd164",
+          "materialHash": "0787da2506fe076fa880a2ce0d400196c38200c8db0e37edf18b2dad3c720a3e",
+          "storyFilesHash": "6db24e246f3027fa3d48261d98f4c1d162b017544a4b9cdfd0f9774426fef85b",
+          "timestamp": "2026-08-24T03:12:43.483Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
