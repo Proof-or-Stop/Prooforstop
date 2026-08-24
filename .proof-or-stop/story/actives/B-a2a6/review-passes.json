@@ -1,0 +1,52 @@
+{
+  "passes": [
+    {
+      "id": "B-a2a6:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement is present in the scoped snapshot fix. Residual scan completed for promptEnvelopes, readPromptEnvelopes, PromptEnvelope, and CACHE SNAPSHOT; the existing direct-read fallback remains at review-run.ts:691 and review-incremental-context.ts:573,944. Lifecycle evidence is current and passing: CHK-001 10/10 and CHK-002 5/5, with recorded materialHash 25f924441188039699ddc0d29b03dea53096bfa1452e6bd9e98ffcf8906f4314 and storyFilesHash 2022f5734a52473c28fbff76e31aaff7001dd91cb8a58f48b2720d6536074945 matching this review run.",
+      "createdAt": "2026-08-24T02:51:48.324Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-001",
+      "envelopeId": "ca60486acfd5f09ec7f687aafc2559bdd972a2c5746a5d164ba35773416a4f6b",
+      "writerSessionId": "sess-a1fe111dccd98be8213bfead8a5c3989",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-a2a6/background.md",
+          ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+          ".proof-or-stop/story/actives/B-a2a6/decision.json",
+          ".proof-or-stop/story/actives/B-a2a6/index.json",
+          ".proof-or-stop/story/actives/B-a2a6/understanding.json",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-a2a6/process-events.jsonl",
+          ".proof-or-stop/story/actives/B-a2a6/review.json",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "4226c8dc443e61e929b5c4f9f4b5e3ac824209ae474f9a39a66f9ba2e8b0fe9b"
+      },
+      "readDiagnostics": [],
+      "_hash": "47f8cd87b933cd33249944ad9c1ccdb3a937abbd27406e6adbbea2f3d1084366"
+    }
+  ]
+}

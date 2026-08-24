@@ -1583,13 +1583,16 @@ export function collectReviewerEvidenceState(
   // unprotected/legacy stories → no scope-binding enforcement, fully backward
   // compatible).
   const scopeContext = currentScopeContextForStory(store, storyId, projectRoot);
-  const promptEnvelopes = store.readPromptEnvelopes(storyId).envelopes;
+  const reviewerEvidence = [...reviewerFindings, ...reviewerPasses];
+  const promptEnvelopes = reviewerEvidence.length > 0
+    ? store.readPromptEnvelopes(storyId).envelopes
+    : [];
 
   const valid: ReviewerEvidenceRecord[] = [];
   const rawInvalid: ReviewRunIssue[] = [];
   const advisories: ReviewRunIssue[] = [];
 
-  for (const evidence of [...reviewerFindings, ...reviewerPasses]) {
+  for (const evidence of reviewerEvidence) {
     const issue = validateEvidenceRunBinding(
       store,
       story,

@@ -1,0 +1,95 @@
+{
+  "findings": [
+    {
+      "id": "B-a2a6:F-001",
+      "desc": "packages/main/src/core/review-run.ts:1586 [medium] collectReviewerEvidenceState unconditionally reads prompt-envelopes.json even when reviewerFindings and reviewerPasses are both empty. This violates CHK-002:edge:0 explicit zero-record no-unnecessary-envelope-read contract and adds ledger I/O to every empty readiness check; the pre-change collector did not read the envelope ledger on that path. Guard snapshot creation on the presence of evidence while retaining the shared snapshot for non-empty collections.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T02:52:41.690Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-003",
+      "_hash": "58931771865c38afd868243fa1993c8afb2e82176248f54bf437320b575e52fa",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-002",
+      "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 and .proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json:1423-1427 — the mandatory Wave 4 coverage is not executable evidence for this story: the smoke only asserts one collector read plus one valid B pass, while the signed rollout inventory lists acceptance_topology_check, pre_review_check, and acceptance_rollout_check only. There is no executable receipt for pre_review_check_read or acceptance_rollout_report_read, degraded-3x1 rejection, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history. Prompt prose and inventory metadata cannot satisfy this boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T02:52:43.066Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-002",
+      "_hash": "7696a93a85cdc69a7344273edfa42bc9bcf163b09e55bb1d20df5df88607d30c",
+      "files": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        ".proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-003",
+      "desc": "packages/main/src/core/review-run.ts:1582-1602 — collectReviewerEvidenceState unconditionally reads prompt-envelopes.json at line 1586 before iterating reviewer evidence, so a collection with zero bound records still performs one ledger read, contradicting CHK-002:edge:0, which requires zero records to cause no unnecessary envelope read. packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 exercises only the three-pass fixture and never covers the empty collection.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T02:52:50.763Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-002",
+      "_hash": "f6fc663f2bc579057ec620e043dec43f1276bbad13d05319fc9c439f0c5b3ffc",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-004",
+      "desc": ".proof-or-stop/story/actives/B-a2a6/red-evidence.json:8-19 — the only red record targets CHK-001:happy:0 but records B-dc83 as both failing and expected green command, and its note explicitly says green is only expected after the separate cache fix; it contains no observed green exit code, receipt, output digest, or current HEAD/material binding for B-a2a6. The checklist receipts at .proof-or-stop/story/actives/B-a2a6/checklist.json:115-120 and 404-422 are smoke-test receipts and are not linked to RED-20260824022500 or the failing story_advance command, so the required red-to-green regression is not proven.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T02:52:57.680Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-002",
+      "_hash": "df4135aecad29a7eef03341049c2524dbba89bc67d162abb9a92715e941c4716",
+      "files": [
+        ".proof-or-stop/story/actives/B-a2a6/red-evidence.json",
+        ".proof-or-stop/story/actives/B-a2a6/checklist.json"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a2a6:F-005",
+      "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:626-647 and .proof-or-stop/story/actives/B-a2a6/checklist.json:357-399 — the cached-vs-uncached and adversarial verificationIntent is overclaimed: the fixture checks one three-pass collection read count and that passB is valid, but never captures an uncached aggregate baseline or compares accepted/rejected records, integrity, cutoff, findings/pass classification, and gate outcome. It also does not inject read failures or source changes, exercise empty/single/many records, duplicate/stale/scope-invalid records, or vary order/cutoff boundaries. Reusing the same CACHE SNAPSHOT selector for all five CHK-002 intents is not concrete coverage of those mutations.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T02:53:08.931Z",
+      "reviewRound": "2026-08-24T02:48:07.675Z",
+      "reviewRunId": "B-a2a6:RR-002",
+      "_hash": "9ede572e401e4a69d8b443d6055bd87e504d7400a12546505e0aa60bac7946ff",
+      "files": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        ".proof-or-stop/story/actives/B-a2a6/checklist.json"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
