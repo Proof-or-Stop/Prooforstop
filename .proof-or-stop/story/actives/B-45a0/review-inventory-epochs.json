@@ -7612,6 +7612,44 @@
       ],
       "createdAt": "2026-08-24T14:29:00.416Z",
       "_hash": "7648193a4b29078e902731844619e9afaacb15456d407d7ca41541311e7a8688"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-057:CRIT-02",
+      "epochId": "B-45a0:RI-057",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-24T13:40:06.701Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "458b5e2aed4d6c84238164382a1e911b3e45780d",
+        "materialHash": "479b808fdf1d5929bea3996d57f677550ad2dc3cfb8b90f7e29a84c56493f4fd",
+        "storyFilesHash": "125f05a4bc30f30ac52319087ab18ef207e23f9a00d6e8dfaaf3d2d4fd9037d1"
+      },
+      "aggregateFindingSetDigest": "c880978510795dffa7d9d9a4d642de530fa2aa1409024a506df984be27bd562d",
+      "requiredLaneCoverageDigest": "eea5c8d4c7557caac8c6149f4b64374ce7f85db31eb7b37ee16e0b7a305b935a",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-483",
+      "terminalEvidenceIds": [
+        "B-45a0:F-274"
+      ],
+      "readEvidenceDigest": "002bbaad2b0317b2f78b0beb92b79f72d6082259def2df4975e7c285ebd8ae3a",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-272",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-scope-bound-receipts",
+          "reason": "Wave-2 quality evidence independently confirms the existing verifier-owned scope-binding receipt failure family."
+        },
+        {
+          "findingId": "B-45a0:F-273",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-scope-bound-receipts",
+          "canonicalFindingId": "B-45a0:F-272",
+          "reason": "Wave-2 coverage evidence is the same verifier-owned scope-binding receipt failure family as the canonical wave-2 finding."
+        }
+      ],
+      "createdAt": "2026-08-24T14:42:06.756Z",
+      "_hash": "9d90c42c282b4f9950072e71527d60c9b8ca34e9dcab68aac479225485e8fd95"
     }
   ]
 }
