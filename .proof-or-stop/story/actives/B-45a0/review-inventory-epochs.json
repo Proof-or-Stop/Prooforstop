@@ -3933,9 +3933,9 @@
       "epochId": "B-45a0:RIE-051",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-24T03:44:38.087Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-24T03:53:43.028Z",
-      "updatedAt": "2026-08-24T03:53:43.028Z",
+      "updatedAt": "2026-08-24T04:46:34.055Z",
       "cutoff": {
         "headHash": "fd82525ca1e4cd24c2c78c95017218f6b42d847b",
         "materialHash": "5e081211a1ba5de2b709704045b5caa0145822c69670ae37cefbfe180593f17a",
@@ -3946,7 +3946,96 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-45a0:RIE-051:RCP-001",
-      "_hash": "469b1ad74514d0e732b402b7390afcc513921b2671c8b5c7416e672be030dc7d"
+      "cancelledAt": "2026-08-24T04:46:34.055Z",
+      "cancelReason": "Invalidate the stale finalized receipt and rebuild remediation evidence at the current acceptance subject.",
+      "terminalRunSequenceBoundary": 404,
+      "_hash": "2327b8424809d757565d6d0c35eb29e131dd07c7d972cc2df3437c836eb8db09"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-049",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-24T03:44:38.087Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-24T04:46:35.204Z",
+      "updatedAt": "2026-08-24T04:46:36.121Z",
+      "cutoff": {
+        "headHash": "fb4ab317451f31078adbb801e4348597dc3de2b2",
+        "materialHash": "5e081211a1ba5de2b709704045b5caa0145822c69670ae37cefbfe180593f17a",
+        "storyFilesHash": "b4d5c8dafe98cc62873b321ed9d655a81fa984dd5a882a057abe42b076e19328"
+      },
+      "scopeDigest": "0cf2a872a02a2732fada9164576ea23498fe8a11e0e7984e678b2c8b04f4ae4e",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 404,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-45a0:F-238",
+        "B-45a0:F-239",
+        "B-45a0:F-240"
+      ],
+      "cancelledAt": "2026-08-24T04:46:36.121Z",
+      "cancelReason": "Create a current-head remediation inventory shell without certifying review findings.",
+      "terminalRunSequenceBoundary": 404,
+      "_hash": "8c2be3f94b90ab133997bfd4e8aa91665e550f1fe625358c196099b504ffdda2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RIE-053",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-24T03:44:38.087Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-24T04:46:37.299Z",
+      "updatedAt": "2026-08-24T06:02:28.893Z",
+      "cutoff": {
+        "headHash": "fb4ab317451f31078adbb801e4348597dc3de2b2",
+        "materialHash": "5e081211a1ba5de2b709704045b5caa0145822c69670ae37cefbfe180593f17a",
+        "storyFilesHash": "b4d5c8dafe98cc62873b321ed9d655a81fa984dd5a882a057abe42b076e19328"
+      },
+      "scopeDigest": "00cd3ebfd702495096cb0d0a6b2b943ece049301d38e537927aa08237abc2f52",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-45a0:RIE-053:RCP-001",
+      "cancelledAt": "2026-08-24T06:02:28.893Z",
+      "cancelReason": "Discard empty completeness-only receipt; it cannot authorize remediation",
+      "terminalRunSequenceBoundary": 404,
+      "_hash": "6bdc5340008b77b7efedf07ca4eb4108913e88b00b29d0ba22c86a0f5337f468"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-050",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-24T03:44:38.087Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-24T06:02:30.154Z",
+      "updatedAt": "2026-08-24T06:02:30.154Z",
+      "cutoff": {
+        "headHash": "fb4ab317451f31078adbb801e4348597dc3de2b2",
+        "materialHash": "5e081211a1ba5de2b709704045b5caa0145822c69670ae37cefbfe180593f17a",
+        "storyFilesHash": "b4d5c8dafe98cc62873b321ed9d655a81fa984dd5a882a057abe42b076e19328"
+      },
+      "scopeDigest": "0cf2a872a02a2732fada9164576ea23498fe8a11e0e7984e678b2c8b04f4ae4e",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 404,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-45a0:F-238",
+        "B-45a0:F-239",
+        "B-45a0:F-240"
+      ],
+      "_hash": "a75d148ede4fda8e304ba805205a27f3b4c60bc0b6f0ba13130d241e405a373a"
     }
   ],
   "receipts": [
@@ -4242,7 +4331,33 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-24T03:53:43.028Z",
-      "_hash": "8d27f6039ad2957af043e09d99b99f46b2707d366e7830650be08fab0c4a3784"
+      "invalidatedAt": "2026-08-24T04:46:34.055Z",
+      "invalidationReason": "Invalidate the stale finalized receipt and rebuild remediation evidence at the current acceptance subject.",
+      "_hash": "ce0d5180f49a47f2a727d8b3477399a6f90771602b84c805dc9dcd562d97ed34"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-45a0:RIE-053:RCP-001",
+      "epochId": "B-45a0:RIE-053",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-24T03:44:38.087Z",
+      "cutoff": {
+        "headHash": "fb4ab317451f31078adbb801e4348597dc3de2b2",
+        "materialHash": "5e081211a1ba5de2b709704045b5caa0145822c69670ae37cefbfe180593f17a",
+        "storyFilesHash": "b4d5c8dafe98cc62873b321ed9d655a81fa984dd5a882a057abe42b076e19328"
+      },
+      "scopeDigest": "00cd3ebfd702495096cb0d0a6b2b943ece049301d38e537927aa08237abc2f52",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-24T04:46:37.299Z",
+      "invalidatedAt": "2026-08-24T06:02:28.893Z",
+      "invalidationReason": "Discard empty completeness-only receipt; it cannot authorize remediation",
+      "_hash": "6bf01efa4d64c7b043e34c7dd19285f31fc6ad5c63785c77c6584fa1dfd86d0e"
     }
   ],
   "criticReceipts": [
