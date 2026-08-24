@@ -13470,6 +13470,121 @@
       ],
       "signatureTag": "acceptance-topology-current-basis-unverified",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-258",
+      "desc": "Current-head verifier evidence is stale after the runtime repair: at HEAD 6f0250c985, pre_review_check_read returns PR_ARTIFACT_TAMPERED and acceptance_rollout_report_read returns AR_REPORT_STALE. The signed pre-review and rollout receipts predate packages/main/src/core/review-incremental-context.ts:812-830, so REVIEW cannot accept current-head quality until verifier-owned artifacts are regenerated.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T11:41:58.174Z",
+      "reviewRound": "2026-08-24T11:28:14.268Z",
+      "reviewRunId": "B-45a0:RR-446",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "cdc82439dd413ad22ca5eab3f7c1908ecaa9464ccaea72de810c1a8ff1c2544d",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "ri054-current-head-evidence-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-259",
+      "desc": "Current-head verifier-owned coverage is not admissible after the runtime repair: pre_review_check_read returns PR_ARTIFACT_TAMPERED and acceptance_rollout_report_read returns AR_REPORT_STALE at HEAD b6010c53c8. The signed executable pre-review and full-3x2 rollout receipts are stale relative to the current source-bound review, so coverage cannot pass until those receipts are regenerated.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T11:42:50.124Z",
+      "reviewRound": "2026-08-24T11:28:14.268Z",
+      "reviewRunId": "B-45a0:RR-447",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5aea48e508a7d8df9495a5f53e72f9793af987bfef2d8f225eef1d23cbcb3bf3",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "signatureTag": "ri054-current-head-coverage-evidence-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-260",
+      "desc": "Current topology and acceptance-basis verification remains inadmissible: the live verifier reports AT_ADAPTER_RESULT_DIGEST_MISMATCH, AT_CLOSURE_FILES_STALE, and AT_UNMAPPED_SCOPE_REF at the current head; regenerate verifier-owned evidence before claiming topology completeness.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T11:49:35.390Z",
+      "reviewRound": "2026-08-24T11:28:14.268Z",
+      "reviewRunId": "B-45a0:RR-448",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0ac3f6ee7e63f2ed269507ec34a7fe1f97864131297a3c30a506727b36ad19ad",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|ts|current-topology-acceptance",
+      "signatureTagSource": "auto"
     }
   ]
 }
