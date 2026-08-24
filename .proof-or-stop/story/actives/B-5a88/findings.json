@@ -16735,7 +16735,7 @@
       "desc": "CHK-001 through CHK-007: all 21 must verificationEvidence records report pass, but every receipt is bound to superseded HEAD 7752d236e63c9712a7ee06d56c8e49dfc674d3af and old material/story-files hashes. The current signed review HEAD is 5ae0bcb2103aa92a84652b285f05cbf67f5f427e; an official refresh and re-execution is required before these receipts establish current-head coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-24T11:22:37.493Z",
@@ -16791,7 +16791,11 @@
         "packages/main/src/tasks/audit-scan-bin-token-smoke.ts"
       ],
       "signatureTag": "missing|json|through-verificationevidence-records",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Official verification_evidence_refresh_stale re-executed all 21 CHK-001 through CHK-007 pinned commands successfully and rebound each receipt to the current story-owned source after commit 5ae0bcb210; the refreshed receipts are now current for the review inventory.",
+      "resolvedAt": "2026-08-24T11:28:44.592Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-391",
