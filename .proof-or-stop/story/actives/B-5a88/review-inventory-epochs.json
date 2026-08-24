@@ -9497,6 +9497,36 @@
       ],
       "createdAt": "2026-08-24T19:11:42.745Z",
       "_hash": "4312e3d94d08a5a3bae8d5b3fc92b424493e43f3bcfc96baabb1f73fa6ebdaad"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-071:CRIT-02",
+      "epochId": "B-5a88:RI-071",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-24T17:52:26.292Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "269b5052068dd8cfa375f3dac59fb58c95b6c30d",
+        "materialHash": "05f7e8029fc308fac1e4eee223a0dbc179929147ee63f5348be36e25b1d8c511",
+        "storyFilesHash": "6b5e7c99dadc61feba4b8a7e8961b1cfdb53f0939feba10abe510331dfb2393f"
+      },
+      "aggregateFindingSetDigest": "84806b4bbea1d44ef4cde2767b62c9179e5241bcfe57762e08a7d6f7f571e57e",
+      "requiredLaneCoverageDigest": "39a56e000199920bc25dcde0f6e6d510c3e624f342c4cffd82d62ee64dcbc308",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-657",
+      "terminalEvidenceIds": [
+        "B-5a88:RP-236"
+      ],
+      "readEvidenceDigest": "2b88810b7000f90e09d5ed514615f6292e9be33958cab4dd8d640abf170ce929",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-411",
+          "disposition": "not_verified",
+          "reason": "F-411 is already resolved by the CLI as a duplicate of canonical F-410 and cites the identical frozen-cutoff acceptance, pre-review, and rollout failure receipts; this wave adds no independent finding family and no duplicate is introduced."
+        }
+      ],
+      "createdAt": "2026-08-24T19:38:09.043Z",
+      "_hash": "44049b81b65fbf8c8d0d584b619e92e81a7bc517327b10c937ea4046ac5f92d3"
     }
   ]
 }
