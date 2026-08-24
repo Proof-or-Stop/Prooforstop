@@ -13352,6 +13352,594 @@
       "_hash": "a14c4e1cf6057c8a86ce55b035fa25739ba17718d28226f5e16379f4e107927e",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-251",
+      "desc": "Current Wave-4 test-coverage review cannot pass: all 53 checklist verificationEvidence rows execute only node --test packages/main/tests/causal-evidence.test.mjs. The current signed acceptance rollout receipt is full-3x2 and acceptance_rollout_check passes, but no checklist evidence binds executable coverage for acceptance_rollout_report_read, acceptance_rollout_check, or the required degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback-history checks; the passing gate receipt is not a substitute for that reviewer coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T09:54:53.253Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-439",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "32844ff7c4089728509dee652cb923e978d163cbe1563c26437fefb18f63501e",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "missing|ts|current-wave-test",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-252",
+      "desc": "same-family:B-5a15:F-250: packages/main/src/handlers/verifier.ts:1781 calls runValidateFile() directly for the validate.ts/js/mts path, while createValidationCausalPreflightGate is wired only to executeValidationPlan at lines 1640-1653. A story-scoped validation run can launch without the required causal preflight and beforeLaunch revalidation, so the CHK-004 no-lower-level-child-bypass contract is not enforced.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T10:12:06.833Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-443",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3006dc2dd95ac752013a2b311bfd1cca9e3e80070b35102ed170c2ade3f5abe2",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|same-family-5a15",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-253",
+      "desc": "F-251 remains verified for RI-027 wave 2: current evidence_inspect reports 53 fresh checklist verificationEvidence rows, but every row runs only node --test packages/main/tests/causal-evidence.test.mjs. packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:177-451 and packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:150-158,1237-1272 still provide no checklist-bound executable coverage for acceptance_rollout_report_read, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history; the passing full-3x2 receipt cannot substitute for this independent coverage. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T10:12:36.455Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-444",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c7ad1ff1e6ecf6ce113d30b3d10c1315f2504426032fe6f60fa12436e44f10b0",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "missing|ts|ri-027-wave-2-current-wave-test",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-254",
+      "desc": "The RR-446 terminal pass has no non-empty mechanical read manifest, so RI-027 wave 2 cannot yet receive an authoritative completeness-critic binding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T10:19:43.677Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-446",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a3ef52f8cec84667481cd3dd369d65f3488781cd4037d41aa6dc9361578ce3c3",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/findings.json",
+        ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json"
+      ],
+      "signatureTag": "missing|json|terminal-pass-empty",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-255",
+      "desc": "Current wave-3 coverage cannot be admitted as complete: the trusted review context exposes verificationIntent for CHK-001 through CHK-005, including required happy/edge/adversarial cases, but no concrete verificationEvidence rows are present in the review context to bind those intents to executable results. Until each required intent is bound to valid non-failing evidence, REVIEW coverage remains incomplete.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T10:33:20.014Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-452",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8c1683c21fca01cc6232f4019a6880abcec87bf063509036cdeb216ee39d3678",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json"
+      ],
+      "signatureTag": "missing|mjs|current-wave-coverage",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-256",
+      "desc": "packages/main/src/handlers/verifier.ts:1781 [high] The validate.ts/js/mts path calls runValidateFile() directly, bypassing the canonical validation-command identity binding. Distinct validation commands can therefore collapse to a lossy identity and produce non-admissible or falsely reusable validation evidence; this remains an open quality finding at the current story head.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T10:44:14.259Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-456",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bca3425a5c9145635329a9168ead845eb02b0fe9fe8d150f2868acf079181efb",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-257",
+      "desc": "RI-028 concept review cannot pass: the current acceptance concept still depends on verifier-owned acceptance_rollout_report_read coverage, but the current review evidence exposes no executable invocation or checklist-bound receipt for that path. Existing open verified findings F-249 and F-251 independently record this residual coverage gap; the current concept lane therefore remains blocked until that verifier path is implemented or covered and rebound to fresh evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-24T10:45:19.793Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-458",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f3922080b453db6192609162bf41b9220c692009a5fb264e9c4b5b18155b5311",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "missing|ts|concept-review-cannot",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-258",
+      "desc": "RI-028 coverage blocker: the trusted review context exposes the verificationIntent set but no current verificationEvidence rows or executable receipts for the required verifier-owned coverage boundary (acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check). Required must coverage therefore cannot be established truthfully, so this lane cannot record a pass without fresh evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T10:47:53.628Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-457",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Trusted review_run_start context was used; no additional file exploration was performed per operator instruction.",
+        "candidateSpecSetDigest": "c2f4d9ab1b87d98262f63c213de233355e3c88f41318ec6a2fbf8622569390df",
+        "corpusDigest": "1b035b009f2d844d0e526beda2a73d9234145efbb08239639ecf839782011019"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5f159ca3c6d4d31321904bc7805fd67d292eb5b8f2f3fbdf020c3c3e0d668870",
+      "signatureTag": "missing|unknown|coverage-blocker-trusted",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-259",
+      "desc": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:177-451 and packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:152 [high] The current Wave 4 concept chain still has no verifier-owned executable receipt for acceptance_rollout_report_read: the source only lists the token, while every signed observation checkInventory in .proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json:732-736 (and the repeated current records) contains acceptance_topology_check, pre_review_check, and acceptance_rollout_check, omitting acceptance_rollout_report_read. Although the read-only commands return pass/current/full-3x2, the signed report cannot prove this canonical path or checklist-bound execution; do not pass this lane until it is invoked and rebound in the signed receipt.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-24T10:48:09.534Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-455",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "42b7eae6b0d7aa944bf63f9b52a2058e9fd955b31f829c85cd9470a9ff7254f6"
+      },
+      "readDiagnostics": [],
+      "_hash": "ec36eaf2062ef1c6c564b5f2eef528b4c82489e592386927efc5829af294eea5",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-260",
+      "desc": "same-family:B-5a15:F-256: packages/main/src/handlers/verifier.ts:1640-1653,1742-1752,1781 — the validate.ts/js/mts branch invokes runValidateFile() directly, while createValidationCausalPreflightGate is wired only into executeValidationPlan via beforeLaunch. A story-scoped validation run can therefore launch without the required CLI/worktree/index/lease/capability/resource/evidence-target preflight and child-launch revalidation, leaving the CHK-004 lower-level bypass contract unenforced at the current HEAD.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T10:49:06.576Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-459",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "de90fba16b5dd3ff0c0420aa73fed386d0da8cb29f67ececd61c899cca2298f6",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "same-family:B-5a15:F-256",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-261",
+      "desc": "RI-028 coverage blocker: required verifier-owned coverage for acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check is not evidenced by a current executable verification receipt in the trusted review context; required must coverage cannot be established for a truthful pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T10:49:48.907Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-457",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Trusted review_run_start context only; no additional exploration.",
+        "candidateSpecSetDigest": "c2f4d9ab1b87d98262f63c213de233355e3c88f41318ec6a2fbf8622569390df",
+        "corpusDigest": "1b035b009f2d844d0e526beda2a73d9234145efbb08239639ecf839782011019"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d0d8acc2d241b5931342e2419c8c3b6a37cf0043a8f574e5cc8d8748e2b016f3",
+      "signatureTag": "missing|unknown|coverage-blocker-required",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-262",
+      "desc": "same-family:B-5a15:F-260: packages/main/src/handlers/verifier.ts:1781 directly calls runValidateFile() for validate.ts/js/mts inputs, bypassing the verifier-owned validation path and allowing a source-file validation result outside the signed verifier evidence contract; this remains a high-severity quality blocker.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T11:00:20.232Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-462",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "53bffcfb328304f7a1d6eae9d8c0d07d4d15e93c6ffdab2cb767499bbf9a4207",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|same-family-5a15",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-263",
+      "desc": "Coverage blocker: the trusted current checklist material exposes verificationIntent for CHK-001 through CHK-005 but no corresponding verificationEvidence records for the required happy, edge, and adversarial intents; the must intents therefore cannot be admitted as covered by this REVIEW lane.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T11:01:13.803Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-464",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bc39be88eece5cb8ae902b6519e9e93db67654acec905b184157781a7b2e0e2f",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "missing|mjs|coverage-blocker-trusted",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-264",
+      "desc": "RI-028 wave-3 test-coverage review cannot pass: the current trusted B-5a15 checklist material still exposes verificationIntent coverage whose evidence is not admitted as intent-specific current executable coverage. The recorded rows broadly reuse node --test packages/main/tests/causal-evidence.test.mjs, while the current wave requires each intent to be mechanically tied to a selector-matched receipt and current material; without that binding, the review cannot prove complete happy/edge/adversarial coverage or safely issue a terminal pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T11:12:50.395Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-468",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "24567de19d2d7cc7077680d0effec76ecafb353713069555d749f614fcea454d",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json"
+      ],
+      "signatureTag": "missing|mjs|wave-test-coverage",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-265",
+      "desc": "RI-029 wave 1 test-coverage review cannot establish whether the current verificationEvidence covers the full verificationIntent because the required on-disk checklist evidence and baseline findings were not read in this run; treat this as a suspected review-input gap, not a confirmed source defect.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Required on-disk coverage evidence and baseline findings were not independently read before the terminal cutoff, so this is a review-input limitation rather than a confirmed implementation gap.",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T11:38:29.388Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-474",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json"
+        ],
+        "scanEscalationReason": "review_run_start exposed the required file names in the trusted context, but the on-disk coverage evidence and baseline findings were not independently read before terminal recording; no implementation conclusion is asserted."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b0fd398fb46fe4a08b03d6ddc470366c8254609f15606143ea7771a7249561b3",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        ".proof-or-stop/story/actives/B-5a15/findings.json"
+      ],
+      "signatureTag": "missing|json|wave-test-coverage",
+      "signatureTagSource": "auto"
     }
   ]
 }
