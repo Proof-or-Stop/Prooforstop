@@ -14851,6 +14851,52 @@
       ],
       "signatureTag": "missing|json|topology-review-binding",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-286",
+      "desc": "topology-pre-review-binding: the current acceptance_topology_check is structurally PASS, but the verifier-owned topology receipt cannot pass until the DEV-only pre_review_check regenerates the artifact after the scope-contract acknowledgement; the current pre-review artifact is stale at the committed REVIEW head.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T19:21:00.822Z",
+      "reviewRound": "2026-08-24T18:50:34.923Z",
+      "reviewRunId": "B-5a15:RR-571",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": 8000
+        },
+        "digest": "55b3f01c5416fd5d92a8768c20b67455c4efabbd75d8ee0a9dcca17a1a88c176"
+      },
+      "readDiagnostics": [],
+      "_hash": "5f1d376fb19acfa47622ecc3f0cb1d10a70594fa4e7b7c66558036a7f91a9e3f",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|topology-review-binding",
+      "signatureTagSource": "auto"
     }
   ]
 }
