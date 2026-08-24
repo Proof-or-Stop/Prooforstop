@@ -5405,6 +5405,152 @@
       },
       "readDiagnostics": [],
       "_hash": "c8f679ea02d8bc43b6089019d9473647fccbaed602be412eb68785f81daed0aa"
+    },
+    {
+      "id": "B-45a0:RP-117",
+      "agent": "lattice-review-concept",
+      "note": "Fresh current-head concept review for B-45a0 at HEAD b9e8f66c72, review round 2026-08-24T07:57:39.087Z: the implementation diff was inspected for deleted or replaced concepts and repository-wide residue. The shared story-aware resolver/material-path policy remains the sole implementation of the moved freshness logic; changedStoryFilesBetween and mergeBaseWithMain have zero live matches, and B-38b7 has zero live authority references. Legacy testIntent occurrences remain compatibility-scoped and are not a deletion in this story. The verifier-owned topology -> pre-review -> rollout chain is current and PASS, with a signed full-3x2 receipt across three rounds and codex-cli plus claude-cli; no degraded 3x1 or mode/rollback boundary issue was found. No concept-cleanup or promised-undelivered blocker found.",
+      "createdAt": "2026-08-24T08:00:33.385Z",
+      "reviewRound": "2026-08-24T07:57:39.087Z",
+      "reviewRunId": "B-45a0:RR-420",
+      "envelopeId": "afa2e0acee192b16776a4dc1fcfaa73013c7d1f8947dbb4129ef7aa928d28a83",
+      "writerSessionId": "sess-4192c149ecc174c77487f2c745d3396f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/proofstory.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/story-change-resolver.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "2c047f0e1e2dc3afb6d0d679e105d7fd509706577970a724d7dd206e1964de6f"
+      },
+      "readDiagnostics": [],
+      "_hash": "0cb86963e1d7983bd2c75aa9097a2c396b3c5f95d53b9c24e27bea51e3f0353b"
+    },
+    {
+      "id": "B-45a0:RP-118",
+      "agent": "lattice-review-docs",
+      "note": "Fresh current-head documentation review for B-45a0 at HEAD b9e8f66c72, review round 2026-08-24T07:57:39.087Z: 843 changed symbols were extracted and the 10 targeted dynamic-validation documentation sections were compared with corresponding source and verifier-owned acceptance touchpoints. The docs remain consistent with the four modes, explicit 112-command policy (58 full-only and 54 story-selectable), source-first/fail-closed authority, DYN-5 case-body evidence, current signed PASS/full-3x2 receipt, mode-invariant diagnostics with enforce-only blocking, and config-only rollback preserving history. No documentation-code inconsistency or promised-undelivered claim found.",
+      "createdAt": "2026-08-24T08:00:50.887Z",
+      "reviewRound": "2026-08-24T07:57:39.087Z",
+      "reviewRunId": "B-45a0:RR-422",
+      "envelopeId": "7d3e9f6c182ac68ee1949f7438bd67da26fe381f0559947dd690c4413269814f",
+      "writerSessionId": "sess-4192c149ecc174c77487f2c745d3396f",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/proofstory.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "63b8724adb843679d312f8e1f939a9dfb9a50baf998de3a314eced41e0b9da06"
+      },
+      "readDiagnostics": [],
+      "_hash": "04f60ed0df486eff2d4ce257a279cab9c9f43d1b1f7b594026531da8ada89ce6"
     }
   ]
 }
