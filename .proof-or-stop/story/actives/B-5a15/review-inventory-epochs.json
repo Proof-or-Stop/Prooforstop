@@ -6856,6 +6856,37 @@
       ],
       "createdAt": "2026-08-23T17:23:09.771Z",
       "_hash": "fbe88ecd6e71c3d89daa7d957225a3159848f0c0a78d9901d2e8e5eb42239e6f"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-023:CRIT-01",
+      "epochId": "B-5a15:RI-023",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T02:49:45.599Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "e4195164fdce44b5cebf7dba307819c2c9371072",
+        "materialHash": "41c6cc5292244472d1c39f14ff24db385986581252fdd7774d615019e35042e5",
+        "storyFilesHash": "0d7a9df645e064c99c3609c6fdfa049d8bb4d22bd7461c737e40c231ab415f7b"
+      },
+      "aggregateFindingSetDigest": "52ef4cba461b3844f59a1d9dff2a00706cc35359ca63d4a52c335d014c1cf8dc",
+      "requiredLaneCoverageDigest": "99aa2c329855d7b9257d947e38a38ffc305e45e0c707ab6653e4c29b1b8c6838",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-389",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-084"
+      ],
+      "readEvidenceDigest": "2ef79dc3082ab1d3dd96fa2da30e346e3152a7ba5bc1a427cce5f13fea123d7d",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-243",
+          "disposition": "verified_family",
+          "familyKey": "causal-evidence-output-probe-boundary",
+          "reason": "The current-round quality evidence is independently consistent and reproducible: boundedOutputProbe produces 12021 characters for a 12001-character output, while receipt verification rejects outputProbe values above 12000. This is a verified medium edge defect, not disproved or a duplicate; preserve F-243 open."
+        }
+      ],
+      "createdAt": "2026-08-24T03:21:59.656Z",
+      "_hash": "ef95a04a843737a73c00c5b1384c08657d42c4192b8322f028cbe695a3bdd786"
     }
   ]
 }
