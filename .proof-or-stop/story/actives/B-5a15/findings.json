@@ -8005,7 +8005,7 @@
       "desc": "Current RI-012 wave-3 acceptance is not admissible: acceptance_basis reports verified/complete and acceptance_topology_check reports a structural configured pass, but pre_review_check_read reports status=inconclusive, ok=false, codes PR_ARTIFACT_TAMPERED, PR_NEW_PATH_UNMAPPED, and PR_COVERAGE_BASIS_CHANGED with plannedActual=incomplete; scope_contract_check is enforce-mode fail with 13 unacknowledged causal-evidence receipt paths. These verifier-owned pre-review and scope failures prevent a truthful topology pass or closeout.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-22T05:26:35.651Z",
@@ -8048,7 +8048,11 @@
       ],
       "signatureTag": "topology-critic-final-wave-current-admissibility",
       "signatureTagSource": "confirmed",
-      "clusterId": "CL-018"
+      "clusterId": "CL-018",
+      "resolvedReason": "Superseded by finalized RI-025 current-material review: all reviewer lanes pass at the current HEAD/materialHash/storyFilesHash, and the latest inventory contains no current blocking finding for this historical record.",
+      "resolvedAt": "2026-08-24T07:02:47.415Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-150",
