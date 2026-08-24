@@ -1638,7 +1638,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           // contract as pinned verification evidence. The executor rechecks the
           // snapshot at each scheduler worker's child-launch boundary.
           const causalPreflightGate = args.story
-            ? createValidationCausalPreflightGate(ctx, args.story, commands, handlerGitCwd)
+            ? createValidationCausalPreflightGate(ctx, args.story, commands, projectRoot)
             : undefined;
           const base = await executeValidationPlan({
             provider: usingConfigured ? 'lattice-verifier-configured-commands' : 'lattice-verifier-fallback-commands',
@@ -1779,10 +1779,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ctx, storyId: args.story!, gitCwd: handlerGitCwd,
             snapshot: built.snapshot, identity: built.identity, reuse, focus,
           });
-            return args.json ? JSON.stringify(reused) : renderExternalResult(reused);
+          return args.json ? JSON.stringify(reused) : renderExternalResult(reused);
         }
         const causalPreflightGate = args.story
-          ? createValidationCausalPreflightGate(ctx, args.story, [identityCommand], handlerGitCwd)
+          ? createValidationCausalPreflightGate(ctx, args.story, [identityCommand], projectRoot)
           : undefined;
         const validation = await runValidateFile(causalPreflightGate?.beforeLaunch);
         const commandResult = validation.commands[0];
