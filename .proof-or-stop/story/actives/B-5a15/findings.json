@@ -14453,6 +14453,362 @@
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-277",
+      "desc": "Verifier-owned acceptance evidence is not current at this review cutoff: acceptance_topology_check passes structurally, but pre_review_check_read reports PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, while acceptance_rollout_check is blocked by AR_REPORT_STALE. The current review cannot certify the acceptance chain until DEV refreshes and commits the pre-review and rollout artifacts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-24T17:52:16.382Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-551",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5a0308d5809212cc929b24cbb0614eed5e5810704d41fe588b093ea330d39245",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|json|verifier-owned-acceptance",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-278",
+      "desc": "Quality review confirms the causal environment implementation now binds non-transport SESSION-like variables, but the verifier-owned acceptance proof is stale: pre_review_check_read returns PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, and acceptance_rollout_check returns blocking AR_REPORT_STALE. Refresh these canonical artifacts in DEV before review can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T17:53:02.711Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-552",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6f633e315cd95e44b8acf91b6ff6675424b91b939d7fde7b69223662344e3d68",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/validation-command-environment.ts",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|ts|quality-review-confirms",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-279",
+      "desc": "Current checklist coverage cannot pass the verifier-owned acceptance boundary: the causal-evidence regression suite has the source-level assertions, but F-247 remains failing because pre_review_check_read reports PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, and acceptance_rollout_check reports blocking AR_REPORT_STALE. Refresh and bind the current acceptance evidence before coverage is admissible.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T17:53:43.630Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-553",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c609e5befcd7e43d2d003814fa6fe19ce194463902e4cd3234e8431f157990d4",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|mjs|current-checklist-coverage",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-280",
+      "desc": "Topology critic confirms the structural acceptance graph is complete, but the executable acceptance chain is not currently admissible: pre_review_check_read is PR_ARTIFACT_TAMPERED plus PR_COVERAGE_BASIS_CHANGED, and acceptance_rollout_check is blocking AR_REPORT_STALE. The current material review must remain blocked until DEV refreshes the verifier-owned artifacts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T17:54:39.682Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-554",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "042feb4dcecac444c6badebe2801717581e9df12ec7892b1ca4bb11d09daf5ff",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|json|topology-critic-confirms",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-281",
+      "desc": "Wave 2 concept recheck confirms the same current acceptance-chain blocker: pre_review_check_read remains PR_ARTIFACT_TAMPERED plus PR_COVERAGE_BASIS_CHANGED and acceptance_rollout_check remains blocking AR_REPORT_STALE. This is the same verifier-artifact family as F-277 and must be refreshed in DEV.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-24T17:57:33.664Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-555",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "17625e3ea9ac4adae1672a26d7a29cefefa02fde4caeec8268cfa6dcf5bbc9d9",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|wave-concept-recheck",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-282",
+      "desc": "Wave 2 quality recheck confirms the same current verifier-owned artifact blocker: pre_review_check_read remains PR_ARTIFACT_TAMPERED plus PR_COVERAGE_BASIS_CHANGED and acceptance_rollout_check remains blocking AR_REPORT_STALE. This is the same family as F-278 and remains for DEV remediation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T17:57:40.347Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-556",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4b96d851fdf5302e45fd93f3a25ed482f4504b200d288e140bab03760414de40",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/validation-command-environment.ts",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|ts|wave-quality-recheck",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-283",
+      "desc": "Wave 2 coverage recheck confirms the same current acceptance evidence family as F-279: the source regression exists, but pre_review_check_read remains PR_ARTIFACT_TAMPERED plus PR_COVERAGE_BASIS_CHANGED and acceptance_rollout_check remains blocking AR_REPORT_STALE, so current checklist-bound coverage is not admissible.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T17:57:46.553Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-557",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "423a009fb35e25b27a8b6aef75b70567be0a71200b278fcc5bc24d65aa6ce9d7",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|mjs|wave-coverage-recheck",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-284",
+      "desc": "Wave 2 topology recheck confirms no new topology family: structural acceptance is complete, but pre_review_check_read remains PR_ARTIFACT_TAMPERED plus PR_COVERAGE_BASIS_CHANGED and acceptance_rollout_check remains blocking AR_REPORT_STALE. This repeats the existing verifier-artifact family and remains for DEV remediation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T17:58:57.172Z",
+      "reviewRound": "2026-08-24T14:21:39.929Z",
+      "reviewRunId": "B-5a15:RR-558",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "668a137fd171653d8ada729380739d4b5da97c7295c71fedb51b5784587da268",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-topology.ts"
+      ],
+      "signatureTag": "missing|json|wave-topology-recheck",
+      "signatureTagSource": "auto"
     }
   ]
 }
