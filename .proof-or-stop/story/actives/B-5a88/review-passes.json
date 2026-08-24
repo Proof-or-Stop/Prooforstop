@@ -12453,6 +12453,87 @@
       },
       "readDiagnostics": [],
       "_hash": "6d1af00cbbb8d9d7d2f73fc1c53d9404c231d41756b0d4d966bd2d9148d1e5f1"
+    },
+    {
+      "id": "B-5a88:RP-184",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept review found no new distinct family after duplicate-ledger cleanup; preserve canonical open families F-363,F-364,F-365,F-373,F-374,F-375,F-380,F-381.",
+      "createdAt": "2026-08-24T01:55:57.030Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-563",
+      "envelopeId": "c891c9ccca9da8ade7268fffe06df870729d31aafc5f0f60537f1084a4631c97",
+      "writerSessionId": "sess-f80eced0e726a7351031a90d9aa73f5e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/lab/package.json",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b04fad4a35b848213bdc2d15b250244767f63f3e28341211a2ed18fbc1be3004"
+    },
+    {
+      "id": "B-5a88:RP-185",
+      "agent": "proof-or-stop-review-quality",
+      "note": "No new distinct quality blocker: the existing canonical families F-363,F-364,F-365,F-373,F-374,F-375,F-380,F-381 remain preserved in the ledger; this lane pass does not clear those open findings.",
+      "createdAt": "2026-08-24T01:56:41.826Z",
+      "reviewRound": "2026-08-24T01:24:47.597Z",
+      "reviewRunId": "B-5a88:RR-564",
+      "envelopeId": "ffb8b2b3ff57c05e224f60854da4eabce36a4709416db3dc292ef4756fee5022",
+      "writerSessionId": "sess-fb839975d0fb00332fc21408e118baee",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/lab/package.json",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+          "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+          "packages/utils/package.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "bin/bootstrap-runner.js",
+          "CHANGELOG.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ],
+        "scanEscalationReason": "Focused current implementation, documentation, and smoke review; the eight canonical open families were checked for distinctness and no duplicate finding was created."
+      },
+      "_hash": "23cbb149edda183a40e6bcb99f70e1c3cd47ba01d9c441870037bf18d599e480"
     }
   ]
 }
