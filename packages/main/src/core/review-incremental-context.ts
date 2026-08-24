@@ -761,7 +761,8 @@ export function reviewIncrementalContext(
     impact: ImpactClassification;
   }): ReviewIncrementalContext => {
     const eligibilityReasonCodes = [...new Set([...args.reasonCodes, ...args.impact.reasonCodes])].sort();
-    const contextMode = eligibilityReasonCodes.every(code => code.startsWith('ELIGIBLE_'))
+    let effectiveEligibilityReasonCodes = eligibilityReasonCodes;
+    let contextMode = eligibilityReasonCodes.every(code => code.startsWith('ELIGIBLE_'))
       ? 'incremental' as const
       : 'full' as const;
     const changedFilesDigest = domainSeparatedDigest('incremental.changed-files.v1', args.changedFiles);
@@ -811,7 +812,24 @@ export function reviewIncrementalContext(
       const exceedsIncrementalCap = args.changedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList
         || args.impact.impactedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList
         || authoritativeReferences.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList;
-      if (exceedsIncrementalCap) {
+      // The incremental basis has a deliberately bounded shape.  Do not let
+      // an oversized finding/claim set throw before the assembler can select
+      // the safe full-context path (or honour a reviewer-requested full
+      // escalation).  A full prompt carries the authoritative task context;
+      // the bounded incremental basis is optional and must fail closed to
+      // full when it cannot be represented within its contract limits.
+      const exceedsBasisEntryCap = findingDeltas.length > FULL_TASK_CONTEXT_LIMITS.verificationIntentsPerLane
+        || unresolvedFindings.length > FULL_TASK_CONTEXT_LIMITS.verificationIntentsPerLane
+        || affectedItems
+          .flatMap(item => (['happy', 'edge', 'adversarial'] as const)
+            .flatMap(lane => item.verificationIntent?.[lane] ?? []))
+          .length > FULL_TASK_CONTEXT_LIMITS.verificationIntentsPerLane;
+      if (exceedsIncrementalCap || exceedsBasisEntryCap) {
+        effectiveEligibilityReasonCodes = [...new Set([
+          ...eligibilityReasonCodes,
+          'FULL_BOUNDED_REVIEW_BASIS_EXCEEDED',
+        ])].sort();
+        contextMode = 'full';
         reviewBasis = null;
       } else {
       reviewBasis = {
@@ -821,7 +839,7 @@ export function reviewIncrementalContext(
         priorPassRef: args.prior.pass.id,
         priorReviewRunId: args.prior.run.reviewRunId,
         priorEnvelopeId: args.prior.run.envelopeId!,
-        reReviewReasonCodes: eligibilityReasonCodes,
+        reReviewReasonCodes: effectiveEligibilityReasonCodes,
         changedFiles: [...args.changedFiles].sort(),
         impactedFiles: [...args.impact.impactedFiles].sort(),
         impactedIntentRefs: [...new Set(impactedIntentRefs)].sort(),
@@ -862,7 +880,7 @@ export function reviewIncrementalContext(
       priorEnvelopeId: args.prior?.run.envelopeId ?? null,
       priorHeadHash: args.prior?.run.headHash ?? null,
       freshnessClassification: args.freshnessClassification,
-      eligibilityReasonCodes,
+      eligibilityReasonCodes: effectiveEligibilityReasonCodes,
       changedFilesDigest,
       impactedFilesDigest,
       impactDigest: args.impact.digest,
@@ -878,7 +896,7 @@ export function reviewIncrementalContext(
       contextMode,
       impactPolicyVersion: IMPACT_CLASSIFICATION_POLICY_VERSION,
       freshnessClassification: args.freshnessClassification,
-      eligibilityReasonCodes,
+      eligibilityReasonCodes: effectiveEligibilityReasonCodes,
       eligibilityDigest: domainSeparatedDigest('incremental-eligibility.v1', semantic),
       impact: args.impact,
       priorPassRef: args.prior?.pass.id ?? null,
