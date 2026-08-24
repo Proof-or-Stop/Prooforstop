@@ -18375,6 +18375,45 @@
       "resolvedAt": "2026-08-24T20:16:14.457Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-413",
+      "desc": "packages/main/src/tasks/prompt-registry-smoke.ts:121: the proof-metadata phrase assertions still match the retired lattice-review-quality.md filename, but readPromptRegistry emits proof-or-stop-review-quality.md; the branch is therefore unreachable and the smoke can no longer detect removal of that required review guidance",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-24T20:37:17.679Z",
+      "reviewRound": "2026-08-24T20:09:03.823Z",
+      "reviewRunId": "B-5a88:RR-668",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/tests/prompt-role-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/templates/agents/proof-or-stop-review-quality.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4be2318a02b094b3cf8879a9ed2d66f5b516415178d4cb2bc8bc3cdbc4018988",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }

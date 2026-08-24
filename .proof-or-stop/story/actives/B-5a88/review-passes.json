@@ -15501,6 +15501,184 @@
         "scanEscalationReason": null
       },
       "_hash": "4790a7d74382074de097c8fae734aaab249053a714248a4540689c0f28d88977"
+    },
+    {
+      "id": "B-5a88:RP-239",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-072 wave 1 concept review completed against the frozen cutoff. Repository-wide residue scan covered the migrated role IDs, markers, schemas, package identities, bins, and related compatibility surfaces. Remaining lattice references are explicitly retained legacy dual-read inputs, frozen historical evidence, migration tests, guard scripts, or compatibility hooks; active writers and runtime authority use proof-or-stop forms. No unique verified concept blocker found.",
+      "createdAt": "2026-08-24T20:35:48.843Z",
+      "reviewRound": "2026-08-24T20:09:03.823Z",
+      "reviewRunId": "B-5a88:RR-666",
+      "envelopeId": "3f5addfd95157a5a3555e9784b0e59f162723bd0aa440b331c2a2798abf67b8d",
+      "writerSessionId": "sess-fcece5873b9cd4e1179f3ac1ca0db6b2",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8080532b2829480de7115ba4886635d527f6904d14a11726a5f635d167e665c5"
+    },
+    {
+      "id": "B-5a88:RP-240",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-072 wave 1 concept review completed at frozen cutoff e19671795aa6a4557f08ba093d8ad3bec151864c. The scoped lattice identity replacements emit proof-or-stop canonical role, marker, schema, package, and approval forms; remaining lattice spellings are bounded compatibility reads, historical/frozen evidence, migration fixtures, or explicit retired-lane references. No new distinct concept-residue finding was found. The verifier-owned acceptance chain was checked through its CLI readers; the existing open F-410 records the current acceptance freshness blocker and is not duplicated.",
+      "createdAt": "2026-08-24T20:36:05.854Z",
+      "reviewRound": "2026-08-24T20:09:03.823Z",
+      "reviewRunId": "B-5a88:RR-662",
+      "envelopeId": "5d5004d547b600b88d2b4317b2e3f2cae54271732549c699ae6a696c8c493fd3",
+      "writerSessionId": "sess-fcece5873b9cd4e1179f3ac1ca0db6b2",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/templates/agents/",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "94994eded1b70e9df3bc37a75e3476c1ea0b0132e320c6f88299cf14d828d368"
+    },
+    {
+      "id": "B-5a88:RP-241",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-072 wave 1 quality review at frozen cutoff e196717: prompt-registry normalizePromptRegistryManifest requires the exact canonical source, accepts only the known canonical or legacy schema versions, and returns null for non-canonical sources or unknown versions. The codex adapter comparison and migration/smoke coverage consume that fail-closed result. No unique verified quality blocker found.",
+      "createdAt": "2026-08-24T20:37:33.351Z",
+      "reviewRound": "2026-08-24T20:09:03.823Z",
+      "reviewRunId": "B-5a88:RR-669",
+      "envelopeId": "52e960b0ad51ccc5dcfd483fd17446fa18a2ea125392c22996eed5f593984f01",
+      "writerSessionId": "sess-fcece5873b9cd4e1179f3ac1ca0db6b2",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/tests/prompt-role-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json",
+          "README.md",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6a3d8754cc4bd1f19b7c6a5ecbf97e2a7262cca91abf73c723416b829cf1401e"
+    },
+    {
+      "id": "B-5a88:RP-242",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-072 wave 1 coverage pass: all 21 must verification intents have mechanical logic_test evidence with result=pass, zero waivers, and exact frozen materialHash/storyFilesHash bindings. The differing historical headHash is head-only provenance drift in the existing F-412 stale-proof family; no distinct coverage finding is warranted, and F-410 acceptance-receipt freshness is not duplicated.",
+      "createdAt": "2026-08-24T20:37:46.330Z",
+      "reviewRound": "2026-08-24T20:09:03.823Z",
+      "reviewRunId": "B-5a88:RR-667",
+      "envelopeId": "961417a6733312a1b05232c3a124307cdfe9deb73c3a864c6e2c0f3d0281346d",
+      "writerSessionId": "sess-fcece5873b9cd4e1179f3ac1ca0db6b2",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/",
+          "packages/main/tests/",
+          "packages/utils/package.json",
+          "scripts/"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8fa2691835c77bb755413c62a60f2db56e40df0c57a84d962d3be2ae9f404f29"
     }
   ]
 }
