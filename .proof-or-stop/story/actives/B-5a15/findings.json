@@ -13317,6 +13317,41 @@
       ],
       "signatureTag": "missing|mjs|happy-current-intent",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-249",
+      "desc": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:177-451 and packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:150-158,1237-1272 — Wave 4 requires executable coverage of verifier-owned acceptance_rollout_report_read, but the current rollout smoke exercises direct report derivation/artifact verification and the transition consumer only; the source has no invocation of acceptance_rollout_report_read, while the signed receipt checkInventory contains acceptance_topology_check, pre_review_check, and acceptance_rollout_check only. The current causal-evidence.test.mjs F-247 coverage invokes acceptance_topology_check and pre_review_check_read, not acceptance_rollout_report_read. Prompt/token presence is not executable evidence, so this required verifier path remains uncovered despite 53/53 checklist evidence rows passing. Add a production-path regression invocation and bind a fresh signed receipt to it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T09:44:19.743Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-435",
+      "_hash": "3b0ad95849897971eacfb5cfa0f7ea000db056387e920570842c023aec68f320",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-250",
+      "desc": "packages/main/src/handlers/verifier.ts:1781 — the validate.ts/js/mts path calls runValidateFile() directly, while createValidationCausalPreflightGate is wired only to executeValidationPlan at lines 1640-1653. A story-scoped validation run can therefore launch without the CLI/worktree/index/lease/capability/resource/evidence-target preflight or beforeLaunch revalidation, bypassing CHK-004 no-lower-level-child-bypass contract and allowing an expensive child to run when preflight must refuse.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T09:45:02.587Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-437",
+      "_hash": "a14c4e1cf6057c8a86ce55b035fa25739ba17718d28226f5e16379f4e107927e",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
