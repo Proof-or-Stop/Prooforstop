@@ -4962,6 +4962,42 @@
       },
       "readDiagnostics": [],
       "_hash": "4ff4eb04783e41c988ae808af4a4f4ab177fd9b595e211687dd2e3a87f70ddf0"
+    },
+    {
+      "id": "B-5a15:RP-111",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion and residual scan completed on current HEAD e58f8ef: the U-03 CausalEvidence implementation is additive/replacement wiring with no deleted concept requiring cleanup; legacy testIntent is explicitly deprecated compatibility, and unrelated ReviewConvergence/U-01/U-02/U-09 references are not removed by this diff. Story intent, implementation seams, current material binding, acceptance basis, pre-review proof, topology, scope, and full 3x2 rollout evidence were checked; no blocker.",
+      "createdAt": "2026-08-24T09:45:07.611Z",
+      "reviewRound": "2026-08-24T09:35:20.648Z",
+      "reviewRunId": "B-5a15:RR-436",
+      "envelopeId": "bb3b4b69a814b814817361428b7c1fb534d393a0363d9f50ed6ce95f5a871022",
+      "writerSessionId": "sess-3e5b61c528c373ec",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "efc20c87bf998822dccb011479be796b86a97d6563b503571438b9d1da90345b"
     }
   ]
 }
