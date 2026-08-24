@@ -1069,10 +1069,28 @@
       "phase": "DEV",
       "headHash": "65ca677b014222806de09e4d012b4ba7291f1181",
       "materialHash": "60da37ca508e4b4d82139915c33df40724d4f265a4cd89a8658bed2bbf6cf4a4"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These two runnable smoke assertions must follow the canonical proof-or-stop diagnostics emitted by the already reviewed context and machine producers; retaining retired lattice expectations makes the focused validation suite fail.",
+      "timestamp": "2026-08-24T01:40:03.995Z",
+      "paths": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "02cad3b50cf238f7fe90cc32207db587a8f6a8d7",
+      "materialHash": "721492cfe7c5b95c5dd3a3be37aa973cebf4c84922b6bf2e6ff7c2a8326b9252"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-24T01:13:41.739Z",
+  "updatedAt": "2026-08-24T01:40:03.995Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1326,6 +1344,7 @@
     "packages/main/src/handlers/context.ts": "packages/main/src/handlers/context.ts",
     "packages/main/src/handlers/worktree.ts": "packages/main/src/handlers/worktree.ts",
     "packages/main/src/core/usage-burn-alert.ts": "packages/main/src/core/usage-burn-alert.ts",
-    "packages/main/src/tasks/story-metadata-protection-smoke.ts": "packages/main/src/tasks/story-metadata-protection-smoke.ts"
+    "packages/main/src/tasks/story-metadata-protection-smoke.ts": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts": "packages/main/src/tasks/worktree-authority-smoke.ts"
   }
 }
