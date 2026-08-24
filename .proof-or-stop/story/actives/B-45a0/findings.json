@@ -13282,6 +13282,153 @@
       ],
       "signatureTag": "missing|json|wave-coverage-incomplete",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-254",
+      "desc": "Current clean-head topology evidence remains incomplete at HEAD f19309aecaf3: acceptance_basis is status=invalid/evidentiary=false with AT_UNMAPPED_SCOPE_REF for the story-change-resolver to dual-revision-impact-graph static call; acceptance_topology_check is status=fail/structuralPass=false with AT_ADAPTER_RESULT_DIGEST_MISMATCH, AT_CLOSURE_FILES_STALE, and AT_UNMAPPED_SCOPE_REF; pre_review_check_read is inconclusive with plannedActual=incomplete; acceptance_rollout_report_read is status=fail/ok=false/blocking=true with AR_REPORT_STALE despite full-3x2 quorum. Regenerate and rebind verifier-owned basis, pre-review, and rollout artifacts before topology PASS.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-24T10:51:53.084Z",
+      "reviewRound": "2026-08-24T07:57:39.087Z",
+      "reviewRunId": "B-45a0:RR-437",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": "Reran current-head acceptance_basis, acceptance_topology_check, pre_review_check_read, and acceptance_rollout_report_read after the clean metadata commit; inspected verifier-owned topology, basis, pre-review, and rollout paths."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1a33a40c586b4e8ca8a469e058dd1abc016df550cc37a535d0525f37f28dd5cf",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "acceptance-topology-current-basis-unverified",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-255",
+      "desc": "Final-wave current HEAD f19309aecaf3 remains blocked by stale verifier-owned review artifacts: pre_review_check_read returns PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND, while acceptance_rollout_check is blocking with AR_REPORT_STALE. Regenerate and rebind the pre-review and rollout receipts to current material/head before quality can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-24T10:55:13.049Z",
+      "reviewRound": "2026-08-24T07:57:39.087Z",
+      "reviewRunId": "B-45a0:RR-438",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": "Final-wave CLI checks at HEAD f19309aecaf3 show acceptance basis/topology pass while pre-review and rollout verifier artifacts remain stale and blocking."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "be177ea181246db30b6d64843926c771c1a69c0eaa5179ed53f7cf1a7a06512d",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "signatureTag": "missing|json|final-wave-current",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-256",
+      "desc": "Final-wave coverage is incomplete at HEAD f19309aecaf3 despite 45 passing checklist evidence rows: required executable pre_review_check_read fails with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND, and acceptance_rollout_report_read/acceptance_rollout_check fail blocking with AR_REPORT_STALE. Regenerate and rebind verifier-owned pre-review and rollout artifacts before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-24T10:55:27.138Z",
+      "reviewRound": "2026-08-24T07:57:39.087Z",
+      "reviewRunId": "B-45a0:RR-441",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": "Final-wave coverage checks at HEAD f19309aecaf3 show 45 passing checklist evidence rows, but required executable pre-review and rollout surfaces remain stale/failing."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4e1a0b54acd673d0cd86d707832c5c3b5cae19c634cfe1c1a8a296dcd1273f30",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "signatureTag": "missing|json|final-wave-coverage",
+      "signatureTagSource": "auto"
     }
   ]
 }
