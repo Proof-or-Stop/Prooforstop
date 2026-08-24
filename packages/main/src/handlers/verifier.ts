@@ -1739,25 +1739,28 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         tsArgs.push('--json');
       }
 
-      const runValidateFile = () => {
+      const identityCommand: ValidationCommand = {
+        label: validateFile,
+        command: 'npx',
+        args: ['tsx', ...tsArgs],
+        ...(validateFileDefaultTimeoutMs() ? { timeoutMs: validateFileDefaultTimeoutMs() } : {}),
+      };
+      const runValidateFile = (beforeLaunch?: () => void) => {
         ctx.log?.(`running: npx tsx ${tsArgs.join(' ')}`);
-        return runValidationCommand({
-          label: validateFile,
-          command: 'npx',
-          args: ['tsx', ...tsArgs],
-        }, projectRoot, validateFileDefaultTimeoutMs(), {
+        return executeValidationPlan({
+          provider: 'lattice-verifier-validate-file',
+          commands: [identityCommand],
+          warnings: [],
+          ...(focus ? { focus } : {}),
+        }, projectRoot, currentHead(handlerGitCwd), args.story, {
           progress: validationProgressReporter(ctx),
-          commandIndex: 1,
-          totalCommands: 1,
+          abortSignal: args.abortSignal,
+          deadlineAt: args.deadlineAt,
+          deadlineError: args.deadlineError,
+          beforeLaunch,
         });
       };
       const runValidateFileAndRender = async () => {
-        const identityCommand: ValidationCommand = {
-          label: validateFile,
-          command: 'npx',
-          args: ['tsx', ...tsArgs],
-          ...(validateFileDefaultTimeoutMs() ? { timeoutMs: validateFileDefaultTimeoutMs() } : {}),
-        };
         const built = args.story ? buildStoryRoutineIdentity({
           ctx,
           storyId: args.story,
@@ -1776,9 +1779,13 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ctx, storyId: args.story!, gitCwd: handlerGitCwd,
             snapshot: built.snapshot, identity: built.identity, reuse, focus,
           });
-          return args.json ? JSON.stringify(reused) : renderExternalResult(reused);
+            return args.json ? JSON.stringify(reused) : renderExternalResult(reused);
         }
-        const commandResult = await runValidateFile();
+        const causalPreflightGate = args.story
+          ? createValidationCausalPreflightGate(ctx, args.story, [identityCommand], handlerGitCwd)
+          : undefined;
+        const validation = await runValidateFile(causalPreflightGate?.beforeLaunch);
+        const commandResult = validation.commands[0];
         const { code, output } = commandResult;
         // Task B-6326 + B-4b22: verifier surfaces categorized dirty ownership
         // details AND respects dirty-gate-policy. When every polluted path
