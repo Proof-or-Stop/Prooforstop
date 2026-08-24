@@ -15831,6 +15831,64 @@
         "scanEscalationReason": null
       },
       "_hash": "23be22f544ed09ba8d070ce2d6caa6eb7ac4c123d8e5899835cf5259889b48ff"
+    },
+    {
+      "id": "B-5a88:RP-247",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept residue review at the RI-073 frozen cutoff found no new independent blocker; canonical runtime residue and migration regression checks passed, and existing F-413/F-410 were not duplicated.",
+      "createdAt": "2026-08-24T21:09:12.235Z",
+      "reviewRound": "2026-08-24T20:09:03.823Z",
+      "reviewRunId": "B-5a88:RR-674",
+      "envelopeId": "8de21d784688ebc6c5a22d794267a2a8a59ae36cb0e222dbd62cf41a1dbf49a4",
+      "writerSessionId": "sess-fcece5873b9cd4e1179f3ac1ca0db6b2",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1e481ed3f0a7a68c1836a993df93a253d9ff29bd2b29a0d4e85ee5520453ee76"
+    },
+    {
+      "id": "B-5a88:RP-248",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-073 quality lane checked prompt-registry source fail-closed handling for canonical source and unknown schema, reviewed the smoke assertion path, and ran prompt-registry-smoke plus prompt-role migration tests successfully. No new independent verified finding; existing F-413/F-410 were not duplicated.",
+      "createdAt": "2026-08-24T21:10:03.737Z",
+      "reviewRound": "2026-08-24T20:09:03.823Z",
+      "reviewRunId": "B-5a88:RR-675",
+      "envelopeId": "b2222be0fbdd8ba1b7cd7dccc366e867c169d0a69ea3926fcea73cd3f6a6c062",
+      "writerSessionId": "sess-fcece5873b9cd4e1179f3ac1ca0db6b2",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/tests/prompt-role-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c89993bc011c2ccdec279affb52dabd97966d6fc21d0b2847a4bf7b53a588dee"
     }
   ]
 }
