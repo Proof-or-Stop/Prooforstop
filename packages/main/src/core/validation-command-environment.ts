@@ -71,6 +71,16 @@ const VALIDATION_TRANSPORT_ENV_KEYS = new Set<string>(
   ),
 );
 
+export function isValidationTransportEnvKey(
+  key: string,
+  platform: NodeJS.Platform = process.platform,
+): boolean {
+  const normalizedKey = platform === 'win32' ? key.toUpperCase() : key;
+  return platform === 'win32'
+    ? [...VALIDATION_TRANSPORT_ENV_KEYS].some((transportKey) => transportKey.toUpperCase() === normalizedKey)
+    : VALIDATION_TRANSPORT_ENV_KEYS.has(normalizedKey);
+}
+
 /**
  * Return the exact environment used both for command identity and child spawn.
  * Ambient transport fields are removed, PWD is canonicalized to the effective
