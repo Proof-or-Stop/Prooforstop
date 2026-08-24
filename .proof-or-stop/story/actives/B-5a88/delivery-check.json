@@ -1,97 +1,104 @@
 {
   "storyId": "B-5a88",
-  "checkedAt": "2026-08-24T09:42:11.474Z",
-  "headHash": "f03ea04ba7138d8b3e23156b93198ca65bbb03e4",
-  "materialHash": "3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb",
-  "storyFilesHash": "505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9",
-  "reviewRound": "2026-08-24T08:51:00.357Z",
+  "checkedAt": "2026-08-24T23:08:13.579Z",
+  "headHash": "4e33ebd00439fd8cecc9814d95e7f0522adb63a2",
+  "materialHash": "9c34ec19fc00ad3808a04a03b27d0a78b1e590db105e322b591aa83eb609ad2a",
+  "storyFilesHash": "63016650e8d79b261515df7103d23deae76d01dd5143684e0cc13572d9c9098e",
+  "reviewRound": "2026-08-24T22:10:30.815Z",
   "agentId": "proof-or-stop-review-delivery",
   "docsPromises": [
     {
-      "docPath": "docs/requirements/decisions/brand-rename-mapping.md",
-      "promise": "User sees `\"proof-or-stop-review-quality\"` in reviewer_list output, and a legacy `\"lattice-review-quality\"` record is reported as a compatible alias.",
+      "docPath": ".proof-or-stop-codex/README.md#canonical-paths-and-active-entrypoints",
+      "promise": "New Codex and project runtime writes use .proof-or-stop, proof-or-stop.config.json, .proof-or-stop-codex/proof-or-stop.json, and PROOF_OR_STOP_* variables while legacy paths and variables remain bounded read-only compatibility.",
       "status": "verified",
-      "verifiedBy": "proof-or-stop-review-delivery",
-      "evidence": "Verified against the current B-5a88 delivery diff and current routine validation receipt: PASS, 112/112 commands, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9."
+      "verifiedBy": "focused migration tests and source grep",
+      "evidence": "packages/main/src/core/brand-paths.ts, lattice-paths.ts, brand-env.ts, cli-init.ts; packages/main/tests/brand-role-migration.test.mjs and package-identity-migration.test.mjs passed."
     },
     {
-      "docPath": "AGENTS.md",
-      "promise": "User sees `\"<!-- proof-or-stop:start -->\"` and `\"<!-- proof-or-stop:end -->\"` in a newly initialized file; an upgraded old file has one managed block, not two.",
+      "docPath": "README.md#compatibility-note",
+      "promise": "proof-or-stop is the active CLI identity; lattice wrapper/bin aliases are removed while persisted legacy state, environment names, and role spellings remain readable only through explicit compatibility paths.",
       "status": "verified",
-      "verifiedBy": "proof-or-stop-review-delivery",
-      "evidence": "Verified against the current B-5a88 delivery diff and current routine validation receipt: PASS, 112/112 commands, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9."
+      "verifiedBy": "bin and identity migration tests",
+      "evidence": "packages/main/tests/bin-alias-migration.test.mjs and brand-role-migration.test.mjs passed; packages/main/src/core/lattice-brand.ts exposes only proof-or-stop bin names and explicit legacy resolution."
     },
     {
-      "docPath": "docs/requirements/decisions/brand-rename-mapping.md",
-      "promise": "User sees `\"schemaVersion\": \"proof-or-stop.done_required_evidence.v1\"` in new evidence, while story_get reports an archived `\"lattice.done_required_evidence.v1\"` artifact as valid.",
+      "docPath": "docs/CLI.md#compatibility-note",
+      "promise": "CLI documentation uses proof-or-stop as the canonical command and names canonical topology/scope reviewer lanes and @proof-or-stop/lab package resolution.",
       "status": "verified",
-      "verifiedBy": "proof-or-stop-review-delivery",
-      "evidence": "Verified against the current B-5a88 delivery diff and current routine validation receipt: PASS, 112/112 commands, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9."
+      "verifiedBy": "focused migration tests and source grep",
+      "evidence": "packages/main/tests/bin-alias-migration.test.mjs, brand-role-migration.test.mjs, lab-brand-migration.test.mjs passed; packages/main/src/core/agent-role-identity.ts and packages/lab/package.json provide the canonical runtime identities."
     },
     {
-      "docPath": ".githooks/pre-push",
-      "promise": "User sees `\"schema\": \"proof-or-stop.remote-push-approval.v1\"` after release_approve_push, then pre-push reports `\"one-shot remote publish approval consumed\"`.",
+      "docPath": "docs/host-run-usage.md#review-run-dispatch",
+      "promise": "Host review examples use proof-or-stop reviewer lanes, and legacy lattice-review-* input is canonicalized rather than treated as an active lane identity.",
       "status": "verified",
-      "verifiedBy": "proof-or-stop-review-delivery",
-      "evidence": "Verified against the current B-5a88 delivery diff and current routine validation receipt: PASS, 112/112 commands, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9."
+      "verifiedBy": "role migration test and dispatch source inspection",
+      "evidence": "packages/main/tests/brand-role-migration.test.mjs and prompt-role-migration.test.mjs passed; packages/main/src/core/agent-dispatch-registry.ts and agent-role-identity.ts resolve legacy aliases to canonical lanes."
     },
     {
-      "docPath": "package.json",
-      "promise": "User sees `npm pkg get name` return `\"proof-or-stop\"` and `proof-or-stop --version` print `\"Proof-or-Stop <version>\"`.",
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#active-migrations",
+      "promise": "The migration matrix records canonical-write plus bounded legacy-read behavior for root and sibling package names, config, managed markers, remote-push approval schema, and agent roles.",
       "status": "verified",
-      "verifiedBy": "proof-or-stop-review-delivery",
-      "evidence": "Verified against the current B-5a88 delivery diff and current routine validation receipt: PASS, 112/112 commands, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9."
+      "verifiedBy": "migration contract and focused migration tests",
+      "evidence": "node scripts/verify-migration-contract.mjs passed; node scripts/verify-core-package-rename.mjs passed; artifact-schema, managed-marker, release-push-approval, package-identity, lab-brand, and brand-role migration tests passed."
     },
     {
-      "docPath": "packages/utils/package.json",
-      "promise": "User sees `npm pkg get name --workspace=packages/utils` return `\"@proof-or-stop/utils\"` and the lab entrypoint resolve `\"@proof-or-stop/lab\"`.",
+      "docPath": "docs/requirements/decisions/proof-or-stop-identity-migration.md#agent-role-verdict-supersession",
+      "promise": "New prompt, dispatch, reviewer, and migration writes emit proof-or-stop-* role IDs while exact lattice-* spellings remain compatibility-only reads and unknown spellings are rejected.",
       "status": "verified",
-      "verifiedBy": "proof-or-stop-review-delivery",
-      "evidence": "Verified against the current B-5a88 delivery diff and current routine validation receipt: PASS, 112/112 commands, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9."
+      "verifiedBy": "role/prompt migration tests and prompt baseline verifier",
+      "evidence": "brand-role-migration.test.mjs and prompt-role-migration.test.mjs passed; node scripts/verify-proof-or-stop-prompt-baseline.mjs passed with all 17 role IDs bound."
     },
     {
-      "docPath": "packages/main/package.json",
-      "promise": "User sees the package bin list contain `\"proof-or-stop\"` and not `\"lattice\"`, and help no longer prints `\"Usage: lattice ...\"`.",
+      "docPath": "CLAUDE.md#test-done-delivery-and-role-guidance",
+      "promise": "Lifecycle and reviewer guidance names proof-or-stop canonical agents and delivery reviewer, with canonical state/package/marker/approval behavior reflected in the implementation.",
       "status": "verified",
-      "verifiedBy": "proof-or-stop-review-delivery",
-      "evidence": "Verified against the current B-5a88 delivery diff and current routine validation receipt: PASS, 112/112 commands, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9."
+      "verifiedBy": "process-fact and migration contract checks",
+      "evidence": "node scripts/verify-process-fact-contract.mjs passed; node scripts/verify-migration-contract.mjs passed; delivery reviewer template and runtime registry contain proof-or-stop-review-delivery."
+    },
+    {
+      "docPath": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md#role-matrix",
+      "promise": "The prompt-role matrix records the canonical 17-role registry and the delivery reviewer contract, including its signed delivery-check output and independent diff-based review boundary.",
+      "status": "verified",
+      "verifiedBy": "prompt baseline verifier",
+      "evidence": "node scripts/verify-proof-or-stop-prompt-baseline.mjs passed: roleCount=17, exact role IDs and prompt bodies verified; packages/main/templates/agents/proof-or-stop-review-delivery.md specifies delivery_check_set output."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "2026-08-24T05:33:13.351Z: node bin/proof-or-stop.js reviewer_list --storyId=B-5a88 exited 0; stdout showed canonical proof-or-stop-review-quality and legacy alias lattice-review-quality. Transcript materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb. Current binding: headHash f03ea04ba7138d8b3e23156b93198ca65bbb03e4, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; routine validation receipt is PASS 112/112."
+      "transcript": "PASS: node packages/main/tests/brand-role-migration.test.mjs; PASS: node packages/main/tests/prompt-role-migration.test.mjs. Covered canonical role emission, legacy alias canonicalization, unknown-role rejection, configured role set, and prompt response schema."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Validation/checklist evidence at materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb: CHK-002-MARKER-PASS, CHK-002-MALFORMED-PASS, and CHK-002-TEMPLATE-PASS all exited 0. Current binding: headHash f03ea04ba7138d8b3e23156b93198ca65bbb03e4, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; routine validation receipt is PASS 112/112."
+      "transcript": "PASS: node packages/main/tests/managed-marker-migration.test.mjs. Covered canonical marker writes, exact legacy reads, malformed/mixed marker fail-closed behavior, and migration-safe replacement."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Validation/checklist evidence at materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb: artifact-schema migration test passed for all three CHK-003 intents. Current binding: headHash f03ea04ba7138d8b3e23156b93198ca65bbb03e4, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; routine validation receipt is PASS 112/112."
+      "transcript": "PASS: node packages/main/tests/artifact-schema-migration.test.mjs. Covered canonical schema writes, historical lattice schema reads, unknown schema rejection, signed archive reads, and byte preservation."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "Validation/checklist evidence at materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb: schema dual-read, approval boundary, one-shot rejection, and bash syntax checks all exited 0. Current binding: headHash f03ea04ba7138d8b3e23156b93198ca65bbb03e4, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; routine validation receipt is PASS 112/112."
+      "transcript": "PASS: node packages/main/tests/release-push-approval-migration.test.mjs. Covered canonical approval schema/path creation, exact legacy approval read compatibility, and rejection of invalid approval forms."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "Validation/checklist evidence at materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb: package identity, version-bump, and canonical/legacy self-host checks all exited 0. Current binding: headHash f03ea04ba7138d8b3e23156b93198ca65bbb03e4, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; routine validation receipt is PASS 112/112."
+      "transcript": "PASS: node packages/main/tests/package-identity-migration.test.mjs. Covered root package/lockfile canonical identity and runtime package-name consistency."
     },
     {
       "featureId": "CHK-006",
-      "transcript": "Validation/checklist evidence at materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb: package identity, global lab entrypoint, and package graph checks all exited 0. Current binding: headHash f03ea04ba7138d8b3e23156b93198ca65bbb03e4, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; routine validation receipt is PASS 112/112."
+      "transcript": "PASS: node packages/main/tests/lab-brand-migration.test.mjs. Covered @proof-or-stop/utils and @proof-or-stop/lab package identities, dependency references, and built cross-package resolution."
     },
     {
       "featureId": "CHK-007",
-      "transcript": "Validation/checklist evidence at materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb: npm-bin, help, and 65/65 lattice-residue self-test checks all passed. Current binding: headHash f03ea04ba7138d8b3e23156b93198ca65bbb03e4, materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb, storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; routine validation receipt is PASS 112/112."
+      "transcript": "PASS: node packages/main/tests/bin-alias-migration.test.mjs. Covered removal of bin/lattice.js and bin/lattice-codex.js, canonical usage-bin resolution, and residue scanner self-test."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
-    "hasUnresolvedTodos": true,
-    "summary": "Delivery review PASS: all 7 user-facing promises and 7 real-machine test records are evidenced at current materialHash 3db33bd434b6f573c1414c5927ba97e3234af7aaedde0603796ac41678dfcebb and storyFilesHash 505ed97476feaca42976f7471dfef3aa2a914802aafb91957d01996af16531d9; live smoke exits 0 and routine validation is PASS 112/112. DONE-required evidence is still an older FAIL receipt and review assurance remains a separate lifecycle blocker, so those closeout records require owner follow-up."
+    "hasUnresolvedTodos": false,
+    "summary": "The seven checklist behaviors have focused executable migration tests with assertions, including legacy-read, malformed/unknown rejection, and removed-alias cases; all eight focused migration tests passed. Repository migration, package-rename, process-fact, Codex-asset, and prompt-baseline checks passed. The separate verify-entrypoints init smoke remains host-blocked by EPERM while replacing a global /Users/qipan/.claude agent file, so that host permission issue is reported as a blocker rather than treated as a product pass."
   },
-  "_hash": "aa606127ddfa6425fb50d115e13e0ceaba393f2f7daa8309d39ced58fca1da6d"
+  "_hash": "200c9ac85bdafcf94ba8b6a2a86924bc7d678e5e4c71898a4bb32c1040c86329"
 }
