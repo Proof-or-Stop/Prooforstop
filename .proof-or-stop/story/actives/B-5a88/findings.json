@@ -17791,6 +17791,304 @@
       ],
       "signatureTag": "missing|json|current-wave-review",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-402",
+      "desc": "CHANGELOG.md:29-39 — high: this Story explicitly forbids editing CHANGELOG.md and the approved brand-rename mapping requires git diff --stat on CHANGELOG.md to be empty because it is frozen release history, but this branch rewrites the v0.3.266 historical entry. Remove this Story-owned CHANGELOG edit before the concept lane can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-24T17:59:22.055Z",
+      "reviewRound": "2026-08-24T17:52:26.292Z",
+      "reviewRunId": "B-5a88:RR-642",
+      "_hash": "d98f9cfb19bedce4e23f909fa256476334f35d9a5cc3825d3f0f509148be1222",
+      "files": [
+        "CHANGELOG.md"
+      ],
+      "signatureTag": "missing|md|changelog-high-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-403",
+      "desc": ".proof-or-stop/story/actives/B-5a88/pre-review-check.json:1186-1225 and acceptance-basis.json:1122-1151 — the verifier-owned pre-review proof is status=pass/observe but its signed artifacts are bound to materialHash cd63b3cd4d7da068127baaf20fac5d9fde983e0c8946c24e30a9ab3c3c9959b0 and storyFilesHash e3f657d2b03ed48ed1211eb4e701c16e563648e82b453d610940dffecda04042, while current signed review run B-5a88:RR-641 is bound to materialHash 55b311774a7b8c5270b0e9790ddb6a8d6443436d1f89fd77ad9a510aa5ac0621 and storyFilesHash 0d71d4773d553736ae95c7dc37f2910e0f28f1cfd5fbc8b29ee9be45c3f59f6f after the F-396 remediation. The current checklist therefore lacks admissible verifier-owned pre_review_check_read and acceptance_topology_check coverage at this cutoff; reissue the producer-owned acceptance basis and pre-review receipts before a coverage pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-24T18:02:36.142Z",
+      "reviewRound": "2026-08-24T17:52:26.292Z",
+      "reviewRunId": "B-5a88:RR-641",
+      "_hash": "24b97097e38f2afc770604b005a304c13289f1e5dbf9b73b584dc5970892ee33",
+      "signatureTag": "missing|unknown|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-404",
+      "desc": "Current REVIEW admission remains unproven at RR-643: pre_review_check_read --storyId=B-5a88 --json returns status=fail with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND against current HEAD 35c8948a9aae06b2fdd9ebe30b9a276741cf093f. The signed pre-review artifact is bound to an earlier cutoff and cannot certify this current review; reissue verifier-owned pre-review evidence through the CLI before admitting REVIEW.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-24T18:03:38.908Z",
+      "reviewRound": "2026-08-24T17:52:26.292Z",
+      "reviewRunId": "B-5a88:RR-643",
+      "_hash": "10cf8bd9e2e493943913c914a35a1aa66323cc9e3379a6a60d7145fa3b00540e",
+      "signatureTag": "missing|unknown|current-review-admission",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-405",
+      "desc": "CHANGELOG.md:29-39 — high: the committed main...HEAD diff still rewrites the v0.3.266 historical release entry, but B-5a88 plan.md:8 and :38 forbid editing CHANGELOG.md and brand-rename-mapping.md:137/230 require its diff to remain empty because it is frozen release history. The current worktree is clean for CHANGELOG.md, but the Story-owned committed diff is still present; remove that branch diff before this concept lane can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-24T18:15:12.398Z",
+      "reviewRound": "2026-08-24T17:52:26.292Z",
+      "reviewRunId": "B-5a88:RR-647",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "AGENTS.md",
+          "CHANGELOG.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "scanEscalationReason": "High-risk global rename required a repository-wide residue scan; candidate set was bounded by the story relatedDocs, plan, checklist, and changed files."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "eba9a79aa665510849090d96208ed113ed084d5b4ebcadab304f2264c52bc79d"
+      },
+      "readDiagnostics": [],
+      "_hash": "279e8fc396829b9260910c098b8da82f939982a9a22c12d38a152673f211e201",
+      "files": [
+        "CHANGELOG.md"
+      ],
+      "signatureTag": "missing|md|changelog-high-committed",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-406",
+      "desc": ".proof-or-stop/story/actives/B-5a88/pre-review-check.json:5-6,1728-1730 and acceptance-basis.json:1122-1152 — high: current verifier-owned pre-review and acceptance-topology coverage is not admissible for RI-070. pre_review_check_read reports FAIL with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND; acceptance_topology_check reports AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING, and topology_critic_receipt_check rejects AT_TOPOLOGY_CRITIC_RECEIPT_INVALID. The stored pre-review/PLAN basis receipts are bound to stale plan/scope/story/closure inputs (stored storyFilesHash e3f657d2 versus RI-070 cutoff 0d71d477), so the Wave 4 coverage boundary lacks fresh executable verifier receipts even though acceptance_rollout_report_read and acceptance_rollout_check pass full-3x2.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-24T18:15:30.450Z",
+      "reviewRound": "2026-08-24T17:52:26.292Z",
+      "reviewRunId": "B-5a88:RR-646",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "954616403dd11e9eb01e3bfdbe74b43c245bd2145fcfb5f09cd9179da942b819"
+      },
+      "readDiagnostics": [],
+      "_hash": "4c9e20d84c1354251ede8da4e56061adc726dadcc2df06675fbd7d71ec3506ea",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-407",
+      "desc": "High: fresh pre-review evidence is not admissible for the current inventory. `.proof-or-stop/story/actives/B-5a88/pre-review-check.json:1` is rejected by `pre_review_check_read` with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. The artifact must be discarded and reissued through the verifier-owned `pre_review_check` command after recapturing current executable proof; the current acceptance rollout receipt is fresh, but it does not substitute for the missing pre-review proof.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-24T18:22:00.710Z",
+      "reviewRound": "2026-08-24T17:52:26.292Z",
+      "reviewRunId": "B-5a88:RR-645",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-quality.md",
+          ".githooks/pre-push",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-quality.md",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/utils/package.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/templates/agents"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "59a4a51c1b90cc0dd28d7f7d6347edee3da22a4eca411f83d40a3d6376ec9c91"
+      },
+      "readDiagnostics": [],
+      "_hash": "5b6e5f68ca2b0760c33a69fafbfa8214b3480eaca2541b9c32ad47f2df22c842",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json:1",
+        "packages/main/src/core/pre-review-check.ts:331-335",
+        "packages/main/src/core/pre-review-check.ts:415-441"
+      ],
+      "signatureTag": "missing|json:1|high-fresh-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-408",
+      "desc": "Medium edge: `normalizePromptRegistryManifest` at `packages/main/src/core/prompt-registry.ts:264-279` accepts any string in `candidate.source` and casts it to `typeof PROMPT_REGISTRY_SOURCE` at line 276 without checking equality with the canonical source value. A malformed persisted manifest can therefore cross this normalizer with a false canonical type; later adapter checks happen to reject some such values, but direct callers of the exported normalizer receive an invalid `PromptRegistryManifest`. Validate `candidate.source === PROMPT_REGISTRY_SOURCE` before the cast so the persistence boundary is fail-closed.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-24T18:22:56.636Z",
+      "reviewRound": "2026-08-24T17:52:26.292Z",
+      "reviewRunId": "B-5a88:RR-645",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-quality.md",
+          ".githooks/pre-push",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-quality.md",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/utils/package.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/templates/agents"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "59a4a51c1b90cc0dd28d7f7d6347edee3da22a4eca411f83d40a3d6376ec9c91"
+      },
+      "readDiagnostics": [],
+      "_hash": "12549dc06db9edf4e6cfa63a23aa2ab80a05a01d97f351b9f7eeca0d06ea90aa",
+      "files": [
+        "packages/main/src/core/prompt-registry.ts:264-279"
+      ],
+      "signatureTag": "edge|ts:264-279|medium-edge-normalizepromptregistrymanifest",
+      "signatureTagSource": "auto"
     }
   ]
 }
