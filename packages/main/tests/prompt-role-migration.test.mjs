@@ -27,6 +27,11 @@ assert.equal(registryModule.normalizePromptRegistryManifest({
   ...manifest,
   schemaVersion: 'lattice.prompt-registry.v1',
 }).schemaVersion, 'proof-or-stop.prompt-registry.v1', 'legacy manifest records normalize without rewriting their stored bytes');
+assert.equal(
+  registryModule.normalizePromptRegistryManifest({ ...manifest, source: 'lattice.prompt-registry' }),
+  null,
+  'prompt-registry manifests with a non-canonical source fail closed',
+);
 assert.equal(registryModule.canonicalPromptRegistrySchemaVersion('proof-or-stop.prompt-registry.v99'), null, 'unknown prompt-registry schemas fail closed');
 for (const entry of registry.agents) {
   for (const host of ['claude', 'codex']) {
