@@ -4824,6 +4824,65 @@
       },
       "readDiagnostics": [],
       "_hash": "362f3b8c289aeb2638f72adcbe625b859f5478b5404305405de6d83bfcd9b6e9"
+    },
+    {
+      "id": "B-45a0:RP-108",
+      "agent": "lattice-review-docs",
+      "note": "RI-046 current-head documentation review: 830 symbols were extracted by the prescribed diff scan and 10 targeted documentation sections were compared with the dynamic-validation and verifier-owned acceptance implementations. CLI and runbook claims match the four supported modes, fail-closed fallback, explicit 112-row inventory policy, DYN-5 registry/adapter case-body evidence, and current full-3x2 rollout contract. acceptance_topology_check is a non-authoritative diagnostic PASS; acceptance_rollout_report_read and acceptance_rollout_check are current PASS with full-3x2; pre_review_check_read is a nonblocking FAIL with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, which the documentation correctly treats as diagnostic rather than authority. No documentation-code inconsistency found.",
+      "createdAt": "2026-08-24T02:19:12.911Z",
+      "reviewRound": "2026-08-23T18:51:54.245Z",
+      "reviewRunId": "B-45a0:RR-387",
+      "envelopeId": "3d2b6b1300cc081d068c8b99d2ee691322fc6f338c32aeef49d5b5ec9aab188f",
+      "writerSessionId": "sess-4192c149ecc174c77487f2c745d3396f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/proofstory.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "d6b2f0ba8d428092ecb1c02b1804192eab9ede829594225097e9b25f9c917961"
+      },
+      "readDiagnostics": [],
+      "_hash": "2c53ee2b125c20e3c0201d242a83f2660971739ea340e8af2257274ff0401ff2"
     }
   ]
 }
