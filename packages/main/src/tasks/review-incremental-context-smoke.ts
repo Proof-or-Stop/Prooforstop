@@ -623,6 +623,29 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       envelopeB.taskSemanticDigest,
       'mutation bite: the old phase-sensitive digest rejects the valid REVIEW envelope after transition to TEST',
     );
+    const compareCachedAndUncached = (candidate: ReviewRun, label: string): void => {
+      const promptEnvelopeSnapshot = store.readPromptEnvelopes(storyId).envelopes;
+      assert.deepEqual(
+        verifyReviewRunPromptEnvelope(store, candidate, promptEnvelopeSnapshot),
+        verifyReviewRunPromptEnvelope(store, candidate),
+        `${label}: cached and uncached verifier semantics must match`,
+      );
+    };
+    compareCachedAndUncached(runB, 'valid B envelope');
+    const readFailureStore = Object.create(store) as StoryStore;
+    readFailureStore.readPromptEnvelopes = () => {
+      throw new Error('injected prompt-envelope read failure');
+    };
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(readFailureStore, runB, store.readPromptEnvelopes(storyId).envelopes),
+      { ok: true },
+      'a supplied immutable snapshot keeps valid verification independent of later ledger reads',
+    );
+    assert.throws(
+      () => verifyReviewRunPromptEnvelope(readFailureStore, runB),
+      /injected prompt-envelope read failure/,
+      'the uncached path must still expose injected ledger read failures',
+    );
     let promptEnvelopeReads = 0;
     const countedStore = Object.create(store) as StoryStore;
     const readPromptEnvelopes = store.readPromptEnvelopes.bind(store);
@@ -676,6 +699,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       const phaseMutation = verifyReviewRunPromptEnvelope(store, runB);
       assert.equal(phaseMutation.ok, false, `${inadmissiblePhase} must invalidate a REVIEW envelope`);
       assert.match(phaseMutation.reason ?? '', /taskSemanticDigest/);
+      compareCachedAndUncached(runB, `${inadmissiblePhase} envelope`);
       const inadmissibleDoneEvidence = collectReviewerEvidenceState(store, storyId, root);
       assert.equal(
         inadmissibleDoneEvidence.valid.some(evidence => evidence.id === passB.id),
@@ -696,6 +720,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     store.writeStory(storyId, { ...testPhaseStory, title: `${testPhaseStory.title} mutated` });
     const titleMutation = verifyReviewRunPromptEnvelope(store, runB);
     assert.equal(titleMutation.ok, false, 'a real Story title mutation must invalidate the bound REVIEW envelope');
+    compareCachedAndUncached(runB, 'title-mutated envelope');
     for (const field of ['eligibilityDigest', 'eligibilityReasonCodes', 'reviewBasisDigest', 'taskSemanticDigest']) {
       assert.match(titleMutation.reason ?? '', new RegExp(field), `title mutation must report ${field} drift`);
     }
@@ -711,12 +736,35 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     const checklistMutation = verifyReviewRunPromptEnvelope(store, runB);
     assert.equal(checklistMutation.ok, false, 'a real checklist semantic mutation must invalidate the bound REVIEW envelope');
     assert.match(checklistMutation.reason ?? '', /taskSemanticDigest/);
+    compareCachedAndUncached(runB, 'checklist-mutated envelope');
     store.writeChecklist(storyId, originalChecklist);
     assert.deepEqual(verifyReviewRunPromptEnvelope(store, runB), { ok: true }, 'restoring task semantics restores verifier agreement');
     console.log(`${MARKER} REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees`);
     console.log(`${MARKER} PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails`);
   } finally {
     resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function runEmptyReviewerEvidenceSnapshotCase(): void {
+  const root = buildBalancedProjectRoot();
+  try {
+    const storyId = 'B-f675';
+    const store = buildFixtureStore({ story: reviewStory(storyId, 1, ts(1)) });
+    let promptEnvelopeReads = 0;
+    const countedStore = Object.create(store) as StoryStore;
+    const readPromptEnvelopes = store.readPromptEnvelopes.bind(store);
+    countedStore.readPromptEnvelopes = (readStoryId: string) => {
+      promptEnvelopeReads += 1;
+      return readPromptEnvelopes(readStoryId);
+    };
+    const evidence = collectReviewerEvidenceState(countedStore, storyId, root);
+    assert.equal(promptEnvelopeReads, 0, 'an empty reviewer evidence collection must not read prompt envelopes');
+    assert.equal(evidence.valid.length, 0, 'an empty reviewer evidence collection has no valid records');
+    assert.equal(evidence.invalid.length, 0, 'an empty reviewer evidence collection has no invalid records');
+    console.log(`${MARKER} EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records`);
+  } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -1855,6 +1903,7 @@ function run(): void {
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
   runWrapperRootRoutingCase();
+  runEmptyReviewerEvidenceSnapshotCase();
   const cutoffStarted = performance.now();
   runProductionVerifierTemporalCutoffRegression();
   const cutoffDurationMs = performance.now() - cutoffStarted;
@@ -1934,6 +1983,7 @@ if (isDirectRun) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {
     runProductionVerifierTemporalCutoffRegression();
+    runEmptyReviewerEvidenceSnapshotCase();
     console.log(`${MARKER} CACHE SNAPSHOT: collector read bound and verifier semantics PASS`);
   } else if (process.argv.includes('--guard-map-only')) {
     runIncrementalGuardClassMatrix();
