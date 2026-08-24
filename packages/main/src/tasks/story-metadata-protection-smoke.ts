@@ -199,7 +199,7 @@ try {
     });
     assert.equal(result.unsafe, true, 'allowlisted-but-uncommitted leaf is wiped by a plain `git clean -fd`');
     assert.equal(result.wouldBeCleaned, false, 'wouldBeCleaned (ignored && !tracked) is false here — diagnostic only, no longer gates unsafe');
-    assert.match(renderStoryMetadataProtectionWarning(result.leafPath), /lattice doctor --repair/);
+    assert.match(renderStoryMetadataProtectionWarning(result.leafPath), /proof-or-stop doctor --repair/);
     assert.match(renderStoryMetadataProtectionWarning(result.leafPath), /DATA-LOSS/);
   });
 
@@ -210,7 +210,7 @@ try {
     });
     assert.equal(result.unsafe, true, 'ignored + untracked = exactly what git clean removes');
     assert.equal(result.wouldBeCleaned, true);
-    assert.match(renderStoryMetadataProtectionWarning(result.leafPath), /lattice doctor --repair/);
+    assert.match(renderStoryMetadataProtectionWarning(result.leafPath), /proof-or-stop doctor --repair/);
     assert.match(renderStoryMetadataProtectionWarning(result.leafPath), /DATA-LOSS/);
   });
 
@@ -266,7 +266,7 @@ try {
       'force-add must commit the ignored leaf so it is never silently left untracked (CHK-004 #4)',
     );
     assert.match(out, /DATA-LOSS/, 'broad-ignore repo must surface the loud warning');
-    assert.match(out, /lattice doctor --repair/, 'warning must point at the repair command');
+    assert.match(out, /proof-or-stop doctor --repair/, 'warning must point at the repair command');
   });
 
   // (c) negation allowlist + committed leaf → succeeds, no warning (no false
@@ -335,7 +335,7 @@ try {
     const text = String(await handlers.doctor({ format: 'text' }));
     assert.match(text, /✗ story metadata is NOT git-tracked \(uncommitted\) and is clean-prone/);
     assert.match(text, /ignored\+untracked → removed by `git clean -fdx`/);
-    assert.match(text, /lattice doctor --repair/);
+    assert.match(text, /proof-or-stop doctor --repair/);
   });
 
   // B-02a6 CHK-003: doctor must surface the INIT-window case (allowlisted/NOT

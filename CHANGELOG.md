@@ -26,11 +26,12 @@
   Rationale: `docs/requirements/decisions/proof-or-stop-identity-migration.md`
   ("Supersession 2").
 
-  **Also renamed in this release:** the workspace package `@lattice/core` is now
-  `@proof-or-stop/core`. Nothing in-repo imports it by name (both sibling packages reach
-  it through relative paths into `packages/main/dist`), and no alias package is published;
-  an external project pinning `@lattice/core` in its own `package.json` must update that
-  reference. Sibling names `@lattice/utils` / `@lattice/lab` are unchanged.
+  **Also renamed in this release:** the workspace packages now use the canonical
+  Proof-or-Stop identities: `@lattice/core` → `@proof-or-stop/core`,
+  `@lattice/utils` → `@proof-or-stop/utils`, and `@lattice/lab` →
+  `@proof-or-stop/lab`. Nothing in-repo imports these packages by name (the sibling
+  packages reach `packages/main/dist` through relative paths), and no alias packages
+  are published; external projects pinning the deprecated names must update them.
 
   **Not affected:** the `lattice` npm bin alias (`lattice --version` still resolves) is a
   separate identity and remains retained. Projects

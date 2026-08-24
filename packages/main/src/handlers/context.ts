@@ -57,7 +57,7 @@ export function collectContext(phase: StoryPhase, action: 'create' | 'advance' |
   return event;
 }
 
-/** PLAN ~ TEST phases must execute lattice commands inside the worktree */
+/** PLAN ~ TEST phases must execute proof-or-stop commands inside the worktree */
 export const CWD_GATED_PHASES: Set<StoryPhase> = new Set(CWD_GATED_LIFECYCLE_PHASES);
 
 /**
@@ -153,7 +153,7 @@ function assertPathInsideWorktree(storyId: string, cwd: string, expectedAbsPath:
   const normalizedExpected = canonicalPath(expectedAbsPath);
   if (normalizedCwd !== normalizedExpected && !normalizedCwd.startsWith(normalizedExpected + '/') && !normalizedCwd.startsWith(normalizedExpected + '\\')) {
     throw new Error(
-      `Story ${storyId} must execute lattice commands inside the worktree\n` +
+      `Story ${storyId} must execute proof-or-stop commands inside the worktree\n` +
       `Expected cwd: ${normalizedExpected}\n` +
       `Current cwd: ${cwd}\n` +
       `→ cd ${normalizedExpected}`
