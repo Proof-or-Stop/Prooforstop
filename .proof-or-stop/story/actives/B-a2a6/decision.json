@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Preserve every existing evidence rejection predicate exactly.",
+    "Optimize only repeated immutable ledger reads within a single collector call.",
+    "Keep direct verifier API behavior backward compatible."
+  ],
+  "drivers": [
+    "B-dc83 cannot reach DEV because runtime readiness repeatedly reparses prompt-envelopes.json.",
+    "The same ledger snapshot is logically immutable during one read-only evidence collection.",
+    "A cache fix must be mechanically testable at the collector call site."
+  ],
+  "options": [
+    {
+      "name": "Per-collection snapshot threading",
+      "pros": [
+        "Removes repeated disk parsing in the real collector path",
+        "Keeps cache lifetime bounded and explicit",
+        "Allows direct callers to preserve current behavior"
+      ],
+      "cons": [
+        "Adds an optional typed parameter through verifier helpers",
+        "Requires a regression seam for read-count and semantic parity"
+      ]
+    },
+    {
+      "name": "Global process cache",
+      "pros": [
+        "Potentially fewer reads across commands"
+      ],
+      "cons": [
+        "Risks stale evidence across metadata writes",
+        "Creates invalidation and lifecycle coupling",
+        "Could weaken fail-closed freshness assumptions"
+      ]
+    },
+    {
+      "name": "Runtime enforcement bypass",
+      "pros": [
+        "Immediate transition responsiveness"
+      ],
+      "cons": [
+        "Hides rather than fixes the performance defect",
+        "Would weaken runtime gate observability",
+        "Not acceptable for final lifecycle evidence"
+      ]
+    }
+  ],
+  "chosen": "Per-collection snapshot threading",
+  "rationale": "The collector owns one read-only consistency boundary, so a per-call snapshot removes the repeated parse cost without introducing cross-command staleness or bypassing any verifier predicate.",
+  "preMortem": [
+    {
+      "scenario": "Cached data is accidentally shared across stories or commands",
+      "trigger": "A cache is stored at module or process scope",
+      "consequence": "Evidence from one story can be reused for another",
+      "mitigation": "Pass an optional snapshot only through one collector invocation and never store it globally."
+    },
+    {
+      "scenario": "Incremental baseline recomputation still rereads the ledger",
+      "trigger": "reviewIncrementalContext receives no snapshot option",
+      "consequence": "The transition remains slow despite caching the outer verifier",
+      "mitigation": "Thread the same typed snapshot through latestTrustedPriorPass and prior-envelope lookup."
+    },
+    {
+      "scenario": "Cache changes admissibility semantics",
+      "trigger": "The optional snapshot is used without preserving default direct reads",
+      "consequence": "Independent callers observe stale or missing envelope records",
+      "mitigation": "Use nullish fallback to store.readPromptEnvelopes for callers that do not provide a snapshot and keep integrity verification unchanged."
+    }
+  ],
+  "timestamp": "2026-08-24T02:14:44.967Z"
+}
