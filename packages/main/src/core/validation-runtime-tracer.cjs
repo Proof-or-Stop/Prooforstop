@@ -39,6 +39,20 @@ if (!isNpmWrapper) {
       if (typeof property === 'string') add(trace.environmentKeys, property);
       return Reflect.get(target, property, receiver);
     },
+    // Node's process.env is a host-backed object. A normal Proxy assignment
+    // uses the Proxy as the receiver and eventually reaches a host descriptor
+    // with the wrong configurability flags (Node 26 throws
+    // ERR_INVALID_OBJECT_DEFINE_PROPERTY). Forward mutations with the real
+    // environment object as receiver so traced commands retain native
+    // process.env semantics while still recording the accessed key.
+    set(target, property, value) {
+      if (typeof property === 'string') add(trace.environmentKeys, property);
+      return Reflect.set(target, property, value, target);
+    },
+    deleteProperty(target, property) {
+      if (typeof property === 'string') add(trace.environmentKeys, property);
+      return Reflect.deleteProperty(target, property);
+    },
     has(target, property) {
       if (typeof property === 'string') add(trace.environmentKeys, property);
       return Reflect.has(target, property);
