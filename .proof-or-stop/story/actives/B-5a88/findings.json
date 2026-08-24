@@ -17797,7 +17797,7 @@
       "desc": "CHANGELOG.md:29-39 — high: this Story explicitly forbids editing CHANGELOG.md and the approved brand-rename mapping requires git diff --stat on CHANGELOG.md to be empty because it is frozen release history, but this branch rewrites the v0.3.266 historical entry. Remove this Story-owned CHANGELOG edit before the concept lane can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-24T17:59:22.055Z",
@@ -17808,14 +17808,18 @@
         "CHANGELOG.md"
       ],
       "signatureTag": "missing|md|changelog-high-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "CHANGELOG.md was restored to the main branch version; git diff main...HEAD -- CHANGELOG.md is empty, so the frozen release-history violation is fixed.",
+      "resolvedAt": "2026-08-24T18:42:55.285Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-403",
       "desc": ".proof-or-stop/story/actives/B-5a88/pre-review-check.json:1186-1225 and acceptance-basis.json:1122-1151 — the verifier-owned pre-review proof is status=pass/observe but its signed artifacts are bound to materialHash cd63b3cd4d7da068127baaf20fac5d9fde983e0c8946c24e30a9ab3c3c9959b0 and storyFilesHash e3f657d2b03ed48ed1211eb4e701c16e563648e82b453d610940dffecda04042, while current signed review run B-5a88:RR-641 is bound to materialHash 55b311774a7b8c5270b0e9790ddb6a8d6443436d1f89fd77ad9a510aa5ac0621 and storyFilesHash 0d71d4773d553736ae95c7dc37f2910e0f28f1cfd5fbc8b29ee9be45c3f59f6f after the F-396 remediation. The current checklist therefore lacks admissible verifier-owned pre_review_check_read and acceptance_topology_check coverage at this cutoff; reissue the producer-owned acceptance basis and pre-review receipts before a coverage pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-24T18:02:36.142Z",
@@ -17823,14 +17827,18 @@
       "reviewRunId": "B-5a88:RR-641",
       "_hash": "24b97097e38f2afc770604b005a304c13289f1e5dbf9b73b584dc5970892ee33",
       "signatureTag": "missing|unknown|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of canonical current pre-review blocker F-407: both report the same stale pre-review material/story cutoff and PR_ARTIFACT_TAMPERED/PR_COVERAGE_BASIS_CHANGED family.",
+      "resolvedAt": "2026-08-24T18:42:58.806Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-404",
       "desc": "Current REVIEW admission remains unproven at RR-643: pre_review_check_read --storyId=B-5a88 --json returns status=fail with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND against current HEAD 35c8948a9aae06b2fdd9ebe30b9a276741cf093f. The signed pre-review artifact is bound to an earlier cutoff and cannot certify this current review; reissue verifier-owned pre-review evidence through the CLI before admitting REVIEW.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-24T18:03:38.908Z",
@@ -17838,14 +17846,18 @@
       "reviewRunId": "B-5a88:RR-643",
       "_hash": "10cf8bd9e2e493943913c914a35a1aa66323cc9e3379a6a60d7145fa3b00540e",
       "signatureTag": "missing|unknown|current-review-admission",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of canonical current pre-review blocker F-407: the recorded PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND evidence is the same failure family.",
+      "resolvedAt": "2026-08-24T18:43:00.637Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-405",
       "desc": "CHANGELOG.md:29-39 — high: the committed main...HEAD diff still rewrites the v0.3.266 historical release entry, but B-5a88 plan.md:8 and :38 forbid editing CHANGELOG.md and brand-rename-mapping.md:137/230 require its diff to remain empty because it is frozen release history. The current worktree is clean for CHANGELOG.md, but the Story-owned committed diff is still present; remove that branch diff before this concept lane can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-24T18:15:12.398Z",
@@ -17887,14 +17899,18 @@
         "CHANGELOG.md"
       ],
       "signatureTag": "missing|md|changelog-high-committed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The committed branch no longer changes CHANGELOG.md; git diff main...HEAD -- CHANGELOG.md is empty and the frozen-history plan constraint is satisfied.",
+      "resolvedAt": "2026-08-24T18:42:56.926Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-406",
       "desc": ".proof-or-stop/story/actives/B-5a88/pre-review-check.json:5-6,1728-1730 and acceptance-basis.json:1122-1152 — high: current verifier-owned pre-review and acceptance-topology coverage is not admissible for RI-070. pre_review_check_read reports FAIL with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND; acceptance_topology_check reports AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING, and topology_critic_receipt_check rejects AT_TOPOLOGY_CRITIC_RECEIPT_INVALID. The stored pre-review/PLAN basis receipts are bound to stale plan/scope/story/closure inputs (stored storyFilesHash e3f657d2 versus RI-070 cutoff 0d71d477), so the Wave 4 coverage boundary lacks fresh executable verifier receipts even though acceptance_rollout_report_read and acceptance_rollout_check pass full-3x2.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-24T18:15:30.450Z",
@@ -17950,7 +17966,11 @@
         ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json"
       ],
       "signatureTag": "missing|json|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of canonical current pre-review blocker F-407: stale pre-review and acceptance-topology receipt bindings are the same current admissibility blocker.",
+      "resolvedAt": "2026-08-24T18:43:02.900Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-407",
