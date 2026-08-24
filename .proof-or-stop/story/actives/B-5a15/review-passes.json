@@ -3700,6 +3700,43 @@
       },
       "readDiagnostics": [],
       "_hash": "3d429af5884eb09ae6e21995774a2b9cb6d5858d4c26aa9684734a3ae8044acf"
+    },
+    {
+      "id": "B-5a15:RP-085",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced. The current story, checklist, decision, related documents, implementation diff, verifier-owned chain, and F-243 disposition were reviewed; repository-wide residue is limited to retained legacy compatibility/history references, so there is no concept-lane blocker.",
+      "createdAt": "2026-08-24T03:27:20.539Z",
+      "reviewRound": "2026-08-24T02:49:45.599Z",
+      "reviewRunId": "B-5a15:RR-390",
+      "envelopeId": "bb7df44d0cf8cb48f75cac7c05c7715b3199cafc62e41c94570984b66d83d29d",
+      "writerSessionId": "sess-3e5b61c528c373ec",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e159dafacd4ff423df4f0a8933a4d9dda85fc169dc3f76743bb85907b50d77d4"
     }
   ]
 }
