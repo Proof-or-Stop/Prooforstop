@@ -1087,10 +1087,30 @@
       "phase": "REVIEW",
       "headHash": "02cad3b50cf238f7fe90cc32207db587a8f6a8d7",
       "materialHash": "721492cfe7c5b95c5dd3a3be37aa973cebf4c84922b6bf2e6ff7c2a8326b9252"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This source change is necessary to preserve audit coverage for historical lattice command tokens while removing the deprecated npm bin alias.",
+      "timestamp": "2026-08-24T10:16:22.121Z",
+      "paths": [
+        "packages/main/src/core/audit-scan.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/audit-scan.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "3c2badf1f8908d2481e2f6e09550de614393d40f",
+      "materialHash": "87d7fb165a4db7a745701ba5c25f10815a14c63d09b993cab79a94120548c94b",
+      "anchors": [
+        "audit_scan.historical_lattice_token_coverage",
+        "deprecated_bin_alias_removal"
+      ]
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-24T01:40:03.995Z",
+  "updatedAt": "2026-08-24T10:16:22.122Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1345,6 +1365,7 @@
     "packages/main/src/handlers/worktree.ts": "packages/main/src/handlers/worktree.ts",
     "packages/main/src/core/usage-burn-alert.ts": "packages/main/src/core/usage-burn-alert.ts",
     "packages/main/src/tasks/story-metadata-protection-smoke.ts": "packages/main/src/tasks/story-metadata-protection-smoke.ts",
-    "packages/main/src/tasks/worktree-authority-smoke.ts": "packages/main/src/tasks/worktree-authority-smoke.ts"
+    "packages/main/src/tasks/worktree-authority-smoke.ts": "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "packages/main/src/core/audit-scan.ts": "packages/main/src/core/audit-scan.ts"
   }
 }
