@@ -18197,7 +18197,7 @@
       "desc": "RI-071 current acceptance topology and verifier coverage are inadmissible at the frozen cutoff. acceptance_basis returns status=invalid despite basisStatus=complete; acceptance_topology_check returns observe status=fail with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING; pre_review_check_read returns fail with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND; and acceptance_rollout_report_read plus acceptance_rollout_check return fail with AR_REPORT_STALE. These producer-owned receipts cannot support RR-651/RI-071 until regenerated through their verifier CLI commands.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-08-24T19:10:34.221Z",
@@ -18266,7 +18266,11 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|json|current-acceptance-topology",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "RI-071 stale-proof blocker is fixed by the current RI-072 verifier-owned receipts: acceptance_basis_generate, acceptance_rollout_report/acceptance_rollout_check, and pre_review_check all pass at the frozen material cutoff 4f50257c1405593662b2cbfa743f767e577f30a4c6bdbacbfacca97a5f1f2ff2. Current pre-review is admissible with executableEvidence=current, mutations=biting, transcript=related, authority=admissible, and codes=none; no longer the RI-071 failures cited by this finding.",
+      "resolvedAt": "2026-08-24T20:45:18.938Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-411",
