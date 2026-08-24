@@ -623,7 +623,19 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       envelopeB.taskSemanticDigest,
       'mutation bite: the old phase-sensitive digest rejects the valid REVIEW envelope after transition to TEST',
     );
-    const doneEvidence = collectReviewerEvidenceState(store, storyId, root);
+    let promptEnvelopeReads = 0;
+    const countedStore = Object.create(store) as StoryStore;
+    const readPromptEnvelopes = store.readPromptEnvelopes.bind(store);
+    countedStore.readPromptEnvelopes = (readStoryId: string) => {
+      promptEnvelopeReads += 1;
+      return readPromptEnvelopes(readStoryId);
+    };
+    const doneEvidence = collectReviewerEvidenceState(countedStore, storyId, root);
+    assert.equal(
+      promptEnvelopeReads,
+      1,
+      'reviewer evidence collection must reuse one prompt-envelope snapshot for all bound evidence',
+    );
     assert.ok(
       doneEvidence.valid.some(evidence => evidence.id === passB.id),
       'the shared DONE evidence oracle must accept the same B pass after REVIEW to TEST metadata',

@@ -21,7 +21,55 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Lifecycle readiness completes faster and reports the same reviewer evidence verdicts after reusing one prompt-envelope snapshot."
+      "userSees": "Lifecycle readiness completes faster and reports the same reviewer evidence verdicts after reusing one prompt-envelope snapshot.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For one collectReviewerEvidenceState call covering multiple bound reviewer records, create one per-collection immutable prompt-envelope snapshot and pass that same snapshot to validateEvidenceRunBinding, verifyReviewRunPromptEnvelope, and the incremental eligibility lookup. All records must see identical envelope content, prompt-envelope reads must be reduced to one collection-scoped read, and evidence, eligibility cutoff, reviewer binding, and lifecycle gate decisions must match uncached behavior.",
+            "type": "logic"
+          },
+          {
+            "desc": "Independent direct callers of verifyReviewRunPromptEnvelope or validateEvidenceRunBinding that omit the optional snapshot retain the existing direct-read/default behavior, including the same successful result for valid evidence and the same fail-closed result for invalid evidence.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When the collection has no envelope ledger, an empty ledger, a malformed envelope, or an unreadable envelope source, the cached snapshot is not treated as a valid fallback: the existing refusal and diagnostic remain, and no reviewer record becomes eligible or gate-passing.",
+            "type": "logic"
+          },
+          {
+            "desc": "When a collection mixes valid, stale, duplicate, and ineligible reviewer records, including incremental baseline cutoffs and records at the cutoff boundary, every record sees the same snapshot and ordering, deduplication, cutoff inclusivity, stale classification, and eligibility outcomes remain unchanged.",
+            "type": "logic"
+          },
+          {
+            "desc": "When the shared envelope list is presented to multiple verifier calls and one call attempts to mutate or replace an entry, the per-collection snapshot remains immutable or isolated; later checks observe the original validated content and no cross-record or cross-collection state is contaminated.",
+            "type": "logic"
+          },
+          {
+            "desc": "When the pipeline runs more than once or processes two collections sequentially with different envelope sources, each collection receives its own correct snapshot; snapshots are never reused across collections or runs, and a source change cannot be hidden by stale cached state.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "For a reviewer run whose reviewRunId, lane, reviewRound, signature, promptHash, headHash, materialHash, storyFilesHash, scope, or envelope identity does not match the collection context, all existing fail-closed binding and prompt-envelope integrity checks still execute and reject the record; a cached snapshot never upgrades a mismatch to a pass.",
+            "type": "logic"
+          },
+          {
+            "desc": "If undefined, an empty substitute, a snapshot from another collection, or a snapshot captured before the relevant source was replaced is supplied to the verifier or incremental lookup, the implementation refuses unsafe data or follows only the documented safe default path; it never treats missing or foreign data as valid and preserves refusal, diagnostics, and gate blocking.",
+            "type": "logic"
+          },
+          {
+            "desc": "If a later reviewer record is forced to observe a mutated, truncated, reordered, or selectively filtered cached list, no integrity, signature, freshness, scope, review-run, prompt-hash, or eligibility check is bypassed; every record is evaluated against the complete collection snapshot and remains fail-closed.",
+            "type": "logic"
+          },
+          {
+            "desc": "When cached and uncached executions are compared while injecting envelope read failures or changing the envelope source between individual record checks, both modes agree on pass, refusal, stale, and gate outcomes for the same collection input; a read or consistency failure remains a refusal rather than fabricated evidence-ready state.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -43,7 +91,35 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The readiness gate keeps identical integrity, cutoff, and pass/finding outcomes while avoiding repeated prompt-envelope reads."
+      "userSees": "The readiness gate keeps identical integrity, cutoff, and pass/finding outcomes while avoiding repeated prompt-envelope reads.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "For a collection containing multiple current-round reviewer records bound to one valid immutable prompt-envelope snapshot, compare cached verification with the uncached direct-read baseline. Require identical accepted and rejected records, integrity verdicts, incremental eligibility and cutoff, reviewer evidence state, open-finding or pass classification, and lifecycle-gate outcome. Instrument envelope reads and require the cached path to read the snapshot at most once for the whole collection, with no per-record rereads; the bound must remain constant as the number of records grows.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exercise zero, one, and many bound reviewer records, repeated references to one envelope, and incremental cutoffs before, between, and after records. Cached and uncached outputs must remain field-for-field equivalent, including the empty collection; the cutoff must exclude exactly the same records with no reorder or off-by-one difference; zero records must cause no unnecessary envelope read and a multi-record cached collection must use at most one envelope snapshot read.",
+            "type": "logic"
+          },
+          {
+            "desc": "Mix valid records with stale material or scope bindings, invalid integrity data, missing or mismatched envelope entries, duplicate bindings, and non-latest same-round runs. Both paths must fail closed identically for each record and in the aggregate, never fabricate, repair, or hide evidence, and must preserve the same gate result. The read counter must show that rejected and mixed records do not cause cached rereads proportional to record count.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Vary adversarial record ordering and place the incremental cutoff at every boundary while comparing cached and uncached verification. Require identical integrity verdicts, baseline selection, cutoff, evidence state, finding visibility, and REVIEW or TEST gate outcome; fail if caching creates a pass-only or block-only result, hides a stale or corrupt record, or changes a duplicate or non-latest binding decision.",
+            "type": "logic"
+          },
+          {
+            "desc": "Instrument every verifier and incremental-eligibility envelope-read call site for N bound records. The cached operation must use one immutable collection-scoped snapshot, perform no second read during integrity or prompt-envelope verification, and keep the read count within a constant bound independent of N. The uncached independent-call contract must retain its documented direct reads and remain semantically equivalent; cache misses, changed snapshot identity, integrity failure, and boundary mismatch must fail closed with the same evidence and gate result.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
