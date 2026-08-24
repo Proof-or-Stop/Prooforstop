@@ -6936,6 +6936,43 @@
       ],
       "createdAt": "2026-08-24T03:21:59.656Z",
       "_hash": "ef95a04a843737a73c00c5b1384c08657d42c4192b8322f028cbe695a3bdd786"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-023:CRIT-02",
+      "epochId": "B-5a15:RI-023",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-24T02:49:45.599Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "e4195164fdce44b5cebf7dba307819c2c9371072",
+        "materialHash": "41c6cc5292244472d1c39f14ff24db385986581252fdd7774d615019e35042e5",
+        "storyFilesHash": "0d7a9df645e064c99c3609c6fdfa049d8bb4d22bd7461c737e40c231ab415f7b"
+      },
+      "aggregateFindingSetDigest": "52ef4cba461b3844f59a1d9dff2a00706cc35359ca63d4a52c335d014c1cf8dc",
+      "requiredLaneCoverageDigest": "3a95cd7bdf0e4047556124fd4d83ef2c7e9d7b6c2a985f17a120a1243f43b568",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-398",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-087"
+      ],
+      "readEvidenceDigest": "061dd1535d60b74bb071a1dfe72ece4c4359b237b831ca984da8746458018551",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-244",
+          "disposition": "verified_family",
+          "familyKey": "causal-evidence-output-probe-boundary",
+          "reason": "Reproduced the same 12021-character bounded probe overflow against the 12000-character receipt-verification ceiling; the successful verbose receipt remains unverifiable and non-reusable."
+        },
+        {
+          "findingId": "B-5a15:F-245",
+          "disposition": "verified_family",
+          "familyKey": "causal-evidence-output-probe-boundary",
+          "reason": "Verified the associated regression-coverage gap for the reproduced output-probe boundary; no separate root-cause family beyond the same receipt-verification defect."
+        }
+      ],
+      "createdAt": "2026-08-24T03:55:54.530Z",
+      "_hash": "1955bb17a47df4627db84467570a0b864e07340297748465093c9afbf04d8e68"
     }
   ]
 }
