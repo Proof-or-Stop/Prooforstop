@@ -4923,6 +4923,45 @@
         "scanEscalationReason": null
       },
       "_hash": "8de391da98e05a9f082824d67d702dfdaf69c3c2e5330460546256400e858d31"
+    },
+    {
+      "id": "B-5a15:RP-110",
+      "agent": "lattice-review-topology-critic",
+      "note": "Wave 2 completeness review rechecked the current verifier-owned acceptance basis, topology, pre-review, rollout, inventory epoch, and baseline finding set; no new verified finding was produced beyond the already classified F-247/F-248 baseline families.",
+      "createdAt": "2026-08-24T08:19:58.489Z",
+      "reviewRound": "2026-08-24T06:58:21.638Z",
+      "reviewRunId": "B-5a15:RR-434",
+      "envelopeId": "5e02d0e79c14e518a74a3a0f74a44d147e07d2446075b9652780d59a668c04e6",
+      "writerSessionId": "sess-fa9fe1330fcf32cfde5f09bf47b2ed3c",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4ff4eb04783e41c988ae808af4a4f4ab177fd9b595e211687dd2e3a87f70ddf0"
     }
   ]
 }
