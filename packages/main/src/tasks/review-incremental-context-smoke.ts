@@ -82,6 +82,7 @@ import {
 } from '../core/evidence-freshness.js';
 import {
   collectReviewerEvidenceState,
+  snapshotPromptEnvelopes,
   signReviewRun,
   verifyReviewRun,
   verifyReviewRunPromptEnvelope,
@@ -174,10 +175,6 @@ function buildFixtureStore(input: FixtureStoreInput): StoryStore {
     readDecision: (storyId: string) => { guard(storyId); return null as never; },
     readUnderstanding: (storyId: string) => { guard(storyId); return null as never; },
   } as unknown as StoryStore;
-}
-
-function freezePromptEnvelopeSnapshot(envelopes: readonly PromptEnvelope[]): readonly PromptEnvelope[] {
-  return Object.freeze(envelopes.map(envelope => Object.freeze({ ...envelope })));
 }
 
 // ── Signed reviewer evidence helpers (use the production sign functions) ──
@@ -606,7 +603,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       assert.equal(uncachedReads.value, runsToCompare.length, `${label}: uncached verifier must read once per record`);
     };
     const promptEnvelopeSnapshot = store.readPromptEnvelopes(storyId).envelopes;
-    const frozenPromptEnvelopeSnapshot = freezePromptEnvelopeSnapshot(promptEnvelopeSnapshot);
+    const frozenPromptEnvelopeSnapshot = snapshotPromptEnvelopes(promptEnvelopeSnapshot);
     assert.ok(Object.isFrozen(frozenPromptEnvelopeSnapshot), 'collection snapshot array must be immutable');
     assert.ok(Object.isFrozen(frozenPromptEnvelopeSnapshot[0]), 'collection snapshot entries must be isolated');
     assert.throws(
@@ -624,13 +621,13 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       promptEnvelopeSnapshot.map((envelope, index) => index === 0
         ? { ...envelope, reviewRunId: `${envelope.reviewRunId}-mismatch` }
         : envelope),
-      freezePromptEnvelopeSnapshot(promptEnvelopeSnapshot.map((envelope, index) => index === 0
+      snapshotPromptEnvelopes(promptEnvelopeSnapshot.map((envelope, index) => index === 0
         ? { ...envelope, reviewRunId: `${envelope.reviewRunId}-mismatch` }
         : envelope)),
     );
     const staleRun = { ...runC, headHash: 'd'.repeat(40) };
     compareAggregate('stale non-latest run', promptEnvelopeSnapshot, frozenPromptEnvelopeSnapshot, [runA, runB, staleRun]);
-    const foreignSnapshot = freezePromptEnvelopeSnapshot(promptEnvelopeSnapshot.map(envelope => ({
+    const foreignSnapshot = snapshotPromptEnvelopes(promptEnvelopeSnapshot.map(envelope => ({
       ...envelope,
       storyId: 'B-foreign-collection',
     })));
@@ -798,6 +795,64 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       false,
       'done_prepare and story_advance DONE must not disagree about B Prompt Envelope validity',
     );
+
+    const productionCollectorSource = promptEnvelopeSnapshot.map(envelope => ({ ...envelope }));
+    let productionCollectorReads = 0;
+    const productionCollectorStore = Object.create(store) as StoryStore;
+    productionCollectorStore.readPromptEnvelopes = (readStoryId: string) => {
+      assert.equal(readStoryId, storyId, 'production collector must read only its requested collection');
+      productionCollectorReads += 1;
+      return { envelopes: productionCollectorSource };
+    };
+    let observedProductionSnapshot: readonly PromptEnvelope[] | undefined;
+    const mutatingVerifier: typeof verifyReviewRunPromptEnvelope = (
+      verifierStore,
+      candidateRun,
+      suppliedSnapshot,
+    ) => {
+      assert.ok(suppliedSnapshot, 'production collector must pass its shared snapshot to each verifier');
+      if (!observedProductionSnapshot) {
+        observedProductionSnapshot = suppliedSnapshot;
+        assert.ok(Object.isFrozen(suppliedSnapshot), 'production collector snapshot array must be frozen');
+        assert.ok(
+          suppliedSnapshot.every(envelope => Object.isFrozen(envelope)),
+          'production collector snapshot entries must be frozen independently',
+        );
+        const capturedRunId = suppliedSnapshot[0]?.reviewRunId;
+        assert.ok(capturedRunId, 'production collector fixture must include a bound envelope');
+        productionCollectorSource[0]!.reviewRunId = `${capturedRunId}-source-mutated`;
+        assert.equal(
+          suppliedSnapshot[0]!.reviewRunId,
+          capturedRunId,
+          'mutating the store-owned source after capture must not alter the production snapshot',
+        );
+        assert.throws(
+          () => ((suppliedSnapshot as PromptEnvelope[])[0] = suppliedSnapshot[0]!),
+          TypeError,
+          'a mutating verifier must not be able to replace a production snapshot entry',
+        );
+      } else {
+        assert.strictEqual(
+          suppliedSnapshot,
+          observedProductionSnapshot,
+          'all production evidence verifiers must share one collection snapshot',
+        );
+      }
+      return verifyReviewRunPromptEnvelope(verifierStore, candidateRun, suppliedSnapshot);
+    };
+    const isolatedCollectorEvidence = collectReviewerEvidenceState(
+      productionCollectorStore,
+      storyId,
+      root,
+      { verifyPromptEnvelope: mutatingVerifier },
+    );
+    assert.equal(productionCollectorReads, 1, 'production collector must read one envelope collection per call');
+    assert.ok(observedProductionSnapshot, 'the production collector must invoke the injected verifier');
+    assert.ok(
+      isolatedCollectorEvidence.valid.some(evidence => evidence.id === passB.id),
+      'production collector must preserve valid evidence after source mutation by a verifier',
+    );
+    console.log(`${MARKER} PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier`);
 
     const testPhaseStory = store.readStory(storyId);
     const inadmissiblePhaseDigests = new Set<string>();

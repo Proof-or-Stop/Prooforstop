@@ -121,6 +121,26 @@ export interface ReviewerEvidenceState {
   advisories?: ReviewRunIssue[];
 }
 
+/**
+ * Clone and freeze one prompt-envelope collection before passing it to any
+ * verifier. The store owns the data it returns, so sharing those mutable
+ * objects with a verifier would let one evidence check alter the inputs seen
+ * by the next check in the same collection.
+ */
+export function snapshotPromptEnvelopes(
+  envelopes: readonly PromptEnvelope[],
+): readonly PromptEnvelope[] {
+  return Object.freeze(envelopes.map(envelope => Object.freeze({ ...envelope })));
+}
+
+export interface ReviewerEvidenceCollectionOptions {
+  /**
+   * Verification seam used by focused mutation-isolation tests. Production
+   * callers use verifyReviewRunPromptEnvelope by default.
+   */
+  verifyPromptEnvelope?: typeof verifyReviewRunPromptEnvelope;
+}
+
 const SUPERSEDED_PASS_ISSUE_CODES = new Set<ReviewRunIssueCode>([
   'stale_run',
   'stale_run_hash',
@@ -1315,6 +1335,7 @@ function validateEvidenceRunBinding(
   scopeContext: CurrentScopeContext | null,
   promptEnvelopes: readonly PromptEnvelope[],
   advisories?: ReviewRunIssue[],
+  verifyPromptEnvelope: typeof verifyReviewRunPromptEnvelope = verifyReviewRunPromptEnvelope,
 ): ReviewRunIssue | null {
   if (!story.currentReviewRound) return null;
   if (evidence.reviewRound !== story.currentReviewRound) {
@@ -1404,7 +1425,7 @@ function validateEvidenceRunBinding(
       message: `${evidence.kind} ${evidence.id} is bound to a legacy run while ${run.lane} requires full-envelope`,
     };
   }
-  const envelopeVerification = verifyReviewRunPromptEnvelope(store, run, promptEnvelopes);
+  const envelopeVerification = verifyPromptEnvelope(store, run, promptEnvelopes);
   if (!envelopeVerification.ok) {
     return {
       code: 'prompt_envelope_tampered',
@@ -1542,6 +1563,7 @@ export function collectReviewerEvidenceState(
   store: StoryStore,
   storyId: string,
   projectRoot: string,
+  options: ReviewerEvidenceCollectionOptions = {},
 ): ReviewerEvidenceState {
   const story = store.readStory(storyId);
   const currentRound = story.currentReviewRound;
@@ -1585,8 +1607,9 @@ export function collectReviewerEvidenceState(
   const scopeContext = currentScopeContextForStory(store, storyId, projectRoot);
   const reviewerEvidence = [...reviewerFindings, ...reviewerPasses];
   const promptEnvelopes = reviewerEvidence.length > 0
-    ? store.readPromptEnvelopes(storyId).envelopes
+    ? snapshotPromptEnvelopes(store.readPromptEnvelopes(storyId).envelopes)
     : [];
+  const verifyPromptEnvelope = options.verifyPromptEnvelope ?? verifyReviewRunPromptEnvelope;
 
   const valid: ReviewerEvidenceRecord[] = [];
   const rawInvalid: ReviewRunIssue[] = [];
@@ -1602,6 +1625,7 @@ export function collectReviewerEvidenceState(
       scopeContext,
       promptEnvelopes,
       advisories,
+      verifyPromptEnvelope,
     );
     if (issue) {
       rawInvalid.push(issue);
