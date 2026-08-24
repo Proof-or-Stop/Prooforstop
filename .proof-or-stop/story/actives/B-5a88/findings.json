@@ -18385,7 +18385,7 @@
       "desc": "packages/main/src/tasks/prompt-registry-smoke.ts:121: the proof-metadata phrase assertions still match the retired lattice-review-quality.md filename, but readPromptRegistry emits proof-or-stop-review-quality.md; the branch is therefore unreachable and the smoke can no longer detect removal of that required review guidance",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-24T20:37:17.679Z",
@@ -18417,7 +18417,11 @@
       "readDiagnostics": [],
       "_hash": "4be2318a02b094b3cf8879a9ed2d66f5b516415178d4cb2bc8bc3cdbc4018988",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed packages/main/src/tasks/prompt-registry-smoke.ts:121 to match canonical proof-or-stop-review-quality.md; npm --prefix packages/main run build, node packages/main/dist/tasks/prompt-registry-smoke.js, and node packages/main/tests/prompt-role-migration.test.mjs all passed.",
+      "resolvedAt": "2026-08-24T22:59:29.457Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
