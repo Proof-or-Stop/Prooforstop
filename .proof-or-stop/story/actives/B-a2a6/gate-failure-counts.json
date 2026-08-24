@@ -10,5 +10,11 @@
     "command": "story_advance",
     "lastReason": "Cannot enter REVIEW: acceptance rollout enforcement blocked DEV admission.\nAcceptance rollout enforcement:\n  mode=enforce; status=missing; blocking=true\n  receipt=missing; quorum=degraded-or-missing\n  codes=AR_REPORT_MISSING\n\n-> Run proof-or-stop acceptance_rollout_report, then acceptance_rollout_check. Roll back by setting proofStory.acceptanceRolloutGateMode to warn or observe; prior reports remain immutable.",
     "lastAt": "2026-08-24T02:43:41.714Z"
+  },
+  "story_advance/925876e758df": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Cannot enter REVIEW: Scope gate: fail (4 unacknowledged violation(s), mode=enforce)\n\nScope gate: fail (4 unacknowledged violation(s), mode=enforce)\nChanged files (25):\n  .proof-or-stop/story/actives/B-a2a6/acceptance-basis.json\n  .proof-or-stop/story/actives/B-a2a6/acceptance-rollout-report.json\n  .proof-or-stop/story/actives/B-a2a6/checklist.json\n  .proof-or-stop/story/actives/B-a2a6/decision.json\n  .proof-or-stop/story/actives/B-a2a6/dev-memory-preflight-ack.json\n  .proof-or-stop/story/actives",
+    "lastAt": "2026-08-24T02:47:34.026Z"
   }
 }
