@@ -4181,6 +4181,81 @@
         "scanEscalationReason": null
       },
       "_hash": "a0395836575f099fb2ceb5cd3b130809f72c2ea61f10838d871b87d003c4133d"
+    },
+    {
+      "id": "B-5a15:RP-097",
+      "agent": "lattice-review-concept",
+      "note": "RI-025 wave 2 concept review at current HEAD 008fd89d97e92c6878bc8157eedfee956a5b2296: all 51 verification intents were rebound in the signed run and the current scope was checked. Reviewed the story context, plan, checklist, four related decision documents, integrated main...HEAD diff, repository-wide residue scans, and promised-surface implementations. The only source rename sameFileCallableCalls to sameFileCallableReachable has no residue in implementation or docs; historical review metadata mentions are audit history. No new concept deletion/replacement or promised-undelivered blocker was found. Existing F-226 acceptance-chain and F-246 current-coverage findings remain carry-forward; no finding was duplicated, cleared, or reclassified. Topology and pre-review remain diagnostic/inconclusive while rollout remains current full-3x2; this lane pass makes no overall acceptance claim.",
+      "createdAt": "2026-08-24T05:53:52.904Z",
+      "reviewRound": "2026-08-24T04:36:48.410Z",
+      "reviewRunId": "B-5a15:RR-415",
+      "envelopeId": "1307e0e6569ef3e1f0dd35954661ef440ee56fd86a66d7a5bed6da112c5cc972",
+      "writerSessionId": "sess-39aae675982708af00488cd017cb1252",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "eb09d75c684e4cb0785207bc02e44329b5cfab27cedda0249ef2c93a90dd96f8"
+      },
+      "readDiagnostics": [],
+      "_hash": "58ec88c9a4a85b2b58c6d07f20c14d949c1a97c3b0855cd8f126f5ed1290168e"
     }
   ]
 }
