@@ -1009,10 +1009,70 @@
       "phase": "DEV",
       "headHash": "1e6b84ec4753de4eed2b0a1b62efa99bc0c90555",
       "materialHash": "b54b7b5c7f26b83d5b49f9746fbde422f265b724f2dd120605dd12c3011d0a06"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These active runtime, smoke, package, changelog, and verifier surfaces are the minimum files required to resolve the six verified migration finding families without changing unrelated behavior.",
+      "timestamp": "2026-08-24T01:02:35.721Z",
+      "paths": [
+        "packages/main/src/core/evidence-pin-guard.ts",
+        "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+        "packages/main/src/core/stale-detector.ts",
+        "bin/bootstrap-runner.js",
+        "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+        "packages/lab/package.json",
+        "packages/utils/package.json",
+        "CHANGELOG.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/context.ts",
+        "packages/main/src/handlers/worktree.ts",
+        "packages/main/src/core/usage-burn-alert.ts",
+        "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/evidence-pin-guard.ts",
+        "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+        "packages/main/src/core/stale-detector.ts",
+        "bin/bootstrap-runner.js",
+        "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+        "packages/lab/package.json",
+        "packages/utils/package.json",
+        "CHANGELOG.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/context.ts",
+        "packages/main/src/handlers/worktree.ts",
+        "packages/main/src/core/usage-burn-alert.ts",
+        "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 15,
+      "phase": "DEV",
+      "headHash": "32f75230ab40607a86043c02160754a93006357d",
+      "materialHash": "b54b7b5c7f26b83d5b49f9746fbde422f265b724f2dd120605dd12c3011d0a06"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The retired-authority smoke owns the pinned closeout-trust AST fingerprint and must be updated in lockstep so validation can distinguish a current compatibility module from transitive residue.",
+      "timestamp": "2026-08-24T01:13:41.739Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "65ca677b014222806de09e4d012b4ba7291f1181",
+      "materialHash": "60da37ca508e4b4d82139915c33df40724d4f265a4cd89a8658bed2bbf6cf4a4"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-23T19:57:17.687Z",
+  "updatedAt": "2026-08-24T01:13:41.739Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1257,6 +1317,15 @@
     "scripts/verify-implementation-reviewer.mjs": "scripts/verify-implementation-reviewer.mjs",
     "scripts/verify-lab-foundation.mjs": "scripts/verify-lab-foundation.mjs",
     "scripts/verify-lab-scoring-core.mjs": "scripts/verify-lab-scoring-core.mjs",
-    "scripts/verify-product-reviewer.mjs": "scripts/verify-product-reviewer.mjs"
+    "scripts/verify-product-reviewer.mjs": "scripts/verify-product-reviewer.mjs",
+    "packages/main/src/core/evidence-pin-guard.ts": "packages/main/src/core/evidence-pin-guard.ts",
+    "packages/main/src/tasks/lattice-only-absence-smoke.ts": "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+    "packages/main/src/core/stale-detector.ts": "packages/main/src/core/stale-detector.ts",
+    "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts": "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+    "CHANGELOG.md": "CHANGELOG.md",
+    "packages/main/src/handlers/context.ts": "packages/main/src/handlers/context.ts",
+    "packages/main/src/handlers/worktree.ts": "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/core/usage-burn-alert.ts": "packages/main/src/core/usage-burn-alert.ts",
+    "packages/main/src/tasks/story-metadata-protection-smoke.ts": "packages/main/src/tasks/story-metadata-protection-smoke.ts"
   }
 }
