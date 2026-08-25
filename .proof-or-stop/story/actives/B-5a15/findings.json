@@ -16195,6 +16195,192 @@
       ],
       "signatureTag": "missing|ts|wave-test-coverage",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-308",
+      "desc": "Topology completeness review is blocked because pre_review_check_read returns PR_ARTIFACT_TAMPERED for the current acceptance artifact, so the verifier-derived pre-review evidence is not admissible for a topology pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-25T14:59:43.744Z",
+      "reviewRound": "2026-08-25T13:03:41.315Z",
+      "reviewRunId": "B-5a15:RR-687",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/topology-critic-receipt.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6e4f8f3cb3a49d1051f172f18b9a9073577126ca37c9bffa78387bdcf6f9420b"
+      },
+      "readDiagnostics": [],
+      "_hash": "095f3e3fec6bc90228e330534e462646904c2fc298e28d4585f491aa383aca02",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|json|topology-completeness-review",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-309",
+      "desc": "closeout-lineage-recheck: .proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json:1 is still not admissible: topology_critic_receipt_check returns AT_TOPOLOGY_CRITIC_RECEIPT_INVALID because verdict=request_changes and finding refs are noncanonical or stale. .proof-or-stop/story/actives/B-5a15/closeout-write-receipts.jsonl:77 is the latest receipt and its artifactPath is evidence/live-smoke-transcript.json; no receipt targets topology-critic-receipt.json. packages/main/src/core/closeout-trust.ts:37-49 omits topology-critic-receipt.json from CLOSEOUT_ARTIFACT_POLICIES, while :600-629 rejects an unregistered changed artifact from review retention. This confirms F-304/F-306 remain unresolved in RI-045 wave 3 and this quality wave cannot pass closeout lineage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T15:12:41.116Z",
+      "reviewRound": "2026-08-25T13:03:41.315Z",
+      "reviewRunId": "B-5a15:RR-689",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/closeout-write-receipts.jsonl",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/topology-critic-receipt.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3881760d708a3b2a9888a782757d29c9111f2367a6a60eab0f6dcb51c4c69519",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+        ".proof-or-stop/story/actives/B-5a15/closeout-write-receipts.jsonl",
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "quality-review-integrity|topology-closeout-receipt|RI-045-wave-3",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-310",
+      "desc": "RI-045 wave 3 validation evidence is stale: .proof-or-stop/story/actives/B-5a15/test-evidence.json reports PASS and 53/53 covered intents, but its test-evidence binding is headHash=278d45ab14ed38cf5e20d0fc6b40a35de58aa16b, materialHash=20ffa1d8bce0e5aba8d0c70d32f32cce39d83bc241928f8164e7f75af2c05b09, storyFilesHash=e15c317b440b82e00101249b9fd8143a3bbcdbfffd2932e7f73bc02bd6788b88. Fresh RR-692 binds headHash=0265d19fc7964ad4dc202297a14ef6fad094152d, materialHash=e2b9a304b33a1b93675b12b661d999c08babc2216b41f67b44d584c55851b4e5, and storyFilesHash=956f34876f1590aeb00e49124642c20bbb21bc5bbb64c3f3b03ba0957278cedd; evidence_inspect confirms freshness=stale and staleRefs=[test-evidence]. The coverage rows remain complete, but this validation PASS cannot serve as current wave evidence until proof-or-stop validate --story=B-5a15 --json is rerun and fresh evidence is recorded.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-25T15:15:36.552Z",
+      "reviewRound": "2026-08-25T13:03:41.315Z",
+      "reviewRunId": "B-5a15:RR-692",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/test-evidence.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "875430603460af4694a651a2691fdefd5eb53da8227d0ae755c964d58adc34a1"
+      },
+      "readDiagnostics": [],
+      "_hash": "5c227cad47982a0608720ea0689215468cbff67d9c82060aeabbe280586a77b5",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/test-evidence.json",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json"
+      ],
+      "signatureTag": "missing|json|wave-validation-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }

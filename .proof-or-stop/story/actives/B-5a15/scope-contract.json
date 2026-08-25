@@ -390,10 +390,35 @@
       "phase": "DEV",
       "headHash": "e7b4b095922baf085faadd8d6239373adc1d9895",
       "materialHash": "0abe1a13ef324f8569ea40bf4ba2b01c17c6c18bf56d335ffe4e7c5616c94398"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "User-approved minimal scope extension is required to register topology-critic receipt closeout lineage, emit its trusted write receipt, and lock the behavior with a regression smoke test so the current review blocker can be truthfully remediated.",
+      "timestamp": "2026-08-25T16:29:07.036Z",
+      "paths": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "0265d19fc7964ad4dc202297a14ef6fad094152d",
+      "materialHash": "e2b9a304b33a1b93675b12b661d999c08babc2216b41f67b44d584c55851b4e5",
+      "anchors": [
+        "CLOSEOUT_ARTIFACT_POLICIES",
+        "topology_critic_receipt_set",
+        "classifyCurrentCloseoutArtifactForReviewRetention"
+      ]
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-08-24T21:58:27.015Z",
+  "updatedAt": "2026-08-25T16:29:07.036Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -457,6 +482,7 @@
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d60dc99c7796a66b1ed7d28028ddd46f387377d20fa3b5ab1c40da252fd16448.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d60dc99c7796a66b1ed7d28028ddd46f387377d20fa3b5ab1c40da252fd16448.json",
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ed28534544f5eee6957b570ed5189b1c05ca250ba9de801a703233ace09022cf.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ed28534544f5eee6957b570ed5189b1c05ca250ba9de801a703233ace09022cf.json",
     "packages/main/src/core/validation-command-environment.ts": "packages/main/src/core/validation-command-environment.ts",
-    "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts"
+    "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "packages/main/src/core/closeout-trust.ts": "packages/main/src/core/closeout-trust.ts"
   }
 }
