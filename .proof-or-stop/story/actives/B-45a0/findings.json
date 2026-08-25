@@ -16401,6 +16401,66 @@
       ],
       "signatureTag": "ri068-topology-pre-review-scope-artifact",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-319",
+      "desc": "packages/main/src/tasks/story-aware-validation-historical-replay.ts:22-27 — historical replay has no live Story, but constructs StoryStore and calls story-scoped resolveGitCwd with nonexistent B-historical-replay. resolveGitCwd catches the missing story and returns metadata root; in a wrapper-root project this is not the configured git root, so replay Git still runs from a non-repository despite the planner call sites now receiving gitCwd. The existing id-independent resolveProjectGitCwd at packages/main/src/core/story-signed-workspace-resolution.ts:453-475 is the appropriate no-story resolver; without it the acknowledged replay Git-cwd contract remains false for wrapper-root layouts.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T16:18:16.358Z",
+      "reviewRound": "2026-08-25T16:06:11.159Z",
+      "reviewRunId": "B-45a0:RR-636",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+          "lattice.config.json",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": "Scoped RI-071 current-head quality review inspected the repaired replay cwd routing, no-story workspace resolution, full-suite changes, verifier-owned acceptance consumers, and acknowledged scope; no repository-wide decisions scan was required."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "a51e5b7a1508b406dc6966f0bba270bb92c7575cae7c240fb7a267d114aaa01c"
+      },
+      "readDiagnostics": [],
+      "_hash": "b65e387c436469a9f9149015aaec1dd3e7c95d22f4336bb9366755bedd34b5f9",
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "packages/main/src/core/story-signed-workspace-resolution.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
