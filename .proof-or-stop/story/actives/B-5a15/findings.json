@@ -16064,6 +16064,137 @@
       ],
       "signatureTag": "missing|json|current-topology-admission",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-306",
+      "desc": "quality-review-integrity: .proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json:1 is not closeout-trusted in RI-045 wave 2. The current closeout-write-receipts.jsonl:1-77 contains no trusted closeout-write receipt whose artifactPath is topology-critic-receipt.json (latest sequence=56 is evidence/live-smoke-transcript.json), so the topology receipt remains inadmissible for retaining a quality review pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T14:50:01.115Z",
+      "reviewRound": "2026-08-25T13:03:41.315Z",
+      "reviewRunId": "B-5a15:RR-686",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/closeout-write-receipts.jsonl",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e720aaf61d1989917aa2ba76ad8cd5c4e286936ee68883f546fc095093a2c47f",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+        ".proof-or-stop/story/actives/B-5a15/closeout-write-receipts.jsonl"
+      ],
+      "signatureTag": "quality-review-integrity|topology-closeout-receipt|RI-045-wave-2",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-307",
+      "desc": "RI-045 wave-2 test coverage cannot pass on the fresh validation result: proof-or-stop validate --story=B-5a15 --json refused a later launch with state_changed_before_launch, commandExecutions=0, and evidenceWrites=0, and the configured validation run also timed out command 7/112 (review-pass-discard-smoke.js) at 300145ms with code 124. The existing checklist rows still show 53/53 mechanical evidence and the focused suite is 19/19, but this fresh validation failure means current full verification coverage is not admissible until the validation path is rerun successfully.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-25T14:50:57.896Z",
+      "reviewRound": "2026-08-25T13:03:41.315Z",
+      "reviewRunId": "B-5a15:RR-684",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/test-evidence.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "eb09d75c684e4cb0785207bc02e44329b5cfab27cedda0249ef2c93a90dd96f8"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_missing_full_read",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "message": "mechanical decisions-doc read log has a full read missing from readManifest.filesReadFully: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+        },
+        {
+          "code": "read_manifest_missing_full_read",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "message": "mechanical decisions-doc read log has a full read missing from readManifest.filesReadFully: docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        },
+        {
+          "code": "read_manifest_missing_full_read",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "message": "mechanical decisions-doc read log has a full read missing from readManifest.filesReadFully: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_missing_full_read",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "message": "mechanical decisions-doc read log has a full read missing from readManifest.filesReadFully: docs/requirements/decisions/story-files-hash-material-drift.md"
+        }
+      ],
+      "_hash": "88043e69711e540cb091d463de527bf7797b33f29f651503a117bb9f554cd0b2",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "missing|ts|wave-test-coverage",
+      "signatureTagSource": "auto"
     }
   ]
 }
