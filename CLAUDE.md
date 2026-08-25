@@ -794,7 +794,7 @@ Proof-or-Stop agent prompt 的**正文（body）只有一个真相源**：包内
 - **spawn 不变**：主 agent 仍 `Agent({ subagent_type: "proof-or-stop-review-*" })`。shim 的 `tools:` frontmatter 保留宿主**只读沙箱**（reviewer 改不了文件）；被 spawn 的 reviewer/implementer **第一步运行 `proof-or-stop agent_prompt --role=<自身角色>` 取权威指令**再执行。
 - **init 行为**：`proof-or-stop init` 往**项目里写 0 个 agent 文件**；17 个 thin-shim 一次性放在全局 `~/.claude/agents`，所有项目共用。
 - **迁移显式**：已有 project-local 管理文件时，普通 `init` 只 WARN 不删；删除/迁移仅在 `proof-or-stop init --upgrade`，且只删 17 个管理 basename、保留用户自建文件。`proof-or-stop doctor` 报 `agentAssetMode: runtime-owned`。
-- **角色数量**：registry 共 **17** 个 role 模板（`scripts/verify-proof-or-stop-prompt-baseline.mjs` 的 `EXPECTED_ROLE_COUNT = 17` 钉住），其中 **13** 个仍保留 legacy `lattice-` 前缀。这些 role ID 是为兼容在飞 story 而冻结的历史 `subagent_type` 值；当前身份与输出指导使用 `proof-or-stop-*`，目标前缀迁移由 `docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md` 负责。
+- **角色数量**：registry 共 **17** 个 role 模板（`scripts/verify-proof-or-stop-prompt-baseline.mjs` 的 `EXPECTED_ROLE_COUNT = 17` 钉住）；当前身份与输出指导使用 `proof-or-stop-*`，另有 **13** 个 `lattice-` 前缀仅作为兼容读取别名保留，不能作为新的身份或输出写入。
 - 真相源：`docs/requirements/decisions/lifecycle-artifact-scope.md` →「Policy: host-neutral prompt content, thin host adapters (B-097f)」+ `lattice-runtime-owned-agent-assets-execution-plan.md` 的 Implementation Status。
 
 ## REVIEW 阶段规则（框架实现）
