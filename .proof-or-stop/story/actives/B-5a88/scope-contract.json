@@ -1148,10 +1148,30 @@
       "phase": "DEV",
       "headHash": "d27c32a7edabd05dafd3ff197e652e5f0c709a64",
       "materialHash": "55b311774a7b8c5270b0e9790ddb6a8d6443436d1f89fd77ad9a510aa5ac0621"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The smoke harness setup is part of the canonical remote-push approval migration, and this one-line ignore fix is required to exercise the proof-or-stop path without a repository-root false positive.",
+      "timestamp": "2026-08-25T00:23:54.738Z",
+      "paths": [
+        "packages/main/src/tasks/remote-push-approval-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/remote-push-approval-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4ab7dea7bb262435fa7a327c34ca7131dde3fdc1",
+      "materialHash": "f962e500306944d9d155c5dd74d1ecbfeffa3f0564fe7fd9ed1f0d8d69b23ca1",
+      "anchors": [
+        "CHK_004",
+        "remote_push_approval_schema_migration"
+      ]
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-24T17:51:52.229Z",
+  "updatedAt": "2026-08-25T00:23:54.738Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1412,6 +1432,7 @@
     "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
     "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
     "packages/main/src/tasks/observability-snapshot-smoke.ts": "packages/main/src/tasks/observability-snapshot-smoke.ts",
-    "packages/main/src/tasks/review-assurance-surfacing-smoke.ts": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
+    "packages/main/src/tasks/review-assurance-surfacing-smoke.ts": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
+    "packages/main/src/tasks/remote-push-approval-smoke.ts": "packages/main/src/tasks/remote-push-approval-smoke.ts"
   }
 }
