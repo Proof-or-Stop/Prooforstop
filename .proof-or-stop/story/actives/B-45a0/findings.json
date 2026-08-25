@@ -15310,7 +15310,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/dynamic-validation-operations.md:27-36 and docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md:13-36 state that every validate.commands row carries/preserves an explicit policy tuple including cpuWeight and expectedP50Ms, and that missing policy is recorded as policySource=default and cannot satisfy ownership. Current proof-or-stop.config.json and lattice.config.json have 112 rows but 110 omit cpuWeight and expectedP50Ms; discoverValidationInventory only carries those fields when present or when policyDefaults supplies them (current defaults supply cpuWeight but not expectedP50Ms), compileValidationCatalog silently defaults cpuWeight to 1, leaves expectedP50Ms optional, and authority ownership checks policySource plus assurance/risk/closure/baseline fields without requiring expectedP50Ms. This makes the current-main documentation overstate the explicit configuration contract and the fail-closed behavior; either require/populate both fields and enforce them, or document the actual default/optional semantics.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-25T06:01:55.108Z",
@@ -15359,7 +15359,11 @@
         "lattice.config.json"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved after fresh RI-062 docs review on current HEAD 525c4d22ba. Commit 66fa0f01ee clarifies that config rows contribute effective policy fields after registered defaults and bounded timeout-derived scheduler fallback; current 112-row config may omit raw scheduler fields for legacy rows. verify-validation-inventory.mjs now passes at current head, and the corrected operations and current-main characterization records match the implementation.",
+      "resolvedAt": "2026-08-25T07:22:12.753Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-301",
@@ -15413,7 +15417,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/dynamic-validation-operations.md:27-36 and docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md:13-36 state that every validate.commands row carries/preserves an explicit policy tuple including cpuWeight and expectedP50Ms, and that missing policy is recorded as policySource=default and cannot satisfy ownership. Current proof-or-stop.config.json and lattice.config.json have 112 rows but 110 omit cpuWeight and expectedP50Ms; discoverValidationInventory only carries those fields when present or when policyDefaults supplies them (current defaults supply cpuWeight but not expectedP50Ms), compileValidationCatalog silently defaults cpuWeight to 1, leaves expectedP50Ms optional, and authority ownership checks policySource plus assurance/risk/closure/baseline fields without requiring expectedP50Ms. This makes the current-main documentation overstate the explicit configuration contract and the fail-closed behavior; either require/populate both fields and enforce them, or document the actual default/optional semantics.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-25T06:30:30.880Z",
@@ -15455,14 +15459,18 @@
         "lattice.config.json"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-docs",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Resolved after fresh RI-062 docs review on current HEAD 525c4d22ba. Commit 66fa0f01ee clarifies that config rows contribute effective policy fields after registered defaults and bounded timeout-derived scheduler fallback; current 112-row config may omit raw scheduler fields for legacy rows. verify-validation-inventory.mjs now passes at current head, and the corrected operations and current-main characterization records match the implementation.",
+      "resolvedAt": "2026-08-25T07:22:21.905Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-303",
       "desc": "doc-code-drift: docs/requirements/decisions/dynamic-validation-operations.md:27-36 and docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md:13-36 still claim that every validate.commands row carries an explicit policy tuple including cpuWeight and expectedP50Ms, and that missing policy becomes policySource=default and cannot satisfy ownership. Current proof-or-stop.config.json and lattice.config.json each contain 112 rows, but 110 omit both fields; policyDefaults supplies cpuWeight but not expectedP50Ms. packages/main/src/core/story-aware-validation.ts:278-292 and :308-310 inherit only configured/default fields, :382-384 sets policySource from assurance/risk/closure/baseline fields and defaults cpuWeight to 1 while leaving expectedP50Ms optional, and packages/main/src/handlers/story-aware-validation.ts:893-900 checks policy ownership without requiring expectedP50Ms. The docs therefore overstate the explicit configuration and fail-closed contract; either populate/enforce both fields or document the actual optional/default semantics.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-25T06:46:52.358Z",
@@ -15508,6 +15516,121 @@
         "packages/main/src/handlers/story-aware-validation.ts"
       ],
       "signatureTag": "doc-code-drift|policy-tuple-defaults",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Resolved after fresh RI-062 docs review on current HEAD 525c4d22ba. Commit 66fa0f01ee clarifies that config rows contribute effective policy fields after registered defaults and bounded timeout-derived scheduler fallback; current 112-row config may omit raw scheduler fields for legacy rows. verify-validation-inventory.mjs now passes at current head, and the corrected operations and current-main characterization records match the implementation.",
+      "resolvedAt": "2026-08-25T07:22:30.691Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-304",
+      "desc": "Current RI-062 coverage is stale for 45 of 48 verification intents. The current Story head is 525c4d22ba0b2f83eacc44c55b29287fbfe9c112 with materialHash 3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c and storyFilesHash 3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9. checklist_get shows the original 45 evidence rows remain bound to materialHash 77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8 and storyFilesHash 60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664, while only the three CHK-014 rows are bound to the current material/story hashes. The CHK-014 Wave 4 checks therefore do not establish current-head coverage for CHK-001 through CHK-013; re-execute and refresh those 45 rows before relying on this lane for REVIEW coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-25T07:22:25.658Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-564",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2358ecd5eadbe092d870a323f3facc2a2066a0af1ac2caa0d7686c6b755798a6"
+      },
+      "readDiagnostics": [],
+      "_hash": "648e9b3ea9ef6f7f0b0fcc1aa23e4f08eea4676184330f3e40a71b2dcbcaec36",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "ri062-current-coverage-stale-after-chk014",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-305",
+      "desc": "Current RI-062 topology acceptance evidence cannot be independently re-attested: topology_critic_receipt_set pass is refused with AT_ADAPTER_RESULT_DIGEST_MISMATCH (basis semantic discovery digest mismatch). Although acceptance_basis reports verified and acceptance_topology_check reports structuralPass=true, the verifier refuses the signed topology receipt, so the current basis is not trustworthy for REVIEW. Regenerate the verifier-owned acceptance basis/topology artifacts at the current HEAD, materialHash, and scope binding, then rerun topology_critic_receipt_check.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-25T07:31:10.443Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-566",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1482e5939aa9f4255b6fc4a96bd4cac2a8be8a1b9d99aa5a48f74d6d56b023b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "b379a49ed4c8404ed4d1684cb6fcce4f6827d41fecfc61b218bdac6fd0ab2714",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "proof-or-stop.config.json"
+      ],
+      "signatureTag": "ri062-acceptance-basis-semantic-digest",
       "signatureTagSource": "confirmed"
     }
   ]
