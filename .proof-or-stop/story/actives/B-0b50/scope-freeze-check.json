@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-0b50",
+  "checkedAt": "2026-08-25T19:28:09.723Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "968fb3f179a12935cfbed83d4d9658b41b710efbd66d8c815cdbf769b2746417",
+  "executionBoundaryHash": "01e61707f15606447fbafbe1c56f8111ae4d7915f8de57d82a68706972a139f7",
+  "freshnessHash": "3e0ef7bed7247d70b1854219ae55f02ba9c3cd9741c83f5329fb99abfecc3e88",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "docs/story/",
+    "Layer4",
+    "remote publishing",
+    "repair UX",
+    "tests/fixtures/",
+    "unrelated stories"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "docs/story/",
+      "source": "scopeBoundary.excluded",
+      "text": "docs/story/",
+      "excluded": true
+    },
+    {
+      "keyword": "remote publishing",
+      "source": "scopeBoundary.excluded",
+      "text": "remote publishing",
+      "excluded": true
+    },
+    {
+      "keyword": "tests/fixtures/",
+      "source": "scopeBoundary.excluded",
+      "text": "tests/fixtures/",
+      "excluded": true
+    },
+    {
+      "keyword": "unrelated stories",
+      "source": "scopeBoundary.excluded",
+      "text": "unrelated stories",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "4e56c66181931ef4556fd3738e3546a0508e829392ccb81d7ddd783190ce6e0d"
+}
