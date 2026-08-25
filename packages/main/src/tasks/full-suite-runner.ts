@@ -109,6 +109,9 @@ const isolated = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resource
   ({ name, resources: [], tempOwnership: 'runner-owned-unique', ...options });
 const repoRead = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resources' | 'tempOwnership'> = {}, extra: ResourceClaim[] = []): FullSuiteEntry =>
   ({ name, resources: [{ class: 'git-common-dir', key: '.', access: 'shared' }, ...extra], tempOwnership: 'runner-owned-unique', ...options });
+const heavySmokeClaim = (): ResourceClaim => ({ class: 'fixed-path', key: stateDirKey('runtime', 'full-suite-heavy'), access: 'exclusive' });
+const isolatedHeavy = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resources' | 'tempOwnership'> = {}): FullSuiteEntry =>
+  ({ ...isolated(name, options), resources: [heavySmokeClaim()] });
 
 // Resource policy is intentionally separate from membership authority. Membership
 // comes only from test:serial-reference; a later reference member without a policy
@@ -146,10 +149,14 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // spawn no CLI, so repoRead is correct.
   repoRead('test:topology-signing-source-guard'), repoRead('test:signing-guard-mutation-proof'),
   isolated('test:review-convergence-smoke'), isolated('test:review-loop-smoke'), isolated('test:delivery-context-pack-smoke'),
-  isolated('test:flow-stability-smoke', { timeoutMs: 300_000, priority: 850 }), isolated('test:review-assurance-floor-smoke'),
+  // The validation-failure checklist seed makes this smoke execute the real
+  // configured gate path. Its standalone runtime is now ~392s on the
+  // reference host, so retain parallel scheduling with a bounded 450s cap
+  // (675s after the normal concurrency headroom factor).
+  isolatedHeavy('test:flow-stability-smoke', { timeoutMs: 450_000, priority: 850 }), isolated('test:review-assurance-floor-smoke'),
   isolated('test:proofstory-intent-hardening-smoke', { timeoutMs: 300_000, priority: 900 }),
   isolated('test:scope-shrinkage-withdrawal-floor-smoke'), isolated('test:withdrawn-disposition-smoke'),
-  isolated('test:milestone-status', { priority: 700 }), repoRead('test:global-core-realpath'),
+  isolatedHeavy('test:milestone-status', { priority: 700 }), repoRead('test:global-core-realpath'),
   isolated('test:review-incremental-context-smoke', { timeoutMs: 180_000, priority: 800 }),
   isolated('test:review-assurance-floor-storyfileshash-smoke'), isolated('test:docs-drift-smoke'),
   isolated('test:docs-drift-wrapper-root'), isolated('test:gitroot-cwd-contract'), repoRead('test:process-fact-contract'),
@@ -163,7 +170,10 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   isolated('test:experience-hint-worktree-cache'), isolated('test:done-merge-experience-refresh'),
   isolated('test:experience-coverage-gap'), isolated('test:nested-worktree-bootstrap'),
   isolated('test:e2e', { timeoutMs: 180_000 }), isolated('test:experience-arm-gate'),
-  isolated('test:experience-arm-isolation-e2e'), isolated('test:brief-output', { priority: 600 }),
+  // This smoke exercises a large CLI-output matrix and measures ~397s
+  // standalone on the reference host; keep the budget explicit rather than
+  // letting the default 120s cap turn it into a scheduler false negative.
+  isolated('test:experience-arm-isolation-e2e'), isolated('test:brief-output', { timeoutMs: 450_000, priority: 600 }),
   isolated('test:experiments', { priority: 500 }), isolated('test:convergence-breaker'),
   isolated('test:proofstory-acceptance-rollout', { timeoutMs: 300_000, priority: 1000 }),
 ].map((entry) => [entry.name, entry]));
@@ -348,12 +358,15 @@ export function isUnderFullSuiteBudget(durationMs: number): boolean {
  * 161-164s standalone to 321.5s.
  *
  * Measured on the same machine at jobs=2: 49/49 passed, every entry inside its
- * cap, 832.8s wall clock. Budgeting one job per four logical CPUs reproduces
- * that (10 -> 2) and still scales up on a larger CI host, capped at the former
- * default of 4 so this can only reduce oversubscription, never introduce it.
+ * cap, 832.8s wall clock. The heavy smokes have enough internal fan-out that
+ * hosts up to 12 logical CPUs must stay at two workers; larger CI hosts can
+ * scale back toward one job per four logical CPUs, capped at the former
+ * default of 4.
  */
 export function defaultJobs(cpuCount: number = availableParallelism()): number {
-  return Math.max(1, Math.min(4, Math.floor(cpuCount / 4)));
+  const onePerFour = Math.floor(cpuCount / 4);
+  const hostCap = cpuCount <= 12 ? 2 : 4;
+  return Math.max(1, Math.min(hostCap, onePerFour));
 }
 
 export function shouldEnforceFullSuiteBudget(jobs: number): boolean {
