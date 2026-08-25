@@ -13852,7 +13852,7 @@
       "desc": "same-family:B-5a15:F-260: packages/main/src/handlers/verifier.ts:1781 directly calls runValidateFile() for validate.ts/js/mts inputs, bypassing the verifier-owned validation path and allowing a source-file validation result outside the signed verifier evidence contract; this remains a high-severity quality blocker.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-24T11:00:20.232Z",
@@ -13881,7 +13881,11 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|ts|same-family-5a15",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:38:57.667Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-263",
