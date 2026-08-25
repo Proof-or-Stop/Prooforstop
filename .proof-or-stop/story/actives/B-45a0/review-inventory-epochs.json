@@ -10769,6 +10769,37 @@
       "findingDispositions": [],
       "createdAt": "2026-08-25T18:47:24.326Z",
       "_hash": "45cd1cbc927e4e6bc8328557bb388d5809be050312bbf1a2971b2a5a4ced3925"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-076:CRIT-01",
+      "epochId": "B-45a0:RI-076",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T18:51:15.542Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "39b107bb6fa5117a030fbe7cbb86d6397171fb40",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84"
+      },
+      "aggregateFindingSetDigest": "601a22c3e3febf50067a76aff131c326bd75a24ec03bc48527b03c40823d743c",
+      "requiredLaneCoverageDigest": "c7fec246110987329e932143c6c5b942f278101d7743294fe82d33a86dd7c468",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-681",
+      "terminalEvidenceIds": [
+        "B-45a0:F-332"
+      ],
+      "readEvidenceDigest": "a443ace3e81c2ed955475457cb66c6070bc34350f0ec06340e6a7629f52723f2",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-331",
+          "disposition": "verified_family",
+          "familyKey": "ri076-current-pre-review-artifact-tamper",
+          "reason": "Current RI-076 topology checks confirm acceptance_rollout_report_read and acceptance_rollout_check are current full-3x2 PASS, while pre_review_check_read remains status=fail with PR_ARTIFACT_TAMPERED. Preserve F-331 as a verified current blocker until the verifier-owned pre-review artifact is reissued."
+        }
+      ],
+      "createdAt": "2026-08-25T19:03:35.893Z",
+      "_hash": "a10fae69fd5ee85eb041dd96e43eefaab5b0611c94b1e896c7c5798501db2e92"
     }
   ]
 }
