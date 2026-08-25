@@ -8746,6 +8746,37 @@
       ],
       "createdAt": "2026-08-25T06:41:45.744Z",
       "_hash": "690ec5bca527bcf7dd0d6b9fc44d74f9b5ac281341495c48a1b56c71d5667190"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-061:CRIT-02",
+      "epochId": "B-45a0:RI-061",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "da39b3c8f386b686049ba739581dcf99216bc9a1",
+        "materialHash": "77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8",
+        "storyFilesHash": "60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664"
+      },
+      "aggregateFindingSetDigest": "51035243f562ee06c339f8338c362c4cfcf33c75e6ab7751c6e649f45a6bad04",
+      "requiredLaneCoverageDigest": "fc2c5e489bf8122ee239661eee824c810aea129e95498845f814bbdf35d48b8b",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-563",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-178"
+      ],
+      "readEvidenceDigest": "8e369be9ef10c9e82c5407839d10d0425e917ef39f102b7ffc8842016a2dc21e",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-303",
+          "disposition": "verified_family",
+          "familyKey": "validation-policy-contract-documentation-drift",
+          "reason": "Current docs require explicit cpuWeight and expectedP50Ms for every validation row, while the canonical 112-row config omits both on 110 rows and relies on the default cpuWeight with optional expectedP50Ms; this is a verified re-attestation of the existing documentation-drift family."
+        }
+      ],
+      "createdAt": "2026-08-25T07:01:49.455Z",
+      "_hash": "57ebf589a2b7e1455af4b04e94e5c5af5bd84a877de2d919e6d4c1d307bb8ee7"
     }
   ]
 }
