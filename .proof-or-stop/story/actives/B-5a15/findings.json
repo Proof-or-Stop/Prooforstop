@@ -14676,7 +14676,7 @@
       "desc": "Current checklist coverage cannot pass the verifier-owned acceptance boundary: the causal-evidence regression suite has the source-level assertions, but F-247 remains failing because pre_review_check_read reports PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, and acceptance_rollout_check reports blocking AR_REPORT_STALE. Refresh and bind the current acceptance evidence before coverage is admissible.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T17:53:43.630Z",
@@ -14714,7 +14714,11 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|mjs|current-checklist-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:40:24.782Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-280",
