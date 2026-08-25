@@ -8072,6 +8072,92 @@
         "scanEscalationReason": null
       },
       "_hash": "e7150988360e928f113f82eb06bf3bad5c76c360902953c04c79b48fe6978950"
+    },
+    {
+      "id": "B-45a0:RP-164",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology critic confirmed F-300 is a verified documentation-to-configuration contract drift; prior F-298 and F-299 families remain carried-forward baseline blockers, with no duplicate topology family added in wave 2.",
+      "createdAt": "2026-08-25T06:07:27.099Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-546",
+      "envelopeId": "7df83f1507d465e21beea7077546580c6f30d10e98646ea9b2c64acdbcd45873",
+      "writerSessionId": "sess-86c11cdce25094d96295c9b2250cda10",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "69faf1afd1a5f2c72f1552b86bbccbb3a975bf2b13dcd2c471872fc08e6c950c"
+      },
+      "readDiagnostics": [],
+      "_hash": "33855170ce42b85491ae2791677fa0a7cb12429122e2a98afd65d382996362a4"
+    },
+    {
+      "id": "B-45a0:RP-165",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-060 wave-2 current-head coverage re-attestation completed. Existing verified coverage families F-298 (verifier-owned acceptance evidence) and F-299 (plan-only replay assurance) remain open and unchanged; no new coverage family was found, so no duplicate finding was created. The existing findings remain blockers for later disposition.",
+      "createdAt": "2026-08-25T06:08:26.343Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-545",
+      "envelopeId": "a2dda960d4487ae66c348387396ac64590f7ef0de132df77dde32b3ddae00bb8",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2358ecd5eadbe092d870a323f3facc2a2066a0af1ac2caa0d7686c6b755798a6"
+      },
+      "readDiagnostics": [],
+      "_hash": "490587cf866a0870873e48d1b35f5ff52b3649a34c1956c4d5b9b7debb3d1b17"
     }
   ]
 }
