@@ -12175,6 +12175,49 @@
       ],
       "createdAt": "2026-08-25T19:42:00.223Z",
       "_hash": "f99b345dd98ed29f8a39e927c722ca388d049e56057b946e0056ec768c60c5a8"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-085:CRIT-03",
+      "epochId": "B-5a88:RI-085",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-25T18:47:32.125Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "87aa24ffa545479903872de404d9156883a47830",
+        "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
+        "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1"
+      },
+      "aggregateFindingSetDigest": "761d7b67860db2cade3241c0ff265fb24fbbd6ba2f59c50a6d9fb9f93e8f8c37",
+      "requiredLaneCoverageDigest": "e4443c0893edba2a5e9e969be816706e2a81b3b7f8cdf4678a02aab311ecd022",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-851",
+      "terminalEvidenceIds": [
+        "B-5a88:F-472"
+      ],
+      "readEvidenceDigest": "36030330569613da400fa3a355f2781c0e7cad792692a64df3213ec5c36ae783",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-469",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-basis-pre-review-integrity",
+          "reason": "Wave 3 topology critic independently reproduced authoritative acceptance_basis invalidity through AT_SCOPE_BINDING_MISSING and the matching pre-review integrity failures; this is the existing basis/pre-review integrity family."
+        },
+        {
+          "findingId": "B-5a88:F-470",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-basis-pre-review-integrity",
+          "reason": "Wave 3 concept review reports the same authoritative basis scope mismatch and PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND failures; no distinct topology family."
+        },
+        {
+          "findingId": "B-5a88:F-471",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-basis-pre-review-integrity",
+          "reason": "Wave 3 quality review independently reports the same scope-binding and pre-review integrity failures; rollout PASS is insufficient to separate it from the existing family."
+        }
+      ],
+      "createdAt": "2026-08-25T20:02:58.664Z",
+      "_hash": "3b1862d10957824c315e29cf1a5b2b5ca2ed6310f327432d4325aaaca200f1a2"
     }
   ]
 }
