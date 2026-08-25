@@ -58,7 +58,10 @@ import { fileURLToPath } from 'node:url';
 
 import {
   classifyIncrementalBindingReasons,
+  FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_FINDINGS,
+  FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS,
   fixtureCaseClosure,
+  incrementalReviewBasisOverflowReasonCodes,
   reviewIncrementalContext,
 } from '../core/review-incremental-context.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
@@ -1241,7 +1244,7 @@ function materialDiffPathCount(root: string, baseSha: string): number {
  */
 function runBoundedPathsDegradationCase(): void {
   const cap = FULL_TASK_CONTEXT_LIMITS.pathsPerList;
-  const bounded = 'FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS';
+  const bounded = FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS;
   const storyId = 'B-bounded-paths';
   const role = canonicalAgentRoleId('lattice-review-quality');
   const storyFile = 'src/story.ts';
@@ -1292,6 +1295,93 @@ function runBoundedPathsDegradationCase(): void {
     assert.equal(overCap.reviewBasis, null, 'the degraded context suppresses the incremental basis');
     assert.deepEqual(overCap.changedFiles, ['src/story.ts'], 'degraded context serves the story net diff');
     console.log(`${MARKER} BOUNDED-PATHS DEGRADATION: cap=${cap} stays incremental; cap+1 degrades to the story diff`);
+  } finally {
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+/**
+ * F-419 regressions: every bounded basis overflow must choose the authoritative
+ * full story context, and must retain a trusted prior only as audit metadata.
+ */
+function runBasisOverflowFallbackRegressions(): void {
+  const cap = FULL_TASK_CONTEXT_LIMITS.pathsPerList;
+  const findingCap = FULL_TASK_CONTEXT_LIMITS.verificationIntentsPerLane;
+  const role = canonicalAgentRoleId('lattice-review-quality');
+  const storyId = 'B-basis-overflow';
+  const { root, baseSha } = buildIncrementalRepo();
+  try {
+    const prior = trustedReviewEvidence(storyId, role, 'RR-BASIS-OVERFLOW', ts(5), ts(6), baseSha);
+    const overflowImpact = classifyImpact({
+      changedFiles: Array.from({ length: cap + 1 }, (_, index) => `src/impact/f${index}.ts`),
+      declaredTestFiles: [],
+      testIntentRefsByFile: {},
+    });
+    assert.equal(overflowImpact.impactedFiles.length, cap + 1, 'synthetic impact projection exceeds the bounded path cap');
+    assert.deepEqual(
+      incrementalReviewBasisOverflowReasonCodes({
+        changedFiles: ['src/feature.ts'],
+        impactedFiles: overflowImpact.impactedFiles,
+        authoritativeReferences: ['src/feature.ts'],
+        findingDeltas: [],
+        unresolvedFindings: [],
+      }),
+      [FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS],
+      'impact.impactedFiles overflow carries the stable full-context path reason',
+    );
+
+    const relatedDocs = Array.from({ length: cap + 1 }, (_, index) => `docs/related-${index}.md`);
+    const referenceStore = buildFixtureStore({
+      story: reviewStory(storyId, 2, 'round-1'),
+      runs: [prior.run],
+      passes: [prior.pass],
+      promptEnvelopes: [prior.envelope],
+      checklistItems: [{
+        id: 'CHK-REFS',
+        title: 'bounded references',
+        status: 'done',
+        relatedDocs,
+        files: { modify: ['src/feature.ts'], create: [], test: [] },
+        verificationIntent: { happy: [], edge: [], adversarial: [] },
+      }],
+    });
+    const references = reviewIncrementalContext(referenceStore, root, storyId, role);
+    assert.equal(references.contextMode, 'full', 'authoritativeReferences overflow forces full context');
+    assert.equal(references.reviewBasis, null, 'authoritativeReferences overflow never emits an invalid basis');
+    assert.ok(
+      references.eligibilityReasonCodes.includes(FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS),
+      'authoritativeReferences overflow carries the stable full-context reason',
+    );
+    assert.equal(references.priorPassRef, prior.pass.id, 'full fallback preserves trusted prior audit identity');
+
+    const unresolvedFindings = Array.from({ length: findingCap + 1 }, (_, index) =>
+      signedFinding(
+        storyId,
+        `${storyId}:F-${String(index).padStart(3, '0')}`,
+        role,
+        'high',
+        ts(7),
+        'open',
+        'round-1',
+        prior.run.reviewRunId,
+      ));
+    const findingStore = buildFixtureStore({
+      story: reviewStory(storyId, 2, 'round-1'),
+      findings: unresolvedFindings,
+      runs: [prior.run],
+      passes: [prior.pass],
+      promptEnvelopes: [prior.envelope],
+    });
+    const findings = reviewIncrementalContext(findingStore, root, storyId, role);
+    assert.equal(findings.contextMode, 'full', '257 unresolved findings force full context without throwing');
+    assert.equal(findings.reviewBasis, null, '257 unresolved findings never enter an invalid basis');
+    assert.ok(
+      findings.eligibilityReasonCodes.includes(FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_FINDINGS),
+      '257 unresolved findings carry the stable full-context reason',
+    );
+    assert.equal(findings.priorPassRef, prior.pass.id, 'finding overflow preserves trusted prior audit identity');
+    console.log(`${MARKER} BASIS OVERFLOW: impact paths, authoritative references, and ${findingCap + 1} unresolved findings fail closed to full context`);
   } finally {
     resetConfigCache();
     rmSync(root, { recursive: true, force: true });
@@ -2247,6 +2337,7 @@ function run(): void {
   runLargeFixtureReadFailureCase();
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
+  runBasisOverflowFallbackRegressions();
   runWrapperRootRoutingCase();
   runEmptyReviewerEvidenceSnapshotCase();
   const cutoffStarted = performance.now();
@@ -2332,6 +2423,7 @@ if (isDirectRun) {
     console.log(`${MARKER} CACHE SNAPSHOT: collector read bound and verifier semantics PASS`);
   } else if (process.argv.includes('--bounded-paths-only')) {
     runBoundedPathsDegradationCase();
+    runBasisOverflowFallbackRegressions();
   } else if (process.argv.includes('--guard-map-only')) {
     runIncrementalGuardClassMatrix();
   } else if (process.argv.includes('--schedule-mutation-only')) {

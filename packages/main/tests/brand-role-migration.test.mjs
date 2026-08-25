@@ -14,6 +14,8 @@ const distRoot = join(packageRoot, distName);
 
 const identity = await import(join(distRoot, 'core/agent-role-identity.js'));
 const schema = await import(join(distRoot, 'core/artifact-schema.js'));
+const generatedMetadata = await import(join(distRoot, 'core/done-prepare-generated-metadata.js'));
+const validationReuse = await import(join(distRoot, 'core/done-prepare-validation-reuse.js'));
 const dispatch = await import(join(distRoot, 'core/agent-dispatch-registry.js'));
 const reviewerList = await import(join(distRoot, 'handlers/reviewer-list.js'));
 const managedAssets = await import(join(distRoot, 'core/managed-assets.js'));
@@ -99,6 +101,26 @@ assert.equal(schema.isDoneRequiredCommandSpecSchema('proof-or-stop.command-spec.
 assert.equal(schema.isDoneRequiredCommandSpecSchema('lattice.command-spec.v2'), true);
 assert.equal(schema.isDoneRequiredCommandSpecSchema('lattice.command-spec.v1'), true);
 assert.equal(schema.isDoneRequiredCommandSpecSchema('proof-or-stop.command-spec.v99'), false);
+assert.equal(schema.DONE_PREPARE_GENERATED_METADATA_SCHEMA, 'proof-or-stop.done-prepare-generated-metadata.v1');
+assert.equal(schema.DONE_PREPARE_GENERATED_METADATA_SCHEMA_LEGACY, 'lattice.done-prepare-generated-metadata.v1');
+assert.equal(schema.isDonePrepareGeneratedMetadataSchema('proof-or-stop.done-prepare-generated-metadata.v1'), true);
+assert.equal(schema.isDonePrepareGeneratedMetadataSchema('lattice.done-prepare-generated-metadata.v1'), true);
+assert.equal(schema.isDonePrepareGeneratedMetadataSchema('lattice.done-prepare-generated-metadata.v99'), false);
+assert.equal(schema.DONE_PREPARE_VALIDATION_REUSE_SCHEMA, 'proof-or-stop.done-prepare-validation-reuse.v1');
+assert.equal(schema.DONE_PREPARE_VALIDATION_REUSE_SCHEMA_LEGACY, 'lattice.done-prepare-validation-reuse.v1');
+assert.equal(schema.isDonePrepareValidationReuseSchema('proof-or-stop.done-prepare-validation-reuse.v1'), true);
+assert.equal(schema.isDonePrepareValidationReuseSchema('lattice.done-prepare-validation-reuse.v1'), true);
+assert.equal(schema.isDonePrepareValidationReuseSchema('lattice.done-prepare-validation-reuse.v99'), false);
+assert.equal(
+  generatedMetadata.DONE_PREPARE_GENERATED_METADATA_SCHEMA,
+  schema.DONE_PREPARE_GENERATED_METADATA_SCHEMA,
+  'done_prepare generated-metadata writer uses the canonical schema registry literal',
+);
+assert.equal(
+  validationReuse.DONE_PREPARE_VALIDATION_REUSE_SCHEMA,
+  schema.DONE_PREPARE_VALIDATION_REUSE_SCHEMA,
+  'done_prepare validation-reuse writer uses the canonical schema registry literal',
+);
 assert.equal(
   identity.canonicalizeAgentRoleText('lattice-review-quality -> lattice-implementer'),
   'proof-or-stop-review-quality -> proof-or-stop-implementer',
