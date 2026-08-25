@@ -9412,6 +9412,49 @@
         "scanEscalationReason": "Scoped concept review read the dynamic-validation decision records and implementation/acceptance chain; no repository-wide decisions-directory escalation was required because the concept scan found no new deletion/replacement beyond explicitly retained legacy compatibility."
       },
       "_hash": "a4b9b779e7108a8bcbc90bedb7b4f6b220a51b637f2978286717223d0ffc6433"
+    },
+    {
+      "id": "B-45a0:RP-194",
+      "agent": "lattice-review-docs",
+      "note": "Current-head RI-065 docs review passes. Step 1 extracted 846 unique changed symbols; Step 2 compared 6 anchored documentation paragraph groups across CLI, NAV, the dynamic-validation operations runbook, current-main characterization, enforcement evidence, and the normative execution plan. Current verification is green: inventory coverage 112/112, plan integrity 14/14 selectors, and validation catalog PASS. Documentation matches the verifier/config behavior and keeps mode, authority, rollback, and Wave 4 claims bounded; this pass does not assert the separate quality/review-assurance floor.",
+      "createdAt": "2026-08-25T10:28:09.094Z",
+      "reviewRound": "2026-08-25T10:16:24.136Z",
+      "reviewRunId": "B-45a0:RR-590",
+      "envelopeId": "7104d239f1746244e2def9586b9a5d7901129ac8d92862aa015c2a0030205a02",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Scoped RI-065 docs review read the changed CLI/navigation surfaces and Story-aware dynamic-validation decision records; no repository-wide document scan was performed."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "47fe70b158957b9f384ebaa3983d5f01518d5490daee4c235b731523ed4a6131"
+      },
+      "readDiagnostics": [],
+      "_hash": "440759912b021fcb859fb4fe81bb0caa625d2ed0988fe0a81c77cc844f0691f2"
     }
   ]
 }
