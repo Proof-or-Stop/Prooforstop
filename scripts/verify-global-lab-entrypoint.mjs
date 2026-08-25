@@ -8,6 +8,7 @@ import { join } from 'path';
 const root = process.cwd();
 const mode = process.argv[2] || 'all';
 const cli = join(root, 'bin', 'proof-or-stop.js');
+const coreCli = join(root, 'packages', 'main', 'dist', 'cli.js');
 const EXPECTED_CORE_VERSION = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
 const EXPECTED_EXTENSION_VERSION = '0.3.65';
 
@@ -24,9 +25,18 @@ function run(args, opts = {}) {
   });
 }
 
-function runAllowFailure(args) {
+function runCore(args, opts = {}) {
+  return execFileSync('node', [coreCli, ...args], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+    ...opts,
+  });
+}
+
+function runAllowFailure(args, runner = run) {
   try {
-    return { ok: true, text: run(args) };
+    return { ok: true, text: runner(args) };
   } catch (error) {
     return {
       ok: false,
@@ -84,6 +94,11 @@ const checks = {
     assert(out.includes('proof-or-stop lab_create'), 'global core bin should show lab_create help through the proof-or-stop bootstrap');
     assert(!out.includes('koala lab_create'), 'global core bin should not advertise retired koala lab_create alias help');
   },
+  'published-core-lab-help': () => {
+    const out = runCore(['lab_create', '--help']);
+    assert(out.includes('proof-or-stop lab_create'), 'published core bin should resolve the canonical @proof-or-stop/lab sibling');
+    assert(!out.includes('koala lab_create'), 'published core bin should not advertise retired koala lab_create alias help');
+  },
   'lab-create-policy-gate': () => {
     const temp = createTempProject();
     try {
@@ -103,11 +118,19 @@ const checks = {
       renameSync(dist, backup);
       const out = run(['--root', temp, 'session_brief']);
       assert(out.includes('# proof-or-stop session brief'), 'core command should still work when lab dist is absent');
+      const coreOut = runCore(['--root', temp, 'session_brief']);
+      assert(coreOut.includes('# proof-or-stop session brief'), 'published core command should still work when lab dist is absent');
       const failed = runAllowFailure(['--root', temp, 'lab_create', '--help']);
       assert(!failed.ok, 'lab command should fail when lab extension is unavailable');
       assert(
         failed.text.includes('Unknown command: lab_create') || failed.text.includes('未知命令: lab_create') || failed.text.includes('Recovery'),
         'lab failure should show unavailable lab command or recovery hint',
+      );
+      const coreFailed = runAllowFailure(['--root', temp, 'lab_create', '--help'], runCore);
+      assert(!coreFailed.ok, 'published core lab command should fail when lab extension is unavailable');
+      assert(
+        coreFailed.text.includes('Unknown command: lab_create') || coreFailed.text.includes('未知命令: lab_create') || coreFailed.text.includes('Recovery'),
+        'published core lab failure should remain fail-closed',
       );
     } finally {
       if (existsSync(backup)) renameSync(backup, dist);

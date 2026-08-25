@@ -10,8 +10,11 @@
  */
 
 import { runCli } from './cli-engine.js';
+import { loadCanonicalLabEntrypoint } from './cli/lab-entrypoint.js';
 
 const _isDirectRun = !import.meta.url.includes('?');
 if (_isDirectRun) {
-  runCli().catch(e => { console.error(e); process.exit(1); });
+  loadCanonicalLabEntrypoint()
+    .then(lab => runCli(lab ?? undefined))
+    .catch(e => { console.error(e); process.exit(1); });
 }
