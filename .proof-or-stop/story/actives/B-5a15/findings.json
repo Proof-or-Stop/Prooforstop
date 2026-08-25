@@ -14919,7 +14919,7 @@
       "desc": "Wave 2 topology recheck confirms no new topology family: structural acceptance is complete, but pre_review_check_read remains PR_ARTIFACT_TAMPERED plus PR_COVERAGE_BASIS_CHANGED and acceptance_rollout_check remains blocking AR_REPORT_STALE. This repeats the existing verifier-artifact family and remains for DEV remediation.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-24T17:58:57.172Z",
@@ -14956,7 +14956,11 @@
         "packages/main/src/core/acceptance-topology.ts"
       ],
       "signatureTag": "missing|json|wave-topology-recheck",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:40:49.329Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-285",
