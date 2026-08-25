@@ -13599,7 +13599,7 @@
       "desc": "packages/main/src/handlers/verifier.ts:1781 [high] The validate.ts/js/mts path calls runValidateFile() directly, bypassing the canonical validation-command identity binding. Distinct validation commands can therefore collapse to a lossy identity and produce non-admissible or falsely reusable validation evidence; this remains an open quality finding at the current story head.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-24T10:44:14.259Z",
@@ -13629,7 +13629,11 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:38:28.522Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-257",
