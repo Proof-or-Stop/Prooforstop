@@ -1,0 +1,93 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-45a0",
+  "status": "FAIL",
+  "startedAt": "2026-08-25T04:31:06.038Z",
+  "endedAt": "2026-08-25T04:32:00.569Z",
+  "durationMs": 54531,
+  "headHash": "9ba01b12e604ecca2881f40d3ff170332e835e29",
+  "materialHash": "e2d0d37bb659048bbabf951c0188779242b9edf3af60619ea5d9a3dcf7335a44",
+  "storyFilesHash": "73ab5542e384ecbc6ee53692642f4752f1f7279aa0455ca7f4088ba63d3c3521",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-45a0",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-45a0",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 1449,
+      "outputDigest": "928ab472df9891e2185a13b20f02663d1bffdad71a82bb1f35e63c25b76c5b3b",
+      "outputTail": "\n> @proof-or-stop/core@0.3.269 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+      "startedAt": "2026-08-25T04:31:06.039Z",
+      "endedAt": "2026-08-25T04:31:07.488Z",
+      "effectiveEnvironmentDigest": "95bd19741e856d69b3d373ad7161a3939a5fe7f0a257d12f6822f2f226c860ec",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "9ba01b12e604ecca2881f40d3ff170332e835e29",
+      "materialHash": "e2d0d37bb659048bbabf951c0188779242b9edf3af60619ea5d9a3dcf7335a44",
+      "storyFilesHash": "73ab5542e384ecbc6ee53692642f4752f1f7279aa0455ca7f4088ba63d3c3521"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-45a0",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-45a0",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 52542,
+      "outputDigest": "85d7c73b4310273adc1ce973472a3a877bc0400cee60ede572c89a1e110dc872",
+      "outputTail": "ad, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: runValidateGate must block TEST when proof-or-stop validate fails\n    at async assertPhaseGatesAndEffectsExtraction (file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-45a0/packages/main/dist/tasks/flow-stability-smoke.js:3413:9)\n    at async file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-45a0/packages/main/dist/tasks/flow-stability-smoke.js:4179:1 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: Error: Cannot enter TEST: proof-or-stop validate execution error\n  File not found: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/lattice-full-suite-member-Znayho/lattice-phase-gates-validate-fail-4jNagG/.proof-or-stop/story/actives/B-failgate/checklist.json or /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/lattice-full-suite-member-Znayho/lattice-phase-gates-validate-fail-4jNagG/docs/story/actives/B-failgate/checklist.json or /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/lattice-full-suite-member-Znayho/lattice-phase-gates-validate-fail-4jNagG/.lattice/story/actives/B-failgate/checklist.json\n  \n  → 修复 validate runner 后重跑 proof-or-stop validate --story=B-failgate --json\n  → 然后重跑 proof-or-stop story_advance --phase=TEST\n      at runValidateGate (file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-45a0/packages/main/dist/handlers/phase-gates.js:687:15)\n      at async waitForActual (node:assert:615:5)\n      at async strict.rejects (node:assert:738:25)\n      at async assertPhaseGatesAndEffectsExtraction (file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-45a0/packages/main/dist/tasks/flow-stability-smoke.js:3413:9)\n      at async file:///Users/qipan/work/repo/Prooforstop/.worktrees/B-45a0/packages/main/dist/tasks/flow-stability-smoke.js:4179:1,\n  expected: /Cannot enter TEST: proof-or-stop validate did not pass/,\n  operator: 'rejects',\n  diff: 'simple'\n}\n\nNode.js v26.7.0\n\n\n--- test:review-assurance-floor-smoke INTERRUPTED ---\n\n\n--- test:proofstory-intent-hardening-smoke INTERRUPTED ---\n\n> lattice@0.3.269 test:proofstory-intent-hardening-smoke\n> npm --prefix packages/main run test:proofstory-intent-hardening-smoke\n\n\n> @proof-or-stop/core@0.3.269 test:proofstory-intent-hardening-smoke\n> node dist/tasks/proofstory-intent-hardening-smoke.js\n\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecate\n...[truncated 2552 chars]",
+      "startedAt": "2026-08-25T04:31:07.723Z",
+      "endedAt": "2026-08-25T04:32:00.265Z",
+      "effectiveEnvironmentDigest": "95bd19741e856d69b3d373ad7161a3939a5fe7f0a257d12f6822f2f226c860ec",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "9ba01b12e604ecca2881f40d3ff170332e835e29",
+      "materialHash": "e2d0d37bb659048bbabf951c0188779242b9edf3af60619ea5d9a3dcf7335a44",
+      "storyFilesHash": "73ab5542e384ecbc6ee53692642f4752f1f7279aa0455ca7f4088ba63d3c3521"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}
