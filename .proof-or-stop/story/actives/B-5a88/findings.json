@@ -20834,6 +20834,157 @@
       ],
       "signatureTag": "missing|json|current-acceptance-chain",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-465",
+      "desc": "RI-085 wave 2 quality blocker: at current HEAD 2efe4f2350, acceptance_basis reports AT_SCOPE_BINDING_MISSING because the verifier-computed scope-check digest does not match the signed acceptance-basis.json binding at lines 1181-1206; acceptance_topology_check reports Structural pass: no. pre_review_check_read reports PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND even though pre-review-check.json lines 1905-1909 store status=pass and its signed bindings at lines 1237-1270 are no longer admissible. acceptance_rollout_report_read and acceptance_rollout_check are PASS/full-3x2, but they cannot substitute for the invalid basis and failed pre-review evidence. Regenerate the verifier-owned basis and pre-review artifacts, then rerun all four Wave 4 reads before recording a quality pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-25T19:24:22.006Z",
+      "reviewRound": "2026-08-25T18:47:32.125Z",
+      "reviewRunId": "B-5a88:RR-842",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/index.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "967b86a90d703c28f069595df0df832d4ac7c2c9b2bbf781f2cb6c6d6842da04"
+      },
+      "readDiagnostics": [],
+      "_hash": "aabe3127323bc44151d03e40d5807b9e80a90ca8969b53c7401cfbe0fc3319e4",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|wave-quality-blocker",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-466",
+      "desc": "RI-085 wave 2 concept blocker: at signed review run B-5a88:RR-843 (HEAD 2efe4f2350ca3e1752c2ba0bfb09de17b891894f, materialHash 52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146), acceptance_topology_check reproduces AT_SCOPE_BINDING_MISSING because the verifier-computed scope binding does not match acceptance-basis.json; pre_review_check_read reproduces PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND even though the persisted pre-review artifact records status=pass. acceptance_rollout_report_read and acceptance_rollout_check are PASS/full-3x2, but cannot substitute for the invalid basis and failed pre-review evidence. Regenerate verifier-owned basis and pre-review artifacts, then rerun all four Wave 4 reads with fresh current-head evidence before claiming concept pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-25T19:27:43.354Z",
+      "reviewRound": "2026-08-25T18:47:32.125Z",
+      "reviewRunId": "B-5a88:RR-843",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-check.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "737580c982d0eb46e2ecc5fcb6607bfcb7304a9ba515312dc6628e5311bf51da"
+      },
+      "readDiagnostics": [],
+      "_hash": "d2da4285e6c3ade5f05f98bcf532b48d9b97b1463dc86e987905d31896df2895",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "missing|json|wave-concept-blocker",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-467",
+      "desc": "CHK-013-HAPPY-WAVE4-READS is not a passing current verifier: acceptance_topology_check returns Structural pass: no with AT_SCOPE_BINDING_MISSING (acceptance-basis.json scope-check digest mismatch), and pre_review_check_read returns PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND. The rollout report and policy reads pass (full-3x2), and the edge rollout smoke plus adversarial live-proof pass, but those receipts do not establish the missing topology/pre-review gate evidence. Reissue the verifier-owned acceptance basis and pre-review artifact, then rerun the four-read intent-linked command.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-25T19:32:05.064Z",
+      "reviewRound": "2026-08-25T18:47:32.125Z",
+      "reviewRunId": "B-5a88:RR-841",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+      },
+      "readDiagnostics": [],
+      "_hash": "255190c1823e056b67f541610ba78d112817da24c6cc2c27c8ea057303d457ef",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/checklist.json"
+      ],
+      "signatureTag": "missing|json|happy-wave4-reads",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
