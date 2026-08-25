@@ -8,7 +8,7 @@
  * `experience-layer-review-dispatch-hint smoke passed (N checks)` at the end):
  *   (a) ON-arm story (sha256 first byte EVEN) WITH finding-signals → buildNextSteps
  *       REVIEW guidance CONTAINS the rendered hints section (after the
- *       Agent({lattice-review-*}) lines) AND records exactly one
+ *       Agent({proof-or-stop-review-*}) lines) AND records exactly one
  *       experience_hint_surfaced event with hintMode:'on' + the full hintIds.
  *   (b) OFF-arm story (sha256 first byte ODD) → buildNextSteps REVIEW guidance is
  *       BYTE-IDENTICAL to the no-signals/no-hints baseline (no section) AND records
@@ -232,7 +232,7 @@ function eventSansTimestamp(e: Record<string, unknown>): Record<string, unknown>
 
 // ─── (a) ON-arm: buildNextSteps REVIEW contains the section + one on-event ─────
 
-check('CHK-002 happy:0 — ON-arm REVIEW guidance contains the hints section after the Agent({lattice-review-*}) lines + one on-event', () => {
+check('CHK-002 happy:0 — ON-arm REVIEW guidance contains the hints section after the Agent({proof-or-stop-review-*}) lines + one on-event', () => {
   const onId = findStoryIdForArm('on');
   assert.equal(resolveHintMode(onId), 'on', 'precondition: onId is ON arm (sha256 first byte even)');
   const root = mkTempRoot();
@@ -243,8 +243,8 @@ check('CHK-002 happy:0 — ON-arm REVIEW guidance contains the hints section aft
   const text = reviewNextSteps(root, onId);
   assert.ok(text.includes(SECTION_LABEL), 'ON arm: REVIEW guidance contains the advisory section');
   assert.ok(text.includes('[recAB]'), 'ON arm: hint id rendered in REVIEW guidance');
-  // The section must follow the Agent({lattice-review-*}) launch lines.
-  const agentIdx = text.lastIndexOf('Agent({ subagent_type: "lattice-review-');
+  // The section must follow the Agent({proof-or-stop-review-*}) launch lines.
+  const agentIdx = text.lastIndexOf('Agent({ subagent_type: "proof-or-stop-review-');
   const sectionIdx = text.indexOf(SECTION_LABEL);
   assert.ok(agentIdx >= 0, 'ON arm: reviewer-launch Agent lines present');
   assert.ok(sectionIdx > agentIdx, 'ON arm: hints section physically follows the Agent launch lines');
@@ -562,7 +562,7 @@ check('CHK-002 adversarial:0 — a hint-surface failure never blocks/alters the 
 // launch lines survive a hint-path failure. The leaf's try/catch swallows the
 // EISDIR (renderedSection='') and the buildNextSteps hint block's own try/catch
 // appends nothing — so the REVIEW guidance keeps its Agent({ subagent_type:
-// "lattice-review-* }) launch lines (active-reviewer set unchanged, transition not
+// "proof-or-stop-review-* }) launch lines (active-reviewer set unchanged, transition not
 // blocked) and no rendered hints section is appended for that failed call.
 
 check('CHK-002 adversarial:0 — a hint-path failure inside buildNextSteps never blocks the REVIEW transition (guidance returned, reviewer-launch lines intact)', () => {
@@ -595,8 +595,8 @@ check('CHK-002 adversarial:0 — a hint-path failure inside buildNextSteps never
   // transition not blocked or garbled by the hint failure.
   assert.ok(text!.includes('Active reviewers:'),
     'REVIEW guidance still renders the active-reviewer set after the hint-path failure');
-  assert.ok(text!.includes('Agent({ subagent_type: "lattice-review-'),
-    'REVIEW guidance still contains the reviewer-launch Agent({ subagent_type: "lattice-review-* }) lines');
+  assert.ok(text!.includes('Agent({ subagent_type: "proof-or-stop-review-'),
+    'REVIEW guidance still contains the reviewer-launch Agent({ subagent_type: "proof-or-stop-review-* }) lines');
 
   // Because the leaf swallowed the failure, no rendered hints section was appended
   // for that failed call (and the run did not crash).
