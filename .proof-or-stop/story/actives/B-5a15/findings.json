@@ -13773,7 +13773,7 @@
       "desc": "same-family:B-5a15:F-256: packages/main/src/handlers/verifier.ts:1640-1653,1742-1752,1781 — the validate.ts/js/mts branch invokes runValidateFile() directly, while createValidationCausalPreflightGate is wired only into executeValidationPlan via beforeLaunch. A story-scoped validation run can therefore launch without the required CLI/worktree/index/lease/capability/resource/evidence-target preflight and child-launch revalidation, leaving the CHK-004 lower-level bypass contract unenforced at the current HEAD.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-24T10:49:06.576Z",
@@ -13801,7 +13801,11 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "same-family:B-5a15:F-256",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:38:48.437Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-261",
