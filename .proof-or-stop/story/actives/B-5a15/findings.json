@@ -14821,7 +14821,7 @@
       "desc": "Wave 2 quality recheck confirms the same current verifier-owned artifact blocker: pre_review_check_read remains PR_ARTIFACT_TAMPERED plus PR_COVERAGE_BASIS_CHANGED and acceptance_rollout_check remains blocking AR_REPORT_STALE. This is the same family as F-278 and remains for DEV remediation.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-24T17:57:40.347Z",
@@ -14859,7 +14859,11 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|ts|wave-quality-recheck",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:40:40.277Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-283",
