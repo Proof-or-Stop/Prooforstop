@@ -16483,6 +16483,357 @@
       ],
       "signatureTag": "missing|ts|concept-packages-main",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-313",
+      "desc": "CHK-004:happy:2 and CHK-004:happy:3 are not currently covered by valid executable evidence. Their checklist verificationEvidence entries are non-mechanical with receipt=null, while the current read-only checks return acceptance_topology_check status=pass but evidentiary=false/authority=diagnostic_only and pre_review_check_read status=fail, ok=false, codes=[PR_ARTIFACT_TAMPERED]. The pinned regression test only emits these intent markers when neither topology refresh bootstrap nor pre-review refresh bootstrap applies (packages/main/tests/causal-evidence.test.mjs:2150-2182), so the stored PASS notes do not prove a current signed verifier receipt. This violates the Wave 4 boundary for current executable acceptance_topology_check and pre_review_check_read coverage; reissue the verifier-owned pre-review artifact and capture receipt-bound evidence before accepting this lane.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-25T18:01:39.287Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-710",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "64b8feb48bea3723f0827e75a5a97d8bafc1efc4c2338b9270c50e659119ef96"
+      },
+      "readDiagnostics": [],
+      "_hash": "d80bfbc4ff44afda0fc73cf9b06ae257e293ec551f9f1391962734c7bab4d80f",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|happy-happy-currently",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-314",
+      "desc": "CHK-003 production causal wiring is not domain-specific: currentCertificationIdentity builds all six certification causal domains from the same current storyFilesHash and records every node against the same previous storyFilesHash. The linear dependency chain therefore marks every domain changed whenever storyFilesHash changes, so the production path cannot provide the required affected-domain-only invalidation or prove that unrelated merges leave unaffected domains fresh. The causal evaluator test is synthetic and does not exercise this production wiring.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T18:03:53.373Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-708",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/closeout-write-receipts.jsonl",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          ".proof-or-stop/story/actives/B-5a15/test-evidence.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "e80825281499be0cb711f44b6197d4eda471857b63a1946bac336c2494c455df"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/annotation-system.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/annotation-system.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/milestone-ledger-status-review-findings.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        }
+      ],
+      "_hash": "394c7c4cee38d07f20bed2214d6bac90a323f1e2fdf828d8e446edd013402347",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts:107-117",
+        "packages/main/src/handlers/certification-window.ts:207-237",
+        "packages/main/tests/causal-evidence.test.mjs:1010-1225",
+        ".proof-or-stop/story/actives/B-5a15/plan.md:42-59"
+      ],
+      "signatureTag": "missing|ts:107-117|production-causal-wiring",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-315",
+      "desc": "Topology critic request_changes: the current acceptance basis is complete and acceptance_topology_check is structural pass, but pre_review_check_read is fail with PR_ARTIFACT_TAMPERED and the existing topology_critic_receipt_check is invalid because its finding refs are noncanonical or stale. The verifier-owned acceptance chain is therefore not admissible for a topology pass until the pre-review artifact and topology receipt lineage are regenerated and reverified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-25T18:15:17.123Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-712",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b70561dde3b668df16daf3c8a92c6e8bef74e14efda5d7386a84bd34b456caa5",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "missing|json|topology-critic-request",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-316",
+      "desc": "RI-046 saturation confirmation: CHK-004:happy:2 and CHK-004:happy:3 remain uncovered by admissible executable evidence at current HEAD e85cbbe0348cbf9dc2d82f9267ac6ed56df49668. Their checklist verificationEvidence rows are result=pass but mechanical=false and receipt=null. Direct acceptance_topology_check returns status=pass, structuralPass=true, basisStatus=complete but evidentiary=false and authority=diagnostic_only; direct pre_review_check_read returns status=fail, ok=false, code=PR_ARTIFACT_TAMPERED, while the on-disk pre-review artifact still carries stale status=pass. The focused test only emits these two intent markers in the no-refresh-bootstrap branch at packages/main/tests/causal-evidence.test.mjs:2150-2182, so the markers do not provide a current signed verifier receipt. Reissue the verifier-owned pre-review artifact and attach receipt-bound evidence before accepting this lane.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-25T18:27:36.881Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-714",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "64b8feb48bea3723f0827e75a5a97d8bafc1efc4c2338b9270c50e659119ef96"
+      },
+      "readDiagnostics": [],
+      "_hash": "9df62bea6096be285f9a57cbbdedcf6f859d7c620f81aa68c109e8bb08fc908f",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/checklist.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|ri-046-wave-2-test-coverage-saturation",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

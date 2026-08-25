@@ -10320,6 +10320,496 @@
       },
       "readDiagnostics": [],
       "_hash": "de8cdaec11f346252a0550df95e8f412605929b545c149aedccd86ee52d617ad"
+    },
+    {
+      "id": "B-5a15:RP-215",
+      "agent": "lattice-review-concept",
+      "note": "Lane-scoped pass: no concept deletion or replacement residue was introduced in main...HEAD; sameFileCallableCalls has zero repository references, and retained legacy/testIntent references are explicitly compatibility/deprecated. Existing B-5a15:F-312 concept-wiring and B-5a15:F-313 Wave-4 pre-review findings remain separately registered; this run adds no duplicate and does not claim story-wide closure.",
+      "createdAt": "2026-08-25T18:04:52.884Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-709",
+      "envelopeId": "0a653adddeddccc8ed39c00d082bc034bd37c5d55a491ca5b100cda73390ed0f",
+      "writerSessionId": "sess-5a15-concept-review-20260826",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/candidate-spec-set.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "candidate_cutoff_tie, high_risk_structured_signal (SHADOW; bounded candidate set consumed)",
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "c9e03c387e168ab6a14fd7be94d1c11d1d6a8405e72ddbcbdc986ca8c1dca911"
+      },
+      "readDiagnostics": [],
+      "_hash": "da5f02510a77cb590595525769e7ab1ce894965e7f8b60ef80a9eedde705cf30"
+    },
+    {
+      "id": "B-5a15:RP-216",
+      "agent": "lattice-review-quality",
+      "note": "Saturation confirmation: unchanged material reviewed for code quality, maintainability, type safety, shell isolation, and proof metadata. No new finding family. Existing open F-298/F-300/F-301, F-309/F-311, and F-314 remain registered; current topology/pre-review evidence is not reclassified by this pass.",
+      "createdAt": "2026-08-25T18:26:20.249Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-715",
+      "envelopeId": "3e9c1f25934455736730812fc64a8f0cb28ba6a672981a4d1063d9251e96521d",
+      "writerSessionId": "sess-ac60a7e1c08f923ae05ef83352710758",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7916eaaa4fc1c3bff6851a79e1d23183a6b01a104fdf5f2cd70c3ebc01e153f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "24673072d8d1ee88224e7cb31df86a11ab094cd86a7169b0f83945083f2fccf4"
+    },
+    {
+      "id": "B-5a15:RP-217",
+      "agent": "lattice-review-concept",
+      "note": "Lane-scoped saturation pass: compared main...HEAD and all five checklist declarations; the only deleted or replaced helper is sameFileCallableCalls to symbol-aware sameFileCallableReachable, and the implementation, requirements, and tests scan has zero old-name residue. Retained legacy testIntent references and review-history mentions are compatibility or audit records, not introduced runtime residue. Promised U-03 command and smoke surfaces resolve to catalog, handler, source, or test implementations. Canonical checks remain diagnostic or inconclusive at topology and pre-review while rollout is current full-3x2; this pass does not claim story-wide acceptance and does not duplicate existing F-312 or F-313.",
+      "createdAt": "2026-08-25T18:28:49.823Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-716",
+      "envelopeId": "c892e7c039aba8a31cefa48ac2a201ed7880b1b8afaf5dbd06a473d6232d11aa",
+      "writerSessionId": "sess-df932e9b2576c4541bfd5d34bfeaf9fd",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": "candidate_cutoff_tie, high_risk_structured_signal (SHADOW; bounded candidate set consumed)",
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "5cd5e021506ff130a1140d91a1fbbe40bb193f70cd05ca0b63b1fec263e736a1"
+    },
+    {
+      "id": "B-5a15:RP-218",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology, scope, exclusions, discovery, and producer-consumer closure were checked from the current signed CLI artifacts; no additional topology finding was identified, and F-316 is classified as the existing verified coverage family.",
+      "createdAt": "2026-08-25T18:39:47.784Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-719",
+      "envelopeId": "c570a5c6cb61cb98666a15c459b64febb312338fd4c2676c3f3649242ec0bd03",
+      "writerSessionId": "sess-12924edd69bd045a8fd3d25255755f7b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "9c386648963e9a95f6b07cbca4339422caf995470da59ed309fb5534c33ea5e0"
+    },
+    {
+      "id": "B-5a15:RP-219",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology, scope, exclusions, discovery, and producer-consumer closure were checked from the current signed verifier artifacts; no additional topology finding was identified, and F-316 is classified as the existing verified coverage family.",
+      "createdAt": "2026-08-25T18:41:08.668Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-720",
+      "envelopeId": "980ca1fec1e01f3216f140d6ce9ebc278ae74763dceaa252e501e86b896585de",
+      "writerSessionId": "sess-12924edd69bd045a8fd3d25255755f7b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": "No decisions-directory read was required; the review consumed current signed verifier artifacts through the canonical CLI surfaces."
+      },
+      "_hash": "0c41621fe1275caa10883530946dea4615b8ba0aaab8efd89e4af53eda1c02ea"
+    },
+    {
+      "id": "B-5a15:RP-220",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology, scope, exclusions, discovery, and producer-consumer closure were checked from the current signed verifier artifacts; no additional topology finding was identified, and F-316 is classified as the existing verified coverage family.",
+      "createdAt": "2026-08-25T18:42:24.955Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-721",
+      "envelopeId": "a78a69494883939923380a77a35a16d3614c9d8d1c9c706313f160bb89185c7a",
+      "writerSessionId": "sess-12924edd69bd045a8fd3d25255755f7b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "No decisions-directory read was required; the review consumed current signed verifier artifacts through the canonical CLI surfaces."
+      },
+      "_hash": "e64db34b289ab4a33b3d0f821b1df54c519330fa3249a797783440dfb66595fb"
+    },
+    {
+      "id": "B-5a15:RP-221",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology, scope, exclusions, discovery, and producer-consumer closure were checked from the current signed verifier artifacts; no additional topology finding was identified, and F-316 is classified as the existing verified coverage family.",
+      "createdAt": "2026-08-25T18:43:58.967Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-722",
+      "envelopeId": "fd664d23966df62f526998538b84cac3783afe44cf43570415555df446296654",
+      "writerSessionId": "sess-12924edd69bd045a8fd3d25255755f7b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "No decisions-directory read was required; the review consumed current signed verifier artifacts through the canonical CLI surfaces."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "dc5e8f0a81c4c6c0950cecfcc23709c7739dce9033b6d565d00190d2b87c149a"
+    },
+    {
+      "id": "B-5a15:RP-222",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final wave-3 test-coverage saturation found no additional verified finding; existing F-313/F-316 coverage family is not duplicated.",
+      "createdAt": "2026-08-25T18:53:13.312Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-723",
+      "envelopeId": "8badfcdb88d4d7ea839d984accc7e28f084187d9cba5d3e0afd696ae9aa792b8",
+      "writerSessionId": "sess-fb488261b83498a70c8d6f85c81b1621",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": "No decisions-directory read was required; the review consumed current signed verifier artifacts through canonical read-only CLI surfaces and checked the unchanged implementation/test paths."
+      },
+      "_hash": "790aff62c917bad5fa2d9195b3f00215c25d332565c8384d83da9f01cc2b8b94"
+    },
+    {
+      "id": "B-5a15:RP-223",
+      "agent": "lattice-review-concept",
+      "note": "RI-046 final wave-3 concept review completed: the story diff adds CausalEvidence and causal dependency wiring but does not delete or replace a prior concept. Repository residue scan found only intentional compatibility references and retained strict materialHash fallback. Existing PR_ARTIFACT_TAMPERED evidence is already covered by prior open findings and is not a new concept finding.",
+      "createdAt": "2026-08-25T18:54:28.185Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-724",
+      "envelopeId": "f3841af4e27c68f11ab08850372ca7b49740135e58acfe9d409250f58933d5e9",
+      "writerSessionId": "sess-3b30a71b7b901573e242fdb83cda7e3d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence-concurrency.test.mjs",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "12f1485fca1dcfa112831364e4a65c8bcdafe7d61802fc0afefcbdeb9d2a5ac8"
+      },
+      "readDiagnostics": [],
+      "_hash": "cb53301890a75b84a571f333347fbe7c7e870b5d92602b81acabd54510177963"
+    },
+    {
+      "id": "B-5a15:RP-224",
+      "agent": "lattice-review-quality",
+      "note": "Final wave-3 RI-046 quality review at unchanged HEAD e85cbbe: checked scoped implementation quality and verifier-owned boundaries; existing F-311, F-314, and F-316 are not duplicated, and no distinct quality blocker was verified.",
+      "createdAt": "2026-08-25T18:56:31.058Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-725",
+      "envelopeId": "301b33d611f86316e43d738cb1ca1964b5387e2c8eaa2e9c6b97ab9b392562c6",
+      "writerSessionId": "sess-102baee324ffe0dc87b47ca8ac3770de",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "3b7f0ff20468842cca915754e64ff0b376a521752504f688dfa9360cc6ad1fd1"
+    },
+    {
+      "id": "B-5a15:RP-225",
+      "agent": "lattice-review-topology-critic",
+      "note": "Current-wave aggregate and required-lane terminal evidence reviewed; no new verified findings; topology closure has no blocker.",
+      "createdAt": "2026-08-25T19:04:03.106Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-727",
+      "envelopeId": "6100c58069183f4e7b1260f8d2d2f406e3a48fa983dcf02e163130308cb90baf",
+      "writerSessionId": "sess-12924edd69bd045a8fd3d25255755f7b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b33985f3ba005805e6f953506a5475b034edc0573cc050fe6edbcc97254876b3"
+    },
+    {
+      "id": "B-5a15:RP-226",
+      "agent": "lattice-review-topology-critic",
+      "note": "Current-wave aggregate and required-lane terminal evidence reviewed; no new verified findings; topology closure has no blocker.",
+      "createdAt": "2026-08-25T19:06:07.625Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-728",
+      "envelopeId": "c8ade5b82bd293c8c772f196beddfa442a7f036714956219f49a18434c1034c8",
+      "writerSessionId": "sess-12924edd69bd045a8fd3d25255755f7b",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f01533e0d94572d390583e6a77c04598b5d515b5b400a2674286e98ba339b0b1"
     }
   ]
 }
