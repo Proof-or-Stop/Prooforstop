@@ -19981,6 +19981,100 @@
       ],
       "signatureTag": "missing|ts|active-compatibility-proof",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-446",
+      "desc": "Independent topology critic confirmation: current verified blocker F-445 is real and remains open/request_changes. The PLAN dispatch registry accepts proof-or-stop-test-intent while its role contract is compatibility-only and the shipped prompt presents an active two-step flow, violating the migration decision. This is a duplicate family confirmation, not a new root cause; do not resolve F-445 or modify code.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-25T10:17:41.134Z",
+      "reviewRound": "2026-08-25T09:53:45.090Z",
+      "reviewRunId": "B-5a88:RR-792",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-test-intent.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        }
+      ],
+      "_hash": "0ce9d1f8c823e193a59f4e27c963ced632c1fd796340a53216b82926734f3344",
+      "files": [
+        "packages/main/src/core/agent-dispatch-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        ".proof-or-stop-codex/agents/proof-or-stop-test-intent.md",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "signatureTag": "active-compatibility-legacy-verification-intent-routing",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-447",
+      "desc": "Independent topology critic confirmation: current verified blocker F-445 is real and remains open/request_changes. The PLAN dispatch registry accepts proof-or-stop-test-intent while its role contract is compatibility-only and the shipped prompt presents an active two-step flow, violating the migration decision. This is a duplicate family confirmation, not a new root cause; do not resolve F-445 or modify code.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-25T10:19:39.931Z",
+      "reviewRound": "2026-08-25T09:53:45.090Z",
+      "reviewRunId": "B-5a88:RR-793",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-test-intent.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "64c156af997beaa6eff9e73047367c00b3644693bcf557d156954f2125c3fa04",
+      "files": [
+        "packages/main/src/core/agent-dispatch-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        ".proof-or-stop-codex/agents/proof-or-stop-test-intent.md",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "signatureTag": "active-compatibility-legacy-verification-intent-routing",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
