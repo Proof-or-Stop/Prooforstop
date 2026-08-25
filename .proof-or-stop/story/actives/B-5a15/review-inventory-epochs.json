@@ -4845,6 +4845,42 @@
       "consumedAt": "2026-08-25T04:06:59.484Z",
       "consumedByReviewRound": "2026-08-24T21:59:04.791Z",
       "_hash": "fbfe7b0e657f740855fb3b258da4243587a8c8f9f2f43e353362fb76464ef6b2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-040",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-25T05:08:49.976Z",
+      "state": "INVALIDATED",
+      "begunAt": "2026-08-25T06:03:05.557Z",
+      "updatedAt": "2026-08-25T06:05:09.763Z",
+      "cutoff": {
+        "headHash": "47db0a42e54e18fa32057011a1c3a1eabf6144f9",
+        "materialHash": "20ffa1d8bce0e5aba8d0c70d32f32cce39d83bc241928f8164e7f75af2c05b09",
+        "storyFilesHash": "e15c317b440b82e00101249b9fd8143a3bbcdbfffd2932e7f73bc02bd6788b88"
+      },
+      "scopeDigest": "bd3be04716459f9c9d0d832d2c9be92773876a6a3baf1c1232e1d01115672267",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 594,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "invalidation": {
+        "detectedAt": "2026-08-25T06:05:09.763Z",
+        "oldMaterialHash": "20ffa1d8bce0e5aba8d0c70d32f32cce39d83bc241928f8164e7f75af2c05b09",
+        "currentMaterialHash": "20ffa1d8bce0e5aba8d0c70d32f32cce39d83bc241928f8164e7f75af2c05b09",
+        "oldStoryFilesHash": "e15c317b440b82e00101249b9fd8143a3bbcdbfffd2932e7f73bc02bd6788b88",
+        "currentStoryFilesHash": "e15c317b440b82e00101249b9fd8143a3bbcdbfffd2932e7f73bc02bd6788b88",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION",
+        "currentCandidateSpecSetDigest": "f5ef3c332fa094b1f07a5e0e59107237dec68634ce4a572bee15177ace27e743",
+        "currentCorpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "terminalRunSequenceBoundary": 597,
+      "_hash": "e81cca66e717f5ecf5cfdceaf65141d39fc3256ba2bb2f72f69af96a06d6a8b1"
     }
   ],
   "receipts": [
