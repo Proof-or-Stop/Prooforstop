@@ -1,0 +1,56 @@
+{
+  "principles": [
+    "A recovery hint must name the next valid command from the same authoritative blocker",
+    "A blocker must remain fail-closed and must not grant PRE_CERT or TEST authority",
+    "A TEST recovery must not imply a lifecycle rollback"
+  ],
+  "drivers": [
+    "done_prepare must not repeat an already refused heavy-validation command",
+    "certification-window and done_prepare must expose consistent next actions",
+    "regression must distinguish the direct finalize path from a DEV/REVIEW detour"
+  ],
+  "options": [
+    {
+      "name": "Parse and propagate authoritative Next lines",
+      "pros": [
+        "keeps the existing choke and blocker projection as the source of truth",
+        "works for done_prepare without duplicating blocker classification"
+      ],
+      "cons": [
+        "requires a narrow parser for structured refusal output"
+      ]
+    },
+    {
+      "name": "Hard-code the finalize command in done_prepare",
+      "pros": [
+        "small local change"
+      ],
+      "cons": [
+        "duplicates certification-window policy and can misroute other blockers"
+      ]
+    }
+  ],
+  "chosen": "Parse and propagate authoritative Next lines",
+  "rationale": "The choke already computes the blocker-specific command. Propagating that command avoids policy duplication while preserving the existing fail-closed gate; the certification helper should likewise render the projection command instead of overwriting it.",
+  "preMortem": [
+    {
+      "scenario": "A non-inventory PRE_CERT blocker is incorrectly routed to review_inventory_finalize",
+      "trigger": "parser matches any failure text without validating the blocker code or command",
+      "consequence": "operators skip required merge, coverage, or finding remediation",
+      "mitigation": "extract only the exact proof-or-stop command from the rendered Next line and otherwise retain the caller default"
+    },
+    {
+      "scenario": "A missing-window error loses the recovery command again",
+      "trigger": "refuseHeavyCertificationUnlessAdmitted replaces projection.nextCommand for all blocked states",
+      "consequence": "TEST repeats certification_window_status instead of finalizing inventory",
+      "mitigation": "use projection.nextCommand unless the window is admitted/running and heavy validation is the legitimate next action"
+    },
+    {
+      "scenario": "Regression passes only because it asserts text, not lifecycle safety",
+      "trigger": "test does not model TEST phase and attempted transition",
+      "consequence": "a future change can route through DEV/REVIEW unnoticed",
+      "mitigation": "assert the story remains TEST and the next command is finalize in the focused smoke"
+    }
+  ],
+  "timestamp": "2026-08-25T19:32:49.706Z"
+}

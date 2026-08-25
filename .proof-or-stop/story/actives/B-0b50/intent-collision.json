@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-0b50",
+  "id": "IC-20260825193801",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Only repair the blocker-specific next-command propagation in done_prepare and the shared certification choke, with focused regression coverage; do not change PRE_CERT authority or lifecycle transitions.",
+  "acceptedInterpretationHash": "sha256:8996c5dd63155cdc93e3f66eaf8ff722dcab0f24fa4398ac8501c8cfcdfa00f9",
+  "notes": "The two checklist items describe one coherent recovery behavior: preserve authoritative blocker routing and prove TEST-local finalization.",
+  "createdAt": "2026-08-25T19:38:01.929Z",
+  "updatedAt": "2026-08-25T19:38:01.929Z"
+}

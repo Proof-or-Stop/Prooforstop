@@ -869,9 +869,25 @@ export function refuseHeavyCertificationUnlessAdmitted(args: {
   const refreshed = refreshCertificationWindowLineage(args);
   if (!windowAuthorizesHeavyCertification(refreshed.window, refreshed.receipt)) {
     const projection = projectCertificationWindowStatus(args.storyId, refreshed.window, refreshed.receipt);
+    let hasUnconsumedInventory = false;
+    if (!refreshed.window) {
+      const apis = loadReviewInventoryAdmitApis();
+      if (apis) {
+        try {
+          hasUnconsumedInventory = Boolean(apis.finalizedUnconsumedReviewInventory(args.store, args.storyId));
+        } catch {
+          hasUnconsumedInventory = false;
+        }
+      }
+    }
     const rendered = renderCertificationWindowStatus({
       ...projection,
-      nextCommand: heavyCertificationStatusNext(args.storyId),
+      // A TEST invocation with no window is blocked on the PRE_CERT inventory
+      // prerequisite. Keep the projection's blocker-specific command instead
+      // of sending the operator through another certification status retry.
+      nextCommand: refreshed.window || hasUnconsumedInventory
+        ? projection.nextCommand
+        : nextCommandForBlocker(args.storyId, PRE_CERT_INVENTORY_NOT_FINALIZED),
     });
     throw new Error(
       `[${PRE_CERT_WINDOW_REQUIRED}] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\n${rendered}`,
