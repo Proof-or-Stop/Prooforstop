@@ -9396,6 +9396,50 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "65b9c75e2c83f4dadbcfb062780b01378e81d79d2e8daaa5aebd06261c478c16"
+    },
+    {
+      "id": "B-5a15:RP-198",
+      "agent": "lattice-review-topology-critic",
+      "note": "Wave 1 completeness review found no additional distinct family beyond the current lane findings; F-299 and F-300 remain verified and unresolved. The separate topology receipt is request_changes because acceptance_topology_check reports AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE, the existing F-297 family. F-297 through F-300 are not resolved by this pass.",
+      "createdAt": "2026-08-25T11:13:43.668Z",
+      "reviewRound": "2026-08-25T10:35:46.036Z",
+      "reviewRunId": "B-5a15:RR-649",
+      "envelopeId": "1a050707bda42386006a7a381db4ced97027bc403fdacdd20a7dc69f6bfde7c2",
+      "writerSessionId": "sess-e2df68b4605442ca7cb3c1c4a0402e01",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/topology-critic-receipt.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f5ef3c332fa094b1f07a5e0e59107237dec68634ce4a572bee15177ace27e743",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "de1c5a862ec9c1855fee3150e59482299a0ccce03427d1e61ed9223820d00108"
     }
   ]
 }
