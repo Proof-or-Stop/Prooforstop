@@ -984,9 +984,9 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
       "userSees": "User sees review assurance and host verdict consumers accept legacy lane evidence while reporting canonical proof-or-stop roles.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-25T13:26:03.518Z",
       "verificationIntent": {
         "happy": [
           {
@@ -1083,7 +1083,14 @@
           "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
           "timestamp": "2026-08-25T13:14:26.716Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "ae59cd99c61b9c2920f26729c86178244ff9b8fb62f482945389baae0dc42b54",
+        "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+        "headHash": "ed6ee955af0a956bf70e88b156f2a9fcd8cab3da",
+        "attestedAt": "2026-08-25T13:26:03.847Z",
+        "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072"
+      }
     },
     {
       "id": "CHK-009",
@@ -1094,9 +1101,9 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
       "userSees": "User sees delivery readiness accept compatible historical reviewer identities and emit canonical proof-or-stop delivery evidence.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-25T13:26:12.975Z",
       "verificationIntent": {
         "happy": [
           {
@@ -1172,8 +1179,35 @@
           "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
           "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
           "timestamp": "2026-08-25T13:14:35.849Z"
+        },
+        {
+          "intentRef": "CHK-009:happy:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalReviewerLane } from \\\"./packages/main/dist/core/reviewer-opt-in.js\\\"; import { getProcessFactRegistryEntry } from \\\"./packages/main/dist/core/process-fact-registry.js\\\"; assert.equal(canonicalReviewerLane(\\\"lattice-review-delivery\\\"), \\\"proof-or-stop-review-delivery\\\"); assert.equal(getProcessFactRegistryEntry(\\\"delivery_check_set\\\").reviewerLane, \\\"proof-or-stop-review-delivery\\\"); console.log(\\\"CHK-009 delivery lane canonicalization: PASS\\\");\"",
+          "result": "pass",
+          "note": "Focused verifier proves the canonical delivery lane and process-fact writer identity without routing delivery through the REVIEW-only lane parser.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "83d3425f8bd3af5ec73a7d507eeebe4c9b0d199b82299493ea0742d0e8c160c9",
+            "outputTail": "CHK-009 delivery lane canonicalization: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:25:38.606Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "ed6ee955af0a956bf70e88b156f2a9fcd8cab3da",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:25:38.967Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "16b712438246d4fe29d875c9be8c04d58fce61f5dd06aa18600bccaf0d99c230",
+        "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+        "headHash": "ed6ee955af0a956bf70e88b156f2a9fcd8cab3da",
+        "attestedAt": "2026-08-25T13:26:13.435Z",
+        "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072"
+      }
     },
     {
       "id": "CHK-010",
@@ -1184,9 +1218,9 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "userSees": "User sees legacy aliases remain readable until the machine-defined zero-reference and two-release conditions are met.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-25T13:26:15.257Z",
       "verificationIntent": {
         "happy": [
           {
@@ -1262,8 +1296,35 @@
           "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
           "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
           "timestamp": "2026-08-25T13:14:43.522Z"
+        },
+        {
+          "intentRef": "CHK-010:happy:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalAgentRoleId } from \\\"./packages/main/dist/core/agent-role-identity.js\\\"; import { resolveAgentDispatchType } from \\\"./packages/main/dist/core/agent-dispatch-registry.js\\\"; assert.equal(canonicalAgentRoleId(\\\"verification-intent\\\"), \\\"proof-or-stop-verification-intent\\\"); assert.equal(resolveAgentDispatchType(\\\"verification-intent\\\").canonicalType, \\\"proof-or-stop-verification-intent\\\"); console.log(\\\"CHK-010 compatibility window: PASS\\\");\"",
+          "result": "pass",
+          "note": "Focused verifier proves the readable compatibility alias resolves through the dispatch result to the canonical verification-intent role.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "145438c207961d6e509a97261df7ac332003e25aac95631b0ab6d6b61aca3a72",
+            "outputTail": "CHK-010 compatibility window: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:25:52.818Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "ed6ee955af0a956bf70e88b156f2a9fcd8cab3da",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:25:53.098Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "5b6cba47e9aa9ef8a1b82fafa08e144b1c746a48a19bcce60b3948258c469e6c",
+        "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+        "headHash": "ed6ee955af0a956bf70e88b156f2a9fcd8cab3da",
+        "attestedAt": "2026-08-25T13:26:15.556Z",
+        "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072"
+      }
     },
     {
       "id": "CHK-011",
@@ -1274,9 +1335,9 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
       ],
       "userSees": "User sees renamed gate artifacts remain integrity-checked and freshness-bound across canonical writes and legacy reads.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-25T13:26:17.375Z",
       "verificationIntent": {
         "happy": [
           {
@@ -1373,7 +1434,14 @@
           "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
           "timestamp": "2026-08-25T13:14:51.449Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "9b9675e642005eb4fa3aaae3f7cbd41db970c0a99f79b55daa7a8146357098a5",
+        "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+        "headHash": "ed6ee955af0a956bf70e88b156f2a9fcd8cab3da",
+        "attestedAt": "2026-08-25T13:26:17.718Z",
+        "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072"
+      }
     },
     {
       "id": "CHK-012",
@@ -1384,9 +1452,9 @@
         "docs/requirements/decisions/truth-source.md"
       ],
       "userSees": "User sees archived Story evidence still loads and its historical signatures verify after the identity migration.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-25T13:26:19.457Z",
       "verificationIntent": {
         "happy": [
           {
@@ -1483,7 +1551,14 @@
           "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
           "timestamp": "2026-08-25T13:15:44.290Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "ba79e769bf1c79b4c644a0cf5ae4e3f9b5c4b77a1559d167d44f399c06a77fef",
+        "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+        "headHash": "ed6ee955af0a956bf70e88b156f2a9fcd8cab3da",
+        "attestedAt": "2026-08-25T13:26:19.771Z",
+        "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072"
+      }
     }
   ],
   "auditLog": [
