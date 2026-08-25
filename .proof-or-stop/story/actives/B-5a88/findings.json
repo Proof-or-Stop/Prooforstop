@@ -14162,7 +14162,7 @@
       "desc": ".proof-or-stop/story/actives/B-5a88/checklist.json:CHK-002:adversarial:0 — its bound CHK-002-TEMPLATE-PASS evidence command only imports init-assets and asserts canonical proof-or-stop start/end strings plus absence of lattice markers. It never calls inspectManagedBlock or replaceManagedBlock on nested or mismatched marker pairs, which is the intent's required rejection/non-destructive behavior. The malformed-marker assertions are instead in packages/main/tests/managed-marker-migration.test.mjs:22-24 and are not the command bound to this adversarial ref; the current bound malformed check is recorded under CHK-002:edge:0. The required semantic adversarial intent therefore has no directly corresponding evidence, independently of the stale hashes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-23T17:48:21.642Z",
@@ -14198,7 +14198,11 @@
         "packages/main/tests/managed-marker-migration.test.mjs"
       ],
       "signatureTag": "adversarial|json|chk002-intent-binding",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Sound-but-redundant binding gap, covered by the canonical sibling edge intent. Current CHK-002:edge:0 evidence executes nested and mixed marker inputs, asserts inspectManagedBlock returns malformed, asserts replaceManagedBlock returns null without mutation, and prints CHK-002-MALFORMED-PASS; packages/main/tests/managed-marker-migration.test.mjs also passes. The adversarial intent remains a template-marker scan, but no untested malformed/nested semantic behavior remains, so retain the sibling edge evidence rather than duplicate its finding family.",
+      "resolvedAt": "2026-08-25T02:14:28.221Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-346",
