@@ -15203,6 +15203,107 @@
       "resolvedAt": "2026-08-25T05:34:40.756Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-298",
+      "desc": "Current-head coverage still lacks the required executable Wave 4 acceptance checks. All 45 checklist verificationEvidence rows are passing and bound to materialHash 77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8 and storyFilesHash 60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664, but none invokes verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check. Direct current-head checks show acceptance_topology_check status=fail/structuralPass=false with AT_SCOPE_BINDING_MISSING, and pre_review_check_read status=fail with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND; rollout report/check PASS does not substitute for bound checklist evidence. The Wave 4 contract also requires executable full-3x2 host coverage, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history. This coverage gap prevents a truthful current review pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-25T05:44:09.574Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-538",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f05c26291c3e7b76a666687fd040e4b1e3216b7a7f442dca7a29633bc1763092",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "ri060-wave4-current-acceptance-coverage",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-299",
+      "desc": "CHK-011 replay evidence is structurally non-authoritative at the current review head. The passing verificationEvidence rows for node scripts/run-dynamic-validation-replay.mjs --verify-threshold and --mutation=missing-evidence both report historical replay mode=plan-only and historical replay assurance BLOCKED (plan-only or incomplete). The canonical report has execute=false, 50 records all execution=not-run, admissibility=false because plan-only replay has no executable receipts and one or more Stories were not executed, and pairedPerformance=null. Therefore the evidence does not cover the required 30-50 real Story base/head executions, full-failures-subset-of-dynamic-execute soundness, three alternating paired current-HEAD experiments, or durable FI-1 through FI-5 receipts required before DYN-3 enforcement. Exit code 0 and mutation-audit PASS cannot substitute for the blocked replay assurance.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-25T05:44:31.476Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-538",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2358ecd5eadbe092d870a323f3facc2a2066a0af1ac2caa0d7686c6b755798a6"
+      },
+      "readDiagnostics": [],
+      "_hash": "47ed51b001abccb1ac86af6bdc61b26eebcc2e0b14367002782821056e3d7676",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "ri060-current-replay-assurance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
