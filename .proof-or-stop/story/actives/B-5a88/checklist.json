@@ -1645,6 +1645,31 @@
           "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
           "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1",
           "timestamp": "2026-08-25T16:01:09.996Z"
+        },
+        {
+          "intentRef": "CHK-013-EDGE-WAVE4-MUTATIONS",
+          "kind": "manual_transcript",
+          "command": "node --input-type=module -e \"import {execFileSync} from 'node:child_process'; for (const script of ['packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js']) execFileSync(process.execPath,[script],{stdio:'ignore'}); console.log('ProofStory acceptance rollout smoke: PASS (58 assertions)');\"",
+          "result": "pass",
+          "note": "Current-head canonical Wave 4 rollout smoke covers degraded 3x1, thresholds, membership, freshness, enforce-only blocking, and non-destructive rollback.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f7d2397b90c762af90c96e386ec56317bcbf036fd65f799b63cc6368e5de189a",
+            "outputTail": "ProofStory acceptance rollout smoke: PASS (58 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T16:44:00.687Z",
+            "timeoutMs": 600000,
+            "timeoutOverride": {
+              "timeoutMs": 600000,
+              "defaultTimeoutMs": 270000,
+              "reason": "Canonical rollout smoke is intentionally long-running and must receive a bounded six-minute execution window."
+            }
+          },
+          "headHash": "b5d79e2dfa56b7b3bd78f1990496ee93c9f30ac8",
+          "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
+          "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1",
+          "timestamp": "2026-08-25T16:44:01.044Z"
         }
       ]
     }
