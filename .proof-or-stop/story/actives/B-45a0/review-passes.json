@@ -9589,6 +9589,45 @@
       },
       "readDiagnostics": [],
       "_hash": "627c5bc5cdd195b8f4b4f29e3e581983c2f0ad1439872614d399fee6afb35bdf"
+    },
+    {
+      "id": "B-45a0:RP-198",
+      "agent": "lattice-review-concept",
+      "note": "No new concept deletion or replacement residue was found in RI-066. The known pre_review_check PR_ARTIFACT_TAMPERED condition is already recorded as baseline F-312 and is not duplicated; topology and rollout checks introduced no distinct current concept issue.",
+      "createdAt": "2026-08-25T10:43:33.915Z",
+      "reviewRound": "2026-08-25T10:16:24.136Z",
+      "reviewRunId": "B-45a0:RR-595",
+      "envelopeId": "a3a9e30353f287a40e9367132fb95f381fcb89405ed58113df96046442227fa4",
+      "writerSessionId": "sess-review-concept-ri066",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": "Scoped RI-066 concept re-attestation read the dynamic-validation decision records and verifier-owned acceptance chain; no new concept deletion/replacement was found, and the existing F-312 artifact issue was preserved as baseline."
+      },
+      "_hash": "babf628cba4442659327b77119592866e150ea4b9ab968499b057fa999ca2453"
     }
   ]
 }
