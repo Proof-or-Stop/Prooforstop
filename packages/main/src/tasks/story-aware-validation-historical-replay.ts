@@ -14,17 +14,15 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, 
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, compileValidationCatalog, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt } from '../core/story-aware-validation.js';
-import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
-import { StoryStore } from '../core/store.js';
+import { loadConfig } from '../core/config.js';
+import { resolveProjectGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 
 const root = resolve(process.cwd());
-// Historical replay has no live Story worktree of its own. Still route every
-// Git invocation through the signed-workspace choke point; the absent synthetic
-// story falls back safely to the project root while preserving wrapper-root
-// routing when a caller supplies a resolved Story context.
-const replayStore = new StoryStore(root);
-const gitCwd = resolveGitCwd({ store: replayStore, storyId: 'B-historical-replay', metadataRoot: root, projectRoot: root });
+// Historical replay has no live Story worktree of its own. Route every Git
+// invocation through the id-independent project resolver so wrapper-root
+// layouts use the configured repository even though no synthetic Story exists.
+const gitCwd = resolveProjectGitCwd(root, root, loadConfig(root));
 const execute = process.argv.includes('--execute');
 const paired = process.argv.includes('--paired');
 const storyRoot = join(root, '.proof-or-stop', 'story', 'actives');
