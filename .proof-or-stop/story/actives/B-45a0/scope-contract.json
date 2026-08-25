@@ -375,10 +375,26 @@
       "phase": "DEV",
       "headHash": "67b130ee34217fc865ec9942282e00dffd9ac535",
       "materialHash": "682943649653907552c9c1ec2902f8ee625672c5dd25ee930f570d2b1a120d9e"
+    },
+    {
+      "actor": "human",
+      "reason": "This task seeds the checklist required to exercise the configured validation-failure gate.",
+      "timestamp": "2026-08-25T17:27:56.671Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "f1b5e6cc14ddc6e18d67de996d7ef23b8536eac8",
+      "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1"
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-25T15:24:06.898Z",
+  "updatedAt": "2026-08-25T17:27:56.671Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
