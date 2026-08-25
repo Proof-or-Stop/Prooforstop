@@ -20630,6 +20630,80 @@
         "scanEscalationReason": "Reviewed the full Story context, the current main-to-HEAD delta, and the incremental RI-084 wave-2 delta. The incremental delta is review/topology evidence metadata only; current Wave 4 verifier reads are PASS/current/full-3x2. No quality blocker was found."
       },
       "_hash": "9a4162d5e2ee9ad2627cadfe8882ff2d49a8f08d649db7ba157a564ead4aa2ff"
+    },
+    {
+      "id": "B-5a88:RP-323",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Topology basis and Wave 4 verifier reads are current; no additional topology root cause beyond the aggregate F-459/F-460 findings, which remain independently verified.",
+      "createdAt": "2026-08-25T18:17:58.705Z",
+      "reviewRound": "2026-08-25T17:18:57.883Z",
+      "reviewRunId": "B-5a88:RR-832",
+      "envelopeId": "fc8e05fc8c77e5b19f2543daaf187ef1c06cbfb167f5ce7d3a55d6fb8e76dbd7",
+      "writerSessionId": "sess-2b8c0fd8cec86010f622ca669086ffb4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f2b09afe1f062a889424216c8c2349da4fdd326330ccec3e0ef3108a644ab617"
+    },
+    {
+      "id": "B-5a88:RP-324",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Topology basis, producer-consumer closure, and all four Wave 4 verifier reads are current; no additional topology root cause beyond F-459 and F-460.",
+      "createdAt": "2026-08-25T18:20:19.946Z",
+      "reviewRound": "2026-08-25T17:18:57.883Z",
+      "reviewRunId": "B-5a88:RR-833",
+      "envelopeId": "7bf822d06e3050bb44ec338d7cf0c6ea70d8193343f692f2b1263d3940c7c4c8",
+      "writerSessionId": "sess-2b8c0fd8cec86010f622ca669086ffb4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "b185e15b50ca7caa93174bcdb6d211117508f932d25ecc052cf3f45b3fcbb644"
     }
   ]
 }

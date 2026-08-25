@@ -11844,6 +11844,45 @@
       ],
       "createdAt": "2026-08-25T17:58:00.018Z",
       "_hash": "bf8308f66ed7f7e73d6cc211619c7d7765d4807c53f9af799fba9351d90823d2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-084:CRIT-02",
+      "epochId": "B-5a88:RI-084",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-25T17:18:57.883Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "d73bbd8cbe75dcf51b80f69e4b78f321766b9402",
+        "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
+        "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1"
+      },
+      "aggregateFindingSetDigest": "75ee03bc092536bbcf5880f071702b6876010e0905b093438d5204ebaaf16718",
+      "requiredLaneCoverageDigest": "a5c5ab55365060106fc284728fe0ea7d255f78970cdc633fbd74281ff2e59561",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-833",
+      "terminalEvidenceIds": [
+        "B-5a88:RP-324"
+      ],
+      "readEvidenceDigest": "5c27264e9752c141653ab2280daa62b277eac3ca946890412cd2df3ada05df20",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-459",
+          "disposition": "verified_family",
+          "familyKey": "plan-scope-coverage",
+          "canonicalFindingId": "B-5a88:F-457",
+          "reason": "Independent topology review confirms the plan/checklist mismatch is real at the frozen RI-084 cutoff: plan.md scope stops at CHK-007 while the Story includes CHK-008 through CHK-013."
+        },
+        {
+          "findingId": "B-5a88:F-460",
+          "disposition": "verified_family",
+          "familyKey": "wave4-read-intent-coverage",
+          "canonicalFindingId": "B-5a88:F-458",
+          "reason": "Independent topology review confirms the CHK-013 happy pin omits acceptance_rollout_report_read and acceptance_rollout_check; current rollout receipts do not provide intent-linked coverage."
+        }
+      ],
+      "createdAt": "2026-08-25T18:20:34.534Z",
+      "_hash": "0a858bef5afbf2631bc98c9472514ae11c20bb7327e00c9feff1a56cf1e152bd"
     }
   ]
 }
