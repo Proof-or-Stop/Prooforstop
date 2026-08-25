@@ -15294,6 +15294,101 @@
       ],
       "signatureTag": "missing|json|verifier-owned-pre-review",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-295",
+      "desc": "RI-043 wave 2 current-round confirmation (duplicate of the existing causal rerun identity-binding family): packages/main/src/core/causal-evidence.ts:1119-1145 verifies receipt integrity, reusable/pass status, nodeId, and causal inputHashes, but does not bind receipt.identity.storyId, storyFilesHash, materialHash, or current head to the evaluateCausalDependencies call. A valid signed receipt from another story or frozen material/head can therefore enter verifiedRerunNodeIds and make the affected-node rerun gate-admissible at packages/main/src/core/causal-evidence.ts:1238-1239. Existing decision-level identity checks and current tests do not cover this receipt-level cross-story/stale-snapshot replay; require receipt-level current story/material/story-files/head binding and regression coverage before treating this family as fixed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T09:38:42.366Z",
+      "reviewRound": "2026-08-25T08:18:57.591Z",
+      "reviewRunId": "B-5a15:RR-638",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7a379ae896039fe0c16b2c085c3556d762b9b36c0418c9ea00328f86c8b59d97"
+      },
+      "readDiagnostics": [],
+      "_hash": "68b1d852a8801c890c3a57963e3474049099003bab03f02dc618b3711b2b9cd2",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-296",
+      "desc": "RI-043 wave-2 current coverage remains blocked: node --test packages/main/tests/causal-evidence.test.mjs exits 1 with 14 passing and 2 failing at lines 2034 and 2192. The current read-only pre_review_check_read returns status=fail with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND; the focused regressions require pass or only the narrower fail-closed allowlist, so they do not cover this current verifier-owned artifact. acceptance_topology_check is structural-only pass and acceptance_rollout_report_read reports receipt=current with quorum=full-3x2, but neither substitutes for admissible executable pre-review evidence. This is a duplicate of the existing verifier-owned pre-review coverage family and is intentionally bound to the latest RR-636.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-25T09:39:05.509Z",
+      "reviewRound": "2026-08-25T08:18:57.591Z",
+      "reviewRunId": "B-5a15:RR-636",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e22df05e46d6bfd047ab303de2e5ba452cd2cb2a0d3695ffe720fd79d1332f63",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+      ],
+      "signatureTag": "missing|json|verifier-owned-pre-review",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
