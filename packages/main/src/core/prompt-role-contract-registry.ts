@@ -347,25 +347,33 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     allowedCommandIds: ['init_check_set'],
     requiredOutputIds: ['init-check'],
   },
+  'proof-or-stop-verification-intent': {
+    ...commonPolicy,
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Author PLAN verificationIntent for one checklist item.',
+    allowedCommandIds: ['checklist_update'],
+    requiredOutputIds: ['verification-intent'],
+  },
   'proof-or-stop-test-case-reviewer': {
     ...commonPolicy,
     status: COMPATIBILITY,
-    replacementAgentType: 'proof-or-stop-test-intent',
-    migrationHint: 'Use canonical proof-or-stop-test-intent during PLAN.',
+    replacementAgentType: 'proof-or-stop-review-test-coverage',
+    migrationHint: 'Legacy read-side identity only; use proof-or-stop-review-test-coverage for current REVIEW coverage.',
     defaultDispatch: false,
     responsibility: 'Legacy verification-intent review alias.',
-    allowedCommandIds: ['checklist_update'],
-    requiredOutputIds: ['verification-intent'],
+    allowedCommandIds: [],
+    requiredOutputIds: ['migration-guidance'],
   },
   'proof-or-stop-test-intent': {
     ...commonPolicy,
     status: COMPATIBILITY,
-    replacementAgentType: 'proof-or-stop-test-intent',
-    migrationHint: 'Use canonical proof-or-stop-test-intent during PLAN.',
+    replacementAgentType: 'proof-or-stop-verification-intent',
+    migrationHint: 'Legacy read-side identity only; use proof-or-stop-verification-intent during PLAN.',
     defaultDispatch: false,
     responsibility: 'Legacy verification-intent authoring alias.',
-    allowedCommandIds: ['checklist_update'],
-    requiredOutputIds: ['verification-intent'],
+    allowedCommandIds: [],
+    requiredOutputIds: ['migration-guidance'],
   },
 });
 
@@ -465,7 +473,7 @@ export function validatePromptRoleContracts(contracts: readonly unknown[], expec
   const active = contracts.filter(contract => (contract as RoleContract).status === 'active').length;
   const compatibility = contracts.filter(contract => (contract as RoleContract).status === 'compatibility').length;
   const retired = contracts.filter(contract => (contract as RoleContract).status === 'retired').length;
-  if (active !== 13 || compatibility !== 3 || retired !== 1) {
+  if (active !== 14 || compatibility !== 3 || retired !== 1) {
     throw new PromptRoleContractRegistryError(`invalid role partition active=${active} compatibility=${compatibility} retired=${retired}`);
   }
   const byId = new Map(contracts.map(contract => [(contract as RoleContract).roleId, contract as RoleContract]));

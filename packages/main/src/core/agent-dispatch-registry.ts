@@ -44,8 +44,8 @@ export const AGENT_DISPATCH_REGISTRY: readonly AgentDispatchRegistryEntry[] = [
     evidenceOwnership: ['checklist-status', 'finding-resolution', 'cluster-resolution'],
   },
   {
-    canonicalName: 'proof-or-stop-test-intent',
-    aliases: roleAliases('proof-or-stop-test-intent', ['proof-or-stop-test-case-reviewer', 'test-case-reviewer']),
+    canonicalName: 'proof-or-stop-verification-intent',
+    aliases: roleAliases('proof-or-stop-verification-intent'),
     roleClass: 'verification-intent',
     allowedPhases: ['PLAN'],
     targetCardinality: 'exactly-one',
@@ -307,9 +307,48 @@ export function validateAgentDispatchRegistry(entries: readonly unknown[]): void
 
 validateAgentDispatchRegistry(AGENT_DISPATCH_REGISTRY);
 
+/**
+ * Historical verification identities remain resolvable for actor/read paths,
+ * but are deliberately outside AGENT_DISPATCH_REGISTRY and therefore cannot
+ * be selected for a new dispatch. They have no mutation or evidence authority.
+ */
+export const LEGACY_AGENT_DISPATCH_REGISTRY: readonly AgentDispatchRegistryEntry[] = [
+  {
+    canonicalName: 'proof-or-stop-test-intent',
+    aliases: roleAliases('proof-or-stop-test-intent'),
+    roleClass: 'verification-intent',
+    allowedPhases: ['PLAN', 'TEST_CASE', 'TEST_CASE_REVIEW'],
+    targetCardinality: 'exactly-one',
+    identifierKinds: ['itemId'],
+    promptBuilder: 'verification-intent-item',
+    promptBuilderByIdentifier: { itemId: 'verification-intent-item' },
+    permittedMutations: [],
+    commitAllowed: false,
+    reviewerLane: null,
+    evidenceOwnership: [],
+  },
+  {
+    canonicalName: 'proof-or-stop-test-case-reviewer',
+    aliases: roleAliases('proof-or-stop-test-case-reviewer'),
+    roleClass: 'verification-intent',
+    allowedPhases: ['TEST_CASE', 'TEST_CASE_REVIEW'],
+    targetCardinality: 'exactly-one',
+    identifierKinds: ['itemId'],
+    promptBuilder: 'verification-intent-item',
+    promptBuilderByIdentifier: { itemId: 'verification-intent-item' },
+    permittedMutations: [],
+    commitAllowed: false,
+    reviewerLane: null,
+    evidenceOwnership: [],
+  },
+] as const satisfies readonly AgentDispatchRegistryEntry[];
+
+validateAgentDispatchRegistry(LEGACY_AGENT_DISPATCH_REGISTRY);
+
 export type AgentDispatchRegistryErrorCode =
   | 'blank_agent_type'
   | 'unknown_agent_type'
+  | 'legacy_agent_type'
   | 'invalid_dispatch_phase'
   | 'invalid_dispatch_cardinality';
 
@@ -339,6 +378,12 @@ for (const entry of AGENT_DISPATCH_REGISTRY) {
   for (const alias of entry.aliases) byName.set(alias, entry);
 }
 
+const legacyByName = new Map<string, AgentDispatchRegistryEntry>();
+for (const entry of LEGACY_AGENT_DISPATCH_REGISTRY) {
+  legacyByName.set(entry.canonicalName, entry);
+  for (const alias of entry.aliases) legacyByName.set(alias, entry);
+}
+
 export const AGENT_DISPATCH_ACCEPTED_TYPES = Object.freeze(
   [...byName.entries()]
     .filter(([, entry]) => entry.canonicalName !== 'proof-or-stop-review-channel')
@@ -362,6 +407,14 @@ export function resolveAgentDispatchType(agentType?: string): ResolvedAgentDispa
     throw new AgentDispatchRegistryError(
       'blank_agent_type',
       `agentType must be omitted for the proof-or-stop-implementer default or be one of: ${AGENT_DISPATCH_ACCEPTED_TYPES.join(', ')}`,
+      AGENT_DISPATCH_ACCEPTED_TYPES,
+    );
+  }
+  const legacyEntry = legacyByName.get(agentType);
+  if (legacyEntry) {
+    throw new AgentDispatchRegistryError(
+      'legacy_agent_type',
+      `agentType "${agentType}" is a legacy read-side identity and is not dispatchable for new stories; use proof-or-stop-verification-intent for PLAN verificationIntent authoring`,
       AGENT_DISPATCH_ACCEPTED_TYPES,
     );
   }
@@ -455,7 +508,7 @@ export function validateAgentDispatchRequest(args: AgentDispatchTargetInput & {
 export function resolveRegisteredAgentActor(actor: string | undefined | null): AgentDispatchRegistryEntry | null {
   const value = actor?.trim();
   if (!value) return null;
-  return byName.get(value) ?? null;
+  return byName.get(value) ?? legacyByName.get(value) ?? null;
 }
 
 /** True only for registered REVIEW lanes; prefix lookalikes never acquire reviewer authority. */

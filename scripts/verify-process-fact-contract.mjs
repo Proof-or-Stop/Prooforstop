@@ -1567,7 +1567,6 @@ function assertProofStoryProgressiveBoundary() {
   const acceptancePlanText = read('docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md');
   const rolloutPromptNames = [
     'proof-or-stop-implementer',
-    'proof-or-stop-test-case-reviewer',
     'proof-or-stop-review-topology-critic',
     'proof-or-stop-review-concept',
     'proof-or-stop-review-quality',

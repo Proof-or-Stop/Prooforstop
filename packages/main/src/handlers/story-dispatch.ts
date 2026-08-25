@@ -607,7 +607,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     appendDispatchLivenessGuidance(lines, `${args.resolved.canonicalType}/${args.itemId}`);
     lines.push('Role boundary:');
     lines.push('- Define adversarial acceptance intent only; do not implement, edit code/tests, or change checklist completion.');
-    lines.push('- The legacy requested alias, if any, has exactly the same verification-intent authority.');
+    lines.push('- You may write only verificationIntent through checklist_update; do not write status, verificationEvidence, or checklist definition fields.');
     lines.push('');
     lines.push('Required reading:');
     lines.push(`1. ${storyDir}/background.md`);

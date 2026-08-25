@@ -23,6 +23,7 @@ export const CANONICAL_AGENT_ROLE_IDS = [
   'proof-or-stop-review-test-coverage',
   'proof-or-stop-review-topology-critic',
   'proof-or-stop-product-reviewer',
+  'proof-or-stop-verification-intent',
   'proof-or-stop-test-case-reviewer',
   'proof-or-stop-test-intent',
   'proof-or-stop-finding-repair',
@@ -48,10 +49,9 @@ export const LEGACY_AGENT_ROLE_ALIASES: Readonly<Record<CanonicalAgentRoleId, re
   'proof-or-stop-review-test-coverage': ['lattice-review-test-coverage'],
   'proof-or-stop-review-topology-critic': ['lattice-review-topology-critic'],
   'proof-or-stop-product-reviewer': ['product-reviewer'],
+  'proof-or-stop-verification-intent': ['verification-intent'],
   'proof-or-stop-test-case-reviewer': ['test-case-reviewer'],
-  // The dispatch registry explicitly adds the canonical prompt role as a
-  // compatibility alias for the verification-intent dispatch row.
-  'proof-or-stop-test-intent': ['test-intent', 'verification-intent'],
+  'proof-or-stop-test-intent': ['test-intent'],
   'proof-or-stop-finding-repair': ['lattice-finding-repair'],
   'proof-or-stop-cluster-repair': ['lattice-cluster-repair'],
 });

@@ -25,7 +25,7 @@ const aliases = [
   ['lattice-implementer', 'proof-or-stop-implementer'],
   ['lattice-review-concept', 'proof-or-stop-review-concept'],
   ['lattice-review-quality@fallback', 'proof-or-stop-review-quality@fallback'],
-  ['verification-intent', 'proof-or-stop-test-intent'],
+  ['verification-intent', 'proof-or-stop-verification-intent'],
 ];
 const projectConfig = JSON.parse(readFileSync(join(repoRoot, 'proof-or-stop.config.json'), 'utf8'));
 const globalLabProbe = execFileSync(process.execPath, [
@@ -70,7 +70,14 @@ for (const [legacy, canonical] of aliases) {
 }
 
 assert.equal(dispatch.resolveAgentDispatchType('lattice-review-quality').canonicalType, 'proof-or-stop-review-quality');
-assert.equal(dispatch.resolveAgentDispatchType('verification-intent').canonicalType, 'proof-or-stop-test-intent');
+assert.equal(dispatch.resolveAgentDispatchType('verification-intent').canonicalType, 'proof-or-stop-verification-intent');
+for (const legacyType of ['proof-or-stop-test-intent', 'proof-or-stop-test-case-reviewer', 'test-intent', 'test-case-reviewer']) {
+  assert.throws(
+    () => dispatch.resolveAgentDispatchType(legacyType),
+    /legacy read-side identity.*proof-or-stop-verification-intent/,
+    `${legacyType} is a read-side identity, not a new dispatch role`,
+  );
+}
 assert.throws(() => dispatch.resolveAgentDispatchType('lattice-review-unknown'), /unknown agentType/);
 assert.throws(() => dispatch.resolveAgentDispatchType('proof-or-stop-review-quality@fallback'), /unknown agentType/);
 assert.equal(

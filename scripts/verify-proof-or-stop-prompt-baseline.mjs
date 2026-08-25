@@ -41,7 +41,7 @@ if (!existsSync(BUILT_ROLE_IDENTITY_PATH)) {
 const { canonicalAgentRoleId, legacyizeAgentRoleText } = await import(
   `${pathToFileURL(BUILT_ROLE_IDENTITY_PATH).href}?v=${Date.now()}`,
 );
-const EXPECTED_ROLE_COUNT = 17;
+const EXPECTED_ROLE_COUNT = 18;
 const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v8';
 const PROMPT_REGISTRY_SCHEMA_ALIASES = new Set([
   'proof-or-stop.prompt-registry.v1',
@@ -56,7 +56,7 @@ const PROBE_BASELINE_DRIFT = process.argv.includes('--probe-baseline-drift');
 const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-matrix-snapshot-drift');
 /**
  * Independent approval manifest binding every role ID to the exact hash of its approved prompt
- * body. EXPECTED_ROLE_COUNT (17) is unchanged and still asserted.
+ * body. EXPECTED_ROLE_COUNT (18) is unchanged and still asserted.
  *
  * B-cdf6 CHK-005: 15 of the 17 templateHash values were RE-APPROVED after the
  * `lattice` -> `proof-or-stop` bin rename rewrote command-invocation prose inside the registry
@@ -75,7 +75,7 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * `core/prompt-registry.ts` (`LOAD_BEARING_LATTICE_PROMPT_SLICE` and
  * `STORY_INIT_LEGACY_TAIL`). Those payloads still taught `lattice <cmd>` to every spawned
  * agent and are rebranded here, so exactly the 5 reconstruction-backed roles move.
- * EXPECTED_ROLE_COUNT stays 17 and every role stays bound to one exact hash — a repin to
+ * EXPECTED_ROLE_COUNT stays 18 and every role stays bound to one exact hash — a repin to
  * verified new content addresses, never a relaxation. Audited before repinning: normalizing
  * brand tokens and line-wrapping makes the new injected slice byte-identical to the previous
  * one, i.e. the drift is brand-only with no semantic edit.
@@ -145,17 +145,18 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-test-case-reviewer',
-    templateHash: '3292b8c15a696f588c9fcda45218aefeabb56668d47fa0e74cd163cbaf9da0a5',
+    templateHash: '5c2533459d08b513f0079e675e29586748267dba022dbfa921642aeb1cbf8b57',
   },
   {
     role: 'proof-or-stop-test-intent',
-    // B-5a88: re-approved after the verificationIntent migration in
-    // 110e688042 and the fixture-heavy authoring guidance restoration in
-    // 8cff6d925b. Audit scope was limited to the three synchronized
-    // proof-or-stop-test-intent prompt assets; they contain no legacy
-    // testIntent/cli_blackbox/browser_blackbox contract and explicitly keep
-    // input/expect out of emitted verificationIntent entries.
-    templateHash: 'b28c73eeb25c4dd6ac31aae646188fd382c5394ebb0ea7c5f4d35901879f6170',
+    // B-5a88: retained as a read-side compatibility prompt only. It has no
+    // active PLAN mutation or evidence ownership.
+    templateHash: 'ebf595e7a90bd8b2a29fbb260bf3e90404dd33848507108657277316f5111b2d',
+  },
+  {
+    role: 'proof-or-stop-verification-intent',
+    // B-5a88/F-445: active PLAN role; writes only verificationIntent.
+    templateHash: '45816aa6de69df16a893b8a29cd1775366d58ec624838a30fd5e70facd3e79f4',
   },
 ].map(entry => Object.freeze(entry)));
 const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
@@ -191,7 +192,7 @@ const ROLE_MATRIX_FIELDS = [
 ];
 const REVIEWER_AUDITED_ROLE_MATRIX_FIELDS = [...ROLE_MATRIX_FIELDS];
 const ROLE_MATRIX_MACHINE_CHECKS = [
-  'Lock the exact 17 role snapshots and role IDs.',
+  'Lock the exact 18 role snapshots and role IDs.',
   'Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest.',
   'For five modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.',
   'Lock agent_prompt output hashes.',
@@ -518,6 +519,18 @@ const ROLE_MATRIX_DEFAULTS = {
     capabilities: 'Coverage completeness; missing/stale evidence detection.',
     overlapCategory: 'verification coverage owner',
     notes: 'Current replacement for the value of legacy TEST_CASE_REVIEW.',
+  },
+  'proof-or-stop-verification-intent': {
+    status: 'active',
+    phase: 'PLAN',
+    purpose: 'Authors verificationIntent for one checklist item.',
+    commands: 'checklist_update with verificationIntent only; story_get; checklist_get; aux_doc_list and relevant read-only source/decision reads.',
+    directFileAccess: 'Reads source and decision documents; writes checklist intent only through Proof-or-Stop CLI.',
+    inputs: 'Story, one checklist item, relevant source and decision documents.',
+    outputs: 'Structured verificationIntent with happy, edge, and adversarial coverage lanes.',
+    capabilities: 'Adversarial acceptance-intent authoring; observable coverage design; verification boundary enforcement.',
+    overlapCategory: 'PLAN verification-intent owner',
+    notes: 'Active replacement for legacy test-intent authoring; does not write status or verificationEvidence.',
   },
   'product-reviewer': {
     status: 'compatibility',
@@ -2128,11 +2141,11 @@ async function verifyPromptMeasurementSidecar(failures) {
     failures.push(`role-prompt measurement sidecar expected ${EXPECTED_ROLE_COUNT} records, got ${current.records?.length ?? 'missing'}`);
   }
   if (
-    current.aggregate?.activeRoleCount !== 13 ||
+    current.aggregate?.activeRoleCount !== 14 ||
     current.aggregate?.compatibilityRoleCount !== 3 ||
     current.aggregate?.retiredRoleCount !== 1
   ) {
-    failures.push('role-prompt measurement sidecar lifecycle partition must remain 13 active / 3 compatibility / 1 retired');
+    failures.push('role-prompt measurement sidecar lifecycle partition must remain 14 active / 3 compatibility / 1 retired');
   }
   for (const [index, record] of (current.records ?? []).entries()) {
     if (record.schemaVersion !== 'proof-or-stop.prompt-measurement.v1') {

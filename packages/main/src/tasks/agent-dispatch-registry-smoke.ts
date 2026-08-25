@@ -246,10 +246,11 @@ for (const blank of ['', ' ', '\t']) {
 }
 assert.throws(
   () => resolveAgentDispatchType('lattice-review-unknown'),
-  (error: unknown) => error instanceof AgentDispatchRegistryError
-    && error.code === 'unknown_agent_type'
-    && error.acceptedTypes.includes('verification-intent')
-    && error.acceptedTypes.includes('test-intent'),
+    (error: unknown) => error instanceof AgentDispatchRegistryError
+      && error.code === 'unknown_agent_type'
+      && error.acceptedTypes.includes('verification-intent')
+      && error.acceptedTypes.includes('proof-or-stop-verification-intent')
+      && !error.acceptedTypes.includes('test-intent'),
   'unknown agent type must return a typed error with accepted canonical and alias guidance',
 );
 for (const unknown of ['LATTICE-IMPLEMENTER', 'review-quality', 'lattice-review-']) {
@@ -283,8 +284,15 @@ assert.throws(
 );
 
 const verification = resolveAgentDispatchType('verification-intent').entry;
-for (const alias of ['test-intent', 'test-case-reviewer']) {
-  assert.equal(resolveAgentDispatchType(alias).entry, verification);
+assert.equal(verification.canonicalName, 'proof-or-stop-verification-intent');
+for (const legacyType of ['proof-or-stop-test-intent', 'proof-or-stop-test-case-reviewer', 'test-intent', 'test-case-reviewer']) {
+  assert.throws(
+    () => validateAgentDispatchRequest({ agentType: legacyType, phase: 'PLAN', itemId: 'CHK-001' }),
+    (error: unknown) => error instanceof AgentDispatchRegistryError
+      && error.code === 'legacy_agent_type'
+      && /proof-or-stop-verification-intent/.test(error.message),
+    `${legacyType} must be rejected for new PLAN dispatch`,
+  );
 }
 assert.equal(verification.roleClass, 'verification-intent');
 assert.equal(verification.commitAllowed, false);
@@ -388,14 +396,23 @@ for (const actor of TRUSTED_HOST_ACTOR_IDENTITIES) {
   assert.equal(isTrustedHostActor(actor), true, `${actor} is an explicit trusted host identity`);
   assert.equal(assertRegisteredAgentMutationAllowed(actor, 'finding_add'), null, `${actor} retains host mutation compatibility`);
 }
-assert.equal(
-  resolveAgentMutationAuthority({
+assert.throws(
+  () => resolveAgentMutationAuthority({
     command: 'checklist_update',
     envActor: 'test-intent',
     payloadActors: ['verification-intent'],
+  }),
+  /agent_dispatch_identity_conflict/,
+  'legacy actor identity must not be authority-equivalent to the active PLAN role',
+);
+assert.equal(
+  resolveAgentMutationAuthority({
+    command: 'checklist_update',
+    envActor: 'verification-intent',
+    payloadActors: ['verification-intent'],
   }).entry?.canonicalName,
-  'proof-or-stop-test-intent',
-  'canonical and alias spellings of the same dispatched role are authority-equivalent',
+  'proof-or-stop-verification-intent',
+  'active alias and canonical role remain authority-equivalent',
 );
 assert.throws(
   () => resolveAgentMutationAuthority({
@@ -584,10 +601,53 @@ try {
     storyId, agentId: 'lattice-review-delivery', docsPromises: [], realMachineTests: [],
     closingSelfCheck: { summary: 'spoofed delivery evidence must not persist' },
   }));
-  for (const agentType of ['verification-intent', 'test-intent', 'test-case-reviewer']) {
+  for (const agentType of ['verification-intent']) {
     const prompt = handlers.dispatch({ storyId, itemId: 'CHK-001', agentType }).prompt;
     assert.match(prompt, /define verification intent/);
+    assert.match(prompt, /verificationIntent/);
+    assert.doesNotMatch(prompt, /proof-or-stop-test-intent|proof-or-stop-test-case-reviewer|testIntent|testintent_/);
     assert.doesNotMatch(prompt, /git commit|status["': ]+done/i);
+  }
+  const previousPlanActor = process.env.LATTICE_AGENT;
+  process.env.LATTICE_AGENT = 'verification-intent';
+  try {
+    checklistHandlers.checklist_update({
+      storyId,
+      itemId: 'CHK-001',
+      verificationIntent: {
+        happy: [{ desc: 'intent write -> persists', type: 'logic', priority: 'must' }],
+        edge: [],
+        adversarial: [],
+      },
+      agent: 'verification-intent',
+    });
+    const writtenItem = store.readChecklist(storyId).items.find(item => item.id === 'CHK-001');
+    assert.deepEqual(writtenItem?.verificationIntent, {
+      happy: [{ desc: 'intent write -> persists', type: 'logic', priority: 'must' }],
+      edge: [],
+      adversarial: [],
+    }, 'canonical PLAN role can write verificationIntent through the real checklist handler');
+    assert.equal(writtenItem?.status, 'pending', 'verification-intent role cannot complete the checklist item');
+    assert.throws(
+      () => checklistHandlers.checklist_update({
+        storyId, itemId: 'CHK-001', status: 'done', agent: 'verification-intent',
+      }),
+      /agent_dispatch_mutation_scope_denied/,
+      'canonical PLAN role cannot write checklist status',
+    );
+    assert.throws(
+      () => checklistHandlers.checklist_update({
+        storyId,
+        itemId: 'CHK-001',
+        verificationEvidence: [{ kind: 'logic_test', intentRef: `${storyId}:CHK-001:happy:0`, result: 'pass', note: 'must be rejected' }],
+        agent: 'verification-intent',
+      }),
+      /agent_dispatch_mutation_scope_denied/,
+      'canonical PLAN role cannot write verificationEvidence',
+    );
+  } finally {
+    if (previousPlanActor === undefined) delete process.env.LATTICE_AGENT;
+    else process.env.LATTICE_AGENT = previousPlanActor;
   }
   const beforeUnknown = store.readProcessEvents(storyId).length;
   assert.throws(
@@ -602,8 +662,8 @@ try {
   );
   assert.throws(
     () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', status: 'done', actor: 'test-intent' }),
-    /agent_dispatch_mutation_scope_denied/,
-    'verification-intent alias checklist completion must be rejected by the real handler consumer',
+    /agent_dispatch_mutation_denied/,
+    'legacy verification-intent identity must have no mutation authority',
   );
   assert.throws(
     () => resolveReviewRunLane('lattice-implementer'),

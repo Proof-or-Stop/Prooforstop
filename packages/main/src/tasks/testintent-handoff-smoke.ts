@@ -65,7 +65,7 @@ try {
     summary: { missingIntentItems: string[] };
     commandExamples: string[];
   };
-  assert.match(result.prompt, /You are the proof-or-stop-test-intent agent/);
+  assert.match(result.prompt, /You are the proof-or-stop-verification-intent agent/);
   assert.match(result.prompt, /write verificationIntent/);
   assert.doesNotMatch(result.prompt, /write testIntent/);
   assert.equal(result.commandExamples.length, 1);
