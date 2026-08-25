@@ -13681,7 +13681,7 @@
       "desc": "RI-028 coverage blocker: the trusted review context exposes the verificationIntent set but no current verificationEvidence rows or executable receipts for the required verifier-owned coverage boundary (acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check). Required must coverage therefore cannot be established truthfully, so this lane cannot record a pass without fresh evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T10:47:53.628Z",
@@ -13710,7 +13710,11 @@
       "readDiagnostics": [],
       "_hash": "5f159ca3c6d4d31321904bc7805fd67d292eb5b8f2f3fbdf020c3c3e0d668870",
       "signatureTag": "missing|unknown|coverage-blocker-trusted",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:38:39.104Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-259",
