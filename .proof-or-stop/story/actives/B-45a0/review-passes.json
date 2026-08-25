@@ -9171,6 +9171,144 @@
       },
       "readDiagnostics": [],
       "_hash": "b5930f124efc32627af0d4420871fc44715bd8b46008c4babf729fd8d8f3c7fd"
+    },
+    {
+      "id": "B-45a0:RP-189",
+      "agent": "lattice-review-concept",
+      "note": "RI-064 current-head concept review found no concept-deletion or acceptance-topology blocker. The acceptance basis is complete and verified for the frozen material/story hashes, and pre_review_check_read is passing against the committed proof. No new concept finding is warranted.",
+      "createdAt": "2026-08-25T09:01:40.732Z",
+      "reviewRound": "2026-08-25T08:55:38.978Z",
+      "reviewRunId": "B-45a0:RR-582",
+      "envelopeId": "b804045451ddc0731e05e8532b41fc3bc56b43e2d4b44e03752d546e09251947",
+      "writerSessionId": "sess-cae0a1a0ad7794e7572ceb66b7f44172",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "47fe70b158957b9f384ebaa3983d5f01518d5490daee4c235b731523ed4a6131"
+      },
+      "readDiagnostics": [],
+      "_hash": "dbbcddf20a4f9ca4f93319f489198a389f821fa6fac5b5ab1965ef9fd8a18861"
+    },
+    {
+      "id": "B-45a0:RP-190",
+      "agent": "lattice-review-docs",
+      "note": "Current-head RI-064 docs review passes. Step 1 extracted 846 unique changed symbols; Step 2 compared 6 anchored documentation paragraph groups across CLI, NAV, the dynamic-validation operations runbook, current-main characterization, enforcement evidence, and the normative execution plan. The current docs match the verifier/config behavior: inventory coverage is 112/112, plan integrity is 14/14, and catalog verification passes. Mode, authority, rollback, and Wave 4 claims remain bounded to verifier-owned evidence; this docs pass does not assert or substitute for the separate quality/review-assurance floor.",
+      "createdAt": "2026-08-25T09:01:44.423Z",
+      "reviewRound": "2026-08-25T08:55:38.978Z",
+      "reviewRunId": "B-45a0:RR-583",
+      "envelopeId": "786903fff8dcab89cdf0eedc632d5476d560b3ff32e5c2351be10ef45182b5fd",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Scoped RI-064 docs review read the changed CLI/navigation surfaces and Story-aware dynamic-validation decision records; no repository-wide document scan was performed."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "47fe70b158957b9f384ebaa3983d5f01518d5490daee4c235b731523ed4a6131"
+      },
+      "readDiagnostics": [],
+      "_hash": "1a5e1b3aee2bf7ab8b903e4ac518b4bf473e7a062c2eb814e8a5ea85618b92d6"
+    },
+    {
+      "id": "B-45a0:RP-191",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-064 current-head test-coverage review at HEAD f7673a68f8bd06e4128eb2626474546235139fb1 completed. All 48 verificationEvidence rows are pass and current for materialHash 3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c and storyFilesHash 3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9. The checklist contains 48 intents, including 42 must intents, with zero must-gaps and zero waivers. Current verifier-owned acceptance_topology_check (structuralPass true), pre_review_check_read (pass, blocking false, executableEvidence current, authority admissible), acceptance_rollout_report_read (pass, current receipt, full-3x2 quorum), and acceptance_rollout_check (pass, non-blocking) are current. Existing verified F-298 (Wave 4 acceptance breadth), F-299 (plan-only replay assurance), and F-304 (superseded stale-coverage record) remain open; this lane found no new current-head coverage family and does not resolve those findings.",
+      "createdAt": "2026-08-25T09:05:34.992Z",
+      "reviewRound": "2026-08-25T08:55:38.978Z",
+      "reviewRunId": "B-45a0:RR-584",
+      "envelopeId": "2f35bf5e260549738e5c5cd40f737bdd81387338646900334ad05c11e3044ed4",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2358ecd5eadbe092d870a323f3facc2a2066a0af1ac2caa0d7686c6b755798a6"
+      },
+      "readDiagnostics": [],
+      "_hash": "5c13576f701abaa50a2debb9c7d2d211b6578f5508ceb19ca8d6dfada767f714"
     }
   ]
 }
