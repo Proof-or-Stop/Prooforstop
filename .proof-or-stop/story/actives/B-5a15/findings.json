@@ -14022,7 +14022,7 @@
       "desc": "packages/main/tests/causal-evidence.test.mjs:1975-2025,2144-2327 — RI-031 coverage evidence is stale: checklist_get reports 53 passing rows bound to prior head d00654cbc726b71525e150865ecf5c2e3503d4d4 and prior material/story hashes, while RR-507 is bound to current head 1ef55743d9c8f74a4c4c26da311e5a0e4d7f8ece and frozen materialHash 5686932137192751fbd07343f8bb4da31aab8d7b7e157175b836f4c270deea18. Refresh current-round evidence before REVIEW can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T14:53:33.693Z",
@@ -14057,7 +14057,11 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "missing|mjs|packages-main-tests",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:39:19.141Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-267",
