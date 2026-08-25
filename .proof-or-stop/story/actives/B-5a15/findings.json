@@ -14165,7 +14165,7 @@
       "desc": "packages/main/tests/causal-evidence.test.mjs:2144-2335 contains the required executable RI-031 Wave-4 assertions for acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, acceptance_rollout_check, current receipt/full-3x2, degraded-host rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and rollback-history preservation; however checklist_get shows 53 passing evidence rows bound to the prior 13-test receipt at head d00654cbc726b71525e150865ecf5c2e3503d4d4 with prior materialHash/storyFilesHash, while RR-511 is bound to head 1ef55743d9c8f74a4c4c26da311e5a0e4d7f8ece and current hashes. The current RI-031 wave 2 coverage therefore has no admissible current signed evidence for this required boundary; refresh and bind the current receipt before coverage can pass. This is distinct from B-5a15:F-266 by identifying the required acceptance-rollout coverage boundary.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T15:15:31.604Z",
@@ -14209,7 +14209,11 @@
         ".proof-or-stop/story/actives/B-5a15/checklist.json"
       ],
       "signatureTag": "missing|mjs|ri-031-wave-2-current-evidence",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:39:34.059Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-270",
