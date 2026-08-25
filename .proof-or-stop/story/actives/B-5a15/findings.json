@@ -14579,7 +14579,7 @@
       "desc": "Verifier-owned acceptance evidence is not current at this review cutoff: acceptance_topology_check passes structurally, but pre_review_check_read reports PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, while acceptance_rollout_check is blocked by AR_REPORT_STALE. The current review cannot certify the acceptance chain until DEV refreshes and commits the pre-review and rollout artifacts.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-24T17:52:16.382Z",
@@ -14616,7 +14616,11 @@
         "packages/main/src/core/acceptance-rollout.ts"
       ],
       "signatureTag": "missing|json|verifier-owned-acceptance",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:40:13.111Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-278",
