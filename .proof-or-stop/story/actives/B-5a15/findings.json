@@ -15990,6 +15990,80 @@
       ],
       "signatureTag": "missing|json|quality-review-integrity",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-305",
+      "desc": "Current topology admission cannot pass: the verifier-owned pre_review_check_read reports PR_ARTIFACT_TAMPERED after later review metadata changes, while the signed topology critic receipt is request_changes. acceptance_topology_check and acceptance_rollout_check are structurally passing, but they do not substitute for current untampered pre-review evidence; the story must return to DEV to refresh the pre-review artifact before REVIEW can close. Evidence: .proof-or-stop/story/actives/B-5a15/pre-review-check.json, .proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json, packages/main/src/core/pre-review-live-proof.ts, packages/main/src/core/topology-critic-receipt.ts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-25T14:40:36.105Z",
+      "reviewRound": "2026-08-25T13:03:41.315Z",
+      "reviewRunId": "B-5a15:RR-682",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 5,
+          "tokenCount": null
+        },
+        "digest": "969e773f59bb664bd83255e0f05da1f3dbdcf327bcac56239c11309f14d442ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "bc15fb98dfa365c7694d3eb9c782f225228bf8077c2b6b4e2689de4764994d2d",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "missing|json|current-topology-admission",
+      "signatureTagSource": "auto"
     }
   ]
 }

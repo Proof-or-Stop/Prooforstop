@@ -10784,6 +10784,37 @@
       ],
       "createdAt": "2026-08-25T12:16:01.684Z",
       "_hash": "6b6fb75e8e8a508a64ccb5bf6cdb997f194243cbea7a55f76837762cd4aa9dee"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-045:CRIT-01",
+      "epochId": "B-5a15:RI-045",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-25T13:03:41.315Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "a382414ef6262e32b2cca4998bca18c3b5a5007a",
+        "materialHash": "e2b9a304b33a1b93675b12b661d999c08babc2216b41f67b44d584c55851b4e5",
+        "storyFilesHash": "956f34876f1590aeb00e49124642c20bbb21bc5bbb64c3f3b03ba0957278cedd"
+      },
+      "aggregateFindingSetDigest": "159da9715a1963d9905211282454437f3b973d2657f73f29de2481ce44e2065e",
+      "requiredLaneCoverageDigest": "36e0dc4af1d1bfcb6c33276f0908cc081dc57b232f4a6aad07b0cd69f2a4b680",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-682",
+      "terminalEvidenceIds": [
+        "B-5a15:F-305"
+      ],
+      "readEvidenceDigest": "773932feda79f79ac355eb9b0b9c655982626e1730dee86b0baa9fa0d0fcc055",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-304",
+          "disposition": "verified_family",
+          "familyKey": "topology-pre-review-binding",
+          "reason": "F-304 is confirmed by the current topology admission state: the signed topology receipt and its closeout lineage cannot substitute for current untampered pre-review evidence; the current verifier-owned pre-review read remains inadmissible."
+        }
+      ],
+      "createdAt": "2026-08-25T14:41:15.457Z",
+      "_hash": "0562e378014f23a302385a1dc4e0fe73948038442b29cc90a732fdfefa3ebdcb"
     }
   ]
 }
