@@ -482,8 +482,8 @@
           "source-file:docs/CLI.md:sha256:47ab23cf00703ca6a636f8d76d02fc57f13015aafac0587463f698b9d21363a9",
           "source-file:docs/requirements/NAV.md:sha256:c6cd05959a09023d90bb416b8dae3e7f389502a2521652a81f7cf4c327c3f78a",
           "source-file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:sha256:50228d9bf4a860c68c4cc127173e6faaec92f800d852d067473d6ea2a2c58611",
-          "source-file:docs/requirements/decisions/dynamic-validation-operations.md:sha256:f98b808920648698702a4e10a83fb8e2b5d0428525026831a890f40ef720165e",
-          "source-file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md:sha256:6428ee537d3e3ee122314615c8320debac21ad07796f8dc07036f1518654d130",
+          "source-file:docs/requirements/decisions/dynamic-validation-operations.md:sha256:cfc60fbf0c8b5e7369c7bb2ae05edb6f1653711508871ed7683412b854640af0",
+          "source-file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md:sha256:c1029d031773dc1775b0d88516a45324975a778077434bb3944fbb680c46318e",
           "source-file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md:sha256:7270bb2120c5e37bf23d69ab2c73426d575ff3a6f31f934f0367740fa68e3cbd",
           "source-file:lattice.config.json:sha256:23e15948a96e18c3dc803f28fb2338bf6d88dd67e1c375fb323411cf3e5d8784",
           "source-file:package.json:sha256:02644fa2878bb575589ec4cf58cb49359df9bad952b239aff0235d1b4aa4dc67",
@@ -614,7 +614,7 @@
             "scope:file:scripts/verify-validation-catalog.mjs"
           ]
         },
-        "resultDigest": "sha256:a578c984a158062a9b6a3a759998a29689bf3f82860739fa54cdeb339f04301a"
+        "resultDigest": "sha256:bdd88fe84d0f7503468a1e4a0faf17e6a684034d811cb213061eacc77a19971f"
       }
     ],
     "scopeRefs": [
@@ -836,42 +836,42 @@
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:808f2da2b6edbd4525a1d9e55f01492ada9184ae94f99e023273cace524ee613",
       "inventoryDirectoryCount": 21,
-      "sourceSnapshotDigest": "sha256:f1bf1f64f056e3420fe47533a7172c3264de14ec61b0dad4803e6703daff4ae5",
+      "sourceSnapshotDigest": "sha256:9c587c13b46d377d7b9917bfa4560c9f2bd425db9b75312b916488390d0882a5",
       "sourceSnapshotCount": 861,
       "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
       "status": "complete",
       "issues": [],
-      "sealDigest": "sha256:fbe2afa7e2b0a44372187c41784835477408ccc3918e9e44f2d91c51a6a01904"
+      "sealDigest": "sha256:9a5f10c99685aad291a949063fbd00e3fa3f129840d92619519f84fd4235b0af"
     },
     "binding": {
-      "headHash": "565096febcdceb1cc35056c566ee4eca795d8bf0",
-      "materialHash": "77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8",
-      "storyFilesHash": "60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664",
+      "headHash": "66fa0f01eef32afa91c4674e92d513ee50a9db9b",
+      "materialHash": "3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c",
+      "storyFilesHash": "3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9",
       "scopeCheckDigest": "sha256:f1b838291540371b2626f5c27a003064984d9cb454ae1a5814f2091c21c193b5",
       "scopeContractDigest": "sha256:62a46ec82313931a8cf3e548a6ee1584ee4725a35db2225630cf641b84a26f2a",
-      "closureFilesHash": "sha256:571eb92834100c6d933ed389ac3cc69b3034167118117216a8fe10bd26e81181"
+      "closureFilesHash": "sha256:917df4bf4d83d978a0e9b6f02e28ba03e87390863e675bc3329e20a72b355186"
     },
-    "receiptRef": "receipt:coverage-basis:B-45a0:plan:5161fecbfa8a307d",
-    "basisDigest": "sha256:761087090bc5c886593461198139de014a32685905b48de7b0e1b4501c660e8a"
+    "receiptRef": "receipt:coverage-basis:B-45a0:plan:8343bb03d334a3e2",
+    "basisDigest": "sha256:6a79c15aca1fc5a79a696ccbfd86e224c80e017282b0a57c87bc920d15991964"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-45a0:plan:5161fecbfa8a307d",
+    "receiptRef": "receipt:coverage-basis:B-45a0:plan:8343bb03d334a3e2",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
     "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
     "storyId": "B-45a0",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:761087090bc5c886593461198139de014a32685905b48de7b0e1b4501c660e8a",
+    "basisDigest": "sha256:6a79c15aca1fc5a79a696ccbfd86e224c80e017282b0a57c87bc920d15991964",
     "topologyDigest": "sha256:0a71e566eebd058398e7b336dd448074eab68bd83d4383dd05a0305b70668102",
     "scopeCheckDigest": "sha256:f1b838291540371b2626f5c27a003064984d9cb454ae1a5814f2091c21c193b5",
     "scopeContractDigest": "sha256:62a46ec82313931a8cf3e548a6ee1584ee4725a35db2225630cf641b84a26f2a",
-    "headHash": "565096febcdceb1cc35056c566ee4eca795d8bf0",
-    "materialHash": "77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8",
-    "storyFilesHash": "60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664",
-    "closureFilesHash": "sha256:571eb92834100c6d933ed389ac3cc69b3034167118117216a8fe10bd26e81181",
-    "sealDigest": "sha256:fbe2afa7e2b0a44372187c41784835477408ccc3918e9e44f2d91c51a6a01904",
+    "headHash": "66fa0f01eef32afa91c4674e92d513ee50a9db9b",
+    "materialHash": "3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c",
+    "storyFilesHash": "3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9",
+    "closureFilesHash": "sha256:917df4bf4d83d978a0e9b6f02e28ba03e87390863e675bc3329e20a72b355186",
+    "sealDigest": "sha256:9a5f10c99685aad291a949063fbd00e3fa3f129840d92619519f84fd4235b0af",
     "workspaceIdentityDigest": "sha256:3982df8a3a496488d75aa257cf83262705901996a517a2a911848309f9519ccd",
-    "signature": "1xPNpRO94KKBdPjKeauOgLLkeVEo47RYzfOkVLf5RfETUm8GZkuCrCdTeB1wRxLAvLcYTVEsBX0wLKWq60HWCg=="
+    "signature": "R0TRxlkGkIncfxcDMi3K442yyvk7Lc1VC/ePhO4AoDfpfnactQgnotANGRlL9JAm9HjxS1BQhPOueao5PQszCA=="
   }
 }
