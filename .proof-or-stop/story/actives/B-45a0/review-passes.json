@@ -7652,6 +7652,90 @@
         "scanEscalationReason": null
       },
       "_hash": "7323d43c0e9301bbc6892647d2d6c8d5c64d15262790d84a6f245916ec09a092"
+    },
+    {
+      "id": "B-45a0:RP-155",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed 110 changed exported declarations and 20 focused documentation paragraphs/sections covering the dynamic CLI contract, operations runbook, current-main characterization, enforcement evidence, navigation, and normative plan against the current implementation and configuration. The plan integrity verifier, catalog/inventory verifiers, config mode wiring, shard receipt paths, replay wrapper, and source authority boundaries are consistent; no documentation-code drift or promised-but-undelivered documentation was found.",
+      "createdAt": "2026-08-25T04:22:05.908Z",
+      "reviewRound": "2026-08-25T04:03:17.112Z",
+      "reviewRunId": "B-45a0:RR-528",
+      "envelopeId": "b0038ffa4756f9f695e0991c3a2dc223ce7219f39d464ca38f74fc118c7d31c4",
+      "writerSessionId": "sess-docs-review-20260825",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a803cc689ed21bc571051dec16573211636b4ffe32aa8c3be7a04c9489f3d429"
+    },
+    {
+      "id": "B-45a0:RP-156",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: 45/45 verification intents have passing evidence, zero waivers, and no gaps. Current topology, pre-review executable proof, signed rollout read, and enforce admission checks are passing with full-3x2 coverage and no blocking diagnostics.",
+      "createdAt": "2026-08-25T04:25:20.859Z",
+      "reviewRound": "2026-08-25T04:03:17.112Z",
+      "reviewRunId": "B-45a0:RR-530",
+      "envelopeId": "c9ee62f0d3851cb28aefe84ea174e92c0c08d5bdc2a094c48696ea62c15e1cf1",
+      "writerSessionId": "sess-review-coverage-r2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "AGENTS.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "_hash": "cf76387d2b45668872f5b5c42b920d53003fb272992fa011436bc28bd552f603"
     }
   ]
 }
