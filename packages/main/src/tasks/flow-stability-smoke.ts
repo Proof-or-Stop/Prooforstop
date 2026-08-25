@@ -4158,6 +4158,16 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
+    store.writeChecklist(storyId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Configured validation failure reaches the gate',
+        context: 'Minimal checklist required for the verifier to execute the configured failing command.',
+        status: 'done',
+        startTime: now,
+        endTime: now,
+      }],
+    });
     let stopped = false;
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
