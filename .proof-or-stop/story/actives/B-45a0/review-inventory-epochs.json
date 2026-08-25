@@ -5715,9 +5715,9 @@
       "epochId": "B-45a0:RI-065",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-25T10:16:24.136Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-25T10:20:31.766Z",
-      "updatedAt": "2026-08-25T10:35:34.670Z",
+      "updatedAt": "2026-08-25T10:40:32.588Z",
       "cutoff": {
         "headHash": "1e7128bd0ff90df3c6ac862f82a4cdfe62f5e2d4",
         "materialHash": "3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c",
@@ -5794,7 +5794,39 @@
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "db630bd50c1797b9813e75bedfdba221c45881cdbe4d876adf670f6d2125ee49"
+      "cancelledAt": "2026-08-25T10:40:32.588Z",
+      "cancelReason": "Current executable pre-review artifact is tampered/stale; reissue current evidence before certification.",
+      "terminalRunSequenceBoundary": 594,
+      "_hash": "bae1d26908c930a546653865b9659e527ce3b6df30ff95765f0322330f891cb5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-066",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T10:16:24.136Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-25T10:41:22.171Z",
+      "updatedAt": "2026-08-25T10:41:22.171Z",
+      "cutoff": {
+        "headHash": "b4c85f57b5e0466b85b3ccc0f687977d54dce0f3",
+        "materialHash": "3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c",
+        "storyFilesHash": "3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9"
+      },
+      "scopeDigest": "1854d2ce91138199aa6158ef634658067b2688eafda81fa92dd02d3dea5d5686",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 594,
+      "maxWaves": 2,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-45a0:F-311",
+        "B-45a0:F-312"
+      ],
+      "_hash": "255e1f8d67b12d8e5502e119214fb162f35e7bf25be043177a9e3e198df4f37b"
     }
   ],
   "receipts": [
