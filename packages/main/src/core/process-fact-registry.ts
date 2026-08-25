@@ -212,6 +212,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
 
 export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:agent_dispatch_role_authority_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
+  'runtime:legacy_role_alias_sunset_contract': ['runtime-behavior', 'schema-contract', 'normalization-policy'],
   'runtime:review_escalation_done_gate': ['runtime-behavior', 'host-verdict', 'host-availability', 'gate-evidence'],
   'runtime:review_assurance_floor_done_gate': ['runtime-behavior', 'host-verdict', 'host-availability', 'gate-evidence'],
   'runtime:review_run_story_files_hash_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'review-run', 'gate-evidence'],
