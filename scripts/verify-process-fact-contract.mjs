@@ -1943,7 +1943,8 @@ function assertCloseoutTrustBoundary() {
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
     // B-1e1f: lockstep with PINNED_EXECUTABLE_SOURCE_FINGERPRINTS closeout-trust-smoke.ts
     // after persistSyntheticAdmittedWindowForTest (see B-cdf6:F-057 coupling note).
-    '49af08591ff783654df81918b26db7a9be9478e0fa3655fadaeabb79e0cb6d37',
+    // B-5a15: lockstep after the closeout smoke seeded its verifier owner lease.
+    '144e824d0eb927b00b4f8be4adaee39c61c5af8d16a34878a2025199c1c8162d',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
     //
