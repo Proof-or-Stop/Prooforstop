@@ -15164,7 +15164,7 @@
       "desc": "Current verification coverage is stale: cf49cf318d changed packages/main/src/tasks/flow-stability-smoke.ts after the prior evidence capture, but all 45 verificationEvidence rows remain bound to storyFilesHash 73ab5542e384ecbc6ee53692642f4752f1f7279aa0455ca7f4088ba63d3c3521 while the current storyFilesHash is 60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664. Re-execute and refresh the affected evidence before relying on this lane for REVIEW coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-25T05:02:29.753Z",
@@ -15198,7 +15198,11 @@
         "packages/main/src/tasks/flow-stability-smoke.ts"
       ],
       "signatureTag": "missing|ts|current-verification-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All 45 verification evidence rows were re-executed and refreshed against the current material and story-files hashes; the stale coverage condition no longer applies.",
+      "resolvedAt": "2026-08-25T05:34:40.756Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
