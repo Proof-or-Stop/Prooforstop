@@ -1021,7 +1021,69 @@
             }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalReviewerLane, reviewerIdentitiesEqual } from \\\"./packages/main/dist/core/reviewer-opt-in.js\\\"; import { resolveReviewRunLane } from \\\"./packages/main/dist/core/review-run.js\\\"; assert.equal(canonicalReviewerLane(\\\"lattice-review-quality\\\"), \\\"proof-or-stop-review-quality\\\"); assert.equal(reviewerIdentitiesEqual(\\\"lattice-review-quality\\\", \\\"proof-or-stop-review-quality\\\"), true); assert.equal(resolveReviewRunLane(undefined, \\\"lattice-review-quality\\\"), \\\"proof-or-stop-review-quality\\\"); console.log(\\\"CHK-008 reviewer identity normalization: PASS\\\");\"",
+          "result": "pass",
+          "note": "Focused verifier proves canonical and legacy reviewer IDs resolve identically at the host assurance consumer boundary.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f05902a9de476281fc1523e4de04555726a3a2b0f418ede9c1035ed3a442685f",
+            "outputTail": "CHK-008 reviewer identity normalization: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:12:38.554Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:12:38.888Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalAgentRoleId } from \\\"./packages/main/dist/core/agent-role-identity.js\\\"; import { canonicalReviewerLane } from \\\"./packages/main/dist/core/reviewer-opt-in.js\\\"; assert.equal(canonicalAgentRoleId(\\\"lattice-review-quality@fallback\\\"), \\\"proof-or-stop-review-quality@fallback\\\"); assert.equal(canonicalReviewerLane(\\\"lattice-review-quality@fallback\\\"), \\\"proof-or-stop-review-quality\\\"); console.log(\\\"CHK-008 reviewer suffix compatibility: PASS\\\");\"",
+          "result": "pass",
+          "note": "Focused verifier proves scoped historical reviewer identities retain their suffix while resolving to the canonical assurance lane.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "59f150099d656f7f337b60bc0873eaff3011005a0cfa56ea15bab02348a3f72d",
+            "outputTail": "CHK-008 reviewer suffix compatibility: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:14:23.437Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:14:23.737Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalReviewerLane, reviewerIdentitiesEqual } from \\\"./packages/main/dist/core/reviewer-opt-in.js\\\"; assert.equal(canonicalReviewerLane(\\\"lattice-review-unknown\\\"), null); assert.equal(canonicalReviewerLane(\\\"proof-or-stop-review-qualityish\\\"), null); assert.equal(reviewerIdentitiesEqual(\\\"lattice-review-qualityish\\\", \\\"proof-or-stop-review-quality\\\"), false); console.log(\\\"CHK-008 reviewer boundary refusal: PASS\\\");\"",
+          "result": "pass",
+          "note": "Focused verifier rejects unregistered reviewer lookalikes from satisfying the assurance identity boundary.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "99f1ecf0d7207404859c81486e8fb4aa52e1ed4fcffe5a00a559f088281ce647",
+            "outputTail": "CHK-008 reviewer boundary refusal: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:14:26.417Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:14:26.716Z"
+        }
+      ]
     },
     {
       "id": "CHK-009",
@@ -1069,7 +1131,49 @@
             }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-009:edge:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalAgentRoleId } from \\\"./packages/main/dist/core/agent-role-identity.js\\\"; import { reviewerIdentitiesEqual } from \\\"./packages/main/dist/core/reviewer-opt-in.js\\\"; assert.equal(reviewerIdentitiesEqual(\\\"lattice-review-delivery\\\", \\\"proof-or-stop-review-delivery\\\"), true); assert.equal(canonicalAgentRoleId(\\\"lattice-review-delivery@historical\\\"), \\\"proof-or-stop-review-delivery@historical\\\"); console.log(\\\"CHK-009 delivery legacy read: PASS\\\");\"",
+          "result": "pass",
+          "note": "Focused verifier proves historical delivery identities, including scoped aliases, remain comparable to canonical evidence.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "760043caee18a33b73bc0e9091d07167afef5bc3f48571aa38bb9b81117a4457",
+            "outputTail": "CHK-009 delivery legacy read: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:14:32.468Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:14:32.785Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalReviewerLane } from \\\"./packages/main/dist/core/reviewer-opt-in.js\\\"; import { getProcessFactRegistryEntry } from \\\"./packages/main/dist/core/process-fact-registry.js\\\"; assert.equal(canonicalReviewerLane(\\\"lattice-review-delivery-unknown\\\"), null); assert.equal(canonicalReviewerLane(\\\"proof-or-stop-review-deliveryish\\\"), null); assert.equal(getProcessFactRegistryEntry(\\\"delivery_check_set\\\").reviewerLane, \\\"proof-or-stop-review-delivery\\\"); console.log(\\\"CHK-009 delivery lane boundary: PASS\\\");\"",
+          "result": "pass",
+          "note": "Focused verifier rejects delivery lookalikes while retaining the canonical delivery-check lane contract.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "19341f9a0d106ae87580321253b96a1e7b40087c617a07fe85d0b3717b101a98",
+            "outputTail": "CHK-009 delivery lane boundary: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:14:35.453Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:14:35.849Z"
+        }
+      ]
     },
     {
       "id": "CHK-010",
@@ -1117,7 +1221,49 @@
             }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-010:edge:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalAgentRoleId } from \\\"./packages/main/dist/core/agent-role-identity.js\\\"; const historical = \\\"lattice-review-quality@archived\\\"; assert.equal(canonicalAgentRoleId(historical), \\\"proof-or-stop-review-quality@archived\\\"); assert.equal(historical, \\\"lattice-review-quality@archived\\\"); console.log(\\\"CHK-010 historical alias readability: PASS\\\");\"",
+          "result": "pass",
+          "note": "Focused verifier proves a historical scoped alias is readable and is not rewritten while its canonical comparison is available.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "44704d17c8ffe9fac65198903336447b82ed88d68ef1255e98e1a21838e0b778",
+            "outputTail": "CHK-010 historical alias readability: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:14:40.517Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:14:40.858Z"
+        },
+        {
+          "intentRef": "CHK-010:adversarial:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { resolveAgentDispatchType } from \\\"./packages/main/dist/core/agent-dispatch-registry.js\\\"; for (const role of [\\\"test-intent\\\", \\\"test-case-reviewer\\\", \\\"proof-or-stop-test-intent\\\", \\\"proof-or-stop-test-case-reviewer\\\"]) assert.throws(() => resolveAgentDispatchType(role)); console.log(\\\"CHK-010 legacy PLAN dispatch refusal: PASS\\\");\"",
+          "result": "pass",
+          "note": "Focused verifier proves all legacy test-intent dispatch IDs are refused instead of silently becoming new PLAN work.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "84461e25d94bdf4b198a87796174386492d9359786d9b827570f95b9ac9735fd",
+            "outputTail": "CHK-010 legacy PLAN dispatch refusal: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:14:43.197Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:14:43.522Z"
+        }
+      ]
     },
     {
       "id": "CHK-011",
@@ -1165,7 +1311,69 @@
             }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-011:happy:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { DONE_REQUIRED_EVIDENCE_SCHEMA, DONE_REQUIRED_COMMAND_SPEC_SCHEMA, CLOSEOUT_WRITE_RECEIPT_SCHEMA, EVIDENCE_HASH_SNAPSHOT_SCHEMA } from \\\"./packages/main/dist/core/artifact-schema.js\\\"; import { getProcessFactRegistryEntry } from \\\"./packages/main/dist/core/process-fact-registry.js\\\"; assert.equal(DONE_REQUIRED_EVIDENCE_SCHEMA, \\\"proof-or-stop.done-required-evidence\\\"); assert.equal(DONE_REQUIRED_COMMAND_SPEC_SCHEMA, \\\"proof-or-stop.command-spec.v2\\\"); assert.equal(CLOSEOUT_WRITE_RECEIPT_SCHEMA, \\\"proof-or-stop.closeout_write_receipt.v3\\\"); assert.equal(EVIDENCE_HASH_SNAPSHOT_SCHEMA, \\\"proof-or-stop.evidence_hash_snapshot.v1\\\"); assert.equal(getProcessFactRegistryEntry(\\\"delivery_check_set\\\").reviewerLane, \\\"proof-or-stop-review-delivery\\\"); console.log(\\\"CHK-011 gate artifact registry: PASS\\\");\"",
+          "result": "pass",
+          "note": "Focused verifier proves canonical gate artifact schemas and the canonical delivery process fact are registered.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "36b58e564b9f4f797b70fbbba4ac5901a2c08293b0cd969e5eda6249362d3052",
+            "outputTail": "CHK-011 gate artifact registry: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:14:46.145Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:14:46.401Z"
+        },
+        {
+          "intentRef": "CHK-011:edge:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { isDoneRequiredCommandSpecSchema, isEvidenceHashSnapshotSchema, isCloseoutWriteReceiptSchema } from \\\"./packages/main/dist/core/artifact-schema.js\\\"; assert.equal(isDoneRequiredCommandSpecSchema(\\\"lattice.command-spec.v2\\\"), true); assert.equal(isEvidenceHashSnapshotSchema(\\\"lattice.evidence_hash_snapshot.v1\\\"), true); assert.equal(isCloseoutWriteReceiptSchema(\\\"lattice.closeout_write_receipt.v3\\\"), true); assert.equal(isDoneRequiredCommandSpecSchema(\\\"proof-or-stop.command-spec.v2\\\"), true); console.log(\\\"CHK-011 legacy schema read: PASS\\\");\"",
+          "result": "pass",
+          "note": "Focused verifier proves explicit historical lattice schema allowlists remain readable alongside canonical schemas.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fa85b76191b24a377bce45a3df7c6b8826eff66cd8edbb9ce1026dd7df73a5af",
+            "outputTail": "CHK-011 legacy schema read: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:14:48.368Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:14:48.620Z"
+        },
+        {
+          "intentRef": "CHK-011:adversarial:0",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { isDoneRequiredCommandSpecSchema, isEvidenceHashSnapshotSchema, isCloseoutWriteReceiptSchema } from \\\"./packages/main/dist/core/artifact-schema.js\\\"; assert.equal(isDoneRequiredCommandSpecSchema(\\\"proof-or-stop.command-spec.v99\\\"), false); assert.equal(isEvidenceHashSnapshotSchema(\\\"lattice.evidence_hash_snapshot.v99\\\"), false); assert.equal(isCloseoutWriteReceiptSchema(\\\"proof-or-stop.closeout_write_receipt.v99\\\"), false); console.log(\\\"CHK-011 unknown schema refusal: PASS\\\");\"",
+          "result": "pass",
+          "note": "Focused verifier proves unknown gate artifact schema versions are rejected rather than accepted as evidence.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b7786815a7ef31b49b1d2b98e6151f78ee19cdc041e1353155b66a46a71d3060",
+            "outputTail": "CHK-011 unknown schema refusal: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:14:51.182Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:14:51.449Z"
+        }
+      ]
     },
     {
       "id": "CHK-012",
@@ -1213,7 +1421,69 @@
             }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-012:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
+          "result": "pass",
+          "note": "Artifact migration test reads both named historical archives and verifies their signatures through supported CLI paths.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4c6f2ab921c562998de88c36d30ab74e983afa9aea553065113bf00e1a883adb",
+            "outputTail": "[0.1s] running story_get...\n[0.1s] story_get done\n[0.2s] running story_get...\n[0.2s] story_get done\n[0.2s] running init_preflight...\n[0.6s] init_preflight done\n[0.2s] running finding_list...\n[0.4s] finding_list done\nartifact-schema migration test passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:15:06.831Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:15:07.178Z"
+        },
+        {
+          "intentRef": "CHK-012:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
+          "result": "pass",
+          "note": "Artifact migration test covers era-specific archive artifacts, historical schema compatibility, and integrity-chain verification.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b397c8ac9db09e7f58dab2ed7ff5c5af18850c96abb9b5c60f934b94cb92c731",
+            "outputTail": "[0.2s] running story_get...\n[0.2s] story_get done\n[0.2s] running story_get...\n[0.2s] story_get done\n[0.1s] running init_preflight...\n[0.3s] init_preflight done\n[0.1s] running finding_list...\n[0.5s] finding_list done\nartifact-schema migration test passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:15:24.410Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:15:24.873Z"
+        },
+        {
+          "intentRef": "CHK-012:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
+          "result": "pass",
+          "note": "Artifact migration test asserts read-only archive verification and byte/signature preservation while rejecting tampered historical receipts.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d5d9716f9aec2dd5e2916105b90cd441d0729c7d9cbd7353f7e7bae824783f43",
+            "outputTail": "[0.3s] running story_get...\n[0.3s] story_get done\n[0.3s] running story_get...\n[0.3s] story_get done\n[0.2s] running init_preflight...\n[0.4s] init_preflight done\n[0.3s] running finding_list...\n[0.8s] finding_list done\nartifact-schema migration test passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:15:43.797Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:15:44.290Z"
+        }
+      ]
     }
   ],
   "auditLog": [

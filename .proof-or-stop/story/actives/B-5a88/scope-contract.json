@@ -1210,10 +1210,34 @@
         "donePrepareGeneratedMetadataSchema",
         "donePrepareValidationReuseSchema"
       ]
+    },
+    {
+      "actor": "main",
+      "reason": "These five paths are direct Story B-5a88 implementation or contract surfaces: the decision and canonical verification-intent template define the role migration, the alias-sunset helper and test implement its machine gate, and process-fact-levels registers the gate-consumed fact. They are reviewed together and do not expand into unrelated product behavior.",
+      "timestamp": "2026-08-25T13:10:34.048Z",
+      "paths": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "packages/main/src/core/legacy-role-alias-sunset.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/templates/agents/proof-or-stop-verification-intent.md",
+        "packages/main/tests/legacy-role-alias-sunset.test.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "packages/main/src/core/legacy-role-alias-sunset.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/templates/agents/proof-or-stop-verification-intent.md",
+        "packages/main/tests/legacy-role-alias-sunset.test.mjs"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+      "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-25T05:22:58.671Z",
+  "updatedAt": "2026-08-25T13:10:34.049Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1478,6 +1502,11 @@
     "packages/main/src/tasks/remote-push-approval-smoke.ts": "packages/main/src/tasks/remote-push-approval-smoke.ts",
     "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
     "packages/main/src/core/done-prepare-generated-metadata.ts": "packages/main/src/core/done-prepare-generated-metadata.ts",
-    "packages/main/src/core/done-prepare-validation-reuse.ts": "packages/main/src/core/done-prepare-validation-reuse.ts"
+    "packages/main/src/core/done-prepare-validation-reuse.ts": "packages/main/src/core/done-prepare-validation-reuse.ts",
+    "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+    "packages/main/src/core/legacy-role-alias-sunset.ts": "packages/main/src/core/legacy-role-alias-sunset.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/templates/agents/proof-or-stop-verification-intent.md": "packages/main/templates/agents/proof-or-stop-verification-intent.md",
+    "packages/main/tests/legacy-role-alias-sunset.test.mjs": "packages/main/tests/legacy-role-alias-sunset.test.mjs"
   }
 }
