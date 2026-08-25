@@ -9857,6 +9857,57 @@
       },
       "readDiagnostics": [],
       "_hash": "fbcf2b2ba533ffa23d9a3189fcbdd763de9a8fb2172df931c0a96360c5f55a43"
+    },
+    {
+      "id": "B-45a0:RP-204",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-066 wave-2 current-head test-coverage review at HEAD 99fe0b34c5a4dac42f3adec885f58d668f231432 completed. All 48 verificationEvidence rows are pass and current for materialHash 3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c and storyFilesHash 3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9. The checklist contains 48 intents, including 42 must intents, with zero must-gaps and zero waivers. Current verifier-owned acceptance_topology_check (structuralPass true), acceptance_rollout_report_read (pass, current receipt, full-3x2 quorum), and acceptance_rollout_check (pass, non-blocking) are covered. The live pre_review_check_read is executable and current but reports PR_ARTIFACT_TAMPERED with blocking false; this is the existing F-313 baseline finding, not a new coverage family. Existing verified F-298 (Wave 4 acceptance breadth), F-299 (plan-only replay assurance), and F-304 (superseded stale-coverage record) remain open; this wave-2 lane added no duplicate finding.",
+      "createdAt": "2026-08-25T11:06:28.423Z",
+      "reviewRound": "2026-08-25T10:16:24.136Z",
+      "reviewRunId": "B-45a0:RR-602",
+      "envelopeId": "d1de269a018dccde20edf42a4f84634cc5fa72c2fb99664230d0fe60035e77d0",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2358ecd5eadbe092d870a323f3facc2a2066a0af1ac2caa0d7686c6b755798a6"
+      },
+      "readDiagnostics": [],
+      "_hash": "01bf0653f53b49fe8cdc5a0c70a96b4e6e23f1712b257dd1006053a8ec216a17"
     }
   ]
 }
