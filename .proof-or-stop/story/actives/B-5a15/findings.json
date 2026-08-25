@@ -14433,7 +14433,7 @@
       "desc": "same-family:B-5a15:F-273: packages/main/src/core/causal-evidence.ts:369-380 [high] TRANSPORT_ENV_KEY drops every environment key matching .*SESSION(?:_ID)? from effectiveEnvironment before hashing, but effectiveValidationCommandEnvironment strips only its explicit transport allowlist and passes arbitrary SESSION_* variables to the child; a command whose behavior depends on SESSION_MODE or SESSION_FEATURE can replay a receipt under a changed child environment with the same execution key, violating CHK-001 exact effective-environment binding. Add a regression test for a behavior-affecting SESSION_* variable.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-24T16:13:33.490Z",
@@ -14471,7 +14471,11 @@
       "readDiagnostics": [],
       "_hash": "386cdde3c959d526fe521e2553306010db858b4bb04640567cd607b8a6fa6327",
       "signatureTag": "adversarial|unknown|same-family-5a15",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:39:58.724Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-275",
