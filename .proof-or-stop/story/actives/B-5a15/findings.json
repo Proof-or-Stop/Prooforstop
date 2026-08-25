@@ -14278,7 +14278,7 @@
       "desc": ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json:1; packages/main/src/core/acceptance-discovery-adapters.ts:1287 [high] RI-031 wave 2 cannot admit a quality pass: acceptance_rollout_report_read and acceptance_rollout_check both return blocking AR_REPORT_STALE, pre_review_check_read returns PR_ARTIFACT_TAMPERED, and acceptance_topology_check returns AT_ADAPTER_RESULT_DIGEST_MISMATCH plus AT_CLOSURE_FILES_STALE. There is no current signed PASS receipt proving the required full 3 rounds x 2 hosts and mode-invariant gate state; verifier-owned acceptance evidence must be refreshed before relying on this review.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-24T15:18:10.537Z",
@@ -14309,7 +14309,11 @@
       "readDiagnostics": [],
       "_hash": "d7bd22ded7712bd656de24fb21f452878b7fcacfe4ca41c59b0088ded4c2f811",
       "signatureTag": "missing|unknown|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:39:43.383Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-272",
