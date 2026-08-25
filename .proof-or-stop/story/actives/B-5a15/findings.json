@@ -13280,7 +13280,7 @@
       "desc": "CHK-005:happy:1 has a current intent/evidence mismatch: the authored verificationIntent requires the metrics block to report commitFailureReruns=0 after an import failure and retry, but packages/main/tests/causal-evidence.test.mjs:1821-1828 asserts importRetryMetrics.commitFailureReruns === 1 and its selector only says the transaction retry is counted separately. The current passing evidence therefore proves commandReruns=0 and receiptHash stability, but does not cover the authored commitFailureReruns=0 claim; align the intent and test semantics, then re-record this intent evidence.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T07:13:10.469Z",
@@ -13320,7 +13320,11 @@
         "packages/main/src/core/causal-evidence.ts"
       ],
       "signatureTag": "missing|mjs|happy-current-intent",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:37:33.321Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-249",
