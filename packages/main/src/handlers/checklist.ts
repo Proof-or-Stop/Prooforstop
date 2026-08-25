@@ -2687,6 +2687,22 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // async; the write body is synchronous). Only a real mechanical pass records a
       // stamp; every failure path leaves the key absent so the write demotes the row.
       const reexecByKey = new Map<string, ReexecStamp>();
+      // B-5a15: identical pinned commands share one immutable execution result during
+      // a refresh, while enforceAndStampEvidence still evaluates each intent's own
+      // selector and stamps its own receipt. This preserves selector independence
+      // without rerunning the same command once per stale intent.
+      const commandResults = new Map<string, Promise<SingleCommandExecutionResult>>();
+      const runCommand: SingleCommandRunner = (command, cwd, timeoutMs) => {
+        const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
+        const key = JSON.stringify({ command, cwd, timeoutMs: effectiveTimeoutMs });
+        const existing = commandResults.get(key);
+        if (existing) return existing;
+        const result = runSingleAllowlistedCommand(
+          command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
+        );
+        commandResults.set(key, result);
+        return result;
+      };
       if (!args.dryRun) {
         for (const entry of computed.stale) {
           const item = computed.cl.items.find(i => i.id === entry.itemId);
@@ -2718,12 +2734,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
                   : {}),
               },
               {
-                runCommand: (command, cwd, timeoutMs) => {
-                  const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
-                  return runSingleAllowlistedCommand(
-                    command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
-                  );
-                },
+                runCommand,
                 preflightFacts: causalPreflightFactsFor(args.storyId, computed.refreshGitCwd),
                 cwd: computed.refreshGitCwd,
                 storyId: args.storyId,
