@@ -14118,7 +14118,7 @@
       "desc": "The current verifier-derived acceptance basis is not admissible for RI-031: proof-or-stop acceptance_basis --storyId=B-5a15 --json reports status=invalid with receiptVerification.ok=false, code AT_ADAPTER_RESULT_DIGEST_MISMATCH, basis semantic discovery digest mismatch, closure files hash mismatch, snapshot seal digest mismatch, and a freshness mismatch for story-owned files. The basis is therefore stale or tampered and cannot support a topology/completeness pass until regenerated and reverified.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-24T15:05:27.560Z",
@@ -14154,7 +14154,11 @@
         "packages/main/src/core/acceptance-discovery-adapters.ts"
       ],
       "signatureTag": "same-family:B-5a15:F-003",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:39:29.051Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-269",
