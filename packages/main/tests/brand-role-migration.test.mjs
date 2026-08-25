@@ -90,6 +90,11 @@ assert.equal(
   true,
   'registered canonical and legacy reviewer identities still compare equal',
 );
+assert.equal(
+  reviewerOptIn.reviewerIdentitiesEqual('proof-or-stop-review-quality@fallback', 'lattice-review-quality@fallback'),
+  true,
+  'registered canonical and legacy scoped reviewer identities still compare equal',
+);
 assert.equal(dispatch.resolveAgentDispatchType('lattice-review-concept').canonicalType, 'proof-or-stop-review-concept');
 assert.equal(dispatch.resolveAgentDispatchType('lattice-review-test-coverage').canonicalType, 'proof-or-stop-review-test-coverage');
 assert.deepEqual(identity.legacyAgentRoleIds('proof-or-stop-implementer'), ['lattice-implementer']);
