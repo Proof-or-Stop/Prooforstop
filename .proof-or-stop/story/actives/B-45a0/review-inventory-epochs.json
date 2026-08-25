@@ -5686,9 +5686,9 @@
       "epochId": "B-45a0:RI-064",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-25T08:55:38.978Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-25T08:59:33.611Z",
-      "updatedAt": "2026-08-25T08:59:33.611Z",
+      "updatedAt": "2026-08-25T10:20:26.011Z",
       "cutoff": {
         "headHash": "45c4029402c2bda5319ee3126858db5f7348af47",
         "materialHash": "3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c",
@@ -5705,7 +5705,36 @@
       "maxWaves": 2,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "ed585c33e89386229c028e5d94f7f5438b82f2a21938a09ab57b6270eccb2f5e"
+      "cancelledAt": "2026-08-25T10:20:26.011Z",
+      "cancelReason": "RI-064 is bound to the prior REVIEW round after TEST rollback; its critic run cannot bind current-round evidence, so open it afresh for the current material and review round.",
+      "terminalRunSequenceBoundary": 587,
+      "_hash": "22af548deef1f03d10a7da4c82b80fcffa7456eddc7db7437a8b55c186036fdd"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-065",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T10:16:24.136Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-25T10:20:31.766Z",
+      "updatedAt": "2026-08-25T10:20:31.766Z",
+      "cutoff": {
+        "headHash": "1e7128bd0ff90df3c6ac862f82a4cdfe62f5e2d4",
+        "materialHash": "3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c",
+        "storyFilesHash": "3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9"
+      },
+      "scopeDigest": "1854d2ce91138199aa6158ef634658067b2688eafda81fa92dd02d3dea5d5686",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 587,
+      "maxWaves": 2,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "2759be28c789ee10ba0e1cdd32e14a9855ea12a144d0b246d5d8291344fd9568"
     }
   ],
   "receipts": [
