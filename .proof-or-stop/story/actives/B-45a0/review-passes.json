@@ -10485,6 +10485,59 @@
         "scanEscalationReason": "none"
       },
       "_hash": "8aa89d53605f06be6938475b3626972a2d738b20dd274d4662959b046fa3da20"
+    },
+    {
+      "id": "B-45a0:RP-214",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-068 wave-2 test-coverage review passed at current scope. Reviewed 48 verification intents, including 42 must intents; all 48 have passing concrete verificationEvidence, with 0 failing evidence, 0 waivers, and 0 coverage gaps. CHK-014 has executable acceptance-gate evidence, including current signed receipt/rollout coverage; existing assurance findings F-299, F-310, and F-311 are preserved without duplication.",
+      "createdAt": "2026-08-25T11:55:01.892Z",
+      "reviewRound": "2026-08-25T11:14:59.492Z",
+      "reviewRunId": "B-45a0:RR-619",
+      "envelopeId": "2df64b52c7beea7ee1f7d23658384704b945d4583c2a625939723333f20fdd8b",
+      "writerSessionId": "sess-review-coverage-wave2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": "none"
+      },
+      "_hash": "1f096e6f11300c1c417fca681dfa6dd2c17c4e58a09dcb255d41e4ea1ecbf666"
     }
   ]
 }
