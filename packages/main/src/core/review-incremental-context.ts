@@ -38,7 +38,7 @@ import {
 } from './evidence-freshness.js';
 import { verifyReviewPass } from './finding-verify.js';
 import { verifyReviewRun } from './review-run.js';
-import { canonicalAgentRoleId } from './agent-role-identity.js';
+import { agentRoleIdsEqual, canonicalAgentRoleId } from './agent-role-identity.js';
 import { readGitBlobAt, type GitBlobReadResult } from './git-blob-reader.js';
 import {
   classifyImpact,
@@ -593,10 +593,10 @@ function latestTrustedPriorPass(
     // pass created in the same millisecond as run.startedAt could otherwise be
     // observed by assembly and rejected by verifier, creating an ABA race.
     if (Number.isFinite(cutoff) && passTime >= cutoff) continue;
-    if (pass.agent !== role || !verifyReviewPass(storyId, pass) || !pass.reviewRunId) continue;
+    if (!agentRoleIdsEqual(pass.agent, role) || !verifyReviewPass(storyId, pass) || !pass.reviewRunId) continue;
     if (pass.reviewRunId === excludedReviewRunId) continue;
     const run = runs.find(candidate => candidate.reviewRunId === pass.reviewRunId);
-    if (!run || run.lane !== role || !verifyReviewRun(run)) continue;
+    if (!run || !agentRoleIdsEqual(run.lane, role) || !verifyReviewRun(run)) continue;
     if (!run.envelopeId || pass.envelopeId !== run.envelopeId || !run.assembledPrompt) continue;
     const envelopes = (promptEnvelopes ?? store.readPromptEnvelopes(storyId).envelopes).filter(
       envelope => envelope.envelopeId === run.envelopeId,
@@ -606,8 +606,8 @@ function latestTrustedPriorPass(
     if (!verifyPromptEnvelopeIntegrity(envelope)) continue;
     if (
       envelope.storyId !== storyId
-      || envelope.roleId !== role
-      || envelope.lane !== role
+      || !agentRoleIdsEqual(envelope.roleId, role)
+      || !agentRoleIdsEqual(envelope.lane, role)
       || envelope.reviewRunId !== run.reviewRunId
       || envelope.reviewRound !== run.reviewRound
       || envelope.headHash !== run.headHash

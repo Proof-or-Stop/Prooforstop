@@ -16,6 +16,7 @@ import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, curr
 import { closeoutArtifactPolicyFor, readCloseoutWriteReceipts } from '../core/closeout-trust.js';
 import { verifyReviewRun } from '../core/review-run.js';
 import { verifyReviewPass } from '../core/finding-verify.js';
+import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 import type { ProcessEvent } from '../core/types.js';
 import { formatValidationProgressEvent } from '../core/validation-executor.js';
 import { buildVerificationCoverage } from '../core/verification.js';
@@ -1541,7 +1542,7 @@ export function collectDonePrepareConvergenceFacts(
         return false;
       }
       const run = pass.reviewRunId ? runsById.get(pass.reviewRunId) : undefined;
-      return Boolean(run && pass.agent === run.agent);
+      return Boolean(run && agentRoleIdsEqual(pass.agent, run.agent));
     })
     .sort((left, right) => (
       left.createdAt.localeCompare(right.createdAt)

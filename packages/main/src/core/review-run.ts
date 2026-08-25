@@ -765,7 +765,7 @@ export function verifyReviewRunPromptEnvelope(
   }
   const envelope = matching[0];
   if (!verifyPromptEnvelopeIntegrity(envelope)) return { ok: false, reason: 'Prompt Envelope integrity verification failed' };
-  if (envelope.roleId !== run.lane) {
+  if (!agentRoleIdsEqual(envelope.roleId, run.lane)) {
     return { ok: false, reason: 'Prompt Envelope roleId does not match the signed ReviewRun lane' };
   }
   if (!run.assembledPrompt) {
@@ -894,7 +894,7 @@ export function verifyReviewRunPromptEnvelope(
     && envelope.storyId === run.storyId
     && envelope.reviewRunId === run.reviewRunId
     && envelope.reviewRound === run.reviewRound
-    && envelope.lane === run.lane
+    && agentRoleIdsEqual(envelope.lane, run.lane)
     && envelope.headHash === run.headHash
     && envelope.materialHash === run.materialHash
     && envelope.storyFilesHash === run.storyFilesHash;
@@ -914,7 +914,7 @@ function compareRunRecency(a: ReviewRun, b: ReviewRun): number {
 
 function currentRunForLane(runs: ReviewRun[], lane: string, reviewRound: string): ReviewRun | null {
   const current = runs
-    .filter(run => verifyReviewRun(run) && run.lane === lane && run.reviewRound === reviewRound)
+    .filter(run => verifyReviewRun(run) && agentRoleIdsEqual(run.lane, lane) && run.reviewRound === reviewRound)
     .sort(compareRunRecency);
   return current.length > 0 ? current[current.length - 1] : null;
 }
@@ -1314,7 +1314,7 @@ export function assertCurrentReviewRunForEvidence(
   if (!envelopeVerification.ok) {
     throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} has invalid Prompt Envelope: ${envelopeVerification.reason}`);
   }
-  if (run.lane !== agent) {
+  if (!agentRoleIdsEqual(run.lane, agent)) {
     throw new Error(`review evidence agent=${agent} does not match lane=${run.lane} of reviewRunId ${reviewRunId}. ${startRunHint(story.storyId, agent)}`);
   }
   if (run.reviewRound !== story.currentReviewRound) {
@@ -1733,7 +1733,7 @@ export function collectReviewerEvidenceState(
     ) return false;
     const invalidEvidence = evidenceById.get(issue.evidenceId);
     const hasNewerValidEvidence = Boolean(invalidEvidence) && valid.some(evidence =>
-      evidence.agent === issue.agent
+      agentRoleIdsEqual(evidence.agent, issue.agent)
       && evidenceCreatedAt(evidence) > evidenceCreatedAt(invalidEvidence!));
     if (!hasNewerValidEvidence) return true;
     if (issue.kind === 'pass') return false;
