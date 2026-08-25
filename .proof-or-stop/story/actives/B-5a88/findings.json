@@ -17981,7 +17981,7 @@
       "desc": "High: fresh pre-review evidence is not admissible for the current inventory. `.proof-or-stop/story/actives/B-5a88/pre-review-check.json:1` is rejected by `pre_review_check_read` with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. The artifact must be discarded and reissued through the verifier-owned `pre_review_check` command after recapturing current executable proof; the current acceptance rollout receipt is fresh, but it does not substitute for the missing pre-review proof.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-24T18:22:00.710Z",
@@ -18044,7 +18044,11 @@
         "packages/main/src/core/pre-review-check.ts:415-441"
       ],
       "signatureTag": "missing|json:1|high-fresh-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of the newer canonical evidence-binding blocker B-5a88:F-416. Both findings require discarding stale pre-review evidence and regenerating verifier-owned artifacts after the scope-contract update; retain F-416 as the current authoritative blocker.",
+      "resolvedAt": "2026-08-25T00:40:16.354Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-408",
