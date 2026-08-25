@@ -10483,6 +10483,37 @@
       ],
       "createdAt": "2026-08-25T18:03:08.721Z",
       "_hash": "c85ac018543d122cb89191770a2ae94780f384e2af1eb69ff71509c1fa4b78da"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-074:CRIT-02",
+      "epochId": "B-45a0:RI-074",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T17:38:08.671Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "9d1fc3488a963915c70b1f02f2ea6eee5d7e7fb2",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84"
+      },
+      "aggregateFindingSetDigest": "796a34fadfefaebcd4c005d835b57bda8c8ea1119c8dea247b14fd1077f10e9b",
+      "requiredLaneCoverageDigest": "a2d0127a5f5cd638da0f1a03fc04d1acfa8cb14d46da994d415c2b24fea4804e",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-669",
+      "terminalEvidenceIds": [
+        "B-45a0:F-329"
+      ],
+      "readEvidenceDigest": "e8d5c76efe2b1a85cb867942638c52257950593eb161fa5c8dcbf8bf0c6f3f67",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-328",
+          "disposition": "verified_family",
+          "familyKey": "ri074-current-acceptance-topology-coverage",
+          "reason": "Current wave-2 topology evidence independently confirms F-328: acceptance topology is only structural and diagnostic, not evidentiary, while pre-review remains invalid. Preserve this verified high finding family and block finalization until verifier-owned current-head evidence is admissible."
+        }
+      ],
+      "createdAt": "2026-08-25T18:22:59.308Z",
+      "_hash": "7b160eb67074bd638231df40dd329a0ac46c76dfe9ed166d2b916a9b2b980b36"
     }
   ]
 }
