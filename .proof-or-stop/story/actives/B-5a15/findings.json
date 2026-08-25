@@ -13355,7 +13355,7 @@
       "desc": "packages/main/src/handlers/verifier.ts:1781 — the validate.ts/js/mts path calls runValidateFile() directly, while createValidationCausalPreflightGate is wired only to executeValidationPlan at lines 1640-1653. A story-scoped validation run can therefore launch without the CLI/worktree/index/lease/capability/resource/evidence-target preflight or beforeLaunch revalidation, bypassing CHK-004 no-lower-level-child-bypass contract and allowing an expensive child to run when preflight must refuse.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-24T09:45:02.587Z",
@@ -13363,7 +13363,11 @@
       "reviewRunId": "B-5a15:RR-437",
       "_hash": "a14c4e1cf6057c8a86ce55b035fa25739ba17718d28226f5e16379f4e107927e",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:37:51.783Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-251",
