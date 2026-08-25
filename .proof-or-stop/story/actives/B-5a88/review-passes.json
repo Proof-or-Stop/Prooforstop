@@ -16831,6 +16831,53 @@
       },
       "readDiagnostics": [],
       "_hash": "467dfc13a302283b82ced142c62009d5e88d5d92ad054889233fb03d9d2164d6"
+    },
+    {
+      "id": "B-5a88:RP-270",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept review completed at the signed RR-707 cutoff. Reviewed the Story background, plan, checklist, identity-migration decisions, and the repository concept residue relevant to CHK-001/CHK-002/CHK-005/CHK-006/CHK-007. Inspected the F-417 implementation in packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts and the canonical reviewer-launch producer in packages/main/src/handlers/transition-effects.ts. The F-417-specific smoke assertion now passes and the active producer emits proof-or-stop-review-* IDs; remaining explicit lattice-* occurrences are bounded legacy-read compatibility, historical evidence, frozen salts, or test fixtures. No new concept finding is warranted. F-416, F-345, and F-389 remain evidence-owned blockers; F-415 was not recreated. The focused smoke still has four pre-existing golden/error-injection baseline failures unrelated to this rename fix, so this PASS does not claim that whole command is green.",
+      "createdAt": "2026-08-25T01:25:24.946Z",
+      "reviewRound": "2026-08-25T01:19:40.773Z",
+      "reviewRunId": "B-5a88:RR-707",
+      "envelopeId": "74695b81b51e32bfcc7589c73159e6205ba785760a11db2b7497efe74186cd59",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/templates/agents/",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/utils/package.json",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": "Story-wide identity migration required a bounded repository residue scan and direct inspection of the changed smoke and canonical producer; no source or test files were modified."
+      },
+      "_hash": "bef77d8c93371a4f9cbff452b5ebafcc7822202b37edc0a1bc2f7be02fb593c9"
     }
   ]
 }
