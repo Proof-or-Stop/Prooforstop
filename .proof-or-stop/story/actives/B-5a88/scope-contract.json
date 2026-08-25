@@ -1168,10 +1168,30 @@
         "CHK_004",
         "remote_push_approval_schema_migration"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This smoke path is the focused acceptance surface for F-417 and is required to verify that active reviewer launch hints use canonical proof-or-stop IDs while legacy-read compatibility remains intentional.",
+      "timestamp": "2026-08-25T01:17:02.663Z",
+      "paths": [
+        "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "df88996383444895aecdbf3642def62477e2aadb",
+      "materialHash": "d96aec0b146949b24b00ba9ce83385097b7f445de885617793aa7d1909b926a2",
+      "anchors": [
+        "F_417",
+        "experience_layer_review_dispatch_hint"
+      ]
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-25T00:23:54.738Z",
+  "updatedAt": "2026-08-25T01:17:02.663Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1433,6 +1453,7 @@
     "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
     "packages/main/src/tasks/observability-snapshot-smoke.ts": "packages/main/src/tasks/observability-snapshot-smoke.ts",
     "packages/main/src/tasks/review-assurance-surfacing-smoke.ts": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
-    "packages/main/src/tasks/remote-push-approval-smoke.ts": "packages/main/src/tasks/remote-push-approval-smoke.ts"
+    "packages/main/src/tasks/remote-push-approval-smoke.ts": "packages/main/src/tasks/remote-push-approval-smoke.ts",
+    "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts"
   }
 }
