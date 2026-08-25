@@ -15360,6 +15360,53 @@
       ],
       "signatureTag": "doc-code-drift|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-301",
+      "desc": "quality-review-assurance: .proof-or-stop/story/actives/B-45a0/review-runs.json:1 at current material 77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8 reports fullQuorum with 0/3 valid rounds because every codex-cli/claude-cli verdict is stale, proof_admissibility=signature_invalid, and no degraded fallback record is present. Wave-4 REVIEW/DONE cannot consume a current signed PASS with genuine 3 rounds x 2 independent hosts; this is distinct from F-298 acceptance coverage, F-299 replay assurance, and F-300 documentation drift.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T06:18:55.326Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-549",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Scoped quality review read the Story-aware dynamic-validation decision records and verifier/review-assurance implementation; no repository-wide decision-document scan was performed."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": 19200
+        },
+        "digest": "e4a751430bbc133733f7ac346464f464f35f8fbc766ad6f25e7c9d7af3c2b81f"
+      },
+      "readDiagnostics": [],
+      "_hash": "c9d1d3be30e79cfbd11f33d7cea8ce36698b84f0d1889eb9cf30f45286e9f743",
+      "signatureTag": "missing|unknown|quality-review-assurance",
+      "signatureTagSource": "auto"
     }
   ]
 }
