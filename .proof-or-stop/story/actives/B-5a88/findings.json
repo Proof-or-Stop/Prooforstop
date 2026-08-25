@@ -16718,7 +16718,7 @@
       "desc": "Wave 4 coverage boundary: the current checklist evidence contains no executable receipt for acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check. It also lacks evidence for the current signed receipt, genuine full 3 rounds x 2 hosts (codex-cli plus claude-cli), degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics with enforce-only blocking, and non-destructive rollback history. A CLI help listing of pre_review_check_read is prompt/prose output, not executable verifier evidence; add real current receipts covering these cases before declaring the coverage lane complete.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-24T10:24:31.751Z",
@@ -16732,7 +16732,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "missing|ts|wave-coverage-boundary",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Closed by the current verifier-owned Wave-4 evidence. acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check are current PASS receipts; the pre-review receipt is receipt:coverage-basis:B-5a88:pre_review:2ed00b93fe5ec77f with executable proof, biting mutations, restored controls, and related live transcript. Current coverage review RP-279 records 21/21 must intents and 21/21 evidence PASS, while the current full-3x2 rollout has six eligible pairs, three rounds x two hosts, all three registered seeds detected, zero false pass/block, and current membership/freshness diagnostics. The former Wave-4 coverage boundary is therefore closed by actual verifier receipts, not help text.",
+      "resolvedAt": "2026-08-25T02:14:54.163Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-390",
