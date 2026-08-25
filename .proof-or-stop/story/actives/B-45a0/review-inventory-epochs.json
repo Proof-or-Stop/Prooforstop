@@ -6949,9 +6949,9 @@
       "epochId": "B-45a0:RIE-086",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-25T18:51:15.542Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-25T19:47:26.375Z",
-      "updatedAt": "2026-08-25T19:47:26.375Z",
+      "updatedAt": "2026-08-25T19:49:35.642Z",
       "cutoff": {
         "headHash": "d3585f30e12c711440242802d9ca504755fa0076",
         "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
@@ -6962,7 +6962,30 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-45a0:RIE-086:RCP-001",
-      "_hash": "b73aa76b85313ba4355dc040b6bdbcc7cfa7270ce30a32afb3fa8b45dd247a34"
+      "cancelledAt": "2026-08-25T19:49:35.642Z",
+      "cancelReason": "Invalidate receipt whose subject changed due lifecycle metadata; retry immediate receipt consumption before committing metadata.",
+      "terminalRunSequenceBoundary": 694,
+      "_hash": "1771d80e627f5c4d417ac7a3424e92f52b44417d9736d967508c870a0fdbfc97"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RIE-087",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T18:51:15.542Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-25T19:49:38.797Z",
+      "updatedAt": "2026-08-25T19:49:38.797Z",
+      "cutoff": {
+        "headHash": "0d1a1b45b48028ea6ebd10a3ff70b4049d6cca6a",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84"
+      },
+      "scopeDigest": "e31cf78fa8946c5f35510327b1e900dec1c8b8570219c57d48df81d205cd8b5b",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-45a0:RIE-087:RCP-001",
+      "_hash": "c3ece1b59043796541ea1f38f24c8ef0ce7d9c009b9c8c145c5f31cac48bb8de"
     }
   ],
   "receipts": [
@@ -7793,7 +7816,31 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-25T19:47:26.375Z",
-      "_hash": "2a9907656f8fd5ddcae563258a23c59ffb7fd61541df863364eac26f5ccd0ff1"
+      "invalidatedAt": "2026-08-25T19:49:35.642Z",
+      "invalidationReason": "Invalidate receipt whose subject changed due lifecycle metadata; retry immediate receipt consumption before committing metadata.",
+      "_hash": "d8df163e59d0fe0fc01be93347a18cd8c15d03d6b275fe6b1f92a9c8ebd5f3e4"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-45a0:RIE-087:RCP-001",
+      "epochId": "B-45a0:RIE-087",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T18:51:15.542Z",
+      "cutoff": {
+        "headHash": "0d1a1b45b48028ea6ebd10a3ff70b4049d6cca6a",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84"
+      },
+      "scopeDigest": "e31cf78fa8946c5f35510327b1e900dec1c8b8570219c57d48df81d205cd8b5b",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-25T19:49:38.797Z",
+      "_hash": "1d7097927cc5a82e23da7e0b5be0ce87f05ceda0185928f29e8c5d0ff7d1e75f"
     }
   ],
   "criticReceipts": [

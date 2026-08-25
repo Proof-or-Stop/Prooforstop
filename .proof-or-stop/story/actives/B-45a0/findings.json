@@ -17608,7 +17608,7 @@
       "desc": "RI-076 test-coverage review requests changes: CHK-014 acceptance_rollout_check is current and passes with full-3x2 authority, but the verifier-owned pre_review_check_read returns status=fail, ok=false, and PR_ARTIFACT_TAMPERED, even though executableEvidence=current and authority=admissible. The current pre-review artifact is therefore not admissible evidence for the Wave 4 acceptance contract; reissue it through proof-or-stop pre_review_check before claiming complete current-head acceptance coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-25T18:55:08.039Z",
@@ -17717,14 +17717,18 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "ri076-current-pre-review-artifact-tamper",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded by current coverage finding B-45a0:F-335 bound to RR-689; the PR_ARTIFACT_TAMPERED family remains open.",
+      "resolvedAt": "2026-08-25T20:05:29.093Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-332",
       "desc": "RI-076 topology critic requests changes: acceptance_topology_check remains structuralPass=true but evidentiary=false and diagnostic_only; acceptance_rollout_report_read and acceptance_rollout_check are current full-3x2 PASS, but pre_review_check_read is status=fail, ok=false with PR_ARTIFACT_TAMPERED. The topology cannot be self-passed while verifier-owned pre-review evidence is tampered; reissue it through proof-or-stop pre_review_check.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-25T19:03:05.260Z",
@@ -17833,14 +17837,18 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "ri076-current-pre-review-artifact-tamper",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded by current topology finding B-45a0:F-337 bound to RR-694; the PR_ARTIFACT_TAMPERED family remains open.",
+      "resolvedAt": "2026-08-25T20:05:35.607Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-333",
       "desc": "RI-076 wave 2 test-coverage review re-attests the unresolved F-331/F-332 acceptance evidence gap: current checklist coverage remains complete, acceptance_rollout_check is current full-3x2 PASS, but pre_review_check_read still returns status=fail, ok=false, PR_ARTIFACT_TAMPERED. F-331 and F-332 therefore remain verified blockers; reissue the verifier-owned pre-review artifact through proof-or-stop pre_review_check before claiming Wave 4 coverage is admissible.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-25T19:08:03.704Z",
@@ -17949,14 +17957,18 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "ri076-current-pre-review-artifact-tamper",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded by current coverage finding B-45a0:F-335 bound to RR-689; the PR_ARTIFACT_TAMPERED family remains open.",
+      "resolvedAt": "2026-08-25T20:05:32.303Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-334",
       "desc": "RI-076 wave 2 topology critic requests changes and re-attests F-331/F-332/F-333: acceptance_topology_check remains structuralPass=true but evidentiary=false and diagnostic_only; acceptance_rollout_report_read and acceptance_rollout_check are current full-3x2 PASS, but pre_review_check_read remains status=fail, ok=false with PR_ARTIFACT_TAMPERED. The verifier-owned pre-review artifact must be reissued through proof-or-stop pre_review_check before topology or Wave 4 acceptance can be self-passed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-25T19:14:32.633Z",
@@ -18065,7 +18077,11 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "ri076-current-pre-review-artifact-tamper",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded by current topology finding B-45a0:F-337 bound to RR-694; the PR_ARTIFACT_TAMPERED family remains open.",
+      "resolvedAt": "2026-08-25T20:05:38.833Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-335",
