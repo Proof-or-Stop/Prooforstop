@@ -13511,7 +13511,7 @@
       "desc": "The RR-446 terminal pass has no non-empty mechanical read manifest, so RI-027 wave 2 cannot yet receive an authoritative completeness-critic binding.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-24T10:19:43.677Z",
@@ -13541,7 +13541,11 @@
         ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json"
       ],
       "signatureTag": "missing|json|terminal-pass-empty",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:38:17.270Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-255",
