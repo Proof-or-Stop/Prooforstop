@@ -8537,6 +8537,72 @@
       },
       "readDiagnostics": [],
       "_hash": "8ab115c6eb66bc3fc971865a5499923d1955a2bbaa9e5f64f331019ce0f4816e"
+    },
+    {
+      "id": "B-45a0:RP-175",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: the current delta only seeds the minimal checklist needed to execute the configured validation-failure gate; the fixture remains isolated, typed, and fail-closed, and the package build passes with no dead-code, type-safety, I/O-isolation, or proof-metadata blocker.",
+      "createdAt": "2026-08-25T06:48:21.082Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-559",
+      "envelopeId": "19c7db0f7ef837952aea23a6b0f207fe958af02384ff23dc0802228b28bef82b",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f91558428927d9a9d6944632139263149e3fb3bc77c54c3e05c93cf21354be3b"
+    },
+    {
+      "id": "B-45a0:RP-176",
+      "agent": "lattice-review-concept",
+      "note": "RI-061 wave-2 concept re-attestation completed for the current implementation. The diff adds the story-aware dynamic-validation program and does not delete or replace a repository concept; repository-wide residue checks found no incomplete concept cleanup. The canonical acceptance checks were inspected: topology is structurally complete but diagnostic-only/inconclusive, the current pre-review read remains non-pass, and rollout report/check is current PASS with genuine full-3x2 and the acceptance rollout smoke covers mode-invariant diagnostics and rollback history. Existing acceptance/replay/quality/documentation finding families (including F-298, F-299, F-300, F-302, F-303, and F-304 if present) remain the appropriate blockers and are not duplicated; this pass does not claim those families resolved.",
+      "createdAt": "2026-08-25T06:54:28.954Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-561",
+      "envelopeId": "3594d39554b1da5508fafb653e93b6b5d2af23ef64d9ea9cfffe47406054c73d",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "_hash": "a70f1b5ebf0d74a4a413cef83d355cb6ad7915dafe4b8478535baf0f2cbe3ef9"
     }
   ]
 }
