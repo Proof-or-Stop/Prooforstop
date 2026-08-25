@@ -303,10 +303,30 @@
       "phase": "DEV",
       "headHash": "fbb728a4cc1c83f222a03b096f118cb27f9223d2",
       "materialHash": "e2d0d37bb659048bbabf951c0188779242b9edf3af60619ea5d9a3dcf7335a44"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This focused smoke fixture must seed the checklist required for the configured validation-failure path; the change is a necessary test-contract correction for this story.",
+      "timestamp": "2026-08-25T04:59:01.222Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6d1c5b7a98fed2bc6dc4a8ae27e596e7585f2bb0",
+      "materialHash": "77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8",
+      "anchors": [
+        "flow_stability_smoke",
+        "runValidateGate"
+      ]
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-24T18:13:56.625Z",
+  "updatedAt": "2026-08-25T04:59:01.222Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -382,6 +402,7 @@
     "packages/main/src/handlers/live-smoke-transcript.ts": "packages/main/src/handlers/live-smoke-transcript.ts",
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
     "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts",
-    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts"
   }
 }
