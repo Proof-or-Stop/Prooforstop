@@ -8280,6 +8280,55 @@
       },
       "readDiagnostics": [],
       "_hash": "c1371ee5a476c7ec35a32f5d6ce85ea3f180e3493c0e3cb449b801c4668dc399"
+    },
+    {
+      "id": "B-45a0:RP-169",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-060 wave-3 current-head coverage re-attestation completed at the current wave boundary. The 45 checklist evidence rows remain current for materialHash 77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8 and storyFilesHash 60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664. Existing verified coverage families F-298 (verifier-owned acceptance evidence) and F-299 (plan-only replay assurance) remain open and unchanged; no new coverage family was found, so no duplicate finding was created. Existing findings remain blockers for critic disposition.",
+      "createdAt": "2026-08-25T06:24:05.288Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-552",
+      "envelopeId": "12c899dcf471f39aba8960293be02f16f49a18837d0a7d04201f7e5efcc9af0d",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2358ecd5eadbe092d870a323f3facc2a2066a0af1ac2caa0d7686c6b755798a6"
+      },
+      "readDiagnostics": [],
+      "_hash": "0c7daba62528a12932b89ce4606510a5b9b7040402bb1138dfb80b7873657009"
     }
   ]
 }
