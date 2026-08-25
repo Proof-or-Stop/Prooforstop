@@ -15541,6 +15541,25 @@
       ],
       "signatureTag": "missing|json|verifier-owned-pre-review",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-297",
+      "desc": "Current acceptance_topology_check returns status=fail and structuralPass=false with AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE; the PLAN acceptance-basis receipt is stale after the story closure changed, so topology coverage is not current/admissible until the verifier-owned basis is regenerated and the check is rerun.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-25T10:46:23.370Z",
+      "reviewRound": "2026-08-25T10:35:46.036Z",
+      "reviewRunId": "B-5a15:RR-643",
+      "_hash": "83d631871e84a3d592c732aba9e4a6e9211bd51a4c75c7fe09e2f6b786c5ae0c",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json"
+      ],
+      "signatureTag": "missing|ts|current-acceptance-topology",
+      "signatureTagSource": "auto"
     }
   ]
 }
