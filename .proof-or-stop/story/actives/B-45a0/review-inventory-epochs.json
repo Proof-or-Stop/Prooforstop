@@ -10860,6 +10860,37 @@
       ],
       "createdAt": "2026-08-25T19:03:35.893Z",
       "_hash": "a10fae69fd5ee85eb041dd96e43eefaab5b0611c94b1e896c7c5798501db2e92"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-076:CRIT-02",
+      "epochId": "B-45a0:RI-076",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T18:51:15.542Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "39b107bb6fa5117a030fbe7cbb86d6397171fb40",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84"
+      },
+      "aggregateFindingSetDigest": "52179c59406d5dacf089ac5f938ea68172bbe79a5aa19e92058740e93a78d8d5",
+      "requiredLaneCoverageDigest": "ed37811390a6bc69276fa63e3d08c236ca3b691499433756b563c31148d433cf",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-687",
+      "terminalEvidenceIds": [
+        "B-45a0:F-334"
+      ],
+      "readEvidenceDigest": "c58f2f9071c98dfc1fb5e0761795bd819de44523850cb7ac36c42487b05be424",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-333",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-45a0:F-333",
+          "reason": "Current RI-076 wave-2 evidence re-attests the verified pre-review artifact tamper blocker: acceptance_rollout_check remains current full-3x2 PASS, but pre_review_check_read still returns PR_ARTIFACT_TAMPERED. Preserve this current finding family and require verifier-owned reissue."
+        }
+      ],
+      "createdAt": "2026-08-25T19:15:02.127Z",
+      "_hash": "8d506f9f36149e36aa272767498e3944b8b705cde79262be05bdb2d0a19a5519"
     }
   ]
 }
