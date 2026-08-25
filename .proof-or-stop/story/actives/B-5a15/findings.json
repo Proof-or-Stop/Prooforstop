@@ -14897,6 +14897,48 @@
       ],
       "signatureTag": "missing|json|topology-review-binding",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-287",
+      "desc": "topology-pre-review-binding: current acceptance_topology_check is structurally PASS, but the verifier-owned topology receipt cannot pass until DEV-only pre_review_check regenerates the artifact after the scope-contract acknowledgement; the persisted pre-review artifact is stale at the committed REVIEW head.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-25T04:05:20.993Z",
+      "reviewRound": "2026-08-24T21:59:04.791Z",
+      "reviewRunId": "B-5a15:RR-591",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7aef2efcf8d44b78e504c9da286d6ff7ebd88dfc80aaf5c220c3652746b4502c",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|topology-review-binding",
+      "signatureTagSource": "auto"
     }
   ]
 }
