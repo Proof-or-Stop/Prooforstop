@@ -13812,7 +13812,7 @@
       "desc": "RI-028 coverage blocker: required verifier-owned coverage for acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check is not evidenced by a current executable verification receipt in the trusted review context; required must coverage cannot be established for a truthful pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T10:49:48.907Z",
@@ -13841,7 +13841,11 @@
       "readDiagnostics": [],
       "_hash": "d0d8acc2d241b5931342e2419c8c3b6a37cf0043a8f574e5cc8d8748e2b016f3",
       "signatureTag": "missing|unknown|coverage-blocker-required",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:38:53.082Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-262",
