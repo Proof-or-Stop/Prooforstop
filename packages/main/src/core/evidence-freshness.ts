@@ -472,6 +472,37 @@ function changedStoryFilesBetween(gitCwd: string, fromHead: string, toHead = 'HE
   return [...files.values()].sort((a, b) => a.path.localeCompare(b.path));
 }
 
+export interface StoryFileHashEntry {
+  path: string;
+  objectId?: string;
+}
+
+/**
+ * Return the story-owned file/object pairs used by currentStoryFilesHash.
+ * Consumers that need a declared dependency domain can partition this same
+ * canonical input without inventing a second notion of story-owned material.
+ */
+export function currentStoryFileHashEntries(
+  gitCwd: string,
+  ref = 'HEAD',
+  metadataRoot: string = gitCwd,
+): StoryFileHashEntry[] | undefined {
+  try {
+    const base = mergeBaseWithMain(gitCwd, ref);
+    if (!base) return undefined;
+    const objectIds = objectIdsAtRef(gitCwd, ref);
+    return changedStoryFilesBetween(gitCwd, base, ref)
+      .filter(entry => !isMaterialExcludedPath(entry.path, metadataRoot))
+      .map(entry => ({
+        path: entry.path,
+        ...(entry.deleted ? {} : { objectId: objectIds.get(entry.path) }),
+      }))
+      .sort((left, right) => left.path.localeCompare(right.path));
+  } catch {
+    return undefined;
+  }
+}
+
 function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
   const out = new Map<string, string>();
   try {
@@ -496,16 +527,9 @@ function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
 
 export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
   try {
-    const base = mergeBaseWithMain(gitCwd, ref);
-    if (!base) return undefined;
-    const objectIds = objectIdsAtRef(gitCwd, ref);
-    const entries = changedStoryFilesBetween(gitCwd, base, ref)
-      .filter(entry => !isMaterialExcludedPath(entry.path, metadataRoot))
-      .map((entry) => {
-        const objectId = entry.deleted ? undefined : objectIds.get(entry.path);
-        return `${entry.path}\0${objectId || '<deleted>'}`;
-      })
-      .sort();
+    const storyFileEntries = currentStoryFileHashEntries(gitCwd, ref, metadataRoot);
+    if (!storyFileEntries) return undefined;
+    const entries = storyFileEntries.map(entry => `${entry.path}\0${entry.objectId || '<deleted>'}`);
     return createHash('sha256').update(entries.join('\0')).digest('hex');
   } catch {
     return undefined;

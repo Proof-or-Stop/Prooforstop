@@ -8,13 +8,16 @@ import { loadConfig } from '../core/config.js';
 import {
   currentGitHead,
   currentMaterialHash,
+  currentStoryFileHashEntries,
   currentStoryFilesHash,
   EMPTY_STORY_FILES_HASH,
 } from '../core/evidence-freshness.js';
 import {
   CAUSAL_DEPENDENCY_DOMAINS,
+  causalDigest,
   causalDependencyContextDigests,
   evaluateCausalDependencies,
+  type CausalDependencyDomain,
   type CausalDependencyNode,
   type CausalDependencyDecision,
 } from '../core/causal-evidence.js';
@@ -82,7 +85,50 @@ function readInventoryPair(
   }
 }
 
-function buildCertificationDecision(
+const CERTIFICATION_INPUT_IDS = CAUSAL_DEPENDENCY_DOMAINS.map(domain => `certification:${domain}`);
+
+const CERTIFICATION_DOMAIN_PATH_RULES: ReadonlyArray<readonly [CausalDependencyDomain, RegExp]> = [
+  ['test', /^packages\/main\/(?:tests\/|src\/tasks\/)/],
+  ['build-input', /(?:^|\/)(?:package(?:-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|bun\.lockb|tsconfig(?:\.[^/]+)?\.json|lattice\.config\.json|proof-or-stop\.config\.json)$/],
+  ['manifest-semantic', /^(?:\.proof-or-stop-codex|\.codex|\.claude)\//],
+  ['manifest-semantic', /^\.proof-or-stop\/proof-or-stop\.json$/],
+  ['integration', /^(?:bin|scripts|\.githooks|packages\/(?:utils|lab))\//],
+  ['source', /^packages\/main\/src\/(?!tasks\/)/],
+  ['review-subject', /^(?:docs\/|(?:AGENTS|CLAUDE|README)(?:\.[^/]+)?$)/],
+];
+
+function certificationDomainForPath(path: string): CausalDependencyDomain | undefined {
+  const matches = CERTIFICATION_DOMAIN_PATH_RULES.filter(([, pattern]) => pattern.test(path));
+  return matches.length === 1 ? matches[0][0] : undefined;
+}
+
+/**
+ * Derive one stable causal input from each declared domain's story-owned
+ * files. Unknown or ambiguously classified paths deliberately return
+ * undefined so the evaluator falls back to strict whole-tree freshness.
+ */
+export function deriveCertificationDomainInputHashes(
+  gitCwd: string,
+  ref = 'HEAD',
+  metadataRoot: string = gitCwd,
+): Record<string, string> | undefined {
+  const entries = currentStoryFileHashEntries(gitCwd, ref, metadataRoot);
+  if (!entries) return undefined;
+  const byDomain = new Map<CausalDependencyDomain, string[]>(
+    CAUSAL_DEPENDENCY_DOMAINS.map(domain => [domain, []]),
+  );
+  for (const entry of entries) {
+    const domain = certificationDomainForPath(entry.path);
+    if (!domain) return undefined;
+    byDomain.get(domain)!.push(`${entry.path}\0${entry.objectId || '<deleted>'}`);
+  }
+  return Object.fromEntries(CAUSAL_DEPENDENCY_DOMAINS.map(domain => [
+    `certification:${domain}`,
+    causalDigest(byDomain.get(domain)!.sort()),
+  ]));
+}
+
+export function buildCertificationDecision(
   storyId: string,
   current: CertificationWindowCurrentIdentity,
   frozen?: CertificationWindowFrozenIdentity,
@@ -93,6 +139,7 @@ function buildCertificationDecision(
     headHash: current.headHash ?? '',
     materialHash: current.materialHash,
     storyFilesHash: current.storyFilesHash,
+    causalInputHashes: current.causalInputHashes,
     expectedMainSha: '',
     verifierIdentity: PRECERT_VERIFIER_IDENTITY,
     testIdentity: PRECERT_TEST_IDENTITY,
@@ -104,17 +151,15 @@ function buildCertificationDecision(
   // snapshot, so each domain is represented explicitly while the snapshot is
   // fanned through the transitive domain graph. This keeps the production path
   // fail-closed and observable instead of silently evaluating nodes: [].
-  const inputIds = CAUSAL_DEPENDENCY_DOMAINS.map(domain => `certification:${domain}`);
+  const currentInputHashes = current.causalInputHashes ?? {};
+  const previousInputHashes = previous.causalInputHashes ?? {};
   const nodes: CausalDependencyNode[] = CAUSAL_DEPENDENCY_DOMAINS.map((domain, index) => ({
     id: `certification-${domain}`,
     domain,
-    inputIds: [inputIds[index]],
+    inputIds: [CERTIFICATION_INPUT_IDS[index]],
     ...(index > 0 ? { dependencyIds: [`certification-${CAUSAL_DEPENDENCY_DOMAINS[index - 1]}`] } : {}),
-    recordedInputHashes: { [inputIds[index]]: previous.storyFilesHash },
+    recordedInputHashes: { [CERTIFICATION_INPUT_IDS[index]]: previousInputHashes[CERTIFICATION_INPUT_IDS[index]] ?? '' },
   }));
-  const currentInputHashes: Record<string, string> = Object.fromEntries(
-    inputIds.map(inputId => [inputId, currentStoryFilesHash] as const),
-  );
   const contextDigests = causalDependencyContextDigests(nodes, currentInputHashes);
   current.causalDependencyGraphDigest = contextDigests.dependencyGraphDigest;
   current.causalInputHashesDigest = contextDigests.currentInputHashesDigest;
@@ -198,6 +243,7 @@ function collectAdmitFacts(
     dirtyNonRuntimePaths,
     gitIndexReadable: isDonePrepareGitIndexReadable(gitCwd),
     evidenceTargetWritable: isEvidenceTargetWritable(ctx.store.storyDirPath(storyId)),
+    causalInputHashes: identity.causalInputHashes,
     causalDependencyGraphDigest: identity.causalDependencyGraphDigest,
     causalInputHashesDigest: identity.causalInputHashesDigest,
     causalDecision: identity.causalDecision,
@@ -217,12 +263,14 @@ export function currentCertificationIdentity(
   const headHash = currentGitHead(gitCwd);
   const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
   const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
+  const causalInputHashes = deriveCertificationDomainInputHashes(gitCwd, 'HEAD', ctx.root);
   const gitRepo = existsSync(join(gitCwd, '.git'));
   const identity: CertificationWindowCurrentIdentity = {
     storyId,
     headHash,
     materialHash,
     storyFilesHash,
+    causalInputHashes,
     verifierIdentity: PRECERT_VERIFIER_IDENTITY,
     testIdentity: PRECERT_TEST_IDENTITY,
     hashUnavailable: gitRepo && (!materialHash || !storyFilesHash),
@@ -321,6 +369,7 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
           headHash: facts.headHash ?? '',
           materialHash: facts.materialHash ?? '',
           storyFilesHash: facts.storyFilesHash ?? '',
+          causalInputHashes: facts.causalInputHashes,
           expectedMainSha: facts.expectedMainSha ?? '',
           verifierIdentity: PRECERT_VERIFIER_IDENTITY,
           testIdentity: PRECERT_TEST_IDENTITY,
