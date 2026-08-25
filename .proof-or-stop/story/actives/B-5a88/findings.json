@@ -20460,6 +20460,93 @@
       ],
       "signatureTag": "missing|json|happy-wave4-reads",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-457",
+      "desc": "RI-084 current-wave concept confirmation of the unresolved scope blocker: .proof-or-stop/story/actives/B-5a88/plan.md:5 still says \"Implement only CHK-001 through CHK-007\" and :45 says verificationEvidence covers 21 intents, while the current checklist.json:1571-1625 includes CHK-013 and CHK-008 through CHK-012, including the current Wave 4 user-facing acceptance. The plan has no scope or verification-order sections for CHK-008 through CHK-013, so the authoritative implementation plan still contradicts the current Story scope; update it through the Story process before DONE.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-25T17:41:23.418Z",
+      "reviewRound": "2026-08-25T17:18:57.883Z",
+      "reviewRunId": "B-5a88:RR-822",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1df5d718efad590362079f0ca15cd412fa31db0336ab6b37eb9c52624b6b60b2",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/plan.md",
+        ".proof-or-stop/story/actives/B-5a88/checklist.json"
+      ],
+      "signatureTag": "ri-084-concept-plan-scope-confirmation",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-458",
+      "desc": "CHK-013-HAPPY-WAVE4-READS remains a verified high coverage gap: checklist.json:1593-1599 executes only acceptance_topology_check and pre_review_check_read. It does not intent-link executable calls to acceptance_rollout_report_read or acceptance_rollout_check; the separate edge rollout smoke covers mutations but not those verifier-owned read/check commands. Current receipts pass, but the required four-command Wave 4 coverage boundary is not established.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-25T17:43:02.787Z",
+      "reviewRound": "2026-08-25T17:18:57.883Z",
+      "reviewRunId": "B-5a88:RR-823",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "47ee401ce6164fbe25338394989727b8abb087235a3652090d9c2c85310ca4e3",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+        "scripts/run-proofstory-pre-review-live-proof.mjs"
+      ],
+      "signatureTag": "missing|json|happy-wave4-reads",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
