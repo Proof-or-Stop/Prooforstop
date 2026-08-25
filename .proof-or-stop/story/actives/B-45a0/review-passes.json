@@ -8693,6 +8693,97 @@
       },
       "readDiagnostics": [],
       "_hash": "beac35ae82a5a8061cb68b8c868bc4770745b62f763c52cd42cd78f2177b9b85"
+    },
+    {
+      "id": "B-45a0:RP-179",
+      "agent": "lattice-review-docs",
+      "note": "RI-062 docs review: extracted 846 changed symbols, compared 4 scheduler-policy documentation paragraphs with the corresponding current verifier/catalog/scheduler paths, and found no remaining blocker. Commit 66fa0f01ee correctly changes the docs from raw explicit-row claims to effective policy fields after registered defaults and bounded timeout-derived scheduler fallback; current inventory verification passes (112 rows). F-300, F-302, and F-303 were resolved as fixed with strong current-head evidence, without creating a new duplicate.",
+      "createdAt": "2026-08-25T07:24:01.639Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-565",
+      "envelopeId": "93e35d3b9aa9dece9a6b67a52f7eb1b024bc1a8fefee71c98bf3a038edd53b59",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "8f658e52ac8c44b0e26e3be94e924a62b0cca071ab8a15a7a3c6fe6181160841"
+      },
+      "readDiagnostics": [],
+      "_hash": "8ff5556b73495bcab04c03047abce6a05df350570247500ab6d1d532792322ad"
+    },
+    {
+      "id": "B-45a0:RP-180",
+      "agent": "lattice-review-topology-critic",
+      "note": "Current-head RI-062 topology review: acceptance basis is verifier-verified and structurally complete; acceptance_topology_check passes with diagnostic-only inconclusive basis result; CHK-014 acceptance evidence is bound to the current material hash; scope_contract_check is enforce-mode with acknowledged nonblocking warnings. pre_review_check_read truthfully remains nonblocking fail with explicit missing/stale/authority PR codes, so no topology authority is claimed.",
+      "createdAt": "2026-08-25T07:30:02.881Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-566",
+      "envelopeId": "f4b0de9067d815f628c516e56147460c80bcef93eae88ec7372bb54dd68ef5f6",
+      "writerSessionId": "sess-86c11cdce25094d96295c9b2250cda10",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1482e5939aa9f4255b6fc4a96bd4cac2a8be8a1b9d99aa5a48f74d6d56b023b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "c34753d48c64626bd34d46d3f7ffec565bc5954fc674d488e4a3ce27222e7f63"
     }
   ]
 }
