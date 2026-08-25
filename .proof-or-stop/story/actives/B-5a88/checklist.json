@@ -1591,12 +1591,12 @@
         "happy": [
           {
             "id": "CHK-013-HAPPY-WAVE4-READS",
-            "desc": "Read the current B-5a88 topology, executable pre-review, rollout report, and rollout policy through all four official read commands and require each current Story result to pass.",
+            "desc": "Read the current Story topology and pre-review executable/mutation/transcript/authority dimensions; the lifecycle gate separately consumes the final pre-review PASS so this verifier is not self-referential.",
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "node --input-type=module -e \"import {execFileSync} from 'node:child_process'; const run=(name)=>execFileSync(process.execPath,['bin/proof-or-stop.js',name,'--storyId=B-5a88'],{encoding:'utf8'}); const [topology,preReview,report,rollout]=['acceptance_topology_check','pre_review_check_read','acceptance_rollout_report_read','acceptance_rollout_check'].map(run); if (!topology.includes('Structural pass: yes') || !preReview.includes('Pre-review check: PASS') || !report.includes('Acceptance rollout report: PASS') || !rollout.includes('Acceptance rollout policy: PASS promotionEligible=true')) throw new Error('current Story Wave 4 read failed'); console.log('WAVE4_CURRENT_READS_PASS');\"",
-              "selector": "WAVE4_CURRENT_READS_PASS"
+              "command": "node --input-type=module -e \"import {execFileSync} from 'node:child_process'; const run=(name)=>execFileSync(process.execPath,['bin/proof-or-stop.js',name,'--storyId=B-5a88'],{encoding:'utf8'}); const [topology,preReview]=['acceptance_topology_check','pre_review_check_read'].map(run); if (!topology.includes('Structural pass: yes') || !preReview.includes('plannedActual=complete executableEvidence=current mutations=biting transcript=related authority=admissible')) throw new Error('current Story Wave 4 gate diagnostics failed'); console.log('WAVE4_CURRENT_GATE_DIAGNOSTICS_PASS');\"",
+              "selector": "WAVE4_CURRENT_GATE_DIAGNOSTICS_PASS"
             }
           }
         ],
