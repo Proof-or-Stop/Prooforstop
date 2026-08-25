@@ -6248,9 +6248,9 @@
       "epochId": "B-5a88:RIE-097",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-25T02:05:20.151Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-25T03:10:20.142Z",
-      "updatedAt": "2026-08-25T03:10:20.142Z",
+      "updatedAt": "2026-08-25T03:39:47.691Z",
       "cutoff": {
         "headHash": "26b6cb38c26a6d2089116330354c395ca43fad11",
         "materialHash": "d96aec0b146949b24b00ba9ce83385097b7f445de885617793aa7d1909b926a2",
@@ -6261,7 +6261,35 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-5a88:RIE-097:RCP-001",
-      "_hash": "7c366a7527c027e01643db4b54b2f9f2a6392fd8b637cf66375ac3cc2f776188"
+      "cancelledAt": "2026-08-25T03:39:47.691Z",
+      "cancelReason": "Current REVIEW round 54 has a new verified F-419; the prior finalized inventory receipt is bound to review round 53 and must be invalidated before opening a fresh remediation inventory.",
+      "terminalRunSequenceBoundary": 723,
+      "_hash": "dda60a79e519c328f9de0a6fea75eb8e2ed14be8a15db397fe87ce47ab7c3b0f"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-077",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-25T03:27:13.081Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-25T03:39:58.465Z",
+      "updatedAt": "2026-08-25T03:39:58.465Z",
+      "cutoff": {
+        "headHash": "8e70a36a5b3924d8b638e1de72e5d8083d971464",
+        "materialHash": "04b5d666cbfea4668c2f8facbbdcf47c4b3b9d430f0f69acd617715dfb1ce536",
+        "storyFilesHash": "33680db97f81ad77d3ea1d5703de212db1f0b7b948024ffbb86fd44f3f34a572"
+      },
+      "scopeDigest": "e21aaa4fd295b187549ea0a86dc847a05bed81fc2be344911745a557ea0b8266",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 723,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "ea2d816ecb20d81503dca9b8bf25293766424aaa108a7209d612819d74401e88"
     }
   ],
   "receipts": [
@@ -7270,7 +7298,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-25T03:10:20.142Z",
-      "_hash": "3db9afe62014739f822f61eaf300d933ef78cd70bcbdae0fa69e4272fa1cffd0"
+      "invalidatedAt": "2026-08-25T03:39:47.691Z",
+      "invalidationReason": "Current REVIEW round 54 has a new verified F-419; the prior finalized inventory receipt is bound to review round 53 and must be invalidated before opening a fresh remediation inventory.",
+      "_hash": "92ba7b3105d7e9bc957f93eec165be12f9b9d1a6de2ff4cada0ac129614393c4"
     }
   ],
   "criticReceipts": [
