@@ -19339,6 +19339,47 @@
         "scanEscalationReason": "Bounded quality recheck: all changed paths were triaged by name; full reads were limited to the F-445 active-vs-compatibility enforcement sources, canonical role mapping, compatibility prompt, and story context."
       },
       "_hash": "17537263b59d20a76ab7e90003cf6fcd09670bdb23b516e5064e4f58eb391705"
+    },
+    {
+      "id": "B-5a88:RP-313",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Reviewed the committed main-to-HEAD concept migration for canonical proof-or-stop role IDs, managed markers, artifact and approval schemas, package and bin identities, active templates/docs, and explicit legacy-read compatibility. The residue verifier passes all five checks; no blocking concept finding remains.",
+      "createdAt": "2026-08-25T14:06:43.453Z",
+      "reviewRound": "2026-08-25T13:32:58.029Z",
+      "reviewRunId": "B-5a88:RR-805",
+      "envelopeId": "6c256afb74548f1ef300292fc4b3d9784e96d155de9059fd41d064d36339db06",
+      "writerSessionId": "sess-842bda363d92dd24b0456a560cd47299",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "AGENTS.md"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/truth-source.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/templates/agents",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6bd327fa925864aa1452def66619717fbb4308c03eedd4ef3234ac1eb51bae94"
     }
   ]
 }
