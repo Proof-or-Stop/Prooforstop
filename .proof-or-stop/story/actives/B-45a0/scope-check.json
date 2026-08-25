@@ -1,125 +1,139 @@
 {
   "storyId": "B-45a0",
-  "checkedAt": "2026-08-23T12:07:20.906Z",
+  "checkedAt": "2026-08-25T18:31:48.018Z",
   "features": [
     {
-      "feature": "Approved dynamic validation design record is imported, digest-bound, section-complete, and keeps DYN-1 observe-only versus DYN-3 authority distinct",
+      "feature": "Approved dynamic-validation design record remains byte-integrity bound, preserves Sections 1 through 27.6, and keeps DYN-1 observe-only separate from DYN-3 authority.",
       "covered_by": "CHK-001",
       "status": "covered",
-      "excluded_by": "",
-      "source": "checklist.json#CHK-001"
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
     },
     {
-      "feature": "Current-main validation inventory and implementation boundary are discovered and frozen with a kickoff-derived N and digest",
+      "feature": "Current-main validation inventory is discovered and frozen with a stable command identity digest; historical 107/110 counts are non-authoritative.",
       "covered_by": "CHK-002",
       "status": "covered",
-      "excluded_by": "",
-      "source": "checklist.json#CHK-002"
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
     },
     {
-      "feature": "Story change manifest and dual-revision impact graph cover additions, modifications, deletions, renames, scope, facts, capabilities, and conservative dynamic relations",
+      "feature": "Canonical Story change manifest and dual-revision impact graph cover additions, modifications, deletions, renames, reverse dependents, process facts, capabilities, and scope escalation.",
       "covered_by": "CHK-003",
       "status": "covered",
-      "excluded_by": "",
-      "source": "checklist.json#CHK-003"
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
     },
     {
-      "feature": "Complete validation catalog and signed command input-closure certificates cover every inventory command with conservative whole-repository and never-reuse policy",
+      "feature": "Every validation command has a catalog policy, source/runtime closure certificate, risk and resource data, and valid fact/capability bindings.",
       "covered_by": "CHK-004",
       "status": "covered",
-      "excluded_by": "",
-      "source": "checklist.json#CHK-004"
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
     },
     {
-      "feature": "Deterministic execute/reuse/unverified selection, full escalation, inventory accounting, monotonicity, and signed manifests are implemented without heuristic omission",
+      "feature": "Deterministic additive selection produces execute, admissible reuse, and fail-closed escalation rows with complete inventory accounting and signed manifests.",
       "covered_by": "CHK-005",
       "status": "covered",
-      "excluded_by": "",
-      "source": "checklist.json#CHK-005"
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
     },
     {
-      "feature": "DYN-1 observe-only validation preserves the complete plan as authority and isolates instrumentation and comparison evidence",
+      "feature": "Observe mode records selection and comparison while the unchanged complete validation plan remains the sole authority.",
       "covered_by": "CHK-006",
       "status": "covered",
-      "excluded_by": "",
-      "source": "checklist.json#CHK-006"
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
     },
     {
-      "feature": "DYN-2 source-first per-command receipts, canonical baselines, ancestry, expiry, clean-tree, build, and revocation admissibility are implemented",
+      "feature": "Source-first DYN-2 execution produces signed per-command receipts and canonical baselines bound to build, closure, ancestry, epoch, tree, expiry, and revocation facts.",
       "covered_by": "CHK-007",
       "status": "covered",
-      "excluded_by": "",
-      "source": "checklist.json#CHK-007"
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
     },
     {
-      "feature": "DYN-2 shadow reuse is compared against the complete-plan oracle with command and aggregate equivalence, failure-subset, and residue evidence",
+      "feature": "Shadow reuse is compared with the complete-plan oracle and cannot claim TEST or DONE authority.",
       "covered_by": "CHK-008",
       "status": "covered",
-      "excluded_by": "",
-      "source": "checklist.json#CHK-008"
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
     },
     {
-      "feature": "DYN-3 low-risk dynamic TEST authority is fail-closed on all Section 24 prerequisites and remains independent from focused and DONE-required authority",
+      "feature": "DYN-3 low-risk dynamic TEST authority is fail-closed behind all blocking prerequisites and falls back to complete validation when any prerequisite is not admissible.",
       "covered_by": "CHK-009",
       "status": "covered",
-      "excluded_by": "",
-      "source": "checklist.json#CHK-009"
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
     },
     {
-      "feature": "Dynamic validation operations, observability, rollback, mode controls, baseline audits, cache recovery, and honest risk-tier performance reports are delivered",
+      "feature": "Operators receive dynamic-validation modes, structured observability, honest performance populations, non-destructive rollback, and preserved evidence history.",
       "covered_by": "CHK-010",
       "status": "covered",
-      "excluded_by": "",
-      "source": "checklist.json#CHK-010"
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
     },
     {
-      "feature": "Replay, FI-1 through FI-5, mutation, paired current-HEAD, false-negative, residue, and enforcement evidence blocks DYN-3 until thresholds pass",
+      "feature": "Historical replay, FI-1 through FI-5, mutation, and enforcement evidence cover false-negative, receipt, closure, rename/delete, and authority risks.",
       "covered_by": "CHK-011",
       "status": "covered",
-      "excluded_by": "",
-      "source": "checklist.json#CHK-011"
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
     },
     {
-      "feature": "DYN-4 weighted LPT scheduling preserves capacity, exclusivity, drain barriers, command accounting, and serial-equivalent verdicts",
+      "feature": "DYN-4 weighted LPT scheduling respects CPU, resource claims, exclusivity, drain barriers, order, cleanup, and serial equivalence.",
       "covered_by": "CHK-012",
       "status": "covered",
-      "excluded_by": "",
-      "source": "checklist.json#CHK-012"
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
     },
     {
-      "feature": "DYN-5 quorum and review-pass sharding preserves stable IDs, exact routing, genuine sentinels, aggregation, cleanup, and residue safety",
+      "feature": "DYN-5 quorum and review-pass sharding executes stable cases exactly once with real sentinels, signed receipts, exact aggregation, routing checks, and zero residue.",
       "covered_by": "CHK-013",
       "status": "covered",
-      "excluded_by": "",
-      "source": "checklist.json#CHK-013"
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
     },
     {
-      "feature": "Complete full-plan execution remains the fallback, periodic baseline, and audit oracle until dynamic authority is proven",
-      "covered_by": "CHK-006, CHK-007, CHK-008, CHK-009, CHK-010, CHK-011",
+      "feature": "Wave 4 acceptance topology, pre-review, rollout report, and rollout admission checks are verifier-owned and bound to current-head evidence.",
+      "covered_by": "CHK-014",
       "status": "covered",
-      "excluded_by": "",
-      "source": "understanding.json#constraints[4]; plan.md#Cross-cutting verification and delivery"
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
     },
     {
-      "feature": "Uncertainty, stale or malformed evidence, unmapped changes, and unsafe relations fail closed to execution or full escalation",
-      "covered_by": "CHK-003, CHK-004, CHK-005, CHK-007, CHK-009",
+      "feature": "The complete current inventory remains the denominator; execute plus admissible reuse must cover every row with no unverified, uncovered, or unmapped row.",
+      "covered_by": "CHK-005",
       "status": "covered",
-      "excluded_by": "",
-      "source": "understanding.json#constraints[1]"
+      "excluded_by": null,
+      "source": "understanding.json"
     },
     {
-      "feature": "No omission: complete inventory equals executed plus admissible reuse, with zero unverified, uncovered, and unmapped rows before authority",
-      "covered_by": "CHK-005, CHK-008, CHK-009, CHK-011, CHK-013",
+      "feature": "Uncertainty, stale or malformed evidence, protected or unmapped changes, and incomplete closures fail closed to execution or complete-plan escalation.",
+      "covered_by": "CHK-005",
       "status": "covered",
-      "excluded_by": "",
-      "source": "understanding.json#constraints[0]; plan.md#CHK-005"
+      "excluded_by": null,
+      "source": "understanding.json"
     },
     {
-      "feature": "Rollback and staged observe/shadow/enforce controls preserve safe return to complete full execution",
-      "covered_by": "CHK-006, CHK-008, CHK-009, CHK-010",
+      "feature": "Full validation remains the fallback, periodic baseline, and audit oracle; focused validation and DONE-required evidence remain separate from dynamic authority.",
+      "covered_by": "CHK-006",
       "status": "covered",
-      "excluded_by": "",
-      "source": "understanding.json#constraints[5]; plan.md#CHK-010"
+      "excluded_by": null,
+      "source": "understanding.json"
+    },
+    {
+      "feature": "All gate-consumed facts and artifacts are signed, digest-bound, ancestry-compatible, current, clean-tree generated, and mechanically verifiable.",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json"
+    },
+    {
+      "feature": "The implementation remains within the declared B-45a0 scope, preserves protected and explicit-exclusion boundaries, and does not widen authority through prose or historical success.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json"
     }
   ],
   "readManifest": {
@@ -128,20 +142,38 @@
       ".proof-or-stop/story/actives/B-45a0/checklist.json",
       ".proof-or-stop/story/actives/B-45a0/decision.json",
       ".proof-or-stop/story/actives/B-45a0/plan.md",
-      ".proof-or-stop/story/actives/B-45a0/understanding.json"
+      ".proof-or-stop/story/actives/B-45a0/understanding.json",
+      "docs/CLI.md",
+      "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+      "docs/requirements/decisions/dynamic-validation-operations.md",
+      "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+      "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+      "docs/requirements/NAV.md"
     ],
-    "filesTriagedByName": [],
+    "filesTriagedByName": [
+      "AGENTS.md",
+      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "lattice.config.json",
+      "proof-or-stop.config.json"
+    ],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 17,
-    "covered": 17,
+    "total": 19,
+    "covered": 19,
     "excluded": 0,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-08-23T08:18:33.747Z",
-  "_hash": "c553588e006fbb0065fd56a4199ed1b359f7deb6c66d5d5191c792124ffdf4d2",
+  "reviewRound": "2026-08-25T17:38:08.671Z",
+  "_hash": "ddb6fd117384aea6b9164b8b2eb0dcc43403024e4b71a8e7a331ab78d7a39934",
   "openQuestions": []
 }
