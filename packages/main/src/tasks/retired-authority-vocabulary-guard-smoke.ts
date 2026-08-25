@@ -370,7 +370,9 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // call shape or occurrence count changed; the whole-file structural
   // fingerprint just moves with any source edit to this file.
   // B-1e1f: repinned after persistSyntheticAdmittedWindowForTest; approved call shapes/occurrence counts unchanged.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', '49af08591ff783654df81918b26db7a9be9478e0fa3655fadaeabb79e0cb6d37'],
+  // B-5a15: repinned after the closeout smoke seeded its verifier owner lease;
+  // approved compatibility call shapes and occurrence counts remain unchanged.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', '144e824d0eb927b00b4f8be4adaee39c61c5af8d16a34878a2025199c1c8162d'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
