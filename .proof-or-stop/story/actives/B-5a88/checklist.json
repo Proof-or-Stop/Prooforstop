@@ -113,19 +113,19 @@
           "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {canonicalAgentRoleId} from \\\"./packages/main/dist/core/agent-role-identity.js\\\"; assert.equal(canonicalAgentRoleId(\\\"lattice-review-quality\\\"),\\\"proof-or-stop-review-quality\\\"); console.log(\\\"CHK-001 canonical role smoke: PASS\\\")\"",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-001:happy:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0b7b962674f541c151c294158a2c8621df1cab234403086f03527265bfee4be7",
             "outputTail": "CHK-001 canonical role smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:41:55.625Z",
+            "executedAt": "2026-08-25T11:59:09.380Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -133,19 +133,19 @@
           "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {canonicalAgentRoleId, agentRoleIdsEqual} from \\\"./packages/main/dist/core/agent-role-identity.js\\\"; assert.equal(canonicalAgentRoleId(\\\"lattice-review-quality@fallback\\\"),\\\"proof-or-stop-review-quality@fallback\\\"); assert.equal(agentRoleIdsEqual(\\\"lattice-review-delivery\\\",\\\"proof-or-stop-review-delivery\\\"),true); console.log(\\\"CHK-001 legacy suffix smoke: PASS\\\")\"",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-001:edge:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "949d5299974df01d8710f6507b024a257bda7af1726ac519a43d93a594466b15",
             "outputTail": "CHK-001 legacy suffix smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:41:55.827Z",
+            "executedAt": "2026-08-25T11:59:09.613Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -153,19 +153,12 @@
           "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {resolveAgentDispatchType} from \\\"./packages/main/dist/core/agent-dispatch-registry.js\\\"; assert.equal(resolveAgentDispatchType(\\\"verification-intent\\\").canonicalType,\\\"proof-or-stop-test-intent\\\"); assert.throws(()=>resolveAgentDispatchType(\\\"lattice-review-unknown\\\"),/unknown agentType/); console.log(\\\"CHK-001 alias-boundary smoke: PASS\\\")\"",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-001:adversarial:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "87b0293ba6a868edc71290166edbd136f9ffd4d4a14868a71e6c48f8e555162f",
-            "outputTail": "CHK-001 alias-boundary smoke: PASS\n",
-            "selectorMatched": true,
-            "executedAt": "2026-08-25T09:41:56.024Z",
-            "timeoutMs": 270000
-          },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-08-25T11:59:36.133Z"
         }
       ],
       "userSeesSnapshot": {
@@ -243,19 +236,19 @@
           "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { inspectManagedBlock, replaceManagedBlock } from \\\"/private/tmp/proof-or-stop-b5a88-marker-build/core/managed-markers.js\\\"; import { generateProfileSection } from \\\"/private/tmp/proof-or-stop-b5a88-marker-build/claude-md-sync.js\\\"; const legacy=\\\"before\\\\n<!-- lattice:start -->\\\\nold\\\\n<!-- lattice:end -->\\\\nafter\\\\n\\\"; const replacement=\\\"<!-- proof-or-stop:start -->\\\\nnew\\\\n<!-- proof-or-stop:end -->\\\"; assert.equal(inspectManagedBlock(legacy,\\\"document\\\").status,\\\"valid\\\"); assert.match(replaceManagedBlock(legacy,replacement,\\\"document\\\"),/<!-- proof-or-stop:start -->/); const profile=generateProfileSection(\\\"balanced\\\"); assert.match(profile,/<!-- proof-or-stop-profile:start -->/); assert.equal(inspectManagedBlock(profile,\\\"profile\\\").status,\\\"valid\\\"); console.log(\\\"CHK-002-MARKER-PASS\\\");\"",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-002:happy:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "55ec2d254458e7ae31ba549b6407877c1da890df0cb89b3838028c6c0c10a448",
             "outputTail": "CHK-002-MARKER-PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:41:56.238Z",
+            "executedAt": "2026-08-25T11:59:10.070Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -263,19 +256,19 @@
           "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { inspectManagedBlock, replaceManagedBlock } from '/private/tmp/proof-or-stop-b5a88-marker-build/core/managed-markers.js'; const replacement='<!-- proof-or-stop:start -->\\\\nnew\\\\n<!-- proof-or-stop:end -->'; const nested='<!-- lattice:start -->\\\\n<!-- lattice:start -->\\\\nold\\\\n<!-- lattice:end -->\\\\n<!-- lattice:end -->'; const mixed='<!-- proof-or-stop:start -->\\\\nold\\\\n<!-- lattice:end -->'; assert.equal(inspectManagedBlock(nested,'document').status,'malformed'); assert.equal(replaceManagedBlock(nested,replacement,'document'),null); assert.equal(inspectManagedBlock(mixed,'document').status,'malformed'); assert.equal(replaceManagedBlock(mixed,replacement,'document'),null); console.log('CHK-002-MALFORMED-PASS');\"",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-002:edge:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "466dba405ecc61eb2a9b1ab62b891a928fa3d91ffa9de77028b5494d8fa03e7d",
             "outputTail": "CHK-002-MALFORMED-PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:41:56.442Z",
+            "executedAt": "2026-08-25T11:59:10.335Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -283,19 +276,19 @@
           "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import * as assets from '/private/tmp/proof-or-stop-b5a88-init-build/init-assets.js'; const names=['AGENTS_MD_TEMPLATE','LATTICE_MD_TEMPLATE','CLAUDE_MD_TEMPLATE','LATTICE_DOT_DIR_MD_TEMPLATE','AGENTS_MD_GLOBAL_THIN_TEMPLATE']; for (const name of names) { const value=assets[name]; assert.match(value,/<!-- proof-or-stop:start -->/); assert.match(value,/<!-- proof-or-stop:end -->/); assert.doesNotMatch(value,/<!-- lattice:start -->|<!-- lattice:end -->/); } console.log('CHK-002-TEMPLATE-PASS');\"",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-002:adversarial:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "b5fb3386837e216fcb067e17caa16af975d48e6f8a572393ef41cfb02ecff25c",
             "outputTail": "CHK-002-TEMPLATE-PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:41:56.649Z",
+            "executedAt": "2026-08-25T11:59:10.621Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         }
       ],
       "userSeesSnapshot": {
@@ -380,19 +373,19 @@
           "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-003:happy:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "07e54be4dfce28c1948833ef43a63c51be78cb361588e5ac537ed223ed5f320d",
-            "outputTail": "[0.1s] running story_get...\n[0.1s] story_get done\n[0.1s] running story_get...\n[0.1s] story_get done\n[0.1s] running init_preflight...\n[0.2s] init_preflight done\n[0.1s] running finding_list...\n[0.2s] finding_list done\nartifact-schema migration test passed\n",
+            "outputDigest": "1ebf08f4240734dc5caf3a62a5265ea55fc234413f775c069284209ca98e4095",
+            "outputTail": "⚠ Proof-or-Stop stale state warnings:\n  - Story B-5a88 has been in DEV phase for 45 minutes without advance\n[0.2s] running story_get...\n[0.2s] story_get done\n[0.1s] running story_get...\n[0.1s] story_get done\n[0.1s] running init_preflight...\n[0.3s] init_preflight done\n[0.2s] running finding_list...\n[0.3s] finding_list done\nartifact-schema migration test passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:02.255Z",
+            "executedAt": "2026-08-25T11:59:18.229Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -400,19 +393,19 @@
           "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-003:edge:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "f1aab41d602df187945b31f73c177c61739b07717b7c545e854bc46f558c6dbc",
-            "outputTail": "[0.1s] running story_get...\n[0.1s] story_get done\n[0.1s] running story_get...\n[0.1s] story_get done\n[0.1s] running init_preflight...\n[0.1s] init_preflight done\n[0.1s] running finding_list...\n[0.2s] finding_list done\nartifact-schema migration test passed\n",
+            "outputDigest": "4e4a8558f02bf9e43ce7759fdcbdf8b530b7264f81f6b90118f6b1b6da132b63",
+            "outputTail": "[0.1s] running story_get...\n[0.1s] story_get done\n[0.2s] running story_get...\n[0.2s] story_get done\n[0.2s] running init_preflight...\n[0.2s] init_preflight done\n[0.2s] running finding_list...\n[0.3s] finding_list done\nartifact-schema migration test passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:07.648Z",
+            "executedAt": "2026-08-25T11:59:25.412Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -420,19 +413,19 @@
           "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-003:adversarial:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "f1aab41d602df187945b31f73c177c61739b07717b7c545e854bc46f558c6dbc",
-            "outputTail": "[0.1s] running story_get...\n[0.1s] story_get done\n[0.1s] running story_get...\n[0.1s] story_get done\n[0.1s] running init_preflight...\n[0.1s] init_preflight done\n[0.1s] running finding_list...\n[0.2s] finding_list done\nartifact-schema migration test passed\n",
+            "outputDigest": "a6616346df8dae84cfcd11008e03104d2d1e12ca50966292cda2cdd9d496b979",
+            "outputTail": "[0.1s] running story_get...\n[0.1s] story_get done\n[0.1s] running story_get...\n[0.1s] story_get done\n[0.1s] running init_preflight...\n[0.2s] init_preflight done\n[0.1s] running finding_list...\n[0.3s] finding_list done\nartifact-schema migration test passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:13.043Z",
+            "executedAt": "2026-08-25T11:59:31.794Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         }
       ],
       "userSeesSnapshot": {
@@ -509,19 +502,19 @@
           "command": "node --input-type=module -e \"import {readFileSync} from \\\"node:fs\\\"; const source=readFileSync(\\\"packages/main/src/core/release-push-approval.ts\\\",\\\"utf8\\\"); const hook=readFileSync(\\\".githooks/pre-push\\\",\\\"utf8\\\"); const ok=[\\\"proof-or-stop.remote-push-approval.v1\\\",\\\"lattice.remote-push-approval.v1\\\",\\\"acceptedApprovalSchemas\\\"].every(value=>source.includes(value)||hook.includes(value)); if(!ok) process.exit(1); console.log(\\\"CHK-004 schema dual-read smoke: PASS\\\")\"",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-004:happy:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "d599b520aa0cbf9f107940a09d49ac353f86e4ed06cb763b7533116c71ba6195",
             "outputTail": "CHK-004 schema dual-read smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:13.248Z",
+            "executedAt": "2026-08-25T11:59:32.015Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -529,19 +522,19 @@
           "command": "node --input-type=module -e \"import {readFileSync} from \\\"node:fs\\\"; const hook=readFileSync(\\\".githooks/pre-push\\\",\\\"utf8\\\"); const values=[\\\"path.join(root, \\\\\\\".proof-or-stop\\\\\\\", \\\\\\\"tmp\\\\\\\", \\\\\\\"remote-push-approval.json\\\\\\\")\\\",\\\"path.join(root, \\\\\\\".lattice\\\\\\\", \\\\\\\"tmp\\\\\\\", \\\\\\\"remote-push-approval.json\\\\\\\")\\\",\\\"expiresAt\\\",\\\"Date.parse\\\",\\\"approval expired\\\",\\\"main-only\\\"].every(value=>hook.includes(value)); if(!values) process.exit(1); console.log(\\\"CHK-004 approval boundary smoke: PASS\\\")\"",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-004:edge:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c51c425720dd4c0a476ad67d2c41d169ccc0e3ddae7b58c0468ebe98db793659",
             "outputTail": "CHK-004 approval boundary smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:13.440Z",
+            "executedAt": "2026-08-25T11:59:32.221Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -549,19 +542,19 @@
           "command": "node --input-type=module -e \"import {readFileSync} from \\\"node:fs\\\"; import {execFileSync} from \\\"node:child_process\\\"; const hook=readFileSync(\\\".githooks/pre-push\\\",\\\"utf8\\\"); const required=[\\\"fs.unlinkSync(approvalPath)\\\",\\\"approval schema is missing or invalid\\\",\\\"approval sha mismatch\\\"].every(value=>hook.includes(value)); if(!required) process.exit(1); execFileSync(\\\"bash\\\",[\\\"-n\\\",\\\".githooks/pre-push\\\"]); console.log(\\\"CHK-004 one-shot rejection smoke: PASS\\\")\"",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-004:adversarial:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "689098aec9319857efbb52af75c13cdf00463eb8f5b22d8f79624018feec68c4",
             "outputTail": "CHK-004 one-shot rejection smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:13.644Z",
+            "executedAt": "2026-08-25T11:59:32.451Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         }
       ],
       "userSeesSnapshot": {
@@ -644,19 +637,19 @@
           "command": "node packages/main/tests/package-identity-migration.test.mjs",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-005:happy:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8f9a6a8e492c71ecc59206e624d91c8f0406780a9606b9d89da1cc8e6092defb",
             "outputTail": "package identity migration test passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:13.942Z",
+            "executedAt": "2026-08-25T11:59:32.812Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -664,19 +657,19 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-005:edge:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8cc4bc9365c57c76e577140a05225c4a564830490c9580da254959292feaa061",
             "outputTail": "version-bump smoke passed: 88 assertions\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:14.407Z",
+            "executedAt": "2026-08-25T11:59:33.313Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -684,19 +677,19 @@
           "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import {mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs'; import {join} from 'node:path'; import {tmpdir} from 'node:os'; import {runRuntimeEnvironmentChecks} from './packages/main/dist/core/runtime-environment-checks.js'; const root=mkdtempSync(join(tmpdir(),'b5a88-selfhost-')); mkdirSync(join(root,'packages','main'),{recursive:true}); writeFileSync(join(root,'package.json'),JSON.stringify({name:'proof-or-stop',version:'0.3.266'})); writeFileSync(join(root,'packages','main','package.json'),JSON.stringify({name:'@proof-or-stop/core',version:'0.3.266'})); const canonical=runRuntimeEnvironmentChecks(root,{commandResolver:()=>null,globalNpmRootResolver:()=>null,corePackageRoot:join(root,'packages','main')}); assert.equal(canonical.isSelfProject,true); writeFileSync(join(root,'package.json'),JSON.stringify({name:'lattice',version:'0.3.266'})); const legacy=runRuntimeEnvironmentChecks(root,{commandResolver:()=>null,globalNpmRootResolver:()=>null,corePackageRoot:join(root,'packages','main')}); assert.equal(legacy.isSelfProject,true); rmSync(root,{recursive:true,force:true}); console.log('self-host canonical and legacy root smoke: PASS');\"",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-005:adversarial:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "3aaaf3a789ca535da6379e70df5f0cecdd97e07ecb5c320cc5feb6a214d90acc",
             "outputTail": "self-host canonical and legacy root smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:14.681Z",
+            "executedAt": "2026-08-25T11:59:33.627Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         }
       ],
       "userSeesSnapshot": {
@@ -784,19 +777,19 @@
           "command": "node packages/main/tests/package-identity-migration.test.mjs",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-006:happy:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8f9a6a8e492c71ecc59206e624d91c8f0406780a9606b9d89da1cc8e6092defb",
             "outputTail": "package identity migration test passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:14.975Z",
+            "executedAt": "2026-08-25T11:59:33.942Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -804,19 +797,19 @@
           "command": "node scripts/verify-global-lab-entrypoint.mjs versions",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-006:edge:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4920d5a44a0d3a616c9b8281e6322b7b8e407d9163f0c8e5bc0d9245be25a47e",
             "outputTail": "ok versions\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:15.181Z",
+            "executedAt": "2026-08-25T11:59:34.206Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -824,19 +817,19 @@
           "command": "node --input-type=module -e \"import fs from \\\"node:fs\\\"; import assert from \\\"node:assert/strict\\\"; const files=[\\\"packages/utils/package.json\\\",\\\"packages/utils/package-lock.json\\\",\\\"packages/lab/package.json\\\",\\\"packages/lab/package-lock.json\\\",\\\"packages/main/package.json\\\",\\\"packages/main/package-lock.json\\\"]; for (const file of files) JSON.parse(fs.readFileSync(file,\\\"utf8\\\")); const core=JSON.parse(fs.readFileSync(\\\"packages/main/package.json\\\",\\\"utf8\\\")); const utils=JSON.parse(fs.readFileSync(\\\"packages/utils/package.json\\\",\\\"utf8\\\")); const lab=JSON.parse(fs.readFileSync(\\\"packages/lab/package.json\\\",\\\"utf8\\\")); assert.equal(core.dependencies[\\\"@proof-or-stop/lab\\\"],\\\"0.3.65\\\"); assert.equal(utils.name,\\\"@proof-or-stop/utils\\\"); assert.equal(lab.name,\\\"@proof-or-stop/lab\\\"); console.log(\\\"CHK-006 package graph JSON smoke: PASS\\\");\"",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-006:adversarial:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "5620c69351fdacf7152368e8275c9430d1443cc13cf1b36018fd19a5cff3f54a",
             "outputTail": "CHK-006 package graph JSON smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:15.373Z",
+            "executedAt": "2026-08-25T11:59:34.421Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         }
       ],
       "userSeesSnapshot": {
@@ -919,19 +912,19 @@
           "command": "npm --prefix packages/main run test:lattice-residue",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-007:happy:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "d1c43ecdf821b9b292d7af6fc8f88f48af4db422714a140092e4a92958bc4d0e",
             "outputTail": "\n> @proof-or-stop/core@0.3.269 test:lattice-residue\n> node ../../scripts/verify-lattice-residue.mjs\n\nPASS lattice-residue [koala]: 0 brand residue in product runtime source\nPASS lattice-residue [brand-prose]: 0 bare `lattice <cmd>` invocations in active docs (3 documented exemption(s) verified live)\nPASS lattice-residue [brand-exec]: 0 bare `lattice <cmd>` invocations on the executable surface (bin, .codex, package.json, proof-or-stop.config.json, lattice.config.json, CITATION.cff, packages/utils/src)\nPASS lattice-residue [npm-bin]: packages/main publishes only the proof-or-stop bin\nPASS lattice-residue [brand-decision]: 0 deprecated brand-path decision sites in product runtime source (forbidden tokens derived from packages/main/src/core/brand-paths.ts: lattice.config.json, .lattice-codex, lattice.json, .lattice)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:15.861Z",
+            "executedAt": "2026-08-25T11:59:35.251Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -939,19 +932,19 @@
           "command": "node packages/main/dist/cli.js help",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-007:edge:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "d7563d18e10116e5746aa0bf22871df5cd1a89c1698989b359f376d1fc05aa35",
             "outputTail": ":\n    init_preflight\n  Intent:\n    intent_collision_get\n    intent_coverage_check\n  Learning:\n    learning_scan\n    learning_validate\n    learning_effectiveness\n  Lifecycle:\n    lifecycle_check\n    lifecycle_orchestrate\n  Light:\n    light_review\n  Live:\n    live_smoke_transcript\n  Memory:\n    memory_benchmark_run\n    memory_benchmark_compare\n    memory_benchmark_real_data\n    memory_playbook_baseline_generate\n    memory_playbook_baseline_verify\n  Milestone:\n    milestone_status\n    milestone_closeout\n    milestone_ledger_get\n  Next:\n    next\n  Observability:\n    observability_snapshot\n  Original:\n    original_intent_snapshot_get\n  Overflow:\n    overflow_auto\n  Parallel:\n    parallel_wave_create\n    parallel_wave_inspect\n    parallel_plan\n    parallel_dispatch\n    parallel_status\n    parallel_merge_queue\n    parallel_report\n  Parent:\n    parent_ledger_rollup_set\n    parent_ledger_rollup_get\n    parent_roadmap_status\n    parent_roadmap_evaluate\n  Pinn:\n    pinn_claim_check\n    pinn_benchmark_run\n    pinn_report_render\n  Plan:\n    plan_skeleton\n    plan_get\n  Planner:\n    planner_draft\n    planner_review\n    planner_create_story\n    planner_create_job\n    planner_status\n    planner_answer\n    planner_decision_submit\n    planner_resume\n    planner_run\n    planner_source_manifest\n  Playbook:\n    playbook_runtime_health\n    playbook_propose\n    playbook_diff\n    playbook_approve\n    playbook_activate\n    playbook_outcome_record\n    playbook_promotion_sweep\n    playbook_promotion_observe\n    playbook_promotion_status\n    playbook_seed_observe\n    playbook_seed_propose_batch\n    playbook_seed_backfill\n    playbook_candidate_batch_approve\n    playbook_candidate_ingest\n    playbook_runtime_consumption_verify\n    playbook_trial_run\n    playbook_auto_promotion_apply\n    playbook_promotion_timer\n    playbook_reject\n  Pre:\n    pre_review_check\n    pre_review_check_read\n  Prewrite:\n    prewrite_guard_check\n  Prompt:\n    prompt_measurement_report\n  Proofstory:\n    proofstory_contract_get\n    proofstory_gate_check\n    proofstory_review_completeness_check\n  Quantum:\n    quantum_claim_check\n    quantum_claim_benchmark\n    quantum_claim_report\n  Queue:\n    queue_governance_status\n    queue_exception_set\n  Quorum:\n    quorum_submit\n    quorum_prune\n  Recall:\n    recall\n  Recover:\n    recover_evidence\n  Red:\n    red_evidence_get\n    red_green_relation_create\n    red_green_relation_evaluate\n    red_evidence_binding_set\n    red_evidence_quarantine\n    red_evidence_recover\n  Regression:\n    regression_matrix_review_set\n  Repro:\n    repro_probe\n    repro_probe_get\n    repro_review_set\n  Reviewer:\n    reviewer_batch\n    reviewer_list\n  Runtime:\n    runtime_closure_status\n  Scope:\n    scope_contract_set\n    scope_contract_show\n    scope_contract_check\n    scope_contract_acknowledge\n    scope_diff_pack\n    scope_contract_init_from_plan\n    scope_shrinkage_decision_set\n    scope_shrinkage_decision_get\n  Signature:\n    signature_registry_list\n    signature_registry_set\n    signature_backfill\n  Slice:\n    slice_plan_get\n  Source:\n    source_lineage_audit\n  Spike:\n    spike_get\n    spike_record\n    spike_review_set\n  Stall:\n    stall_resolution_set\n  Summary:\n    summary_set\n    summary_get\n  Topology:\n    topology_exclusion_approval_set\n    topology_critic_receipt_set\n    topology_critic_receipt_check\n  Truth:\n    truth_scan\n    truth_nav\n    truth_analyze\n    truth_to_story\n    truth_extract\n  Usage:\n    usage_sweep\n  Verification:\n    verification_evidence_add\n    verification_evidence_batch_add\n    verification_run\n    verification_evidence_refresh_stale\n    verification_intent_repair\n    verification_context_pack_create\n    verification_context_pack_expand\n    verification_pin_guard_check\n  Verify:\n    verify_codex\n\n  Brief catalog (grouped command names).\n  What a command does + arguments: proof-or-stop <command> --help\n  Full catalog (descriptions, parameter schemas, development flow): proof-or-stop help --full   (or set PROOF_OR_STOP_BRIEF_OUTPUT=0)\n\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:16.478Z",
+            "executedAt": "2026-08-25T11:59:35.909Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -959,19 +952,19 @@
           "command": "node scripts/verify-lattice-residue.mjs --self-test",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-007:adversarial:0 under RR-414.",
-          "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-          "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-          "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
+          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8d3db4f5c9f4ff38db9a23f76d5a641713b79f4d61e9b6ad4e98e7563f196073",
             "outputTail": "PASS lattice-residue self-test: 65/65 detector unit tests\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T09:42:16.682Z",
+            "executedAt": "2026-08-25T11:59:36.112Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T09:42:16.701Z"
+          "timestamp": "2026-08-25T11:59:36.133Z"
         }
       ],
       "userSeesSnapshot": {
