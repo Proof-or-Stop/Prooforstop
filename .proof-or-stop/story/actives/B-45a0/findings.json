@@ -15304,6 +15304,62 @@
       ],
       "signatureTag": "ri060-current-replay-assurance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-300",
+      "desc": "doc-code-drift: docs/requirements/decisions/dynamic-validation-operations.md:27-36 and docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md:13-36 state that every validate.commands row carries/preserves an explicit policy tuple including cpuWeight and expectedP50Ms, and that missing policy is recorded as policySource=default and cannot satisfy ownership. Current proof-or-stop.config.json and lattice.config.json have 112 rows but 110 omit cpuWeight and expectedP50Ms; discoverValidationInventory only carries those fields when present or when policyDefaults supplies them (current defaults supply cpuWeight but not expectedP50Ms), compileValidationCatalog silently defaults cpuWeight to 1, leaves expectedP50Ms optional, and authority ownership checks policySource plus assurance/risk/closure/baseline fields without requiring expectedP50Ms. This makes the current-main documentation overstate the explicit configuration contract and the fail-closed behavior; either require/populate both fields and enforce them, or document the actual default/optional semantics.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-25T06:01:55.108Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-543",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "d419d0020fe761b36ae300f83b5652167da77c21a599b8dd2984f288e138e529"
+      },
+      "readDiagnostics": [],
+      "_hash": "8618024c6aec10c8ecadea2d83958234859f34029689c060b130eb2d6ef5bae9",
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/dynamic-validation-current-main-characterization.md",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "proof-or-stop.config.json",
+        "lattice.config.json"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
