@@ -9233,6 +9233,87 @@
       },
       "readDiagnostics": [],
       "_hash": "c0247a9a706eba1c04484d32384648aec655e6d7edde420ab558dc821fbdf204"
+    },
+    {
+      "id": "B-5a15:RP-194",
+      "agent": "lattice-review-concept",
+      "note": "Current-round concept review completed: main...story/B-5a15 adds and extends CausalEvidence, CAS receipt, freshness, and preflight behavior but deletes or replaces no concept or file, so no residue scan or new concept family applies. Existing pre-review and rerun-identity families were treated as baseline and not duplicated.",
+      "createdAt": "2026-08-25T09:40:13.226Z",
+      "reviewRound": "2026-08-25T08:18:57.591Z",
+      "reviewRunId": "B-5a15:RR-640",
+      "envelopeId": "8d18acaa1ac48257fa1f416a40c4905c951c1321010e8ab1839ebff13f2ce20a",
+      "writerSessionId": "sess-94b5c1434f8072bf143e95b1e49e9faa",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5dfaf1643ac5bbd64fefeb273435effc313cbc6bc64cf11d203b0154c3bc344e"
+    },
+    {
+      "id": "B-5a15:RP-195",
+      "agent": "lattice-review-topology-critic",
+      "note": "Reviewed the signed RI-043 wave-2 aggregate, all required lane terminals, the current topology basis and committed topology receipt, and the verifier-owned pre-review and rollout read results. No new finding family was found beyond the existing causal rerun identity-binding, pre-review artifact admissibility, and pre-review coverage regression families; F-295 and F-296 are duplicates to be disposed in the critic receipt.",
+      "createdAt": "2026-08-25T09:56:21.144Z",
+      "reviewRound": "2026-08-25T08:18:57.591Z",
+      "reviewRunId": "B-5a15:RR-642",
+      "envelopeId": "81b138f1e4a22b7eb8a74ccfcec052a831edccd9799350561a7ec843edd33579",
+      "writerSessionId": "sess-f28bc456b9143529786eb1e3e2fb2cbd",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/process-events.jsonl",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "e99c9ebedca274e7c7d669046c49a99e0039d0d69ae12d9b7071325af1472bca"
     }
   ]
 }
