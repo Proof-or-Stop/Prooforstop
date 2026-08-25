@@ -170,7 +170,6 @@ function recordExecutedCase(unboundRecord: ExecutedCaseWithoutSourceRef): void {
 
 const rolloutPromptNames = [
   'proof-or-stop-implementer',
-  'proof-or-stop-test-case-reviewer',
   'proof-or-stop-review-topology-critic',
   'proof-or-stop-review-concept',
   'proof-or-stop-review-quality',
