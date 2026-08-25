@@ -20779,6 +20779,61 @@
       ],
       "signatureTag": "missing|json|happy-wave4-reads",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-464",
+      "desc": "The current RI-085 acceptance chain is not admissible: acceptance_basis receiptVerification reports AT_SCOPE_BINDING_MISSING because its scope-check digest differs from the current scope artifact; acceptance_topology_check is structuralPass=false with the same diagnostic; pre_review_check_read is fail with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND. acceptance_rollout_report_read and acceptance_rollout_check are pass/full-3x2, but those rollout reads cannot substitute for a current bound basis and pre-review receipt. The three RI-085 lane findings are independently corroborated by these canonical read surfaces.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-25T19:13:37.931Z",
+      "reviewRound": "2026-08-25T18:47:32.125Z",
+      "reviewRunId": "B-5a88:RR-839",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "8f7567d615dc5fd8d7971dc0da0425d79b5795bfef068b5fc965922987867ec3",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json"
+      ],
+      "signatureTag": "missing|json|current-acceptance-chain",
+      "signatureTagSource": "auto"
     }
   ]
 }

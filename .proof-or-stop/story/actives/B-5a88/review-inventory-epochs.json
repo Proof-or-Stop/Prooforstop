@@ -11987,6 +11987,49 @@
       ],
       "createdAt": "2026-08-25T18:20:34.534Z",
       "_hash": "0a858bef5afbf2631bc98c9472514ae11c20bb7327e00c9feff1a56cf1e152bd"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-085:CRIT-01",
+      "epochId": "B-5a88:RI-085",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-25T18:47:32.125Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "87aa24ffa545479903872de404d9156883a47830",
+        "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
+        "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1"
+      },
+      "aggregateFindingSetDigest": "8551c5781c8995f310e5a1039d3b3b37c85c83ce411b0f7ec5dc42d38b9b1ac3",
+      "requiredLaneCoverageDigest": "a576ef5ac2db74eaa268d3f6e44ebcb2e2fcbce37ba338493ba29f40286b0572",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-839",
+      "terminalEvidenceIds": [
+        "B-5a88:F-464"
+      ],
+      "readEvidenceDigest": "9365f96df6775fb3893eacba1b7fe4a9ff2c82d6969633c36566314e7ebb2350",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-461",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-461",
+          "reason": "Canonical basis and pre-review reads independently reproduce the reported scope-binding and admissibility failures."
+        },
+        {
+          "findingId": "B-5a88:F-462",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-462",
+          "reason": "The quality-lane finding is independently supported by the same current invalid basis and failed pre-review receipt."
+        },
+        {
+          "findingId": "B-5a88:F-463",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a88:F-463",
+          "reason": "The coverage-lane finding is independently supported because topology and pre-review remain failed despite rollout reads passing."
+        }
+      ],
+      "createdAt": "2026-08-25T19:14:04.905Z",
+      "_hash": "98069ceb077766d032da385ff3f3443d7fbaa44bc17b104e810da13be8dce598"
     }
   ]
 }
