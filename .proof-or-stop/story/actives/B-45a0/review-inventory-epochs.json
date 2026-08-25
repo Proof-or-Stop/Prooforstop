@@ -8628,6 +8628,61 @@
       ],
       "createdAt": "2026-08-25T06:26:31.630Z",
       "_hash": "c71915c23cb8f0bcdd1313e21422a112fcb8b5bb51310a4986c5420caf78d6b2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-061:CRIT-01",
+      "epochId": "B-45a0:RI-061",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "da39b3c8f386b686049ba739581dcf99216bc9a1",
+        "materialHash": "77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8",
+        "storyFilesHash": "60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664"
+      },
+      "aggregateFindingSetDigest": "51035243f562ee06c339f8338c362c4cfcf33c75e6ab7751c6e649f45a6bad04",
+      "requiredLaneCoverageDigest": "ee7da98a2b36d85502391badcc07fbb36187dfe01135cbf2ac89bb14737bc1cf",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-558",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-174"
+      ],
+      "readEvidenceDigest": "9b7d383ba0298334b4e216b29d30b63ec636727149b2364ee9fd2bfaad617c48",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-298",
+          "disposition": "verified_family",
+          "familyKey": "wave4-acceptance-coverage",
+          "reason": "Carry-forward verified family from the prior inventory epoch: current checklist evidence still lacks bound verifier-owned Wave 4 acceptance checks."
+        },
+        {
+          "findingId": "B-45a0:F-299",
+          "disposition": "verified_family",
+          "familyKey": "dyn3-replay-assurance",
+          "reason": "Carry-forward verified family from the prior inventory epoch: current CHK-011 replay assurance remains plan-only without executable receipts and paired performance evidence."
+        },
+        {
+          "findingId": "B-45a0:F-300",
+          "disposition": "verified_family",
+          "familyKey": "validation-policy-contract-documentation-drift",
+          "reason": "Carry-forward verified family: the documentation-to-runtime policy tuple contract remains mismatched for the 112-row validation inventory."
+        },
+        {
+          "findingId": "B-45a0:F-301",
+          "disposition": "verified_family",
+          "familyKey": "quality-review-assurance",
+          "reason": "Carry-forward verified family: current review assurance remains unresolved until valid current host quorum or an admissible fallback is recorded."
+        },
+        {
+          "findingId": "B-45a0:F-302",
+          "disposition": "verified_family",
+          "familyKey": "validation-policy-contract-documentation-drift",
+          "reason": "Re-attestation confirms the docs require explicit cpuWeight and expectedP50Ms on every validation row, while 110 of 112 canonical config rows omit both, defaults supply cpuWeight but not expectedP50Ms, and runtime catalog compilation keeps expectedP50Ms optional. This is the same verified documentation-drift family as F-300."
+        }
+      ],
+      "createdAt": "2026-08-25T06:41:45.744Z",
+      "_hash": "690ec5bca527bcf7dd0d6b9fc44d74f9b5ac281341495c48a1b56c71d5667190"
     }
   ]
 }
