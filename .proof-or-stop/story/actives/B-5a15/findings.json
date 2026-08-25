@@ -14536,7 +14536,7 @@
       "desc": "packages/main/src/handlers/verifier.ts:1641,1785 [medium] createValidationCausalPreflightGate is passed projectRoot even though handlerGitCwd is the resolved authoritative story git cwd at lines 1447-1449; the preflight probes HEAD, material/storyFiles hashes, Git index, worktree, and lease from its cwd. On a configured wrapper-root layout this runs readiness from the metadata root, so story validation is refused or bound to the wrong tree before child launch. Pass handlerGitCwd to both causal-preflight gates.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-24T16:43:12.815Z",
@@ -14568,7 +14568,11 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:40:08.219Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-277",
