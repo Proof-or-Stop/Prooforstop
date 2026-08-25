@@ -86,8 +86,8 @@ export function reviewerIdentitiesEqual(left: string | undefined, right: string 
   if (!left || !right) return false;
   const leftLane = canonicalReviewerLane(left);
   const rightLane = canonicalReviewerLane(right);
-  if (leftLane && rightLane) return agentRoleIdsEqual(leftLane, rightLane);
-  return left.trim() === right.trim();
+  if (!leftLane || !rightLane) return false;
+  return agentRoleIdsEqual(leftLane, rightLane);
 }
 
 /** Signal → list of trigger categories for +behavior (supports both English and the currently-used Chinese categories) */

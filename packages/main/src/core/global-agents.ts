@@ -42,7 +42,6 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   extractTemplateFrontmatter,
-  isActiveModularReviewerRoleId,
   isModularReviewerRoleId,
   renderReviewerRunBootstrap,
 } from './prompt-registry.js';

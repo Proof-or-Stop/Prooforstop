@@ -938,7 +938,8 @@ if (isGlobalThin) {
 }
 
 // 4. agent 适配器 → 全局单一源 ~/.claude/agents thin-shim（B-097f）
-// Claude Code 只能从磁盘解析 subagent_type: lattice-*，但用户级全局
+// Claude Code 从磁盘解析 canonical proof-or-stop-* subagent_type；legacy
+// lattice-* values remain read-only compatibility aliases. 用户级全局
 // ~/.claude/agents 对所有项目生效，project-level 会 shadow user-level。
 // prompt 正文绝不物化进宿主目录（symlink 也算暴露）；每个角色只放一个
 // thin-shim（frontmatter + tools + "从 CLI 取指令" body），正文由

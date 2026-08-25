@@ -17,6 +17,7 @@ const schema = await import(join(distRoot, 'core/artifact-schema.js'));
 const generatedMetadata = await import(join(distRoot, 'core/done-prepare-generated-metadata.js'));
 const validationReuse = await import(join(distRoot, 'core/done-prepare-validation-reuse.js'));
 const dispatch = await import(join(distRoot, 'core/agent-dispatch-registry.js'));
+const reviewerOptIn = await import(join(distRoot, 'core/reviewer-opt-in.js'));
 const reviewerList = await import(join(distRoot, 'handlers/reviewer-list.js'));
 const managedAssets = await import(join(distRoot, 'core/managed-assets.js'));
 
@@ -72,6 +73,16 @@ assert.equal(dispatch.resolveAgentDispatchType('lattice-review-quality').canonic
 assert.equal(dispatch.resolveAgentDispatchType('verification-intent').canonicalType, 'proof-or-stop-test-intent');
 assert.throws(() => dispatch.resolveAgentDispatchType('lattice-review-unknown'), /unknown agentType/);
 assert.throws(() => dispatch.resolveAgentDispatchType('proof-or-stop-review-quality@fallback'), /unknown agentType/);
+assert.equal(
+  reviewerOptIn.reviewerIdentitiesEqual('proof-or-stop-review-unknown', 'proof-or-stop-review-unknown'),
+  false,
+  'unregistered reviewer identities cannot satisfy self-matching checks',
+);
+assert.equal(
+  reviewerOptIn.reviewerIdentitiesEqual('proof-or-stop-review-quality', 'lattice-review-quality'),
+  true,
+  'registered canonical and legacy reviewer identities still compare equal',
+);
 assert.equal(dispatch.resolveAgentDispatchType('lattice-review-concept').canonicalType, 'proof-or-stop-review-concept');
 assert.equal(dispatch.resolveAgentDispatchType('lattice-review-test-coverage').canonicalType, 'proof-or-stop-review-test-coverage');
 assert.deepEqual(identity.legacyAgentRoleIds('proof-or-stop-implementer'), ['lattice-implementer']);

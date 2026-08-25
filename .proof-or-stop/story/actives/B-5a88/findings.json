@@ -19825,6 +19825,112 @@
       ],
       "signatureTag": "cleanup|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-443",
+      "desc": "RI-081 topology review requests changes: acceptance_topology_check reports only a diagnostic PLAN structural pass and acceptance_rollout_report_read plus acceptance_rollout_check report current full-3x2 rollout, but pre_review_check_read returns FAIL with PR_ARTIFACT_TAMPERED, missing executable/transcript/authority evidence, failed mutation/control-restoration evidence, and stale evidence. The signed topology critic receipt is request_changes, so current pre-review acceptance is inadmissible and remediation is not authorized until the verifier-owned pre-review evidence is repaired and reissued.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-25T08:51:28.821Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-781",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/topology-critic-receipt.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "dfd5dfb5f89f12e210ba6f3d64fcb7d3ce1896833d1f34cacac3069f9cb0e0cc",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "topology-ri081-pre-review-not-admissible",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-444",
+      "desc": "RI-081 wave 2 topology remains non-admissible. The current acceptance_topology_check is an observe-mode structural diagnostic with authority=diagnostic_only and evidentiary=false; its configured row is inconclusive_basis_unverified. Although acceptance_rollout_report_read and acceptance_rollout_check report the current full-3x2 rollout, pre_review_check_read fails at the frozen cutoff with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, and PR_EVIDENCE_STALE. The topology critic receipt is therefore request_changes; do not finalize RI-081 or authorize remediation until verifier-owned pre-review evidence is regenerated and independently rechecked.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-25T09:32:12.697Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-788",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "5705a20180bd9f61c4f948e523526d037c4c1ba394402996a3964c8913edf0e8",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "signatureTag": "topology-ri081-wave2-pre-review-not-admissible",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
