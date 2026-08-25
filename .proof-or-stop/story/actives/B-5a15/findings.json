@@ -13980,7 +13980,7 @@
       "desc": "RI-029 wave 1 test-coverage review cannot establish whether the current verificationEvidence covers the full verificationIntent because the required on-disk checklist evidence and baseline findings were not read in this run; treat this as a suspected review-input gap, not a confirmed source defect.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "suspected",
       "uncertaintyReason": "Required on-disk coverage evidence and baseline findings were not independently read before the terminal cutoff, so this is a review-input limitation rather than a confirmed implementation gap.",
       "agent": "lattice-review-test-coverage",
@@ -14011,7 +14011,11 @@
         ".proof-or-stop/story/actives/B-5a15/findings.json"
       ],
       "signatureTag": "missing|json|wave-test-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:39:13.696Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-266",
