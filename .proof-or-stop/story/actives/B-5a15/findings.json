@@ -13374,7 +13374,7 @@
       "desc": "Current Wave-4 test-coverage review cannot pass: all 53 checklist verificationEvidence rows execute only node --test packages/main/tests/causal-evidence.test.mjs. The current signed acceptance rollout receipt is full-3x2 and acceptance_rollout_check passes, but no checklist evidence binds executable coverage for acceptance_rollout_report_read, acceptance_rollout_check, or the required degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback-history checks; the passing gate receipt is not a substitute for that reviewer coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T09:54:53.253Z",
@@ -13409,7 +13409,11 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "missing|ts|current-wave-test",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:38:00.005Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-252",
