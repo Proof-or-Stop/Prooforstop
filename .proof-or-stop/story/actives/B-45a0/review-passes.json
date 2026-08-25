@@ -11793,6 +11793,51 @@
         "scanEscalationReason": "RI-073 docs review extracted 109 exported symbols, located 215 exact symbol-reference lines, and compared 101 unique heading-anchored documentation paragraphs. Replay commands, no-live-Story project-root behavior, dynamic configuration, shard receipts, authority boundaries, and rollback language map to registered implementations. No documentation-code drift or promised-but-undelivered docs was found; PR_* pre-review evidence remains a separate runtime finding."
       },
       "_hash": "ce06f4996f892c2980430feb9f47e4f6b87fa5a45c5f5e58d751c3df845373c8"
+    },
+    {
+      "id": "B-45a0:RP-234",
+      "agent": "lattice-review-concept",
+      "note": "RI-073 wave-2 concept disposition complete. F-321 and F-322 were reviewed as current acceptance-evidence findings covering stale/inadmissible verifier-owned basis, pre-review, and rollout artifacts; they are preserved as existing families. No concept deletion or replacement was introduced, and no new testIntent, TEST_CASE, TEST_CASE_REVIEW, test-case-reviewer, or B-38b7 residue was found. This lane does not claim acceptance evidence is admissible.",
+      "createdAt": "2026-08-25T17:10:32.040Z",
+      "reviewRound": "2026-08-25T16:06:11.159Z",
+      "reviewRunId": "B-45a0:RR-650",
+      "envelopeId": "8dc4ab6cfa16e687d6596d451beb75a44a3e3b44d829778f2983c7b73ba8d43b",
+      "writerSessionId": "sess-review-ri073-wave2-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "scanEscalationReason": "Fresh RI-073 wave-2 concept disposition reviewed F-321 and F-322 against the current signed finding set and verifier-owned acceptance artifacts. Both are the same acceptance-evidence family (current basis/pre-review/rollout admissibility), not concept deletions or replacements; preserve them and F-299 without duplication. Repository concept scan found no new testIntent, TEST_CASE, TEST_CASE_REVIEW, test-case-reviewer, or B-38b7 deletion residue."
+      },
+      "_hash": "626efadf307a6ba184edc527378760090868d81ca71f2c54bdb033306178e0ab"
     }
   ]
 }
