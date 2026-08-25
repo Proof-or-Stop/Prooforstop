@@ -18613,6 +18613,70 @@
       ],
       "signatureTag": "cleanup|ts|experience-layer-review-legacy-launch-assertion",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-418",
+      "desc": "Current quality review RR-705 confirms the F-417 source fix: experience-layer-review-dispatch-hint-smoke.ts now uses proof-or-stop-review-* launch assertions, and the relevant canonical checks pass; its remaining 4 failures are pre-existing golden/error-injection baseline failures, not retired reviewer IDs. F-414 is also verified fixed: remote-push-approval-smoke.js passes all 6 cases and setupRepo ignores both legacy .lattice and canonical .proof-or-stop paths. However F-416 remains genuine at the current review binding: acceptance_topology_check --storyId=B-5a88 --json returns status=fail with AT_SCOPE_BINDING_MISSING because the acceptance-basis receipt and current scope contract digests/storyFilesHash do not match; pre_review_check_read --storyId=B-5a88 --json returns status=fail, ok=false, codes=[PR_ARTIFACT_TAMPERED]. Regenerate verifier-owned acceptance basis and pre-review artifacts after the scope-contract update, then rerun both checks before accepting this quality review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-25T01:26:06.169Z",
+      "reviewRound": "2026-08-25T01:19:40.773Z",
+      "reviewRunId": "B-5a88:RR-705",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+          "packages/main/src/tasks/remote-push-approval-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-contract.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/templates/agents/",
+          "packages/main/tests/",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json",
+          "scripts/"
+        ],
+        "scanEscalationReason": "Current quality lane reviewed the story-level migration scope and focused the source audit on F-417, F-414, and the verifier-owned F-416 binding failure; no independent F-415 finding was recreated."
+      },
+      "_hash": "11b1cb462e1f8934f2cb08297828ebfdd6a65a2073852373015c0385031fc3dc",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/scope-contract.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+        "packages/main/src/tasks/remote-push-approval-smoke.ts"
+      ],
+      "signatureTag": "missing|unknown|quality-gate-evidence",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
