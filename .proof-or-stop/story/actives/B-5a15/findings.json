@@ -14627,7 +14627,7 @@
       "desc": "Quality review confirms the causal environment implementation now binds non-transport SESSION-like variables, but the verifier-owned acceptance proof is stale: pre_review_check_read returns PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, and acceptance_rollout_check returns blocking AR_REPORT_STALE. Refresh these canonical artifacts in DEV before review can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-24T17:53:02.711Z",
@@ -14665,7 +14665,11 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|ts|quality-review-confirms",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:40:18.818Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-279",
