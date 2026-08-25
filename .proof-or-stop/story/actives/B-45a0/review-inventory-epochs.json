@@ -5171,9 +5171,9 @@
       "epochId": "B-45a0:RI-060",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-25T04:59:21.120Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-25T05:26:30.206Z",
-      "updatedAt": "2026-08-25T06:12:04.087Z",
+      "updatedAt": "2026-08-25T06:27:20.584Z",
       "cutoff": {
         "headHash": "3a9a7ca5abcc15855f62e915a98018cb25ab6154",
         "materialHash": "77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8",
@@ -5313,7 +5313,41 @@
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "6ce3d42953bb9b1f6a6e28adbf096cbba45eb22d0417dbbb27677c2069c6cf21"
+      "cancelledAt": "2026-08-25T06:27:20.584Z",
+      "cancelReason": "RI-060 exhausted its three-wave budget with verified remediation families; begin a fresh remediation epoch to baseline the current findings and authorize governed DEV repairs.",
+      "terminalRunSequenceBoundary": 553,
+      "_hash": "bed43146b283ff97c0f1873e328b5d0d9becbe60f8bee037ca9fede3089e1301"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-061",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-25T06:27:28.786Z",
+      "updatedAt": "2026-08-25T06:27:28.786Z",
+      "cutoff": {
+        "headHash": "da39b3c8f386b686049ba739581dcf99216bc9a1",
+        "materialHash": "77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8",
+        "storyFilesHash": "60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664"
+      },
+      "scopeDigest": "ae50f495733d059f95d5141650b196e4c64d1d309bb763da05dafa99f5d571ec",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 553,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-45a0:F-298",
+        "B-45a0:F-299",
+        "B-45a0:F-300",
+        "B-45a0:F-301"
+      ],
+      "_hash": "d2b5ca2ce109d2efbe2929e924796bfd904ae662a68817413b2b1b673cf4dec5"
     }
   ],
   "receipts": [

@@ -8366,6 +8366,140 @@
       },
       "readDiagnostics": [],
       "_hash": "54a4fb93be49b3b1954bc38cc2d5759bd1342a9842ba4ce185ad5a601efc67ac"
+    },
+    {
+      "id": "B-45a0:RP-171",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-061 wave-1 current-head coverage re-attestation completed at the current wave boundary. The 45 checklist evidence rows remain current for materialHash 77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8 and storyFilesHash 60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664. Existing verified coverage families F-298 (verifier-owned acceptance evidence) and F-299 (plan-only replay assurance) remain open and unchanged; no new coverage family was found, so no duplicate finding was created. Existing findings remain blockers for critic disposition.",
+      "createdAt": "2026-08-25T06:31:44.339Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-555",
+      "envelopeId": "fddd523ec1aa1ae73794e5be7200e88887bbf3db44b832d22563d5fbebbb275f",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2358ecd5eadbe092d870a323f3facc2a2066a0af1ac2caa0d7686c6b755798a6"
+      },
+      "readDiagnostics": [],
+      "_hash": "e59df1c0ea31c528469242b084a862d736961976228701a9bdf46cb355e71861"
+    },
+    {
+      "id": "B-45a0:RP-172",
+      "agent": "lattice-review-concept",
+      "note": "Fresh RI-061 concept review completed: the current diff adds the story-aware dynamic-validation program and does not delete or replace a repository concept; repository-wide residue scan found no incomplete concept cleanup requiring a blocker.",
+      "createdAt": "2026-08-25T06:31:47.405Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-556",
+      "envelopeId": "07b9324595f0c6461caf1f0f12b65da0e479a94e708f905056638aafa2962aee",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ee8362796702ab650af05fdadb8731e6634a68c2c539cd8f26fb14afacc37174"
+    },
+    {
+      "id": "B-45a0:RP-173",
+      "agent": "lattice-review-quality",
+      "note": "RI-061 wave-1 quality re-attestation inspected the current Story-Aware Dynamic Validation diff, including the approved flow-stability fixture seed, core planner, runtime adapter, verifier integration, and DYN-5 shard paths. No new dead-code, type-safety, I/O-isolation, or proof-metadata correctness blocker was found. Existing quality-review-assurance, coverage, and documentation finding families remain open and are not duplicated; this pass does not claim review-escalation or pre-review evidence freshness.",
+      "createdAt": "2026-08-25T06:38:53.401Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-557",
+      "envelopeId": "06e6a1f17436aeecea076923dcf5543c26572911cf255b9dcb82e17151bdfa8e",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-shards.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "packages/main/src/tasks/review-pass-shards.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "81c350cbdb60a86a0da8c1848a9fe0011a067a3a171e7122e75364ccc14490de"
     }
   ]
 }
