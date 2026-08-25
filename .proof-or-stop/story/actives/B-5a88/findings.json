@@ -18699,7 +18699,7 @@
       "desc": "packages/main/src/core/review-incremental-context.ts:776-829 and packages/main/src/core/prompt-envelope.ts:392-420 leave an oversized bounded basis in incremental eligibility when only impact.impactedFiles or authoritativeReferences exceeds FULL_TASK_CONTEXT_LIMITS.pathsPerList: the code nulls reviewBasis but does not add a FULL_* reason code or set contextMode to full. The assembler consequently emits a full SAFETY_REQUIRES_FULL envelope, while packages/main/src/core/review-run.ts:870-878 recomputes contextMode as incremental and rejects the signed run with \"full safety selection contradicts authoritative incremental eligibility\". This merge-resolution path cannot produce a valid bounded review for those oversized inputs. Carry the full fallback reason/context-mode escalation through the authoritative recomputation and add regression coverage for impactedFiles and authoritativeReferences caps. Evidence is bound to RR-723 at HEAD 9eccf0fc8641f8b063e83428beb38e5fd44a1660, materialHash 04b5d666cbfea4668c2f8facbbdcf47c4b3b9d430f0f69acd617715dfb1ce536, storyFilesHash 33680db97f81ad77d3ea1d5703de212db1f0b7b948024ffbb86fd44f3f34a572.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-25T03:37:15.844Z",
@@ -18729,14 +18729,18 @@
         "packages/main/src/core/review-run.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit 1009f28d649b641db6600362102d13f1abfb443c. review-incremental-context now detects oversized changedFiles, impact.impactedFiles, authoritativeReferences, finding arrays, and long descriptions, then carries stable FULL_* reason codes and contextMode=full through the authoritative fallback. Focused bounded-path smoke covers impactedFiles and authoritativeReferences; quality RR-739 and coverage RR-738 independently passed the fix.",
+      "resolvedAt": "2026-08-25T06:10:40.316Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-420",
       "desc": "concept-cleanup: current non-historical writers still emit deprecated schema literals: packages/main/src/core/done-prepare-generated-metadata.ts:10 defines DONE_PREPARE_GENERATED_METADATA_SCHEMA as lattice.done-prepare-generated-metadata.v1 and uses it for the persisted manifest, while packages/main/src/core/done-prepare-validation-reuse.ts:22 and :288 define and write lattice.done-prepare-validation-reuse.v1. Neither writer is represented by a proof-or-stop canonical/legacy pair in packages/main/src/core/artifact-schema.ts, so the CHK-003 new-write rule is incomplete and these active records remain on the old concept instead of being canonical-write/legacy-read. This is distinct from F-419, which is untouched.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-25T03:57:14.105Z",
@@ -18794,7 +18798,11 @@
         "packages/main/src/core/artifact-schema.ts"
       ],
       "signatureTag": "missing|ts|concept-cleanup-current",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit 1009f28d649b641db6600362102d13f1abfb443c. done-prepare-generated-metadata.ts and done-prepare-validation-reuse.ts now write canonical proof-or-stop schemas, while artifact-schema.ts declares both canonical and legacy lattice aliases for compatibility reads. brand-role-migration.test.mjs and done-required-validation-smoke.js pass; concept RR-740 independently confirmed the active writers and canonical schema contract.",
+      "resolvedAt": "2026-08-25T06:10:49.729Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-421",
@@ -19001,6 +19009,447 @@
       "resolvedAt": "2026-08-25T04:48:14.965Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-425",
+      "desc": ".proof-or-stop/story/actives/B-5a88/checklist.json:109-975 — all 21 must-intent verificationEvidence receipts report pass but are pinned to headHash 32781ca3d05535f959736b1342cd7eacb48ebfaa, materialHash 04b5d666cbfea4668c2f8facbbdcf47c4b3b9d430f0f69acd617715dfb1ce536, and storyFilesHash 33680db97f81ad77d3ea1d5703de212db1f0b7b948024ffbb86fd44f3f34a572. The signed current review run B-5a88:RR-745 is bound to HEAD 43c49109caafbac9d2d761bbece48afa6a0e68fd, materialHash bbc09ade337af7793defc58408e9f7485311b786d8b08975048dae168e7b7752, and storyFilesHash a365fe245ab3e6589c93b0b7d393f0c8733a3ac175ec3219cf074c60653edd6c. These receipts are stale and cannot prove coverage of the current candidate; rerun or refresh all 21 intents against the current hashes before REVIEW can pass. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-25T05:57:32.636Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-745",
+      "_hash": "29e52642252d9a263437363c4b3414bf2349d720e89a2af852df15723d79a3ee",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-426",
+      "desc": ".proof-or-stop/story/actives/B-5a88/checklist.json:109-975 — the checklist has no verificationEvidence command or intentRef covering the Wave 4 verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check boundary. It also contains no executable evidence for the required full 3 rounds × 2 hosts (codex-cli + claude-cli), degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history. The signed review prompt explicitly requires these cases and says prompt prose is not evidence; acceptance artifacts alone cannot substitute for current executable coverage. Add signed current evidence for this boundary before REVIEW can pass. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-25T05:57:57.418Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-745",
+      "_hash": "f0f39ba60ee678c87f15e50f2f416280b7b66df7004c08b63f2348b3309a3ad8",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/src/handlers/proofstory.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-427",
+      "desc": "packages/main/src/core/reviewer-opt-in.ts:84-90 — the new reviewer identity helper claims that only registered identities match, but the fallback at line 90 returns true whenever two unregistered strings are equal. Reproduction against packages/main/dist/core/reviewer-opt-in.js: canonicalReviewerLane(\"proof-or-stop-review-unknown\") returns null while reviewerIdentitiesEqual(\"proof-or-stop-review-unknown\",\"proof-or-stop-review-unknown\") returns true. This lets an unknown/forced reviewer identity satisfy self-matching checks despite the registry boundary; return false when either side is unregistered (severity: medium).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-25T06:04:27.658Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-746",
+      "_hash": "eb3b111988dcac97f3a3bd650811fa847b161ea61dcec43aef73332c39a15ddb",
+      "files": [
+        "packages/main/src/core/reviewer-opt-in.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-428",
+      "desc": "packages/main/src/core/global-agents.ts:45 — the migration adds isModularReviewerRoleId at line 46 and replaces the branch to call it at line 253, but leaves isActiveModularReviewerRoleId imported and unused. The source scan shows no reference beyond the import, so this dead import is introduced by the rename and should be removed (severity: low).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-25T06:04:38.046Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-746",
+      "_hash": "e0702d866447d79cae68924f259eb5f6d89de37c01471f893960e32bcc5c40bd",
+      "files": [
+        "packages/main/src/core/global-agents.ts"
+      ],
+      "signatureTag": "cleanup|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-429",
+      "desc": ".proof-or-stop/story/actives/B-5a88/checklist.json:109-975 — all 21 must-intent verificationEvidence receipts report pass but are pinned to headHash 32781ca3d05535f959736b1342cd7eacb48ebfaa, materialHash 04b5d666cbfea4668c2f8facbbdcf47c4b3b9d430f0f69acd617715dfb1ce536, and storyFilesHash 33680db97f81ad77d3ea1d5703de212db1f0b7b948024ffbb86fd44f3f34a572. The signed current review run B-5a88:RR-755 is bound to HEAD 43c49109caafbac9d2d761bbece48afa6a0e68fd, materialHash bbc09ade337af7793defc58408e9f7485311b786d8b08975048dae168e7b7752, and storyFilesHash a365fe245ab3e6589c93b0b7d393f0c8733a3ac175ec3219cf074c60653edd6c. These receipts are stale and cannot prove coverage of the current RI-079 candidate; rerun or refresh all 21 intents against the current hashes before REVIEW can pass. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-25T06:19:49.380Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-755",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/utils/package.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/templates/agents/"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 10,
+          "tokenCount": null
+        },
+        "digest": "dc6e3c51cd5f3dfb9254a03f418f401f864581d35ee8b650a75ace649969f313"
+      },
+      "readDiagnostics": [],
+      "_hash": "b6a0f448438c20ff1e15bf14a2790926c5c0403814b8aa98869daddedc34a1b3",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-430",
+      "desc": ".proof-or-stop/story/actives/B-5a88/checklist.json:109-975 — the checklist has no verificationEvidence command or intentRef covering the Wave 4 verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check boundary. It also contains no executable evidence for the required full 3 rounds × 2 hosts (codex-cli + claude-cli), degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history. The signed review prompt explicitly requires these cases and says prompt prose is not evidence; acceptance artifacts alone cannot substitute for current executable coverage. Add signed current evidence for this boundary before REVIEW can pass. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-25T06:20:11.526Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-755",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/utils/package.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/templates/agents/"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 10,
+          "tokenCount": null
+        },
+        "digest": "dc6e3c51cd5f3dfb9254a03f418f401f864581d35ee8b650a75ace649969f313"
+      },
+      "readDiagnostics": [],
+      "_hash": "aa3e683bd2bc1a0a6b324bd46d041c6f4b302cd541310ba3177118687d751336",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "packages/main/src/handlers/proofstory.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-431",
+      "desc": "CLAUDE.md:797 — the active guide says the 17-template registry still has 13 legacy lattice-* role IDs, but packages/main/templates/agents contains 17 proof-or-stop-* filenames/frontmatter and the .claude/.proof-or-stop-codex mirrors are canonical; this contradicts CHK-001 canonical-write behavior and teaches stale role identities.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-25T06:21:19.203Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-754",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents",
+          ".githooks/pre-push",
+          ".proof-or-stop-codex/agents",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "CLAUDE.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/templates/agents",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "62e1b23587cd5f4369ff67615800d82d86610835d4882a627daa1527353d5301"
+      },
+      "readDiagnostics": [],
+      "_hash": "65d956d65ea40fd0064e8dba3057252bee07484dac9560c8dfd01c1105ee41ee",
+      "files": [
+        "CLAUDE.md"
+      ],
+      "signatureTag": "missing|md|claude-active-guide",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-432",
+      "desc": "packages/main/src/cli-init.ts:941 — the active init comment says Claude Code only parses subagent_type: lattice-*, while this migration canonicalizes emitted role IDs and current Claude shims use proof-or-stop-* frontmatter; the stale rationale can preserve or reintroduce retired role IDs in future init changes.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-25T06:21:40.335Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-754",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents",
+          ".githooks/pre-push",
+          ".proof-or-stop-codex/agents",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "CLAUDE.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/templates/agents",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "62e1b23587cd5f4369ff67615800d82d86610835d4882a627daa1527353d5301"
+      },
+      "readDiagnostics": [],
+      "_hash": "59193d4188b41504f9d3f82a73d55b84d6b3f48618c650c68c9efd5d70c92c03",
+      "files": [
+        "packages/main/src/cli-init.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-init",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-433",
+      "desc": "Wave 4 acceptance topology is structurally configured and the rollout read surfaces are current, but pre_review_check_read is not admissible at the frozen REVIEW cutoff: it returns status=fail with PR_POSITIVE_EVIDENCE_MISSING, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, and PR_EVIDENCE_STALE. The topology row is therefore inconclusive_basis_unverified for gate evidence. Do not certify topology or advance until verifier-owned current pre-review evidence and its authority bindings are regenerated and independently rechecked.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-25T06:34:55.734Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-757",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 12000
+        },
+        "digest": "2e2b2eeea3198f1db762e43f6b0a9845a2c95c2df06f3910bd143e251b87beb9"
+      },
+      "readDiagnostics": [],
+      "_hash": "13d73118bf6d47dac5092257de968db1967ff3eb403e1cfd5e7fcfc7cea6763b",
+      "files": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "topology-wave4-pre-review-not-admissible",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-434",
+      "desc": "RI-079 cannot accept topology completeness evidence or remediation authorization: proof-or-stop review_inventory_status reports the epoch terminal INVALIDATED with blocker OPEN_REVIEW_INVENTORY_SCOPE_MUTATION after the reviewer-lane identity migration, so no official review_inventory_critic_set can bind the four current verified families F-429 through F-432 and no review_inventory_finalize can finalize RI-079. The current topology evidence also retains F-433, where pre_review_check_read is fail/non-admissible with PR_POSITIVE_EVIDENCE_MISSING, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, and PR_EVIDENCE_STALE. Remediation is not authorized until a fresh valid inventory epoch and current verifier-owned pre-review evidence exist.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-25T07:11:44.952Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-762",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a7f2200f8d477595c84659fd08433d5aecfb4baf48bea0ee70b50a7435c2a22d",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-topology.ts"
+      ],
+      "signatureTag": "topology-wave4-inventory-invalidated-remediation-unauthorized",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
