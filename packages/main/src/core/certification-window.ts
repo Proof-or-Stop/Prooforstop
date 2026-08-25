@@ -54,6 +54,8 @@ export interface CertificationWindowFrozenIdentity {
   headHash: string;
   materialHash: string;
   storyFilesHash: string;
+  /** Domain inputs captured when the certification window was admitted. */
+  causalInputHashes?: Record<string, string>;
   expectedMainSha: string;
   verifierIdentity: string;
   testIdentity: string;
@@ -176,6 +178,7 @@ export interface CertificationWindowAdmitFacts {
   dirtyNonRuntimePaths: string[];
   gitIndexReadable: boolean;
   evidenceTargetWritable: boolean;
+  causalInputHashes?: Record<string, string>;
   causalDependencyGraphDigest?: string;
   causalInputHashesDigest?: string;
   /** Optional signed decision used only by the explicit specialized consumer. */
@@ -710,6 +713,8 @@ export interface CertificationWindowCurrentIdentity {
   storyId?: string;
   materialHash?: string;
   storyFilesHash?: string;
+  /** Current hashes for the declared causal dependency inputs. */
+  causalInputHashes?: Record<string, string>;
   verifierIdentity?: string;
   testIdentity?: string;
   headHash?: string;

@@ -25,6 +25,12 @@ const {
 } = await import(
   pathToFileURL(join(distRoot, 'core/certification-window.js')).href,
 );
+const {
+  buildCertificationDecision,
+  deriveCertificationDomainInputHashes,
+} = await import(
+  pathToFileURL(join(distRoot, 'handlers/certification-window.js')).href,
+);
 
 const {
   CAUSAL_DEPENDENCY_DOMAINS,
@@ -1443,6 +1449,66 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
     'CHK-003:adversarial:3',
     'DONE-required whole-tree drift remains strict even when specialized evidence receives an unrelated-merge advisory',
   );
+});
+
+test('B-5a15 F-314: production domain inputs invalidate only the declared transitive closure', () => {
+  const repositoryRoot = mkdtempSync(join(tmpdir(), 'causal-production-domain-inputs-'));
+  const savedCwd = process.cwd();
+  const git = (args) => execFileSync('git', args, { cwd: repositoryRoot, stdio: 'ignore' });
+  try {
+    mkdirSync(join(repositoryRoot, 'packages', 'main', 'tests'), { recursive: true });
+    writeFileSync(join(repositoryRoot, 'packages', 'main', 'tests', 'domain-input.test.mjs'), 'export const version = 1;\n');
+    git(['init', '-b', 'main']);
+    git(['config', 'user.name', 'B-5a15 causal-evidence test']);
+    git(['config', 'user.email', 'b5a15-causal-evidence@example.test']);
+    git(['add', '.']);
+    git(['commit', '-m', 'seed production causal domain input']);
+
+    const frozenInputHashes = deriveCertificationDomainInputHashes(repositoryRoot, 'HEAD', repositoryRoot);
+    assert.ok(frozenInputHashes, 'production derivation returns a complete domain map at the frozen snapshot');
+
+    git(['switch', '-c', 'story/causal-domain-test']);
+    writeFileSync(join(repositoryRoot, 'packages', 'main', 'tests', 'domain-input.test.mjs'), 'export const version = 2;\n');
+    git(['add', '.']);
+    git(['commit', '-m', 'mutate only the test causal domain']);
+    process.chdir(repositoryRoot);
+
+    const currentInputHashes = deriveCertificationDomainInputHashes(repositoryRoot, 'HEAD', repositoryRoot);
+    assert.ok(currentInputHashes, 'production derivation returns current domain inputs');
+    const currentHeadHash = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repositoryRoot, encoding: 'utf8' }).trim();
+    const current = {
+      storyId: 'B-causal-production-domain',
+      headHash: currentHeadHash,
+      materialHash: 'material-current',
+      storyFilesHash: 'story-current',
+      causalInputHashes: currentInputHashes,
+    };
+    const frozen = {
+      headHash: execFileSync('git', ['rev-parse', 'main'], { cwd: repositoryRoot, encoding: 'utf8' }).trim(),
+      materialHash: 'material-frozen',
+      storyFilesHash: 'story-frozen',
+      causalInputHashes: frozenInputHashes,
+      expectedMainSha: currentHeadHash,
+      verifierIdentity: 'proof-or-stop:done_required_validate',
+      testIdentity: 'npm test',
+    };
+    const decision = buildCertificationDecision(current.storyId, current, frozen);
+    assert.ok(decision);
+    assert.deepEqual(decision.changedInputIds, ['certification:test']);
+    assert.deepEqual(decision.affectedNodeIds, [
+      'certification-build-input',
+      'certification-integration',
+      'certification-manifest-semantic',
+      'certification-review-subject',
+      'certification-test',
+    ]);
+    assert.equal(decision.affectedNodeIds.includes('certification-source'), false);
+    assert.equal(decision.causalDecision, 'rerun');
+    assert.equal(decision.gateAdmissible, false);
+  } finally {
+    process.chdir(savedCwd);
+    rmSync(repositoryRoot, { recursive: true, force: true });
+  }
 });
 
 test('B-5a15: causal rerun receipts bind the current story and snapshot identity', async () => {
