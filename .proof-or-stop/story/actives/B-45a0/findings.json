@@ -15934,6 +15934,59 @@
       ],
       "signatureTag": "ri064-quality-review-assurance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-311",
+      "desc": "quality-review-assurance: packages/main/src/core/review-assurance-floor.ts:901-906 and current review_escalation_status at HEAD bf12730c8d0f934fbfc0259431808ac03b126f95 report ok=false, assuranceLevel=missing, zero valid full-quorum rounds, and no valid degraded fallback for materialHash 3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c and storyFilesHash 3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9. The separate acceptance rollout full-3x2 receipt is not reviewer-host assurance, so the current RI-065 quality lane cannot establish the required REVIEW/TEST/DONE assurance floor. Existing F-310 remains open; this is the current-head re-attestation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T10:25:16.121Z",
+      "reviewRound": "2026-08-25T10:16:24.136Z",
+      "reviewRunId": "B-45a0:RR-588",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "lattice.config.json",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": "Scoped RI-065 quality review checked current review-assurance and acceptance artifacts plus changed Story-aware validation consumers; no repository-wide decisions scan was required."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "a51e5b7a1508b406dc6966f0bba270bb92c7575cae7c240fb7a267d114aaa01c"
+      },
+      "readDiagnostics": [],
+      "_hash": "6c9e6cce53175dbc96635dab9fff4c41f81969f98cf8138fe3e4b690907ffaaf",
+      "files": [
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|ts|quality-review-assurance",
+      "signatureTagSource": "auto"
     }
   ]
 }
