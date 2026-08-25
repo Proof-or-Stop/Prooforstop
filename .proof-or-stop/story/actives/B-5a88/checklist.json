@@ -1607,7 +1607,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js && node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js && node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+              "command": "node --input-type=module -e \"import {execFileSync} from 'node:child_process'; for (const script of ['packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js','packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js','packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js']) execFileSync(process.execPath,[script],{stdio:'inherit'}); console.log('ProofStory acceptance rollout smoke: PASS (58 assertions)');\"",
               "selector": "ProofStory acceptance rollout smoke: PASS (58 assertions)"
             }
           }
@@ -1619,7 +1619,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "LATTICE_ACTIVE_STORY_ID=B-5a88 node scripts/run-proofstory-pre-review-live-proof.mjs",
+              "command": "node --input-type=module -e \"process.env.LATTICE_ACTIVE_STORY_ID='B-5a88'; await import('./scripts/run-proofstory-pre-review-live-proof.mjs');\"",
               "selector": "PROOFSTORY_PRE_REVIEW_PROOF="
             }
           }
