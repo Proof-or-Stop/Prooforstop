@@ -974,6 +974,246 @@
         "attestedAt": "2026-08-20T06:56:38.342Z",
         "materialHash": "1e8282797d72550419094b0972eeb745b6b384233893a8d511b65bd1865129d9"
       }
+    },
+    {
+      "id": "CHK-008",
+      "title": "Normalize host-verdict and review-assurance role identities",
+      "context": "Ensure host-verdict, review-assurance-floor, and related consumers read canonical and legacy reviewer role IDs consistently while new evidence writes remain canonical.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "userSees": "User sees review assurance and host verdict consumers accept legacy lane evidence while reporting canonical proof-or-stop roles.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Canonical and historical reviewer IDs resolve to the same registered proof-or-stop reviewer lane for host-verdict and review-assurance consumers.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalReviewerLane, reviewerIdentitiesEqual } from \\\"./packages/main/dist/core/reviewer-opt-in.js\\\"; import { resolveReviewRunLane } from \\\"./packages/main/dist/core/review-run.js\\\"; assert.equal(canonicalReviewerLane(\\\"lattice-review-quality\\\"), \\\"proof-or-stop-review-quality\\\"); assert.equal(reviewerIdentitiesEqual(\\\"lattice-review-quality\\\", \\\"proof-or-stop-review-quality\\\"), true); assert.equal(resolveReviewRunLane(undefined, \\\"lattice-review-quality\\\"), \\\"proof-or-stop-review-quality\\\"); console.log(\\\"CHK-008 reviewer identity normalization: PASS\\\");\"",
+              "selector": "CHK-008 reviewer identity normalization: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A historical reviewer identity with a scoped suffix canonicalizes its lane while preserving the suffix for consumer comparison.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalAgentRoleId } from \\\"./packages/main/dist/core/agent-role-identity.js\\\"; import { canonicalReviewerLane } from \\\"./packages/main/dist/core/reviewer-opt-in.js\\\"; assert.equal(canonicalAgentRoleId(\\\"lattice-review-quality@fallback\\\"), \\\"proof-or-stop-review-quality@fallback\\\"); assert.equal(canonicalReviewerLane(\\\"lattice-review-quality@fallback\\\"), \\\"proof-or-stop-review-quality\\\"); console.log(\\\"CHK-008 reviewer suffix compatibility: PASS\\\");\"",
+              "selector": "CHK-008 reviewer suffix compatibility: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Unregistered reviewer lookalikes and non-reviewer roles cannot satisfy the assurance reviewer identity boundary.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalReviewerLane, reviewerIdentitiesEqual } from \\\"./packages/main/dist/core/reviewer-opt-in.js\\\"; assert.equal(canonicalReviewerLane(\\\"lattice-review-unknown\\\"), null); assert.equal(canonicalReviewerLane(\\\"proof-or-stop-review-qualityish\\\"), null); assert.equal(reviewerIdentitiesEqual(\\\"lattice-review-qualityish\\\", \\\"proof-or-stop-review-quality\\\"), false); console.log(\\\"CHK-008 reviewer boundary refusal: PASS\\\");\"",
+              "selector": "CHK-008 reviewer boundary refusal: PASS"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-009",
+      "title": "Normalize delivery-check and floor role identities",
+      "context": "Bind delivery_check_set, delivery readers, and assurance-floor consumers to canonical proof-or-stop reviewer IDs while continuing to read historical lattice role evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "userSees": "User sees delivery readiness accept compatible historical reviewer identities and emit canonical proof-or-stop delivery evidence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Delivery-check and process-fact metadata identify proof-or-stop-review-delivery as the canonical writer lane while legacy delivery IDs resolve to it.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalReviewerLane } from \\\"./packages/main/dist/core/reviewer-opt-in.js\\\"; import { resolveReviewRunLane } from \\\"./packages/main/dist/core/review-run.js\\\"; import { getProcessFactRegistryEntry } from \\\"./packages/main/dist/core/process-fact-registry.js\\\"; const fact = getProcessFactRegistryEntry(\\\"delivery_check_set\\\"); assert.equal(canonicalReviewerLane(\\\"lattice-review-delivery\\\"), \\\"proof-or-stop-review-delivery\\\"); assert.equal(resolveReviewRunLane(undefined, \\\"lattice-review-delivery\\\"), \\\"proof-or-stop-review-delivery\\\"); assert.equal(fact.reviewerLane, \\\"proof-or-stop-review-delivery\\\"); console.log(\\\"CHK-009 delivery lane canonicalization: PASS\\\");\"",
+              "selector": "CHK-009 delivery lane canonicalization: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Historical lattice delivery evidence remains comparable to canonical delivery evidence, including a scoped historical actor suffix.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalAgentRoleId } from \\\"./packages/main/dist/core/agent-role-identity.js\\\"; import { reviewerIdentitiesEqual } from \\\"./packages/main/dist/core/reviewer-opt-in.js\\\"; assert.equal(reviewerIdentitiesEqual(\\\"lattice-review-delivery\\\", \\\"proof-or-stop-review-delivery\\\"), true); assert.equal(canonicalAgentRoleId(\\\"lattice-review-delivery@historical\\\"), \\\"proof-or-stop-review-delivery@historical\\\"); console.log(\\\"CHK-009 delivery legacy read: PASS\\\");\"",
+              "selector": "CHK-009 delivery legacy read: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Unknown delivery lookalikes cannot satisfy the delivery-check reviewer lane contract.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalReviewerLane } from \\\"./packages/main/dist/core/reviewer-opt-in.js\\\"; import { getProcessFactRegistryEntry } from \\\"./packages/main/dist/core/process-fact-registry.js\\\"; assert.equal(canonicalReviewerLane(\\\"lattice-review-delivery-unknown\\\"), null); assert.equal(canonicalReviewerLane(\\\"proof-or-stop-review-deliveryish\\\"), null); assert.equal(getProcessFactRegistryEntry(\\\"delivery_check_set\\\").reviewerLane, \\\"proof-or-stop-review-delivery\\\"); console.log(\\\"CHK-009 delivery lane boundary: PASS\\\");\"",
+              "selector": "CHK-009 delivery lane boundary: PASS"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-010",
+      "title": "Enforce machine-defined legacy role alias sunset",
+      "context": "Keep legacy role aliases readable while non-terminal references exist, and require zero non-terminal references plus two released CLI patches before removal can be considered.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "userSees": "User sees legacy aliases remain readable until the machine-defined zero-reference and two-release conditions are met.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The compatibility alias verification-intent remains readable and resolves to the canonical proof-or-stop verification-intent role.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalAgentRoleId } from \\\"./packages/main/dist/core/agent-role-identity.js\\\"; import { resolveAgentDispatchType } from \\\"./packages/main/dist/core/agent-dispatch-registry.js\\\"; assert.equal(canonicalAgentRoleId(\\\"verification-intent\\\"), \\\"proof-or-stop-verification-intent\\\"); assert.equal(resolveAgentDispatchType(\\\"verification-intent\\\"), \\\"proof-or-stop-verification-intent\\\"); console.log(\\\"CHK-010 compatibility window: PASS\\\");\"",
+              "selector": "CHK-010 compatibility window: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Historical reviewer role aliases remain readable through canonicalization without rewriting the scoped historical identity.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalAgentRoleId } from \\\"./packages/main/dist/core/agent-role-identity.js\\\"; const historical = \\\"lattice-review-quality@archived\\\"; assert.equal(canonicalAgentRoleId(historical), \\\"proof-or-stop-review-quality@archived\\\"); assert.equal(historical, \\\"lattice-review-quality@archived\\\"); console.log(\\\"CHK-010 historical alias readability: PASS\\\");\"",
+              "selector": "CHK-010 historical alias readability: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Legacy test-intent dispatch roles are refused for new PLAN writes instead of silently becoming verification-intent work.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { resolveAgentDispatchType } from \\\"./packages/main/dist/core/agent-dispatch-registry.js\\\"; for (const role of [\\\"test-intent\\\", \\\"test-case-reviewer\\\", \\\"proof-or-stop-test-intent\\\", \\\"proof-or-stop-test-case-reviewer\\\"]) assert.throws(() => resolveAgentDispatchType(role)); console.log(\\\"CHK-010 legacy PLAN dispatch refusal: PASS\\\");\"",
+              "selector": "CHK-010 legacy PLAN dispatch refusal: PASS"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-011",
+      "title": "Complete gate-artifact schema and freshness matrix",
+      "context": "Verify every renamed gate-consumed artifact has canonical writers, legacy readers, freshness binding, and anti-forgery coverage across schema, producer, consumer, and tests.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "userSees": "User sees renamed gate artifacts remain integrity-checked and freshness-bound across canonical writes and legacy reads.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Gate-consumed artifacts expose canonical proof-or-stop schema identities and the delivery-check fact is registered on the canonical delivery lane.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { DONE_REQUIRED_EVIDENCE_SCHEMA, DONE_REQUIRED_COMMAND_SPEC_SCHEMA, CLOSEOUT_WRITE_RECEIPT_SCHEMA, EVIDENCE_HASH_SNAPSHOT_SCHEMA } from \\\"./packages/main/dist/core/artifact-schema.js\\\"; import { getProcessFactRegistryEntry } from \\\"./packages/main/dist/core/process-fact-registry.js\\\"; assert.equal(DONE_REQUIRED_EVIDENCE_SCHEMA, \\\"proof-or-stop.done-required-evidence\\\"); assert.equal(DONE_REQUIRED_COMMAND_SPEC_SCHEMA, \\\"proof-or-stop.command-spec.v2\\\"); assert.equal(CLOSEOUT_WRITE_RECEIPT_SCHEMA, \\\"proof-or-stop.closeout_write_receipt.v3\\\"); assert.equal(EVIDENCE_HASH_SNAPSHOT_SCHEMA, \\\"proof-or-stop.evidence_hash_snapshot.v1\\\"); assert.equal(getProcessFactRegistryEntry(\\\"delivery_check_set\\\").reviewerLane, \\\"proof-or-stop-review-delivery\\\"); console.log(\\\"CHK-011 gate artifact registry: PASS\\\");\"",
+              "selector": "CHK-011 gate artifact registry: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Historical lattice schema variants remain readable through explicit compatibility allowlists while canonical schemas stay preferred for new writes.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { isDoneRequiredCommandSpecSchema, isEvidenceHashSnapshotSchema, isCloseoutWriteReceiptSchema } from \\\"./packages/main/dist/core/artifact-schema.js\\\"; assert.equal(isDoneRequiredCommandSpecSchema(\\\"lattice.command-spec.v2\\\"), true); assert.equal(isEvidenceHashSnapshotSchema(\\\"lattice.evidence_hash_snapshot.v1\\\"), true); assert.equal(isCloseoutWriteReceiptSchema(\\\"lattice.closeout_write_receipt.v3\\\"), true); assert.equal(isDoneRequiredCommandSpecSchema(\\\"proof-or-stop.command-spec.v2\\\"), true); console.log(\\\"CHK-011 legacy schema read: PASS\\\");\"",
+              "selector": "CHK-011 legacy schema read: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Unknown gate-artifact schema versions are refused by the explicit reader allowlists rather than accepted as evidence.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { isDoneRequiredCommandSpecSchema, isEvidenceHashSnapshotSchema, isCloseoutWriteReceiptSchema } from \\\"./packages/main/dist/core/artifact-schema.js\\\"; assert.equal(isDoneRequiredCommandSpecSchema(\\\"proof-or-stop.command-spec.v99\\\"), false); assert.equal(isEvidenceHashSnapshotSchema(\\\"lattice.evidence_hash_snapshot.v99\\\"), false); assert.equal(isCloseoutWriteReceiptSchema(\\\"proof-or-stop.closeout_write_receipt.v99\\\"), false); console.log(\\\"CHK-011 unknown schema refusal: PASS\\\");\"",
+              "selector": "CHK-011 unknown schema refusal: PASS"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-012",
+      "title": "Verify archived story signatures remain readable",
+      "context": "Read two named archived stories from different eras through the supported query path and verify their historical signatures without editing archived story bodies.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "userSees": "User sees archived Story evidence still loads and its historical signatures verify after the identity migration.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The supported story query path reads both named archived stories and returns their historical story IDs and phases.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
+              "selector": "artifact-schema migration test passed"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The archived stories retain their era-specific readable signatures and expected supporting artifacts when queried through the migration test path.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
+              "selector": "artifact-schema migration test passed"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reading archived stories through the supported query path leaves archived story bodies byte-for-byte unchanged.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
+              "selector": "artifact-schema migration test passed"
+            }
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
@@ -1024,6 +1264,61 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Current-worktree marker and profile sync coverage added and passed; implementation committed as 6b921e517b."
+    },
+    {
+      "timestamp": "2026-08-25T12:32:14.225Z",
+      "phase": "PLAN",
+      "itemId": "CHK-008",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope review found host-verdict and review-assurance normalization beyond quorum is a real uncovered promise; add a bounded acceptance item before DEV.",
+      "addedTitle": "Normalize host-verdict and review-assurance role identities",
+      "addedContext": "Ensure host-verdict, review-assurance-floor, and related consumers read canonical and legacy reviewer role IDs consistently while new evidence writes remain canonical."
+    },
+    {
+      "timestamp": "2026-08-25T12:32:26.052Z",
+      "phase": "PLAN",
+      "itemId": "CHK-009",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope review found delivery and floor role normalization is a real uncovered promise; add a focused checklist item before DEV.",
+      "addedTitle": "Normalize delivery-check and floor role identities",
+      "addedContext": "Bind delivery_check_set, delivery readers, and assurance-floor consumers to canonical proof-or-stop reviewer IDs while continuing to read historical lattice role evidence."
+    },
+    {
+      "timestamp": "2026-08-25T12:32:37.759Z",
+      "phase": "PLAN",
+      "itemId": "CHK-010",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope review found the alias sunset and two-release removal condition is a real uncovered promise; add it explicitly before DEV.",
+      "addedTitle": "Enforce machine-defined legacy role alias sunset",
+      "addedContext": "Keep legacy role aliases readable while non-terminal references exist, and require zero non-terminal references plus two released CLI patches before removal can be considered."
+    },
+    {
+      "timestamp": "2026-08-25T12:32:51.405Z",
+      "phase": "PLAN",
+      "itemId": "CHK-011",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope review found the complete schema writer-reader freshness anti-forgery matrix is a real uncovered promise; add a bounded verification item before DEV.",
+      "addedTitle": "Complete gate-artifact schema and freshness matrix",
+      "addedContext": "Verify every renamed gate-consumed artifact has canonical writers, legacy readers, freshness binding, and anti-forgery coverage across schema, producer, consumer, and tests."
+    },
+    {
+      "timestamp": "2026-08-25T12:33:02.105Z",
+      "phase": "PLAN",
+      "itemId": "CHK-012",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope review found named archived-story signature verification is a real uncovered promise; add read-only acceptance coverage before DEV.",
+      "addedTitle": "Verify archived story signatures remain readable",
+      "addedContext": "Read two named archived stories from different eras through the supported query path and verify their historical signatures without editing archived story bodies."
     }
   ]
 }

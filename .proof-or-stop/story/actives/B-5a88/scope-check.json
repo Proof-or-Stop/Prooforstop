@@ -1,214 +1,195 @@
 {
   "storyId": "B-5a88",
-  "checkedAt": "2026-08-21T15:24:50.558Z",
+  "checkedAt": "2026-08-25T12:34:46.245Z",
   "features": [
     {
-      "feature": "Canonical proof-or-stop role IDs are emitted for all canonical prompt roles and the verification-intent dispatch role.",
+      "feature": "Canonical proof-or-stop role IDs are emitted by new writes while known lattice and unprefixed role aliases remain readable.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      "source": "description"
     },
     {
-      "feature": "Exact lattice-* and formerly unprefixed role aliases remain readable for historical and in-flight evidence; unknown role spellings fail closed.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:proof-or-stop-identity-migration.md"
-    },
-    {
-      "feature": "Role normalization covers review-run lanes, reviewer classification, INIT required agents, finding/review-pass writes, quorum, delivery/floor readers, and process-fact readers.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
-    },
-    {
-      "feature": "Template filenames/frontmatter and prompt registry records use canonical role IDs.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
-    },
-    {
-      "feature": "agent_prompt resolution, host shims, and Codex/Claude/Antigravity manifests resolve canonical roles and identify legacy aliases.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
-    },
-    {
-      "feature": "Role alias sunset is machine-defined: legacy writes stop, terminal evidence remains readable during its reference window, and removal requires the documented non-terminal-reference condition.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
-    },
-    {
-      "feature": "Role migration has canonical/legacy golden and contract coverage.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
-    },
-    {
-      "feature": "Managed-block writers emit proof-or-stop start/end marker families.",
+      "feature": "Managed assets emit proof-or-stop markers, read exact legacy marker families, and reject mixed or malformed marker pairs.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "Managed-block readers dual-read exact lattice markers and upgrade existing blocks in place without duplicate blocks.",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:brand-rename-mapping.md"
-    },
-    {
-      "feature": "Mixed, mismatched, or malformed managed markers fail closed.",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:brand-rename-mapping.md"
-    },
-    {
-      "feature": "New gate-consumed artifact writers use proof-or-stop schema prefixes while preserving suffix and version.",
+      "feature": "Gate-consumed artifact schemas write proof-or-stop identifiers while legacy lattice schema identifiers remain accepted on reads.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:proof-or-stop-identity-migration.md"
+      "source": "description"
     },
     {
-      "feature": "Artifact readers accept exact lattice schema aliases while preserving integrity, freshness, and archived-byte behavior.",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:brand-rename-mapping.md"
-    },
-    {
-      "feature": "The schema migration has a complete writer/reader/freshness/process-fact/residue matrix, including done-required and closeout receipts.",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
-    },
-    {
-      "feature": "Two named archived stories from different eras remain CLI-readable and historically signed without rewriting their JSON.",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:proof-or-stop-identity-migration.md"
-    },
-    {
-      "feature": "Signature salts remain byte-for-byte frozen because they participate in persisted historical signatures.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "brand-rename-mapping.md:150-164; proof-or-stop-identity-migration.md:11-17",
-      "source": "decisions:brand-rename-mapping.md"
-    },
-    {
-      "feature": "Archived story body text and historical evidence bytes remain untouched.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "brand-rename-mapping.md:129; proof-or-stop-identity-migration.md:14-17",
-      "source": "decisions:brand-rename-mapping.md"
-    },
-    {
-      "feature": "Remote-push approvals write proof-or-stop.remote-push-approval.v1.",
+      "feature": "Remote-push approvals write the proof-or-stop schema and the pre-push hook reads the exact legacy schema for existing approvals.",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "The CLI and pre-push hook dual-read the exact legacy approval schema and preserve one-shot, stale, hash, ref, remote, and invalid-input rejection.",
-      "covered_by": "CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:brand-rename-mapping.md"
-    },
-    {
-      "feature": "The root workspace package and lockfile write proof-or-stop as the package identity.",
+      "feature": "The root npm package and lockfile write proof-or-stop while bounded runtime detection retains a legacy lattice read for older checkouts.",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "Root self-host and exact-name consumers retain bounded legacy reads while canonical version identity remains synchronized.",
-      "covered_by": "CHK-005",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:proof-or-stop-identity-migration.md"
-    },
-    {
-      "feature": "proof-or-stop --version reports the Proof-or-Stop product name rather than a legacy product name.",
-      "covered_by": "CHK-005",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:brand-rename-mapping.md"
-    },
-    {
-      "feature": "Sibling package manifests, lockfiles, dependency edges, and source-facing references use @proof-or-stop/utils and @proof-or-stop/lab.",
+      "feature": "Sibling package manifests, lockfiles, dependencies, and source-facing references use @proof-or-stop scoped names.",
       "covered_by": "CHK-006",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:brand-rename-mapping.md"
+      "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "Deprecated sibling package names are not published as alias packages or treated as a new runtime write identity.",
+      "feature": "The leftover npm bin alias named lattice is removed and the proof-or-stop entrypoint is the replacement.",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Publishing or runtime-reading @lattice/utils and @lattice/lab alias packages is not part of the sibling-package migration.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "proof-or-stop-identity-migration.md:190-194",
+      "excluded_by": "The current identity decision explicitly chooses canonical sibling names with no deprecated alias packages or runtime reads.",
       "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "The global lab entrypoint and package graph resolve the canonical sibling names.",
-      "covered_by": "CHK-006",
-      "status": "covered",
-      "excluded_by": null,
+      "feature": "The 13 lattice integrity signature salts remain byte-for-byte frozen.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The story description and identity decision explicitly freeze signature salts because renaming would invalidate historical signatures.",
       "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "The packages/main lattice bin alias is removed while proof-or-stop remains the supported bin.",
-      "covered_by": "CHK-007",
-      "status": "covered",
-      "excluded_by": null,
+      "feature": "Archived story file bodies remain unedited so historical evidence and signatures stay truthful.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The story description and identity decision explicitly freeze archived story content.",
       "source": "decisions:proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "Entrypoint, help, residue, and Codex asset verification do not advertise the removed lattice bin and reject reintroduction.",
-      "covered_by": "CHK-007",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:brand-rename-mapping.md"
+      "feature": "The already-completed B-cc10 state-directory, config/manifest filename, adapter-directory, and @proof-or-stop/core migrations are outside this remaining-identifiers story.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The story description defines those structural identities as already migrated by B-cc10 and lists the remaining B-5a88 identities separately.",
+      "source": "description"
     },
     {
-      "feature": "Active prompts, docs, root entrypoints, and guidance stop teaching retired role, marker, package, and command forms except clearly labeled compatibility text.",
+      "feature": "All 16 canonical role IDs are represented consistently in template filenames and frontmatter, prompt registry records, host shims, Codex manifests, and dispatch resolution.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      "source": "story checklist context: CHK-001 role registry, dispatch, prompt registry, host-shim, Codex-manifest, and template routing scope"
     },
     {
-      "feature": "The removed bin aliases are announced in CHANGELOG.md as the migration decision requires.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "brand-rename-mapping.md:137,213-214; proof-or-stop-identity-migration.md:198",
-      "source": "decisions:proof-or-stop-identity-migration.md"
+      "feature": "agent_prompt resolves the canonical role body and gives a precise legacy-alias warning or replacement for old role IDs.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story checklist context: CHK-001 agent-prompt handler, prompt registry, role contract registry, and template routing scope"
     },
     {
-      "feature": "The distinct ProofStory domain concept remains byte-for-byte preserved rather than treated as a brand alias.",
+      "feature": "Review-run lane sets and reviewer detection or resolution normalize canonical and legacy role IDs.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story checklist context: CHK-001 REVIEW_RUN_LANES and reviewer detection/resolution normalization"
+    },
+    {
+      "feature": "finding_add, review_pass_set, and pass-only finding normalization read legacy identities but write only canonical reviewer identities.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story checklist context: CHK-001 finding_add/review_pass_set canonical-write and legacy-read normalization"
+    },
+    {
+      "feature": "INIT required-agent evidence accepts canonical and legacy-compatible role identities without weakening the INIT gate.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story checklist context: CHK-001 init-check required-agent and init_check_set normalization"
+    },
+    {
+      "feature": "Reviewer quorum, host-verdict, and review-assurance floor consumers normalize canonical and legacy role identities.",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "current checklist context: CHK-008 host-verdict and review-assurance-floor consumers read canonical and legacy reviewer identities"
+    },
+    {
+      "feature": "delivery_check_set and delivery or floor consumers read legacy role IDs while new delivery evidence uses canonical role IDs.",
+      "covered_by": "CHK-009",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "current checklist context: CHK-009 delivery_check_set, delivery readers, and assurance-floor consumers read legacy and write canonical reviewer identities"
+    },
+    {
+      "feature": "The process-fact registry and its contract verifier normalize canonical and legacy role IDs.",
+      "covered_by": "CHK-001 + CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story checklist contexts: CHK-001 canonical/legacy role identity contract plus CHK-003 process-fact and gate-schema contract touchpoints"
+    },
+    {
+      "feature": "Codex, Claude Code, and Antigravity host resolution have golden coverage for the same canonical role IDs.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story checklist context: CHK-001 host-shim, Codex-manifest, agent-asset, template, and dispatch routing scope"
+    },
+    {
+      "feature": "Legacy role alias sunset is machine-defined: non-terminal references block removal, terminal evidence remains readable, and removal requires zero non-terminal references plus two released CLI patches.",
+      "covered_by": "CHK-010",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "current checklist context: CHK-010 machine-defined legacy alias sunset with terminal-readability, zero non-terminal references, and two released CLI patches"
+    },
+    {
+      "feature": "A complete schema, writer, reader, freshness, and anti-forgery matrix exists for every gate-consumed artifact touched by the rename.",
+      "covered_by": "CHK-011",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "current checklist context: CHK-011 canonical writers, legacy readers, freshness binding, anti-forgery, producers, consumers, and tests for gate artifacts"
+    },
+    {
+      "feature": "Two named archived stories from different eras are read and their historical signatures verify after the migration.",
+      "covered_by": "CHK-012",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "current checklist context: CHK-012 reads two named archived stories and verifies historical signatures without editing archived bodies"
+    },
+    {
+      "feature": "CHANGELOG.md announces the removed lattice npm bin alias and its proof-or-stop replacement.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "brand-rename-mapping.md:140,228-243",
-      "source": "decisions:brand-rename-mapping.md"
+      "excluded_by": "Story constraint explicitly forbids modifying CHANGELOG.md; the announcement promise is outside this Story scope and is excluded, not a gap",
+      "source": "Story constraint explicitly forbids modifying CHANGELOG.md; the announcement promise is outside this Story scope and is excluded, not a gap"
+    },
+    {
+      "feature": "Active root entrypoints and prompt guidance stop teaching stale lattice role, marker, package, and command forms while preserving clearly labeled compatibility text.",
+      "covered_by": "CHK-001 + CHK-002 + CHK-005 + CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story checklist contexts: prompt/template/marker/package/bin surfaces stop teaching stale active forms while retaining compatibility readers"
+    },
+    {
+      "feature": "New-story routing excludes legacy testIntent roles and uses proof-or-stop-verification-intent for current verification intent authoring.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story checklist context: CHK-001 dispatch registry/story dispatch and canonical verification-intent routing"
     }
   ],
   "readManifest": {
     "filesReadFully": [
       "docs/requirements/decisions/brand-rename-mapping.md",
+      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
       "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
       "docs/requirements/decisions/proof-or-stop-identity-migration.md"
     ],
@@ -269,7 +250,6 @@
       "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
       "docs/requirements/decisions/lattice-unattended-completion-plan.md",
       "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
-      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
       "docs/requirements/decisions/lifecycle-artifact-scope.md",
       "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
       "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
@@ -277,7 +257,6 @@
       "docs/requirements/decisions/milestone-not-applicable-justification.md",
       "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
       "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
-      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
       "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
       "docs/requirements/decisions/multi-model-ablation-replication.md",
       "docs/requirements/decisions/orchestrate-retirement.md",
@@ -306,6 +285,7 @@
       "docs/requirements/decisions/repro-first-story-intake-experiment.md",
       "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
       "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
       "docs/requirements/decisions/review-run-binding-race.md",
       "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
       "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
@@ -343,30 +323,17 @@
       "docs/requirements/decisions/verification-context-pack.md",
       "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
     ],
-    "scanEscalationReason": null
+    "scanEscalationReason": "High-risk global identity rename; current PLAN review round 2026-08-25T09:53:45.090Z was reconciled after CHK-008..CHK-012 were added. The active owner lease prevented candidate-route refresh, so this bounded reviewer used the complete decisions filename enumeration, the five fully read directly relevant decisions, and the remaining title-triaged corpus, then mapped the previously reported promises to existing checklist items and explicitly excluded the forbidden CHANGELOG.md edit without changing story or checklist data."
   },
   "summary": {
-    "total": 29,
-    "covered": 24,
+    "total": 26,
+    "covered": 21,
     "excluded": 5,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-08-21T08:03:56.673Z",
-  "_hash": "0f4f207c22bc3b0360ad86b9afa409fcf49160f76df8aac3bb067c9ff408698f",
-  "openQuestions": [
-    {
-      "id": "OQ-001",
-      "q": "Should the removed bin aliases be announced in CHANGELOG.md, or is CHANGELOG.md frozen and explicitly excluded from B-5a88?",
-      "evidence": "proof-or-stop-identity-migration.md requires a CHANGELOG announcement for immediate bin removal at lines 66-73, while the same decision later says CHANGELOG.md is untouched at line 198 and brand-rename-mapping.md marks it frozen and path-blocked at lines 137 and 213-214.",
-      "sourcePointers": [
-        "docs/requirements/decisions/brand-rename-mapping.md",
-        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
-        "CHK-006"
-      ],
-      "resolution": "The removed bin aliases are outside B-5a88: CHK-006 covers sibling package identities, while the active brand mapping explicitly freezes CHANGELOG.md as historical release data. Keep CHANGELOG.md untouched and rely on the prior migration decision and README compatibility note as the existing announcement record.",
-      "resolvedAt": "2026-08-21T15:26:33.899Z"
-    }
-  ]
+  "reviewRound": "2026-08-25T09:53:45.090Z",
+  "_hash": "3f6d1d4c96f6a86056684e4b80bd4d5791045b8e7693c3bb4f0016c5dc9c6a7d",
+  "openQuestions": []
 }
