@@ -1188,10 +1188,32 @@
         "F_417",
         "experience_layer_review_dispatch_hint"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-420 verified these active done-prepare writers still emitted deprecated lattice schemas; canonicalizing their writes is required by this Story migration and its review findings.",
+      "timestamp": "2026-08-25T05:22:58.670Z",
+      "paths": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/src/core/done-prepare-validation-reuse.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/src/core/done-prepare-validation-reuse.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "c9256d3d09748b59722361a3faf966601c19a721",
+      "materialHash": "bbc09ade337af7793defc58408e9f7485311b786d8b08975048dae168e7b7752",
+      "anchors": [
+        "donePrepareGeneratedMetadataSchema",
+        "donePrepareValidationReuseSchema"
+      ]
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-25T01:17:02.663Z",
+  "updatedAt": "2026-08-25T05:22:58.671Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1454,6 +1476,8 @@
     "packages/main/src/tasks/observability-snapshot-smoke.ts": "packages/main/src/tasks/observability-snapshot-smoke.ts",
     "packages/main/src/tasks/review-assurance-surfacing-smoke.ts": "packages/main/src/tasks/review-assurance-surfacing-smoke.ts",
     "packages/main/src/tasks/remote-push-approval-smoke.ts": "packages/main/src/tasks/remote-push-approval-smoke.ts",
-    "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts"
+    "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts": "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts",
+    "packages/main/src/core/done-prepare-generated-metadata.ts": "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/core/done-prepare-validation-reuse.ts": "packages/main/src/core/done-prepare-validation-reuse.ts"
   }
 }
