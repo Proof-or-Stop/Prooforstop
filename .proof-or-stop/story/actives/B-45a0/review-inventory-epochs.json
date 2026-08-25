@@ -10386,6 +10386,43 @@
       ],
       "createdAt": "2026-08-25T17:18:48.139Z",
       "_hash": "fc3e7ad4d44fdc0b1e2e6564c711dd9814aca345e2f9d849f168a31155895529"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-074:CRIT-01",
+      "epochId": "B-45a0:RI-074",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T17:38:08.671Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "9d1fc3488a963915c70b1f02f2ea6eee5d7e7fb2",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84"
+      },
+      "aggregateFindingSetDigest": "796a34fadfefaebcd4c005d835b57bda8c8ea1119c8dea247b14fd1077f10e9b",
+      "requiredLaneCoverageDigest": "a1732cd72befab3a5863d726d5f3042b7093fbdaca3d334a4716a92024224bf1",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-664",
+      "terminalEvidenceIds": [
+        "B-45a0:F-327"
+      ],
+      "readEvidenceDigest": "66ff505dbe44fb66f84132734464f287a53d10d1abedb27e469ca88009987562",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-325",
+          "disposition": "verified_family",
+          "familyKey": "ri074-current-acceptance-topology-coverage",
+          "reason": "F-325 remains verified by the current topology and coverage evidence: acceptance topology is structural-only and inconclusive rather than evidentiary."
+        },
+        {
+          "findingId": "B-45a0:F-326",
+          "disposition": "verified_family",
+          "familyKey": "ri074-current-acceptance-topology-coverage",
+          "reason": "The current wave-1 coverage re-attestation confirms the refreshed CHK-014 receipt remains inconclusive_basis_unverified and current acceptance topology remains evidentiary=false/diagnostic_only."
+        }
+      ],
+      "createdAt": "2026-08-25T18:03:08.721Z",
+      "_hash": "c85ac018543d122cb89191770a2ae94780f384e2af1eb69ff71509c1fa4b78da"
     }
   ]
 }
