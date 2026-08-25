@@ -355,10 +355,30 @@
       "phase": "REVIEW",
       "headHash": "887fb9df4592f3c2b6dbb7d431896e02e145360b",
       "materialHash": "3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These files are necessary to execute the approved validation-failure gate, bound the real heavy suite runtime, and satisfy the replay Git cwd contract.",
+      "timestamp": "2026-08-25T15:24:06.898Z",
+      "paths": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "67b130ee34217fc865ec9942282e00dffd9ac535",
+      "materialHash": "682943649653907552c9c1ec2902f8ee625672c5dd25ee930f570d2b1a120d9e"
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-25T11:27:27.586Z",
+  "updatedAt": "2026-08-25T15:24:06.898Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -435,6 +455,8 @@
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
     "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts",
     "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
-    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts"
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/tasks/full-suite-runner-smoke.ts": "packages/main/src/tasks/full-suite-runner-smoke.ts"
   }
 }
