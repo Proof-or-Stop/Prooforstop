@@ -1104,7 +1104,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalReviewerLane } from \\\"./packages/main/dist/core/reviewer-opt-in.js\\\"; import { resolveReviewRunLane } from \\\"./packages/main/dist/core/review-run.js\\\"; import { getProcessFactRegistryEntry } from \\\"./packages/main/dist/core/process-fact-registry.js\\\"; const fact = getProcessFactRegistryEntry(\\\"delivery_check_set\\\"); assert.equal(canonicalReviewerLane(\\\"lattice-review-delivery\\\"), \\\"proof-or-stop-review-delivery\\\"); assert.equal(resolveReviewRunLane(undefined, \\\"lattice-review-delivery\\\"), \\\"proof-or-stop-review-delivery\\\"); assert.equal(fact.reviewerLane, \\\"proof-or-stop-review-delivery\\\"); console.log(\\\"CHK-009 delivery lane canonicalization: PASS\\\");\"",
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalReviewerLane } from \\\"./packages/main/dist/core/reviewer-opt-in.js\\\"; import { getProcessFactRegistryEntry } from \\\"./packages/main/dist/core/process-fact-registry.js\\\"; assert.equal(canonicalReviewerLane(\\\"lattice-review-delivery\\\"), \\\"proof-or-stop-review-delivery\\\"); assert.equal(getProcessFactRegistryEntry(\\\"delivery_check_set\\\").reviewerLane, \\\"proof-or-stop-review-delivery\\\"); console.log(\\\"CHK-009 delivery lane canonicalization: PASS\\\");\"",
               "selector": "CHK-009 delivery lane canonicalization: PASS"
             }
           }
@@ -1194,7 +1194,7 @@
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalAgentRoleId } from \\\"./packages/main/dist/core/agent-role-identity.js\\\"; import { resolveAgentDispatchType } from \\\"./packages/main/dist/core/agent-dispatch-registry.js\\\"; assert.equal(canonicalAgentRoleId(\\\"verification-intent\\\"), \\\"proof-or-stop-verification-intent\\\"); assert.equal(resolveAgentDispatchType(\\\"verification-intent\\\"), \\\"proof-or-stop-verification-intent\\\"); console.log(\\\"CHK-010 compatibility window: PASS\\\");\"",
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { canonicalAgentRoleId } from \\\"./packages/main/dist/core/agent-role-identity.js\\\"; import { resolveAgentDispatchType } from \\\"./packages/main/dist/core/agent-dispatch-registry.js\\\"; assert.equal(canonicalAgentRoleId(\\\"verification-intent\\\"), \\\"proof-or-stop-verification-intent\\\"); assert.equal(resolveAgentDispatchType(\\\"verification-intent\\\").canonicalType, \\\"proof-or-stop-verification-intent\\\"); console.log(\\\"CHK-010 compatibility window: PASS\\\");\"",
               "selector": "CHK-010 compatibility window: PASS"
             }
           }
