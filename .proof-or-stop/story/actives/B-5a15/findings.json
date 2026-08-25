@@ -15560,6 +15560,21 @@
       ],
       "signatureTag": "missing|ts|current-acceptance-topology",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-298",
+      "desc": "packages/main/src/core/causal-evidence.ts:578 — redactCausalOutput replaces every environment value of length >= 8, including ordinary non-secret values. A command outputting a normal environment-derived marker such as LONG_MARKER is persisted as <redacted> and its selector is reported as selectorMismatch/fail despite exit 0, so valid evidence can be rejected. Restrict replacement to secret-key values or preserve a selector-safe representation.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T10:52:15.468Z",
+      "reviewRound": "2026-08-25T10:35:46.036Z",
+      "reviewRunId": "B-5a15:RR-645",
+      "_hash": "9cea318ecba51fb6b9eae2d31a27d2bfee036bbc2a9fa4d2e7ff89c429aa16fe",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
