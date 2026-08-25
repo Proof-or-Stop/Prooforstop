@@ -14220,7 +14220,7 @@
       "desc": "packages/main/tests/causal-evidence.test.mjs:2169-2175 — current-wave verifier-owned acceptance chain is not promotable: acceptance_topology_check is FAIL with AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE, pre_review_check_read is FAIL with PR_ARTIFACT_TAMPERED, and acceptance_rollout_report_read/acceptance_rollout_check are FAIL with AR_REPORT_STALE, so the required current signed full-3x2 PASS receipt is absent even though the stored quorum shape is full-3x2.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-24T15:16:20.075Z",
@@ -14267,7 +14267,11 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "missing|mjs|packages-main-tests",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:39:38.497Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-271",
