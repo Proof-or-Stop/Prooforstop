@@ -6023,9 +6023,9 @@
       "epochId": "B-5a88:RI-074",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-24T23:17:55.711Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-08-24T23:27:10.244Z",
-      "updatedAt": "2026-08-24T23:27:10.244Z",
+      "updatedAt": "2026-08-25T00:07:46.299Z",
       "cutoff": {
         "headHash": "d92418d07713779dadb7f94d4f56b7e0f4cd0abc",
         "materialHash": "9c34ec19fc00ad3808a04a03b27d0a78b1e590db105e322b591aa83eb609ad2a",
@@ -6039,9 +6039,57 @@
       ],
       "initialRunSequenceBoundary": 688,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-24T23:27:10.244Z",
+          "completedAt": "2026-08-25T00:07:46.299Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-5a88:RR-689",
+              "terminal": "pass",
+              "hostIdentity": "79453a1804e03cb2b835e19c32fbe5e5fd467972099904f929ccb224eed3fd93",
+              "promptIdentity": "57951be3af0fc17e3578c583b1fcea586d844e4808677b2247a9a842f90f1fc5",
+              "evidenceIds": [
+                "B-5a88:RP-260"
+              ],
+              "coverageDigest": "ffcdc820feb40af93edfe2b46640e125f1f774c97ec13138d746b9fbc7022981"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-5a88:RR-691",
+              "terminal": "pass",
+              "hostIdentity": "79453a1804e03cb2b835e19c32fbe5e5fd467972099904f929ccb224eed3fd93",
+              "promptIdentity": "a153ed69ddabb3adefa4d384d566560814a9498aeb76535d3e395c907294fa82",
+              "evidenceIds": [
+                "B-5a88:RP-259"
+              ],
+              "coverageDigest": "7f79ff1a615bc2eefdaa3f64bad1a53cfad0b08c60734d43a42ba9f9712ff0a7"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-690",
+              "terminal": "pass",
+              "hostIdentity": "79453a1804e03cb2b835e19c32fbe5e5fd467972099904f929ccb224eed3fd93",
+              "promptIdentity": "b2f54f9f5b1729a2daf21d7206a426e7dcc2fa92c103f5fa88449cbdd23fbf1f",
+              "evidenceIds": [
+                "B-5a88:RP-261"
+              ],
+              "coverageDigest": "9cc0ef394570f6e8173fbd33b4370d05f3eb93affcae695be663eac1b7726ab3"
+            }
+          ],
+          "verifiedFindingFamilies": [],
+          "verifiedFindingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "151eaa42c40c9f20e361b327a29590a21c755397dfeba90811dc92fba026147c",
+          "saturated": true,
+          "nextRunSequenceBoundary": 693
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "d6f474baf098016538df7cbb9763458b0593b8bad693a2c52d632f643580f64e"
+      "receiptId": "B-5a88:RI-074:RCP-001",
+      "_hash": "fe70022f47d0ef494a6cdf8dfdef5ee11a639e6cb970028e88e63fa820f554cd"
     }
   ],
   "receipts": [
@@ -6948,6 +6996,32 @@
       "issuedAt": "2026-08-24T21:53:04.385Z",
       "consumedAt": "2026-08-24T21:58:35.624Z",
       "_hash": "6b2f0af1325bf1b918044a336c89e0541209d054aae2f93b63f67d8888f69cb6"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a88:RI-074:RCP-001",
+      "epochId": "B-5a88:RI-074",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-24T23:17:55.711Z",
+      "cutoff": {
+        "headHash": "d92418d07713779dadb7f94d4f56b7e0f4cd0abc",
+        "materialHash": "9c34ec19fc00ad3808a04a03b27d0a78b1e590db105e322b591aa83eb609ad2a",
+        "storyFilesHash": "63016650e8d79b261515df7103d23deae76d01dd5143684e0cc13572d9c9098e"
+      },
+      "scopeDigest": "96bdc8c53af727a01c19a1b7c654f3b20eb570f1e8d480a9a3501d72b7ebb684",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "waveCount": 1,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "de7527104786d11f1e5d10d5ef67c30bd121ebb4cd438c62bd7be1a5a01d4c66",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-25T00:07:46.299Z",
+      "_hash": "60a467cde5def3fa9cb20092bb2b508219663e9fa0a5c8e10b9864eb0d8cf16f"
     }
   ],
   "criticReceipts": [
@@ -9898,6 +9972,30 @@
       "findingDispositions": [],
       "createdAt": "2026-08-24T21:50:38.253Z",
       "_hash": "f8f66231a6e19ff4b43acd899f5e5d65de8f076603a1f5c4d25e1b26e5b7f62a"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-074:CRIT-01",
+      "epochId": "B-5a88:RI-074",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-24T23:17:55.711Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "d92418d07713779dadb7f94d4f56b7e0f4cd0abc",
+        "materialHash": "9c34ec19fc00ad3808a04a03b27d0a78b1e590db105e322b591aa83eb609ad2a",
+        "storyFilesHash": "63016650e8d79b261515df7103d23deae76d01dd5143684e0cc13572d9c9098e"
+      },
+      "aggregateFindingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "requiredLaneCoverageDigest": "d10ca35403fddf5ae2709140be9dbca2363cf64bb6ac6083836fb87bf012732a",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-693",
+      "terminalEvidenceIds": [
+        "B-5a88:RP-263"
+      ],
+      "readEvidenceDigest": "450b90f5dfd27cf677aaf209f26bed5163cf1dfbebfc3dbee2cb73a55c2f7673",
+      "findingDispositions": [],
+      "createdAt": "2026-08-25T00:06:51.017Z",
+      "_hash": "4569a6e8b8202a35bd6fc97b2b7e4da8846e1101677061b372e7d32f8c3aeadb"
     }
   ]
 }
