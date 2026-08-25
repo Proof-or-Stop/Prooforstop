@@ -14870,7 +14870,7 @@
       "desc": "Wave 2 coverage recheck confirms the same current acceptance evidence family as F-279: the source regression exists, but pre_review_check_read remains PR_ARTIFACT_TAMPERED plus PR_COVERAGE_BASIS_CHANGED and acceptance_rollout_check remains blocking AR_REPORT_STALE, so current checklist-bound coverage is not admissible.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T17:57:46.553Z",
@@ -14908,7 +14908,11 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|mjs|wave-coverage-recheck",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:40:44.867Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-284",
