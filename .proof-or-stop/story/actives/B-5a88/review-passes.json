@@ -19206,6 +19206,139 @@
       },
       "readDiagnostics": [],
       "_hash": "2f2b9ef33b05be85f74a754d6b13440855e97cb5e5e5b78be821be80fe10d6ef"
+    },
+    {
+      "id": "B-5a88:RP-310",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-082 wave 2 topology recheck completed from the current inventory summary and targeted F-445 record; no new independent finding family. Existing verified family active-compatibility-legacy-verification-intent-routing remains open/request_changes as F-445 and is not duplicated or resolved.",
+      "createdAt": "2026-08-25T10:39:25.761Z",
+      "reviewRound": "2026-08-25T09:53:45.090Z",
+      "reviewRunId": "B-5a88:RR-796",
+      "envelopeId": "46d4df9893d26038ac5fb79b0a67d68a0bbdab20a6811cc2c81f73e8543656dc",
+      "writerSessionId": "sess-01d6cb7a611b8e07ca7b290684ca12e9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-contract.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json"
+        ],
+        "scanEscalationReason": "Current RI-082 summary and targeted F-445 family record are sufficient; the full historical finding ledger was not required for this topology critic."
+      },
+      "_hash": "7864ebb402102358b4807fe274d13384da75742c95e347ebc986fb49ac171a57"
+    },
+    {
+      "id": "B-5a88:RP-311",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-082 wave 2 / review round 57 coverage recheck under signed run B-5a88:RR-798 at HEAD d8ec11f8e1a571b44f0e7ad8fd6a4cd3db3fb90d, materialHash 15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65, and storyFilesHash efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031. Rechecked all seven checklist items and 21 must verificationIntent references: 21/21 have one passing mechanical logic_test evidence, with no missing or failing required evidence. Current pre_review_check is PASS with 21 evidence references and 42 executable proof rows: 7 positive, 14 mutation, and 21 producer-consumer transcript rows; every observed outcome matches its expected outcome and every row passes. acceptance-basis is complete with no blind spots; acceptance-rollout-report is signed PASS for six matched pairs, 3/3 registered seeds detected, false-pass 0, false-block 0, omission detection rate 1, inventory shrink 0, full-3x2 codex-cli plus claude-cli evidence, and threshold, membership, freshness, mode, enforce, rollback, and control-restoration coverage. The persisted routine test-evidence is stale and routine validate was not claimed fresh because the active owner session gates it; this is not a new coverage family. Current source and prompt recheck confirms F-445 remains the existing open active-vs-compatibility legacy verification-intent routing family; F-446 and F-447 are duplicate confirmations of that same family. No new independent evidence-backed family was found. Do not duplicate or resolve F-445. Test coverage review passed.",
+      "createdAt": "2026-08-25T10:48:41.870Z",
+      "reviewRound": "2026-08-25T09:53:45.090Z",
+      "reviewRunId": "B-5a88:RR-798",
+      "envelopeId": "0e719bcdfc0a60f2c41b41b7bc2206cbe9d24539e3e4c0cd29e1cf005d6748d9",
+      "writerSessionId": "sess-b330d4c14887db8bb7ca01fc247589f2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/index.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/review.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop-codex/agents/proof-or-stop-test-intent.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "packages/utils/package.json",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1078d333ec9bc4abcf8a6cac83f300030a448c8a11f1c6797ad5e6964a7a069a"
+    },
+    {
+      "id": "B-5a88:RP-312",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality recheck completed for RI-082 wave 2 round 57. I reviewed the changed role-dispatch and prompt-role contract enforcement, the compatibility prompt, story plan/background, and focused migration boundaries. The remaining PLAN dispatchability of proof-or-stop-test-intent is the already-open F-445 active-vs-compatibility family; no new independent quality blocker was found, so this lane passes without resolving or duplicating F-445.",
+      "createdAt": "2026-08-25T10:52:37.491Z",
+      "reviewRound": "2026-08-25T09:53:45.090Z",
+      "reviewRunId": "B-5a88:RR-800",
+      "envelopeId": "2a0ba3d374698068e115e60d3b5939c8d23b19cd9b7606231380d139f0400a31",
+      "writerSessionId": "sess-df9b920c000b837e05149a31b2d77831",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-test-intent.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs"
+        ],
+        "scanEscalationReason": "Bounded quality recheck: all changed paths were triaged by name; full reads were limited to the F-445 active-vs-compatibility enforcement sources, canonical role mapping, compatibility prompt, and story context."
+      },
+      "_hash": "17537263b59d20a76ab7e90003cf6fcd09670bdb23b516e5064e4f58eb391705"
     }
   ]
 }
