@@ -4,7 +4,7 @@
   "title": "Route missing PRE_CERT inventory recovery directly to TEST-safe finalization",
   "description": "When done_prepare reports pre_cert_inventory_not_finalized in TEST, render the existing TEST-safe review_inventory_finalize command as the direct next action and explicitly prevent an unnecessary TEST to DEV to REVIEW bounce. Preserve all current receipt and certification semantics.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "done_prepare",
@@ -30,6 +30,15 @@
       "branch": "main",
       "user": "Pan Qi",
       "sessionId": "sess-fffdfe86efdbe43b3a612ec00d6853e9",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-25T19:28:50.030Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-96baeaeaf4f4476b9def02488d1cb699",
       "agent": "main"
     }
   ],
