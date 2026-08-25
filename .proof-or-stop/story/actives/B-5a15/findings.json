@@ -14482,7 +14482,7 @@
       "desc": "packages/main/tests/causal-evidence.test.mjs:1975-2025,2144-2327 and .proof-or-stop/story/actives/B-5a15/checklist.json:verificationEvidence — RI-033 wave 1 coverage is not admissible at current HEAD e5e3c509ce: all 53 verificationEvidence rows are bound to stale head d00654cbc7, materialHash 2bbc7108cfe5b2405d9a151d72dfc343daa716967eeec99a010f680465e85b24, and storyFilesHash 1b035b009f2d844d0e526beda2a73d9234145efbb08239639ecf839782011019, while RR-534 is bound to materialHash 5686932137192751fbd07343f8bb4da31aab8d7b7e157175b836f4c270deea18 and storyFilesHash 4e1b0708cc7e1e6c6fc949eda72456b5ab4c98dda36107ac15c388d19cf0697f. The current four-command regression has no current CLI evidence covering acceptance_rollout_report_read and acceptance_rollout_check with the required full-3x2, degraded-3x1, threshold/membership/freshness, mode-invariant, enforce-only, and non-destructive rollback checks; coverage cannot pass until fresh evidence is recorded.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T16:37:51.485Z",
@@ -14525,7 +14525,11 @@
         ".proof-or-stop/story/actives/B-5a15/checklist.json"
       ],
       "signatureTag": "missing|mjs|packages-main-tests",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:40:03.412Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-276",
