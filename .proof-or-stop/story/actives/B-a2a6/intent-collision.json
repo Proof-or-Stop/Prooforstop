@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-a2a6",
+  "id": "IC-20260824022446",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The requested change is a bounded local correctness and performance fix: reuse one immutable prompt-envelope snapshot within a single collectReviewerEvidenceState call, preserve all existing verifier predicates, keep independent direct callers uncached, and exclude global caching, bypasses, Authority claims, and B-dc83 business files.",
+  "acceptedInterpretationHash": "sha256:4ff59c0068e68cc2271c364e2111ea188f35f8cd2ba5c99c047b79be68f245b9",
+  "notes": "The implementation must improve readiness latency without changing evidence admissibility.",
+  "createdAt": "2026-08-24T02:24:46.685Z",
+  "updatedAt": "2026-08-24T02:24:46.685Z"
+}

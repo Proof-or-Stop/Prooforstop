@@ -1,0 +1,27 @@
+{
+  "storyId": "B-a2a6",
+  "checkedAt": "2026-08-24T09:53:22.972Z",
+  "headHash": "6efeac0b416f74396e57b76bba829fe8228f6395",
+  "materialHash": "2a04880501467166a4dd76546f9a3b1dc1526d4e1973b260019885b4779bd11c",
+  "storyFilesHash": "81fa0c90e7f5b32f73a4044f58486706ad9983c9bbeef9f3bc35dec369c7efe3",
+  "reviewRound": "2026-08-24T08:02:30.238Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS. Command: node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only. Story receipt at 2026-08-24T06:51:46.856Z has exitCode 0 and the markers MIXED RECORDS, PRODUCTION SNAPSHOT ISOLATION, REVIEW-TO-TEST TASK SNAPSHOT, PRODUCTION VERIFIER CUTOFF, EMPTY COLLECTION, and CACHE SNAPSHOT."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "PASS. Story evidence for node packages/main/dist/tasks/review-incremental-context-smoke.js reports full smoke with deep frozen prompt-envelope snapshots and the final incremental-context PASS marker. The latest story test snapshot for proof-or-stop validate --story=B-a2a6 --json reports status=pass, allPass=true, and configured validation commands passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Evidence is bound to the current story: 2/2 checklist items done, 15/15 verification records passing, focused production snapshot-isolation and bounded-read markers passed, full smoke passed, and the latest validation snapshot is pass/allPass=true. No unresolved TODOs or open bugs are recorded for this change."
+  },
+  "_hash": "8b8a2c09e5644a98001dd29140b0f4987f2b24b0733f8c936acfbe3c1a83835d"
+}

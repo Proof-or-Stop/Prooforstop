@@ -62,10 +62,11 @@ import {
   reviewIncrementalContext,
 } from '../core/review-incremental-context.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
-import { domainSeparatedDigest } from '../core/prompt-contracts.js';
+import { domainSeparatedDigest, type PromptEnvelope } from '../core/prompt-contracts.js';
 import {
   assembleFullPromptEnvelope,
   buildFullTaskContext,
+  computePromptEnvelopeId,
   fullTaskSemanticDigest,
 } from '../core/prompt-envelope.js';
 import { canonicalAgentRoleId, legacyAgentRoleIds } from '../core/agent-role-identity.js';
@@ -85,6 +86,7 @@ import { changedFilesBetweenRenameAware, isMaterialExcludedPath } from '../core/
 import { FULL_TASK_CONTEXT_LIMITS, validateIncrementalReviewBasis } from '../core/prompt-contracts.js';
 import {
   collectReviewerEvidenceState,
+  snapshotPromptEnvelopes,
   signReviewRun,
   verifyReviewRun,
   verifyReviewRunPromptEnvelope,
@@ -583,6 +585,132 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       'mutation bite: a verifier without passesCutoffAt rejects the production B envelope',
     );
 
+    const candidateRuns = [runA, runB, runC];
+    const makeEnvelopeStore = (envelopes: readonly PromptEnvelope[], readCount?: { value: number }): StoryStore => {
+      const candidateStore = Object.create(store) as StoryStore;
+      candidateStore.readPromptEnvelopes = () => {
+        if (readCount) readCount.value += 1;
+        return { envelopes: [...envelopes] };
+      };
+      return candidateStore;
+    };
+    const compareAggregate = (
+      label: string,
+      sourceEnvelopes: readonly PromptEnvelope[],
+      promptEnvelopeSnapshot: readonly PromptEnvelope[],
+      runsToCompare = candidateRuns,
+    ): void => {
+      const cachedReads = { value: 0 };
+      const uncachedReads = { value: 0 };
+      const cachedStore = makeEnvelopeStore(sourceEnvelopes, cachedReads);
+      const uncachedStore = makeEnvelopeStore(sourceEnvelopes, uncachedReads);
+      const cached = runsToCompare.map(run => verifyReviewRunPromptEnvelope(cachedStore, run, promptEnvelopeSnapshot));
+      const uncached = runsToCompare.map(run => verifyReviewRunPromptEnvelope(uncachedStore, run));
+      assert.deepEqual(cached, uncached, `${label}: N-record cached and uncached verifier results must match`);
+      assert.equal(cachedReads.value, 0, `${label}: cached verifier must not reread the envelope ledger`);
+      assert.equal(uncachedReads.value, runsToCompare.length, `${label}: uncached verifier must read once per record`);
+    };
+    const promptEnvelopeSnapshot = store.readPromptEnvelopes(storyId).envelopes;
+    const frozenPromptEnvelopeSnapshot = snapshotPromptEnvelopes(promptEnvelopeSnapshot);
+    assert.ok(Object.isFrozen(frozenPromptEnvelopeSnapshot), 'collection snapshot array must be immutable');
+    assert.ok(Object.isFrozen(frozenPromptEnvelopeSnapshot[0]), 'collection snapshot entries must be isolated');
+    assert.throws(
+      () => ((frozenPromptEnvelopeSnapshot as PromptEnvelope[])[0] = promptEnvelopeSnapshot[1]!),
+      TypeError,
+      'replacing a captured envelope entry must fail closed',
+    );
+    compareAggregate('ordered mixed records', promptEnvelopeSnapshot, frozenPromptEnvelopeSnapshot);
+    compareAggregate('single record', promptEnvelopeSnapshot, frozenPromptEnvelopeSnapshot, [runB]);
+    compareAggregate('reverse-ordered mixed records', [...promptEnvelopeSnapshot].reverse(), [...frozenPromptEnvelopeSnapshot].reverse());
+    compareAggregate('duplicate envelope record', [...promptEnvelopeSnapshot, promptEnvelopeSnapshot[0]!], [...frozenPromptEnvelopeSnapshot, frozenPromptEnvelopeSnapshot[0]!]);
+    compareAggregate('missing envelope record', promptEnvelopeSnapshot.slice(0, -1), frozenPromptEnvelopeSnapshot.slice(0, -1));
+    compareAggregate(
+      'mismatched envelope record',
+      promptEnvelopeSnapshot.map((envelope, index) => index === 0
+        ? { ...envelope, reviewRunId: `${envelope.reviewRunId}-mismatch` }
+        : envelope),
+      snapshotPromptEnvelopes(promptEnvelopeSnapshot.map((envelope, index) => index === 0
+        ? { ...envelope, reviewRunId: `${envelope.reviewRunId}-mismatch` }
+        : envelope)),
+    );
+    const staleRun = { ...runC, headHash: 'd'.repeat(40) };
+    compareAggregate('stale non-latest run', promptEnvelopeSnapshot, frozenPromptEnvelopeSnapshot, [runA, runB, staleRun]);
+    const foreignSnapshot = snapshotPromptEnvelopes(promptEnvelopeSnapshot.map(envelope => ({
+      ...envelope,
+      storyId: 'B-foreign-collection',
+    })));
+    const foreignResult = verifyReviewRunPromptEnvelope(makeEnvelopeStore(foreignSnapshot), runB, foreignSnapshot);
+    assert.equal(foreignResult.ok, false, 'a snapshot from a different collection must be refused');
+    let sourceReads = 0;
+    const sourceChangingStore = Object.create(store) as StoryStore;
+    sourceChangingStore.readPromptEnvelopes = () => {
+      sourceReads += 1;
+      return { envelopes: sourceReads === 1 ? [...promptEnvelopeSnapshot] : promptEnvelopeSnapshot.slice(0, -1) };
+    };
+    const cachedSourceResults = candidateRuns.map(run => verifyReviewRunPromptEnvelope(
+      sourceChangingStore,
+      run,
+      frozenPromptEnvelopeSnapshot,
+    ));
+    assert.equal(sourceReads, 0, 'cached verification must not observe source replacement between records');
+    const uncachedSourceResults = candidateRuns.map(run => verifyReviewRunPromptEnvelope(sourceChangingStore, run));
+    assert.equal(sourceReads, candidateRuns.length, 'uncached verification must expose each source read');
+    assert.ok(uncachedSourceResults.some(result => !result.ok), 'source replacement between records must remain refusal-safe');
+    assert.ok(cachedSourceResults.some(result => result.ok), 'the captured collection snapshot must preserve valid records');
+    const incrementalCachedReads = { value: 0 };
+    const incrementalUncachedReads = { value: 0 };
+    const incrementalCachedStore = makeEnvelopeStore(promptEnvelopeSnapshot, incrementalCachedReads);
+    const incrementalUncachedStore = makeEnvelopeStore(promptEnvelopeSnapshot, incrementalUncachedReads);
+    for (const cutoff of [runA.startedAt, runB.startedAt, runC.startedAt]) {
+      assert.deepEqual(
+        reviewIncrementalContext(incrementalCachedStore, root, storyId, role, {
+          excludedReviewRunId: runB.reviewRunId,
+          findingsCutoffAt: runB.startedAt,
+          passesCutoffAt: cutoff,
+          promptEnvelopes: frozenPromptEnvelopeSnapshot,
+        }),
+        reviewIncrementalContext(incrementalUncachedStore, root, storyId, role, {
+          excludedReviewRunId: runB.reviewRunId,
+          findingsCutoffAt: runB.startedAt,
+          passesCutoffAt: cutoff,
+        }),
+        `cutoff ${cutoff}: cached and uncached incremental context must match`,
+      );
+    }
+    assert.equal(incrementalCachedReads.value, 0, 'cached incremental eligibility must not reread envelopes');
+    const noCutoffOptions = {
+      excludedReviewRunId: runB.reviewRunId,
+      findingsCutoffAt: runB.startedAt,
+    };
+    const noCutoffCached = reviewIncrementalContext(incrementalCachedStore, root, storyId, role, {
+      ...noCutoffOptions,
+      promptEnvelopes: frozenPromptEnvelopeSnapshot,
+    });
+    const noCutoffUncached = reviewIncrementalContext(incrementalUncachedStore, root, storyId, role, noCutoffOptions);
+    assert.deepEqual(noCutoffCached, noCutoffUncached, 'cached and uncached no-cutoff incremental context must match');
+    assert.equal(incrementalCachedReads.value, 0, 'cached incremental eligibility must not reread envelopes');
+    assert.ok(
+      incrementalUncachedReads.value > 0,
+      'uncached incremental eligibility must expose direct envelope reads while cached eligibility performs none',
+    );
+    for (const cutoff of [runA.startedAt, runB.startedAt, runC.startedAt]) {
+      assert.deepEqual(
+        reviewIncrementalContext(store, root, storyId, role, {
+          excludedReviewRunId: runB.reviewRunId,
+          findingsCutoffAt: runB.startedAt,
+          passesCutoffAt: cutoff,
+          promptEnvelopes: frozenPromptEnvelopeSnapshot,
+        }),
+        reviewIncrementalContext(store, root, storyId, role, {
+          excludedReviewRunId: runB.reviewRunId,
+          findingsCutoffAt: runB.startedAt,
+          passesCutoffAt: cutoff,
+        }),
+        `cutoff ${cutoff}: cached and uncached incremental context must match`,
+      );
+    }
+    console.log(`${MARKER} MIXED RECORDS: N-record order, duplicate/missing/mismatched/stale cases and cutoff boundaries agree cached vs uncached`);
+
     const reviewPhaseStory = store.readStory(storyId);
     store.writeStory(storyId, { ...reviewPhaseStory, phase: 'TEST' });
     store.appendProcessEvent(storyId, {
@@ -630,7 +758,42 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       envelopeB.taskSemanticDigest,
       'mutation bite: the old phase-sensitive digest rejects the valid REVIEW envelope after transition to TEST',
     );
-    const doneEvidence = collectReviewerEvidenceState(store, storyId, root);
+    const compareCachedAndUncached = (candidate: ReviewRun, label: string): void => {
+      const promptEnvelopeSnapshot = store.readPromptEnvelopes(storyId).envelopes;
+      assert.deepEqual(
+        verifyReviewRunPromptEnvelope(store, candidate, promptEnvelopeSnapshot),
+        verifyReviewRunPromptEnvelope(store, candidate),
+        `${label}: cached and uncached verifier semantics must match`,
+      );
+    };
+    compareCachedAndUncached(runB, 'valid B envelope');
+    const readFailureStore = Object.create(store) as StoryStore;
+    readFailureStore.readPromptEnvelopes = () => {
+      throw new Error('injected prompt-envelope read failure');
+    };
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(readFailureStore, runB, store.readPromptEnvelopes(storyId).envelopes),
+      { ok: true },
+      'a supplied immutable snapshot keeps valid verification independent of later ledger reads',
+    );
+    assert.throws(
+      () => verifyReviewRunPromptEnvelope(readFailureStore, runB),
+      /injected prompt-envelope read failure/,
+      'the uncached path must still expose injected ledger read failures',
+    );
+    let promptEnvelopeReads = 0;
+    const countedStore = Object.create(store) as StoryStore;
+    const readPromptEnvelopes = store.readPromptEnvelopes.bind(store);
+    countedStore.readPromptEnvelopes = (readStoryId: string) => {
+      promptEnvelopeReads += 1;
+      return readPromptEnvelopes(readStoryId);
+    };
+    const doneEvidence = collectReviewerEvidenceState(countedStore, storyId, root);
+    assert.equal(
+      promptEnvelopeReads,
+      1,
+      'reviewer evidence collection must reuse one prompt-envelope snapshot for all bound evidence',
+    );
     assert.ok(
       doneEvidence.valid.some(evidence => evidence.id === passB.id),
       'the shared DONE evidence oracle must accept the same B pass after REVIEW to TEST metadata',
@@ -640,6 +803,114 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       false,
       'done_prepare and story_advance DONE must not disagree about B Prompt Envelope validity',
     );
+
+    const nestedProbeBase = promptEnvelopeSnapshot[0]!;
+    const nestedProbeWithoutId = {
+      ...nestedProbeBase,
+      eligibilityReasonCodes: [...(nestedProbeBase.eligibilityReasonCodes ?? ['CACHE_SNAPSHOT_NESTED_PROBE'])],
+      findingProjection: [...(nestedProbeBase.findingProjection ?? [{
+        id: 'nested-probe-finding',
+        createdAt: nestedProbeBase.createdAt,
+        status: 'open',
+        severity: 'medium',
+        category: 'edge',
+        desc: 'nested prompt-envelope mutation probe',
+      }])],
+    };
+    const nestedProbeEnvelope = {
+      ...nestedProbeWithoutId,
+      envelopeId: computePromptEnvelopeId(nestedProbeWithoutId),
+    };
+    const productionCollectorSource = [
+      ...promptEnvelopeSnapshot.map(envelope => ({ ...envelope })),
+      nestedProbeEnvelope,
+    ];
+    let productionCollectorReads = 0;
+    const productionCollectorStore = Object.create(store) as StoryStore;
+    productionCollectorStore.readPromptEnvelopes = (readStoryId: string) => {
+      assert.equal(readStoryId, storyId, 'production collector must read only its requested collection');
+      productionCollectorReads += 1;
+      return { envelopes: productionCollectorSource };
+    };
+    let observedProductionSnapshot: readonly PromptEnvelope[] | undefined;
+    const mutatingVerifier: typeof verifyReviewRunPromptEnvelope = (
+      verifierStore,
+      candidateRun,
+      suppliedSnapshot,
+    ) => {
+      assert.ok(suppliedSnapshot, 'production collector must pass its shared snapshot to each verifier');
+      if (!observedProductionSnapshot) {
+        observedProductionSnapshot = suppliedSnapshot;
+        assert.ok(Object.isFrozen(suppliedSnapshot), 'production collector snapshot array must be frozen');
+        assert.ok(
+          suppliedSnapshot.every(envelope => Object.isFrozen(envelope)),
+          'production collector snapshot entries must be frozen independently',
+        );
+        const capturedRunId = suppliedSnapshot[0]?.reviewRunId;
+        assert.ok(capturedRunId, 'production collector fixture must include a bound envelope');
+        productionCollectorSource[0]!.reviewRunId = `${capturedRunId}-source-mutated`;
+        assert.equal(
+          suppliedSnapshot[0]!.reviewRunId,
+          capturedRunId,
+          'mutating the store-owned source after capture must not alter the production snapshot',
+        );
+        const nestedProbe = suppliedSnapshot.find(envelope => envelope.envelopeId === nestedProbeEnvelope.envelopeId);
+        assert.ok(nestedProbe, 'production snapshot must preserve the nested probe envelope');
+        assert.ok(
+          Object.isFrozen(nestedProbe.eligibilityReasonCodes),
+          'production snapshot reason-code arrays must be frozen',
+        );
+        assert.ok(
+          Object.isFrozen(nestedProbe.findingProjection),
+          'production snapshot finding-projection arrays must be frozen',
+        );
+        assert.ok(
+          nestedProbe.findingProjection?.every(projection => Object.isFrozen(projection)),
+          'production snapshot finding-projection entries must be frozen',
+        );
+        const sourceNestedProbe = productionCollectorSource.find(
+          envelope => envelope.envelopeId === nestedProbeEnvelope.envelopeId,
+        )!;
+        const capturedReasonCode = nestedProbe.eligibilityReasonCodes?.[0];
+        assert.ok(capturedReasonCode, 'nested probe must include a reason code');
+        sourceNestedProbe.eligibilityReasonCodes![0] = `${capturedReasonCode}-source-mutated`;
+        assert.equal(
+          nestedProbe.eligibilityReasonCodes?.[0],
+          capturedReasonCode,
+          'mutating a source-owned nested array must not alter the production snapshot',
+        );
+        assert.throws(
+          () => nestedProbe.eligibilityReasonCodes!.push('verifier-mutation'),
+          TypeError,
+          'a mutating verifier must not be able to append to a production nested array',
+        );
+        assert.throws(
+          () => ((suppliedSnapshot as PromptEnvelope[])[0] = suppliedSnapshot[0]!),
+          TypeError,
+          'a mutating verifier must not be able to replace a production snapshot entry',
+        );
+      } else {
+        assert.strictEqual(
+          suppliedSnapshot,
+          observedProductionSnapshot,
+          'all production evidence verifiers must share one collection snapshot',
+        );
+      }
+      return verifyReviewRunPromptEnvelope(verifierStore, candidateRun, suppliedSnapshot);
+    };
+    const isolatedCollectorEvidence = collectReviewerEvidenceState(
+      productionCollectorStore,
+      storyId,
+      root,
+      { verifyPromptEnvelope: mutatingVerifier },
+    );
+    assert.equal(productionCollectorReads, 1, 'production collector must read one envelope collection per call');
+    assert.ok(observedProductionSnapshot, 'the production collector must invoke the injected verifier');
+    assert.ok(
+      isolatedCollectorEvidence.valid.some(evidence => evidence.id === passC.id),
+      `production collector must preserve valid evidence after source mutation by a verifier: valid=${JSON.stringify(isolatedCollectorEvidence.valid.map(evidence => evidence.id))} invalid=${JSON.stringify(isolatedCollectorEvidence.invalid)}`,
+    );
+    console.log(`${MARKER} PRODUCTION SNAPSHOT ISOLATION: collector passes one frozen cloned snapshot to every verifier`);
 
     const testPhaseStory = store.readStory(storyId);
     const inadmissiblePhaseDigests = new Set<string>();
@@ -671,6 +942,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       const phaseMutation = verifyReviewRunPromptEnvelope(store, runB);
       assert.equal(phaseMutation.ok, false, `${inadmissiblePhase} must invalidate a REVIEW envelope`);
       assert.match(phaseMutation.reason ?? '', /taskSemanticDigest/);
+      compareCachedAndUncached(runB, `${inadmissiblePhase} envelope`);
       const inadmissibleDoneEvidence = collectReviewerEvidenceState(store, storyId, root);
       assert.equal(
         inadmissibleDoneEvidence.valid.some(evidence => evidence.id === passB.id),
@@ -691,6 +963,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     store.writeStory(storyId, { ...testPhaseStory, title: `${testPhaseStory.title} mutated` });
     const titleMutation = verifyReviewRunPromptEnvelope(store, runB);
     assert.equal(titleMutation.ok, false, 'a real Story title mutation must invalidate the bound REVIEW envelope');
+    compareCachedAndUncached(runB, 'title-mutated envelope');
     for (const field of ['eligibilityDigest', 'eligibilityReasonCodes', 'reviewBasisDigest', 'taskSemanticDigest']) {
       assert.match(titleMutation.reason ?? '', new RegExp(field), `title mutation must report ${field} drift`);
     }
@@ -706,12 +979,35 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     const checklistMutation = verifyReviewRunPromptEnvelope(store, runB);
     assert.equal(checklistMutation.ok, false, 'a real checklist semantic mutation must invalidate the bound REVIEW envelope');
     assert.match(checklistMutation.reason ?? '', /taskSemanticDigest/);
+    compareCachedAndUncached(runB, 'checklist-mutated envelope');
     store.writeChecklist(storyId, originalChecklist);
     assert.deepEqual(verifyReviewRunPromptEnvelope(store, runB), { ok: true }, 'restoring task semantics restores verifier agreement');
     console.log(`${MARKER} REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees`);
     console.log(`${MARKER} PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails`);
   } finally {
     resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function runEmptyReviewerEvidenceSnapshotCase(): void {
+  const root = buildBalancedProjectRoot();
+  try {
+    const storyId = 'B-f675';
+    const store = buildFixtureStore({ story: reviewStory(storyId, 1, ts(1)) });
+    let promptEnvelopeReads = 0;
+    const countedStore = Object.create(store) as StoryStore;
+    const readPromptEnvelopes = store.readPromptEnvelopes.bind(store);
+    countedStore.readPromptEnvelopes = (readStoryId: string) => {
+      promptEnvelopeReads += 1;
+      return readPromptEnvelopes(readStoryId);
+    };
+    const evidence = collectReviewerEvidenceState(countedStore, storyId, root);
+    assert.equal(promptEnvelopeReads, 0, 'an empty reviewer evidence collection must not read prompt envelopes');
+    assert.equal(evidence.valid.length, 0, 'an empty reviewer evidence collection has no valid records');
+    assert.equal(evidence.invalid.length, 0, 'an empty reviewer evidence collection has no invalid records');
+    console.log(`${MARKER} EMPTY COLLECTION: zero prompt-envelope reads and zero evidence records`);
+  } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -1952,6 +2248,7 @@ function run(): void {
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
   runWrapperRootRoutingCase();
+  runEmptyReviewerEvidenceSnapshotCase();
   const cutoffStarted = performance.now();
   runProductionVerifierTemporalCutoffRegression();
   const cutoffDurationMs = performance.now() - cutoffStarted;
@@ -2031,6 +2328,8 @@ if (isDirectRun) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {
     runProductionVerifierTemporalCutoffRegression();
+    runEmptyReviewerEvidenceSnapshotCase();
+    console.log(`${MARKER} CACHE SNAPSHOT: collector read bound and verifier semantics PASS`);
   } else if (process.argv.includes('--bounded-paths-only')) {
     runBoundedPathsDegradationCase();
   } else if (process.argv.includes('--guard-map-only')) {

@@ -50,6 +50,7 @@ import {
   FULL_TASK_CONTEXT_LIMITS,
   validateIncrementalReviewBasis,
   type IncrementalReviewBasis,
+  type PromptEnvelope,
   type PromptFindingProjection,
 } from './prompt-contracts.js';
 import {
@@ -555,6 +556,7 @@ function latestTrustedPriorPass(
   runs: ReviewRun[],
   excludedReviewRunId?: string,
   passesCutoffAt?: string,
+  promptEnvelopes?: readonly PromptEnvelope[],
 ): TrustedPriorPass | null {
   const candidates: TrustedPriorPass[] = [];
   const cutoff = passesCutoffAt ? verdictTime(passesCutoffAt) : Number.POSITIVE_INFINITY;
@@ -569,7 +571,7 @@ function latestTrustedPriorPass(
     const run = runs.find(candidate => candidate.reviewRunId === pass.reviewRunId);
     if (!run || run.lane !== role || !verifyReviewRun(run)) continue;
     if (!run.envelopeId || pass.envelopeId !== run.envelopeId || !run.assembledPrompt) continue;
-    const envelopes = store.readPromptEnvelopes(storyId).envelopes.filter(
+    const envelopes = (promptEnvelopes ?? store.readPromptEnvelopes(storyId).envelopes).filter(
       envelope => envelope.envelopeId === run.envelopeId,
     );
     if (envelopes.length !== 1) continue;
@@ -685,12 +687,17 @@ export function fixtureCaseClosure(
 /**
  * Read-only incremental review context for a reviewer `role` on `storyId`.
  *
- * - A prior pass/finding with a bound, resolvable headHash → diff that headHash
- *   against HEAD (rename-aware, material-filtered); scopeChanged = changed > 0;
- *   isFirstPass = false.
+ * - A trusted prior pass with a bound, resolvable headHash whose diff fits the
+ *   bounded review-basis path lists → diff that headHash against HEAD
+ *   (rename-aware, material-filtered); scopeChanged = changed > 0;
+ *   isFirstPass = false; a review basis is emitted.
  * - No prior verdict (or prior verdict has no resolvable bound headHash) →
  *   isFirstPass = true, priorHeadHash = null, scopeChanged = true, and
  *   changedFiles = the full main...HEAD material diff.
+ * - A trusted prior whose diff exceeds the bounded path lists → the full
+ *   story diff against main, with the trusted prior retained for audit only,
+ *   no review basis, and the explicit FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS
+ *   reason code.
  */
 export function reviewIncrementalContext(
   store: StoryStore,
@@ -701,6 +708,8 @@ export function reviewIncrementalContext(
     excludedReviewRunId?: string;
     findingsCutoffAt?: string;
     passesCutoffAt?: string;
+    /** Immutable prompt-envelope snapshot shared by one evidence collection. */
+    promptEnvelopes?: readonly PromptEnvelope[];
     /** Signed run-start projection; prevents later finding disposition rewrites. */
     findingProjection?: PromptFindingProjection[];
   } = {},
@@ -717,6 +726,7 @@ export function reviewIncrementalContext(
     runs,
     options.excludedReviewRunId,
     options.passesCutoffAt,
+    options.promptEnvelopes,
   );
   const currentHead = currentGitHead(gitCwd) ?? null;
   const currentMaterial = currentMaterialHash(gitCwd, 'HEAD', projectRoot) ?? null;
@@ -756,6 +766,8 @@ export function reviewIncrementalContext(
 
   const finalize = (args: {
     prior: TrustedPriorPass | null;
+    /** The trusted prior resolved but the served diff is the full story diff. */
+    priorNotDiffed?: boolean;
     changedFiles: string[];
     freshnessClassification: EvidenceFreshnessClassification | 'NOT_EVALUATED';
     reasonCodes: string[];
@@ -778,7 +790,7 @@ export function reviewIncrementalContext(
         (item.verificationIntent?.[lane] ?? []).map((intent, index) =>
           intent.id?.trim() || `${item.id}:${lane}:${index}`)));
     let reviewBasis: IncrementalReviewBasis | null = null;
-    if (args.prior) {
+    if (args.prior && !args.priorNotDiffed) {
       const priorTime = Date.parse(args.prior.pass.createdAt);
       const cutoff = options.findingsCutoffAt ? Date.parse(options.findingsCutoffAt) : Number.POSITIVE_INFINITY;
       const findingSource = options.findingProjection ?? findings;
@@ -871,10 +883,10 @@ export function reviewIncrementalContext(
     };
     return {
       role,
-      isFirstPass: !args.prior || reviewBasis === null,
+      isFirstPass: !args.prior,
       priorHeadHash: args.prior?.run.headHash ?? null,
       priorVerdict: args.prior ? `PASS (${args.prior.pass.id})` : null,
-      scopeChanged: !args.prior || args.changedFiles.length > 0,
+      scopeChanged: !args.prior || args.priorNotDiffed === true || args.changedFiles.length > 0,
       changedFiles: args.changedFiles,
       contextMode,
       impactPolicyVersion: IMPACT_CLASSIFICATION_POLICY_VERSION,
@@ -896,11 +908,13 @@ export function reviewIncrementalContext(
     };
   };
 
-  // First-timer (or a prior verdict whose bound headHash cannot be resolved):
-  // fall back to the full story diff against main. We treat a missing bound
-  // headHash as a first pass so we never compute an incremental diff from an
-  // unknown base — the conservative direction is "show everything".
-  if (!prior || !prior.run.headHash) {
+  // Full story diff fallback is shared by first-timer and bounded-paths cases.
+  // The latter retains the trusted prior for audit, but never emits a basis
+  // computed from a diff that exceeded the bounded contract.
+  const fullStoryDiffContext = (
+    reasonCodes: string[],
+    resolvedPriorForAudit: TrustedPriorPass | null = null,
+  ): ReviewIncrementalContext => {
     const fullDiff = materialOnly(changedFilesBetweenRenameAware(gitCwd, 'main', 'HEAD'), projectRoot);
     const impact = classifyImpact({
       changedFiles: fullDiff,
@@ -914,18 +928,30 @@ export function reviewIncrementalContext(
       changedFileStatus: changedFileStatusesBetweenRenameAware(gitCwd, 'main', 'HEAD'),
     });
     return finalize({
-      prior: null,
+      prior: resolvedPriorForAudit,
+      priorNotDiffed: resolvedPriorForAudit !== null,
       changedFiles: fullDiff,
       freshnessClassification: 'NOT_EVALUATED',
-      reasonCodes: ['FULL_MISSING_TRUSTED_PRIOR_PASS'],
+      reasonCodes,
       impact,
     });
+  };
+
+  // First-timer (or a prior verdict whose bound headHash cannot be resolved):
+  // fall back to the full story diff against main. We treat a missing bound
+  // headHash as a first pass so we never compute an incremental diff from an
+  // unknown base — the conservative direction is "show everything".
+  if (!prior || !prior.run.headHash) {
+    return fullStoryDiffContext(['FULL_MISSING_TRUSTED_PRIOR_PASS']);
   }
 
   const changedFiles = materialOnly(
     changedFilesBetweenRenameAware(gitCwd, prior.run.headHash, 'HEAD'),
     projectRoot,
   );
+  if (changedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList) {
+    return fullStoryDiffContext(['FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS'], prior);
+  }
   const statuses = changedFileStatusesBetweenRenameAware(gitCwd, prior.run.headHash, 'HEAD');
   const freshness = checkEvidenceFreshnessForGit(
     gitCwd,
@@ -937,7 +963,8 @@ export function reviewIncrementalContext(
   const freshnessClassification = classifyEvidenceFreshness(freshness, prior.run.headHash);
   const currentRole = promptRoleContract(role);
   const environmentDigest = domainSeparatedDigest('known-execution-environment.v1', captureKnownExecutionEnvironment());
-  const priorEnvelope = store.readPromptEnvelopes(storyId).envelopes.find(
+  const promptEnvelopes = options.promptEnvelopes ?? store.readPromptEnvelopes(storyId).envelopes;
+  const priorEnvelope = promptEnvelopes.find(
     envelope => envelope.envelopeId === prior.run.envelopeId,
   );
   const currentPolicyHash = scopeContract ? digestScopeContract(scopeContract) : undefined;
