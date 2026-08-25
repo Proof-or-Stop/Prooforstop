@@ -19931,6 +19931,56 @@
       ],
       "signatureTag": "topology-ri081-wave2-pre-review-not-admissible",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-445",
+      "desc": "active-vs-compatibility: proof-or-stop-test-intent remains explicitly dispatchable for any PLAN story. The dispatch registry row at packages/main/src/core/agent-dispatch-registry.ts:47-58 accepts proof-or-stop-test-intent and test-case-reviewer aliases, and resolveAgentDispatchType/validateAgentDispatchRequest at :350-451 enforce only registry membership, phase, and cardinality; they never enforce the compatibility/legacy-only status declared at packages/main/src/core/prompt-role-contract-registry.ts:350-368 or distinguish old stories. The prompt remains presented as a current two-step agent in .proof-or-stop-codex/agents/proof-or-stop-test-intent.md:12-18. This violates the migration decision M2.1/M2 exit criteria that the role be replaced by proof-or-stop-verification-intent or hard-banned for new stories, and that new-story routing never name proof-or-stop-test-intent, proof-or-stop-test-case-reviewer, or their aliases (docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:1199-1221). WHY: a new Story can still be routed through the legacy role contract, so the active-vs-compatibility boundary is advisory rather than mechanically enforced. Fix by introducing the canonical verification-intent role or adding a hard legacy-story guard/banner and removing this role from new-story accepted routing; keep exact historical aliases readable without allowing new evidence ownership under the legacy path.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-25T10:07:49.674Z",
+      "reviewRound": "2026-08-25T09:53:45.090Z",
+      "reviewRunId": "B-5a88:RR-791",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-test-intent.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "59a4a51c1b90cc0dd28d7f7d6347edee3da22a4eca411f83d40a3d6376ec9c91"
+      },
+      "readDiagnostics": [],
+      "_hash": "6e10bb91c8b75fe58fac200adf04fda0d3e543b7ed386cdc8cad5a842070545e",
+      "files": [
+        "packages/main/src/core/agent-dispatch-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        ".proof-or-stop-codex/agents/proof-or-stop-test-intent.md",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|active-compatibility-proof",
+      "signatureTagSource": "auto"
     }
   ]
 }
