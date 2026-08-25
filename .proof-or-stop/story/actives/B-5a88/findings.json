@@ -18730,6 +18730,71 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-420",
+      "desc": "concept-cleanup: current non-historical writers still emit deprecated schema literals: packages/main/src/core/done-prepare-generated-metadata.ts:10 defines DONE_PREPARE_GENERATED_METADATA_SCHEMA as lattice.done-prepare-generated-metadata.v1 and uses it for the persisted manifest, while packages/main/src/core/done-prepare-validation-reuse.ts:22 and :288 define and write lattice.done-prepare-validation-reuse.v1. Neither writer is represented by a proof-or-stop canonical/legacy pair in packages/main/src/core/artifact-schema.ts, so the CHK-003 new-write rule is incomplete and these active records remain on the old concept instead of being canonical-write/legacy-read. This is distinct from F-419, which is untouched.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-25T03:57:14.105Z",
+      "reviewRound": "2026-08-25T03:27:13.081Z",
+      "reviewRunId": "B-5a88:RR-725",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-concept.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/done-prepare-validation-reuse.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/templates/agents/",
+          "packages/main/tests/",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-migration-contract.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ac1045f247e55200ce3062222f80b832059f70bf0e43507db586a30a23a2befd"
+      },
+      "readDiagnostics": [],
+      "_hash": "6cfb6eb896cc05978c5e73b6684750e430d8d01c08296c1648d865ceee1783a6",
+      "files": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/src/core/done-prepare-validation-reuse.ts",
+        "packages/main/src/core/artifact-schema.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-current",
+      "signatureTagSource": "auto"
     }
   ]
 }
