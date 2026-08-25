@@ -17177,6 +17177,37 @@
         "scanEscalationReason": "Round 53 quality review used the current signed review binding, verifier-owned read-only acceptance/pre-review checks, and focused smoke rechecks for F-417 and F-414; no source, test, checklist, or finding metadata was modified."
       },
       "_hash": "5f70fab334ca26d8aae96ea2a1df4abcacc1be7ed11d7e52e1cd50ef2c466143"
+    },
+    {
+      "id": "B-5a88:RP-279",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review passed: 21/21 must verification intents have current passing evidence bound to the current material and story files; acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check are current PASS with full-3x2 rollout receipts. Existing canonical F-345 and F-389 remain recorded and were assessed without recreating F-415; no new finding was identified in this run.",
+      "createdAt": "2026-08-25T02:12:28.136Z",
+      "reviewRound": "2026-08-25T02:05:20.151Z",
+      "reviewRunId": "B-5a88:RR-718",
+      "envelopeId": "4fdb6392d1ed986d3e2db9d5c89d4f811efcaf64193e17efb8c1eab3b23ed43c",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/tests/managed-marker-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "27e448794e57fe6e8fd40c2f9e2aa4b751266f3f28d8878a3aca03b244b73d10"
     }
   ]
 }
