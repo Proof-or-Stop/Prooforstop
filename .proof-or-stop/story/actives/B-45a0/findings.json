@@ -16346,6 +16346,61 @@
       ],
       "signatureTag": "ri068-topology-pre-review-scope-artifact",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-318",
+      "desc": "Fresh RI-068 wave-2 topology review at current HEAD 3cc162fa7b confirms the verifier-owned pre-review artifact remains inadmissible: acceptance_topology_check is structurally passing and both rollout reads/checks are current full-3x2 PASS, but pre_review_check_read still reports PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED. The stored pre-review basis therefore cannot authorize inventory finalization. This re-attests the existing F-316/F-317 topology family and introduces no new family.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-25T12:08:33.159Z",
+      "reviewRound": "2026-08-25T11:14:59.492Z",
+      "reviewRunId": "B-45a0:RR-621",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d3f5d563d1abd3f58910844b45b713d38b3b7081850817f682e097bb9f6abc0b",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "ri068-topology-pre-review-scope-artifact",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
