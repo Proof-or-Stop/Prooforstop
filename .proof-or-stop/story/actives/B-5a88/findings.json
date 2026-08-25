@@ -20547,6 +20547,87 @@
       ],
       "signatureTag": "missing|json|happy-wave4-reads",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-459",
+      "desc": "concept/spec-boundary: .proof-or-stop/story/actives/B-5a88/plan.md:5 still says \"Implement only CHK-001 through CHK-007\" and :45 says verificationEvidence covers 21 intents, while checklist.json:1571-1625 includes CHK-008 through CHK-013 and the current Wave 4 user-facing acceptance. The authoritative implementation plan has no scope or verification-order sections for CHK-008 through CHK-013, so it contradicts the current Story product/concept scope; update it through the Story process before DONE.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-25T18:07:26.882Z",
+      "reviewRound": "2026-08-25T17:18:57.883Z",
+      "reviewRunId": "B-5a88:RR-829",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3a36cde62a3ba1b0ca8ae43493c0bfe22081fb6f4a8fa4fe95ec5b5ecbb5d439",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/plan.md",
+        ".proof-or-stop/story/actives/B-5a88/checklist.json"
+      ],
+      "signatureTag": "ri-084-concept-plan-scope-confirmation",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-460",
+      "desc": "CHK-013-HAPPY-WAVE4-READS still has a current intent-linked coverage gap: its pinned verification command executes only acceptance_topology_check and pre_review_check_read. It does not execute the verifier-owned acceptance_rollout_report_read or acceptance_rollout_check reads required by the Wave 4 coverage boundary. The separate rollout PASS and smoke receipts are not evidence for this happy intent, so the official rollout report/policy read coverage remains absent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-25T18:09:24.858Z",
+      "reviewRound": "2026-08-25T17:18:57.883Z",
+      "reviewRunId": "B-5a88:RR-831",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "737580c982d0eb46e2ecc5fcb6607bfcb7304a9ba515312dc6628e5311bf51da"
+      },
+      "readDiagnostics": [],
+      "_hash": "f4c8c7257fb49ae21dbd47af4ad65df9da93c6307cddfa9a10e041e8d9dfb5a8",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/plan.md",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "missing|json|happy-wave4-reads",
+      "signatureTagSource": "auto"
     }
   ]
 }
