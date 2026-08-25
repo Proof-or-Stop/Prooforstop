@@ -150,15 +150,22 @@
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
-          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {resolveAgentDispatchType} from \\\"./packages/main/dist/core/agent-dispatch-registry.js\\\"; assert.equal(resolveAgentDispatchType(\\\"verification-intent\\\").canonicalType,\\\"proof-or-stop-test-intent\\\"); assert.throws(()=>resolveAgentDispatchType(\\\"lattice-review-unknown\\\"),/unknown agentType/); console.log(\\\"CHK-001 alias-boundary smoke: PASS\\\")\"",
+          "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {resolveAgentDispatchType, validateAgentDispatchRequest} from \\\"./packages/main/dist/core/agent-dispatch-registry.js\\\"; assert.equal(resolveAgentDispatchType(\\\"verification-intent\\\").canonicalType,\\\"proof-or-stop-verification-intent\\\"); for (const legacyType of [\\\"proof-or-stop-test-intent\\\",\\\"proof-or-stop-test-case-reviewer\\\",\\\"test-intent\\\",\\\"test-case-reviewer\\\"]) assert.throws(() => validateAgentDispatchRequest({agentType:legacyType,phase:\\\"PLAN\\\",itemId:\\\"CHK-001\\\"}),/legacy read-side identity.*proof-or-stop-verification-intent/); console.log(\\\"CHK-001 verification-intent dispatch: PASS\\\");\"",
           "result": "pass",
-          "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-001:adversarial:0 under RR-414.",
-          "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
-          "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
-          "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-25T11:59:36.133Z"
+          "note": "Re-ran the corrected CHK-001 adversarial verifier after the canonical verification-intent role migration; it proves canonical resolution and refusal of all four legacy PLAN dispatch IDs.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ced65ccc9a18f997a39a549b93dd4c1a360f0c42f79b620fc1355476515e6aa2",
+            "outputTail": "CHK-001 verification-intent dispatch: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-25T13:32:22.017Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "38551911e6cbe232fe30e334dcc302e4564d3f2f",
+          "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072",
+          "storyFilesHash": "5b189c7e535f09cfb530a5d18836999285e761c005733a7fad481826af9e8e88",
+          "timestamp": "2026-08-25T13:32:22.360Z"
         }
       ],
       "userSeesSnapshot": {
