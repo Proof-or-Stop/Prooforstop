@@ -13,9 +13,10 @@ const registryModule = await import(join(distRoot, 'core/prompt-registry.js'));
 const contracts = await import(join(distRoot, 'core/prompt-role-contract-registry.js'));
 const budget = await import(join(distRoot, 'core/prompt-budget.js'));
 const identity = await import(join(distRoot, 'core/agent-role-identity.js'));
+const dispatch = await import(join(distRoot, 'core/agent-dispatch-registry.js'));
 
 const registry = registryModule.readPromptRegistry();
-assert.equal(registry.agents.length, 17, 'all canonical prompt templates are registered');
+assert.equal(registry.agents.length, 18, 'all canonical prompt templates are registered');
 const manifest = registryModule.promptRegistryManifest();
 assert.equal(manifest.schemaVersion, 'proof-or-stop.prompt-registry.v1', 'new prompt manifests use the canonical schema');
 assert.equal(
@@ -66,16 +67,32 @@ for (const entry of registry.agents) {
   assert.equal(entry.agentId, entry.agentId.trim());
   assert.equal(contracts.promptRoleContract(entry.agentId).roleId, entry.agentId);
 }
-const testIntent = registry.agents.find(entry => entry.agentId === 'proof-or-stop-test-intent');
-assert.ok(testIntent, 'canonical test-intent prompt is registered');
-const testIntentClaude = registryModule.renderPromptEntryForHost(testIntent, 'claude');
+const verificationIntent = registry.agents.find(entry => entry.agentId === 'proof-or-stop-verification-intent');
+assert.ok(verificationIntent, 'canonical verification-intent prompt is registered');
+const verificationIntentClaude = registryModule.renderPromptEntryForHost(verificationIntent, 'claude');
 assert.equal(
-  testIntentClaude,
-  readFileSync(join(packageRoot, '..', '..', '.claude', 'agents', testIntent.file), 'utf8'),
-  'prompt registry preserves exact mirror bytes for ambiguous verification-intent prose',
+  verificationIntentClaude,
+  readFileSync(join(packageRoot, '..', '..', '.claude', 'agents', verificationIntent.file), 'utf8'),
+  'prompt registry preserves exact Claude mirror bytes for the active verification-intent role',
 );
-assert.match(testIntentClaude, /verification-intent workflow/);
-assert.doesNotMatch(testIntentClaude, /proof-or-stop-test-intent workflow/);
+assert.match(verificationIntentClaude, /verificationIntent/);
+assert.match(verificationIntentClaude, /checklist_update/);
+assert.doesNotMatch(verificationIntentClaude, /proof-or-stop-test-intent|proof-or-stop-test-case-reviewer|testIntent|testintent_/);
+for (const legacyRole of ['proof-or-stop-test-intent', 'proof-or-stop-test-case-reviewer']) {
+  const legacyEntry = registry.agents.find(entry => entry.agentId === legacyRole);
+  assert.ok(legacyEntry, `${legacyRole} remains registered for compatibility reads`);
+  const legacyPrompt = registryModule.renderPromptEntryForHost(legacyEntry, 'claude');
+  assert.match(legacyPrompt, /Legacy compatibility identity/);
+  assert.match(legacyPrompt, /not dispatchable/);
+  assert.equal(contracts.promptRoleContract(legacyRole).status, 'compatibility');
+}
+for (const legacyType of ['proof-or-stop-test-intent', 'proof-or-stop-test-case-reviewer', 'test-intent', 'test-case-reviewer']) {
+  assert.throws(
+    () => dispatch.validateAgentDispatchRequest({ agentType: legacyType, phase: 'PLAN', itemId: 'CHK-001' }),
+    /legacy read-side identity.*proof-or-stop-verification-intent/,
+    `${legacyType} must fail closed for new PLAN dispatch`,
+  );
+}
 assert.equal(
   identity.canonicalizeAgentRoleText('test-intentional product-reviewerish lattice-review-quality@host'),
   'test-intentional product-reviewerish proof-or-stop-review-quality@host',

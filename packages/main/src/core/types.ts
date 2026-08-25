@@ -30,7 +30,9 @@ export type StoryPhase = 'IDEA' | 'INIT' | 'INIT_CHECK' | 'PLAN' | 'DEV' | 'REVI
 /** Canonical role names accepted by the typed dispatch contract. */
 export type AgentDispatchCanonicalType =
   | 'proof-or-stop-implementer'
+  | 'proof-or-stop-verification-intent'
   | 'proof-or-stop-test-intent'
+  | 'proof-or-stop-test-case-reviewer'
   | 'proof-or-stop-review-story-init'
   | 'proof-or-stop-product-reviewer'
   | 'proof-or-stop-review-scope-plan'

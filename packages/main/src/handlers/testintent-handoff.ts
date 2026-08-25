@@ -51,9 +51,9 @@ export function createTestIntentHandoffHandlers(ctx: HandlerContext) {
       const missingList = missingIntentItems.map((item) => `${item.id} "${item.title}"`).join(', ') || '(none)';
 
       const prompt = [
-        `You are the proof-or-stop-test-intent agent for Proof-or-Stop story ${args.storyId}.`,
+        `You are the proof-or-stop-verification-intent agent for Proof-or-Stop story ${args.storyId}.`,
         '',
-        'Follow the repository proof-or-stop-test-intent agent contract:',
+        'Follow the repository proof-or-stop-verification-intent agent contract:',
         '- First review checklist split quality against the story description.',
         '- If the split is wrong, report concrete checklist changes and stop.',
         '- If the split is acceptable, write verificationIntent for each testable item via proof-or-stop checklist_update.',
@@ -84,7 +84,7 @@ export function createTestIntentHandoffHandlers(ctx: HandlerContext) {
 
       return {
         storyId: args.storyId,
-        agent: 'proof-or-stop-test-intent',
+        agent: 'proof-or-stop-verification-intent',
         cwd: worktreeHint,
         summary: {
           totalItems: scopedItems.length,
@@ -98,12 +98,12 @@ export function createTestIntentHandoffHandlers(ctx: HandlerContext) {
           nullIntentItems: nullIntentItems.map((item) => item.id),
         },
         nextActions: [
-          'Send prompt to the proof-or-stop-test-intent agent in the story worktree.',
+          'Send prompt to the proof-or-stop-verification-intent agent in the story worktree.',
           'Let that agent update checklist verificationIntent via proof-or-stop checklist_update.',
           `Run proof-or-stop story_review '{"storyId":"${args.storyId}"}' again.`,
         ],
         commandExamples: missingIntentItems.map((item) =>
-          `proof-or-stop checklist_update '{"storyId":"${args.storyId}","itemId":"${item.id}","verificationIntent":{"happy":[{"desc":"...","type":"cli","priority":"must"}],"edge":[{"desc":"...","type":"cli","priority":"must"}],"adversarial":[{"desc":"...","type":"logic","priority":"must"}]},"agent":"proof-or-stop-test-intent"}'`
+          `proof-or-stop checklist_update '{"storyId":"${args.storyId}","itemId":"${item.id}","verificationIntent":{"happy":[{"desc":"...","type":"cli","priority":"must"}],"edge":[{"desc":"...","type":"cli","priority":"must"}],"adversarial":[{"desc":"...","type":"logic","priority":"must"}]},"agent":"proof-or-stop-verification-intent"}'`
         ),
         prompt,
       };

@@ -117,16 +117,17 @@ const manifest = readFileSync(join(root, canonicalCodexManifest), 'utf8');
 const rootReadme = readFileSync(join(root, 'README.md'), 'utf8');
 const agents = readFileSync(join(root, 'AGENTS.md'), 'utf8');
 
-const testIntentEntry = readPromptRegistry().agents.find(
-  (entry) => entry.agentId === 'proof-or-stop-test-intent',
+const verificationIntentEntry = readPromptRegistry().agents.find(
+  (entry) => entry.agentId === 'proof-or-stop-verification-intent',
 );
-assert(testIntentEntry, 'prompt registry must expose the canonical test-intent role');
-const testIntentRender = renderPromptEntryForHost(testIntentEntry, 'claude');
-assert(testIntentRender.includes('verification-intent workflow'), 'prompt render must preserve verification-intent workflow prose');
-assert(!testIntentRender.includes('proof-or-stop-test-intent workflow'), 'prompt render must not rewrite workflow prose as a role ID');
+assert(verificationIntentEntry, 'prompt registry must expose the canonical verification-intent role');
+const verificationIntentRender = renderPromptEntryForHost(verificationIntentEntry, 'claude');
+assert(verificationIntentRender.includes('verificationIntent'), 'prompt render must describe verificationIntent');
+assert(verificationIntentRender.includes('checklist_update'), 'prompt render must describe checklist_update');
+assert(!/proof-or-stop-test-intent|proof-or-stop-test-case-reviewer|testIntent|testintent_/.test(verificationIntentRender), 'active prompt must not teach legacy role or field guidance');
 assert(
-  testIntentRender === readFileSync(join(root, '.claude', 'agents', testIntentEntry.file), 'utf8'),
-  'canonical test-intent prompt render must remain byte-identical to the Claude mirror',
+  verificationIntentRender === readFileSync(join(root, '.claude', 'agents', verificationIntentEntry.file), 'utf8'),
+  'canonical verification-intent prompt render must remain byte-identical to the Claude mirror',
 );
 
 assert(codexReadme === renderCodexReadmeTemplate('full', 'lattice'), `${canonicalCodexDir}/README.md drifted from canonical template`);
