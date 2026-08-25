@@ -10138,6 +10138,43 @@
       "findingDispositions": [],
       "createdAt": "2026-08-25T13:08:29.846Z",
       "_hash": "ed87a5afa61b32ffcf11667d77972c79f52e81b0f44a54fa79f64afbb2a6171d"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-073:CRIT-01",
+      "epochId": "B-45a0:RI-073",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T16:06:11.159Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "c2a30bce4ff681b7e81e8d996ff5a2a3f6bd578d",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84"
+      },
+      "aggregateFindingSetDigest": "aa248595048b91b47b47d2a555f54e95a2910b6196865ee69d90cc25f591ae98",
+      "requiredLaneCoverageDigest": "c30cea0ee1349e8f734110220a6b120871f944660fdd0e44c881c8b7fef6b2a3",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-648",
+      "terminalEvidenceIds": [
+        "B-45a0:F-322"
+      ],
+      "readEvidenceDigest": "0f2b59a8c3887f0c1c14d98f9f1eacc220774ffdd2fbaeee2ed57b0abd92f989",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-320",
+          "disposition": "verified_family",
+          "familyKey": "current-verification-coverage",
+          "reason": "The prior RI-072 stale-evidence observation is a valid verified coverage family; current refresh does not erase its historical finding receipt."
+        },
+        {
+          "findingId": "B-45a0:F-321",
+          "disposition": "verified_family",
+          "familyKey": "ri073-current-acceptance-coverage",
+          "reason": "Current CHK-014 acceptance evidence is non-mechanical and pre_review_check_read remains blocked, so this is a verified current acceptance-coverage family."
+        }
+      ],
+      "createdAt": "2026-08-25T17:05:53.846Z",
+      "_hash": "2a6eb26219a5bdb96812270098fbd08adef5fad025c91a3291ae198669fb3157"
     }
   ]
 }
