@@ -34,9 +34,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-45a0:CW-003",
       "storyId": "B-45a0",
-      "state": "RUNNING",
+      "state": "INVALIDATED",
       "createdAt": "2026-08-25T04:30:47.917Z",
-      "updatedAt": "2026-08-25T04:31:05.978Z",
+      "updatedAt": "2026-08-25T10:13:10.177Z",
       "frozen": {
         "headHash": "71bf9ae9f02dd6a2d3aab298eeea475bf9c6ccda",
         "materialHash": "e2d0d37bb659048bbabf951c0188779242b9edf3af60619ea5d9a3dcf7335a44",
@@ -52,7 +52,31 @@
         "authorizesTest": false
       },
       "receiptId": "B-45a0:PRECERT-001",
-      "_hash": "2d1bf29c4bfd86df5ae2d5343b54020b4934e85e875d0aa5a15b920ab54fe9de"
+      "blockerCode": "pre_cert_window_invalidated",
+      "blockerDetail": "storyFilesHash changed",
+      "invalidation": {
+        "detectedAt": "2026-08-25T10:13:10.177Z",
+        "oldHeadHash": "71bf9ae9f02dd6a2d3aab298eeea475bf9c6ccda",
+        "currentHeadHash": "8305700e5d0098cfa961113e289d6f4bbc5b9b64",
+        "oldMaterialHash": "e2d0d37bb659048bbabf951c0188779242b9edf3af60619ea5d9a3dcf7335a44",
+        "currentMaterialHash": "3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c",
+        "oldStoryFilesHash": "73ab5542e384ecbc6ee53692642f4752f1f7279aa0455ca7f4088ba63d3c3521",
+        "currentStoryFilesHash": "3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9",
+        "blockerCode": "pre_cert_window_invalidated"
+      },
+      "_hash": "117e258027c604037e4ff2c34e71c709f4bbf9aa43f2428ff5648f3baea8f10b"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-45a0:CW-004",
+      "storyId": "B-45a0",
+      "state": "BLOCKED",
+      "createdAt": "2026-08-25T10:13:38.260Z",
+      "updatedAt": "2026-08-25T10:13:38.260Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "2133b8f480df19fbca39ecec7b2b427a1833d646eec238b8a81ea80793b650dc"
     }
   ],
   "receipts": [
