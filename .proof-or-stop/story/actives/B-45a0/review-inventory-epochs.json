@@ -6892,9 +6892,9 @@
       "epochId": "B-45a0:RIE-084",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-25T18:51:15.542Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-25T19:20:30.523Z",
-      "updatedAt": "2026-08-25T19:20:30.523Z",
+      "updatedAt": "2026-08-25T19:22:45.916Z",
       "cutoff": {
         "headHash": "27e8728e605db8f1126e4e0b75e4cc198e28116b",
         "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
@@ -6905,7 +6905,41 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-45a0:RIE-084:RCP-001",
-      "_hash": "63b0fbfa2a2a3b1e86b65d2d36301c5d7ef81620bf4549d48abffc690707396e"
+      "cancelledAt": "2026-08-25T19:22:45.916Z",
+      "cancelReason": "Invalidate the unconsumed inventory receipt because the effective checklist acceptance subject changed after finalize; a fresh epoch is required before DEV remediation.",
+      "terminalRunSequenceBoundary": 687,
+      "_hash": "e9c1f417d15922b1385af90ee305bee403df16613a81af069de9a5f155f0c0f7"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-077",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T18:51:15.542Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-25T19:22:54.431Z",
+      "updatedAt": "2026-08-25T19:22:54.431Z",
+      "cutoff": {
+        "headHash": "d4d6f24500bfe98195752ba18231c208b42676ed",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84"
+      },
+      "scopeDigest": "2ac9444228844472907bad4714239dc5e4fabda893457e0b3832be25d4cf181a",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 687,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-45a0:F-331",
+        "B-45a0:F-332",
+        "B-45a0:F-333",
+        "B-45a0:F-334"
+      ],
+      "_hash": "40df1595be074c45d88842accc7263e950391245a67b88901e8f0a3e4ff1266d"
     }
   ],
   "receipts": [
@@ -7712,7 +7746,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-25T19:20:30.523Z",
-      "_hash": "428732bf128faaeca9813a26633978a2a324902745efa231a0136340656e8c22"
+      "invalidatedAt": "2026-08-25T19:22:45.916Z",
+      "invalidationReason": "Invalidate the unconsumed inventory receipt because the effective checklist acceptance subject changed after finalize; a fresh epoch is required before DEV remediation.",
+      "_hash": "6a5ef8f3a3cae80aba9cfb0667bdb46ff8c0e666ae3b5cbdc239aaa4eb52d3c3"
     }
   ],
   "criticReceipts": [
