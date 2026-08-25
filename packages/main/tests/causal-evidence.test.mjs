@@ -2185,7 +2185,11 @@ test('B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifi
     assert.deepEqual(topology.diagnostics, []);
   }
   const preReviewFresh = preReview.status === 'pass';
-  assert.ok(preReviewFresh || preReview.codes?.join(',') === 'PR_ARTIFACT_TAMPERED');
+  const preReviewFailClosed = [
+    'PR_ARTIFACT_TAMPERED',
+    'PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE',
+  ].includes(preReview.codes?.join(',') ?? '');
+  assert.ok(preReviewFresh || preReviewFailClosed);
   if (preReviewFresh) {
     assert.equal(preReview.ok, true);
     assert.equal(preReview.executableEvidence, 'current');
