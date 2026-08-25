@@ -11512,6 +11512,53 @@
         "scanEscalationReason": "RI-072 docs review extracted 109 exported symbols, located 215 exact symbol-reference lines, and compared 101 unique heading-anchored documentation paragraphs. The replay command/configuration and shard receipt claims map to registered handlers and implementations; no documentation-code inconsistency or promised-but-undelivered documentation was found. Existing acceptance-basis freshness is a separate previously registered topology issue and is not claimed as a docs pass over runtime evidence."
       },
       "_hash": "8c476e5435679b65129b53c6ac1c8e0531bb0f9afb3f904a86ed6759911246a9"
+    },
+    {
+      "id": "B-45a0:RP-230",
+      "agent": "lattice-review-quality",
+      "note": "RI-072 current-round quality review found no new code-quality blocker. The replay fix now uses the id-independent project git-root resolver for no-live-Story historical replay, and the wrapper-root resolver smoke plus rebuilt replay plan-only probe completed without a new implementation defect. Existing stale acceptance and coverage findings remain preserved; no assurance pass is claimed.",
+      "createdAt": "2026-08-25T16:30:43.585Z",
+      "reviewRound": "2026-08-25T16:06:11.159Z",
+      "reviewRunId": "B-45a0:RR-641",
+      "envelopeId": "48f6c1eb43ffd7d4d0af3bd4b6df8c77568764757172fdf74b71e8f216a92976",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "lattice.config.json",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": "Scoped RI-072 quality review checked the replay Git-cwd correction, its shared resolver dependency, the Story-aware validation planner, and verifier-owned acceptance context; no repository-wide decisions scan was required.",
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1482e5939aa9f4255b6fc4a96bd4cac2a8be8a1b9d99aa5a48f74d6d56b023b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "31d952602d7babee071c5d567be751e913d8873cbda7c43a60b0be8282623e15"
     }
   ]
 }
