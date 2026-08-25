@@ -18801,7 +18801,7 @@
       "desc": "packages/main/src/core/review-incremental-context.ts:824-829 — high: when impact.impactedFiles or the deduplicated authoritativeReferences exceeds FULL_TASK_CONTEXT_LIMITS.pathsPerList, reviewBasis is set to null without adding a FULL_* eligibility reason. The current reviewIncrementalContext therefore remains contextMode=incremental while assembleConditionalReviewPromptEnvelope selects a full SAFETY_REQUIRES_FULL envelope; review-run.ts:870-878 can then reject that valid safety fallback as contradictory. The existing bounded-paths smoke only covers changedFiles cap+1 and does not cover either oversized branch. Fix the cap path to carry an authoritative full fallback reason/contextMode and add both regression cases; F-419 remains open.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-25T04:00:05.102Z",
@@ -18840,7 +18840,167 @@
         "packages/main/src/tasks/review-incremental-context-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-5a88:F-419: both findings identify the same authoritative cap-handling defect at packages/main/src/core/review-incremental-context.ts around lines 824-829, where oversized impact.impactedFiles or authoritativeReferences nulls reviewBasis without a FULL_* reason/context-mode escalation and leaves the signed-run contradiction. Preserve F-419 as the canonical open finding; F-421 adds no distinct cause or affected path.",
+      "resolvedAt": "2026-08-25T04:28:47.913Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-422",
+      "desc": "packages/main/src/core/pre-review-check.ts:415-441: current pre_review_check_read is not admissible because it reports PR_ARTIFACT_TAMPERED; packages/main/src/core/topology-critic-receipt.ts:498-514 independently reports AT_TOPOLOGY_CRITIC_RECEIPT_INVALID (critic verdict is request_changes and finding refs are noncanonical or stale). Although all 21 must intents have pass evidence and acceptance_rollout_report_read/acceptance_rollout_check are current full-3x2, the signed executable pre-review proof is not current for REVIEW-to-TEST. Reissue the verifier-owned topology critic and pre-review artifacts before advancing; do not treat the non-blocking observe result as PASS.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-25T04:02:07.305Z",
+      "reviewRound": "2026-08-25T03:27:13.081Z",
+      "reviewRunId": "B-5a88:RR-726",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/topology-critic-receipt.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "253f80db9ba29510db55a63ef4dc7ac465615b5bcfc59dd7cdb48bbe2eed9986",
+      "files": [
+        "packages/main/src/core/pre-review-check.ts:415-441",
+        "packages/main/src/core/topology-critic-receipt.ts:498-514"
+      ],
+      "signatureTag": "missing|ts:415-441|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-423",
+      "desc": "pre_review_check_read --storyId=B-5a88 --json returns status=fail, ok=false, codes=[PR_ARTIFACT_TAMPERED] at the current review cutoff. The verifier-owned pre-review artifact is therefore not admissible even though the acceptance basis is complete and rollout is full-3x2; discard and reissue through proof-or-stop pre_review_check before review can advance.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-25T04:18:43.534Z",
+      "reviewRound": "2026-08-25T03:27:13.081Z",
+      "reviewRunId": "B-5a88:RR-729",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-contract.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/delivery-check.json",
+          ".proof-or-stop/story/actives/B-5a88/proofstory.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4afb9e71c0347cc34aa9d2ff6031915527b580fa89387bd07634d6911cbd83a8",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "missing|json|current-pre-review-artifact-tampered",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-424",
+      "desc": "Coverage gap in the current RI-077 wave 2 signed review (RR-732): review-incremental-context-smoke.ts:1239-1294 exercises only changedFiles at cap+1. The production cap guard at packages/main/src/core/review-incremental-context.ts:824-829 also branches on impact.impactedFiles and the deduplicated authoritativeReferences, but no executable regression drives either branch through Prompt Envelope assembly and review-run verification. A contradictory full fallback can therefore ship while the checklist still reports 21/21 passing migration intents. Add separate impactedFiles and authoritativeReferences cap+1 cases, assert the FULL fallback reason/contextMode, and bind both to current HEAD before accepting coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-25T04:35:45.121Z",
+      "reviewRound": "2026-08-25T03:27:13.081Z",
+      "reviewRunId": "B-5a88:RR-732",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ea0c2fa21a42d3a95937b324d201f230dd9ebd2b9d1934e57ee4d44d6b18c53f",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "missing-ts-bounded-impact-authoritative-reference-coverage",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate of canonical B-5a88:F-419, corroborated by quality RR-730 and coverage RR-732 at the same HEAD 9cef6ad2e91def1c0ba00c8a1f5ef3f200162335 with materialHash 04b5d666cbfea4668c2f8facbbdcf47c4b3b9d430f0f69acd617715dfb1ce536 and storyFilesHash 33680db97f81ad77d3ea1d5703de212db1f0b7b948024ffbb86fd44f3f34a572. Both identify the same production cap guard at packages/main/src/core/review-incremental-context.ts:824-829: oversized impact.impactedFiles or deduplicated authoritativeReferences nulls reviewBasis without the authoritative FULL_* fallback/context-mode escalation. F-424 narrows the same defect to the missing impactedFiles/authoritativeReferences regression cases in review-incremental-context-smoke.ts:1239-1294, which F-419 already explicitly requires; it adds no distinct root cause or affected path. Preserve F-419 as the canonical open finding; prior F-421 has the same duplicate disposition.",
+      "resolvedAt": "2026-08-25T04:48:14.965Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
