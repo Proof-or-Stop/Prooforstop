@@ -16381,6 +16381,108 @@
       ],
       "signatureTag": "missing|json|wave-validation-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-311",
+      "desc": "F-304 closeout lineage is still missing: .proof-or-stop/story/actives/B-5a15/closeout-write-receipts.jsonl has 78 records but 0 with artifactPath=topology-critic-receipt.json; its latest sequence=57 is evidence/live-smoke-transcript.json. topology_critic_receipt_check currently returns AT_TOPOLOGY_CRITIC_RECEIPT_INVALID (request_changes, stale/noncanonical finding refs). The source remediation is present at packages/main/src/core/closeout-trust.ts:41 and packages/main/src/handlers/proofstory.ts:587-589, and npm run test:closeout-trust passes the isolated regression (packages/main/src/tasks/closeout-trust-smoke.ts:501-509), but that smoke uses a temporary fixture and does not repair the current Story lineage. Reissue topology_critic_receipt_set through the canonical topology-critic authority and verify a trusted closeout write receipt before retaining this review pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T16:59:38.105Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-698",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/closeout-write-receipts.jsonl",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "c25f9a2ba656642ded4b2e657bded3ed45c5186c0e88173539829d2ea789c9f6",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/topology-critic-receipt.json",
+        ".proof-or-stop/story/actives/B-5a15/closeout-write-receipts.jsonl",
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "signatureTag": "missing|json|closeout-lineage-still",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-312",
+      "desc": "CHK-003 concept gap: packages/main/src/handlers/certification-window.ts:102-117 materializes all six domains from one storyFilesHash snapshot and chains each domain to the previous. Therefore a source/test/build-input/manifest-semantic/integration/review-subject mutation produces the same changed input set and invalidates the entire six-node chain; the production CertificationWindow has no distinct per-domain hashes or declared dependency boundaries. This violates the story requirement at .proof-or-stop/story/actives/B-5a15/plan.md:56-59 that domains have distinct dependency hashes and only the declared affected transitive closure is stale. The generic evaluator tests at packages/main/tests/causal-evidence.test.mjs:1033-1205 cannot prove production wiring because they construct independent per-domain hashes. Add production domain-input derivation and a single-domain wiring regression before REVIEW can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-25T17:06:48.960Z",
+      "reviewRound": "2026-08-25T16:51:43.246Z",
+      "reviewRunId": "B-5a15:RR-701",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "a15162d0509253679a4b976e0c0840deae69e9f7698fd8a21b5306436ca6d2e6",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        ".proof-or-stop/story/actives/B-5a15/plan.md",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "missing|ts|concept-packages-main",
+      "signatureTagSource": "auto"
     }
   ]
 }
