@@ -739,6 +739,271 @@
         }
       ],
       "_hash": "e3756d27cc08312276c298858654f34d0d5f8686b6312d4a22b6f04ea6060da3"
+    },
+    {
+      "timestamp": "2026-08-25T15:30:49.653Z",
+      "issueCount": 14,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-008",
+          "message": "CHK-008 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-009",
+          "message": "CHK-009 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-010",
+          "message": "CHK-010 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-011",
+          "message": "CHK-011 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-012",
+          "message": "CHK-012 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-013",
+          "message": "CHK-013 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-008",
+          "message": "CHK-008 (\"Normalize host-verdict and review-assurance role identities\") was added in PLAN phase: Scope review found host-verdict and review-assurance normalization beyond quorum is a real uncovered promise; add a bounded acceptance item before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-009",
+          "message": "CHK-009 (\"Normalize delivery-check and floor role identities\") was added in PLAN phase: Scope review found delivery and floor role normalization is a real uncovered promise; add a focused checklist item before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-010",
+          "message": "CHK-010 (\"Enforce machine-defined legacy role alias sunset\") was added in PLAN phase: Scope review found the alias sunset and two-release removal condition is a real uncovered promise; add it explicitly before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-011",
+          "message": "CHK-011 (\"Complete gate-artifact schema and freshness matrix\") was added in PLAN phase: Scope review found the complete schema writer-reader freshness anti-forgery matrix is a real uncovered promise; add a bounded verification item before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-012",
+          "message": "CHK-012 (\"Verify archived story signatures remain readable\") was added in PLAN phase: Scope review found named archived-story signature verification is a real uncovered promise; add read-only acceptance coverage before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-013",
+          "message": "CHK-013 (\"Bind Wave 4 acceptance gates to executable current-head verification\") was added in PLAN phase: Reviewer evidence identified a current executable coverage gap for the Wave 4 acceptance topology, pre-review, and rollout gates; add a bounded checklist item before re-entering DEV."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "13 checklist items; please check for missing combined scenarios (e.g., what happens when Make proof-or-stop-* the canonical agent role IDs and keep lattice-* readable + Switch managed-block markers to proof-or-stop start/end with dual-read are performed simultaneously?)"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-25T09:53:45.090Z) does not match the current review round (2026-08-25T13:32:58.029Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "fa78afa159c1865b496de117b7fef2227506317223ad03c8608820db7f2c78c0"
+    },
+    {
+      "timestamp": "2026-08-25T15:35:08.009Z",
+      "issueCount": 14,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-008",
+          "message": "CHK-008 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-009",
+          "message": "CHK-009 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-010",
+          "message": "CHK-010 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-011",
+          "message": "CHK-011 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-012",
+          "message": "CHK-012 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-013",
+          "message": "CHK-013 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-008",
+          "message": "CHK-008 (\"Normalize host-verdict and review-assurance role identities\") was added in PLAN phase: Scope review found host-verdict and review-assurance normalization beyond quorum is a real uncovered promise; add a bounded acceptance item before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-009",
+          "message": "CHK-009 (\"Normalize delivery-check and floor role identities\") was added in PLAN phase: Scope review found delivery and floor role normalization is a real uncovered promise; add a focused checklist item before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-010",
+          "message": "CHK-010 (\"Enforce machine-defined legacy role alias sunset\") was added in PLAN phase: Scope review found the alias sunset and two-release removal condition is a real uncovered promise; add it explicitly before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-011",
+          "message": "CHK-011 (\"Complete gate-artifact schema and freshness matrix\") was added in PLAN phase: Scope review found the complete schema writer-reader freshness anti-forgery matrix is a real uncovered promise; add a bounded verification item before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-012",
+          "message": "CHK-012 (\"Verify archived story signatures remain readable\") was added in PLAN phase: Scope review found named archived-story signature verification is a real uncovered promise; add read-only acceptance coverage before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-013",
+          "message": "CHK-013 (\"Bind Wave 4 acceptance gates to executable current-head verification\") was added in PLAN phase: Reviewer evidence identified a current executable coverage gap for the Wave 4 acceptance topology, pre-review, and rollout gates; add a bounded checklist item before re-entering DEV."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "13 checklist items; please check for missing combined scenarios (e.g., what happens when Make proof-or-stop-* the canonical agent role IDs and keep lattice-* readable + Switch managed-block markers to proof-or-stop start/end with dual-read are performed simultaneously?)"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-25T09:53:45.090Z) does not match the current review round (2026-08-25T13:32:58.029Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "66734dae77d0dd89d046368a6fefe0d5e55cdb7dca6a30006a4d9469da229f63"
+    },
+    {
+      "timestamp": "2026-08-25T15:38:05.770Z",
+      "issueCount": 13,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-008",
+          "message": "CHK-008 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-009",
+          "message": "CHK-009 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-010",
+          "message": "CHK-010 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-011",
+          "message": "CHK-011 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-012",
+          "message": "CHK-012 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-013",
+          "message": "CHK-013 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-008",
+          "message": "CHK-008 (\"Normalize host-verdict and review-assurance role identities\") was added in PLAN phase: Scope review found host-verdict and review-assurance normalization beyond quorum is a real uncovered promise; add a bounded acceptance item before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-009",
+          "message": "CHK-009 (\"Normalize delivery-check and floor role identities\") was added in PLAN phase: Scope review found delivery and floor role normalization is a real uncovered promise; add a focused checklist item before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-010",
+          "message": "CHK-010 (\"Enforce machine-defined legacy role alias sunset\") was added in PLAN phase: Scope review found the alias sunset and two-release removal condition is a real uncovered promise; add it explicitly before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-011",
+          "message": "CHK-011 (\"Complete gate-artifact schema and freshness matrix\") was added in PLAN phase: Scope review found the complete schema writer-reader freshness anti-forgery matrix is a real uncovered promise; add a bounded verification item before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-012",
+          "message": "CHK-012 (\"Verify archived story signatures remain readable\") was added in PLAN phase: Scope review found named archived-story signature verification is a real uncovered promise; add read-only acceptance coverage before DEV."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-013",
+          "message": "CHK-013 (\"Bind Wave 4 acceptance gates to executable current-head verification\") was added in PLAN phase: Reviewer evidence identified a current executable coverage gap for the Wave 4 acceptance topology, pre-review, and rollout gates; add a bounded checklist item before re-entering DEV."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "13 checklist items; please check for missing combined scenarios (e.g., what happens when Make proof-or-stop-* the canonical agent role IDs and keep lattice-* readable + Switch managed-block markers to proof-or-stop start/end with dual-read are performed simultaneously?)"
+        }
+      ],
+      "_hash": "4811675643284a5b4b1b84814448b1dcb0d3361fde8832624312b1f6c5c49d28"
     }
   ]
 }
