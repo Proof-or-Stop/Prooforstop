@@ -13937,7 +13937,7 @@
       "desc": "RI-028 wave-3 test-coverage review cannot pass: the current trusted B-5a15 checklist material still exposes verificationIntent coverage whose evidence is not admitted as intent-specific current executable coverage. The recorded rows broadly reuse node --test packages/main/tests/causal-evidence.test.mjs, while the current wave requires each intent to be mechanically tied to a selector-matched receipt and current material; without that binding, the review cannot prove complete happy/edge/adversarial coverage or safely issue a terminal pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T11:12:50.395Z",
@@ -13969,7 +13969,11 @@
         ".proof-or-stop/story/actives/B-5a15/checklist.json"
       ],
       "signatureTag": "missing|mjs|wave-test-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:39:07.766Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-265",
