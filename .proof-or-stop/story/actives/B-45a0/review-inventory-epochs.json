@@ -5717,7 +5717,7 @@
       "reviewRound": "2026-08-25T10:16:24.136Z",
       "state": "OPEN",
       "begunAt": "2026-08-25T10:20:31.766Z",
-      "updatedAt": "2026-08-25T10:20:31.766Z",
+      "updatedAt": "2026-08-25T10:35:34.670Z",
       "cutoff": {
         "headHash": "1e7128bd0ff90df3c6ac862f82a4cdfe62f5e2d4",
         "materialHash": "3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c",
@@ -5732,9 +5732,69 @@
       ],
       "initialRunSequenceBoundary": 587,
       "maxWaves": 2,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-25T10:20:31.766Z",
+          "completedAt": "2026-08-25T10:35:34.670Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-589",
+              "terminal": "pass",
+              "hostIdentity": "715bb9013236a9bf703e9b5694a02e0b044222a5960b2fa47a720d119743e21a",
+              "promptIdentity": "8b1f337e0f1bc23a5b0c1e7fe825a1165ae6e93b6a0d527548b6889cbeb5d359",
+              "evidenceIds": [
+                "B-45a0:RP-193"
+              ],
+              "coverageDigest": "7fbe68a94db82fe54094b3b4c624b715be23fb02243605301ec174ca8c86d8ed"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-588",
+              "terminal": "finding",
+              "hostIdentity": "715bb9013236a9bf703e9b5694a02e0b044222a5960b2fa47a720d119743e21a",
+              "promptIdentity": "b5e0655e944a99e59d7aee43fa8e2eab562893cdf16338623b48ea7b93447123",
+              "evidenceIds": [
+                "B-45a0:F-311"
+              ],
+              "coverageDigest": "86cc58ddf5972a05badf52154017eb486963c9235c9eef2c1c432457446e726b"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-591",
+              "terminal": "pass",
+              "hostIdentity": "23a95379dbc076cc503b8f81dba5219444011c51303a210ae1004a50864f2abf",
+              "promptIdentity": "ee075ac92e86d2d6dfd88191968f4d63674ffe16ebf104a59bde4590393b37ef",
+              "evidenceIds": [
+                "B-45a0:RP-195"
+              ],
+              "coverageDigest": "05ed5048e5fa7c62e9161895961d50f401c9b39301d25147b57c27b19d7fdfb3"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-590",
+              "terminal": "pass",
+              "hostIdentity": "23a95379dbc076cc503b8f81dba5219444011c51303a210ae1004a50864f2abf",
+              "promptIdentity": "7104d239f1746244e2def9586b9a5d7901129ac8d92862aa015c2a0030205a02",
+              "evidenceIds": [
+                "B-45a0:RP-194"
+              ],
+              "coverageDigest": "7afc47cabe739e27c4426163cccb77543d3de378bb0e78f0412a2cfa3f815540"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "quality-review-assurance"
+          ],
+          "verifiedFindingSetDigest": "1b930f3aeebe57d435984dfdd7395b19d538628caab89992f26f9f678e8aca71",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "95d98d588c998ea7f222dab828c07a4c6581912615b479d38f57bb0a5bfe4832",
+          "saturated": false,
+          "nextRunSequenceBoundary": 593
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "2759be28c789ee10ba0e1cdd32e14a9855ea12a144d0b246d5d8291344fd9568"
+      "_hash": "db630bd50c1797b9813e75bedfdba221c45881cdbe4d876adf670f6d2125ee49"
     }
   ],
   "receipts": [
@@ -9242,6 +9302,37 @@
       ],
       "createdAt": "2026-08-25T08:22:51.605Z",
       "_hash": "483a2e75c62b7f4fbd1681513be620dc89ef49692079fa25473647a225974cf2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-065:CRIT-01",
+      "epochId": "B-45a0:RI-065",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T10:16:24.136Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "1e7128bd0ff90df3c6ac862f82a4cdfe62f5e2d4",
+        "materialHash": "3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c",
+        "storyFilesHash": "3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9"
+      },
+      "aggregateFindingSetDigest": "1b930f3aeebe57d435984dfdd7395b19d538628caab89992f26f9f678e8aca71",
+      "requiredLaneCoverageDigest": "e32fea74f03cdf3118b046133075d0393370d7acd685f44eb2484cbafb2ae6fc",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-593",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-197"
+      ],
+      "readEvidenceDigest": "aeb8b8c5d1f78265712c35ee9d3e7ba8bd18eb7c6dfaedaa1f56e2d9f69e1873",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-311",
+          "disposition": "verified_family",
+          "familyKey": "quality-review-assurance",
+          "reason": "F-311 is the RI-065 current-head re-attestation of the verified reviewer-assurance-floor gap: required admissible full quorum or eligible degraded fallback remains absent, while acceptance rollout is a separate artifact."
+        }
+      ],
+      "createdAt": "2026-08-25T10:35:15.549Z",
+      "_hash": "5a317d76bfcc408f26d515f79f8686a30cc595e9fa0685e95c3b3bf60474a99c"
     }
   ]
 }

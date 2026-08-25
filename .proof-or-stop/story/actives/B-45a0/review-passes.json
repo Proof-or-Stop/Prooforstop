@@ -9506,6 +9506,89 @@
       },
       "readDiagnostics": [],
       "_hash": "fbd9275723b4ed4989d53dd5808201d2d7d10cc3d843c8986775a3da983c6a92"
+    },
+    {
+      "id": "B-45a0:RP-196",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-065 wave 1 completeness review confirms current acceptance basis, topology, pre-review, and rollout evidence is complete and passing; rollout is full-3x2. All required concept, quality, coverage, and docs lanes are terminal. No topology blocker.",
+      "createdAt": "2026-08-25T10:33:50.511Z",
+      "reviewRound": "2026-08-25T10:16:24.136Z",
+      "reviewRunId": "B-45a0:RR-592",
+      "envelopeId": "0ea8082472df650592954764a95feff9d2eeb85be9de47f8baeae4dd8c76a192",
+      "writerSessionId": "sess-86c11cdce25094d96295c9b2250cda10",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b72920854f1e9126023c8ed617873c2211a606946dba78ca1e033c84dd20368c"
+    },
+    {
+      "id": "B-45a0:RP-197",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-065 wave 1 completeness review confirms current acceptance basis, topology, pre-review, and rollout evidence is complete and passing; rollout is full-3x2. All required concept, quality, coverage, and docs lanes are terminal. No topology blocker.",
+      "createdAt": "2026-08-25T10:35:02.336Z",
+      "reviewRound": "2026-08-25T10:16:24.136Z",
+      "reviewRunId": "B-45a0:RR-593",
+      "envelopeId": "25fa08e8128a65a76752b90f8627b9011651f14ee0bbd22b2994ff98031378f1",
+      "writerSessionId": "sess-86c11cdce25094d96295c9b2250cda10",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "47fe70b158957b9f384ebaa3983d5f01518d5490daee4c235b731523ed4a6131"
+      },
+      "readDiagnostics": [],
+      "_hash": "627c5bc5cdd195b8f4b4f29e3e581983c2f0ad1439872614d399fee6afb35bdf"
     }
   ]
 }
