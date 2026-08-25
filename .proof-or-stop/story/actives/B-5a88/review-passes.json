@@ -17320,6 +17320,45 @@
         "scanEscalationReason": null
       },
       "_hash": "0642ddd582395ceef356bf2d94785076416631338500e23c3cbadc1f893bb655"
+    },
+    {
+      "id": "B-5a88:RP-282",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Topology basis, scope, discovery, closure, and rollout evidence are current and pass; F-419 remains an open verified quality finding.",
+      "createdAt": "2026-08-25T03:46:46.812Z",
+      "reviewRound": "2026-08-25T03:27:13.081Z",
+      "reviewRunId": "B-5a88:RR-724",
+      "envelopeId": "11200c38044eb521bad28b553a89878fd602551acbc4865599427d4982051f65",
+      "writerSessionId": "sess-18e82e3ae2c820a8d234d964161f7e75",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-contract.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/delivery-check.json",
+          ".proof-or-stop/story/actives/B-5a88/evidence/live-smoke-transcript.json",
+          ".proof-or-stop/story/actives/B-5a88/proofstory.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a957ef278b410af0b6ab6d7c1f7e85b34e67b0fac3a10ca03e5f760ea4b04944"
     }
   ]
 }
