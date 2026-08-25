@@ -14776,7 +14776,7 @@
       "desc": "Wave 2 concept recheck confirms the same current acceptance-chain blocker: pre_review_check_read remains PR_ARTIFACT_TAMPERED plus PR_COVERAGE_BASIS_CHANGED and acceptance_rollout_check remains blocking AR_REPORT_STALE. This is the same verifier-artifact family as F-277 and must be refreshed in DEV.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-24T17:57:33.664Z",
@@ -14810,7 +14810,11 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|json|wave-concept-recheck",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:40:35.676Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-282",
