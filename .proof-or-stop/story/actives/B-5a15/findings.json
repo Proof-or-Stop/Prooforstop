@@ -13465,7 +13465,7 @@
       "desc": "F-251 remains verified for RI-027 wave 2: current evidence_inspect reports 53 fresh checklist verificationEvidence rows, but every row runs only node --test packages/main/tests/causal-evidence.test.mjs. packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:177-451 and packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:150-158,1237-1272 still provide no checklist-bound executable coverage for acceptance_rollout_report_read, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback history; the passing full-3x2 receipt cannot substitute for this independent coverage. Severity: high.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T10:12:36.455Z",
@@ -13500,7 +13500,11 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "missing|ts|ri-027-wave-2-current-wave-test",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:38:11.206Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-254",
