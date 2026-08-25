@@ -10647,6 +10647,37 @@
       ],
       "createdAt": "2026-08-25T11:20:34.226Z",
       "_hash": "1c7f2bdc27ba5e01bb5d188c30f73606fe12277620b883fc0da2226671996d92"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-044:CRIT-02",
+      "epochId": "B-5a15:RI-044",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-25T10:35:46.036Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "ab9fec669b1b3a87cbd1df2351068c344549814e",
+        "materialHash": "d6ce14bbd5f64ce142304720edcad35057aab5d78afc6a01a11038184c926d52",
+        "storyFilesHash": "a97e57391aa2b0715d6a3aa836e133be8f1510e89f9cbb65567fb4a36d4c7f28"
+      },
+      "aggregateFindingSetDigest": "4e4d9aa7edade38d1559db5eac5b69abff6b3ce63dbe059e081a0226a374a172",
+      "requiredLaneCoverageDigest": "c001f1ec30e1c591ce0290ab550de5504646bd9a3022ba41899f146d7cb37f5f",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-658",
+      "terminalEvidenceIds": [
+        "B-5a15:F-303"
+      ],
+      "readEvidenceDigest": "9b6f4eecbdc3b7a745a301cf516f5d28bba23e2fd615865b6503903eb0f7cd68",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-301",
+          "disposition": "verified_family",
+          "familyKey": "causal-environment-redaction",
+          "reason": "Wave-2 read-only ledger evidence confirms F-301 is the sole post-boundary verified required-lane finding and independently confirms the existing non-secret environment-value redaction and selector-safety family; signed wave 1 carries causal-environment-redaction-coverage."
+        }
+      ],
+      "createdAt": "2026-08-25T12:16:01.684Z",
+      "_hash": "6b6fb75e8e8a508a64ccb5bf6cdb997f194243cbea7a55f76837762cd4aa9dee"
     }
   ]
 }
