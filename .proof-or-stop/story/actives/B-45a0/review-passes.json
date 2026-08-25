@@ -8653,6 +8653,46 @@
       },
       "readDiagnostics": [],
       "_hash": "12044f9ddc32d085e1957b44d21feac96d485f53782e9fd45f897c4f063014fa"
+    },
+    {
+      "id": "B-45a0:RP-178",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology critic re-attests the documentation-to-configuration policy contract drift in RI-061 wave 2; the current docs require explicit per-row cpuWeight and expectedP50Ms, while the canonical 112-row configuration supplies those fields on only 2 rows and relies on the default cpuWeight for the remaining 110 rows, with expectedP50Ms optional.",
+      "createdAt": "2026-08-25T07:01:19.409Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-563",
+      "envelopeId": "019585480917ee2c492732c24ff203210536a6dbad916cb08f6409e7a7bed167",
+      "writerSessionId": "sess-86c11cdce25094d96295c9b2250cda10",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/runtime/dynamic-validation/B-dyn5-debug/report.txt",
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "proof-or-stop.config.json",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "69faf1afd1a5f2c72f1552b86bbccbb3a975bf2b13dcd2c471872fc08e6c950c"
+      },
+      "readDiagnostics": [],
+      "_hash": "beac35ae82a5a8061cb68b8c868bc4770745b62f763c52cd42cd78f2177b9b85"
     }
   ]
 }
