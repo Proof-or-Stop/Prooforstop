@@ -11559,6 +11559,53 @@
       },
       "readDiagnostics": [],
       "_hash": "31d952602d7babee071c5d567be751e913d8873cbda7c43a60b0be8282623e15"
+    },
+    {
+      "id": "B-45a0:RP-231",
+      "agent": "lattice-review-quality",
+      "note": "RI-073 current-round quality review found no new code-quality blocker. The no-live-Story historical replay continues to use the id-independent project git-root resolver, and the rebuilt wrapper-root resolver smoke passed. Existing acceptance, coverage, and stale-run findings remain preserved; this pass makes no assurance claim.",
+      "createdAt": "2026-08-25T17:00:45.528Z",
+      "reviewRound": "2026-08-25T16:06:11.159Z",
+      "reviewRunId": "B-45a0:RR-645",
+      "envelopeId": "df2513d3b341f27669a2b2aac9289224232c2f4558142c5f6630adacfcbf8ce7",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "lattice.config.json",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": "Scoped RI-073 quality review checked the replay Git-cwd correction, shared resolver dependency, Story-aware validation planner, verifier-owned acceptance context, and rebuilt wrapper-root smoke; no repository-wide decisions scan was required.",
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1482e5939aa9f4255b6fc4a96bd4cac2a8be8a1b9d99aa5a48f74d6d56b023b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "788401626a72eac7356374edbe666d804c6f40a27da25f5310c5c621d21ad6c2"
     }
   ]
 }
