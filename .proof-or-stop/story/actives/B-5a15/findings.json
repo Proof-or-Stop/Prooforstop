@@ -13721,7 +13721,7 @@
       "desc": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:177-451 and packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:152 [high] The current Wave 4 concept chain still has no verifier-owned executable receipt for acceptance_rollout_report_read: the source only lists the token, while every signed observation checkInventory in .proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json:732-736 (and the repeated current records) contains acceptance_topology_check, pre_review_check, and acceptance_rollout_check, omitting acceptance_rollout_report_read. Although the read-only commands return pass/current/full-3x2, the signed report cannot prove this canonical path or checklist-bound execution; do not pass this lane until it is invoked and rebound in the signed receipt.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-24T10:48:09.534Z",
@@ -13762,7 +13762,11 @@
         ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:38:43.877Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-260",
