@@ -15575,6 +15575,67 @@
       "_hash": "9cea318ecba51fb6b9eae2d31a27d2bfee036bbc2a9fa4d2e7ff89c429aa16fe",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-299",
+      "desc": "Test-coverage gap for current blocker B-5a15:F-298: packages/main/src/core/causal-evidence.ts:572-580 replaces every effective-environment value with length >=8, including ordinary non-secret markers, but packages/main/tests/causal-evidence.test.mjs has no regression that emits a long non-secret environment-derived marker such as LONG_MARKER and verifies selector-preserving output. The existing selectorMismatch cases do not distinguish intentional secret redaction from false redaction of valid evidence. Keep F-298 open; add this selector-safe redaction regression before treating the coverage as complete.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-25T11:00:53.621Z",
+      "reviewRound": "2026-08-25T10:35:46.036Z",
+      "reviewRunId": "B-5a15:RR-648",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7a379ae896039fe0c16b2c085c3556d762b9b36c0418c9ea00328f86c8b59d97"
+      },
+      "readDiagnostics": [],
+      "_hash": "1ffe3bd414b426fe84249920dcff88c0324f225ede8e173f8d0254bccc946a9c",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "missing|ts|test-coverage-current",
+      "signatureTagSource": "auto"
     }
   ]
 }
