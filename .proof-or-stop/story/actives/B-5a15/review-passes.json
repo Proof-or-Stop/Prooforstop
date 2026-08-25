@@ -9314,6 +9314,46 @@
       },
       "readDiagnostics": [],
       "_hash": "e99c9ebedca274e7c7d669046c49a99e0039d0d69ae12d9b7071325af1472bca"
+    },
+    {
+      "id": "B-5a15:RP-196",
+      "agent": "lattice-review-concept",
+      "note": "Concept review complete: no concept deletion residue or contract/lifecycle blocker found. The causal rerun repair binds storyId, materialHash, storyFilesHash, and optional HEAD inside signed execution inputs; mismatches and unbound legacy receipts fail closed. Focused causal tests pass 17/17. Scope warnings are acknowledged by the story scope gate; no lifecycle gate was bypassed.",
+      "createdAt": "2026-08-25T10:49:19.255Z",
+      "reviewRound": "2026-08-25T10:35:46.036Z",
+      "reviewRunId": "B-5a15:RR-644",
+      "envelopeId": "3aba8211d7086be313598cd818f673ac80639ab761ae9f197a31af8e2cfb7e04",
+      "writerSessionId": "sess-3e5b61c528c373ec",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "9e3033f6c97e82cb192161c95b09a6dca2c6c4349fdc58729ba3274296bb930d"
     }
   ]
 }
