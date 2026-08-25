@@ -18693,6 +18693,43 @@
       "resolvedAt": "2026-08-25T01:27:34.282Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-419",
+      "desc": "packages/main/src/core/review-incremental-context.ts:776-829 and packages/main/src/core/prompt-envelope.ts:392-420 leave an oversized bounded basis in incremental eligibility when only impact.impactedFiles or authoritativeReferences exceeds FULL_TASK_CONTEXT_LIMITS.pathsPerList: the code nulls reviewBasis but does not add a FULL_* reason code or set contextMode to full. The assembler consequently emits a full SAFETY_REQUIRES_FULL envelope, while packages/main/src/core/review-run.ts:870-878 recomputes contextMode as incremental and rejects the signed run with \"full safety selection contradicts authoritative incremental eligibility\". This merge-resolution path cannot produce a valid bounded review for those oversized inputs. Carry the full fallback reason/context-mode escalation through the authoritative recomputation and add regression coverage for impactedFiles and authoritativeReferences caps. Evidence is bound to RR-723 at HEAD 9eccf0fc8641f8b063e83428beb38e5fd44a1660, materialHash 04b5d666cbfea4668c2f8facbbdcf47c4b3b9d430f0f69acd617715dfb1ce536, storyFilesHash 33680db97f81ad77d3ea1d5703de212db1f0b7b948024ffbb86fd44f3f34a572.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-25T03:37:15.844Z",
+      "reviewRound": "2026-08-25T03:27:13.081Z",
+      "reviewRunId": "B-5a88:RR-723",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0844554c67e848126e977a920eaae68b4dd7bcd1b96bae26f48f8b359a86143c",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
