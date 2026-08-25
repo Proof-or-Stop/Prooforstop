@@ -14379,7 +14379,7 @@
       "desc": "packages/main/src/core/causal-evidence.ts:369-380 [high] TRANSPORT_ENV_KEY removes every ambient key matching .*SESSION(?:_ID)? (for example APP_SESSION) from redactEnvironment before the execution key is derived, but effectiveValidationCommandEnvironment preserves non-listed ambient variables for the child. Changing APP_SESSION therefore leaves the execution identity and cached receipt unchanged even though the command observes a different value, violating exact effective-environment binding and allowing stale PASS reuse; align the filter with the canonical transport allowlist and add a regression for non-transport SESSION-like variables.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-24T15:34:45.708Z",
@@ -14422,7 +14422,11 @@
         "packages/main/src/core/validation-command-environment.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:39:53.543Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-274",
