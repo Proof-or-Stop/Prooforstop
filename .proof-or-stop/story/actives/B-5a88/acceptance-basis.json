@@ -44,7 +44,7 @@
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:3fd821e603fda5afa02495a6d1b322ba323d24549f967b392cf0bd8587b77575",
           "source-file:packages/main/src/handlers/review-run.ts:sha256:63182735e39cde16a904da9f2490b1b250541986ef506047c966733eb581f802",
           "source-file:packages/main/src/handlers/reviewer-batch.ts:sha256:64752b323f43ce1a934a406f4141f84e960ef7c6fc51544a27d61730d8edbb87",
-          "source-file:packages/main/src/handlers/story-dispatch.ts:sha256:39772653aeed8f72ed9fb1fcd738bb5c14c57afc975a04bb8b07c5840a75964b",
+          "source-file:packages/main/src/handlers/story-dispatch.ts:sha256:4273a47c0d86b5567ee1dfc98e1ae7db5c60eb668c49de36cb6edf9781bb3275",
           "source-file:packages/main/src/handlers/workflow.ts:sha256:db683780b3452ccf3d0cfa8d635b496248b0b417527a3f1dd9f53ce99430e960",
           "source-file:packages/main/src/registry.ts:sha256:22ef99044b45a94329326cd59da133189e05259f1fdea2f1bdb824563231ccbc",
           "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
@@ -152,7 +152,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:d97972054411ec3b35b81b03b66141e7670019080d9ed2355ce82e98c636cfc5"
+        "resultDigest": "sha256:17ed4b6a6f5d45a2d4d1edc60f5687877e5b8ed40db2253da13190bec75f9e69"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -178,7 +178,7 @@
           "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:7fb4fda1ff54740cbbd7e8060854006b3c232c4ff44b15633367a6eaa4841eb8",
           "source-file:packages/main/src/registry.ts:sha256:22ef99044b45a94329326cd59da133189e05259f1fdea2f1bdb824563231ccbc",
           "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
-          "source-file:scripts/verify-process-fact-contract.mjs:sha256:c02bbcf91474a8d69fcfcf8bfad9a97ddec6b5b69ef0bf66e3e64e493db9b425"
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:9385c243938ab88a61d004012c9c2f51af2027134cb574480f42499b4a38d85a"
         ],
         "asymmetryPolicy": {
           "kind": "exhaustive",
@@ -283,7 +283,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:189dd8df23403411375858ee328cd3455c685d2c73bd0ff2acc078d538441eda"
+        "resultDigest": "sha256:1d3c96c682bf320459eb6c5f539165fc0e6073268a15509d3ff9f6a8ded18d3d"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -508,8 +508,8 @@
           "scope:file:scripts/verify-lattice-residue.mjs",
           "scope:file:scripts/verify-process-fact-contract.mjs",
           "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs",
-          "source-file:packages/main/src/core/agent-dispatch-registry.ts:sha256:20e0c48cbedf0d28e3bda5715b906fd2718fb9ece81bc5c28bef2e7f22e9112e",
-          "source-file:packages/main/src/handlers/story-dispatch.ts:sha256:39772653aeed8f72ed9fb1fcd738bb5c14c57afc975a04bb8b07c5840a75964b",
+          "source-file:packages/main/src/core/agent-dispatch-registry.ts:sha256:3693beb1101a0da479fbbd03d37d012e4f5f09a4f2332e29abe9ce6bd50cbed2",
+          "source-file:packages/main/src/handlers/story-dispatch.ts:sha256:4273a47c0d86b5567ee1dfc98e1ae7db5c60eb668c49de36cb6edf9781bb3275",
           "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
         ],
         "asymmetryPolicy": {
@@ -615,7 +615,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:8189374d6204c624d837c237834b31ebf5a806f0ff002fb2d28e838152e273b3"
+        "resultDigest": "sha256:1297795c3c5f19382aa3826c8e85f74f3264ab07fcd52efe8465b11ff5f74f40"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -651,8 +651,8 @@
           "source-file:packages/main/src/core/acceptance-discovery-adapters.ts:sha256:ae9fb2b4b0a6c22847486ff5d1d6797d104f48653b251a7b2ee64a6845a0978e",
           "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
           "source-file:packages/main/src/core/agent-asset-resolution.ts:sha256:3e38870251d57aa17112280e3d52c9c9393aea88953e8d5d09facd557bdecd69",
-          "source-file:packages/main/src/core/agent-dispatch-registry.ts:sha256:20e0c48cbedf0d28e3bda5715b906fd2718fb9ece81bc5c28bef2e7f22e9112e",
-          "source-file:packages/main/src/core/agent-role-identity.ts:sha256:d7f09e46154f05a22336b8490a5bee4e7d9c2438ea63ad5f23c28a5728e9e31a",
+          "source-file:packages/main/src/core/agent-dispatch-registry.ts:sha256:3693beb1101a0da479fbbd03d37d012e4f5f09a4f2332e29abe9ce6bd50cbed2",
+          "source-file:packages/main/src/core/agent-role-identity.ts:sha256:ad57c023d608d91b4609dee5039065935b627b7ea9d384d99b66b1e68be839b7",
           "source-file:packages/main/src/core/artifact-contract.ts:sha256:1901c14993eff1558784b882284324c97c082116bf0efeaec158fd060d80659f",
           "source-file:packages/main/src/core/artifact-schema.ts:sha256:7ddbd8b77c9c5a7b9f21d0a5bcde056bebfe8a8f33a70eb9c16adfcf5337485f",
           "source-file:packages/main/src/core/brand-env.ts:sha256:2840a6ab5aef001d991917730a6853a42dbbebd39438c4aa816febfa0ae82eb9",
@@ -665,14 +665,14 @@
           "source-file:packages/main/src/core/managed-markers.ts:sha256:5e859db5637b0fe3ec2be4feb3d9f4c9033658d46bef0570152d04fdcffc0181",
           "source-file:packages/main/src/core/process-fact-registry.ts:sha256:ae45df6d2fd81466dfcef62f73b8c8a841e654bd59ceab5bd7916ac2a031cf79",
           "source-file:packages/main/src/core/prompt-registry.ts:sha256:c35eadf9e640ca1933ada81c7c2d13172734bd82f1c57d3d1c6164f59e653f09",
-          "source-file:packages/main/src/core/prompt-role-contract-registry.ts:sha256:32d7395561b1b6db1b2947598062670aaef7e0f6cbcc5521d33626460066dd1a",
+          "source-file:packages/main/src/core/prompt-role-contract-registry.ts:sha256:239123735785401aed3681070ad9ebf8db2dd0ee8319831441ad3473a959559a",
           "source-file:packages/main/src/core/release-push-approval.ts:sha256:0310d4d4be2b573a0c2360f039bf1a0d114e856bb3ea4e405b81b86895b8b951",
           "source-file:packages/main/src/core/review-run.ts:sha256:2c56c910313519ee48ea0e216a69a524300e0b4fbdb1b2d3feb8cb1dda631ac2",
           "source-file:packages/main/src/core/reviewer-opt-in.ts:sha256:f2c935f79bb1398231a068f04604e83a0fd651f368b49c060b1b7c1521c84570",
           "source-file:packages/main/src/core/reviewer-quorum.ts:sha256:3ef1add0f5195de3fc7fcfc615b4bacbc0a1dceb363927fc7a31866fa15665ac",
           "source-file:packages/main/src/core/runtime-environment-checks.ts:sha256:c9acedfa3ee93291a2406f16681064e51d982cdadc4eb867b5e78cc2a32ac68f",
           "source-file:packages/main/src/core/store.ts:sha256:880f716f54e9b84249e0a61b6b307a239dc23b60ee55c67e1280c1baaa860c66",
-          "source-file:packages/main/src/core/types.ts:sha256:6013fed6544b6ad149903449566da176b84d73c0583642df1c6bbe593602f080",
+          "source-file:packages/main/src/core/types.ts:sha256:d36ac1a37f1893493417849f154fa938717a6db7b49b66ecffa4d9e55159fbb8",
           "source-file:packages/main/src/core/version-bump.ts:sha256:e21a68968689af2ffaeca141a10c35c9420b094375e6e418e5ac7de2cc094a06",
           "source-file:packages/main/src/handlers/agent-prompt.ts:sha256:45e60b04b21cf50b06851f31bf3a552b63740c5f3d2f449e348a1e8ff9a16c15",
           "source-file:packages/main/src/handlers/checklist.ts:sha256:e796e500dbec78a8064a3cea49d7a15a786c2e12fdb7e2494698beb6b94847ef",
@@ -685,7 +685,7 @@
           "source-file:packages/main/src/handlers/review-preflight.ts:sha256:a2f2bcf1b2134a6af6d624a21d58b758919820553d47f8e05fc42dc08b63523b",
           "source-file:packages/main/src/handlers/review-run.ts:sha256:63182735e39cde16a904da9f2490b1b250541986ef506047c966733eb581f802",
           "source-file:packages/main/src/handlers/reviewer-batch.ts:sha256:64752b323f43ce1a934a406f4141f84e960ef7c6fc51544a27d61730d8edbb87",
-          "source-file:packages/main/src/handlers/story-dispatch.ts:sha256:39772653aeed8f72ed9fb1fcd738bb5c14c57afc975a04bb8b07c5840a75964b",
+          "source-file:packages/main/src/handlers/story-dispatch.ts:sha256:4273a47c0d86b5567ee1dfc98e1ae7db5c60eb668c49de36cb6edf9781bb3275",
           "source-file:packages/main/src/handlers/transition-effects.ts:sha256:5572e94aa9423cd0442d0ce13f338177ff24c39b62adfbc08378de41082b98d8",
           "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:7fb4fda1ff54740cbbd7e8060854006b3c232c4ff44b15633367a6eaa4841eb8",
           "source-file:packages/main/src/handlers/workflow.ts:sha256:db683780b3452ccf3d0cfa8d635b496248b0b417527a3f1dd9f53ce99430e960",
@@ -707,14 +707,14 @@
           "source-file:packages/main/templates/agents/proof-or-stop-review-story-init.md:sha256:5f53827d91695a69991833ebdf8c2d6c9efe427d7a361266ccee28c27d13e384",
           "source-file:packages/main/templates/agents/proof-or-stop-review-test-coverage.md:sha256:ce084db9b078f4af9a5caa3a99dccba88646172b294920163e2cf902deff54ef",
           "source-file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md:sha256:948bce3f94ea466b1e5566e46b6d6dda2c802b399d05a021e42f8e4752c3a7a9",
-          "source-file:packages/main/templates/agents/proof-or-stop-test-case-reviewer.md:sha256:e0e206092c0b2845602f33eaa6659d3dbc0ec4d63ff488a269b83930fdb7e50f",
-          "source-file:packages/main/templates/agents/proof-or-stop-test-intent.md:sha256:151b3178397778c1e83bd108c11d29fb038d4853918a9abc10d070bc01e5c618",
+          "source-file:packages/main/templates/agents/proof-or-stop-test-case-reviewer.md:sha256:e1f5432b15e4d6dead25f9d0c866e35705e3c259b58e7cca4ec74e784516e925",
+          "source-file:packages/main/templates/agents/proof-or-stop-test-intent.md:sha256:6c668af6a6af8373a909c7998273ab019b7c1dd9d3e6edc6f178548b3dddc29b",
           "source-file:packages/main/tests/artifact-schema-migration.test.mjs:sha256:6597e18a7a93cbe6ff070df95ece7e96da1bdfb8d4de28769bb2d178ab97c61d",
           "source-file:packages/main/tests/bin-alias-migration.test.mjs:sha256:c1dfda39b7eae3721144439143190e1e4ac2a5aff9231aaa3f596961879ee4ce",
-          "source-file:packages/main/tests/brand-role-migration.test.mjs:sha256:2f01c3b690a302e31c3e1533a2319084c8822006eae4460e2fd8c761c4afe1e3",
+          "source-file:packages/main/tests/brand-role-migration.test.mjs:sha256:6867f05811563ab9f055155aa9da762e147a17f8adf8b34cbd3fffff8784c621",
           "source-file:packages/main/tests/managed-marker-migration.test.mjs:sha256:b2c30fdecf2740cd63409238e06df03cae0ed894905c173764375fc6910a6f62",
           "source-file:packages/main/tests/package-identity-migration.test.mjs:sha256:e3bcd14a02f507ed8209ddf6f4edeffcb729cc6d9f78dd0d8eda41b6838bea33",
-          "source-file:packages/main/tests/prompt-role-migration.test.mjs:sha256:e6070ece99ef464e1a81588876bd02d8417abbeecf703b33c62f6c8946636e3a",
+          "source-file:packages/main/tests/prompt-role-migration.test.mjs:sha256:ce1d1d318a028bb34cbf37470f4bd7cf66979de3e5b394786b198637e167b730",
           "source-file:packages/main/tests/release-push-approval-migration.test.mjs:sha256:2c395b6355b197ed3876c0af2b41bb84447fa7178e8c71ccb1dd8482eb910e9e",
           "source-file:packages/utils/package-lock.json:sha256:7e75c716f2ff14a0661980f6a29b1055e6ba8bfd2fd127ed5a4af2d571f1a8ba",
           "source-file:packages/utils/package.json:sha256:10656e887fbd1c143b943a7d17f446412d2156abbb721b54aca79918cf664fed",
@@ -722,12 +722,12 @@
           "source-file:packages/utils/src/register.ts:sha256:585ce717cc3ad8f51a366179fffa11a819c3bfb855c12812519b662c9300c7b3",
           "source-file:packages/utils/src/tool-defs.ts:sha256:13feb5238e7e505017c719be0f178a55e86fb23cc60894ddcac1689b8301528d",
           "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
-          "source-file:scripts/verify-codex-assets.mjs:sha256:0deb480da8c7440272f8c86c77c1fba952a2b4f4fa44c431eabe753bac889ef5",
+          "source-file:scripts/verify-codex-assets.mjs:sha256:125b2cb6dac1f0bc5c4e0337eb9c228325df16cda72dd5b90142f20102b36e4b",
           "source-file:scripts/verify-entrypoints.mjs:sha256:69fa91489a9614a7ff157489d4a55dded133419b4c9c44cbf80197e430b2a862",
           "source-file:scripts/verify-global-lab-entrypoint.mjs:sha256:83f161a06e5ca1dc200657dbf31ba68ca5fbab666f163a0be28a457af3d16b51",
           "source-file:scripts/verify-lattice-residue.mjs:sha256:fa8b969ca276222c9a60c7385b99243a4a4268f9f6c756a058146685cf0e04f6",
-          "source-file:scripts/verify-process-fact-contract.mjs:sha256:c02bbcf91474a8d69fcfcf8bfad9a97ddec6b5b69ef0bf66e3e64e493db9b425",
-          "source-file:scripts/verify-proof-or-stop-prompt-baseline.mjs:sha256:0e3cfdc0b6e22aeec0c921db56868c14a1d094b193b5fd022053258fb37cb23f"
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:9385c243938ab88a61d004012c9c2f51af2027134cb574480f42499b4a38d85a",
+          "source-file:scripts/verify-proof-or-stop-prompt-baseline.mjs:sha256:2f509704c8102e6129c484f23b1b06c5244a89f58df7cffecc9b944a28cf80db"
         ],
         "asymmetryPolicy": {
           "kind": "exhaustive",
@@ -832,7 +832,7 @@
             "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
           ]
         },
-        "resultDigest": "sha256:3479a666d8770217d2b46671ed46ceadb9d8f5731b374d738846ab64878e8096"
+        "resultDigest": "sha256:0e785e5ff29b975ed1b4d8e478b274f7d2ee947c63be83765c1b2a1d2211bd0f"
       }
     ],
     "scopeRefs": [
@@ -1116,42 +1116,42 @@
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:809e1e7102099481985611df11d583c14ab1728df898466b587df447f82e7b39",
       "inventoryDirectoryCount": 21,
-      "sourceSnapshotDigest": "sha256:97c389198710892cba2eebaa755eab393fdea625b9d581cf3d78343fbbfcdff1",
+      "sourceSnapshotDigest": "sha256:55adcfd9d226b6072ba1880f4f0052e68938abc6cb26db80619c785efd27377d",
       "sourceSnapshotCount": 867,
       "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
       "status": "complete",
       "issues": [],
-      "sealDigest": "sha256:180c93a9607171084092c320af8ed9f795285c36f2fec9fcd0cc01032afae06e"
+      "sealDigest": "sha256:6a5dccc046249e878899ec3d58c28bcc79ac1cfc8b18c7eea8fb6b1ca1882955"
     },
     "binding": {
-      "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-      "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-      "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
+      "headHash": "07347bc6492ae7f48e9bd377cf6376d6e53c5d25",
+      "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+      "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
       "scopeCheckDigest": "sha256:6e25771291295e8b845cfcea367d37421c95c17ccf04c72a366a7a8f114543a5",
       "scopeContractDigest": "sha256:d24344a1a73b128a6d4b628cb4dad4337f72c14306cb898bf0f139b5465c5b6c",
-      "closureFilesHash": "sha256:c88209231e6e1cc23e727741523b1abb2832cf86cd482d2143b08889964be23b"
+      "closureFilesHash": "sha256:edc056051a6e404b48df0fbb5c25834d58e8d4933753519889a38fd2a89954b7"
     },
-    "receiptRef": "receipt:coverage-basis:B-5a88:plan:1296664d3c74c963",
-    "basisDigest": "sha256:f5f2cf5946c54037e4bcc18576c6a38ec8db4f0a8a7aeee6d44c77fb96bd2e7d"
+    "receiptRef": "receipt:coverage-basis:B-5a88:plan:cd5c97c9217f57d1",
+    "basisDigest": "sha256:e80afdd4bec1597d53e704f97c2483cc1e2cef4977838bfa2768202b07088029"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-5a88:plan:1296664d3c74c963",
+    "receiptRef": "receipt:coverage-basis:B-5a88:plan:cd5c97c9217f57d1",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
     "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
     "storyId": "B-5a88",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:f5f2cf5946c54037e4bcc18576c6a38ec8db4f0a8a7aeee6d44c77fb96bd2e7d",
+    "basisDigest": "sha256:e80afdd4bec1597d53e704f97c2483cc1e2cef4977838bfa2768202b07088029",
     "topologyDigest": "sha256:4e38caf410521c43a7e9ae42a2d3b870c427db980f9302a9711bb8acb8129529",
     "scopeCheckDigest": "sha256:6e25771291295e8b845cfcea367d37421c95c17ccf04c72a366a7a8f114543a5",
     "scopeContractDigest": "sha256:d24344a1a73b128a6d4b628cb4dad4337f72c14306cb898bf0f139b5465c5b6c",
-    "headHash": "1592080853e7a2bfd252489bdbde023feb2a49ae",
-    "materialHash": "15638eab5cbbd9675e3c87af772686968416673e04f6442f0c8e8dd7e2ddfa65",
-    "storyFilesHash": "efd4feb4717a59c7665d4b10a94054d51dbecda2998e72e683414308b9d81031",
-    "closureFilesHash": "sha256:c88209231e6e1cc23e727741523b1abb2832cf86cd482d2143b08889964be23b",
-    "sealDigest": "sha256:180c93a9607171084092c320af8ed9f795285c36f2fec9fcd0cc01032afae06e",
+    "headHash": "07347bc6492ae7f48e9bd377cf6376d6e53c5d25",
+    "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
+    "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
+    "closureFilesHash": "sha256:edc056051a6e404b48df0fbb5c25834d58e8d4933753519889a38fd2a89954b7",
+    "sealDigest": "sha256:6a5dccc046249e878899ec3d58c28bcc79ac1cfc8b18c7eea8fb6b1ca1882955",
     "workspaceIdentityDigest": "sha256:7269e2a5b5f07e8b7e813824b4892a55c277f4f75b9c118ed471e7c51cb3ee21",
-    "signature": "sAQXXdZsBKF0hirP94iB55CmGYXh0/RaYVHpKtlFyjH72ToZ9MVjd53SUhxFfningzmoDA3jtxpMuVBpsPkdBw=="
+    "signature": "nSxJgfQ0GalSRIBQkWu+E1skC1Xl63NlG6ztqzEc3pm9QcAuW4cFIpw/h1uiFLwKXBRmO4QFtOpijjUdBT35Dg=="
   }
 }
