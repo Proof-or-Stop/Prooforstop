@@ -16577,7 +16577,7 @@
       "desc": "CHK-003 production causal wiring is not domain-specific: currentCertificationIdentity builds all six certification causal domains from the same current storyFilesHash and records every node against the same previous storyFilesHash. The linear dependency chain therefore marks every domain changed whenever storyFilesHash changes, so the production path cannot provide the required affected-domain-only invalidation or prove that unrelated merges leave unaffected domains fresh. The causal evaluator test is synthetic and does not exercise this production wiring.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-25T18:03:53.373Z",
@@ -16699,7 +16699,11 @@
         ".proof-or-stop/story/actives/B-5a15/plan.md:42-59"
       ],
       "signatureTag": "missing|ts:107-117|production-causal-wiring",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Implemented production certification domain-input derivation from canonical story-owned file/object entries; persisted frozen/current domain hashes; verified test-domain mutation invalidates only test and downstream closure. Commit 55a1e00343; npm --prefix packages/main run build PASS; node --test packages/main/tests/causal-evidence.test.mjs PASS 20/20; targeted F-314 PASS 1/1.",
+      "resolvedAt": "2026-08-25T19:37:13.409Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-315",

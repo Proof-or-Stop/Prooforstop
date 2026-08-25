@@ -5512,7 +5512,7 @@
       "reviewRound": "2026-08-25T16:51:43.246Z",
       "state": "FINALIZED",
       "begunAt": "2026-08-25T17:37:05.428Z",
-      "updatedAt": "2026-08-25T19:07:15.729Z",
+      "updatedAt": "2026-08-25T19:09:37.281Z",
       "cutoff": {
         "headHash": "e85cbbe0348cbf9dc2d82f9267ac6ed56df49668",
         "materialHash": "6fa000cd7134518c5c6d5125edb44007f358f98304c0a2610985b9785fb3b618",
@@ -5681,7 +5681,66 @@
       ],
       "baselineFindingIds": [],
       "receiptId": "B-5a15:RI-046:RCP-001",
-      "_hash": "40202f78b0fa740a1caf4bd1b529046ca8e5d5621276eea53f8fbcb58019fc72"
+      "consumedAt": "2026-08-25T19:09:37.281Z",
+      "consumedByReviewRound": "2026-08-25T16:51:43.246Z",
+      "_hash": "a13bcff330f559ee1276df96a12d82ee3cc17fec4ea6f79e8b6d976a52b2843b"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-047",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-25T19:36:40.358Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-25T19:40:13.366Z",
+      "updatedAt": "2026-08-25T19:56:17.299Z",
+      "cutoff": {
+        "headHash": "55a1e00343aa6fb9e4327ff4b444fc79bfc367bf",
+        "materialHash": "e6206a5bc1f4e84f3ec5170a44721d322d584fde025daccfae497ef71fe2c3a8",
+        "storyFilesHash": "cf261cf7ae7b0e3f2eb1829ee05207cb44bf7109f9fdf804e82db9effc0d4cb2"
+      },
+      "scopeDigest": "c6aa9f8200dd61132f3fc1a799af465d15f80258db2799524bbb9ce3c94f99f0",
+      "candidateSpecSetDigest": "f5ef3c332fa094b1f07a5e0e59107237dec68634ce4a572bee15177ace27e743",
+      "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 728,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-08-25T19:56:17.299Z",
+      "cancelReason": "RI-047 evidence wave is invalidated by untrusted closeout provenance after the F-314 implementation commit; remediation must refresh the canonical acceptance artifacts in DEV.",
+      "terminalRunSequenceBoundary": 731,
+      "_hash": "993589897ab53574abe3d2cfb6f32d82641b65e11513db4bcbb9f82020ec6964"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-048",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-25T19:36:40.358Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-25T19:57:14.967Z",
+      "updatedAt": "2026-08-25T19:57:14.967Z",
+      "cutoff": {
+        "headHash": "55a1e00343aa6fb9e4327ff4b444fc79bfc367bf",
+        "materialHash": "e6206a5bc1f4e84f3ec5170a44721d322d584fde025daccfae497ef71fe2c3a8",
+        "storyFilesHash": "cf261cf7ae7b0e3f2eb1829ee05207cb44bf7109f9fdf804e82db9effc0d4cb2"
+      },
+      "scopeDigest": "c6aa9f8200dd61132f3fc1a799af465d15f80258db2799524bbb9ce3c94f99f0",
+      "candidateSpecSetDigest": "f5ef3c332fa094b1f07a5e0e59107237dec68634ce4a572bee15177ace27e743",
+      "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 731,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "84fbe0b4a0b2f2285584ea4511d34612a7b45c6e4f13495ea159b418408f6a32"
     }
   ],
   "receipts": [
@@ -6583,7 +6642,8 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-25T19:07:15.729Z",
-      "_hash": "4147f294520c071856ce5f6bfd9951b33eb922c50cf3db79a3a7a97635f48f1c"
+      "consumedAt": "2026-08-25T19:09:37.281Z",
+      "_hash": "6cc88567cddf2a651c8a52c554161cb2e58a964fbb5a4469aae8905a76557ed3"
     }
   ],
   "criticReceipts": [
