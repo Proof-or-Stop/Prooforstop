@@ -16574,6 +16574,52 @@
       },
       "readDiagnostics": [],
       "_hash": "42b1ce72812730ba70aaa3b68cfdbfffa2af7788f6f7c9dd81d14c31d101fda8"
+    },
+    {
+      "id": "B-5a88:RP-264",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review RR-694 covered CHK-001 through CHK-007 and all 21 verification intents. Focused migration tests and remote-push approval smoke all passed; 21/21 evidence records are PASS with matching material/story hashes. No new independent finding is added. Retain canonical blockers F-345 (adversarial marker intent is bound to template-only evidence while malformed/nested assertions are on sibling edge evidence), F-389 (Wave-4 coverage boundary), F-401 (acceptance_topology_check currently reports AT_SCOPE_BINDING_MISSING), and F-407 (pre_review_check_read currently reports PR_ARTIFACT_TAMPERED). acceptance_rollout_report_read and acceptance_rollout_check are current PASS with full-3x2; F-415 is not recreated.",
+      "createdAt": "2026-08-25T00:34:02.449Z",
+      "reviewRound": "2026-08-25T00:24:56.358Z",
+      "reviewRunId": "B-5a88:RR-694",
+      "envelopeId": "0e473ccbc3e9f3c7d7be7646d2d3368c3bbf6f6e8ccfa3382ecbed499a6bedf2",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/tests/managed-marker-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6044f499984e3903aedc1d0bc4ba1191a5df29cd7b133c577b7176dcfbe7c594"
     }
   ]
 }
