@@ -9653,6 +9653,37 @@
       "findingDispositions": [],
       "createdAt": "2026-08-25T11:12:19.797Z",
       "_hash": "a2746b7657a9a3dadece0b673cae5cb9431070fb57c977b3d264cd73a8652878"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-068:CRIT-01",
+      "epochId": "B-45a0:RI-068",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T11:14:59.492Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "3f297fcb38586a87c39093958cb6347687596378",
+        "materialHash": "3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c",
+        "storyFilesHash": "3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9"
+      },
+      "aggregateFindingSetDigest": "01e1015978f331e1284a11efe6ae15bcd895c4119e84627af64d372ee6c54d7c",
+      "requiredLaneCoverageDigest": "2ca43cbb76854ad888005c021e7bbb76eddc0542db48da2058c32475d63f565f",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-614",
+      "terminalEvidenceIds": [
+        "B-45a0:F-316"
+      ],
+      "readEvidenceDigest": "5bfcb542974b9f583c6b7ebae9931cb40048b1a852354ee6bf7b319973eb5507",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-315",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-scope-binding-missing",
+          "reason": "F-315 truthfully re-attests the existing acceptance scope-binding family established by F-285 and F-292; the current concept evidence remains verified until the regenerated basis and pre-review artifacts are admissibly rebound."
+        }
+      ],
+      "createdAt": "2026-08-25T11:45:32.365Z",
+      "_hash": "fec432dd959a3da303478ae9c967ad8ef8588c7e6c69088f8a03c59cdfa036ee"
     }
   ]
 }
