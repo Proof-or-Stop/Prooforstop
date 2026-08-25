@@ -1566,6 +1566,65 @@
         "attestedAt": "2026-08-25T13:26:19.771Z",
         "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072"
       }
+    },
+    {
+      "id": "CHK-013",
+      "title": "Bind Wave 4 acceptance gates to executable current-head verification",
+      "context": "Close the current coverage gap by authoring intent-linked evidence that executes topology, pre-review read, and rollout verification, including degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and rollback restoration.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-013-HAPPY-WAVE4-READS",
+            "desc": "Read the current B-5a88 topology, executable pre-review, rollout report, and rollout policy through all four official read commands and require each current Story result to pass.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import {execFileSync} from 'node:child_process'; const run=(name)=>execFileSync(process.execPath,['bin/proof-or-stop.js',name,'--storyId=B-5a88'],{encoding:'utf8'}); const [topology,preReview,report,rollout]=['acceptance_topology_check','pre_review_check_read','acceptance_rollout_report_read','acceptance_rollout_check'].map(run); if (!topology.includes('Structural pass: yes') || !preReview.includes('Pre-review check: PASS') || !report.includes('Acceptance rollout report: PASS') || !rollout.includes('Acceptance rollout policy: PASS promotionEligible=true')) throw new Error('current Story Wave 4 read failed'); console.log('WAVE4_CURRENT_READS_PASS');\"",
+              "selector": "WAVE4_CURRENT_READS_PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-013-EDGE-WAVE4-MUTATIONS",
+            "desc": "Execute the existing topology and rollout integration smokes so degraded 3x1, threshold, membership, freshness, mode-invariant diagnostics, enforce-only blocking, and exact non-destructive rollback/control restoration mutations all bite.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js && node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js && node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+              "selector": "ProofStory acceptance rollout smoke: PASS (58 assertions)"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-013-ADVERSARIAL-PRE-REVIEW-LIVE",
+            "desc": "Run the tracked pre-review live-proof producer to reject tampered or cutoff-bound evidence, exercise topology and authority mutations, prove enforce-only blocking, and restore the warn control without destructive residue.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "LATTICE_ACTIVE_STORY_ID=B-5a88 node scripts/run-proofstory-pre-review-live-proof.mjs",
+              "selector": "topology omission + observe/enforce/warn rollback: PASS"
+            }
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
@@ -1671,6 +1730,17 @@
       "reason": "Scope review found named archived-story signature verification is a real uncovered promise; add read-only acceptance coverage before DEV.",
       "addedTitle": "Verify archived story signatures remain readable",
       "addedContext": "Read two named archived stories from different eras through the supported query path and verify their historical signatures without editing archived story bodies."
+    },
+    {
+      "timestamp": "2026-08-25T15:17:23.914Z",
+      "phase": "PLAN",
+      "itemId": "CHK-013",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Reviewer evidence identified a current executable coverage gap for the Wave 4 acceptance topology, pre-review, and rollout gates; add a bounded checklist item before re-entering DEV.",
+      "addedTitle": "Bind Wave 4 acceptance gates to executable current-head verification",
+      "addedContext": "Close the current coverage gap by authoring intent-linked evidence that executes topology, pre-review read, and rollout verification, including degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and rollback restoration."
     }
   ]
 }
