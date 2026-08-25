@@ -79,7 +79,8 @@
     "packages/main/templates/agents/proof-or-stop-review-test-coverage.md",
     "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
     "packages/main/templates/agents/proof-or-stop-test-case-reviewer.md",
-    "packages/main/templates/agents/proof-or-stop-test-intent.md"
+    "packages/main/templates/agents/proof-or-stop-test-intent.md",
+    "packages/main/src/cli/lab-entrypoint.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/agent-role-identity.ts",
@@ -99,7 +100,7 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Replace the directory scope seed with its explicit regular template files so acceptance discovery can inspect every source file.",
+  "scopeChangeReason": "F-450 remediation adds the published core CLI lab sibling loader as an explicitly reviewed implementation path; all prior scope paths remain unchanged.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -1237,7 +1238,7 @@
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-25T13:10:34.049Z",
+  "updatedAt": "2026-08-25T15:32:32.969Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1507,6 +1508,7 @@
     "packages/main/src/core/legacy-role-alias-sunset.ts": "packages/main/src/core/legacy-role-alias-sunset.ts",
     "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
     "packages/main/templates/agents/proof-or-stop-verification-intent.md": "packages/main/templates/agents/proof-or-stop-verification-intent.md",
-    "packages/main/tests/legacy-role-alias-sunset.test.mjs": "packages/main/tests/legacy-role-alias-sunset.test.mjs"
+    "packages/main/tests/legacy-role-alias-sunset.test.mjs": "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+    "packages/main/src/cli/lab-entrypoint.ts": "packages/main/src/cli/lab-entrypoint.ts"
   }
 }

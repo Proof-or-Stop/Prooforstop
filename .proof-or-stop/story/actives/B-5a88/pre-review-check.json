@@ -2,15 +2,15 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a88",
   "mode": "observe",
-  "cutoffAt": "2026-08-25T11:58:40.147Z",
-  "planBasisDigest": "sha256:e80afdd4bec1597d53e704f97c2483cc1e2cef4977838bfa2768202b07088029",
+  "cutoffAt": "2026-08-25T15:41:06.763Z",
+  "planBasisDigest": "sha256:2787610bae029fdc6ffbf4909683ac4c9d7db821b2a847dfd56a425ae7fa38e8",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-5a88",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:e80afdd4bec1597d53e704f97c2483cc1e2cef4977838bfa2768202b07088029",
+      "priorPlanBasisDigest": "sha256:2787610bae029fdc6ffbf4909683ac4c9d7db821b2a847dfd56a425ae7fa38e8",
       "status": "complete",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
@@ -69,6 +69,12 @@
               "scope:checklist:CHK-005",
               "scope:checklist:CHK-006",
               "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:checklist:CHK-011",
+              "scope:checklist:CHK-012",
+              "scope:checklist:CHK-013",
               "scope:file:.githooks/pre-push",
               "scope:file:package-lock.json",
               "scope:file:package.json",
@@ -83,6 +89,7 @@
               "scope:file:packages/main/src/cli-init.ts",
               "scope:file:packages/main/src/cli.ts",
               "scope:file:packages/main/src/cli/help-renderer.ts",
+              "scope:file:packages/main/src/cli/lab-entrypoint.ts",
               "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
               "scope:file:packages/main/src/core/agent-asset-resolution.ts",
               "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
@@ -161,7 +168,7 @@
               "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:3bc337aeeaa251e1df752ecb7cf70ab668486cc0d73821cd67b47a36520a6ec9"
+          "resultDigest": "sha256:3bafa122da68f395222d842e8e0d3fc22ed89fbd4b4d22fd9e3bca1bc700cb41"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -209,6 +216,12 @@
               "scope:checklist:CHK-005",
               "scope:checklist:CHK-006",
               "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:checklist:CHK-011",
+              "scope:checklist:CHK-012",
+              "scope:checklist:CHK-013",
               "scope:file:.githooks/pre-push",
               "scope:file:package-lock.json",
               "scope:file:package.json",
@@ -223,6 +236,7 @@
               "scope:file:packages/main/src/cli-init.ts",
               "scope:file:packages/main/src/cli.ts",
               "scope:file:packages/main/src/cli/help-renderer.ts",
+              "scope:file:packages/main/src/cli/lab-entrypoint.ts",
               "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
               "scope:file:packages/main/src/core/agent-asset-resolution.ts",
               "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
@@ -301,7 +315,7 @@
               "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:878c403e41bf1a33add65d1cf48968ba6e13efc7bd220c73ec8e92104744e4f9"
+          "resultDigest": "sha256:5f4595d9c14ee12709ad646234a1cc0327d0f10bf6a27e258c87a164ba35b657"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -325,6 +339,12 @@
               "scope:checklist:CHK-005",
               "scope:checklist:CHK-006",
               "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:checklist:CHK-011",
+              "scope:checklist:CHK-012",
+              "scope:checklist:CHK-013",
               "scope:file:.githooks/pre-push",
               "scope:file:package-lock.json",
               "scope:file:package.json",
@@ -339,6 +359,7 @@
               "scope:file:packages/main/src/cli-init.ts",
               "scope:file:packages/main/src/cli.ts",
               "scope:file:packages/main/src/cli/help-renderer.ts",
+              "scope:file:packages/main/src/cli/lab-entrypoint.ts",
               "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
               "scope:file:packages/main/src/core/agent-asset-resolution.ts",
               "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
@@ -417,7 +438,7 @@
               "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:de0d8d2a1c7c8b71f9d2aa26acdcde563ff7372fd52b3ff32217fc407c4d2d28"
+          "resultDigest": "sha256:6c8171af15a2f7119df477a1ad1e2d768eda90efbdb8a24f3fa119a031402963"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -436,6 +457,12 @@
             "scope:checklist:CHK-005",
             "scope:checklist:CHK-006",
             "scope:checklist:CHK-007",
+            "scope:checklist:CHK-008",
+            "scope:checklist:CHK-009",
+            "scope:checklist:CHK-010",
+            "scope:checklist:CHK-011",
+            "scope:checklist:CHK-012",
+            "scope:checklist:CHK-013",
             "scope:file:.githooks/pre-push",
             "scope:file:package-lock.json",
             "scope:file:package.json",
@@ -450,6 +477,7 @@
             "scope:file:packages/main/src/cli-init.ts",
             "scope:file:packages/main/src/cli.ts",
             "scope:file:packages/main/src/cli/help-renderer.ts",
+            "scope:file:packages/main/src/cli/lab-entrypoint.ts",
             "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
             "scope:file:packages/main/src/core/agent-asset-resolution.ts",
             "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
@@ -541,6 +569,12 @@
               "scope:checklist:CHK-005",
               "scope:checklist:CHK-006",
               "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:checklist:CHK-011",
+              "scope:checklist:CHK-012",
+              "scope:checklist:CHK-013",
               "scope:file:.githooks/pre-push",
               "scope:file:package-lock.json",
               "scope:file:package.json",
@@ -555,6 +589,7 @@
               "scope:file:packages/main/src/cli-init.ts",
               "scope:file:packages/main/src/cli.ts",
               "scope:file:packages/main/src/cli/help-renderer.ts",
+              "scope:file:packages/main/src/cli/lab-entrypoint.ts",
               "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
               "scope:file:packages/main/src/core/agent-asset-resolution.ts",
               "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
@@ -633,7 +668,7 @@
               "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:1297795c3c5f19382aa3826c8e85f74f3264ab07fcd52efe8465b11ff5f74f40"
+          "resultDigest": "sha256:0d7ba9bc44ce19f0602b8a019f9efa2c763c41826100ab6fba5f336d900b8641"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -669,8 +704,9 @@
             "source-file:packages/main/package.json:sha256:97ca1ce3518f916aaba36eadfe3104bef4dd4b35b0c254d5185081d5fce50058",
             "source-file:packages/main/src/claude-md-sync.ts:sha256:9a5d0c070b9b880573be0a397df1f4721daf9ea9ec6385c6c4cd6a385b59c7d8",
             "source-file:packages/main/src/cli-init.ts:sha256:bff1c7666234826fb02aa5f564fa0d9807e2ac033ddf22d6e2d7bb3281e0b936",
-            "source-file:packages/main/src/cli.ts:sha256:2b1353add9b5d9efd550e5cec362f4db22712a8b1aeff373fd16c004bd57b8a4",
+            "source-file:packages/main/src/cli.ts:sha256:47623b76a929c85113894a3362504ad916a622245d4e71719df614c60a0f91f1",
             "source-file:packages/main/src/cli/help-renderer.ts:sha256:6f59e8594d15f440d951f89f8d314cfbccfc59f1d17fb7ceb391148431457502",
+            "source-file:packages/main/src/cli/lab-entrypoint.ts:sha256:ab6776e3b646b825a1ff26711886cd77cf4e754c1d1063a5ffb7d4d3a779a436",
             "source-file:packages/main/src/core/acceptance-discovery-adapters.ts:sha256:ae9fb2b4b0a6c22847486ff5d1d6797d104f48653b251a7b2ee64a6845a0978e",
             "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
             "source-file:packages/main/src/core/agent-asset-resolution.ts:sha256:3e38870251d57aa17112280e3d52c9c9393aea88953e8d5d09facd557bdecd69",
@@ -688,11 +724,11 @@
             "source-file:packages/main/src/core/managed-markers.ts:sha256:5e859db5637b0fe3ec2be4feb3d9f4c9033658d46bef0570152d04fdcffc0181",
             "source-file:packages/main/src/core/pre-review-check.ts:sha256:0277e0bcf0b6c5615ba33d714f85cb6d0ad7903dae21f38d5d7667b978de24fa",
             "source-file:packages/main/src/core/pre-review-live-proof.ts:sha256:2d2337e2fa64013e12cbf2c38de274b19b1f4ce2abcd03fbee71b69e68a97e07",
-            "source-file:packages/main/src/core/process-fact-registry.ts:sha256:ae45df6d2fd81466dfcef62f73b8c8a841e654bd59ceab5bd7916ac2a031cf79",
+            "source-file:packages/main/src/core/process-fact-registry.ts:sha256:745674307229b6acc275824e4c7d4cbfae52d6b172b5d2950e6b1165ead0fb0d",
             "source-file:packages/main/src/core/prompt-registry.ts:sha256:c35eadf9e640ca1933ada81c7c2d13172734bd82f1c57d3d1c6164f59e653f09",
             "source-file:packages/main/src/core/prompt-role-contract-registry.ts:sha256:239123735785401aed3681070ad9ebf8db2dd0ee8319831441ad3473a959559a",
             "source-file:packages/main/src/core/release-push-approval.ts:sha256:0310d4d4be2b573a0c2360f039bf1a0d114e856bb3ea4e405b81b86895b8b951",
-            "source-file:packages/main/src/core/review-run.ts:sha256:2c56c910313519ee48ea0e216a69a524300e0b4fbdb1b2d3feb8cb1dda631ac2",
+            "source-file:packages/main/src/core/review-run.ts:sha256:8f856b0df9cd8ae4370f2c27e01f838ecacbd75e3483b7c4a7563f0d0b6b764a",
             "source-file:packages/main/src/core/reviewer-opt-in.ts:sha256:f2c935f79bb1398231a068f04604e83a0fd651f368b49c060b1b7c1521c84570",
             "source-file:packages/main/src/core/reviewer-quorum.ts:sha256:3ef1add0f5195de3fc7fcfc615b4bacbc0a1dceb363927fc7a31866fa15665ac",
             "source-file:packages/main/src/core/runtime-environment-checks.ts:sha256:c9acedfa3ee93291a2406f16681064e51d982cdadc4eb867b5e78cc2a32ac68f",
@@ -736,7 +772,7 @@
             "source-file:packages/main/templates/agents/proof-or-stop-test-intent.md:sha256:6c668af6a6af8373a909c7998273ab019b7c1dd9d3e6edc6f178548b3dddc29b",
             "source-file:packages/main/tests/artifact-schema-migration.test.mjs:sha256:6597e18a7a93cbe6ff070df95ece7e96da1bdfb8d4de28769bb2d178ab97c61d",
             "source-file:packages/main/tests/bin-alias-migration.test.mjs:sha256:c1dfda39b7eae3721144439143190e1e4ac2a5aff9231aaa3f596961879ee4ce",
-            "source-file:packages/main/tests/brand-role-migration.test.mjs:sha256:6867f05811563ab9f055155aa9da762e147a17f8adf8b34cbd3fffff8784c621",
+            "source-file:packages/main/tests/brand-role-migration.test.mjs:sha256:b90c576316b3fa70238f82793072bac66e29050e07776f1f2da469bf9aabafcc",
             "source-file:packages/main/tests/managed-marker-migration.test.mjs:sha256:b2c30fdecf2740cd63409238e06df03cae0ed894905c173764375fc6910a6f62",
             "source-file:packages/main/tests/package-identity-migration.test.mjs:sha256:e3bcd14a02f507ed8209ddf6f4edeffcb729cc6d9f78dd0d8eda41b6838bea33",
             "source-file:packages/main/tests/prompt-role-migration.test.mjs:sha256:ce1d1d318a028bb34cbf37470f4bd7cf66979de3e5b394786b198637e167b730",
@@ -750,7 +786,7 @@
             "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
             "source-file:scripts/verify-codex-assets.mjs:sha256:125b2cb6dac1f0bc5c4e0337eb9c228325df16cda72dd5b90142f20102b36e4b",
             "source-file:scripts/verify-entrypoints.mjs:sha256:69fa91489a9614a7ff157489d4a55dded133419b4c9c44cbf80197e430b2a862",
-            "source-file:scripts/verify-global-lab-entrypoint.mjs:sha256:83f161a06e5ca1dc200657dbf31ba68ca5fbab666f163a0be28a457af3d16b51",
+            "source-file:scripts/verify-global-lab-entrypoint.mjs:sha256:6269e7b2c286d068a8bd9e9bf1a9ef21b6088459130d5c37215758c56a9c8c7e",
             "source-file:scripts/verify-lattice-residue.mjs:sha256:fa8b969ca276222c9a60c7385b99243a4a4268f9f6c756a058146685cf0e04f6",
             "source-file:scripts/verify-process-fact-contract.mjs:sha256:9385c243938ab88a61d004012c9c2f51af2027134cb574480f42499b4a38d85a",
             "source-file:scripts/verify-proof-or-stop-prompt-baseline.mjs:sha256:2f509704c8102e6129c484f23b1b06c5244a89f58df7cffecc9b944a28cf80db"
@@ -766,6 +802,12 @@
               "scope:checklist:CHK-005",
               "scope:checklist:CHK-006",
               "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:checklist:CHK-011",
+              "scope:checklist:CHK-012",
+              "scope:checklist:CHK-013",
               "scope:file:.githooks/pre-push",
               "scope:file:package-lock.json",
               "scope:file:package.json",
@@ -780,6 +822,7 @@
               "scope:file:packages/main/src/cli-init.ts",
               "scope:file:packages/main/src/cli.ts",
               "scope:file:packages/main/src/cli/help-renderer.ts",
+              "scope:file:packages/main/src/cli/lab-entrypoint.ts",
               "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
               "scope:file:packages/main/src/core/agent-asset-resolution.ts",
               "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
@@ -858,7 +901,7 @@
               "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:a50d42d20ba39c3fc4e0a7714933fb3d4204dd1b039b392d9572724f819e771e"
+          "resultDigest": "sha256:07c9c604cddab92fe1b58a4ad331592fd563dc18af4cfc3bf5ae36aa3d3a1e1a"
         }
       ],
       "scopeRefs": [
@@ -869,6 +912,12 @@
         "scope:checklist:CHK-005",
         "scope:checklist:CHK-006",
         "scope:checklist:CHK-007",
+        "scope:checklist:CHK-008",
+        "scope:checklist:CHK-009",
+        "scope:checklist:CHK-010",
+        "scope:checklist:CHK-011",
+        "scope:checklist:CHK-012",
+        "scope:checklist:CHK-013",
         "scope:file:.githooks/pre-push",
         "scope:file:package-lock.json",
         "scope:file:package.json",
@@ -883,6 +932,7 @@
         "scope:file:packages/main/src/cli-init.ts",
         "scope:file:packages/main/src/cli.ts",
         "scope:file:packages/main/src/cli/help-renderer.ts",
+        "scope:file:packages/main/src/cli/lab-entrypoint.ts",
         "scope:file:packages/main/src/core/acceptance-discovery-adapters.ts",
         "scope:file:packages/main/src/core/agent-asset-resolution.ts",
         "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
@@ -987,6 +1037,7 @@
         "source-file:closure:packages/main/src/cli-init.ts",
         "source-file:closure:packages/main/src/cli.ts",
         "source-file:closure:packages/main/src/cli/help-renderer.ts",
+        "source-file:closure:packages/main/src/cli/lab-entrypoint.ts",
         "source-file:closure:packages/main/src/core/acceptance-discovery-adapters.ts",
         "source-file:closure:packages/main/src/core/acceptance-topology.ts",
         "source-file:closure:packages/main/src/core/agent-asset-resolution.ts",
@@ -1178,411 +1229,83 @@
       "blindSpots": [],
       "snapshotSeal": {
         "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
-        "inventoryDirectoryDigest": "sha256:809e1e7102099481985611df11d583c14ab1728df898466b587df447f82e7b39",
+        "inventoryDirectoryDigest": "sha256:100ab33452223902dad96b432cac0f9a64252c07804a610fe28100ffc7a00ae0",
         "inventoryDirectoryCount": 21,
-        "sourceSnapshotDigest": "sha256:55adcfd9d226b6072ba1880f4f0052e68938abc6cb26db80619c785efd27377d",
-        "sourceSnapshotCount": 867,
+        "sourceSnapshotDigest": "sha256:292db7b68dfcd463f102ecef2eb147c34fea9c5a553f96563200e9622ee80db7",
+        "sourceSnapshotCount": 869,
         "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
         "status": "complete",
         "issues": [],
-        "sealDigest": "sha256:6a5dccc046249e878899ec3d58c28bcc79ac1cfc8b18c7eea8fb6b1ca1882955"
+        "sealDigest": "sha256:db0eec5288a865e6beb794474f74f4cf9fe757e21e700330f50569c9b93f1b72"
       },
       "binding": {
-        "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
-        "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
-        "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
-        "scopeCheckDigest": "sha256:6e25771291295e8b845cfcea367d37421c95c17ccf04c72a366a7a8f114543a5",
-        "scopeContractDigest": "sha256:d24344a1a73b128a6d4b628cb4dad4337f72c14306cb898bf0f139b5465c5b6c",
-        "closureFilesHash": "sha256:b94c0328b15c1b65ca0b7f7179d13f53799e3ce0fe566ec25d39d8af9b39844c"
+        "headHash": "b1d7dfa9a30d1b105c7894d55e3b3105954dcce4",
+        "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
+        "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1",
+        "scopeCheckDigest": "sha256:e219f17782b0651525425bc2c87de7ff816ed533930ed545456597eacce9b178",
+        "scopeContractDigest": "sha256:cb637221ccbb0f0740ce1895faf52db2f210f64485a2cfe464b3e7a8763a4f29",
+        "closureFilesHash": "sha256:27736fc669db86bab56376c7bad38f5e3d32f8e2957a6afd7e674042941d90a3"
       },
-      "receiptRef": "receipt:coverage-basis:B-5a88:pre_review:fac7211f6b0cf893",
-      "basisDigest": "sha256:0626d84dc7478d5b4b0ffc16ba529590ec72e39439aeebf0c0848f5c22606d19"
+      "receiptRef": "receipt:coverage-basis:B-5a88:pre_review:8c62dbd824b1d9dd",
+      "basisDigest": "sha256:19a0bdb8a5d4ddadcc3bffe93ffc62648d17fd486143dd7cccff88d1cefed0f0"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-      "receiptRef": "receipt:coverage-basis:B-5a88:pre_review:fac7211f6b0cf893",
+      "receiptRef": "receipt:coverage-basis:B-5a88:pre_review:8c62dbd824b1d9dd",
       "issuer": "acceptance-coverage-basis-verifier",
       "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
       "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
       "storyId": "B-5a88",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:0626d84dc7478d5b4b0ffc16ba529590ec72e39439aeebf0c0848f5c22606d19",
+      "basisDigest": "sha256:19a0bdb8a5d4ddadcc3bffe93ffc62648d17fd486143dd7cccff88d1cefed0f0",
       "topologyDigest": "sha256:4e38caf410521c43a7e9ae42a2d3b870c427db980f9302a9711bb8acb8129529",
-      "scopeCheckDigest": "sha256:6e25771291295e8b845cfcea367d37421c95c17ccf04c72a366a7a8f114543a5",
-      "scopeContractDigest": "sha256:d24344a1a73b128a6d4b628cb4dad4337f72c14306cb898bf0f139b5465c5b6c",
-      "headHash": "bcb9b326270185e9a48f4e775824ac459f8b4a4b",
-      "materialHash": "9fdf616ac82178347c3fbeb0bd995e091f79a91c962a1cf3d19273d6fb81096c",
-      "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
-      "closureFilesHash": "sha256:b94c0328b15c1b65ca0b7f7179d13f53799e3ce0fe566ec25d39d8af9b39844c",
-      "sealDigest": "sha256:6a5dccc046249e878899ec3d58c28bcc79ac1cfc8b18c7eea8fb6b1ca1882955",
+      "scopeCheckDigest": "sha256:e219f17782b0651525425bc2c87de7ff816ed533930ed545456597eacce9b178",
+      "scopeContractDigest": "sha256:cb637221ccbb0f0740ce1895faf52db2f210f64485a2cfe464b3e7a8763a4f29",
+      "headHash": "b1d7dfa9a30d1b105c7894d55e3b3105954dcce4",
+      "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
+      "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1",
+      "closureFilesHash": "sha256:27736fc669db86bab56376c7bad38f5e3d32f8e2957a6afd7e674042941d90a3",
+      "sealDigest": "sha256:db0eec5288a865e6beb794474f74f4cf9fe757e21e700330f50569c9b93f1b72",
       "workspaceIdentityDigest": "sha256:7269e2a5b5f07e8b7e813824b4892a55c277f4f75b9c118ed471e7c51cb3ee21",
-      "signature": "0LJLblU3QUi2mLQsQr2N81Ct5BxDnvEoM/lAydnbYNoGACv7cRfIvr/hPCHPAJgaTRJfie59Aks3qcXaHNq1BQ=="
+      "signature": "/iYMwgTZj0fbtW92s1Gl7EhK8+ImlNV9lUSmdBHeDhXmDYfgfdbLMeaRsD1E+i1SRVb25VEAvRxA8tiUzLumCw=="
     }
   },
   "topologyDigest": "sha256:4e38caf410521c43a7e9ae42a2d3b870c427db980f9302a9711bb8acb8129529",
-  "scopeCheckDigest": "sha256:6e25771291295e8b845cfcea367d37421c95c17ccf04c72a366a7a8f114543a5",
-  "scopeContractDigest": "sha256:d24344a1a73b128a6d4b628cb4dad4337f72c14306cb898bf0f139b5465c5b6c",
-  "storyFilesHash": "683bf387e0d4c30cc446b84e3283c6cfd63544bdaf9c414b0758255b72c66f86",
-  "closureFilesHash": "sha256:b94c0328b15c1b65ca0b7f7179d13f53799e3ce0fe566ec25d39d8af9b39844c",
+  "scopeCheckDigest": "sha256:e219f17782b0651525425bc2c87de7ff816ed533930ed545456597eacce9b178",
+  "scopeContractDigest": "sha256:cb637221ccbb0f0740ce1895faf52db2f210f64485a2cfe464b3e7a8763a4f29",
+  "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1",
+  "closureFilesHash": "sha256:27736fc669db86bab56376c7bad38f5e3d32f8e2957a6afd7e674042941d90a3",
   "evidenceRefs": [],
   "executableProof": {
     "schemaVersion": "proofstory.pre_review_executable_proof.v1",
     "storyId": "B-5a88",
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
-    "commandDigests": [
-      "sha256:0957b2806f2702f5cfbe1bd41890213a067de990dba3d9eab3dbe3b374dd825f"
-    ],
+    "commandDigests": [],
     "caseRecordsEncoding": "gzip-base64",
-    "caseRecords": "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",
+    "caseRecords": "",
     "provenance": {
-      "runnerPath": "scripts/run-proofstory-pre-review-live-proof.mjs",
-      "runnerDigest": "sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9",
-      "targetPath": "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
-      "targetDigest": "sha256:9b75b5fa1e309f79513001209725b778cf2faec8547194d3b1f6dce3f9b73625",
-      "buildCommand": "npm --prefix packages/main run build"
+      "runnerPath": "",
+      "runnerDigest": "",
+      "targetPath": "",
+      "targetDigest": "",
+      "buildCommand": ""
     },
-    "bindingProofs": [
-      {
-        "bindingId": "B-5a88-AC-001",
-        "positiveAssertionIds": [
-          "A-HAPPY-01",
-          "A-HAPPY-02",
-          "A-HAPPY-03",
-          "A-HAPPY-04",
-          "A-HAPPY-05",
-          "A-HAPPY-06",
-          "A-HAPPY-07"
-        ],
-        "mutationProofs": [
-          {
-            "mutationId": "M-01",
-            "expectedCode": "PR_MUTATION_DID_NOT_BITE",
-            "observedCode": "PR_MUTATION_DID_NOT_BITE",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-02",
-            "expectedCode": "PR_PLANNED_PATH_UNRESOLVED",
-            "observedCode": "PR_PLANNED_PATH_UNRESOLVED",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-03",
-            "expectedCode": "FAIL_CLOSED",
-            "observedCode": "FAIL_CLOSED",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-04",
-            "expectedCode": "PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED",
-            "observedCode": "PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-05",
-            "expectedCode": "PASS",
-            "observedCode": "PASS",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-06",
-            "expectedCode": "PASS",
-            "observedCode": "PASS",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-07",
-            "expectedCode": "PASS",
-            "observedCode": "PASS",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-08",
-            "expectedCode": "PROMPT_CONTRACT_REJECTED",
-            "observedCode": "PROMPT_CONTRACT_REJECTED",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-09",
-            "expectedCode": "PROMPT_MIRROR_REJECTED",
-            "observedCode": "PROMPT_MIRROR_REJECTED",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-10",
-            "expectedCode": "PASS",
-            "observedCode": "PASS",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-11",
-            "expectedCode": "PR_AUTHORITY_INADMISSIBLE",
-            "observedCode": "PR_AUTHORITY_INADMISSIBLE",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-12",
-            "expectedCode": "PR_AUTHORITY_INADMISSIBLE",
-            "observedCode": "PR_AUTHORITY_INADMISSIBLE",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-13",
-            "expectedCode": "PACKAGE_GRAPH_REJECTED",
-            "observedCode": "PACKAGE_GRAPH_REJECTED",
-            "controlRestored": true
-          },
-          {
-            "mutationId": "M-14",
-            "expectedCode": "BIN_ALIAS_REJECTED",
-            "observedCode": "BIN_ALIAS_REJECTED",
-            "controlRestored": true
-          }
-        ],
-        "transcriptProofs": [
-          {
-            "transcriptId": "T-01",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-02",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-03",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-04",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-05",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-06",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-07",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-08",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-09",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-10",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-11",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-12",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-13",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-14",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-15",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-16",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-17",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-18",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-19",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-20",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          },
-          {
-            "transcriptId": "T-21",
-            "producerRefs": [
-              "P-DISPATCH"
-            ],
-            "consumerRefs": [
-              "C-DISPATCH"
-            ],
-            "producerSequence": 6,
-            "consumerSequence": 7
-          }
-        ]
-      }
-    ]
+    "bindingProofs": []
   },
-  "criticReceiptDigest": "sha256:1b3878f990b5c165d0d17fbbe547e054fbf258a7bc9e11739347af35ca4885e7",
+  "criticReceiptDigest": "sha256:5260383e7e1435d52b4029f72442ffbb578529d08da3d98f154312d10dc2986e",
   "codes": [
     "PR_POSITIVE_EVIDENCE_MISSING",
+    "PR_PRODUCTION_PATH_UNPROVEN",
+    "PR_MUTATION_EVIDENCE_MISSING",
+    "PR_MUTATION_DID_NOT_BITE",
+    "PR_CONTROL_NOT_RESTORED",
+    "PR_TRANSCRIPT_MISSING",
+    "PR_AUTHORITY_INADMISSIBLE",
     "PR_EVIDENCE_STALE"
   ],
   "status": "fail",
-  "issuedAt": "2026-08-25T11:58:40.147Z",
+  "issuedAt": "2026-08-25T15:41:06.763Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "WmpoFAHxuVai0VzJzjDr/oDw2wP/i7Q50O+wZ0vGkkqcWJKZf7FTHCd5It8GdsKnvU/iKLZdZ07Ie+/Y/eDWBg=="
+  "signature": "wmsT39qV6vIlUo5/sF8iVe8PzJ1y9mllNV34PM92fp7IwJ0TkBmM2/8Q5X0mLWmy5za6B/8KZWNR/VXR8WQvCA=="
 }
