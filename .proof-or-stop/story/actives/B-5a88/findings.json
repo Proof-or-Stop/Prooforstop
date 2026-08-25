@@ -21038,6 +21038,153 @@
       ],
       "signatureTag": "missing|json|current-acceptance-topology",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-469",
+      "desc": "test-coverage: .proof-or-stop/story/actives/B-5a88/acceptance-basis.json:1 and pre-review-check.json:1 — CHK-013-HAPPY-WAVE4-READS is not a truthful current gate proof: canonical pre_review_check_read returns FAIL with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND because the acceptance-basis receipt is bound to head 5e226ade667d while the current review head is 97be1a5a9c23. The passing rollout report/policy cannot replace the missing current pre-review receipt; reissue verifier-owned pre-review evidence at the current cutoff before TEST.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-25T19:52:03.756Z",
+      "reviewRound": "2026-08-25T18:47:32.125Z",
+      "reviewRunId": "B-5a88:RR-846",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bddc3cb158cb0ff369b577482b28f83bcc511c5434ddd187952019349d4c34f2",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+      ],
+      "signatureTag": "missing|json|test-coverage-proof",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-470",
+      "desc": "acceptance-basis-pre-review-integrity: .proof-or-stop/story/actives/B-5a88/acceptance-basis.json:1181 and .proof-or-stop/story/actives/B-5a88/pre-review-check.json:1 are not admissible at the current frozen review cutoff. Canonical reads report acceptance_basis status=invalid with AT_SCOPE_BINDING_MISSING (scope-check digest mismatch), while pre_review_check_read reports PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND. Repair and reissue verifier-owned basis/pre-review receipts before treating this Story's REVIEW evidence as valid.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-25T19:52:35.542Z",
+      "reviewRound": "2026-08-25T18:47:32.125Z",
+      "reviewRunId": "B-5a88:RR-848",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4d6b880bae8c229f11a71033ed2169a0b92a27d60823dd5d192fe1cc9c3c22bc",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "acceptance-basis-pre-review-integrity",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-471",
+      "desc": "acceptance-basis-pre-review-integrity: .proof-or-stop/story/actives/B-5a88/acceptance-basis.json:1198 binds the signed basis to scopeCheckDigest sha256:e219f17782b0651525425bc2c87de7ff816ed533930ed545456597eacce9b178, but the canonical acceptance_basis reader reports AT_SCOPE_BINDING_MISSING (scope-check digest mismatch) and acceptance_topology_check fails for the same reason; pre_review_check_read also fails with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, and PR_CUTOFF_UNBOUND. The current full-3x2 rollout receipt cannot substitute for these upstream gates.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-25T19:54:36.166Z",
+      "reviewRound": "2026-08-25T18:47:32.125Z",
+      "reviewRunId": "B-5a88:RR-849",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+      },
+      "readDiagnostics": [],
+      "_hash": "76b79d836278faf9409337fadd09c8414a6af5e7bfc5208d9b8348478f3780f4",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "acceptance-basis-pre-review-integrity",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
