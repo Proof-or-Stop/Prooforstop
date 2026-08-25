@@ -10150,6 +10150,66 @@
       },
       "readDiagnostics": [],
       "_hash": "2cb23e31972457a6671c6a397de308b5d5ce5b21fb7eba8ea046f4f3336fe015"
+    },
+    {
+      "id": "B-45a0:RP-209",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-round test-coverage review at HEAD 9ecdb20e2da89d7560adddb2c526b5474abceb7f completed. All 48 verificationEvidence rows are passing and material/story current for materialHash 3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c and storyFilesHash 3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9. The checklist has 48 intents, including 42 must intents, with zero must-gaps and zero waivers. Wave 4 executable coverage includes acceptance_topology_check (structural pass, diagnostic-only), pre_review_check_read (current pass/admissible), acceptance_rollout_report_read (pass with current material/story receipt and full-3x2 quorum), and acceptance_rollout_check (pass, non-blocking), with threshold, membership, freshness, mode-invariant, enforce-only, and rollback evidence represented by the current acceptance artifacts. Existing F-299 replay assurance and F-310/F-311 reviewer-assurance findings remain preserved; this lane adds no duplicate finding.",
+      "createdAt": "2026-08-25T11:26:12.532Z",
+      "reviewRound": "2026-08-25T11:14:59.492Z",
+      "reviewRunId": "B-45a0:RR-609",
+      "envelopeId": "77649cbbc0d10118a09d8d697188d6fd28fc64f355652fed433851cb9f74db32",
+      "writerSessionId": "sess-review-coverage-round2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "_hash": "19a10832b01acf6753533e8bf97f89d6eca3bf3d21b2efbcca796f2953c8e915"
     }
   ]
 }
