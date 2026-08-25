@@ -11,12 +11,14 @@ revocation ledger all bind to the same HEAD.
 The inventory is discovered from canonical `proof-or-stop.config.json`, with
 legacy `lattice.config.json` as a fallback, and receives a stable command ID
 from command plus arguments. The root configuration now records the DYN-1
-policy tuple explicitly on every command: 58 `full-only` /
+policy tuple on every command, and the verifier materializes effective
+scheduler fields for legacy rows: 58 `full-only` /
 `whole-repository` validation-infrastructure rows and 54
 `story-selectable` / `static-and-traced` rows (including the two DYN-5 gate
 rows). The compiled 112-command catalog reports
 `policySource=explicit` for all 112 entries (the inventory digest is emitted
-by `verify-validation-inventory.mjs`). Every command carries the catalog policy tuple:
+by `verify-validation-inventory.mjs`). Every command carries the effective
+catalog policy tuple:
 
 | Field | Meaning |
 | --- | --- |
@@ -24,6 +26,8 @@ by `verify-validation-inventory.mjs`). Every command carries the catalog policy 
 | `riskTier` | `local`, `shared`, `gate`, or `validation-infra` |
 | `closurePolicy` | `static-and-traced`, `whole-repository`, or `never-reuse` |
 | `fullBaselineReusePolicy` | `not-applicable`, `exact-current-epoch-only`, or `forbidden` |
+| `cpuWeight` | explicit row weight when configured, otherwise the registered policy default |
+| `expectedP50Ms` | explicit row estimate when configured, otherwise the bounded timeout-derived scheduler estimate |
 | `caseRegistryPath` | in-root DYN-5 registry, when sharding is required |
 | `runnerSourcePath` | executable DYN-5 runner bound into source closure |
 | `declaredEnvironmentKeys` | command-specific environment reads allowed by closure |

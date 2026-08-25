@@ -24,13 +24,18 @@ for catalog defaults such as `assurance`, `riskTier`, `closurePolicy`,
 ## Required configuration
 
 Canonical `proof-or-stop.config.json` (with legacy `lattice.config.json`
-fallback) owns the inventory. Each object in `validate.commands` carries an
-explicit policy tuple. The current 112-row catalog has 58
+fallback) owns the inventory. Each object in `validate.commands` contributes a
+policy tuple; the verifier records the resulting effective tuple after applying
+the registered policy defaults and bounded scheduler fallback for legacy rows.
+The current 112-row catalog has 58
 full-only/whole-repository validation-infrastructure rows and 54
 story-selectable/static-and-traced rows; defaults remain only a fail-closed
 parser fallback for legacy external configurations. Each object in
-`validate.commands` must preserve these fields through the verifier inventory: `assurance`, `riskTier`, `closurePolicy`,
-`fullBaselineReusePolicy`, `cpuWeight`, `expectedP50Ms`, and (for DYN-5)
+`validate.commands` must preserve these effective fields through the verifier
+inventory: `assurance`, `riskTier`, `closurePolicy`,
+`fullBaselineReusePolicy`, `cpuWeight`, and `expectedP50Ms` (the latter is a
+configured value when present, otherwise a bounded timeout-derived scheduler
+value). For DYN-5, the effective row also carries
 `caseRegistryPath`, `runnerSourcePath`, `declaredEnvironmentKeys`, and
 `env.LATTICE_VALIDATION_SHARD_ADAPTER`. The runner source is included in the
 catalog input roots so changing it revokes the closure/baseline evidence.
