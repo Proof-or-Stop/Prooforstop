@@ -20227,6 +20227,74 @@
         "scanEscalationReason": "Reviewed the full Story context, current main-to-HEAD and prior-pass-to-HEAD deltas, focused changed-source quality surfaces, and current Wave 4 verifier outputs; no source change or real blocker was found."
       },
       "_hash": "261aeda57e9bb852c4ce2c65066c10f9c680e9cb4e0a54b709e8f82cf82b6922"
+    },
+    {
+      "id": "B-5a88:RP-320",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Acceptance basis, topology, Wave 4 read projections, and required-lane terminal evidence are current and structurally complete; F-457 and F-458 remain independently verified review findings for inventory disposition.",
+      "createdAt": "2026-08-25T17:54:43.923Z",
+      "reviewRound": "2026-08-25T17:18:57.883Z",
+      "reviewRunId": "B-5a88:RR-826",
+      "envelopeId": "8cc020d2616cfd017f1fcab046439ca551861ad8079e905108444be1cd9b7931",
+      "writerSessionId": "sess-7175f4b296f7768ba00416e135d7d9a8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "3912ea09adf931b14cc56c2f2c006e7293007f0530024f0b7cf178080afb1ba3"
+    },
+    {
+      "id": "B-5a88:RP-321",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Acceptance basis, topology, Wave 4 official reads, and required-lane terminal evidence are current; F-457 and F-458 remain independently verified findings for disposition.",
+      "createdAt": "2026-08-25T17:57:38.269Z",
+      "reviewRound": "2026-08-25T17:18:57.883Z",
+      "reviewRunId": "B-5a88:RR-827",
+      "envelopeId": "a86dc2922678d18fb52e100dd41e3d5d3489a816c1d3aeac52926c9064004f56",
+      "writerSessionId": "sess-7175f4b296f7768ba00416e135d7d9a8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "26b5bdf2a022ed4b7048664e572a8d8005379a50b9500901ae4c0dd69e985354"
     }
   ]
 }
