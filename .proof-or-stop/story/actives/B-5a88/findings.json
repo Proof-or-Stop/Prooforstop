@@ -20354,6 +20354,112 @@
       ],
       "signatureTag": "ri-083-wave-2-topology-request-changes",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-455",
+      "desc": "concept/spec-boundary: .proof-or-stop/story/actives/B-5a88/plan.md:5 says \"Implement only CHK-001 through CHK-007\" and :45 says verificationEvidence covers 21 intents, but the current checklist.json:1571-1625 includes CHK-013 (and CHK-008 through CHK-012) with the Wave 4 user-facing acceptance, including the revised non-self-referential happy verifier. plan.md has no sections or verification order for CHK-008 through CHK-013, so the authoritative implementation plan contradicts the completed Story scope and does not document the current product/concept intent. Update the plan through the Story process before DONE.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-25T17:28:37.200Z",
+      "reviewRound": "2026-08-25T17:18:57.883Z",
+      "reviewRunId": "B-5a88:RR-820",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/lab/src/core/config.ts",
+          "packages/lab/src/core/profile.ts",
+          "packages/lab/src/core/scoring.ts",
+          "packages/lab/src/handlers/lab.ts",
+          "packages/lab/src/tool-defs.ts",
+          "packages/main/src/cli.ts",
+          "packages/main/src/cli/lab-entrypoint.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/truth-source.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json",
+          "README.md",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bcc0f95b3174b1c3622200c92ac1b20c4b5ead44abe21bf3479eeb3c5ff5b13c",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/plan.md",
+        ".proof-or-stop/story/actives/B-5a88/checklist.json"
+      ],
+      "signatureTag": "spec-boundary|md|concept-spec-boundary",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-456",
+      "desc": "CHK-013-HAPPY-WAVE4-READS at .proof-or-stop/story/actives/B-5a88/checklist.json:1593-1599 runs only acceptance_topology_check and pre_review_check_read; CHK-013-EDGE-WAVE4-MUTATIONS at checklist.json:1605-1611 invokes packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js directly. The signed test-coverage role contract requires executable intent-linked coverage of acceptance_rollout_report_read and acceptance_rollout_check. Both official rollout reads currently return PASS/full-3x2, and the 58-assertion smoke plus live-proof receipt pass, but neither required CLI read command is present in a CHK-013 verification command/receipt. packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:377-443 exercises core rollout gate functions and restores artifacts, not the two official read projections. The current signed rollout artifact/read PASS is not a substitute for current intent-linked executable coverage. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-25T17:29:50.215Z",
+      "reviewRound": "2026-08-25T17:18:57.883Z",
+      "reviewRunId": "B-5a88:RR-819",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e74bbea426dd2e97ded51798bf7728afc2b6cef62d71bef2346bf9bbe7988c2d",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+        "scripts/run-proofstory-pre-review-live-proof.mjs"
+      ],
+      "signatureTag": "missing|json|happy-wave4-reads",
+      "signatureTagSource": "auto"
     }
   ]
 }
