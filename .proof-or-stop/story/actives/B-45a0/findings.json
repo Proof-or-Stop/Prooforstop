@@ -11318,7 +11318,7 @@
       "desc": "doc-promise-undelivered: The normative dynamic-validation execution plan promises a runtime singleton-union monotonicity verifier that recomputes singleton contributions from changed files/facts/pins, catalog, impact graph, and closure set and verifies their union equals final selection (docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md:188-198, 603-617, 809-811, 1695). The implemented assertSelectionIsSingletonUnionMonotonic at packages/main/src/core/story-aware-validation.ts:861-863 only checks unverified/uncovered totals and never accepts or compares those inputs; the mutation smoke at packages/main/src/tasks/story-aware-validation-mutation-smoke.ts:306 only prints monotonicity PASS. The documented fail-closed monotonicity invariant remains undelivered and the docs/code contract is inconsistent.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-23T14:53:57.138Z",
@@ -11355,7 +11355,11 @@
         "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
       ],
       "signatureTag": "missing|md|promise-undelivered-normative",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by the same current authoritative singleton-union and expanded-context monotonicity implementation; the verifier recomputes contribution sources and rejects mismatched unions rather than relying on a smoke marker. Current mutation and selection validation passes.",
+      "resolvedAt": "2026-08-25T04:04:06.453Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-215",
