@@ -17513,6 +17513,53 @@
         "scanEscalationReason": null
       },
       "_hash": "9f0ba03664cf77a4585b5b68ad09392ab44ae00618ec9acbf509793bafff39c8"
+    },
+    {
+      "id": "B-5a88:RP-287",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Topology and rollout are current; no additional topology family beyond F-422/F-423; the pre-review tamper remains open.",
+      "createdAt": "2026-08-25T05:02:17.212Z",
+      "reviewRound": "2026-08-25T03:27:13.081Z",
+      "reviewRunId": "B-5a88:RR-735",
+      "envelopeId": "df47b329df344e3ab5881b07d4e7b70c78c2e88331c6829ee0f9741035d4a3d3",
+      "writerSessionId": "sess-f75830956f8af1f9e5cba840aea5c78c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-check.json",
+          ".proof-or-stop/story/actives/B-5a88/scope-contract.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/delivery-check.json",
+          ".proof-or-stop/story/actives/B-5a88/proofstory.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3f0d2174426c4484055968677fe0699993f6a3e0e5895d1fa53f57b31c42081b"
     }
   ]
 }
