@@ -15158,6 +15158,47 @@
       ],
       "signatureTag": "ri059-wave2-acceptance-scope-binding-missing",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-297",
+      "desc": "Current verification coverage is stale: cf49cf318d changed packages/main/src/tasks/flow-stability-smoke.ts after the prior evidence capture, but all 45 verificationEvidence rows remain bound to storyFilesHash 73ab5542e384ecbc6ee53692642f4752f1f7279aa0455ca7f4088ba63d3c3521 while the current storyFilesHash is 60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664. Re-execute and refresh the affected evidence before relying on this lane for REVIEW coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-25T05:02:29.753Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-532",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "AGENTS.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "_hash": "311109c9d39a68f24884dc4d004512d7e3cf279511c274c95882524aca8cb42a",
+      "files": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|current-verification-coverage",
+      "signatureTagSource": "auto"
     }
   ]
 }
