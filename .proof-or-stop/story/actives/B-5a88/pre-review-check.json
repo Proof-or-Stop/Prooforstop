@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a88",
   "mode": "observe",
-  "cutoffAt": "2026-08-25T00:18:34.223Z",
+  "cutoffAt": "2026-08-25T00:19:39.090Z",
   "planBasisDigest": "sha256:8b54705617ab9149ff66ee60556184f3746bfd104414adaa1474e3901057ceaf",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -1224,7 +1224,155 @@
   "scopeContractDigest": "sha256:65719d242b969e3ae06f34a0007bcf262d0c45763004f13e18e309f964e69916",
   "storyFilesHash": "78e9aa6e943c3cb79eee8e55baeb12df5a3e6f608fbd92a592748ef562b5ebdc",
   "closureFilesHash": "sha256:0aee0aecf1b7cbd27704bdad658639f48fdbce20a610fbfff968fb74c0916dfc",
-  "evidenceRefs": [],
+  "evidenceRefs": [
+    {
+      "intentRef": "CHK-001:adversarial:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:0d58e986c992746f152675c047b2065924d82216a3701d679a360ae98816a82d"
+    },
+    {
+      "intentRef": "CHK-001:edge:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:41dbdfd3e275c7ca1efe89af55d58aef930c98ca0cf2cc50381cca548388c066"
+    },
+    {
+      "intentRef": "CHK-001:happy:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:9ac8c4ad6f4c77c9d795b3e813905478607ecd0217471237845a1b84249cd1a5"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c01bfe991949431af98e30a3476618b11acbe597fe37a320452f40749cb15c8d"
+    },
+    {
+      "intentRef": "CHK-002:edge:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:1d18c73232e1d6a8971137c9446990404c91da602fa8a65acf3bc30cdb85d310"
+    },
+    {
+      "intentRef": "CHK-002:happy:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:ef80b34934ea027c9dc777dc5205d31898b191a3907d2619c3788915cd0ca88b"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c30c1ed26e86c02c4750dfde54025bcd4b41aa8d8bc7ea421a03f50d2814558d"
+    },
+    {
+      "intentRef": "CHK-003:edge:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:eb9a01058b26e4b1239aef52b4ddf0ccc50e08ad52b55e89b20cc9da4d5388a9"
+    },
+    {
+      "intentRef": "CHK-003:happy:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:0103f680fe125af62f949eed53dfa41a56ee240a9ee2d6e4408df7be5fd75861"
+    },
+    {
+      "intentRef": "CHK-004:adversarial:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:a4599bbda7219482694d0c90f4054b88eb9f4e7b76b3afb7981766351f73281e"
+    },
+    {
+      "intentRef": "CHK-004:edge:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:01786db28f9c6b4ee5aceabd5441519b28e368644d10c03f4366ee400d79125a"
+    },
+    {
+      "intentRef": "CHK-004:happy:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:36d3dfc4de6941681638a7fcc62d02cdb2157ba01b1a985f7e10d970f036baec"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:13d3de2fa7aac850eb850f53b2a9a2faae295b13457c8fc863036220f9c4c7dd"
+    },
+    {
+      "intentRef": "CHK-005:edge:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:45caa27f66789e524bcccb03f8f87ffff8edaa44eeb8ee728a1c32d1fa275ba0"
+    },
+    {
+      "intentRef": "CHK-005:happy:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:ef9667a6b1aa21ad6612f48d1b02ff543cbb7b41f9277d48e4c6d9963028f826"
+    },
+    {
+      "intentRef": "CHK-006:adversarial:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:47a224250f7b3df49d08c989adfc33297f6f055490cbb01baa2101dede507a5b"
+    },
+    {
+      "intentRef": "CHK-006:edge:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:6114c46f4e049698a6cb3a32adce084e19a6eb5799ba2cdf2fd651c063d0f946"
+    },
+    {
+      "intentRef": "CHK-006:happy:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:d4faaf4709caf5694c31d02b5b0275be8327aae8f7fcf53641c759cd221970b8"
+    },
+    {
+      "intentRef": "CHK-007:adversarial:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:1080d7a02b0e4ce132e70d3fe877c045bb98b5fa13e2aa338573eb35f3853fe0"
+    },
+    {
+      "intentRef": "CHK-007:edge:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:1b7662f4768022adf7bf4747ff89f5a14dac76cb7324df937310b2531482c7a4"
+    },
+    {
+      "intentRef": "CHK-007:happy:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:2ef368c059cdfa0b7e611d43ad93a67142673f35888d72075c6d080a101e2515"
+    }
+  ],
   "executableProof": {
     "schemaVersion": "proofstory.pre_review_executable_proof.v1",
     "storyId": "B-5a88",
@@ -1577,12 +1725,9 @@
     ]
   },
   "criticReceiptDigest": "sha256:20907ad7ab1f6ecc786095f57ef59fa79ab9f04ab1562e6c52d983cd8316c041",
-  "codes": [
-    "PR_POSITIVE_EVIDENCE_MISSING",
-    "PR_EVIDENCE_STALE"
-  ],
-  "status": "fail",
-  "issuedAt": "2026-08-25T00:18:34.223Z",
+  "codes": [],
+  "status": "pass",
+  "issuedAt": "2026-08-25T00:19:39.090Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "NLn90M4kk7jvCVDUfmdGWgMF/sUbIdC7v6WwreEsUX5ZcNBozK4R3Rj6eEay7oFuTLCHGH3QVm3Mb+jBA+OfAQ=="
+  "signature": "F8mp1CTHWV9XbZRBJ0jvv5usJLWc9XmChNS6fgjsR6P3Qs4fId7F6NDWWzmzxVCg12qySI6jRYOqtC973cRzBg=="
 }
