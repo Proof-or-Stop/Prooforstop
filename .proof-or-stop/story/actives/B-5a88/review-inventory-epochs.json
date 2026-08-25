@@ -6273,7 +6273,7 @@
       "reviewRound": "2026-08-25T03:27:13.081Z",
       "state": "OPEN",
       "begunAt": "2026-08-25T03:39:58.465Z",
-      "updatedAt": "2026-08-25T03:39:58.465Z",
+      "updatedAt": "2026-08-25T04:20:34.911Z",
       "cutoff": {
         "headHash": "8e70a36a5b3924d8b638e1de72e5d8083d971464",
         "materialHash": "04b5d666cbfea4668c2f8facbbdcf47c4b3b9d430f0f69acd617715dfb1ce536",
@@ -6287,9 +6287,60 @@
       ],
       "initialRunSequenceBoundary": 723,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-25T03:39:58.465Z",
+          "completedAt": "2026-08-25T04:20:34.911Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-5a88:RR-725",
+              "terminal": "finding",
+              "hostIdentity": "2c4ed203f3e058357f6fdf9ea8c9ed21a0c0f30f74cb405f54284a062113ab80",
+              "promptIdentity": "7afe3b9b61ae80adb1630c0b3e4d440e7c38c779b7c20cb97557009fc5e841fe",
+              "evidenceIds": [
+                "B-5a88:F-420"
+              ],
+              "coverageDigest": "2ef5ddcad89fc2ad6e397d52d4922feb03a0ecd81bae34f33e2948cad8f48ac9"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-5a88:RR-727",
+              "terminal": "finding",
+              "hostIdentity": "2c4ed203f3e058357f6fdf9ea8c9ed21a0c0f30f74cb405f54284a062113ab80",
+              "promptIdentity": "9fc4009adc8396a564a3ae86cd8ecdbda17eb7083aa84bdd6ea74044000c297e",
+              "evidenceIds": [
+                "B-5a88:F-421"
+              ],
+              "coverageDigest": "03aec5823746380462c8ea6323938236f668bfb043d20c8a75df59fa7ca77177"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-726",
+              "terminal": "finding",
+              "hostIdentity": "2c4ed203f3e058357f6fdf9ea8c9ed21a0c0f30f74cb405f54284a062113ab80",
+              "promptIdentity": "d3a5a5b6db9d5caf3a1b616e8eb4d0daa7c25f274223414db0b5eb03e7eed38a",
+              "evidenceIds": [
+                "B-5a88:F-422"
+              ],
+              "coverageDigest": "4a15660542787bef01b0e5895da01f57b5565046982d183141ba2d814f4fdc81"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "current-pre-review-artifact-admissibility",
+            "done-prepare-generated-metadata-deprecated-schema-writers",
+            "review-incremental-context-bounded-overflow-fallback"
+          ],
+          "verifiedFindingSetDigest": "5c5904e1c79c3277a4f985b8c2881320667068b7c3a6c9bc92b905b978b611c1",
+          "newVerifiedFindingCount": 3,
+          "criticDigest": "0aff35b23bd9485218bcf245b631ba76aaa65352772afada9bf4dec20b6ae166",
+          "saturated": false,
+          "nextRunSequenceBoundary": 729
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "ea2d816ecb20d81503dca9b8bf25293766424aaa108a7209d612819d74401e88"
+      "_hash": "c557149268c3b97732db4f3c9c8047ec06c0b50fa230d72b9cbcb4c426e076fa"
     }
   ],
   "receipts": [
@@ -10323,6 +10374,49 @@
       "findingDispositions": [],
       "createdAt": "2026-08-25T01:56:51.316Z",
       "_hash": "ec587b3b6408113ac0c8bd8367155ce4682395eb069a973ec7be5484832a92db"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-077:CRIT-01",
+      "epochId": "B-5a88:RI-077",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-25T03:27:13.081Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "8e70a36a5b3924d8b638e1de72e5d8083d971464",
+        "materialHash": "04b5d666cbfea4668c2f8facbbdcf47c4b3b9d430f0f69acd617715dfb1ce536",
+        "storyFilesHash": "33680db97f81ad77d3ea1d5703de212db1f0b7b948024ffbb86fd44f3f34a572"
+      },
+      "aggregateFindingSetDigest": "5c5904e1c79c3277a4f985b8c2881320667068b7c3a6c9bc92b905b978b611c1",
+      "requiredLaneCoverageDigest": "1d4bb00c15db8528985fc50c61d8652e6653462156805a87be95fd6676d0b03f",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-729",
+      "terminalEvidenceIds": [
+        "B-5a88:F-423"
+      ],
+      "readEvidenceDigest": "28567e734d57b81042694201ae7369181de20712cf4b9438cfc25f4eceb3bd01",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-420",
+          "disposition": "verified_family",
+          "familyKey": "done-prepare-generated-metadata-deprecated-schema-writers",
+          "reason": "Latest concept run RR-725 identifies active non-historical done-prepare writers in done-prepare-generated-metadata.ts and done-prepare-validation-reuse.ts that still emit deprecated lattice schema literals; the finding is open, verified, and independently attributable to the current migration scope."
+        },
+        {
+          "findingId": "B-5a88:F-421",
+          "disposition": "verified_family",
+          "familyKey": "review-incremental-context-bounded-overflow-fallback",
+          "reason": "Latest quality run RR-727 verifies that impactedFiles/authoritativeReferences overflow can null reviewBasis without forcing the required full fallback; this is the current-wave representative of the same bounded-context overflow family already observed by RR-723, so it remains a verified blocking family."
+        },
+        {
+          "findingId": "B-5a88:F-422",
+          "disposition": "verified_family",
+          "familyKey": "current-pre-review-artifact-admissibility",
+          "reason": "Latest coverage run RR-726 cites pre_review_check.ts and topology-critic-receipt.ts; direct pre_review_check_read at the frozen cutoff returns status=fail, ok=false, and PR_ARTIFACT_TAMPERED, so the verifier-owned pre-review artifact is not admissible."
+        }
+      ],
+      "createdAt": "2026-08-25T04:19:31.171Z",
+      "_hash": "2119a3ea24115b1698a080136f16c9312da69efdac40fada17076b545f403b95"
     }
   ]
 }
