@@ -18527,7 +18527,7 @@
       "desc": "quality-gate-evidence: .proof-or-stop/story/actives/B-5a88/acceptance-basis.json:1 and .proof-or-stop/story/actives/B-5a88/scope-contract.json:1 are not bound to the same current scope contract: acceptance_topology_check returns AT_SCOPE_BINDING_MISSING (scope-contract digest mismatch) and pre_review_check_read returns PR_ARTIFACT_TAMPERED. Regenerate verifier-owned acceptance basis/pre-review evidence after the scope-contract update and recheck at current HEAD before treating the Wave 4 quality review as a PASS.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-25T00:33:49.800Z",
@@ -18535,7 +18535,11 @@
       "reviewRunId": "B-5a88:RR-696",
       "_hash": "d360f0f4211740b60922c749eed3e8ac043394260a8589835b36db096f8e5474",
       "signatureTag": "missing|unknown|quality-gate-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Regenerated acceptance_basis_generate and verifier-owned pre_review_check after the scope-contract acknowledgements. Current acceptance_topology_check and pre_review_check_read are PASS with no diagnostic codes; pre-review is current, executable evidence is current, mutations are biting, transcript is related, and authority is admissible. Current quality review RP-278 confirms the former AT_SCOPE_BINDING_MISSING and PR_ARTIFACT_TAMPERED conditions are cleared.",
+      "resolvedAt": "2026-08-25T02:14:02.051Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-417",
