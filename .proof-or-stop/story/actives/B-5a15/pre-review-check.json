@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a15",
   "mode": "observe",
-  "cutoffAt": "2026-08-25T12:32:26.476Z",
+  "cutoffAt": "2026-08-25T12:34:39.195Z",
   "planBasisDigest": "sha256:95b7a52900fce417109d3786f412af9d5c80bb96b83d26a30f7b232edd2abb36",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -1146,29 +1146,175 @@
     "storyId": "B-5a15",
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
-    "commandDigests": [],
+    "commandDigests": [
+      "sha256:562db62554bbb431260d218d8971aa1606e79e7646d606b45b1a5b0df1143eec"
+    ],
     "caseRecordsEncoding": "gzip-base64",
-    "caseRecords": "",
+    "caseRecords": "H4sIAAAAAAACE+2aUY+bOBCA/wrKvcZVPLaTTR5OSrc93elUtdruWxStvMSbpSWAjJO2//5MgnOFjsMhHQ9IfkpiwETfx8yYgc1msib3f/5NZjNKXmVR/CCzyXRS5GVikpOyX406FKQ0uf6xeksKrYhWp0R9I+Uh/6pWduDpMvAUv6r4K/m9PWJ/yJ2dJ06VzEgsszxLYpmSk9LJS6K03aSPWfTvaaL2DJF5VVnkm/fT+vPn64fRRzXdbCaFznfHWGmiTjI9SqPsnsvtdDOJ86w8HuyG+vR2nM622+kkyYzKzKpGsTqjWM0m1TFtQDQAcoAoCggCIAcIWoDUbq9ChFV8KhK/BNgZT4gvh4dieEJ0OTzN4IJQvxwfQOsXhPrVBkRbgEJ6dnyQ9AwhPTfxoFdPSM8OTzM9s5CeHR+GpmcW0nMbEEUBhQi7AmqHWKhfjg9Sv1ioX008FMMTosvhaQYXD/XL8eFo/eKhfrUB0RagkJ4dHyQ985Cem3jQqyekZ4cHMDws4KnxMAwPD3hqPBzDIwKeGo/A8MwDnhrPHMOzCHhqPIsGHhFWzo6PQFfOIqyc24AoCigsfq6AoAUo3Fo4PsithQi3Fk08FMMTosvhQYMr3Fo4PJdbiw/X1xLkzh5VSp3Yv1+loMPRSJPk2X+h5AbO//3NlzLPfiuTfSbNUauV/xTXfchLrvfKTu/f97xHC+Svp42uU06jCmHkRFQ/q+NUpL7L2ERSm+TFfqnGK0MWndF5WrF+eFo/PP71x/r+8elx/eHT+4f377zDTomDRWxaTy/gaYV3l8h9lpcmiUn+XCp9Om+CWlZ1RnI+vx1kyAsSP0GokyEOiA7vi/bwRcfoi/t9CczXvMMXveELhvcFPXzBGH0t/L7uMF/LDl/Q8AXD50PokQ9h9PkQZl5fQBFfAMgbCf58CMPnQ+iRD2H0+RCY3xfHfIkOX/SGLxjeF/TwNcZ8CHO/rwXm667D1618yIb3xXr4YmP0tfT6YjPEF6MdvprreTZ8/WI96hcbff1i4PfFMF8ceSPBX7/Y8PWL9ahfbPT1iwm/rznma9Hhi97wBcP7gh6+xli/2J3f1xLxxWcdvuCGLza8L9bD1xjrF/f3NzjW3+Csw1ezfvHh6xfvUb/46OsX9/c3ONbf4HPkuaC/fvHh6xfvUb/46OsX9/c3ONbf4MsOX836JYaPL9EjvsTo40v4+xsC628IQBrz/vgSw8eX6BFfYvTxJfz9DYH1N4To8HUrvmB4X9DD1xjXh8Lf3xBYf0Pcdfi6rA8fyfr+vuoFV1q0zMpYJ4X5H58MqpP9AyTN93aC1F0AWsW53kWW11GmTQmXR3uW36FIVbV79KxeKs6O/E+b7EwfH97VQK/fbj0mFL7nhPPzclrGsSqMzGJFnpNsl2T7lcOz3f4DDbxMPGZCAAA=",
     "provenance": {
-      "runnerPath": "",
-      "runnerDigest": "",
-      "targetPath": "",
-      "targetDigest": "",
-      "buildCommand": ""
+      "runnerPath": "scripts/run-proofstory-pre-review-live-proof.mjs",
+      "runnerDigest": "sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9",
+      "targetPath": "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+      "targetDigest": "sha256:d8b495d5eb7cb8e6212a0213816f3d6a7b83867b248f24d4a76fa1fba2da029e",
+      "buildCommand": "npm --prefix packages/main run build"
     },
-    "bindingProofs": []
+    "bindingProofs": [
+      {
+        "bindingId": "ACC-001",
+        "positiveAssertionIds": [
+          "A-CHK-001-happy-0",
+          "A-CHK-001-happy-1",
+          "A-CHK-001-happy-2",
+          "A-CHK-001-edge-0",
+          "A-CHK-001-edge-1",
+          "A-CHK-001-edge-2",
+          "A-CHK-002-happy-0",
+          "A-CHK-002-happy-1",
+          "A-CHK-002-edge-0",
+          "A-CHK-002-edge-1",
+          "A-CHK-002-edge-2",
+          "A-CHK-003-happy-0",
+          "A-CHK-003-happy-1",
+          "A-CHK-003-happy-2",
+          "A-CHK-003-edge-0",
+          "A-CHK-003-edge-1",
+          "A-CHK-003-edge-2",
+          "A-CHK-004-happy-0",
+          "A-CHK-004-happy-1",
+          "A-CHK-004-edge-0",
+          "A-CHK-004-edge-1",
+          "A-CHK-004-edge-2",
+          "A-CHK-004-edge-3",
+          "A-CHK-004-edge-4",
+          "A-CHK-004-edge-5",
+          "A-CHK-004-edge-6",
+          "A-CHK-004-edge-7",
+          "A-CHK-005-happy-0",
+          "A-CHK-005-happy-1",
+          "A-CHK-005-happy-2",
+          "A-CHK-005-edge-0",
+          "A-CHK-005-edge-1",
+          "A-CHK-005-edge-2",
+          "A-CHK-005-edge-3"
+        ],
+        "mutationProofs": [
+          {
+            "mutationId": "M-CHK-001-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-001-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-001-adversarial-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-002-adversarial-3",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-003-adversarial-3",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-004-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-004-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-005-adversarial-0",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-005-adversarial-1",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-CHK-005-adversarial-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          }
+        ],
+        "transcriptProofs": [
+          {
+            "transcriptId": "T-ACC-001",
+            "producerRefs": [
+              "P-001"
+            ],
+            "consumerRefs": [
+              "C-001"
+            ],
+            "producerSequence": 59,
+            "consumerSequence": 60
+          }
+        ]
+      }
+    ]
   },
   "criticReceiptDigest": "sha256:0a2995759294dbbda6d57b7987c7c412e326116b00e5266cacf835f7a207eeac",
-  "codes": [
-    "PR_PRODUCTION_PATH_UNPROVEN",
-    "PR_MUTATION_EVIDENCE_MISSING",
-    "PR_MUTATION_DID_NOT_BITE",
-    "PR_CONTROL_NOT_RESTORED",
-    "PR_TRANSCRIPT_MISSING",
-    "PR_AUTHORITY_INADMISSIBLE"
-  ],
-  "status": "fail",
-  "issuedAt": "2026-08-25T12:32:26.476Z",
+  "codes": [],
+  "status": "pass",
+  "issuedAt": "2026-08-25T12:34:39.195Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "A+NPvmcbok9Um/GQ+O634hWMGMLvXqTk27XSZ67AYKfoswidKt7MzqquMYW3vblzkZ8bgkRcLpHOi7U4pJCvCA=="
+  "signature": "VL3uexvvoypfnFKEvu7gwqu4ORxGQ43JSaCfvHmV4TpjeNe0FUNN3B/OMBM4562zrzr2pl4LK3c5r7nfGsbIAA=="
 }
