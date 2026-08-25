@@ -15842,6 +15842,52 @@
       ],
       "signatureTag": "missing|json|topology-admission-request",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-303",
+      "desc": "Topology remains request_changes after establishing the current closeout metadata baseline: pre_review_check_read is fail with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED. acceptance_basis is verified/complete, acceptance_topology_check is structural pass with no diagnostics, and rollout report/check pass with full-3x2 quorum, but those do not make the tampered pre-review artifact admissible. RI-044 wave-2 raw required-lane verified set remains exactly F-301, confirming the existing causal-environment-redaction family.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-25T12:15:43.226Z",
+      "reviewRound": "2026-08-25T10:35:46.036Z",
+      "reviewRunId": "B-5a15:RR-658",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f5ef3c332fa094b1f07a5e0e59107237dec68634ce4a572bee15177ace27e743",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5adc3372f42d9ad4bda28ceff0d4d566937f8b898b852d45bd9a430fe3f13ee4",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+        ".proof-or-stop/story/actives/B-5a15/findings.json"
+      ],
+      "signatureTag": "missing|json|topology-remains-request",
+      "signatureTagSource": "auto"
     }
   ]
 }
