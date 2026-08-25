@@ -1296,8 +1296,15 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
     recordedInputHashes: { 'input-source': 'old' },
   };
   const completedRerunInputs = { 'input-source': 'new' };
+  const completedRerunEvaluationIdentity = {
+    storyId: 'B-causal-completed-rerun',
+    materialHash: 'm1',
+    storyFilesHash: 's1',
+    headHash: 'h1',
+  };
   const completedRerunIdentity = baseIdentity('B-causal-completed-rerun', {
-    inputs: causalDependencyExecutionInputs(completedRerunNode.id, completedRerunInputs),
+    storyFilesHash: 's1',
+    inputs: causalDependencyExecutionInputs(completedRerunNode.id, completedRerunInputs, completedRerunEvaluationIdentity),
   });
   const completedRerunStore = new MemoryReceiptStore();
   const completedRerunExecution = await executeCausalEvidence({
@@ -1309,6 +1316,7 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
     revalidateBeforeRun: () => true,
   });
   const completedPreviousMismatch = evaluateCausalDependencies({
+    storyId: 'B-causal-completed-rerun',
     nodes: [completedRerunNode],
     currentInputHashes: completedRerunInputs,
     previousMaterialHash: 'm0',
@@ -1331,6 +1339,7 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
   assert.match(String(previousSnapshotMismatch.reason), /previous binding/);
 
   const completedCurrentMismatch = evaluateCausalDependencies({
+    storyId: 'B-causal-completed-rerun',
     nodes: [completedRerunNode],
     currentInputHashes: completedRerunInputs,
     previousMaterialHash: 'm1',
@@ -1348,7 +1357,7 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
     causalDecision: completedCurrentMismatch,
   });
   assert.equal(currentSnapshotMismatch.drifted, true, 'completed rerun with a different current snapshot must invalidate');
-  assert.match(String(currentSnapshotMismatch.reason), /current binding/);
+  assert.match(String(currentSnapshotMismatch.reason), /current binding|affected dependency closure/);
   assert.equal(evaluateCertificationWindowAdmit({
     inventoryApisPresent: true,
     inventory: null,
@@ -1387,6 +1396,82 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
     'CHK-003:adversarial:3',
     'DONE-required whole-tree drift remains strict even when specialized evidence receives an unrelated-merge advisory',
   );
+});
+
+test('B-5a15: causal rerun receipts bind the current story and snapshot identity', async () => {
+  const node = {
+    id: 'source-node',
+    domain: 'source',
+    inputIds: ['input-source'],
+    recordedInputHashes: { 'input-source': 'old' },
+  };
+  const currentInputHashes = { 'input-source': 'new' };
+  const evaluationIdentity = {
+    storyId: 'B-causal-rerun-bound',
+    materialHash: 'material-current',
+    storyFilesHash: 'story-files-current',
+    headHash: 'head-current',
+  };
+  const identity = baseIdentity(evaluationIdentity.storyId, {
+    storyFilesHash: evaluationIdentity.storyFilesHash,
+    inputs: causalDependencyExecutionInputs(node.id, currentInputHashes, evaluationIdentity),
+  });
+  const store = new MemoryReceiptStore();
+  const execution = await executeCausalEvidence({
+    identity,
+    selector: 'CAUSAL-RERUN-BOUND',
+    run: async () => ({ code: 0, output: 'CAUSAL-RERUN-BOUND' }),
+    receiptStore: store,
+    preflight: preflightFor(identity),
+    revalidateBeforeRun: () => true,
+  });
+  const baseEvaluation = {
+    storyId: evaluationIdentity.storyId,
+    nodes: [node],
+    currentInputHashes,
+    previousMaterialHash: 'material-previous',
+    currentMaterialHash: evaluationIdentity.materialHash,
+    previousStoryFilesHash: 'story-files-previous',
+    currentStoryFilesHash: evaluationIdentity.storyFilesHash,
+    previousHeadHash: 'head-previous',
+    currentHeadHash: evaluationIdentity.headHash,
+    rerunEvidence: [createCausalDependencyRerunEvidence(node.id, execution.receipt)],
+  };
+  const matching = evaluateCausalDependencies(baseEvaluation);
+  assert.deepEqual(matching.verifiedRerunNodeIds, [node.id]);
+  assert.equal(matching.affectedNodeRerun, 100);
+  assert.equal(matching.gateAdmissible, true, 'matching signed story/snapshot identity completes the rerun');
+
+  for (const [field, value] of [
+    ['storyId', 'B-causal-other-story'],
+    ['currentMaterialHash', 'material-other'],
+    ['currentStoryFilesHash', 'story-files-other'],
+    ['currentHeadHash', 'head-other'],
+  ]) {
+    const mismatched = evaluateCausalDependencies({ ...baseEvaluation, [field]: value });
+    assert.deepEqual(mismatched.verifiedRerunNodeIds, [], `${field} mismatch cannot verify the rerun receipt`);
+    assert.equal(mismatched.affectedNodeRerun, 0, `${field} mismatch cannot count rerun completion`);
+    assert.equal(mismatched.gateAdmissible, false, `${field} mismatch cannot admit the causal gate`);
+  }
+
+  const unboundIdentity = baseIdentity(evaluationIdentity.storyId, {
+    storyFilesHash: evaluationIdentity.storyFilesHash,
+    inputs: causalDependencyExecutionInputs(node.id, currentInputHashes),
+  });
+  const unboundExecution = await executeCausalEvidence({
+    identity: unboundIdentity,
+    selector: 'CAUSAL-RERUN-UNBOUND',
+    run: async () => ({ code: 0, output: 'CAUSAL-RERUN-UNBOUND' }),
+    receiptStore: store,
+    preflight: preflightFor(unboundIdentity),
+    revalidateBeforeRun: () => true,
+  });
+  const unbound = evaluateCausalDependencies({
+    ...baseEvaluation,
+    rerunEvidence: [createCausalDependencyRerunEvidence(node.id, unboundExecution.receipt)],
+  });
+  assert.deepEqual(unbound.verifiedRerunNodeIds, [], 'an unsigned-in-context legacy dependency input cannot complete a rerun');
+  assert.equal(unbound.gateAdmissible, false);
 });
 
 test('B-5a15: a dependency decision remains verifiable across linked worktrees', () => {

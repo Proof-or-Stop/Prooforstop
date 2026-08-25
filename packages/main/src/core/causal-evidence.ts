@@ -208,6 +208,19 @@ export interface CausalDependencyRerunEvidence {
   receipt: CausalEvidenceReceipt;
 }
 
+/**
+ * Identity of the causal evaluation for which a node rerun was executed.
+ *
+ * This is carried inside the existing signed execution inputs rather than
+ * added as an unsigned field on CausalDependencyRerunEvidence.
+ */
+export interface CausalDependencyExecutionIdentityBinding {
+  storyId?: string;
+  materialHash?: string;
+  storyFilesHash?: string;
+  headHash?: string;
+}
+
 export const DEFAULT_CAUSAL_SELECTOR_POLICY = Object.freeze({
   schemaVersion: CAUSAL_SELECTOR_POLICY_SCHEMA,
   matcher: 'literal-output-inclusion',
@@ -1101,12 +1114,26 @@ function dependencyClosure(nodes: readonly CausalDependencyNode[], changed: Set<
   return affected;
 }
 
-/** Inputs that an actual node execution must bind into its signed receipt. */
+/**
+ * Inputs that an actual node execution must bind into its signed receipt. The
+ * optional identity preserves the existing construction API; rerun admission
+ * requires the current story/snapshot identity when one is being evaluated.
+ */
 export function causalDependencyExecutionInputs(
   nodeId: string,
   inputHashes: Record<string, string>,
+  identity?: CausalDependencyExecutionIdentityBinding,
 ): Record<string, unknown> {
-  return { causalDependency: { nodeId, inputHashes: cloneCanonical(inputHashes) } };
+  const identityBinding = identity
+    ? Object.fromEntries(Object.entries(identity).filter(([, value]) => value !== undefined))
+    : {};
+  return {
+    causalDependency: {
+      nodeId,
+      inputHashes: cloneCanonical(inputHashes),
+      ...identityBinding,
+    },
+  };
 }
 
 export function createCausalDependencyRerunEvidence(
@@ -1120,6 +1147,7 @@ function verifyCausalDependencyRerunEvidence(
   evidence: CausalDependencyRerunEvidence,
   node: CausalDependencyNode,
   currentInputHashes: Record<string, string>,
+  currentIdentity: CausalDependencyExecutionIdentityBinding,
 ): boolean {
   if (!evidence || evidence.nodeId !== node.id) return false;
   const receipt = evidence.receipt;
@@ -1136,6 +1164,25 @@ function verifyCausalDependencyRerunEvidence(
     ? inputBinding.inputHashes
     : {};
   if (!isRecord(inputBinding.inputHashes)) return false;
+  const identityFields = ['storyId', 'materialHash', 'storyFilesHash', 'headHash'] as const;
+  const hasIdentityBinding = identityFields.some(field => Object.prototype.hasOwnProperty.call(inputBinding, field));
+  if (!hasIdentityBinding) return false;
+  for (const field of ['storyId', 'materialHash', 'storyFilesHash'] as const) {
+    const expected = currentIdentity[field];
+    if (typeof expected !== 'string' || expected.length === 0 || inputBinding[field] !== expected) return false;
+  }
+  for (const field of identityFields) {
+    if (Object.prototype.hasOwnProperty.call(inputBinding, field)
+      && (typeof inputBinding[field] !== 'string' || inputBinding[field].length === 0)) return false;
+    const expected = currentIdentity[field];
+    if (expected !== undefined && (typeof expected !== 'string' || expected.length === 0 || inputBinding[field] !== expected)) return false;
+  }
+  if (inputBinding.storyId !== undefined && inputBinding.storyId !== receipt.storyId) return false;
+  if (inputBinding.storyFilesHash !== undefined && inputBinding.storyFilesHash !== receipt.identity.storyFilesHash) return false;
+  const receiptMaterialHash = isRecord(receipt.identity.inputs)
+    ? receipt.identity.inputs.materialHash
+    : undefined;
+  if (receiptMaterialHash !== undefined && receiptMaterialHash !== inputBinding.materialHash) return false;
   const expectedIds = [...new Set(node.inputIds)].sort();
   const actualIds = Object.keys(inputHashes).sort();
   if (expectedIds.length !== node.inputIds.length || causalCanonical(expectedIds) !== causalCanonical(actualIds)) return false;
@@ -1224,9 +1271,15 @@ export function evaluateCausalDependencies(args: {
       : 'materialHash drift has no admissible causal proof';
     gateAdmissible = false;
   }
+  const currentIdentity: CausalDependencyExecutionIdentityBinding = {
+    ...(args.storyId !== undefined ? { storyId: args.storyId } : {}),
+    ...(args.currentMaterialHash !== undefined ? { materialHash: args.currentMaterialHash } : {}),
+    ...(args.currentStoryFilesHash !== undefined ? { storyFilesHash: args.currentStoryFilesHash } : {}),
+    ...(args.currentHeadHash !== undefined ? { headHash: args.currentHeadHash } : {}),
+  };
   const verifiedRerunNodeIds = [...new Set((args.rerunEvidence ?? []).flatMap(evidence => {
     const node = args.nodes.find(candidate => candidate.id === evidence.nodeId);
-    return node && verifyCausalDependencyRerunEvidence(evidence, node, args.currentInputHashes) ? [node.id] : [];
+    return node && verifyCausalDependencyRerunEvidence(evidence, node, args.currentInputHashes, currentIdentity) ? [node.id] : [];
   }))].sort();
   // `rerunNodeIds` is retained for source compatibility only. It is an
   // untrusted assertion and deliberately has no effect on correctness metrics
