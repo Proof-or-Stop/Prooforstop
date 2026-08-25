@@ -10755,7 +10755,7 @@
       "desc": "doc-promise-undelivered: the normative dynamic-validation plan requires a runtime singleton-union monotonicity verifier (docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md:188-198, 603-617, 809-811, and AUD-R2-05 at 1695), but packages/main/src/core/story-aware-validation.ts:861-863 implements assertSelectionIsSingletonUnionMonotonic as only inventory partition and zero-gap checks; it ignores the changed-file/fact/pin singleton contributions, catalog, impact graph, and closure set, so adding an input can reduce selection without detection. The mutation smoke only prints monotonicity PASS (packages/main/src/tasks/story-aware-validation-mutation-smoke.ts:306) and does not exercise the promised subset/union property. This leaves the documented fail-closed authority invariant undelivered.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-23T13:52:08.660Z",
@@ -10799,7 +10799,11 @@
         "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
       ],
       "signatureTag": "missing|md|promise-undelivered-normative",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by current authoritative singleton-union verification: buildDynamicValidationPlan recomputes the internal plan, compares rows and singleton contributions, and assertSelectionMonotonicity rejects removal when the expanded changed-file/fact/capability context is added. Current mutation and selection validation passes.",
+      "resolvedAt": "2026-08-25T04:03:59.345Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-202",
