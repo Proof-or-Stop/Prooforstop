@@ -17744,7 +17744,7 @@
       "desc": "RI-069 wave 2 topology review requires request_changes: acceptance_topology_check is structurally PASS but diagnostic-only, while the authoritative pre_review_check_read is FAIL with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED. The stored pre-review artifact is stale or tampered against the current signed acceptance basis, so the current pre-review gate is inadmissible. acceptance_rollout_report_read and acceptance_rollout_check remain current PASS with full-3x2 evidence; this is a pre-review admissibility/binding blocker, not a structural topology-path gap. Refresh the producer-owned pre-review artifact through the CLI before claiming topology readiness.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-08-24T16:25:39.256Z",
@@ -17790,7 +17790,11 @@
         "packages/main/src/core/acceptance-rollout.ts"
       ],
       "signatureTag": "missing|json|current-wave-review",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate of the newer canonical evidence-binding blocker B-5a88:F-416. Both findings require verifier-owned regeneration after the scope-contract update; retain F-416 as the current authoritative blocker and do not count this older RI-069 report separately.",
+      "resolvedAt": "2026-08-25T00:40:12.906Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-402",
