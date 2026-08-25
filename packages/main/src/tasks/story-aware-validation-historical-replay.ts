@@ -14,16 +14,24 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, 
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, compileValidationCatalog, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt } from '../core/story-aware-validation.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { StoryStore } from '../core/store.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 
 const root = resolve(process.cwd());
+// Historical replay has no live Story worktree of its own. Still route every
+// Git invocation through the signed-workspace choke point; the absent synthetic
+// story falls back safely to the project root while preserving wrapper-root
+// routing when a caller supplies a resolved Story context.
+const replayStore = new StoryStore(root);
+const gitCwd = resolveGitCwd({ store: replayStore, storyId: 'B-historical-replay', metadataRoot: root, projectRoot: root });
 const execute = process.argv.includes('--execute');
 const paired = process.argv.includes('--paired');
 const storyRoot = join(root, '.proof-or-stop', 'story', 'actives');
 const outputRoot = join(root, '.proof-or-stop', 'runtime', 'dynamic-validation', 'historical-replay');
 
 function git(args: string[]): string {
-  return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  return execFileSync('git', args, { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 }
 
 function withHistoricalWorktrees<T>(base: string, head: string, fn: (roots: { base: string; head: string }) => Promise<T>): Promise<T> {
@@ -340,7 +348,7 @@ const focusedSelectionFaults = (() => {
     let matches: string[] = [];
     for (const ref of refs) {
       try {
-        matches.push(...execFileSync('git', ['grep', '-l', stem, ref, '--', 'packages/main/src'], { cwd: root, encoding: 'utf8' }).trim().split('\n').filter(Boolean).map(path => path.includes(':') ? path.slice(path.indexOf(':') + 1) : path));
+        matches.push(...execFileSync('git', ['grep', '-l', stem, ref, '--', 'packages/main/src'], { cwd: gitCwd, encoding: 'utf8' }).trim().split('\n').filter(Boolean).map(path => path.includes(':') ? path.slice(path.indexOf(':') + 1) : path));
       } catch { /* no textual candidates at this ref */ }
     }
     for (const path of [...new Set(matches)]) {

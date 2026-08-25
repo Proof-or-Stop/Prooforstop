@@ -246,7 +246,7 @@ async function main(): Promise<void> {
   // Default concurrency is derived from the machine. Asserted across cpu counts
   // rather than against this host's own number, which would make the assertion
   // pass for the wrong reason on any other box.
-  assert(defaultJobs(10) === 2, 'a 10-cpu host budgets one job per four cpus');
+  assert(defaultJobs(10) === 2 && defaultJobs(12) === 2, 'hosts up to 12 logical CPUs cap at two workers for heavy fan-out');
   assert(defaultJobs(4) === 1 && defaultJobs(2) === 1 && defaultJobs(1) === 1, 'small hosts fall back to serial rather than oversubscribing');
   assert(defaultJobs(64) === 4 && defaultJobs(128) === 4, 'the former hardcoded default is the ceiling, so deriving can only reduce oversubscription');
   assert(!shouldEnforceFullSuiteBudget(1) && shouldEnforceFullSuiteBudget(4), 'serial oracle is exempt while canonical parallel execution enforces the performance budget');
