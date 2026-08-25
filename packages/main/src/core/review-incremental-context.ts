@@ -521,6 +521,33 @@ export interface IncrementalBindingAssessment {
   pureFixtureDrift: boolean;
 }
 
+export const FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS =
+  'FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS' as const;
+export const FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_FINDINGS =
+  'FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_FINDINGS' as const;
+
+/** Return stable full-context reasons before an invalid bounded basis is built. */
+export function incrementalReviewBasisOverflowReasonCodes(input: {
+  changedFiles: readonly unknown[];
+  impactedFiles: readonly unknown[];
+  authoritativeReferences: readonly unknown[];
+  findingDeltas: readonly unknown[];
+  unresolvedFindings: readonly unknown[];
+  findingDescriptionExceedsTextLimit?: boolean;
+}): string[] {
+  const reasons: string[] = [];
+  if ([input.changedFiles, input.impactedFiles, input.authoritativeReferences]
+    .some(values => values.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList)) {
+    reasons.push(FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS);
+  }
+  if ([input.findingDeltas, input.unresolvedFindings]
+    .some(values => values.length > FULL_TASK_CONTEXT_LIMITS.verificationIntentsPerLane)) {
+    reasons.push(FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_FINDINGS);
+  }
+  if (input.findingDescriptionExceedsTextLimit) reasons.push('FULL_REVIEW_BASIS_TEXT_LIMIT');
+  return reasons;
+}
+
 /** Stable forced-full campaign surface consumed by the production assembler. */
 export function classifyIncrementalBindingReasons(input: IncrementalBindingAssessment): string[] {
   const reasons: string[] = [];
@@ -764,6 +791,11 @@ export function reviewIncrementalContext(
       (item.verificationIntent?.[lane] ?? []).map((_intent, index) =>
         `${storyId}:${item.id}:${lane}:${index}`))));
 
+  let fullStoryDiffContext!: (
+    reasonCodes: string[],
+    resolvedPriorForAudit?: TrustedPriorPass | null,
+  ) => ReviewIncrementalContext;
+
   const finalize = (args: {
     prior: TrustedPriorPass | null;
     /** The trusted prior resolved but the served diff is the full story diff. */
@@ -774,9 +806,6 @@ export function reviewIncrementalContext(
     impact: ImpactClassification;
   }): ReviewIncrementalContext => {
     const eligibilityReasonCodes = [...new Set([...args.reasonCodes, ...args.impact.reasonCodes])].sort();
-    const contextMode = eligibilityReasonCodes.every(code => code.startsWith('ELIGIBLE_'))
-      ? 'incremental' as const
-      : 'full' as const;
     const changedFilesDigest = domainSeparatedDigest('incremental.changed-files.v1', args.changedFiles);
     const impactedFilesDigest = domainSeparatedDigest('incremental.impacted-files.v1', args.impact.impactedFiles);
     const affectedPaths = new Set([...args.changedFiles, ...args.impact.impactedFiles]);
@@ -816,17 +845,28 @@ export function reviewIncrementalContext(
           desc: finding.desc,
         }))
         .sort((left, right) => left.id.localeCompare(right.id));
+      const findingDescriptionExceedsBasisLimit = unresolvedFindings.some(
+        finding => Buffer.byteLength(finding.desc, 'utf8') > FULL_TASK_CONTEXT_LIMITS.textBytes,
+      );
       const authoritativeReferences = [...new Set([
         ...affectedItems.flatMap(item => item.relatedDocs ?? []),
         ...args.changedFiles,
         ...args.impact.impactedFiles,
       ])].sort();
-      const exceedsIncrementalCap = args.changedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList
-        || args.impact.impactedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList
-        || authoritativeReferences.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList;
-      if (exceedsIncrementalCap) {
-        reviewBasis = null;
-      } else {
+      const overflowReasons = incrementalReviewBasisOverflowReasonCodes({
+        changedFiles: args.changedFiles,
+        impactedFiles: args.impact.impactedFiles,
+        authoritativeReferences,
+        findingDeltas,
+        unresolvedFindings,
+        findingDescriptionExceedsTextLimit: findingDescriptionExceedsBasisLimit,
+      });
+      if (overflowReasons.length > 0) {
+        // Recompute the authoritative main...HEAD context while retaining the
+        // trusted prior in audit-only fields. Never construct an invalid basis
+        // merely to discover that its bounded contract has been exceeded.
+        return fullStoryDiffContext(overflowReasons, args.prior);
+      }
       reviewBasis = {
         schemaVersion: 'proof-or-stop.incremental-review-basis.v1',
         storyId,
@@ -861,8 +901,10 @@ export function reviewIncrementalContext(
         ...(scopeContract ? { scopeAcknowledgementDigest: digestScopeContract(scopeContract) } : {}),
       };
       validateIncrementalReviewBasis(reviewBasis);
-      }
     }
+    const contextMode = eligibilityReasonCodes.every(code => code.startsWith('ELIGIBLE_'))
+      ? 'incremental' as const
+      : 'full' as const;
     const reviewBasisDigest = reviewBasis
       ? domainSeparatedDigest('incremental-review-basis.v1', reviewBasis)
       : null;
@@ -911,7 +953,7 @@ export function reviewIncrementalContext(
   // Full story diff fallback is shared by first-timer and bounded-paths cases.
   // The latter retains the trusted prior for audit, but never emits a basis
   // computed from a diff that exceeded the bounded contract.
-  const fullStoryDiffContext = (
+  fullStoryDiffContext = (
     reasonCodes: string[],
     resolvedPriorForAudit: TrustedPriorPass | null = null,
   ): ReviewIncrementalContext => {
@@ -950,7 +992,7 @@ export function reviewIncrementalContext(
     projectRoot,
   );
   if (changedFiles.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList) {
-    return fullStoryDiffContext(['FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS'], prior);
+    return fullStoryDiffContext([FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS], prior);
   }
   const statuses = changedFileStatusesBetweenRenameAware(gitCwd, prior.run.headHash, 'HEAD');
   const freshness = checkEvidenceFreshnessForGit(

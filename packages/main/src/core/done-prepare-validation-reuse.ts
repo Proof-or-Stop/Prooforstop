@@ -18,8 +18,9 @@ import {
   type DirtyWorktreeEntry,
 } from './dirty-worktree.js';
 import { gitStatusRowsForDonePrepareGeneratedMetadata } from './done-prepare-generated-metadata.js';
+import { DONE_PREPARE_VALIDATION_REUSE_SCHEMA } from './artifact-schema.js';
 
-export const DONE_PREPARE_VALIDATION_REUSE_SCHEMA = 'lattice.done-prepare-validation-reuse.v1' as const;
+export { DONE_PREPARE_VALIDATION_REUSE_SCHEMA };
 export const DONE_PREPARE_VALIDATION_REUSE_CLASSIFIER_VERSION = 'done-prepare-generated-metadata-safe-set.v1' as const;
 
 interface DonePrepareValidationReuseHashes {

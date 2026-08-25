@@ -34,6 +34,10 @@ export const AGENT_ASSET_RESOLUTION_SCHEMA = 'proof-or-stop.agent_asset_resoluti
 export const AGENT_ASSET_RESOLUTION_SCHEMA_LEGACY = 'lattice.agent_asset_resolution.v1' as const;
 export const DONE_PREPARE_SCHEMA = 'proof-or-stop.done_prepare.v1' as const;
 export const DONE_PREPARE_SCHEMA_LEGACY = 'lattice.done_prepare.v1' as const;
+export const DONE_PREPARE_GENERATED_METADATA_SCHEMA = 'proof-or-stop.done-prepare-generated-metadata.v1' as const;
+export const DONE_PREPARE_GENERATED_METADATA_SCHEMA_LEGACY = 'lattice.done-prepare-generated-metadata.v1' as const;
+export const DONE_PREPARE_VALIDATION_REUSE_SCHEMA = 'proof-or-stop.done-prepare-validation-reuse.v1' as const;
+export const DONE_PREPARE_VALIDATION_REUSE_SCHEMA_LEGACY = 'lattice.done-prepare-validation-reuse.v1' as const;
 export const DONE_CLOSURE_SCHEMA = 'proof-or-stop.done_closure.v1' as const;
 export const DONE_CLOSURE_SCHEMA_LEGACY = 'lattice.done_closure.v1' as const;
 export const PROOF_BINDING_SCHEMA = 'proof-or-stop.proof_binding.v1' as const;
@@ -64,6 +68,14 @@ export type EvidenceHashSnapshotSchema =
   | typeof EVIDENCE_HASH_SNAPSHOT_SCHEMA
   | typeof EVIDENCE_HASH_SNAPSHOT_SCHEMA_LEGACY;
 
+export type DonePrepareGeneratedMetadataSchema =
+  | typeof DONE_PREPARE_GENERATED_METADATA_SCHEMA
+  | typeof DONE_PREPARE_GENERATED_METADATA_SCHEMA_LEGACY;
+
+export type DonePrepareValidationReuseSchema =
+  | typeof DONE_PREPARE_VALIDATION_REUSE_SCHEMA
+  | typeof DONE_PREPARE_VALIDATION_REUSE_SCHEMA_LEGACY;
+
 export function isDoneRequiredEvidenceSchema(value: unknown): value is DoneRequiredEvidenceSchema {
   return value === DONE_REQUIRED_EVIDENCE_SCHEMA || value === DONE_REQUIRED_EVIDENCE_SCHEMA_LEGACY;
 }
@@ -91,4 +103,12 @@ export function isCloseoutWriteReceiptSchema(value: unknown): value is CloseoutW
 
 export function isEvidenceHashSnapshotSchema(value: unknown): value is EvidenceHashSnapshotSchema {
   return value === EVIDENCE_HASH_SNAPSHOT_SCHEMA || value === EVIDENCE_HASH_SNAPSHOT_SCHEMA_LEGACY;
+}
+
+export function isDonePrepareGeneratedMetadataSchema(value: unknown): value is DonePrepareGeneratedMetadataSchema {
+  return value === DONE_PREPARE_GENERATED_METADATA_SCHEMA || value === DONE_PREPARE_GENERATED_METADATA_SCHEMA_LEGACY;
+}
+
+export function isDonePrepareValidationReuseSchema(value: unknown): value is DonePrepareValidationReuseSchema {
+  return value === DONE_PREPARE_VALIDATION_REUSE_SCHEMA || value === DONE_PREPARE_VALIDATION_REUSE_SCHEMA_LEGACY;
 }
