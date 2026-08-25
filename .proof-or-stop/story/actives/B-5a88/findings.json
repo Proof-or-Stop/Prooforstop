@@ -20119,6 +20119,47 @@
       ],
       "signatureTag": "active-compatibility-legacy-verification-intent-routing",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-449",
+      "desc": "Current-round confirmation of the open Wave 4 coverage gap: .proof-or-stop/story/actives/B-5a88/checklist.json:4-1676 contains 36 intent-linked records for CHK-001 through CHK-012, but none names or binds executable coverage for acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check. .proof-or-stop/story/actives/B-5a88/test-evidence.json:9 records only 21 required/covered intents from the earlier checklist shape; its routine command inventory includes the rollout smoke but does not bind that executable coverage to a current checklist intent. The signed .proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json:8402-8426 is a passing full-3x2 report, but it does not replace current intent-linked verificationEvidence for the required degraded-3x1 rejection, threshold and membership or freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback cases. Coverage review cannot pass until those executable checks are represented by current intent-linked evidence. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-25T13:51:45.868Z",
+      "reviewRound": "2026-08-25T13:32:58.029Z",
+      "reviewRunId": "B-5a88:RR-806",
+      "_hash": "eb96c1c93dd1ff1cc278bdde7005acb5b2af52529c77337584b637a38491d9ef",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|current-round-confirmation",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-450",
+      "desc": "doc-promise-undelivered: docs/CLI.md:1074 claims a globally installed @proof-or-stop/core automatically enables proof-or-stop lab when @proof-or-stop/lab is resolvable, but the published bin is packages/main/dist/cli.js (packages/main/package.json:14-16), whose cli.ts calls runCli() without lab extras; only repo-local bin/bootstrap-runner.js:135-157 loads packages/lab/dist/index.js. A global install with @proof-or-stop/lab resolvable therefore still lacks lab commands. Implement installed-package resolution or correct the documented promise before release.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-25T14:01:13.128Z",
+      "reviewRound": "2026-08-25T13:32:58.029Z",
+      "reviewRunId": "B-5a88:RR-804",
+      "_hash": "ea04f0bb1756d13a7ad74c5c2f73f1d0b86175cf86025d5c79c23aee6f576336",
+      "files": [
+        "docs/CLI.md",
+        "packages/main/package.json",
+        "packages/main/src/cli.ts",
+        "bin/bootstrap-runner.js"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
