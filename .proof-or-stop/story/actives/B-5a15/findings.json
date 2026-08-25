@@ -15796,6 +15796,52 @@
       ],
       "signatureTag": "edge|ts|existing-blocker-remains",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-302",
+      "desc": "Topology admission must request changes: the current verifier-owned pre_review_check_read reports status=fail with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED. The independently checked acceptance basis is verified/complete, acceptance_topology_check is structural pass with no diagnostics, and both acceptance rollout verifier surfaces pass with full-3x2 quorum, but none substitutes for a current untampered pre-review artifact. RI-044 read-only ledger inspection confirms the OPEN epoch, terminal required lanes for completed wave 1, the two verified redaction families, and the post-boundary F-301 duplicate confirmation; no existing finding was resolved or mutated.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-25T12:12:28.329Z",
+      "reviewRound": "2026-08-25T10:35:46.036Z",
+      "reviewRunId": "B-5a15:RR-657",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f5ef3c332fa094b1f07a5e0e59107237dec68634ce4a572bee15177ace27e743",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9f47e2be3f7e51dec19551a6b54af16a1d0940c9e1ab7390418243fcfc9f30ba",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+        ".proof-or-stop/story/actives/B-5a15/findings.json"
+      ],
+      "signatureTag": "missing|json|topology-admission-request",
+      "signatureTagSource": "auto"
     }
   ]
 }
