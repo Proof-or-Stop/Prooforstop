@@ -13331,7 +13331,7 @@
       "desc": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:177-451 and packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:150-158,1237-1272 — Wave 4 requires executable coverage of verifier-owned acceptance_rollout_report_read, but the current rollout smoke exercises direct report derivation/artifact verification and the transition consumer only; the source has no invocation of acceptance_rollout_report_read, while the signed receipt checkInventory contains acceptance_topology_check, pre_review_check, and acceptance_rollout_check only. The current causal-evidence.test.mjs F-247 coverage invokes acceptance_topology_check and pre_review_check_read, not acceptance_rollout_report_read. Prompt/token presence is not executable evidence, so this required verifier path remains uncovered despite 53/53 checklist evidence rows passing. Add a production-path regression invocation and bind a fresh signed receipt to it.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T09:44:19.743Z",
@@ -13344,7 +13344,11 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:37:43.557Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-250",
