@@ -13224,7 +13224,7 @@
       "desc": "Current-round Wave-4 coverage is not admissible at HEAD 88933657617834da24f6540d72470fe654ec39c0 (materialHash 84b306befb2d3da045ff3ff950e6166511abb101ca64dcda773b748455031ed6; storyFilesHash 88744166aeeb03373b6a05ef4831f4da58eac9c0c2ac441b5dbd62cac0e33c61): acceptance_topology_check --storyId=B-5a15 --json returns status=fail with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING, and pre_review_check_read returns status=inconclusive with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. All 51 checklist verificationEvidence rows point to node --test packages/main/tests/causal-evidence.test.mjs and provide no executable coverage for acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check, including the required full-3x2/degraded-3x1, threshold and membership mutations, mode-invariant diagnostics, enforce-only blocking, and rollback-history checks. The separately passing current full-3x2 rollout report/check cannot substitute for the failed verifier-owned topology/pre-review chain; rebind/regenerate those artifacts and record current executable coverage before this lane passes.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T07:12:50.547Z",
@@ -13269,7 +13269,11 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "missing|json|current-round-wave",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:36:20.252Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-248",
