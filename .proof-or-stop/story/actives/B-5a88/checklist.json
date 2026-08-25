@@ -96,12 +96,12 @@
         ],
         "adversarial": [
           {
-            "desc": "A non-reviewer or malformed role ID cannot be smuggled into a reviewer lane merely by containing the proof-or-stop or lattice prefix.",
+            "desc": "The canonical verification-intent role resolves to proof-or-stop-verification-intent, and every legacy verification role is rejected for new PLAN dispatch.",
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {resolveAgentDispatchType} from \\\"./packages/main/dist/core/agent-dispatch-registry.js\\\"; assert.equal(resolveAgentDispatchType(\\\"verification-intent\\\").canonicalType,\\\"proof-or-stop-test-intent\\\"); assert.throws(()=>resolveAgentDispatchType(\\\"lattice-review-unknown\\\"),/unknown agentType/); console.log(\\\"CHK-001 alias-boundary smoke: PASS\\\")\"",
-              "selector": "CHK-001 alias-boundary smoke: PASS"
+              "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import {resolveAgentDispatchType, validateAgentDispatchRequest} from \\\"./packages/main/dist/core/agent-dispatch-registry.js\\\"; assert.equal(resolveAgentDispatchType(\\\"verification-intent\\\").canonicalType,\\\"proof-or-stop-verification-intent\\\"); for (const legacyType of [\\\"proof-or-stop-test-intent\\\",\\\"proof-or-stop-test-case-reviewer\\\",\\\"test-intent\\\",\\\"test-case-reviewer\\\"]) assert.throws(() => validateAgentDispatchRequest({agentType:legacyType,phase:\\\"PLAN\\\",itemId:\\\"CHK-001\\\"}),/legacy read-side identity.*proof-or-stop-verification-intent/); console.log(\\\"CHK-001 verification-intent dispatch: PASS\\\");\"",
+              "selector": "CHK-001 verification-intent dispatch: PASS"
             }
           }
         ]
