@@ -575,7 +575,7 @@ function redactCausalOutput(output: string, effectiveEnvironment: Record<string,
     if (rawValue === undefined || rawValue === null) continue;
     const value = String(rawValue);
     if (!value || value === REDACTED) continue;
-    if (SECRET_ENV_KEY.test(rawKey) || value.length >= 8) {
+    if (SECRET_ENV_KEY.test(rawKey)) {
       redacted = redacted.split(value).join(REDACTED);
     }
   }

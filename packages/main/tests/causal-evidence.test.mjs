@@ -589,6 +589,53 @@ test('B-5a15 F-011: raw secret environment values are absent from persisted rece
   assert.match(result.receipt.outputTail, /<redacted>/);
 });
 
+test('B-5a15 F-298/F-300/F-301: long non-secret selector values remain observable in receipt output', async () => {
+  const selector = 'VALID-BEHAVIOR-SELECTOR-123456';
+  const store = new MemoryReceiptStore();
+  const identity = baseIdentity('B-causal-selector-redaction', {
+    effectiveEnvironment: { NODE_ENV: 'test', CAUSAL_SELECTOR: selector },
+  });
+  const result = await executeCausalEvidence({
+    identity,
+    selector,
+    run: async () => ({ code: 0, output: `selected=${selector}` }),
+    receiptStore: store,
+    preflight: preflightFor(identity),
+    revalidateBeforeRun: () => true,
+  });
+
+  assert.equal(result.verdict.result, 'pass');
+  assert.equal(result.receipt.outputTail.includes(selector), true);
+  assert.equal(result.receipt.outputProbe.includes(selector), true);
+  assert.equal(result.receipt.outputTail.includes('<redacted>'), false);
+});
+
+test('B-5a15 F-298/F-300/F-301: secret-named and token-like output remains redacted', async () => {
+  const selector = 'VALID-BEHAVIOR-SELECTOR-654321';
+  const secret = 'secret-output-value-123456';
+  const store = new MemoryReceiptStore();
+  const identity = baseIdentity('B-causal-selector-secret-redaction', {
+    effectiveEnvironment: { NODE_ENV: 'test', CAUSAL_SELECTOR: selector, API_TOKEN: secret },
+  });
+  const result = await executeCausalEvidence({
+    identity,
+    selector,
+    run: async () => ({
+      code: 0,
+      output: `selected=${selector} API_TOKEN=${secret} authorization=${secret}`,
+    }),
+    receiptStore: store,
+    preflight: preflightFor(identity),
+    revalidateBeforeRun: () => true,
+  });
+
+  assert.equal(result.verdict.result, 'pass');
+  assert.equal(result.receipt.outputProbe.includes(selector), true);
+  assert.equal(result.receipt.outputProbe.includes(secret), false);
+  assert.match(result.receipt.outputProbe, /API_TOKEN=<redacted>/);
+  assert.match(result.receipt.outputProbe, /authorization=<redacted>/i);
+});
+
 test('B-5a15 F-047: secret environment mutations split execution receipts without leaking credentials', async () => {
   const firstSecret = 'credential-alpha-123456789';
   const secondSecret = 'credential-beta-987654321';
