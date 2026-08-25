@@ -13420,7 +13420,7 @@
       "desc": "same-family:B-5a15:F-250: packages/main/src/handlers/verifier.ts:1781 calls runValidateFile() directly for the validate.ts/js/mts path, while createValidationCausalPreflightGate is wired only to executeValidationPlan at lines 1640-1653. A story-scoped validation run can launch without the required causal preflight and beforeLaunch revalidation, so the CHK-004 no-lower-level-child-bypass contract is not enforced.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-24T10:12:06.833Z",
@@ -13454,7 +13454,11 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|ts|same-family-5a15",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:38:05.636Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-253",
