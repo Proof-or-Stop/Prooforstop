@@ -19380,6 +19380,159 @@
         "scanEscalationReason": null
       },
       "_hash": "6bd327fa925864aa1452def66619717fbb4308c03eedd4ef3234ac1eb51bae94"
+    },
+    {
+      "id": "B-5a88:RP-314",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept lane completed against the current committed diff and Story scope. No new concept-residue blocker. Existing F-449 remains a current Wave-4 coverage-family repeat; F-450 remains a distinct critical docs/package blocker owned by quality; F-445 through F-448 are stale or duplicate legacy-verification-intent observations and were not re-raised.",
+      "createdAt": "2026-08-25T14:21:10.852Z",
+      "reviewRound": "2026-08-25T13:32:58.029Z",
+      "reviewRunId": "B-5a88:RR-809",
+      "envelopeId": "e5b3f3d71f3ebcdf2694d79a0d708401ce84b126a2e7f2dcfce4a54a5cb52616",
+      "writerSessionId": "sess-a73677fe57bf9773c414da9014648b0d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-test-intent.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/package.json",
+          "packages/main/src/cli.ts"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "96c6143d12212943f3851669f8f748a74ce32b448b9e3a667b3fd223a4a78ae6"
+    },
+    {
+      "id": "B-5a88:RP-315",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept lane rechecked RI-083 wave 2/3 against unchanged source and current finding families. F-451 repeats F-450, F-452 repeats F-449, and F-453 is topology-lane evidence; none is a new concept root cause. Legacy verification-intent routing remains separated from active dispatch and mechanically rejected.",
+      "createdAt": "2026-08-25T14:49:28.799Z",
+      "reviewRound": "2026-08-25T13:32:58.029Z",
+      "reviewRunId": "B-5a88:RR-813",
+      "envelopeId": "4a1874f4d87dbdb5384d02fa6b3619e90d25cb04a88df86d180b0ab4df12bd69",
+      "writerSessionId": "sess-a73677fe57bf9773c414da9014648b0d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-test-intent.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/package.json",
+          "packages/main/src/cli.ts"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a457d518489cd9e89c51b156b8681711ca96be10a570f819b25a4de38042a80c"
+    },
+    {
+      "id": "B-5a88:RP-316",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Wave 2 quality recheck of unchanged RI-083 material found no new root-cause family. The existing global-lab-command-doc-promise and ri-083-wave-4-coverage families remain unchanged and are not duplicated; current topology/pre-review request-changes evidence is also unchanged.",
+      "createdAt": "2026-08-25T14:51:02.196Z",
+      "reviewRound": "2026-08-25T13:32:58.029Z",
+      "reviewRunId": "B-5a88:RR-814",
+      "envelopeId": "f4a846663247239383b4921541542c2ef4748acc00cb1f62d4ad0c7059f6ef7b",
+      "writerSessionId": "sess-692f63d575e09ea0f5a8733cbb3a8d39",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/cli.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/topology-critic-receipt.json",
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ea226271a88642a75cd6667b776214f542f39a25a3a4963ef43dd4901be9497d"
+    },
+    {
+      "id": "B-5a88:RP-317",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Current wave-2 coverage review completed against unchanged material and current finding families; no new coverage root-cause family beyond retained F-449/F-452. This pass does not resolve existing findings or certify lifecycle gates.",
+      "createdAt": "2026-08-25T14:56:43.546Z",
+      "reviewRound": "2026-08-25T13:32:58.029Z",
+      "reviewRunId": "B-5a88:RR-815",
+      "envelopeId": "329e22f3c2f36e084f2f6865db3e4a2edd5c1aa2cb780ebbc67578516ceed8ae",
+      "writerSessionId": "sess-f51e85ca528f432ffd570caf23c1d5ae",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fecb23c7527fddcf2a497b29417e5eb045302372e7492bfe4d9acab86bf3b995"
     }
   ]
 }

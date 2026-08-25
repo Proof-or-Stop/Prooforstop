@@ -20160,6 +20160,200 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-451",
+      "desc": "Current RI-083 quality-lane confirmation of F-450: docs/CLI.md:1074 promises that a globally installed @proof-or-stop/core automatically exposes proof-or-stop lab when @proof-or-stop/lab is resolvable, but packages/main/package.json:14-16 publishes dist/cli.js and packages/main/src/cli.ts:16 invokes runCli() without extra lab tools; packages/main/src/core/cli-engine.ts:726-734 only merges lab tools when a caller supplies extraTools, which only bin/bootstrap-runner.js:135-157 does. The published global bin therefore does not satisfy the documented lab contract. Retain F-450 as the canonical family; this is a current-run re-confirmation, not a new root cause. Severity: critical.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-25T14:22:00.718Z",
+      "reviewRound": "2026-08-25T13:32:58.029Z",
+      "reviewRunId": "B-5a88:RR-807",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/cli.ts"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "docs/CLI.md",
+          "packages/main/package.json",
+          "packages/main/src/core/cli-engine.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c21052922952e5fc4a388432dcb56f10db718ec3d50e630dafa9e307d06eec45",
+      "files": [
+        "docs/CLI.md",
+        "packages/main/package.json",
+        "packages/main/src/cli.ts",
+        "packages/main/src/core/cli-engine.ts",
+        "bin/bootstrap-runner.js"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-docs",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-452",
+      "desc": "Current RR-810 confirmation of F-449: CHK-001 through CHK-012 contain 36 intent-linked records, but CHK-011 verificationEvidence only executes canonical schema constants, legacy schema allowlists, and unknown-version rejection. No current intent-linked evidence executes acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check, nor the required degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, or non-destructive rollback cases. The signed full-3x2 acceptance-rollout report is not a substitute for current intent-linked evidence. Retain this high coverage blocker until fixed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-25T14:23:17.860Z",
+      "reviewRound": "2026-08-25T13:32:58.029Z",
+      "reviewRunId": "B-5a88:RR-810",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3e2a9fc8e808a98771baa864f6b646be37055211b11ecf74bc783475bdc11be8",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+        ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+      ],
+      "signatureTag": "missing|json|current-round-confirmation",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-453",
+      "desc": "RI-083 topology review requests changes: acceptance_topology_check is observe mode with authority=diagnostic_only and evidentiary=false, status=fail, and diagnostics AT_CLOSURE_FILES_STALE plus AT_SCOPE_BINDING_MISSING. pre_review_check_read is status=fail with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. acceptance_rollout_report_read and acceptance_rollout_check are current pass with full-3x2 and blocking=false. RI-083 required lanes are terminal concept=pass, quality=finding, and test-coverage=finding. The topology basis cannot be certified; preserve prior pre-review evidence families and do not authorize remediation until verifier-owned basis and pre-review evidence are reissued.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-25T14:42:14.238Z",
+      "reviewRound": "2026-08-25T13:32:58.029Z",
+      "reviewRunId": "B-5a88:RR-812",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "109147c0466cf8854fa3ccbb59cd96ae3c9fb4e88e7fe5f7d798fb785e663656",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "signatureTag": "ri-083-topology-request-changes",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-454",
+      "desc": "RI-083 wave-2 topology review requests changes: unchanged frozen material still yields acceptance_basis status=invalid with AT_SCOPE_BINDING_MISSING; acceptance_topology_check remains observe/diagnostic_only/evidentiary=false/status=fail with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING; pre_review_check_read remains fail with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. acceptance_rollout_report_read and acceptance_rollout_check remain current full-3x2 pass, blocking=false. All three RI-083 required lanes pass and no new verified findings are present; no new raw family is introduced. Preserve prior pre-review evidence families and do not authorize remediation until verifier-owned basis/pre-review evidence are reissued.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-25T15:02:42.937Z",
+      "reviewRound": "2026-08-25T13:32:58.029Z",
+      "reviewRunId": "B-5a88:RR-816",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e89aed90f02854e50ce5fb55d5f6124b215828984117c3a2c7a4c14425da6f70",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "signatureTag": "ri-083-wave-2-topology-request-changes",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
