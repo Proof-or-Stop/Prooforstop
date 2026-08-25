@@ -10560,6 +10560,43 @@
       ],
       "createdAt": "2026-08-25T09:57:03.532Z",
       "_hash": "41c327877e77fef2d44f9710b50e368f4029eb475d88264875873a5a212b41e4"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-044:CRIT-01",
+      "epochId": "B-5a15:RI-044",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-25T10:35:46.036Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "ab9fec669b1b3a87cbd1df2351068c344549814e",
+        "materialHash": "d6ce14bbd5f64ce142304720edcad35057aab5d78afc6a01a11038184c926d52",
+        "storyFilesHash": "a97e57391aa2b0715d6a3aa836e133be8f1510e89f9cbb65567fb4a36d4c7f28"
+      },
+      "aggregateFindingSetDigest": "4e4d9aa7edade38d1559db5eac5b69abff6b3ce63dbe059e081a0226a374a172",
+      "requiredLaneCoverageDigest": "f4a0b2a6bd5a0ed0383662ca368f11e49fe7127c1d054ea112baa8215de88563",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-650",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-199"
+      ],
+      "readEvidenceDigest": "83aee791fc09caf6f8bfa7985b3788f66c92dc1a678e65694be3b9c4573f0e61",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-299",
+          "disposition": "verified_family",
+          "familyKey": "causal-environment-redaction-coverage",
+          "reason": "Current wave test-coverage evidence independently confirms that the long non-secret environment-marker regression is not covered; retain F-299 as an unresolved coverage family."
+        },
+        {
+          "findingId": "B-5a15:F-300",
+          "disposition": "verified_family",
+          "familyKey": "causal-environment-redaction",
+          "reason": "Current wave quality evidence independently confirms that redactCausalOutput still changes ordinary long environment values before selector matching; retain F-300 as an unresolved remediation family and do not resolve F-298 or F-300."
+        }
+      ],
+      "createdAt": "2026-08-25T11:20:34.226Z",
+      "_hash": "1c7f2bdc27ba5e01bb5d188c30f73606fe12277620b883fc0da2226671996d92"
     }
   ]
 }
