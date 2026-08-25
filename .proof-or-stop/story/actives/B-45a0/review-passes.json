@@ -8784,6 +8784,393 @@
       },
       "readDiagnostics": [],
       "_hash": "c34753d48c64626bd34d46d3f7ffec565bc5954fc674d488e4a3ce27222e7f63"
+    },
+    {
+      "id": "B-45a0:RP-181",
+      "agent": "lattice-review-docs",
+      "note": "RI-063 docs review: extracted 846 changed symbols, compared 4 scheduler-policy documentation paragraphs with the current verifier/catalog/scheduler paths at head 01451c24cd, material hash 3fcc0d742c, and story-files hash 3681d5327f. The corrected docs remain consistent: raw legacy rows may omit scheduler fields, while effective cpuWeight and timeout-derived expectedP50Ms are materialized for scheduling; verify-validation-inventory.mjs passes. No new documentation blocker or duplicate finding.",
+      "createdAt": "2026-08-25T07:55:26.405Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-567",
+      "envelopeId": "d6a8c3546db5fb856b1cfcb523d73e529fd7559a5d7358b9cd0e04e37760189e",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "8f658e52ac8c44b0e26e3be94e924a62b0cca071ab8a15a7a3c6fe6181160841"
+      },
+      "readDiagnostics": [],
+      "_hash": "ebbf4f46f21f019d36467af1a7515fff2193fe6362a17b217b964d5cafd47b12"
+    },
+    {
+      "id": "B-45a0:RP-182",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-063 current-head topology pass: regenerated acceptance basis is verified with digest sha256:a9beadf2c8d293ceef486eba04a9fd307470669894f0856c6cb1b36aabfd2267; acceptance_topology_check reports status=pass, structuralPass=true, basisStatus=complete, and no AT diagnostics. Scope and closure are structurally bound. pre_review_check_read remains an explicit nonblocking fail for missing executable proof and inadmissible authority, while acceptance rollout remains full-3x2/pass; this review makes no TEST/DONE authority claim.",
+      "createdAt": "2026-08-25T07:55:58.194Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-568",
+      "envelopeId": "93b8f5aad44631d9bd6f017ee53202e328d307dab232acb5f68ff8ea1bebc78e",
+      "writerSessionId": "sess-86c11cdce25094d96295c9b2250cda10",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1482e5939aa9f4255b6fc4a96bd4cac2a8be8a1b9d99aa5a48f74d6d56b023b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "e5608a38918990937cd38e6c9cddb1ca8820d95a719291bb5998fac21a62f337"
+    },
+    {
+      "id": "B-45a0:RP-183",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-063 wave-1 coverage review completed at current material/story bindings. All 48 verificationEvidence rows now bind to materialHash 3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c and storyFilesHash 3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9; the three CHK-014 Wave 4 rows are passing and the prior F-304 stale-coverage condition is no longer present. Existing verified coverage families F-298 (remaining Wave 4 acceptance breadth) and F-299 (plan-only replay assurance) remain open and unchanged; no duplicate or new finding was created.",
+      "createdAt": "2026-08-25T07:56:22.470Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-569",
+      "envelopeId": "5b90ea751c939158443b08488f2d385f384e9b8b74c2a30e86bd0f1f05c60f63",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2358ecd5eadbe092d870a323f3facc2a2066a0af1ac2caa0d7686c6b755798a6"
+      },
+      "readDiagnostics": [],
+      "_hash": "fec7ad88efa7408160d9ba18d3424485de007e78c1a66f5727cea860befcf2d3"
+    },
+    {
+      "id": "B-45a0:RP-184",
+      "agent": "lattice-review-topology-critic",
+      "note": "Completeness review confirms the verifier basis and topology are complete and structurally passing; acceptance rollout is current full-3x2 and passes. Pre-review authority remains stale/invalid and requires DEV remediation, so this pass records topology completeness only and does not authorize REVIEW to TEST.",
+      "createdAt": "2026-08-25T08:11:50.686Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-572",
+      "envelopeId": "9f2249e25a1648675ca3e7828abcee90202ab011cebd61f4864098f5acf9800b",
+      "writerSessionId": "sess-86c11cdce25094d96295c9b2250cda10",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "47fe70b158957b9f384ebaa3983d5f01518d5490daee4c235b731523ed4a6131"
+      },
+      "readDiagnostics": [],
+      "_hash": "f2c64d6c1101e94e24031bc4d81cdf9d03dd29fe8b521127a2bc8a135a5ba695"
+    },
+    {
+      "id": "B-45a0:RP-185",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-063 wave-2 coverage re-attestation completed at the current material/story boundary. All 48 verificationEvidence rows remain passing and bind to materialHash 3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c and storyFilesHash 3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9. CHK-014 Wave 4 evidence remains current and passing. Existing verified coverage families F-298 (remaining Wave 4 acceptance breadth) and F-299 (plan-only replay assurance) remain open and unchanged; no new coverage family was found and no duplicate finding was created.",
+      "createdAt": "2026-08-25T08:17:06.019Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-573",
+      "envelopeId": "d1b7881984708748043dc6ec167c1d7ca5588cf14a1e31697e00d7dea738db31",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2358ecd5eadbe092d870a323f3facc2a2066a0af1ac2caa0d7686c6b755798a6"
+      },
+      "readDiagnostics": [],
+      "_hash": "5d8ef20a0b7a53a28392d3c6b306c6e0228e8af3bb664342f297412973717c32"
+    },
+    {
+      "id": "B-45a0:RP-186",
+      "agent": "lattice-review-docs",
+      "note": "Current-head RI-063 docs re-attestation passes. The corrected dynamic-validation operations and current-main characterization records now document effective scheduler fields: explicit values when configured and bounded timeout-derived fallback for legacy rows, while preserving fail-closed ownership and authority semantics. Current checks pass: verify-validation-inventory reports 112/112, verify-story-aware-validation-plan reports 14/14 selectors with the approved digest, and verify-validation-catalog passes. No new documentation blocker; F-300/F-302/F-303 remain correctly resolved.",
+      "createdAt": "2026-08-25T08:18:29.453Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-574",
+      "envelopeId": "53de4b54b07b9223db8257f507ffeda301981a658a4a0bd60c7ac9b706b2f120",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": "Scoped RI-063 docs review read the Story-aware dynamic-validation decision records and Story context; CLI and navigation docs were triaged by name. No repository-wide document scan was performed."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "47fe70b158957b9f384ebaa3983d5f01518d5490daee4c235b731523ed4a6131"
+      },
+      "readDiagnostics": [],
+      "_hash": "bd2761af18a2f7c2acc2cef7ef3e9b52787ec882aac9b7b844202cc2b3a87371"
+    },
+    {
+      "id": "B-45a0:RP-187",
+      "agent": "lattice-review-topology-critic",
+      "note": "Wave 2 topology completeness is independently re-attested: acceptance_basis is complete and verified, acceptance_topology_check is structurally passing, and acceptance rollout report/check pass with full-3x2 assurance. pre_review_check_read still fails current PR_* authority and evidence conditions, so this topology pass does not authorize REVIEW to TEST; the concept lane recorded F-308 for DEV remediation.",
+      "createdAt": "2026-08-25T08:19:53.223Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-577",
+      "envelopeId": "244ee2fba5ff1b1778e21fbf66f1908b48191d394d3a406272023ab0eaa48055",
+      "writerSessionId": "sess-86c11cdce25094d96295c9b2250cda10",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "47fe70b158957b9f384ebaa3983d5f01518d5490daee4c235b731523ed4a6131"
+      },
+      "readDiagnostics": [],
+      "_hash": "59438a14bf677cd7e25331f11f64b7daaf4a4b51e7f1c4efa43029917a1e002e"
+    },
+    {
+      "id": "B-45a0:RP-188",
+      "agent": "lattice-review-topology-critic",
+      "note": "Wave 2 completeness review re-attests a complete verified acceptance basis, structurally passing topology, and full-3x2 passing rollout evidence. pre_review_check_read remains invalid with current PR_* authority/evidence failures, already captured by concept F-308; this topology pass does not authorize REVIEW to TEST.",
+      "createdAt": "2026-08-25T08:22:37.654Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-578",
+      "envelopeId": "8695fc77e8fe8813c77b7f46ee3db426a6d4b94cdfb0ddc078dcd3551dc6d754",
+      "writerSessionId": "sess-86c11cdce25094d96295c9b2250cda10",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "47fe70b158957b9f384ebaa3983d5f01518d5490daee4c235b731523ed4a6131"
+      },
+      "readDiagnostics": [],
+      "_hash": "b5930f124efc32627af0d4420871fc44715bd8b46008c4babf729fd8d8f3c7fd"
     }
   ]
 }

@@ -15632,6 +15632,244 @@
       ],
       "signatureTag": "ri062-acceptance-basis-semantic-digest",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-306",
+      "desc": "RI-063 concept review cannot approve the current acceptance contract: CHK-014 pre_review_check_read evidence is stale/tampered after the regenerated basis, and the current read reports PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_AUTHORITY_INADMISSIBLE, and PR_CUTOFF_UNBOUND. The verifier-owned pre_review_check writer is DEV-only, so REVIEW cannot establish current executable authority; return to DEV, regenerate pre-review evidence, then rerun the required review lanes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-25T08:00:57.855Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-571",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1482e5939aa9f4255b6fc4a96bd4cac2a8be8a1b9d99aa5a48f74d6d56b023b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "294969af95f9608de91dd2380a8adc511fdd6b3cd3bf74843bd95afaa9e03c05",
+      "files": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "ri063-pre-review-authority-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-307",
+      "desc": "quality-review-assurance: packages/main/src/core/review-assurance-floor.ts:906 and .proof-or-stop/story/actives/B-45a0/review-runs.json:1 at current HEAD 01451c24cd4cc3478c1fa5bb67b2c92bb6cd1094, materialHash 3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c, and storyFilesHash 3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9, review_escalation_status reports review assurance ok=false, assuranceLevel=missing, fullQuorum 0/3 valid rounds, and no valid degraded fallback. The signed acceptance_rollout receipt is pass/full-3x2 but is not reviewer-host assurance; Wave 4 REVIEW/DONE still lacks the required current 3 rounds x 2 independent PASS hosts or an eligible fallback. Re-attests the unresolved assurance gap from F-301 at the current head and is distinct from F-304/F-305/F-306.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T08:05:25.169Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-570",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/review-escalation.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": "Scoped RI-063 quality review read the Story-aware dynamic-validation decision records and the verifier/review-assurance artifacts and implementation; no repository-wide decision-document scan was performed."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "47fe70b158957b9f384ebaa3983d5f01518d5490daee4c235b731523ed4a6131"
+      },
+      "readDiagnostics": [],
+      "_hash": "823cdd53e815f3ad9641c9d09ff4ffe6d25c54293602569d0b9d5970d6dce8fb",
+      "files": [
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+      ],
+      "signatureTag": "missing|ts|quality-review-assurance",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-308",
+      "desc": "RI-063 wave 2 concept re-attestation still cannot approve the acceptance contract: acceptance_basis is complete and verified for the current material/story hashes, but pre_review_check_read fails with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, and PR_CUTOFF_UNBOUND. The verifier-owned pre_review_check writer is DEV-only; return to DEV, recapture current verifier-owned executable proof, then rerun the required review lanes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-25T08:18:33.868Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-575",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "47fe70b158957b9f384ebaa3983d5f01518d5490daee4c235b731523ed4a6131"
+      },
+      "readDiagnostics": [],
+      "_hash": "7c3e8374894435d3904a1b5f1ae66ae08a2b15776f245489c2c4616968041c13",
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "proof-or-stop.config.json",
+        "lattice.config.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "ri063-wave2-pre-review-authority-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-309",
+      "desc": "quality-review-assurance: packages/main/src/core/review-assurance-floor.ts:906 and .proof-or-stop/story/actives/B-45a0/review-runs.json:1 at current HEAD 01451c24cd4cc3478c1fa5bb67b2c92bb6cd1094, materialHash 3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c, and storyFilesHash 3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9, review_escalation_status still reports ok=false, assuranceLevel=missing, fullQuorum 0/3 valid rounds, and degraded fallback 0 valid rounds. The signed acceptance_rollout receipt is pass/full-3x2 but is not reviewer-host assurance; Wave 4 REVIEW/DONE still lacks the required current 3 rounds x 2 independent PASS hosts or an eligible fallback. Re-attests unresolved F-307 at the current quality run; no new implementation change is being claimed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T08:19:49.732Z",
+      "reviewRound": "2026-08-25T07:18:32.410Z",
+      "reviewRunId": "B-45a0:RR-576",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/review-escalation.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": "Scoped RI-063 quality re-attestation read the Story-aware dynamic-validation decision records and verifier/review-assurance artifacts and implementation; no repository-wide decision-document scan was performed."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "47fe70b158957b9f384ebaa3983d5f01518d5490daee4c235b731523ed4a6131"
+      },
+      "readDiagnostics": [],
+      "_hash": "b32515b192f191000f399910966f2ddd4d4c960f53a66844ad46eb3f7b231b1e",
+      "files": [
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+      ],
+      "signatureTag": "missing|ts|quality-review-assurance",
+      "signatureTagSource": "auto"
     }
   ]
 }
