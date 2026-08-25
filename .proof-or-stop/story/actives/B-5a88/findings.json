@@ -20075,6 +20075,50 @@
       ],
       "signatureTag": "active-compatibility-legacy-verification-intent-routing",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-448",
+      "desc": "CRIT-02: independent topology critic reconfirms F-445 as an open verified family. packages/main/src/core/agent-dispatch-registry.ts:47-58 and :350-451 still accept proof-or-stop-test-intent in PLAN, while packages/main/src/core/prompt-role-contract-registry.ts:350-368 marks that role compatibility-only and the shipped .proof-or-stop-codex/agents/proof-or-stop-test-intent.md presents it as an active two-step flow. This is a duplicate-family confirmation for the current RI-082 wave; retain canonical F-445 open/high/verified and do not resolve it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-25T11:06:19.857Z",
+      "reviewRound": "2026-08-25T09:53:45.090Z",
+      "reviewRunId": "B-5a88:RR-802",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-test-intent.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "3fd1f51b166ebff43e78daea7b84b75c03f9a82dd58708b7f66983b88a83f6d1"
+      },
+      "readDiagnostics": [],
+      "_hash": "eaec23289a1acbf6fd3200240b7a58aef6551a909db1d98dd602319e38561225",
+      "files": [
+        "packages/main/src/core/agent-dispatch-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        ".proof-or-stop-codex/agents/proof-or-stop-test-intent.md",
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      ],
+      "signatureTag": "active-compatibility-legacy-verification-intent-routing",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
