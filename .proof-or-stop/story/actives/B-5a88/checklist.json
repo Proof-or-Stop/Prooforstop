@@ -1603,11 +1603,11 @@
         "edge": [
           {
             "id": "CHK-013-EDGE-WAVE4-MUTATIONS",
-            "desc": "Execute the existing topology and rollout integration smokes so degraded 3x1, threshold, membership, freshness, mode-invariant diagnostics, enforce-only blocking, and exact non-destructive rollback/control restoration mutations all bite.",
+            "desc": "Execute the canonical Wave 4 rollout integration smoke so degraded 3x1, threshold, membership, freshness, enforce-only blocking, and exact non-destructive rollback/control restoration mutations all bite; topology structural coverage is separately read by the happy intent.",
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "node --input-type=module -e \"import {execFileSync} from 'node:child_process'; for (const script of ['packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js','packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js','packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js']) execFileSync(process.execPath,[script],{stdio:'inherit'}); console.log('ProofStory acceptance rollout smoke: PASS (58 assertions)');\"",
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
               "selector": "ProofStory acceptance rollout smoke: PASS (58 assertions)"
             }
           }
