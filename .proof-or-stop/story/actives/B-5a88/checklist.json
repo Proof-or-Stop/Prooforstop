@@ -1629,22 +1629,22 @@
         {
           "intentRef": "CHK-013-HAPPY-WAVE4-READS",
           "kind": "manual_transcript",
-          "command": "node --input-type=module -e \"import {execFileSync} from 'node:child_process'; const run=(name)=>execFileSync(process.execPath,['bin/proof-or-stop.js',name,'--storyId=B-5a88'],{encoding:'utf8'}); const [topology,preReview]=['acceptance_topology_check','pre_review_check_read'].map(run); if (!topology.includes('Structural pass: yes') || !preReview.includes('plannedActual=complete executableEvidence=current mutations=biting transcript=related authority=admissible')) throw new Error('current Story Wave 4 gate diagnostics failed'); console.log('WAVE4_CURRENT_GATE_DIAGNOSTICS_PASS');\"",
+          "command": "node --input-type=module -e \"import {execFileSync} from 'node:child_process'; const run=(name)=>execFileSync(process.execPath,['bin/proof-or-stop.js',name,'--storyId=B-5a88'],{encoding:'utf8'}); const [topology,preReview,rolloutReport,rolloutCheck]=['acceptance_topology_check','pre_review_check_read','acceptance_rollout_report_read','acceptance_rollout_check'].map(run); if (!topology.includes('Structural pass: yes') || !preReview.includes('plannedActual=complete executableEvidence=current mutations=biting transcript=related authority=admissible') || !rolloutReport.includes('Acceptance rollout report:') || !rolloutCheck.includes('Acceptance rollout policy:')) throw new Error('current Story Wave 4 acceptance reads failed'); console.log('WAVE4_CURRENT_READS_COVERED');\"",
           "result": "pass",
-          "note": "Current-head topology and pre-review diagnostic dimensions are readable; final pre-review PASS is consumed separately by the lifecycle gate.",
+          "note": "Current-head executable read coverage now includes topology, pre-review, rollout report, and rollout policy outputs; final PASS gates remain separately consumed.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "29c09b5f192f8eb181f8a0a4b5453b8f71b06ab9f94ef5dc44feded25c0a0496",
-            "outputTail": "[0.1s] running acceptance_topology_check...\n[2.7s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[6.4s] pre_review_check_read done\nWAVE4_CURRENT_GATE_DIAGNOSTICS_PASS\n",
+            "outputDigest": "52e6c7408b5c8a218cd06796a3098fb240b35640099faef8e099b4e38f0cc0ac",
+            "outputTail": "[0.1s] running acceptance_topology_check...\n[3.0s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[6.6s] pre_review_check_read done\n[0.2s] running acceptance_rollout_report_read...\n[0.7s] acceptance_rollout_report_read done\n[0.1s] running acceptance_rollout_check...\n[0.5s] acceptance_rollout_check done\nWAVE4_CURRENT_READS_COVERED\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T17:00:47.080Z",
+            "executedAt": "2026-08-25T18:29:28.517Z",
             "timeoutMs": 270000
           },
-          "headHash": "67e77b367bf53b59ca6792d5e2c87c2a7729cd99",
+          "headHash": "f20b596d5023c1d16a69f330795f2e05a815dfb8",
           "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
           "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1",
-          "timestamp": "2026-08-25T17:00:47.279Z"
+          "timestamp": "2026-08-25T18:29:28.734Z"
         },
         {
           "intentRef": "CHK-013-EDGE-WAVE4-MUTATIONS",
@@ -1658,18 +1658,18 @@
             "outputDigest": "f7d2397b90c762af90c96e386ec56317bcbf036fd65f799b63cc6368e5de189a",
             "outputTail": "ProofStory acceptance rollout smoke: PASS (58 assertions)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T17:04:50.838Z",
+            "executedAt": "2026-08-25T18:33:32.284Z",
             "timeoutMs": 600000,
             "timeoutOverride": {
               "timeoutMs": 600000,
               "defaultTimeoutMs": 270000,
-              "reason": "Canonical rollout smoke is intentionally long-running and must receive a bounded six-minute execution window."
+              "reason": "Canonical Wave 4 rollout smoke is intentionally long-running and requires a bounded six-minute execution window."
             }
           },
-          "headHash": "8c785a866084e6748da3f87829b82fd7d9408a47",
+          "headHash": "f20b596d5023c1d16a69f330795f2e05a815dfb8",
           "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
           "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1",
-          "timestamp": "2026-08-25T17:04:51.036Z"
+          "timestamp": "2026-08-25T18:33:32.604Z"
         },
         {
           "intentRef": "CHK-013-ADVERSARIAL-PRE-REVIEW-LIVE",
@@ -1683,18 +1683,18 @@
             "outputDigest": "f1d29ca538a6a8c19250fd6252ad7a86d90169af00047d80c1037f2e29260616",
             "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nPROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-5a88\",\"producer\":\"registered-verification-command\",\"verifier\":\"pre-review-check-command-runner\",\"commandDigests\":[\"sha256:869c221802864c41e0894455cc58c0627f070f4a2423c13eefffb2707a63e924\"],\"caseRecordsEncoding\":\"gzip-base64\",\"caseRecords\":\"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\",\"provenance\":{\"runnerPath\":\"scripts/run-proofstory-pre-review-live-proof.mjs\",\"runnerDigest\":\"sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9\",\"targetPath\":\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\",\"targetDigest\":\"sha256:9b75b5fa1e309f79513001209725b778cf2faec8547194d3b1f6dce3f9b73625\",\"buildCommand\":\"npm --prefix packages/main run build\"},\"bindingProofs\":[]}\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T17:07:08.978Z",
+            "executedAt": "2026-08-25T18:35:21.027Z",
             "timeoutMs": 600000,
             "timeoutOverride": {
               "timeoutMs": 600000,
               "defaultTimeoutMs": 270000,
-              "reason": "Tracked live-proof producer is intentionally long-running and must receive a bounded six-minute execution window."
+              "reason": "Tracked pre-review live-proof producer is intentionally long-running and requires a bounded six-minute execution window."
             }
           },
-          "headHash": "20f8cb4425a2e82b34b83219264500f00561bb78",
+          "headHash": "f20b596d5023c1d16a69f330795f2e05a815dfb8",
           "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
           "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1",
-          "timestamp": "2026-08-25T17:07:09.329Z"
+          "timestamp": "2026-08-25T18:35:21.241Z"
         }
       ]
     }
