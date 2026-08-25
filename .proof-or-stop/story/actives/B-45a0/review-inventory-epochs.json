@@ -11032,6 +11032,72 @@
       ],
       "createdAt": "2026-08-25T19:15:02.127Z",
       "_hash": "8d506f9f36149e36aa272767498e3944b8b705cde79262be05bdb2d0a19a5519"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-077:CRIT-01",
+      "epochId": "B-45a0:RI-077",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T18:51:15.542Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "d4d6f24500bfe98195752ba18231c208b42676ed",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84"
+      },
+      "aggregateFindingSetDigest": "e1550982dccf42870103d35b8c338958aa26e353d9d6bb87fd1553c9d28baf5d",
+      "requiredLaneCoverageDigest": "0f0ff5e0810a392ac09cf9d6084d36fed86e84e1d4be29076ffb577705c6eac8",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-694",
+      "terminalEvidenceIds": [
+        "B-45a0:F-337",
+        "B-45a0:F-338"
+      ],
+      "readEvidenceDigest": "6936695fd876b64fd5a547ce2b364eda6fed5e7b3020500668793c2008b3cf3a",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-331",
+          "disposition": "verified_family",
+          "familyKey": "ri076-current-pre-review-artifact-tamper",
+          "reason": "Current pre-review check remains PR_ARTIFACT_TAMPERED; retain the verified family."
+        },
+        {
+          "findingId": "B-45a0:F-332",
+          "disposition": "duplicate",
+          "familyKey": "ri076-current-pre-review-artifact-tamper",
+          "canonicalFindingId": "B-45a0:F-331",
+          "reason": "Same current pre-review artifact tamper family as F-331."
+        },
+        {
+          "findingId": "B-45a0:F-333",
+          "disposition": "duplicate",
+          "familyKey": "ri076-current-pre-review-artifact-tamper",
+          "canonicalFindingId": "B-45a0:F-331",
+          "reason": "Same current pre-review artifact tamper family as F-331."
+        },
+        {
+          "findingId": "B-45a0:F-334",
+          "disposition": "duplicate",
+          "familyKey": "ri076-current-pre-review-artifact-tamper",
+          "canonicalFindingId": "B-45a0:F-331",
+          "reason": "Same current pre-review artifact tamper family as F-331."
+        },
+        {
+          "findingId": "B-45a0:F-335",
+          "disposition": "verified_family",
+          "familyKey": "ri077-current-pre-review-artifact-tamper",
+          "reason": "Current RI-077 coverage evidence confirms the same unresolved pre-review tamper family."
+        },
+        {
+          "findingId": "B-45a0:F-336",
+          "disposition": "duplicate",
+          "familyKey": "ri077-current-pre-review-artifact-tamper",
+          "canonicalFindingId": "B-45a0:F-335",
+          "reason": "Same RI-077 current pre-review artifact tamper family as F-335."
+        }
+      ],
+      "createdAt": "2026-08-25T19:45:25.695Z",
+      "_hash": "83c0af4876ef97043a563fb71a71105d3318cc0fe7551843d944988d74c66a2c"
     }
   ]
 }
