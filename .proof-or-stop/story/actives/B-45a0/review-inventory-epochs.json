@@ -6886,6 +6886,26 @@
       "cancelReason": "Replan after wave budget exhaustion; current verified family requires DEV remediation of PR_ARTIFACT_TAMPERED.",
       "terminalRunSequenceBoundary": 687,
       "_hash": "8a6ad0521fb4bd78d35c0b6d47fab751b6e812bce75d4c554ac14f8c359674db"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RIE-084",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T18:51:15.542Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-25T19:20:30.523Z",
+      "updatedAt": "2026-08-25T19:20:30.523Z",
+      "cutoff": {
+        "headHash": "27e8728e605db8f1126e4e0b75e4cc198e28116b",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84"
+      },
+      "scopeDigest": "5836d9baeeae4978cd3e029c9f2fbfc4cb786fc0e1284a8f7f75f2bfa3428755",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-45a0:RIE-084:RCP-001",
+      "_hash": "63b0fbfa2a2a3b1e86b65d2d36301c5d7ef81620bf4549d48abffc690707396e"
     }
   ],
   "receipts": [
@@ -7671,6 +7691,28 @@
       "issuedAt": "2026-08-25T18:49:37.854Z",
       "consumedAt": "2026-08-25T18:50:21.527Z",
       "_hash": "348c32e43c55d37b8fd560f47868c4252ebb31ccc5eafb591d7c3927c72bceda"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-45a0:RIE-084:RCP-001",
+      "epochId": "B-45a0:RIE-084",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T18:51:15.542Z",
+      "cutoff": {
+        "headHash": "27e8728e605db8f1126e4e0b75e4cc198e28116b",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84"
+      },
+      "scopeDigest": "5836d9baeeae4978cd3e029c9f2fbfc4cb786fc0e1284a8f7f75f2bfa3428755",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-25T19:20:30.523Z",
+      "_hash": "428732bf128faaeca9813a26633978a2a324902745efa231a0136340656e8c22"
     }
   ],
   "criticReceipts": [
