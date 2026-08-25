@@ -19450,6 +19450,381 @@
       ],
       "signatureTag": "topology-wave4-inventory-invalidated-remediation-unauthorized",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-435",
+      "desc": "concept-cleanup: CLAUDE.md:797 still states that 13 of the 17 registry roles retain legacy lattice-* role IDs, while the changed packages/main/templates/agents tree and .claude/.proof-or-stop-codex assets use proof-or-stop-* filenames/frontmatter. The migration contract requires proof-or-stop-* as canonical new output and lattice-* only as exact compatibility reads; this active guide contradicts that contract and teaches stale role identities.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-25T07:27:58.738Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-765",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents",
+          ".proof-or-stop-codex/agents",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/templates/agents"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ac1045f247e55200ce3062222f80b832059f70bf0e43507db586a30a23a2befd"
+      },
+      "readDiagnostics": [],
+      "_hash": "c330491a9d12f7a14bbbe913af472ea246739e37ef2c6bac95229e3cbcf6454b",
+      "files": [
+        "CLAUDE.md"
+      ],
+      "signatureTag": "missing|md|concept-cleanup-claude",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-436",
+      "desc": "concept-cleanup: packages/main/src/cli-init.ts:941 still comments that Claude Code only parses subagent_type: lattice-*, even though this story canonicalizes emitted role IDs and the current Claude shims use proof-or-stop-* frontmatter. The stale rationale can preserve or reintroduce retired role IDs in future init changes and contradicts the canonical new-write contract.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-25T07:28:21.862Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-765",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents",
+          ".proof-or-stop-codex/agents",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/templates/agents"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ac1045f247e55200ce3062222f80b832059f70bf0e43507db586a30a23a2befd"
+      },
+      "readDiagnostics": [],
+      "_hash": "6848f681dd900d251fb6f6e46e437cde8c86582cf1c955bd1a9dba627eef0d7c",
+      "files": [
+        "packages/main/src/cli-init.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-packages",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-437",
+      "desc": "packages/main/tests/brand-role-migration.test.mjs:24-159; packages/main/tests/prompt-role-migration.test.mjs:20-148; packages/main/tests/managed-marker-migration.test.mjs:24-86; packages/main/tests/artifact-schema-migration.test.mjs:161-443; packages/main/tests/release-push-approval-migration.test.mjs:19-100; packages/main/tests/package-identity-migration.test.mjs:21-50; packages/main/tests/bin-alias-migration.test.mjs:10-32 — all 21 must verification intents currently have only stale receipts: checklist_get reports pass evidence bound to prior RI-039/RR-414 head 32781ca3/material 04b5d666/storyFiles 33680db9, while signed RI-080 reviewer run B-5a88:RR-767 is bound to current head 7a306c10/material bbc09ade/storyFiles a365fe24; no must intent has current-head evidence, so coverage is not admissible until the 21 checks are rerun or refreshed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-25T07:31:18.431Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-767",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/prompt-role-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fa19bba98451a0fc01c0c3c68742d5bf242c6b78fa9192ff5263f1f1645463a2",
+      "files": [
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/prompt-role-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/artifact-schema-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        "packages/main/tests/package-identity-migration.test.mjs",
+        "packages/main/tests/bin-alias-migration.test.mjs"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-438",
+      "desc": "packages/main/src/core/reviewer-opt-in.ts:84-90 — reviewerIdentitiesEqual documents that only registered reviewer identities match, but when canonicalReviewerLane returns null for both inputs it falls back to trimmed-string equality. Reproduction with the current dist returns canonicalReviewerLane(\"proof-or-stop-review-unknown\") = null while reviewerIdentitiesEqual(\"proof-or-stop-review-unknown\", \"proof-or-stop-review-unknown\") = true. An unknown forced identity can therefore satisfy self-matching checks despite the registry boundary; unregistered inputs should not match.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-25T07:37:05.607Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-766",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/reviewer-opt-in.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bd19735dc4737aa876c933fdbb1270141f2540f57c1d69a659610d9535faad76",
+      "files": [
+        "packages/main/src/core/reviewer-opt-in.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-439",
+      "desc": "packages/main/src/core/global-agents.ts:45-46 — the migration imports both isActiveModularReviewerRoleId and isModularReviewerRoleId, but the implementation uses only isModularReviewerRoleId at line 253. The source has no other reference to isActiveModularReviewerRoleId, leaving a dead import introduced by the rename.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-25T07:37:21.353Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-766",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/global-agents.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/prompt-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4e2161530cb5d94c85b9f6da1ba2017f9599e1fa192438e22b69b18626c739eb",
+      "files": [
+        "packages/main/src/core/global-agents.ts"
+      ],
+      "signatureTag": "cleanup|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-440",
+      "desc": "RI-080 topology review requests changes. acceptance_topology_check is only a structural diagnostic in observe mode with authority=diagnostic_only and evidentiary=false, while pre_review_check_read fails with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, and PR_EVIDENCE_STALE. The current raw inventory set is F-429 through F-433 plus F-435 through F-439; these are not admissible for remediation authorization. Do not certify topology or authorize remediation until verifier-owned current pre-review evidence is regenerated and the complete unchanged-material inventory reaches a zero-new saturation wave.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-25T07:52:05.306Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-768",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "AGENTS.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": 24000
+        },
+        "digest": "6bdbcfb2e46480db16bf2dfd223eec025ae31d9a976471ba57ac911107d94560"
+      },
+      "readDiagnostics": [],
+      "_hash": "28b1daae4431c952d6c24d43cda99bf45c81254a9ec17f5e034b7c412ea26a61",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "signatureTag": "topology-ri080-remediation-unauthorized",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-441",
+      "desc": "packages/main/src/core/reviewer-opt-in.ts:84-90 — reviewerIdentitiesEqual claims that only registered reviewer identities match, but its fallback returns trimmed-string equality when both canonicalReviewerLane results are null. Current dist reproduction: canonicalReviewerLane(\"proof-or-stop-review-unknown\") === null while reviewerIdentitiesEqual(\"proof-or-stop-review-unknown\", \"proof-or-stop-review-unknown\") === true. An unregistered forced identity can satisfy self-matching checks; return false whenever either input is unregistered.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-25T08:13:57.993Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-773",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/reviewer-opt-in.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4dcfe47c45a527277ef534145ce324a3c66ab96cfb14d394929cf7ce9a9c3662",
+      "files": [
+        "packages/main/src/core/reviewer-opt-in.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-442",
+      "desc": "packages/main/src/core/global-agents.ts:45-46 — the migration imports both isActiveModularReviewerRoleId and isModularReviewerRoleId, but the implementation uses only isModularReviewerRoleId at line 253. The current source has no other reference to isActiveModularReviewerRoleId, leaving a dead import introduced by the rename; remove the unused import.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-25T08:14:22.879Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-773",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/reviewer-opt-in.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/package-identity-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f142ccc8aa521d29a43c00b8213b5efcc24b1c6521b6b9ef15b139bfc158fa5c",
+      "files": [
+        "packages/main/src/core/global-agents.ts"
+      ],
+      "signatureTag": "cleanup|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }

@@ -6569,6 +6569,115 @@
       },
       "terminalRunSequenceBoundary": 761,
       "_hash": "1518b57cffa620264c4153121cf7fb112ac2d734d9e96948d43e8ef68ddce532"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-080",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "state": "INVALIDATED",
+      "begunAt": "2026-08-25T07:16:11.324Z",
+      "updatedAt": "2026-08-25T08:17:47.312Z",
+      "cutoff": {
+        "headHash": "7a306c10f7642baa058bdcb1ea9ed42d8bcf811c",
+        "materialHash": "bbc09ade337af7793defc58408e9f7485311b786d8b08975048dae168e7b7752",
+        "storyFilesHash": "a365fe245ab3e6589c93b0b7d393f0c8733a3ac175ec3219cf074c60653edd6c"
+      },
+      "scopeDigest": "7416aa13d6aeb33ba00fa1a79c7c7e7dd6df890c164b18c7ae87785e8dc874ec",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 762,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-25T07:16:11.324Z",
+          "completedAt": "2026-08-25T07:58:16.150Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-5a88:RR-765",
+              "terminal": "finding",
+              "hostIdentity": "7ed22b777ba9fb2d876125914684f76bb32dc1432284543f71ef665daa22991d",
+              "promptIdentity": "cb941da5d35e8166d0cc1d7e49210d2661935f3f4aa366bd74bfb8aeaeb4689c",
+              "evidenceIds": [
+                "B-5a88:F-435",
+                "B-5a88:F-436"
+              ],
+              "coverageDigest": "a388f15f856aa2cc373d873402c7a15e6acbe0fcc58dbf2765284c3901f31780"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-5a88:RR-766",
+              "terminal": "finding",
+              "hostIdentity": "7ed22b777ba9fb2d876125914684f76bb32dc1432284543f71ef665daa22991d",
+              "promptIdentity": "836fca503ffad55f39520b71b7c156e68aebb3f3b6167040b3eda399b53f77ce",
+              "evidenceIds": [
+                "B-5a88:F-438",
+                "B-5a88:F-439"
+              ],
+              "coverageDigest": "3b5970a8a68dbe72bce73521d6fdef8ca8d69ed4d4108e28a46aab6d9b8298f2"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-767",
+              "terminal": "finding",
+              "hostIdentity": "7ed22b777ba9fb2d876125914684f76bb32dc1432284543f71ef665daa22991d",
+              "promptIdentity": "2e2f1b8fac56ef382f5c6fb3d0efc866ff47307f9126100589b0c3e2bc0afd0d",
+              "evidenceIds": [
+                "B-5a88:F-437"
+              ],
+              "coverageDigest": "d15598b32eadba43fa439b5307a4eb402c69cd0d2b791df14415f4fa22b4a77f"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-wave4-coverage-missing",
+            "active-guide-role-id-drift",
+            "cli-init-legacy-role-comment",
+            "coverage-current-evidence-stale",
+            "dead-reviewer-role-import",
+            "pre-review-evidence-inadmissible",
+            "unregistered-reviewer-identity-self-match"
+          ],
+          "verifiedFindingSetDigest": "8f6b5dff93ae82f0ac6b70728bd4c3eacd84ce802ce41de5cf320ef29d6b279b",
+          "newVerifiedFindingCount": 7,
+          "criticDigest": "efca64750b98603d6a5f4000d077bc60834e78ea592f7bc8ea96d2f7f014df1c",
+          "saturated": false,
+          "nextRunSequenceBoundary": 768
+        }
+      ],
+      "baselineFindingIds": [
+        "B-5a88:F-429",
+        "B-5a88:F-430",
+        "B-5a88:F-431",
+        "B-5a88:F-432",
+        "B-5a88:F-433"
+      ],
+      "invalidation": {
+        "detectedAt": "2026-08-25T08:17:47.312Z",
+        "oldMaterialHash": "bbc09ade337af7793defc58408e9f7485311b786d8b08975048dae168e7b7752",
+        "currentMaterialHash": "bbc09ade337af7793defc58408e9f7485311b786d8b08975048dae168e7b7752",
+        "oldStoryFilesHash": "a365fe245ab3e6589c93b0b7d393f0c8733a3ac175ec3219cf074c60653edd6c",
+        "currentStoryFilesHash": "a365fe245ab3e6589c93b0b7d393f0c8733a3ac175ec3219cf074c60653edd6c",
+        "blockerCode": "OPEN_REVIEW_INVENTORY_SCOPE_MUTATION",
+        "oldScopeDigest": "7416aa13d6aeb33ba00fa1a79c7c7e7dd6df890c164b18c7ae87785e8dc874ec",
+        "currentScopeDigest": "7416aa13d6aeb33ba00fa1a79c7c7e7dd6df890c164b18c7ae87785e8dc874ec",
+        "oldRequiredLanes": [
+          "proof-or-stop-review-concept",
+          "proof-or-stop-review-quality",
+          "proof-or-stop-review-test-coverage"
+        ],
+        "currentRequiredLanes": [
+          "lattice-review-concept",
+          "lattice-review-quality",
+          "lattice-review-test-coverage"
+        ]
+      },
+      "terminalRunSequenceBoundary": 773,
+      "_hash": "500380c48be986f5e9fe6d3eec592a89d3a56d82889a007c84f6015872e5b0ca"
     }
   ],
   "receipts": [
@@ -10802,6 +10911,94 @@
       ],
       "createdAt": "2026-08-25T06:43:01.559Z",
       "_hash": "dadb48a1faba317090a942fdda46130c9a705b3cfa7f08c9406d2fc458327087"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-080:CRIT-01",
+      "epochId": "B-5a88:RI-080",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "7a306c10f7642baa058bdcb1ea9ed42d8bcf811c",
+        "materialHash": "bbc09ade337af7793defc58408e9f7485311b786d8b08975048dae168e7b7752",
+        "storyFilesHash": "a365fe245ab3e6589c93b0b7d393f0c8733a3ac175ec3219cf074c60653edd6c"
+      },
+      "aggregateFindingSetDigest": "8f6b5dff93ae82f0ac6b70728bd4c3eacd84ce802ce41de5cf320ef29d6b279b",
+      "requiredLaneCoverageDigest": "560be7c5eafa8f1bf08dd66d3a926d9ac871214f1165605d306dad4ec3c65464",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-768",
+      "terminalEvidenceIds": [
+        "B-5a88:F-440"
+      ],
+      "readEvidenceDigest": "d0c3306379f0abf65636b771ca665338a631ab1c0f9cc73669e8253e0e2e3ec0",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-429",
+          "disposition": "verified_family",
+          "familyKey": "coverage-current-evidence-stale",
+          "reason": "The baseline coverage finding is independently verified: all 21 must-intent receipts are bound to older hashes and cannot support the frozen RI-080 cutoff."
+        },
+        {
+          "findingId": "B-5a88:F-430",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-wave4-coverage-missing",
+          "reason": "The baseline finding independently identifies missing executable coverage for the Wave 4 acceptance and rollout boundary; no current proof closes that gap."
+        },
+        {
+          "findingId": "B-5a88:F-431",
+          "disposition": "verified_family",
+          "familyKey": "active-guide-role-id-drift",
+          "reason": "The baseline concept finding is a distinct active-guide contradiction that teaches retired lattice role identities."
+        },
+        {
+          "findingId": "B-5a88:F-432",
+          "disposition": "verified_family",
+          "familyKey": "cli-init-legacy-role-comment",
+          "reason": "The baseline concept finding is a distinct stale implementation comment that contradicts canonical proof-or-stop role emission."
+        },
+        {
+          "findingId": "B-5a88:F-433",
+          "disposition": "verified_family",
+          "familyKey": "pre-review-evidence-inadmissible",
+          "reason": "The baseline topology finding is independently corroborated by the current pre_review_check_read failure and blocks topology certification."
+        },
+        {
+          "findingId": "B-5a88:F-435",
+          "disposition": "duplicate",
+          "familyKey": "active-guide-role-id-drift",
+          "canonicalFindingId": "B-5a88:F-431",
+          "reason": "This current concept finding repeats the same CLAUDE.md active-guide role-identity contradiction already represented by F-431."
+        },
+        {
+          "findingId": "B-5a88:F-436",
+          "disposition": "duplicate",
+          "familyKey": "cli-init-legacy-role-comment",
+          "canonicalFindingId": "B-5a88:F-432",
+          "reason": "This current concept finding repeats the same cli-init.ts stale-role-comment defect already represented by F-432."
+        },
+        {
+          "findingId": "B-5a88:F-437",
+          "disposition": "duplicate",
+          "familyKey": "coverage-current-evidence-stale",
+          "canonicalFindingId": "B-5a88:F-429",
+          "reason": "This current coverage finding independently re-observes the same stale 21-intent evidence family at the RI-080 cutoff."
+        },
+        {
+          "findingId": "B-5a88:F-438",
+          "disposition": "verified_family",
+          "familyKey": "unregistered-reviewer-identity-self-match",
+          "reason": "The current quality finding is an independent adversarial registry-boundary defect: an unknown reviewer identity self-matches."
+        },
+        {
+          "findingId": "B-5a88:F-439",
+          "disposition": "verified_family",
+          "familyKey": "dead-reviewer-role-import",
+          "reason": "The current quality finding is a distinct source cleanup defect: an imported reviewer-role predicate is unused."
+        }
+      ],
+      "createdAt": "2026-08-25T07:52:34.562Z",
+      "_hash": "84e0f667b1203aba48d2bade2b9589efa5ccda1bef36acb83275593110ddf484"
     }
   ]
 }

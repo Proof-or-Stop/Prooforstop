@@ -18273,6 +18273,119 @@
       },
       "readDiagnostics": [],
       "_hash": "5f87a5f14f11a4ec5aa5fd6558e161dda1f6ecb4b31cf31e38ef7a100e5f4289"
+    },
+    {
+      "id": "B-5a88:RP-297",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-080 wave 2 coverage rechecked all seven verified families against current source, CLI output, checklist pins, and current dist; no distinct new family is supported, and prior families remain explicitly open.",
+      "createdAt": "2026-08-25T08:06:27.152Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-771",
+      "envelopeId": "7382cacabd17f00ec6b691fac56a014785fd2a3accea723adc2f49b169955056",
+      "writerSessionId": "sess-030e683dc94445693f81767408f233ef",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/artifact-schema.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/package.json",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4bb08e85b3fbbc75b320246204b79aefa9401fb6991f42f597d55bce66f06eda"
+    },
+    {
+      "id": "B-5a88:RP-298",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-080 wave 2 concept recheck at current head 7a306c1 covered all seven carried verified families: acceptance-wave4-coverage-missing, active-guide-role-id-drift, cli-init-legacy-role-comment, coverage-current-evidence-stale, dead-reviewer-role-import, pre-review-evidence-inadmissible, and unregistered-reviewer-identity-self-match. Current acceptance topology and rollout diagnostics pass; pre_review_check_read still reports the already-recorded inadmissible/stale evidence families. Existing concept drift F-431/F-432 was rechecked and not duplicated. No additional independent current-wave concept family or blocker was found.",
+      "createdAt": "2026-08-25T08:10:54.077Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-772",
+      "envelopeId": "31809450a7b651e7231605894cb68d86892831048389fba3df83ffabf52ab6c2",
+      "writerSessionId": "sess-836150f9d939f8977b80711a70d0127d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/reviewer-opt-in.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "85252be5a60db94e1bc65a5c9784c1d8f51a8fe08b05d2f45c24f0b1a1f36b4c"
+    },
+    {
+      "id": "B-5a88:RP-299",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Reviewed the current topology, pre-review, rollout, inventory, and existing finding receipts; no new topology family beyond the existing open topology findings is justified, and RI-080 remains invalidated.",
+      "createdAt": "2026-08-25T08:25:02.015Z",
+      "reviewRound": "2026-08-25T05:51:45.231Z",
+      "reviewRunId": "B-5a88:RR-776",
+      "envelopeId": "a4ee000eb7f5425462885c9ca1b28812bafe9dfcaf1cdf83c6f1cde6a3c65fe4",
+      "writerSessionId": "sess-699e9ea2bb3df347b357391ea448d969",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "eb5928417a1658f6fd0b50c85f56df0d7a1c8ce05a1ecda19b62323b42f3c3fd"
     }
   ]
 }
