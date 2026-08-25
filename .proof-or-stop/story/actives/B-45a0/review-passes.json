@@ -8329,6 +8329,43 @@
       },
       "readDiagnostics": [],
       "_hash": "0c7daba62528a12932b89ce4606510a5b9b7040402bb1138dfb80b7873657009"
+    },
+    {
+      "id": "B-45a0:RP-170",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology critic confirms F-301 as a verified current review-assurance blocker: the full host quorum has zero valid current rounds and no valid degraded fallback. Prior F-298, F-299, and F-300 families remain carried-forward baseline findings with no duplicate family added.",
+      "createdAt": "2026-08-25T06:26:17.759Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-553",
+      "envelopeId": "a1050a8e38e0f1f584dc4bf3e36240abc749737b5c56d01c4751b61c7981e699",
+      "writerSessionId": "sess-86c11cdce25094d96295c9b2250cda10",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/review-escalation.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1482e5939aa9f4255b6fc4a96bd4cac2a8be8a1b9d99aa5a48f74d6d56b023b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "54a4fb93be49b3b1954bc38cc2d5759bd1342a9842ba4ce185ad5a601efc67ac"
     }
   ]
 }

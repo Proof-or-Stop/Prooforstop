@@ -8563,6 +8563,37 @@
       ],
       "createdAt": "2026-08-25T06:11:28.094Z",
       "_hash": "c44f68d731cd36e14ce0a4ef71e72976c0cdfa85e291d87ba6e76aa3bc47b6f5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-060:CRIT-03",
+      "epochId": "B-45a0:RI-060",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "3a9a7ca5abcc15855f62e915a98018cb25ab6154",
+        "materialHash": "77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8",
+        "storyFilesHash": "60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664"
+      },
+      "aggregateFindingSetDigest": "51035243f562ee06c339f8338c362c4cfcf33c75e6ab7751c6e649f45a6bad04",
+      "requiredLaneCoverageDigest": "2a41551a97592a25c3ff4cf0b3f1706c4cf89542425e1dcb4e6e55b8c67931e2",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-553",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-170"
+      ],
+      "readEvidenceDigest": "639da7dd88fd6c86e199d2be2a8bdc4328c7fa334b5c59c3443762e40cdb71f4",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-301",
+          "disposition": "verified_family",
+          "familyKey": "quality-review-assurance",
+          "reason": "The current review escalation status is bound to materialHash 77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8 and storyFilesHash 60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664, but reports 0/3 valid full 3x2 host rounds because verdicts are stale/signature-invalid and no valid degraded fallback is recorded. This is a distinct current assurance blocker."
+        }
+      ],
+      "createdAt": "2026-08-25T06:26:31.630Z",
+      "_hash": "c71915c23cb8f0bcdd1313e21422a112fcb8b5bb51310a4986c5420caf78d6b2"
     }
   ]
 }
