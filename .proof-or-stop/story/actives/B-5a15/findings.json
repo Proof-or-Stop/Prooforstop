@@ -14725,7 +14725,7 @@
       "desc": "Topology critic confirms the structural acceptance graph is complete, but the executable acceptance chain is not currently admissible: pre_review_check_read is PR_ARTIFACT_TAMPERED plus PR_COVERAGE_BASIS_CHANGED, and acceptance_rollout_check is blocking AR_REPORT_STALE. The current material review must remain blocked until DEV refreshes the verifier-owned artifacts.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-24T17:54:39.682Z",
@@ -14765,7 +14765,11 @@
         "packages/main/src/core/acceptance-rollout.ts"
       ],
       "signatureTag": "missing|json|topology-critic-confirms",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:40:30.865Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-281",
