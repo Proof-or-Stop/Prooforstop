@@ -14320,7 +14320,7 @@
       "desc": ".proof-or-stop/story/actives/B-5a15/checklist.json:verificationEvidence and packages/main/tests/causal-evidence.test.mjs:2144-2335 [high] RI-032 coverage cannot pass at current HEAD 2c4f89d: all 53 checklist evidence rows are non-failing but bound to prior heads d00654c/a040dbc and prior materialHash/storyFilesHash, while the current source contains the verifier-owned Wave-4 assertions without a current checklist-bound receipt for acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, acceptance_rollout_check, full-3x2 receipt, degraded-3x1 rejection, mutation coverage, mode invariance, enforce-only blocking, and rollback-history preservation.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T15:34:40.990Z",
@@ -14368,7 +14368,11 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "missing|json|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:39:48.321Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-273",
