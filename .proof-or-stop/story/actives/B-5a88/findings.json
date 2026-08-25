@@ -18509,6 +18509,21 @@
       "resolvedAt": "2026-08-24T23:38:01.158Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-416",
+      "desc": "quality-gate-evidence: .proof-or-stop/story/actives/B-5a88/acceptance-basis.json:1 and .proof-or-stop/story/actives/B-5a88/scope-contract.json:1 are not bound to the same current scope contract: acceptance_topology_check returns AT_SCOPE_BINDING_MISSING (scope-contract digest mismatch) and pre_review_check_read returns PR_ARTIFACT_TAMPERED. Regenerate verifier-owned acceptance basis/pre-review evidence after the scope-contract update and recheck at current HEAD before treating the Wave 4 quality review as a PASS.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-25T00:33:49.800Z",
+      "reviewRound": "2026-08-25T00:24:56.358Z",
+      "reviewRunId": "B-5a88:RR-696",
+      "_hash": "d360f0f4211740b60922c749eed3e8ac043394260a8589835b36db096f8e5474",
+      "signatureTag": "missing|unknown|quality-gate-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
