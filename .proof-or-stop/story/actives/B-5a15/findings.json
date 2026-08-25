@@ -13640,7 +13640,7 @@
       "desc": "RI-028 concept review cannot pass: the current acceptance concept still depends on verifier-owned acceptance_rollout_report_read coverage, but the current review evidence exposes no executable invocation or checklist-bound receipt for that path. Existing open verified findings F-249 and F-251 independently record this residual coverage gap; the current concept lane therefore remains blocked until that verifier path is implemented or covered and rebound to fresh evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-24T10:45:19.793Z",
@@ -13670,7 +13670,11 @@
         "packages/main/tests/causal-evidence.test.mjs"
       ],
       "signatureTag": "missing|ts|concept-review-cannot",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:38:33.886Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-258",
