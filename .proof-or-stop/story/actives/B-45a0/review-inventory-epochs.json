@@ -8471,6 +8471,37 @@
       ],
       "createdAt": "2026-08-25T05:54:11.950Z",
       "_hash": "4c48cf079ab6d66fd409011c6b8b93868c61a1f4e825abcd848aeae0c0e8f067"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-060:CRIT-02",
+      "epochId": "B-45a0:RI-060",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "3a9a7ca5abcc15855f62e915a98018cb25ab6154",
+        "materialHash": "77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8",
+        "storyFilesHash": "60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664"
+      },
+      "aggregateFindingSetDigest": "5d612e3171970d733d687bc3f691b0a9d05eb0e54572dc2eba3cfe242d4962ad",
+      "requiredLaneCoverageDigest": "23803e86da394875a8e0379c1fd42e6c91b33a0af83a93473af2e04dc680e71d",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-548",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-166"
+      ],
+      "readEvidenceDigest": "3696c1ec7910f77c48eb4280b911663e777e672064851d937fa284933d275cfc",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-300",
+          "disposition": "verified_family",
+          "familyKey": "validation-policy-contract-documentation-drift",
+          "reason": "The current docs require explicit cpuWeight and expectedP50Ms on every validation row, while both canonical configs omit those fields on 110 of 112 rows, policyDefaults provide cpuWeight but no expectedP50Ms, and runtime inventory/catalog types and compilation keep expectedP50Ms optional and default cpuWeight. The documentation therefore overstates the current fail-closed ownership contract."
+        }
+      ],
+      "createdAt": "2026-08-25T06:11:28.094Z",
+      "_hash": "c44f68d731cd36e14ce0a4ef71e72976c0cdfa85e291d87ba6e76aa3bc47b6f5"
     }
   ]
 }
