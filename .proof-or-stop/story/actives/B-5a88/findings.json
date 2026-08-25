@@ -18795,6 +18795,52 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-current",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-421",
+      "desc": "packages/main/src/core/review-incremental-context.ts:824-829 — high: when impact.impactedFiles or the deduplicated authoritativeReferences exceeds FULL_TASK_CONTEXT_LIMITS.pathsPerList, reviewBasis is set to null without adding a FULL_* eligibility reason. The current reviewIncrementalContext therefore remains contextMode=incremental while assembleConditionalReviewPromptEnvelope selects a full SAFETY_REQUIRES_FULL envelope; review-run.ts:870-878 can then reject that valid safety fallback as contradictory. The existing bounded-paths smoke only covers changedFiles cap+1 and does not cover either oversized branch. Fix the cap path to carry an authoritative full fallback reason/contextMode and add both regression cases; F-419 remains open.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-25T04:00:05.102Z",
+      "reviewRound": "2026-08-25T03:27:13.081Z",
+      "reviewRunId": "B-5a88:RR-727",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0147f741d598504fe3da65b9d64d52d33e61c423bca76a98667005050eaa73f7",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
