@@ -1931,12 +1931,12 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Verifier-owned acceptance topology and rollout checks pass against the current Story head.",
+            "desc": "Verifier-owned acceptance rollout authority reports the current Story topology and rollout as admissible.",
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "node bin/proof-or-stop.js acceptance_topology_check --storyId=B-45a0 --json",
-              "selector": "\"structuralPass\": true"
+              "command": "node bin/proof-or-stop.js acceptance_rollout_check --storyId=B-45a0 --json",
+              "selector": "\"ok\": true"
             }
           }
         ],
