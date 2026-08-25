@@ -584,7 +584,9 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         throw new Error(`topology critic pass refused: basis verification failed: ${state.basisVerification.code}: ${state.basisVerification.diagnostics.join('; ')}`);
       }
       if (args.verdict === 'pass' && !verification.ok) throw new Error(`topology critic receipt self-verification failed: ${verification.code}: ${verification.diagnostics.join('; ')}`);
-      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'topology_critic_receipt_set');
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'topology_critic_receipt_set', {
+        closeoutArtifactPaths: ['topology-critic-receipt.json'],
+      });
       if (args.json) return stringify({ receipt, verification });
       return `Topology critic receipt: ${verification.ok ? 'PASS' : 'REJECTED'}\nStory: ${args.storyId}\nVerdict: ${receipt.verdict}\nIndependence: agent=${verification.independence.agent} session=${verification.independence.session} dispatch=${verification.independence.dispatch} businessCommitAuthor=${verification.independence.businessCommitAuthor}${commitHint}`;
     },

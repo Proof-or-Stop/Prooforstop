@@ -117,6 +117,7 @@ assert.deepEqual(
     'scope-contract.json',
     'milestone-ledger.json',
     'slice-plan.json',
+    'topology-critic-receipt.json',
     'parent-ledger-rollup.json',
     'evidence/delivery-context-pack.json',
     'test-evidence.json',
@@ -496,6 +497,16 @@ try {
     assert.equal(receipt?.writerCommand, writerCommand, `${writerCommand} must produce a causally valid ${artifactPath} receipt`);
   };
   assertWriterReceipt('parent-ledger-rollup.json', 'parent_ledger_rollup_set');
+
+  writeFileSync(store.storyFilePath(runtimeStoryId, 'topology-critic-receipt.json'), '{"schemaVersion":"smoke"}\n', 'utf8');
+  assert.match(
+    autoCommitStoryMetadata(repo, runtimeStoryId, 'topology_critic_receipt_set', {
+      closeoutArtifactPaths: ['topology-critic-receipt.json'],
+    }),
+    /metadata auto-committed/,
+  );
+  assertWriterReceipt('topology-critic-receipt.json', 'topology_critic_receipt_set');
+  console.log('PASS canonical topology critic closeout lineage recorded');
 
   createTestHandlers(handlerCtx).test_add({ storyId: runtimeStoryId, command: 'true', output: 'pass', result: 'PASS' });
   assertWriterReceipt('test-evidence.json', 'test_add');
