@@ -6241,9 +6241,9 @@
       "epochId": "B-45a0:RI-070",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-25T16:06:11.159Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-25T16:06:32.328Z",
-      "updatedAt": "2026-08-25T16:06:32.328Z",
+      "updatedAt": "2026-08-25T16:15:09.106Z",
       "cutoff": {
         "headHash": "66f50e82fdf83253e8380a517e5b4839162839db",
         "materialHash": "682943649653907552c9c1ec2902f8ee625672c5dd25ee930f570d2b1a120d9e",
@@ -6260,7 +6260,36 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "11742f5e80f3d1005f85a211d1e306e8f6bd68ce5b7a37bcdd04c039e5ac1b6d"
+      "cancelledAt": "2026-08-25T16:15:09.106Z",
+      "cancelReason": "Fresh RI-070 was invalidated by a verified historical-replay cwd fix; no terminal lane evidence was accepted, so reopen after DEV commit.",
+      "terminalRunSequenceBoundary": 635,
+      "_hash": "385be10898ba7e4dac016edf4e248d14a6c345fe722fe787240d626378789c0c"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-071",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T16:06:11.159Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-25T16:15:40.224Z",
+      "updatedAt": "2026-08-25T16:15:40.224Z",
+      "cutoff": {
+        "headHash": "63a3ea89a98ee0f37e5cdd71c677c677b9fb31f8",
+        "materialHash": "381e47b23a562b0e10bf9a2535c19ffe61b4ba82f91ee569e3341dbfeb78b785",
+        "storyFilesHash": "490e3cc91411930260de2fbb66917d9c3a04bad4f8343ace4e33bf929ee94310"
+      },
+      "scopeDigest": "b14b7dccae326f7f8c56fd3c688644dc3f033b83ffae8851077c4f470884020f",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 635,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "67c8a94e770e79ab76ecfee0780bd26d7c0b7d916824a73c61055c077595f498"
     }
   ],
   "receipts": [
