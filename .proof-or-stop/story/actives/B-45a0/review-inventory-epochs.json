@@ -8372,6 +8372,43 @@
       ],
       "createdAt": "2026-08-24T18:27:01.541Z",
       "_hash": "5e88d4af65a341b54e07453a75dcb1af025ed28f25d4a7b5992ac690fc6771e5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-060:CRIT-01",
+      "epochId": "B-45a0:RI-060",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "3a9a7ca5abcc15855f62e915a98018cb25ab6154",
+        "materialHash": "77eaa3408449638371466a0887e68cdebdf1ba00362305352c3d865a3eff4cd8",
+        "storyFilesHash": "60fc8f4ce1fd1c0fed96e4d86606dccdb2766461555778714c394e19ed75d664"
+      },
+      "aggregateFindingSetDigest": "736091cce473d69e248f475cbf5aa868877a89700d5fc92720359597b233dbd4",
+      "requiredLaneCoverageDigest": "16b5c31f60284fcb4e590afc47063c4259c90a5b92721e2f78e5afaf01f706af",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-541",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-161"
+      ],
+      "readEvidenceDigest": "e38ce7565a32d866d7752a1867caf94ba877f622392768e1da17d893e8d02da5",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-298",
+          "disposition": "verified_family",
+          "familyKey": "wave4-acceptance-coverage",
+          "reason": "Current acceptance topology is structurally configured but not evidentiary; bound checklist rows omit verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check coverage. The current pre-review artifact remains invalid/stale, so rollout PASS cannot close this acceptance-coverage family."
+        },
+        {
+          "findingId": "B-45a0:F-299",
+          "disposition": "verified_family",
+          "familyKey": "dyn3-replay-assurance",
+          "reason": "Current CHK-011 replay evidence remains plan-only: execute=false, 50 records are execution=not-run, no executable receipts establish the full-failure subset property, and pairedPerformance is null. Required replay, fault-injection, and paired current-head assurance is absent."
+        }
+      ],
+      "createdAt": "2026-08-25T05:54:11.950Z",
+      "_hash": "4c48cf079ab6d66fd409011c6b8b93868c61a1f4e825abcd848aeae0c0e8f067"
     }
   ]
 }

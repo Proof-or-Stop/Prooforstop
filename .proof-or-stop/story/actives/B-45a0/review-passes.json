@@ -7891,6 +7891,60 @@
         "scanEscalationReason": null
       },
       "_hash": "41c59b3ada961128f027bcdc63f26431e6cabd737795bc65697a4342bff7f274"
+    },
+    {
+      "id": "B-45a0:RP-160",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology critic reviewed the current aggregate and required-lane evidence; F-298 and F-299 remain verified blockers and are retained by the completeness dispositions.",
+      "createdAt": "2026-08-25T05:53:06.843Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-540",
+      "envelopeId": "c9e17dcd0a3485e9a6c3ffdaf34acfb7a4c9ad6f5360126737512840dd3385d2",
+      "writerSessionId": "sess-86c11cdce25094d96295c9b2250cda10",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a4c2b5f4ac68f26648fe90b704c6b4bb04831743a7a71fcd91e66417b0a71ab3"
+    },
+    {
+      "id": "B-45a0:RP-161",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology critic reviewed the current aggregate and required-lane evidence; F-298 and F-299 remain verified blockers and are retained by the completeness dispositions.",
+      "createdAt": "2026-08-25T05:53:56.526Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-541",
+      "envelopeId": "7cb815fb29b6c4fe8a24c98f869c82606e4fb7ce25cdf82b4c8dc80286551d4c",
+      "writerSessionId": "sess-86c11cdce25094d96295c9b2250cda10",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8435f2f8a53be9ff7c2d462b9d42fa35091cad917a0af12ecfd41750e064ffa0"
     }
   ]
 }
