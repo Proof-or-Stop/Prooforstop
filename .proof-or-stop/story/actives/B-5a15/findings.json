@@ -13892,7 +13892,7 @@
       "desc": "Coverage blocker: the trusted current checklist material exposes verificationIntent for CHK-001 through CHK-005 but no corresponding verificationEvidence records for the required happy, edge, and adversarial intents; the must intents therefore cannot be admitted as covered by this REVIEW lane.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T11:01:13.803Z",
@@ -13926,7 +13926,11 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "missing|mjs|coverage-blocker-trusted",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:39:02.736Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-264",
