@@ -16999,6 +16999,52 @@
         "scanEscalationReason": null
       },
       "_hash": "d3942a9e5c9ffdd9bc6f06ea5bd4dc98eaacc906ab93e78c1a3332721c500a1f"
+    },
+    {
+      "id": "B-5a88:RP-274",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-076 test-coverage inventory pass: all 21 must verificationIntent entries across CHK-001 through CHK-007 have current non-failing verificationEvidence, with 21 evidence records and zero failures; the Wave-4 rollout report and enforce check are PASS for full-3x2. No new coverage family was identified beyond carried canonical F-345, F-389, and F-416; the existing topology/pre-review binding state is retained without recreating F-415 or changing those findings.",
+      "createdAt": "2026-08-25T01:36:33.525Z",
+      "reviewRound": "2026-08-25T01:19:40.773Z",
+      "reviewRunId": "B-5a88:RR-710",
+      "envelopeId": "9cf87a971e9a5a07ef08b46fd2e31497a460c608c24cc15bb5908b2269f0a6f0",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-test-coverage.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/tests/managed-marker-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/test-evidence.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0c57401bcc44e754efb12f68b3671208ab8e5bcfacfefcd22cbac2cc7eec77cf"
     }
   ]
 }
