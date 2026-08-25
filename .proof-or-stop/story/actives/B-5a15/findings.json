@@ -13552,7 +13552,7 @@
       "desc": "Current wave-3 coverage cannot be admitted as complete: the trusted review context exposes verificationIntent for CHK-001 through CHK-005, including required happy/edge/adversarial cases, but no concrete verificationEvidence rows are present in the review context to bind those intents to executable results. Until each required intent is bound to valid non-failing evidence, REVIEW coverage remains incomplete.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-24T10:33:20.014Z",
@@ -13588,7 +13588,11 @@
         ".proof-or-stop/story/actives/B-5a15/checklist.json"
       ],
       "signatureTag": "missing|mjs|current-wave-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:38:23.034Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-256",
