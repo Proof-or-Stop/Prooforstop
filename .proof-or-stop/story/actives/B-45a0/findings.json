@@ -15987,6 +15987,63 @@
       ],
       "signatureTag": "missing|ts|quality-review-assurance",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-312",
+      "desc": "Wave-2 concept review cannot approve the verifier-owned acceptance chain: .proof-or-stop/story/actives/B-45a0/pre-review-check.json:1 is rejected by pre_review_check_read with PR_ARTIFACT_TAMPERED at current HEAD e7b49fcd27 (materialHash 3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c, storyFilesHash 3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9). Although topology is structurally complete and rollout checks report pass, the pre-review verifier artifact is not admissible for the current review; regenerate and rebind it before accepting Wave 4.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-25T10:39:03.755Z",
+      "reviewRound": "2026-08-25T10:16:24.136Z",
+      "reviewRunId": "B-45a0:RR-594",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": "Scoped wave-2 concept re-attestation read the dynamic-validation decision records and verifier-owned acceptance chain; no repository-wide decisions-directory escalation was required because no new concept deletion/replacement was found."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "c5db20f0b24973e6c0d2afe34ec87a97547a8017ea5bd7cefc9f78cd7bdccc2e"
+      },
+      "readDiagnostics": [],
+      "_hash": "3a494e06ca5c3bc691a808e6762d2862264539752168aefa1f15fbb818524fe9",
+      "signatureTag": "missing|unknown|wave-concept-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
