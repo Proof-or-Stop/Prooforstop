@@ -8195,6 +8195,91 @@
       },
       "readDiagnostics": [],
       "_hash": "a32410b1a08ed37827f8c6e66515a55f44288e9ef993c14ef6288e3464ad7b38"
+    },
+    {
+      "id": "B-45a0:RP-167",
+      "agent": "lattice-review-concept",
+      "note": "Wave 3 concept review completed: scanned the integrated story-aware validation change and the Wave 4 acceptance chain for deleted concepts and residual references. The canonical acceptance_topology_check -> pre_review_check_read -> acceptance_rollout_report_read/acceptance_rollout_check chain is implemented; the signed rollout report is current for the frozen material and verifies genuine full-3x2 evidence (three runs, codex-cli and claude-cli each). Rollback changes only acceptanceRolloutGateMode and preserves immutable report history. No new blocker was found; existing F-298/F-299/F-300 families were not duplicated.",
+      "createdAt": "2026-08-25T06:17:49.855Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-550",
+      "envelopeId": "325c7dad00d3516b411112cba707b3c5267f7e316aab7142030d0150a37926cf",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/testintent-handoff.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-coverage.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cbd794cf69383a579b6459c2a77d4d6bc7de79c61aed382a8001a38c393047de"
+    },
+    {
+      "id": "B-45a0:RP-168",
+      "agent": "lattice-review-docs",
+      "note": "Current-head documentation review completed. Existing B-45a0:F-300 was re-attested: the two current-main documents still overstate explicit cpuWeight and expectedP50Ms policy coverage, while both 112-row configs omit those fields on 110 rows and the implementation applies a cpuWeight default and leaves expectedP50Ms optional. F-300 remains the single tracked medium documentation drift finding; no new finding or duplicate was created. No additional documentation-code inconsistencies were found in the scoped symbols.",
+      "createdAt": "2026-08-25T06:17:53.356Z",
+      "reviewRound": "2026-08-25T04:59:21.120Z",
+      "reviewRunId": "B-45a0:RR-551",
+      "envelopeId": "3352953c94bc5e995c6ac398c4f54b615cff0295f67bb0a8b73166db4e479a9e",
+      "writerSessionId": "sess-human-B-45a0-1787554495",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "d419d0020fe761b36ae300f83b5652167da77c21a599b8dd2984f288e138e529"
+      },
+      "readDiagnostics": [],
+      "_hash": "c1371ee5a476c7ec35a32f5d6ce85ea3f180e3493c0e3cb449b801c4668dc399"
     }
   ]
 }
