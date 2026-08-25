@@ -16842,6 +16842,100 @@
       ],
       "signatureTag": "ri073-current-acceptance-coverage",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-324",
+      "desc": "RI-073 wave-2 topology critic requests changes: acceptance topology is structurally complete but remains evidentiary=false with result inconclusive_basis_unverified. The current pre_review_check_read fails PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND, while acceptance_rollout_report_read and acceptance_rollout_check both report stale receipt AR_REPORT_STALE. CHK-014:happy:0 has no mechanical receipt after verification_evidence_refresh_stale, and the stored rollout receipt is not bound to the current material/story binding. Regenerate and rebind verifier-owned pre-review and rollout artifacts and re-earn the acceptance topology receipt before inventory finalization; this re-attests F-323 and preserves the separate historical replay finding rather than creating a duplicate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-25T17:18:27.240Z",
+      "reviewRound": "2026-08-25T16:06:11.159Z",
+      "reviewRunId": "B-45a0:RR-654",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+          ".proof-or-stop/story/actives/B-45a0/topology-critic-receipt.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/core/validation-revocation-ledger.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "summary": {
+          "readCount": 12,
+          "tokenCount": null
+        },
+        "digest": "47240b084c3b4ab1be2f22725bbce4010d786bdf4fc6c05afad82746b20f2456"
+      },
+      "readDiagnostics": [],
+      "_hash": "103174cfcdd51f9a350f3fef7afa28a3ec1c9865af8cae62fdf355ac0b2afb68",
+      "files": [
+        "AGENTS.md,.proof-or-stop/story/actives/B-45a0/background.md,.proof-or-stop/story/actives/B-45a0/plan.md,.proof-or-stop/story/actives/B-45a0/checklist.json,.proof-or-stop/story/actives/B-45a0/acceptance-basis.json,.proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json,.proof-or-stop/story/actives/B-45a0/pre-review-check.json,.proof-or-stop/story/actives/B-45a0/scope-contract.json,.proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json,.proof-or-stop/story/actives/B-45a0/review-runs.json,.proof-or-stop/story/actives/B-45a0/findings.json,.proof-or-stop/story/actives/B-45a0/topology-critic-receipt.json,.proof-or-stop/runtime/dynamic-validation/historical-replay/report.json,docs/CLI.md,docs/requirements/decisions/dynamic-validation-enforcement-evidence.md,docs/requirements/decisions/dynamic-validation-operations.md,docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md,docs/requirements/decisions/lifecycle-gate-receipt-consumption.md,docs/requirements/decisions/story-files-hash-material-drift.md,docs/requirements/decisions/testing-completeness.md,packages/main/src/core/acceptance-coverage-basis.ts,packages/main/src/core/acceptance-rollout.ts,packages/main/src/core/acceptance-topology.ts,packages/main/src/core/pre-review-check.ts,packages/main/src/core/pre-review-live-proof.ts,packages/main/src/core/story-aware-validation.ts,packages/main/src/core/story-signed-workspace-resolution.ts,packages/main/src/core/validation-types.ts,packages/main/src/handlers/story-aware-validation.ts,packages/main/src/handlers/verifier.ts,packages/main/src/handlers/transition-orchestrator.ts,packages/main/src/tasks/story-aware-validation-historical-replay.ts,scripts/run-proofstory-pre-review-live-proof.mjs,docs/requirements/decisions/routine-validation-fresh-pass-reuse.md,docs/requirements/decisions/test-runner-consolidation-plan.md,docs/requirements/decisions/validation-evidence-artifact-growth.md,docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md,packages/main/src/core/validation-revocation-ledger.ts,packages/main/src/tasks/story-aware-validation-mutation-smoke.ts,packages/main/src/tasks/story-aware-validation-production-smoke.ts,packages/main/src/tasks/validation-protocol-smoke.ts,scripts/run-dynamic-validation-fault-injection.mjs,scripts/run-dynamic-validation-replay.mjs,scripts/verify-story-aware-validation-plan.mjs,scripts/verify-validation-catalog.mjs,scripts/verify-validation-inventory.mjs"
+      ],
+      "signatureTag": "ri073-wave2-topology-pre-review-acceptance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

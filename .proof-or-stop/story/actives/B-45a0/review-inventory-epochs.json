@@ -10236,6 +10236,37 @@
       ],
       "createdAt": "2026-08-25T17:05:53.846Z",
       "_hash": "2a6eb26219a5bdb96812270098fbd08adef5fad025c91a3291ae198669fb3157"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-073:CRIT-02",
+      "epochId": "B-45a0:RI-073",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-25T16:06:11.159Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "c2a30bce4ff681b7e81e8d996ff5a2a3f6bd578d",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84"
+      },
+      "aggregateFindingSetDigest": "aa248595048b91b47b47d2a555f54e95a2910b6196865ee69d90cc25f591ae98",
+      "requiredLaneCoverageDigest": "369489167e47edf172782a234a13a3a54b7ad6ff6934671971836e9f5557930b",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-654",
+      "terminalEvidenceIds": [
+        "B-45a0:F-324"
+      ],
+      "readEvidenceDigest": "4c51cc1f1ebb2dd787565c9264eb10d853da6fc155f7988ec34fb449ec0936c8",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-323",
+          "disposition": "verified_family",
+          "familyKey": "ri073-current-acceptance-coverage",
+          "reason": "The fresh wave-2 coverage finding is confirmed by current verifier-owned evidence: acceptance_topology_check is structural-only and evidentiary=false, pre_review_check_read fails five PR_* conditions, and acceptance rollout is stale. It re-attests the existing acceptance-coverage/topology family rather than introducing a new family."
+        }
+      ],
+      "createdAt": "2026-08-25T17:18:48.139Z",
+      "_hash": "fc3e7ad4d44fdc0b1e2e6564c711dd9814aca345e2f9d849f168a31155895529"
     }
   ]
 }
