@@ -4417,7 +4417,7 @@
       "desc": "doc-promise-undelivered: docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:14-30 promises that the mandatory enforcement gate contains real FI-1..FI-5 omitted-edge/delete-rename coverage, paired per-command evidence, and zero residue. At current HEAD 03d61f4a03f18b6f51c50d602cc7d8ccfb2e0de3 the report gate does not deliver that promise: packages/main/src/tasks/story-aware-validation-historical-replay.ts:333-365 accepts FI-2 through stale-signature rejection and global full escalation and accepts FI-5 with baseHead equal to head/direct roots/nonempty digest, while lines 500-508 accept paired evidence from verdictEquivalent plus signature without requiring the computed perCommandEquivalent or residue. Thus the documented mandatory gate can emit admissible=true without the documented proof. This is a current docs-to-code authority mismatch, not merely missing historical evidence.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-21T17:24:53.361Z",
@@ -4464,7 +4464,11 @@
         "scripts/run-dynamic-validation-replay.mjs"
       ],
       "signatureTag": "doc-promise-undelivered|md|fi-paired-mandatory-gate",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Resolved by current historical-replay gate: the current implementation requires per-command equivalence, zero residue, paired verdict equivalence and signed paired-performance data, and the FI-1..FI-5 artifact must be allPass before admissibility. Current validation evidence includes replay mutation and receipt/replay guards at the current Story head.",
+      "resolvedAt": "2026-08-25T04:03:42.832Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-090",
