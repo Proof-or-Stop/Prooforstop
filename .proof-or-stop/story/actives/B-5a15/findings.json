@@ -14068,7 +14068,7 @@
       "desc": "packages/main/src/core/causal-evidence.ts:369-380 — TRANSPORT_ENV_KEY drops every environment key ending in SESSION or SESSION_ID (for example APP_SESSION) before hashing, while effectiveValidationCommandEnvironment preserves non-listed environment variables for the child. Changing APP_SESSION therefore leaves the execution key and cached receipt unchanged even though the command sees a different value, violating exact effective-environment binding and allowing stale PASS reuse; add a regression and align this filter with the canonical transport allowlist.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-24T14:55:49.924Z",
@@ -14107,7 +14107,11 @@
       "readDiagnostics": [],
       "_hash": "1fdfc2f84393acbccb3c3623df89ac9e0ada0002fd7f9d077e97ce2072383100",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by finalized current-material review B-5a15:RI-025:RCP-001; retained as historical audit record.",
+      "resolvedAt": "2026-08-25T10:39:24.518Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-268",
