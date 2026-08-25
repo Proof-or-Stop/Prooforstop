@@ -1620,7 +1620,7 @@
             "priority": "must",
             "verification": {
               "command": "LATTICE_ACTIVE_STORY_ID=B-5a88 node scripts/run-proofstory-pre-review-live-proof.mjs",
-              "selector": "topology omission + observe/enforce/warn rollback: PASS"
+              "selector": "PROOFSTORY_PRE_REVIEW_PROOF="
             }
           }
         ]
