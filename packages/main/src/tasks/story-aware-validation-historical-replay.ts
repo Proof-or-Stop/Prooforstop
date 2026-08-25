@@ -222,15 +222,15 @@ for (const candidate of selected) {
   const files = diffCache.get(candidate.storyId) || changedFiles(candidate.pair.base, candidate.pair.head);
   diffCache.set(candidate.storyId, files);
   candidate.category = candidateCategory(candidate);
-  const changes = buildStoryChangeManifest({ storyId: candidate.storyId, gitCwd: root, baseHead: candidate.pair.base, head: candidate.pair.head, changedFiles: files });
+  const changes = buildStoryChangeManifest({ storyId: candidate.storyId, gitCwd, baseHead: candidate.pair.base, head: candidate.pair.head, changedFiles: files });
   // Graph extraction is needed for executable assurance. Plan-only mode keeps
   // the inexpensive inventory characterization path and does not pretend to
   // have executed dual-revision closure evidence.
-  const graph = execute ? buildDualRevisionImpactGraph({ gitCwd: root, baseHead: candidate.pair.base, head: candidate.pair.head, catalog }) : undefined;
+  const graph = execute ? buildDualRevisionImpactGraph({ gitCwd, baseHead: candidate.pair.base, head: candidate.pair.head, catalog }) : undefined;
   const manifest = buildDynamicValidationPlan({
     storyId: candidate.storyId, baseHead: candidate.pair.base, head: candidate.pair.head,
     inventory, catalog, changes, closures, baselineEpochId: candidate.pair.base, graph,
-    buildProofDigest: 'historical-replay-plan', mode: 'shadow', gitCwd: root,
+    buildProofDigest: 'historical-replay-plan', mode: 'shadow', gitCwd,
   });
   assert.equal(verifyValidationSelectionManifest(manifest), true, `${candidate.storyId} produced an invalid selection manifest`);
   const record: Record<string, unknown> = {
@@ -328,7 +328,7 @@ const fiCandidate = candidates.find(candidate => changedFiles(candidate.pair.bas
 const fiPair = fiCandidate?.pair || { base: git(['rev-parse', 'HEAD^']), head: git(['rev-parse', 'HEAD']) };
 const fiReferenceBase = fiPair.base;
 const fiReferenceHead = fiPair.head;
-const fiGraph = buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, catalog });
+const fiGraph = buildDualRevisionImpactGraph({ gitCwd, baseHead: fiReferenceBase, head: fiReferenceHead, catalog });
 const fiRevisionChanges = changedFiles(fiReferenceBase, fiReferenceHead);
 const fiDeletedPath = fiRevisionChanges.find(change => change.status === 'deleted')?.path || fiRevisionChanges.find(change => change.status === 'renamed')?.oldPath;
 const fiRenamed = fiRevisionChanges.find(change => change.status === 'renamed');
@@ -354,14 +354,14 @@ const focusedSelectionFaults = (() => {
     for (const path of [...new Set(matches)]) {
       if (path === change.path || path === change.path.replace(/\.[^.]+$/, '.js')) continue;
       const targetProbe = { ...target, inputRoots: [path] };
-      const graph = buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, catalog: [direct, targetProbe] });
+      const graph = buildDualRevisionImpactGraph({ gitCwd, baseHead: fiReferenceBase, head: fiReferenceHead, catalog: [direct, targetProbe] });
       if (graph.commandsAffectedBy(change).includes(target.id)) return path;
     }
     return undefined;
   };
   const dependentPath = findDependentPath(sourceChange, directProbe, targetSeed);
   const targetMatch = directProbe && sourceChange && targetSeed && dependentPath
-    ? { target: { ...targetSeed, inputRoots: [dependentPath] }, graph: buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, catalog: [directProbe, { ...targetSeed, inputRoots: [dependentPath] }] }) }
+    ? { target: { ...targetSeed, inputRoots: [dependentPath] }, graph: buildDualRevisionImpactGraph({ gitCwd, baseHead: fiReferenceBase, head: fiReferenceHead, catalog: [directProbe, { ...targetSeed, inputRoots: [dependentPath] }] }) }
     : undefined;
   const targetEntry = targetMatch?.target;
   const withGraph = targetMatch?.graph;
@@ -370,7 +370,7 @@ const focusedSelectionFaults = (() => {
   const graphDirectProbe = directSeed && graphDirectPath ? { ...directSeed, inputRoots: [graphDirectPath] } : undefined;
   const graphDependentPath = findDependentPath(graphSourceChange, graphDirectProbe, targetSeed);
   const graphTargetMatch = graphDirectProbe && targetSeed && graphDependentPath
-    ? { target: { ...targetSeed, inputRoots: [graphDependentPath] }, graph: buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, catalog: [graphDirectProbe, { ...targetSeed, inputRoots: [graphDependentPath] }] }) }
+    ? { target: { ...targetSeed, inputRoots: [graphDependentPath] }, graph: buildDualRevisionImpactGraph({ gitCwd, baseHead: fiReferenceBase, head: fiReferenceHead, catalog: [graphDirectProbe, { ...targetSeed, inputRoots: [graphDependentPath] }] }) }
     : undefined;
   if (!directProbe || !targetEntry || !withGraph || !sourceChange || withGraph.graphUnknown) {
     const probeFailure = { directPath, sourceChange, directCommandId: directProbe?.id, targetSeedId: targetSeed?.id, dependentPath, graphUnknown: withGraph?.graphUnknown };
@@ -381,7 +381,7 @@ const focusedSelectionFaults = (() => {
   const probeCatalog = [directProbe, targetEntry];
   const probeCatalogDigest = stableDigest(probeCatalog);
   const probeClosures = new Map(probeCatalog.map(entry => [entry.id, createValidationClosureCertificate({ commandId: entry.id, baseHead: fiReferenceBase, inventoryDigest: probeInventory.digest, catalogDigest: probeCatalogDigest, staticPaths: entry.inputRoots, processFacts: entry.triggerExtensions.processFacts, capabilities: entry.triggerExtensions.capabilities })]));
-  const probeChanges = buildStoryChangeManifest({ storyId: 'B-fi-focused', gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [sourceChange] });
+  const probeChanges = buildStoryChangeManifest({ storyId: 'B-fi-focused', gitCwd, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [sourceChange] });
   const baseContext = { storyId: 'B-fi-focused', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: probeInventory, catalog: probeCatalog, changes: probeChanges, closures: probeClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', mode: 'observe' as const };
   const noGraphPlan = buildDynamicValidationPlan(baseContext);
   const targetRow = noGraphPlan.rows.find(row => row.commandId === targetEntry.id)!;
@@ -423,7 +423,7 @@ const focusedSelectionFaults = (() => {
   const graphCatalog = graphDirectProbe && graphTargetMatch?.target ? [graphDirectProbe, graphTargetMatch.target] : undefined;
   const graphInventory = graphCatalog ? { ...inventory, commands: inventory.commands.filter(command => graphCatalog.some(entry => entry.id === command.id)), digest: stableDigest(inventory.commands.filter(command => graphCatalog.some(entry => entry.id === command.id))) } : undefined;
   const graphClosures = graphCatalog && graphInventory ? new Map(graphCatalog.map(entry => [entry.id, createValidationClosureCertificate({ commandId: entry.id, baseHead: fiReferenceBase, inventoryDigest: graphInventory.digest, catalogDigest: stableDigest(graphCatalog), staticPaths: entry.inputRoots, processFacts: entry.triggerExtensions.processFacts, capabilities: entry.triggerExtensions.capabilities })])) : undefined;
-  const graphChanges = graphSourceChange && graphCatalog && graphInventory && graphClosures ? buildStoryChangeManifest({ storyId: 'B-fi-focused-graph', gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [graphSourceChange] }) : undefined;
+  const graphChanges = graphSourceChange && graphCatalog && graphInventory && graphClosures ? buildStoryChangeManifest({ storyId: 'B-fi-focused-graph', gitCwd, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [graphSourceChange] }) : undefined;
   const graphContext = graphCatalog && graphInventory && graphClosures && graphChanges ? { storyId: 'B-fi-focused-graph', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: graphInventory, catalog: graphCatalog, changes: graphChanges, closures: graphClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', mode: 'observe' as const } : undefined;
   const graphTargetRow = graphContext && graphTargetMatch?.target ? buildDynamicValidationPlan(graphContext).rows.find(row => row.commandId === graphTargetMatch.target.id) : undefined;
   const graphReceipt = graphContext && graphTargetMatch?.target && graphTargetRow && graphClosures ? createValidationCommandReceipt({
@@ -447,10 +447,10 @@ const focusedSelectionFaults = (() => {
   const headOnlyCatalogDigest = headOnlyCatalog ? stableDigest(headOnlyCatalog) : undefined;
   const headOnlyClosures = headOnlyCatalog && headOnlyInventory && headOnlyCatalogDigest ? new Map(headOnlyCatalog.map(entry => [entry.id, createValidationClosureCertificate({ commandId: entry.id, baseHead: fiReferenceBase, inventoryDigest: headOnlyInventory.digest, catalogDigest: headOnlyCatalogDigest, staticPaths: entry.inputRoots, processFacts: entry.triggerExtensions.processFacts, capabilities: entry.triggerExtensions.capabilities })])) : undefined;
   const headOnlyGraph = headOnlyCatalog && graphSourceChange
-    ? buildDualRevisionImpactGraph({ gitCwd: root, baseHead: fiReferenceHead, head: fiReferenceHead, catalog: headOnlyCatalog })
+    ? buildDualRevisionImpactGraph({ gitCwd, baseHead: fiReferenceHead, head: fiReferenceHead, catalog: headOnlyCatalog })
     : undefined;
   const headOnlyChanges = headOnlyChangedFile && headOnlyCatalog && headOnlyInventory && headOnlyClosures
-    ? buildStoryChangeManifest({ storyId: 'B-fi-focused-head-only', gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [headOnlyChangedFile] })
+    ? buildStoryChangeManifest({ storyId: 'B-fi-focused-head-only', gitCwd, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [headOnlyChangedFile] })
     : undefined;
   const headOnlyContext = headOnlyCatalog && headOnlyInventory && headOnlyClosures && headOnlyChanges
     ? { storyId: 'B-fi-focused-head-only', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: headOnlyInventory, catalog: headOnlyCatalog, changes: headOnlyChanges, closures: headOnlyClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', mode: 'observe' as const }
@@ -472,10 +472,10 @@ const faultInjection = [...catalog.flatMap((entry) => {
   const rows: Array<Record<string, unknown>> = [];
   const closure = closures.get(entry.id);
   const fiContext = (changedFiles: StoryChangedFile[], closureSet = closures) => {
-    const changes = buildStoryChangeManifest({ storyId: `B-fi-${entry.id}`, gitCwd: root, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles });
+    const changes = buildStoryChangeManifest({ storyId: `B-fi-${entry.id}`, gitCwd, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles });
     return buildDynamicValidationPlan({
       storyId: `B-fi-${entry.id}`, baseHead: fiReferenceBase, head: fiReferenceHead, inventory, catalog,
-      changes, closures: closureSet, baselineEpochId: 'fi-epoch', buildProofDigest: 'fi-build', mode: 'observe', graph: fiGraph, gitCwd: root,
+      changes, closures: closureSet, baselineEpochId: 'fi-epoch', buildProofDigest: 'fi-build', mode: 'observe', graph: fiGraph, gitCwd,
     });
   };
   if (entry.assurance === 'story-selectable') {
@@ -525,17 +525,17 @@ const faultInjectionPath = join(outputRoot, 'fault-injection.json');
 let pairedPerformance: Record<string, unknown> | undefined;
 if (paired) {
   const currentHead = git(['rev-parse', 'HEAD']);
-  const currentChanges = buildStoryChangeManifest({ storyId: 'B-current-paired', gitCwd: root, baseHead: currentHead, head: currentHead, changedFiles: [] });
+  const currentChanges = buildStoryChangeManifest({ storyId: 'B-current-paired', gitCwd, baseHead: currentHead, head: currentHead, changedFiles: [] });
   const currentClosures = new Map(catalog.map((entry) => [entry.id, createValidationClosureCertificate({
     commandId: entry.id, baseHead: currentHead, inventoryDigest: inventory.digest,
     catalogDigest, staticPaths: entry.inputRoots,
   })]));
-  const currentGraph = buildDualRevisionImpactGraph({ gitCwd: root, baseHead: currentHead, head: currentHead, catalog });
+  const currentGraph = buildDualRevisionImpactGraph({ gitCwd, baseHead: currentHead, head: currentHead, catalog });
   const fullCommands = validationCommands(catalog);
   let pairedManifest = buildDynamicValidationPlan({
     storyId: 'B-current-paired', baseHead: currentHead, head: currentHead, inventory, catalog,
     changes: currentChanges, closures: currentClosures, baselineEpochId: currentHead,
-    buildProofDigest: 'paired-performance', graph: currentGraph, mode: 'shadow', gitCwd: root,
+    buildProofDigest: 'paired-performance', graph: currentGraph, mode: 'shadow', gitCwd,
   });
   let selectedIds = new Set<string>();
   let dynamicCommands: ReturnType<typeof validationCommands> = [];
