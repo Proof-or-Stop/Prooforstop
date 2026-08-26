@@ -20984,6 +20984,104 @@
       },
       "readDiagnostics": [],
       "_hash": "40f3c31d9cc77c63dd370237e901a1a8b8262b5c0aa8c493ce041c2938d1782b"
+    },
+    {
+      "id": "B-5a88:RP-329",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-086 wave 2 concept review checked the integrated current HEAD, story checklist and plan, brand and identity migration surfaces, dispatch and prompt role contracts, runtime markers, package and entrypoint boundaries, and the current finding ledger. Static residue, global lab entrypoint, core package rename, migration contract, and prompt baseline checks passed. The only remaining concept defects are the already recorded distinct lab import writers F-473 and F-474, independently corroborated by F-475 and F-476; they are not duplicated here. The entrypoint verifier remains environment-unverified because sandbox EPERM blocked replacement of the external global shim, not because of a source conclusion. No additional concept blocker was found.",
+      "createdAt": "2026-08-26T07:30:04.630Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-865",
+      "envelopeId": "2cdf7c6621d9a7520cc3fa5f7fe8deb1ebc2e77b6e4d8e830846f5cbfa357547",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-concept.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/package.json",
+          "packages/main/src/cli.ts",
+          "packages/main/src/cli/lab-entrypoint.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-markers.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "bin/bootstrap-runner.js",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/truth-source.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": "verify-entrypoints was environment-blocked by sandbox EPERM when init attempted to replace /Users/qipan/.claude/agents/proof-or-stop-review-topology-critic.md; no source concept conclusion relies on that check"
+      },
+      "_hash": "117ea4961b03496383440e7f89b819936e895a683ab90a4be5c602f3d402f02d"
+    },
+    {
+      "id": "B-5a88:RP-330",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-086 wave 3 test-coverage review passed: all 39/39 must verification intents have non-failing evidence with zero gaps or waivers; CHK-013 executes all four Wave 4 reads and the mutation/live-proof coverage. Current pre_review_check_read is independently FAIL with PR_ARTIFACT_TAMPERED, confirming existing F-478 remains an unresolved gate finding; this lane pass does not clear F-478 or authorize TEST.",
+      "createdAt": "2026-08-26T07:59:03.583Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-868",
+      "envelopeId": "5060396a163dadab370844613a861f021ad5f2636610eb65fa938f4ca1a0b671",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/truth-source.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5a2dc3bc837147a98030ec56fa436d13c65a981eabfce1dc7c065cd7387f7064"
     }
   ]
 }

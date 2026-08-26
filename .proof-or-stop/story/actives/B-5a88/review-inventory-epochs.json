@@ -7397,7 +7397,7 @@
       "reviewRound": "2026-08-26T06:01:18.913Z",
       "state": "OPEN",
       "begunAt": "2026-08-26T06:31:13.319Z",
-      "updatedAt": "2026-08-26T07:09:07.008Z",
+      "updatedAt": "2026-08-26T07:43:07.009Z",
       "cutoff": {
         "headHash": "244209f46c0c06967a01257c76573374c7c5549c",
         "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
@@ -7459,12 +7459,61 @@
           "criticDigest": "5fdf98bfe2b722c8ad3e22d0b494c359960d76d671bed41b46939694f0fdc431",
           "saturated": false,
           "nextRunSequenceBoundary": 861
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-26T07:09:07.008Z",
+          "completedAt": "2026-08-26T07:43:07.009Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-5a88:RR-865",
+              "terminal": "pass",
+              "hostIdentity": "2ea9fb60fc0b81ad9159076fa7bda0da3fc7e561715156cd813a279916cd3487",
+              "promptIdentity": "2cdf7c6621d9a7520cc3fa5f7fe8deb1ebc2e77b6e4d8e830846f5cbfa357547",
+              "evidenceIds": [
+                "B-5a88:RP-329"
+              ],
+              "coverageDigest": "f3da24e8ba3e3bfa331ea29f7592a18b693362cc991da091d25dbf5d62c48c79"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-5a88:RR-863",
+              "terminal": "finding",
+              "hostIdentity": "2ea9fb60fc0b81ad9159076fa7bda0da3fc7e561715156cd813a279916cd3487",
+              "promptIdentity": "9210a24703a6434b6277960779d7e45b8f12f86418a82c09159a8fa5b8b23564",
+              "evidenceIds": [
+                "B-5a88:F-477"
+              ],
+              "coverageDigest": "cb28c0145efae94bb31ca388f86d1b80ea9944cd7a9fb30958ccebf0e70268ae"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-864",
+              "terminal": "pass",
+              "hostIdentity": "2ea9fb60fc0b81ad9159076fa7bda0da3fc7e561715156cd813a279916cd3487",
+              "promptIdentity": "cbeadd3ef90de470c6a532070a93587d371d616a5135ae9cc941b1293fcdd4d6",
+              "evidenceIds": [
+                "B-5a88:RP-328"
+              ],
+              "coverageDigest": "d3f214262b83faabbc91627d9afbbbda92e3372f15d1fbad335abc05ccad2bdd"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "canonical-lab-import-error-dual-write",
+            "retired-lab-command-verifier"
+          ],
+          "verifiedFindingSetDigest": "74773ad1efcd7e35d5760953259397a039f1033cf8b99ffa83406508d7d6b523",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "e9026e6daccd362858ba8446729656a318c84f3c43116369757f3d3ab5884e35",
+          "saturated": false,
+          "nextRunSequenceBoundary": 867
         }
       ],
       "baselineFindingIds": [
         "B-5a88:F-473"
       ],
-      "_hash": "fd123b019b2dbd79b3f38c75eb9acd9935fa0189afd2ba85ed40b0d135884062"
+      "_hash": "0ad9a83db383099866c80cfb59cbcd852f079e3fb13ed22e49b535896f24f3d1"
     }
   ],
   "receipts": [
@@ -12413,6 +12462,37 @@
       ],
       "createdAt": "2026-08-26T07:07:40.945Z",
       "_hash": "33f367f6a9cddb6a7ffcae6de605f07975d09c317cd0b28d1d4b7964c2cfbcbc"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-086:CRIT-02",
+      "epochId": "B-5a88:RI-086",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "244209f46c0c06967a01257c76573374c7c5549c",
+        "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
+        "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1"
+      },
+      "aggregateFindingSetDigest": "74773ad1efcd7e35d5760953259397a039f1033cf8b99ffa83406508d7d6b523",
+      "requiredLaneCoverageDigest": "dd1d69581dd9901c2980d5268aa5d473820b264af94225d59cb1721fddb650e6",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-867",
+      "terminalEvidenceIds": [
+        "B-5a88:F-478"
+      ],
+      "readEvidenceDigest": "f7889a484ccd1a9db50a18efcc8ad2fdda85ce57e8738fb6ca60201dd096a32f",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-477",
+          "disposition": "verified_family",
+          "familyKey": "retired-lab-command-verifier",
+          "reason": "Direct review of scripts/verify-lab-scoring-core.mjs and the current CLI catalog confirms its lab create, run, and compare invocations use the retired composite command surface; this is a distinct verified family from the lab import-error dual-write findings."
+        }
+      ],
+      "createdAt": "2026-08-26T07:41:53.446Z",
+      "_hash": "2e464617a22e45900fed4fd8b9be691a583778ee7b3230a09a7dd9960f7ac856"
     }
   ]
 }
