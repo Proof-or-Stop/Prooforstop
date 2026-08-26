@@ -168,9 +168,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-45a0:CW-008",
       "storyId": "B-45a0",
-      "state": "RUNNING",
+      "state": "CANCELLED",
       "createdAt": "2026-08-26T11:03:35.858Z",
-      "updatedAt": "2026-08-26T11:03:47.545Z",
+      "updatedAt": "2026-08-26T11:20:36.778Z",
       "frozen": {
         "headHash": "40e2571e7a2caf73d619b8116c2752a60ff1b5d3",
         "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
@@ -185,8 +185,9 @@
         "authority": "inventory-completeness-only",
         "authorizesTest": false
       },
-      "receiptId": "B-45a0:PRECERT-005",
-      "_hash": "70e7bea6b4bcd327bfdd53c5c029965f03dce68c09a6df5c9501ab2e0b14ca0d"
+      "cancelledAt": "2026-08-26T11:20:36.778Z",
+      "cancelReason": "Acceptance rollout resource policy changed; prior certification is invalid.",
+      "_hash": "f945fa6b0ec1c10dfb44f219d924fbadfba06cfc74ed39e2dd093c037c76c078"
     }
   ],
   "receipts": [
