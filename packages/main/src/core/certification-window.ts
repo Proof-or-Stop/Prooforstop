@@ -29,6 +29,7 @@ export const INVENTORY_COMPLETENESS_AUTHORITY = 'inventory-completeness-only';
 
 export const PRE_CERT_INVENTORY_API_ABSENT = 'pre_cert_inventory_api_absent';
 export const PRE_CERT_INVENTORY_NOT_FINALIZED = 'pre_cert_inventory_not_finalized';
+export const PRE_CERT_INVENTORY_PROBE_FAILED = 'pre_cert_inventory_probe_failed';
 export const PRE_CERT_MAIN_NOT_MERGED = 'pre_cert_main_not_merged';
 export const PRE_CERT_BLOCKING_FINDINGS_OPEN = 'pre_cert_blocking_findings_open';
 export const PRE_CERT_COVERAGE_MISSING = 'pre_cert_coverage_missing';
@@ -154,6 +155,29 @@ export interface ReviewInventoryAdmitApis {
     currentCutoff: { materialHash: string; storyFilesHash?: string },
     validateInventoryContext?: () => void,
   ) => string | null;
+}
+
+export type ReviewInventoryProbeResult =
+  | { status: 'present'; inventory: ReviewInventoryAdmitPair }
+  | { status: 'empty'; inventory: null }
+  | { status: 'failed'; error: string };
+
+export function probeFinalizedUnconsumedReviewInventory(
+  apis: ReviewInventoryAdmitApis,
+  store: unknown,
+  storyId: string,
+): ReviewInventoryProbeResult {
+  try {
+    const inventory = apis.finalizedUnconsumedReviewInventory(store, storyId);
+    return inventory
+      ? { status: 'present', inventory }
+      : { status: 'empty', inventory: null };
+  } catch (error) {
+    return {
+      status: 'failed',
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 export interface CertificationWindowAdmitFacts {
@@ -341,6 +365,8 @@ export function nextCommandForBlocker(storyId: string, blockerCode?: string | nu
     case PRE_CERT_INVENTORY_API_ABSENT:
     case PRE_CERT_INVENTORY_NOT_AUTHORITY:
       return `proof-or-stop review_inventory_finalize --storyId=${storyId}`;
+    case PRE_CERT_INVENTORY_PROBE_FAILED:
+      return `proof-or-stop certification_window_begin --storyId=${storyId}`;
     case PRE_CERT_MAIN_NOT_MERGED:
       return `proof-or-stop done_prepare --storyId=${storyId} --mergeMain`;
     case PRE_CERT_BLOCKING_FINDINGS_OPEN:
@@ -798,10 +824,6 @@ export function refreshCertificationWindowLineage(args: {
   });
 }
 
-export function heavyCertificationStatusNext(storyId: string): string {
-  return `proof-or-stop certification_window_status --storyId=${storyId}`;
-}
-
 /**
  * Test-only: persist a signed ADMITTED window + PrecertReceipt bound to the
  * current HEAD / materialHash / storyFilesHash and official verifier/test
@@ -869,23 +891,38 @@ export function refuseHeavyCertificationUnlessAdmitted(args: {
   const refreshed = refreshCertificationWindowLineage(args);
   if (!windowAuthorizesHeavyCertification(refreshed.window, refreshed.receipt)) {
     const projection = projectCertificationWindowStatus(args.storyId, refreshed.window, refreshed.receipt);
-    let hasUnconsumedInventory = false;
     if (!refreshed.window) {
       const apis = loadReviewInventoryAdmitApis();
       if (apis) {
-        try {
-          hasUnconsumedInventory = Boolean(apis.finalizedUnconsumedReviewInventory(args.store, args.storyId));
-        } catch {
-          hasUnconsumedInventory = false;
+        const inventoryProbe = probeFinalizedUnconsumedReviewInventory(apis, args.store, args.storyId);
+        if (inventoryProbe.status === 'failed') {
+          const rendered = renderCertificationWindowStatus({
+            ...projection,
+            blockerCode: PRE_CERT_INVENTORY_PROBE_FAILED,
+            nextCommand: nextCommandForBlocker(args.storyId, PRE_CERT_INVENTORY_PROBE_FAILED),
+          });
+          throw new Error(
+            `[${PRE_CERT_INVENTORY_PROBE_FAILED}] Review Inventory probe failed: ${inventoryProbe.error}\n${rendered}`,
+          );
         }
+        const rendered = renderCertificationWindowStatus({
+          ...projection,
+          // A TEST invocation with no window is blocked on the PRE_CERT inventory
+          // prerequisite only when the inventory probe completed cleanly.
+          nextCommand: inventoryProbe.status === 'present'
+            ? projection.nextCommand
+            : nextCommandForBlocker(args.storyId, PRE_CERT_INVENTORY_NOT_FINALIZED),
+        });
+        throw new Error(
+          `[${PRE_CERT_WINDOW_REQUIRED}] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\n${rendered}`,
+        );
       }
     }
     const rendered = renderCertificationWindowStatus({
       ...projection,
-      // A TEST invocation with no window is blocked on the PRE_CERT inventory
-      // prerequisite. Keep the projection's blocker-specific command instead
-      // of sending the operator through another certification status retry.
-      nextCommand: refreshed.window || hasUnconsumedInventory
+      // A TEST invocation with no window and no inventory APIs is blocked on the
+      // missing PRE_CERT inventory prerequisite.
+      nextCommand: refreshed.window
         ? projection.nextCommand
         : nextCommandForBlocker(args.storyId, PRE_CERT_INVENTORY_NOT_FINALIZED),
     });
