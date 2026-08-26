@@ -366,7 +366,7 @@ export function nextCommandForBlocker(storyId: string, blockerCode?: string | nu
     case PRE_CERT_INVENTORY_NOT_AUTHORITY:
       return `proof-or-stop review_inventory_finalize --storyId=${storyId}`;
     case PRE_CERT_INVENTORY_PROBE_FAILED:
-      return `proof-or-stop certification_window_begin --storyId=${storyId}`;
+      return `proof-or-stop certification_window_status --storyId=${storyId}`;
     case PRE_CERT_MAIN_NOT_MERGED:
       return `proof-or-stop done_prepare --storyId=${storyId} --mergeMain`;
     case PRE_CERT_BLOCKING_FINDINGS_OPEN:
