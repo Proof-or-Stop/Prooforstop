@@ -118,9 +118,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-45a0:CW-006",
       "storyId": "B-45a0",
-      "state": "RUNNING",
+      "state": "CANCELLED",
       "createdAt": "2026-08-26T10:35:43.210Z",
-      "updatedAt": "2026-08-26T10:36:02.301Z",
+      "updatedAt": "2026-08-26T11:00:24.695Z",
       "frozen": {
         "headHash": "9dfff6bf24bb12ea8f71f7e7aacc45279e04a634",
         "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
@@ -135,8 +135,9 @@
         "authority": "inventory-completeness-only",
         "authorizesTest": false
       },
-      "receiptId": "B-45a0:PRECERT-003",
-      "_hash": "5e79477d7c0af01ceadbccbc5539ce655fa8adc063d9d5d134947a9672f60fde"
+      "cancelledAt": "2026-08-26T11:00:24.695Z",
+      "cancelReason": "DONE-required validation failed during transient acceptance-rollout child contention; fresh isolated full-suite run now passes and needs a new certification window.",
+      "_hash": "d1b32124ff5609c6711c9f71811eede7ab4f974ca258ec202e8faac20eb31ad1"
     }
   ],
   "receipts": [
