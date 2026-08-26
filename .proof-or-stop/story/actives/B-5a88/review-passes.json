@@ -21192,6 +21192,89 @@
       },
       "readDiagnostics": [],
       "_hash": "e7b3500bdf7a0782de43f58ba94583e276d81ccbcbbee3bc9500dc74d3b403fb"
+    },
+    {
+      "id": "B-5a88:RP-333",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-087 wave 1 concept review completed. Current residue scan and global lab entrypoint verification pass, and no new independent concept family was found beyond the existing lab import writers F-475/F-476, retired lab verifier command F-477, and acceptance-basis/pre-review integrity family F-478/F-479/F-480. pre_review_check_read remains FAIL with PR_ARTIFACT_TAMPERED; this lane pass does not clear those open findings or authorize TEST.",
+      "createdAt": "2026-08-26T08:32:19.136Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-873",
+      "envelopeId": "d125093467d6bf81457b90732cc70a96722fe58c689a8093efbf9c8976dcfb5d",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-concept.md",
+          "packages/main/src/cli/lab-entrypoint.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "bin/bootstrap-runner.js",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lab-scoring-core.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0d12b870a304087e7ee5d883089be4cf65ac45ba99324c6c5088ae789c4678f7"
+    },
+    {
+      "id": "B-5a88:RP-334",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed: all 39 must verification intents have one valid passing evidence row, with zero gaps and zero waivers; CHK-013 Wave 4 coverage is executable and evidence-backed.",
+      "createdAt": "2026-08-26T08:32:53.638Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-874",
+      "envelopeId": "bc42fc4e5fab536aed3807e9dc6eba9e9dbee6d7656b2665238bd0bd40c623e9",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/truth-source.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "760387a59dab215a49498c14daf678faf3c8db16a9ad1a5944a12d0a6759afdd"
     }
   ]
 }
