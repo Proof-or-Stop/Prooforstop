@@ -36,6 +36,7 @@ import {
   PRE_CERT_DIRTY_TREE,
   PRE_CERT_INVENTORY_API_ABSENT,
   PRE_CERT_INVENTORY_NOT_FINALIZED,
+  PRE_CERT_INVENTORY_PROBE_FAILED,
   PRE_CERT_MAIN_NOT_MERGED,
   PRE_CERT_WINDOW_REQUIRED,
   PRE_CERT_WINDOW_TAMPERED,
@@ -797,6 +798,19 @@ assert.match(prematureFull, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
 assert.match(prematureFull, new RegExp(`Next: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`));
 assert.equal(existsSync(join(chokeRoot, heavyMarker)), false, 'validate --full must not spawn heavy children without an admitted window');
 
+setReviewInventoryAdmitApisForTest({
+  finalizedUnconsumedReviewInventory: () => {
+    throw new Error('inventory store unreadable');
+  },
+  consumeReviewInventoryCompletenessReceipt: () => null,
+});
+const failedInventoryProbe = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, full: true }));
+assert.match(failedInventoryProbe, new RegExp(`\\[${PRE_CERT_INVENTORY_PROBE_FAILED}\\]`));
+assert.match(failedInventoryProbe, /Review Inventory probe failed: inventory store unreadable/);
+assert.match(failedInventoryProbe, new RegExp(`Next: proof-or-stop certification_window_begin --storyId=${chokeStoryId}`));
+assert.doesNotMatch(failedInventoryProbe, new RegExp(`Next: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`));
+setReviewInventoryAdmitApisForTest(null);
+
 const donePrepareFallback = `proof-or-stop done_required_validate --storyId=${chokeStoryId}`;
 assert.equal(
   safeDoneRequiredRecoveryCommand(
@@ -815,6 +829,42 @@ assert.equal(
   ),
   donePrepareFallback,
   'done_prepare must not propagate a recovery command for another Story',
+);
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    'Next: proof-or-stop review_inventory_finalize --storyId=',
+    donePrepareFallback,
+  ),
+  donePrepareFallback,
+  'done_prepare must reject a malformed inventory recovery command',
+);
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    `Next: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId};touch /tmp/proof-or-stop-smoke`,
+    donePrepareFallback,
+  ),
+  donePrepareFallback,
+  'done_prepare must reject shell metacharacters in a recovery command',
+);
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    'refusal without an authoritative Next line',
+    donePrepareFallback,
+  ),
+  donePrepareFallback,
+  'done_prepare must retain the caller fallback when Next is absent',
+);
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    `Next: proof-or-stop finding_list --storyId=${chokeStoryId}`,
+    donePrepareFallback,
+  ),
+  `proof-or-stop finding_list --storyId=${chokeStoryId}`,
+  'done_prepare must retain a non-inventory caller-specific recovery command',
 );
 
 const cheapChannel = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, channel: true }));
