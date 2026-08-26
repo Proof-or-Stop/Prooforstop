@@ -143,9 +143,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-45a0:CW-007",
       "storyId": "B-45a0",
-      "state": "RUNNING",
+      "state": "CANCELLED",
       "createdAt": "2026-08-26T11:00:42.976Z",
-      "updatedAt": "2026-08-26T11:00:54.560Z",
+      "updatedAt": "2026-08-26T11:03:18.159Z",
       "frozen": {
         "headHash": "c6b29c10b17c617722559f1b6552acdc29a8d735",
         "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
@@ -160,8 +160,9 @@
         "authority": "inventory-completeness-only",
         "authorizesTest": false
       },
-      "receiptId": "B-45a0:PRECERT-004",
-      "_hash": "ca7f21393534b783ca1fad5790791d283825f7b200dfdedd5e62b88545251cfc"
+      "cancelledAt": "2026-08-26T11:03:18.159Z",
+      "cancelReason": "CW-007 certification run failed under external suite contention; no active validators remain and a fresh attempt is required.",
+      "_hash": "28658dfdadca131b8d6370290e2decd7f8f2013449f2903cce863ddf732080a5"
     }
   ],
   "receipts": [
