@@ -440,7 +440,7 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // same post-refactor source plus exactly three brand-text lines (two console.error
   // strings and one comment), verified by diffing against the MERGE_HEAD copy. No
   // eval/Function/require/import() was added, so this exemption's basis is unchanged.
-  ['bin/bootstrap-runner.js', '7c5c7e3fe7fe40ef4f717bd87435a7dd5b06231eb27353b415ba407507c1dbe7'],
+  ['bin/bootstrap-runner.js', '194106a85a463a660100ab1006b2515dfdc56032cbe0c34fc7eadb3fcacf71b6'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
 const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
@@ -1523,7 +1523,7 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // loader call sites (MAIN_DIST/UTILS_DIST inside importDistModules, LAB_DIST/zod in
   // runLocalBootstrap) are byte-identical to that copy, including their path producers —
   // no import()/require() call, argument, or producer was added, moved, or rewritten.
-  ['bin/bootstrap-runner.js', '7c5c7e3fe7fe40ef4f717bd87435a7dd5b06231eb27353b415ba407507c1dbe7'],
+  ['bin/bootstrap-runner.js', '194106a85a463a660100ab1006b2515dfdc56032cbe0c34fc7eadb3fcacf71b6'],
   ['bin/proof-or-stop-codex.js', 'c8906ce79242cd30e4519990a69fc7b2b6725a29b12699b9ad32d703b4e0b6d1'],
 ]);
 

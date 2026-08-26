@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
+import { AgentDispatchRegistryError, validateAgentDispatchRequest } from '../core/agent-dispatch-registry.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from '../handlers/stray-file-cleanup.js';
@@ -744,19 +745,26 @@ async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<vo
 
     const planStoryId = 'B-verification-dispatch';
     writeChecklistConcurrencyStory(root, planStoryId, 'PLAN');
-    for (const agentType of ['verification-intent', 'test-intent', 'test-case-reviewer']) {
-      const verificationPrompt = await runProofOrStop(root, 'dispatch', {
-        storyId: planStoryId,
-        itemId: 'CHK-001',
-        agentType,
-      });
-      assert.match(verificationPrompt, /define verification intent/, `${agentType} must route to verification-intent prompt`);
-      assert.doesNotMatch(verificationPrompt, /git commit|status["': ]+done/i, `${agentType} must not receive implementer completion guidance`);
+    const verificationPrompt = await runProofOrStop(root, 'dispatch', {
+      storyId: planStoryId,
+      itemId: 'CHK-001',
+      agentType: 'verification-intent',
+    });
+    assert.match(verificationPrompt, /define verification intent/, 'verification-intent must route to its prompt');
+    assert.doesNotMatch(verificationPrompt, /git commit|status["': ]+done/i, 'verification-intent must not receive implementer completion guidance');
+    for (const agentType of ['proof-or-stop-test-intent', 'proof-or-stop-test-case-reviewer', 'test-intent', 'test-case-reviewer']) {
+      assert.throws(
+        () => validateAgentDispatchRequest({ agentType, phase: 'PLAN', itemId: 'CHK-001' }),
+        (error: unknown) => error instanceof AgentDispatchRegistryError
+          && error.code === 'legacy_agent_type'
+          && /legacy read-side identity.*proof-or-stop-verification-intent/.test(error.message),
+        `${agentType} must be rejected with canonical verification-intent guidance`,
+      );
     }
     await assert.rejects(
-      runProofOrStop(root, 'checklist_update', { storyId: planStoryId, itemId: 'CHK-001', status: 'done' }, { LATTICE_AGENT: 'test-intent' }),
+      runProofOrStop(root, 'checklist_update', { storyId: planStoryId, itemId: 'CHK-001', status: 'done' }, { LATTICE_AGENT: 'verification-intent' }),
       /agent_dispatch_mutation_scope_denied/,
-      'verification-intent alias must not mark checklist done',
+      'verification-intent role must not mark checklist done',
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
