@@ -20170,7 +20170,7 @@
       "desc": "Current RI-083 quality-lane confirmation of F-450: docs/CLI.md:1074 promises that a globally installed @proof-or-stop/core automatically exposes proof-or-stop lab when @proof-or-stop/lab is resolvable, but packages/main/package.json:14-16 publishes dist/cli.js and packages/main/src/cli.ts:16 invokes runCli() without extra lab tools; packages/main/src/core/cli-engine.ts:726-734 only merges lab tools when a caller supplies extraTools, which only bin/bootstrap-runner.js:135-157 does. The published global bin therefore does not satisfy the documented lab contract. Retain F-450 as the canonical family; this is a current-run re-confirmation, not a new root cause. Severity: critical.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-25T14:22:00.718Z",
@@ -20209,7 +20209,11 @@
         "bin/bootstrap-runner.js"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate of canonical F-450 as explicitly stated by this finding: both describe the same docs/CLI.md global lab contract and are resolved by the same current-entrypoint alignment and smoke-test evidence.",
+      "resolvedAt": "2026-08-26T15:32:30.962Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-452",
