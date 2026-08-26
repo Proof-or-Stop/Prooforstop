@@ -310,19 +310,19 @@
           "command": "node scripts/verify-validation-inventory.mjs",
           "result": "pass",
           "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
-          "headHash": "a45b10b3af77527232f59b8f6c79cabe15cf0269",
-          "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
-          "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "803821905a6b2a0da170cc2d65b203f40c60e938a4f0c335a0df80f87648c0a7",
             "outputTail": "inventory coverage PASS\ncurrent-main inventory: 112\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T16:35:24.928Z",
+            "executedAt": "2026-08-26T13:37:37.499Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T16:51:02.072Z"
+          "headHash": "693e3d89e582fa437ebdc3348665c2e4b1fc12cf",
+          "materialHash": "77025ccb2e399d877935708838ee6d879fbaefa4ea3762effd060b7d44d67b22",
+          "storyFilesHash": "5c16b39974d2f5e3f104387b0beb2eeaa63ba76d0a3219fd46ad45bda411668f",
+          "timestamp": "2026-08-26T13:37:37.697Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
