@@ -1892,19 +1892,19 @@
           "command": "node packages/main/dist/tasks/story-aware-validation-mutation-smoke.js",
           "result": "pass",
           "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
-          "headHash": "a45b10b3af77527232f59b8f6c79cabe15cf0269",
-          "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
-          "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "09225393150976977661a0e251016c564e5ff870f49cce39203d36729cc56b31",
             "outputTail": "dynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T16:50:51.009Z",
+            "executedAt": "2026-08-26T13:49:05.891Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T16:51:02.072Z"
+          "headHash": "40524c11e5a330eecb68e70f8babe3903d39e286",
+          "materialHash": "77025ccb2e399d877935708838ee6d879fbaefa4ea3762effd060b7d44d67b22",
+          "storyFilesHash": "5c16b39974d2f5e3f104387b0beb2eeaa63ba76d0a3219fd46ad45bda411668f",
+          "timestamp": "2026-08-26T13:49:06.089Z"
         }
       ],
       "userSeesSnapshot": {
