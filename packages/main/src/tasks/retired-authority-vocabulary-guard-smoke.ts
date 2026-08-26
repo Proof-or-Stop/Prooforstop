@@ -1486,6 +1486,7 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
       { anchor: 'importDistModules', argument: 'pathToFileURL(UTILS_DIST).href' },
       { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(LAB_DIST).href' },
       { anchor: 'runLocalBootstrap', argument: "pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href" },
+      { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(BRAND_ENV_DIST).href' },
     ],
   }],
   // B-cdf6: the canonical Codex entrypoint moved to bin/proof-or-stop-codex.js, and it now
@@ -1508,9 +1509,9 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // bin/lattice-codex.js delegates to it and holds no loader of its own, so the canonical
   // file is what must be pinned here.
   // B-1734 (merged in): repinned again after the build-aware importDistModules() wait loop
-  // was added to bin/bootstrap-runner.js (F-003/C4). The four approved non-literal dist
+  // was added to bin/bootstrap-runner.js (F-003/C4). The five approved non-literal dist
   // loader call sites are unchanged in shape (MAIN_DIST/UTILS_DIST relocated into
-  // importDistModules, LAB_DIST/zod still in runLocalBootstrap); this whole-file structural
+  // importDistModules, LAB_DIST/zod and BRAND_ENV_DIST in runLocalBootstrap); this whole-file structural
   // fingerprint gates that call-site allowlist, so it moves with any edit to this
   // security-sensitive entry.
   //
@@ -1519,9 +1520,9 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // digest matched neither parent's pin. Re-approval basis, checked before repinning:
   // `diff` of the merged file against the MERGE_HEAD copy is exactly three lines, all of
   // them console.error/comment brand text (Lattice -> Proof-or-Stop, `lattice
-  // session_brief` -> `proof-or-stop session_brief`). The four approved non-literal dist
+  // session_brief` -> `proof-or-stop session_brief`). The five approved non-literal dist
   // loader call sites (MAIN_DIST/UTILS_DIST inside importDistModules, LAB_DIST/zod in
-  // runLocalBootstrap) are byte-identical to that copy, including their path producers —
+  // runLocalBootstrap, plus the BRAND_ENV_DIST fallback) are byte-identical to that copy, including their path producers —
   // no import()/require() call, argument, or producer was added, moved, or rewritten.
   ['bin/bootstrap-runner.js', '194106a85a463a660100ab1006b2515dfdc56032cbe0c34fc7eadb3fcacf71b6'],
   ['bin/proof-or-stop-codex.js', 'c8906ce79242cd30e4519990a69fc7b2b6725a29b12699b9ad32d703b4e0b6d1'],
