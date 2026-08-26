@@ -948,19 +948,19 @@
           "command": "npm --prefix packages/main run test:dynamic-validation-trace-isolation",
           "result": "pass",
           "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
-          "headHash": "a45b10b3af77527232f59b8f6c79cabe15cf0269",
-          "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
-          "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "ae66af733356d2fce461d14cdd97701d7b3108666833f5617174d8122282efd2",
             "outputTail": "\n> @proof-or-stop/core@0.3.269 test:dynamic-validation-trace-isolation\n> node ../../scripts/run-dynamic-validation-audit.mjs trace-isolation\n\nisolated observe telemetry PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T16:37:30.575Z",
+            "executedAt": "2026-08-26T13:39:56.100Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T16:51:02.072Z"
+          "headHash": "0bbd4e772560ef1aa78b97e17c7da5279337ade7",
+          "materialHash": "77025ccb2e399d877935708838ee6d879fbaefa4ea3762effd060b7d44d67b22",
+          "storyFilesHash": "5c16b39974d2f5e3f104387b0beb2eeaa63ba76d0a3219fd46ad45bda411668f",
+          "timestamp": "2026-08-26T13:39:56.297Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
