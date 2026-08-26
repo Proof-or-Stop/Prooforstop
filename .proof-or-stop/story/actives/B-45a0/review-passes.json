@@ -15021,6 +15021,95 @@
       },
       "readDiagnostics": [],
       "_hash": "dd0da4dbdc94e3d8c63e13d9a072199e94e596a792f83896317613221055cda4"
+    },
+    {
+      "id": "B-45a0:RP-280",
+      "agent": "lattice-review-quality",
+      "note": "RI-080 wave-2 quality re-attestation found no new blocker at HEAD ac948dbb75; retained F-344 is closed by the canonical exclusive heavy-smoke claim for review-incremental-context, and the compiled full-suite runner smoke passes all 166 assertions.",
+      "createdAt": "2026-08-26T12:26:17.607Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-739",
+      "envelopeId": "96611abe97baa0af766d0dc7d295ee8af4b96a34b3dfff80478e8f72283d358a",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "c03adaf4f0cca6f6ec8c087f58b8c101d8d1f5c1bc135e1e37c395603bd3af49"
+      },
+      "readDiagnostics": [],
+      "_hash": "c0b32ac81eae84fb744abefb5e14df487ebb94aa9b078016639576a9538aaace"
+    },
+    {
+      "id": "B-45a0:RP-281",
+      "agent": "lattice-review-docs",
+      "note": "Fresh HEAD ac948db docs re-attestation: 109 changed exported symbols extracted, 24 exact-name documentation reference groups triaged, and 18 anchored paragraphs compared. No blocker: documented signatures and behaviors remain consistent; Wave 4 command docs match registered verifier-owned producers/readers, genuine codex-cli plus claude-cli full 3x2 quorum, mode-invariant diagnostics with enforce-only blocking, config-only rollback retaining history, and explicit Wave 3A exclusion.",
+      "createdAt": "2026-08-26T12:34:00.544Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-741",
+      "envelopeId": "b968cd084310b668d5ec38a91f619cd53e7d44d40dd7a171d6cb86afeb895687",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "63b8724adb843679d312f8e1f939a9dfb9a50baf998de3a314eced41e0b9da06"
+      },
+      "readDiagnostics": [],
+      "_hash": "8573ef7472699fb2f7e706abeeeb3f255ce90c54841e156d70b58314201ef254"
     }
   ]
 }
