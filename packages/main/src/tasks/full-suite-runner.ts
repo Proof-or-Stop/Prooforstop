@@ -175,7 +175,13 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // letting the default 120s cap turn it into a scheduler false negative.
   isolated('test:experience-arm-isolation-e2e'), isolated('test:brief-output', { timeoutMs: 450_000, priority: 600 }),
   isolated('test:experiments', { priority: 500 }), isolated('test:convergence-breaker'),
-  isolated('test:proofstory-acceptance-rollout', { timeoutMs: 300_000, priority: 1000 }),
+  // The acceptance rollout launches twelve production child processes (three
+  // at a time) and creates/commits a temporary Story repository for each pair.
+  // It is therefore a heavy fan-out member even though its own fixed-path
+  // footprint is isolated.  Sharing the existing exclusive heavy-smoke claim
+  // prevents it from overlapping with the other high-fan-out members, where
+  // process pressure can make a child exit before emitting its receipt.
+  isolatedHeavy('test:proofstory-acceptance-rollout', { timeoutMs: 300_000, priority: 1000 }),
 ].map((entry) => [entry.name, entry]));
 
 export let FULL_SUITE_ENTRIES: FullSuiteEntry[] = Object.values(RESOURCE_POLICY);
