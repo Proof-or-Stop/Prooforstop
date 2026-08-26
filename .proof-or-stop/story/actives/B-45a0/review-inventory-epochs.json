@@ -12160,6 +12160,50 @@
       "findingDispositions": [],
       "createdAt": "2026-08-26T13:20:41.458Z",
       "_hash": "0fdcdb93ab97ddc7009475ef9155412cc03109ff018211448b4c5f2141014c90"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-082:CRIT-01",
+      "epochId": "B-45a0:RI-082",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-26T15:42:55.036Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "8921609e19a7e5ec4c365369c40c3562b3a3a0ca",
+        "materialHash": "77025ccb2e399d877935708838ee6d879fbaefa4ea3762effd060b7d44d67b22",
+        "storyFilesHash": "5c16b39974d2f5e3f104387b0beb2eeaa63ba76d0a3219fd46ad45bda411668f"
+      },
+      "aggregateFindingSetDigest": "f0f6d2222061ee9228882d47ec2b04485f9867a0bcab09df6fd949192fcf47f1",
+      "requiredLaneCoverageDigest": "88333b902b08eae6e9cfa52c55fd2c07e418cec13935f998018759b06a8e45ab",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-774",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-302"
+      ],
+      "readEvidenceDigest": "e3ac891978c08ee8abb8835a950e6b50bf9f38d647d52465d8162b76bc32e123",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-359",
+          "disposition": "verified_family",
+          "familyKey": "replay-assurance-missing-execution",
+          "reason": "Current-head RR-770 independently verifies that CHK-011 remains plan-only and non-admissible: the replay report has execute=false and no durable 30-50 executed Story replays or three alternating paired runs. This retains the causal/remediation family already described by pre-boundary F-358 without adding F-358 to the raw disposition set for this wave."
+        },
+        {
+          "findingId": "B-45a0:F-360",
+          "disposition": "verified_family",
+          "familyKey": "historical-replay-story-pair-misbinding",
+          "reason": "RR-771 verifies a distinct causal defect: storyCommit selects the latest git-log grep match and parent, so later unrelated commits mentioning a Story can misbind the historical base/head pair even after execution is enabled. The cited B-03ac and B-43de mappings demonstrate this requires authoritative merge provenance or fail-closed ambiguity handling, separate from the missing-execution family."
+        },
+        {
+          "findingId": "B-45a0:F-361",
+          "disposition": "duplicate",
+          "familyKey": "replay-assurance-missing-execution",
+          "canonicalFindingId": "B-45a0:F-359",
+          "reason": "RR-769 cites the same current plan-only/non-admissible replay artifact, uses the same ri060-current-replay-assurance identity, and requires the same executed replay plus paired-run remediation; it is concept-lane corroboration of canonical wave finding F-359 and retained pre-boundary F-358, not a distinct cause."
+        }
+      ],
+      "createdAt": "2026-08-26T16:17:43.136Z",
+      "_hash": "96ab88bc332551c1901be775219d43e7f7a222fe3c24db6c7d9b8cb7f31d9b45"
     }
   ]
 }
