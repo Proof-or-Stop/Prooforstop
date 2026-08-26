@@ -807,8 +807,8 @@ setReviewInventoryAdmitApisForTest({
 const failedInventoryProbe = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, full: true }));
 assert.match(failedInventoryProbe, new RegExp(`\\[${PRE_CERT_INVENTORY_PROBE_FAILED}\\]`));
 assert.match(failedInventoryProbe, /Review Inventory probe failed: inventory store unreadable/);
-assert.match(failedInventoryProbe, new RegExp(`Next: proof-or-stop certification_window_begin --storyId=${chokeStoryId}`));
-assert.doesNotMatch(failedInventoryProbe, new RegExp(`Next: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`));
+assert.match(failedInventoryProbe, new RegExp(`Next: proof-or-stop certification_window_status --storyId=${chokeStoryId}`));
+assert.doesNotMatch(failedInventoryProbe, new RegExp(`Next: proof-or-stop certification_window_begin --storyId=${chokeStoryId}`));
 setReviewInventoryAdmitApisForTest(null);
 
 const donePrepareFallback = `proof-or-stop done_required_validate --storyId=${chokeStoryId}`;
