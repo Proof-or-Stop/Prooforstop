@@ -12298,6 +12298,84 @@
       ],
       "createdAt": "2026-08-26T16:17:43.136Z",
       "_hash": "96ab88bc332551c1901be775219d43e7f7a222fe3c24db6c7d9b8cb7f31d9b45"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-083:CRIT-01",
+      "epochId": "B-45a0:RI-083",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-26T15:42:55.036Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "b78c51f1a0c753e0fe523df33542582f80f73c70",
+        "materialHash": "77025ccb2e399d877935708838ee6d879fbaefa4ea3762effd060b7d44d67b22",
+        "storyFilesHash": "5c16b39974d2f5e3f104387b0beb2eeaa63ba76d0a3219fd46ad45bda411668f"
+      },
+      "aggregateFindingSetDigest": "32d5be0dec29ede402781d2493f21248516ad6d368e866e7a43388a5429b5f6d",
+      "requiredLaneCoverageDigest": "67cd1c4fabbcbe2d9c9de4f9f3226feccea63234929a40d50f3e91a7289a713a",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-780",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-304"
+      ],
+      "readEvidenceDigest": "b2b941f2d9de1df06415fe8885a9fab17e81386099f77bb7bbe25b62f853ae0d",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-359",
+          "disposition": "verified_family",
+          "familyKey": "ri060-current-replay-assurance",
+          "reason": "Canonical retained baseline family: mandatory historical execution and paired campaign evidence is still absent at the frozen cutoff."
+        },
+        {
+          "findingId": "B-45a0:F-360",
+          "disposition": "verified_family",
+          "familyKey": "historical-replay-story-commit-resolution",
+          "reason": "Canonical retained baseline family: Story pairs are resolved from message mentions rather than authoritative Story merge provenance."
+        },
+        {
+          "findingId": "B-45a0:F-361",
+          "disposition": "duplicate",
+          "familyKey": "ri060-current-replay-assurance",
+          "canonicalFindingId": "B-45a0:F-359",
+          "reason": "Same retained replay-assurance absence as F-359; concept wording does not establish a distinct causal defect."
+        },
+        {
+          "findingId": "B-45a0:F-362",
+          "disposition": "duplicate",
+          "familyKey": "ri060-current-replay-assurance",
+          "canonicalFindingId": "B-45a0:F-359",
+          "reason": "Current-wave re-attestation explicitly identifies the same retained replay-assurance family."
+        },
+        {
+          "findingId": "B-45a0:F-363",
+          "disposition": "duplicate",
+          "familyKey": "historical-replay-story-commit-resolution",
+          "canonicalFindingId": "B-45a0:F-360",
+          "reason": "Current-wave re-attestation explicitly identifies the same Story-pair misbinding family."
+        },
+        {
+          "findingId": "B-45a0:F-364",
+          "disposition": "verified_family",
+          "familyKey": "historical-replay-paired-assurance-optional",
+          "reason": "Canonical new family: execute-only replay can become admissible without mandatory paired-performance evidence."
+        },
+        {
+          "findingId": "B-45a0:F-365",
+          "disposition": "duplicate",
+          "familyKey": "historical-replay-paired-assurance-optional",
+          "canonicalFindingId": "B-45a0:F-364",
+          "reason": "Concept-lane evidence identifies the same paired-assurance-optional bypass as F-364."
+        },
+        {
+          "findingId": "B-45a0:F-366",
+          "disposition": "duplicate",
+          "familyKey": "historical-replay-paired-assurance-optional",
+          "canonicalFindingId": "B-45a0:F-364",
+          "reason": "Repeated concept-lane evidence is identical to the F-364 paired-assurance-optional family."
+        }
+      ],
+      "createdAt": "2026-08-26T16:39:50.524Z",
+      "_hash": "1dd85eef731c2ba10167c688883e8de52d90327ff0340df5be689f7fb9564d6d"
     }
   ]
 }
