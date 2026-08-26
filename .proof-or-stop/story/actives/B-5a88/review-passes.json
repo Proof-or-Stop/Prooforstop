@@ -21275,6 +21275,191 @@
         "scanEscalationReason": null
       },
       "_hash": "760387a59dab215a49498c14daf678faf3c8db16a9ad1a5944a12d0a6759afdd"
+    },
+    {
+      "id": "B-5a88:RP-335",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-087 wave 1 concept review completed. Current residue scan and global lab entrypoint verification pass, and no new independent concept family was found beyond the existing lab import writers F-475/F-476, retired lab verifier command F-477, and acceptance-basis/pre-review integrity family F-478/F-479/F-480. pre_review_check_read remains FAIL with PR_ARTIFACT_TAMPERED; this lane pass does not clear those open findings or authorize TEST.",
+      "createdAt": "2026-08-26T08:36:16.465Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-876",
+      "envelopeId": "6e76bd5fb90670c9be124b5768a2287089b8529aca9701a652d136f359d5d286",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/cli/lab-entrypoint.ts",
+          "scripts/verify-lab-scoring-core.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          "bin/bootstrap-runner.js",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "06de7c1d662a931ef02960e127c0d2ba3647be05215101a2c6bd31f2a2d72c4f"
+    },
+    {
+      "id": "B-5a88:RP-336",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Completeness critic found no new independent family; current open findings are classified by existing code and pre-review integrity families.",
+      "createdAt": "2026-08-26T09:27:07.216Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-882",
+      "envelopeId": "388bbb5b8d4de5769efb0f2e1812fc84b44ad433dba9cf37204c51e2aa08d11e",
+      "writerSessionId": "sess-5618d0909ec094aeca018af8474383ca",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "c5d4a22710ec8dc1c2ec2cd456e4b3e887aaa0fc115eacf5dac3f48fb6942a58"
+    },
+    {
+      "id": "B-5a88:RP-337",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Completeness critic found no new independent family; current open findings are classified by existing code and pre-review integrity families.",
+      "createdAt": "2026-08-26T09:29:37.630Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-883",
+      "envelopeId": "af10d3508e57a3ec27d2b0b821409f96dacc4b5114ee8f62e0b48b4de5cebc76",
+      "writerSessionId": "sess-5618d0909ec094aeca018af8474383ca",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "49b9516dee11a66ed44ff5ff768555de139ec0e4da791835103b25cfc53bee19"
+    },
+    {
+      "id": "B-5a88:RP-338",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Wave 2 concept review found no new family beyond the already classified import, scoring, and pre-review integrity findings.",
+      "createdAt": "2026-08-26T09:32:27.395Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-884",
+      "envelopeId": "b7f54161eccaff5d1ee0345c6055222f648f84d0cfd83964489fe6f02456398e",
+      "writerSessionId": "sess-4baef6e5a38eae57e1be6b983107766f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2355269b4261a612783643f59ea498bea8a39bdd2bbc812623eefea875377e7a"
+    },
+    {
+      "id": "B-5a88:RP-339",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Wave 2 test-coverage review found no new family beyond the already classified import, scoring, and pre-review integrity findings.",
+      "createdAt": "2026-08-26T09:35:45.845Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-886",
+      "envelopeId": "92af05d65aa1f347148642e305c54fc9c1687ea3c04bda93502716c65faa5085",
+      "writerSessionId": "sess-432f92767a102826cb418157330fddc0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1000d9de3a1844077625e0d2494e3f7606573bfb0400fc48f77ba58a9c47007b"
+    },
+    {
+      "id": "B-5a88:RP-340",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Wave 2 completeness review found no new independent family; the existing pre-review integrity family remains the sole current acceptance blocker.",
+      "createdAt": "2026-08-26T09:37:21.766Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-887",
+      "envelopeId": "0ef3f11dff8db1ee0593d593eb28d5adf6e3ce72964af24c69fe9d6a61bc1f83",
+      "writerSessionId": "sess-5618d0909ec094aeca018af8474383ca",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "61e3a9a72847b109c2203a395daffd07b43219e1128b1b63b5116c26ceca0fe9"
     }
   ]
 }
