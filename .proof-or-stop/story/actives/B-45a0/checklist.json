@@ -1214,19 +1214,19 @@
           "command": "npm --prefix packages/main run test:dynamic-validation-shadow-rejections",
           "result": "pass",
           "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
-          "headHash": "a45b10b3af77527232f59b8f6c79cabe15cf0269",
-          "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
-          "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "609e369f650d9e2a3f43fec6a5c2e2fe0ae2e2d4109e0779b4627ce75cdec080",
             "outputTail": "\n> @proof-or-stop/core@0.3.269 test:dynamic-validation-shadow-rejections\n> node ../../scripts/run-dynamic-validation-audit.mjs shadow-rejections\n\nshadow discrepancy reported\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T16:39:22.601Z",
+            "executedAt": "2026-08-26T13:41:23.644Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T16:51:02.072Z"
+          "headHash": "1fd2c8374c223cd8db440a3842cc5707890a11f8",
+          "materialHash": "77025ccb2e399d877935708838ee6d879fbaefa4ea3762effd060b7d44d67b22",
+          "storyFilesHash": "5c16b39974d2f5e3f104387b0beb2eeaa63ba76d0a3219fd46ad45bda411668f",
+          "timestamp": "2026-08-26T13:41:23.836Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
