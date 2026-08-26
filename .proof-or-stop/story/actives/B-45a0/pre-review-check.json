@@ -2,15 +2,15 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-45a0",
   "mode": "observe",
-  "cutoffAt": "2026-08-26T13:51:23.979Z",
-  "planBasisDigest": "sha256:206115d8ded9cb5a799630db36cdd970e2655aa25eedbc393fbadbc2e62ef839",
+  "cutoffAt": "2026-08-26T15:42:16.356Z",
+  "planBasisDigest": "sha256:d598cd366ef1860116bda7e5c11e5a42c3c566b19e179d9cd6d152ec407473f5",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-45a0",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:206115d8ded9cb5a799630db36cdd970e2655aa25eedbc393fbadbc2e62ef839",
+      "priorPlanBasisDigest": "sha256:d598cd366ef1860116bda7e5c11e5a42c3c566b19e179d9cd6d152ec407473f5",
       "status": "complete",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
@@ -873,7 +873,7 @@
         "sealDigest": "sha256:1baefb59b2e78cc5759b133d2157c3ec2f358735fa742afb0a46223148a2e7e0"
       },
       "binding": {
-        "headHash": "26a500f8416c2e0cae2d1dee1b6a504528378e2f",
+        "headHash": "e602a95303bc7ec3824e8142420e0b6888130a31",
         "materialHash": "77025ccb2e399d877935708838ee6d879fbaefa4ea3762effd060b7d44d67b22",
         "storyFilesHash": "5c16b39974d2f5e3f104387b0beb2eeaa63ba76d0a3219fd46ad45bda411668f",
         "scopeCheckDigest": "sha256:3cc3346bb622e660952cb32d59db8642855df03c97e6c013324fad9d9f4bde58",
@@ -881,7 +881,7 @@
         "closureFilesHash": "sha256:917df4bf4d83d978a0e9b6f02e28ba03e87390863e675bc3329e20a72b355186"
       },
       "receiptRef": "receipt:coverage-basis:B-45a0:pre_review:c8e8bf21ec3b28df",
-      "basisDigest": "sha256:4ee809d15bfa862fae9e514474c70494b3c0cca8774f4d7a0e5936d0c1b7069b"
+      "basisDigest": "sha256:fd35ac43ef34eaa6a63b33e3564b273afade2ba1c7ffae398d8f80ded9afcb1d"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
@@ -891,17 +891,17 @@
       "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
       "storyId": "B-45a0",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:4ee809d15bfa862fae9e514474c70494b3c0cca8774f4d7a0e5936d0c1b7069b",
+      "basisDigest": "sha256:fd35ac43ef34eaa6a63b33e3564b273afade2ba1c7ffae398d8f80ded9afcb1d",
       "topologyDigest": "sha256:0a71e566eebd058398e7b336dd448074eab68bd83d4383dd05a0305b70668102",
       "scopeCheckDigest": "sha256:3cc3346bb622e660952cb32d59db8642855df03c97e6c013324fad9d9f4bde58",
       "scopeContractDigest": "sha256:5760ac075677339075beadd0635c11ef1ea0e108234c9b4c3088e2d5d79ddcbb",
-      "headHash": "26a500f8416c2e0cae2d1dee1b6a504528378e2f",
+      "headHash": "e602a95303bc7ec3824e8142420e0b6888130a31",
       "materialHash": "77025ccb2e399d877935708838ee6d879fbaefa4ea3762effd060b7d44d67b22",
       "storyFilesHash": "5c16b39974d2f5e3f104387b0beb2eeaa63ba76d0a3219fd46ad45bda411668f",
       "closureFilesHash": "sha256:917df4bf4d83d978a0e9b6f02e28ba03e87390863e675bc3329e20a72b355186",
       "sealDigest": "sha256:1baefb59b2e78cc5759b133d2157c3ec2f358735fa742afb0a46223148a2e7e0",
       "workspaceIdentityDigest": "sha256:3982df8a3a496488d75aa257cf83262705901996a517a2a911848309f9519ccd",
-      "signature": "5h2DEGAO+ylUVG0UFvVrsTYa7TJR/Rppk2Nz+A+d9SG2xKQS4PvmDLpCNJBl0FRsHzI+KUI5N3FBdZCcy4O9AQ=="
+      "signature": "rraigCIZAwcb7RvBW6ZtrCI6O601XNhr1rILH+7vner8nUJqcDf53aHBYwDWIIvsNOUexgs1/QdJXaYbAoZaBA=="
     }
   },
   "topologyDigest": "sha256:0a71e566eebd058398e7b336dd448074eab68bd83d4383dd05a0305b70668102",
@@ -1253,7 +1253,7 @@
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
     "commandDigests": [
-      "sha256:645786964d58494a13ae87d98776045e6a8cf3fbe761637d1cd098200c105a98"
+      "sha256:fc004ab315a9696f9720bbb0be5ae906ea854297beb9c5390dcf9b1ac2fa0335"
     ],
     "caseRecordsEncoding": "gzip-base64",
     "caseRecords": "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",
@@ -1969,7 +1969,7 @@
   "criticReceiptDigest": "sha256:8312756ea9757353dd04946460e54d762310c65aa2dec1a2180262f29871494f",
   "codes": [],
   "status": "pass",
-  "issuedAt": "2026-08-26T13:51:23.979Z",
+  "issuedAt": "2026-08-26T15:42:16.356Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "CyGGcOQXwQlZHCX/T+6Lqz4DDIUAECuAmIy5yHJDMOMVReXUA8VsvmennleFtX22+vDRMllM8L5bB2iE/T3CAQ=="
+  "signature": "dyjxmnTpEa4AzmEk+kyZyEui4MrfnpvU8pKk1H3IzeKB86vGwV1zOGWQGh3xmkX7hvWCZeI5g2wQk19l0UfjBg=="
 }
