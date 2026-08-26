@@ -123,7 +123,7 @@ async function main(): Promise<void> {
   const sentinelFixedPort = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-resource-sentinel')?.resources.find(resource => resource.class === 'fixed-port');
   assert(runnerSmokeFixedPort?.access === 'exclusive' && runnerSmokeFixedPort.canonicalKey === sentinelFixedPort?.canonicalKey, 'canonical runner smoke declares the real fixed-port collision it probes');
   const heavyKey = stateDirKey('runtime', 'full-suite-heavy');
-  for (const member of ['test:flow-stability-smoke', 'test:milestone-status', 'test:proofstory-acceptance-rollout']) {
+  for (const member of ['test:flow-stability-smoke', 'test:milestone-status', 'test:proofstory-acceptance-rollout', 'test:proofstory-intent-hardening-smoke']) {
     const heavyClaim = FULL_SUITE_ENTRIES.find(item => item.name === member)?.resources.find(resource => resource.class === 'fixed-path' && resource.key === heavyKey);
     assert(heavyClaim?.access === 'exclusive', `high-fan-out member ${member} shares the exclusive heavy-smoke resource claim`);
   }

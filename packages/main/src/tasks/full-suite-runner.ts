@@ -154,7 +154,12 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // reference host, so retain parallel scheduling with a bounded 450s cap
   // (675s after the normal concurrency headroom factor).
   isolatedHeavy('test:flow-stability-smoke', { timeoutMs: 450_000, priority: 850 }), isolated('test:review-assurance-floor-smoke'),
-  isolated('test:proofstory-intent-hardening-smoke', { timeoutMs: 300_000, priority: 900 }),
+  // The intent-hardening smoke also launches a high-fan-out set of CLI child
+  // processes and shares the same process/temporary-repository pressure as the
+  // acceptance rollout.  Keep it behind the canonical heavy-smoke exclusion so
+  // either member cannot overlap the other under the default two-worker
+  // scheduler and lose child receipts to resource exhaustion.
+  isolatedHeavy('test:proofstory-intent-hardening-smoke', { timeoutMs: 300_000, priority: 900 }),
   isolated('test:scope-shrinkage-withdrawal-floor-smoke'), isolated('test:withdrawn-disposition-smoke'),
   isolatedHeavy('test:milestone-status', { priority: 700 }), repoRead('test:global-core-realpath'),
   isolated('test:review-incremental-context-smoke', { timeoutMs: 180_000, priority: 800 }),
