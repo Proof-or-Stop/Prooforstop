@@ -163,6 +163,30 @@
       "cancelledAt": "2026-08-26T11:03:18.159Z",
       "cancelReason": "CW-007 certification run failed under external suite contention; no active validators remain and a fresh attempt is required.",
       "_hash": "28658dfdadca131b8d6370290e2decd7f8f2013449f2903cce863ddf732080a5"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-45a0:CW-008",
+      "storyId": "B-45a0",
+      "state": "ADMITTED",
+      "createdAt": "2026-08-26T11:03:35.858Z",
+      "updatedAt": "2026-08-26T11:03:35.858Z",
+      "frozen": {
+        "headHash": "40e2571e7a2caf73d619b8116c2752a60ff1b5d3",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84",
+        "expectedMainSha": "1591c246544944f229a7f02a6615215cabe8cef9",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-45a0:RIE-093",
+        "receiptId": "B-45a0:RIE-093:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-45a0:PRECERT-005",
+      "_hash": "c2765292b0346c52205dcf74a0a0fd37b81b5438c5ab31b2a42fd88ee963c20a"
     }
   ],
   "receipts": [
@@ -245,6 +269,26 @@
       "inventoryReceiptId": "B-45a0:RIE-092:RCP-001",
       "createdAt": "2026-08-26T11:00:42.976Z",
       "_hash": "2c49f5071c4649bbd932c0413cc11b3a2c9bdce1ee580c554a4c345454bec85d"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-45a0:PRECERT-005",
+      "windowId": "B-45a0:CW-008",
+      "storyId": "B-45a0",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "40e2571e7a2caf73d619b8116c2752a60ff1b5d3",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84",
+        "expectedMainSha": "1591c246544944f229a7f02a6615215cabe8cef9",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-45a0:RIE-093",
+      "inventoryReceiptId": "B-45a0:RIE-093:RCP-001",
+      "createdAt": "2026-08-26T11:03:35.858Z",
+      "_hash": "228df913e1daa06443e4b3cc54d13981ff54e7017d1bb301d1a5c5ce40e6558d"
     }
   ]
 }
