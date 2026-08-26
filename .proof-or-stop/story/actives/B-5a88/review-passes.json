@@ -21460,6 +21460,117 @@
       },
       "readDiagnostics": [],
       "_hash": "61e3a9a72847b109c2203a395daffd07b43219e1128b1b63b5116c26ceca0fe9"
+    },
+    {
+      "id": "B-5a88:RP-341",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept review passed: canonical lab error handling and command migration are consistent with the current story scope, with no new blocker.",
+      "createdAt": "2026-08-26T10:27:12.457Z",
+      "reviewRound": "2026-08-26T10:18:49.151Z",
+      "reviewRunId": "B-5a88:RR-888",
+      "envelopeId": "eccf1f4f0807557fa9c0fa3172d5c41be8a8da6c6c884df4de6c77d365bc708f",
+      "writerSessionId": "sess-4baef6e5a38eae57e1be6b983107766f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "packages/lab/src/handlers/lab.ts",
+          "packages/lab/src/tool-defs.ts",
+          "packages/main/src/cli/lab-entrypoint.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/tests/lab-brand-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lab-scoring-core.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a9189bb2a0fb0063a335a714b3418cdd786fe275bd09a266b5aba892b01ba594"
+    },
+    {
+      "id": "B-5a88:RP-342",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality review passed: the shared brand helper is used at both runtime boundaries, bootstrap loading remains fail-closed, and the targeted verifier uses the canonical create command without a new blocker.",
+      "createdAt": "2026-08-26T10:27:28.236Z",
+      "reviewRound": "2026-08-26T10:18:49.151Z",
+      "reviewRunId": "B-5a88:RR-889",
+      "envelopeId": "c99c58483d6910cb66a29191bac81aa26e5a96ba25e66555769dbbfca23a029d",
+      "writerSessionId": "sess-42dacad5292eda0fd2341711c146003c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "packages/lab/src/handlers/lab.ts",
+          "packages/lab/src/tool-defs.ts",
+          "packages/main/src/cli/lab-entrypoint.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/lab-brand-migration.test.mjs",
+          "scripts/verify-lab-scoring-core.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b9ab1cc060db6b33381e58159dd1e7ff39daaaf619190641464aa9ffc8062aea"
+    },
+    {
+      "id": "B-5a88:RP-343",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed: current verification evidence is refreshed and bound to the current story hashes, pre-review and acceptance rollout proof are passing, and no must-gap was found.",
+      "createdAt": "2026-08-26T10:27:52.131Z",
+      "reviewRound": "2026-08-26T10:18:49.151Z",
+      "reviewRunId": "B-5a88:RR-890",
+      "envelopeId": "b82ebf7baf8dd5fc32f16a06885a7939425177f50a51f2bd042348fd1f3f58a7",
+      "writerSessionId": "sess-432f92767a102826cb418157330fddc0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "bin/bootstrap-runner.js",
+          "packages/lab/src/tool-defs.ts",
+          "packages/main/src/cli/lab-entrypoint.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/lab-brand-migration.test.mjs",
+          "scripts/verify-lab-scoring-core.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8da1067905d62f62c4987ec111203484031c324c5892ce20ad44773d7a601331"
     }
   ]
 }
