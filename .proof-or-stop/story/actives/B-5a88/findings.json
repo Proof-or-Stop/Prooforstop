@@ -21881,6 +21881,83 @@
       ],
       "signatureTag": "ri-087-wave2-pre-review-integrity",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-484",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:443,1526: the intentional bin/bootstrap-runner.js fallback change makes both pinned structural fingerprints stale, so the configured retired-authority guard fails before accepting the current bootstrap source; update the coupled pins only after rechecking the approved dynamic-load shape.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-26T11:04:59.288Z",
+      "reviewRound": "2026-08-26T10:18:49.151Z",
+      "reviewRunId": "B-5a88:RR-892",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "03ace152a24c592d59e3723c96dd9c316f51dd4105d95556d47803b83bd2e6bf",
+      "files": [
+        "bin/bootstrap-runner.js",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|js|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-485",
+      "desc": "packages/main/src/tasks/review-pass-discard-smoke.ts:747-755: the configured validation smoke still treats legacy test-intent and test-case-reviewer PLAN dispatch as successful, but the canonical registry intentionally rejects those legacy identities; the smoke aborts before validating the remaining role-boundary assertions and must be updated to assert fail-closed rejection.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-26T11:05:13.429Z",
+      "reviewRound": "2026-08-26T10:18:49.151Z",
+      "reviewRunId": "B-5a88:RR-893",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/tests/prompt-role-migration.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c458c92f13ed8693c71f44768300c6be06cdcfb096dfd70f03ee843d01e426db",
+      "files": [
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/core/agent-dispatch-registry.ts",
+        "packages/main/tests/prompt-role-migration.test.mjs"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
