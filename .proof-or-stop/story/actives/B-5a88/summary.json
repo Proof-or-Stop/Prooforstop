@@ -1,0 +1,56 @@
+{
+  "storyId": "B-5a88",
+  "changes": "Renamed remaining lattice role IDs, managed markers, artifact schemas, package identities, bootstrap checks, and truthful RI-088 smoke expectations.",
+  "usage": "Use the existing proof-or-stop CLI and reviewer workflow; run proof-or-stop validate --story=B-5a88 --json before DONE.",
+  "expectedOutcome": "Users see proof-or-stop naming consistently across the CLI, packages, markers, schemas, and review evidence.",
+  "actualTranscript": "The implementation and configured validation completed with 112 of 112 commands passing, all 39 verification intents covered, and the Story is ready for DONE after final assurance and delivery evidence.",
+  "outcomeDiff": "No functional difference from the expected outcome; the remaining work is lifecycle evidence closure only.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered",
+  "pitfalls": "The Story required repeated review remediation, stale evidence refresh, a fresh host probe, and careful avoidance of concurrent metadata writers; rerun DONE preparation after any main merge.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 2180523
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11936
+    },
+    "PLAN": {
+      "count": 16,
+      "durationMs": 10440077
+    },
+    "DEV": {
+      "count": 80,
+      "durationMs": 127759491
+    },
+    "REVIEW": {
+      "count": 65,
+      "durationMs": 394606965
+    },
+    "TEST": {
+      "count": 8,
+      "durationMs": 22563297
+    }
+  },
+  "totalDurationMs": 557562863,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 1,
+    "fixed": 1,
+    "open": 0
+  },
+  "createdAt": "2026-08-26T15:05:28.260Z",
+  "updatedAt": "2026-08-26T15:05:28.260Z"
+}
