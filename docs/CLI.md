@@ -1071,7 +1071,7 @@ npm --prefix packages/utils run build
 npm --prefix packages/lab run build
 ```
 
-A globally installed `proof-or-stop` (canonical package: `@proof-or-stop/core`) exposes the core commands only. It does not load `@proof-or-stop/lab` automatically, even when that package is resolvable, because the published core bin intentionally runs without optional lab extras. To use `proof-or-stop lab ...`, run the repository bootstrap entry point (`node bin/proof-or-stop.js`) after building the lab package; ordinary global core commands remain available without lab.
+A globally installed `proof-or-stop` (canonical package: `@proof-or-stop/core`) automatically enables `proof-or-stop lab ...` when `@proof-or-stop/lab` is resolvable; if lab is not installed, the ordinary core commands still work and only `proof-or-stop lab ...` prompts to install/build lab.
 
 Before releasing `0.3.5`, it is recommended to run:
 

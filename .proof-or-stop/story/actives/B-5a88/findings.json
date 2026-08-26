@@ -22434,6 +22434,122 @@
       "resolvedAt": "2026-08-26T13:32:47.247Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-498",
+      "desc": "All 39 must verificationIntent records remain bound to stale evidence: checklist.json verificationEvidence still carries materialHash 36c0fa4029b913ad55172cdd8472b18b37c42228ac35df08a319c4678fff4468 and prior HEAD fb8e2790f36247a76c2d43b3686f8024bd22b28f, while the current Story-owned review scope is materialHash 276bf3b00b1158c9a9879dd372cad95b9d38e755ee54d194b93f6f55d1b9f558 and storyFilesHash 81d217d51a423c2f81c1c22535da4c2a07c329d7fc9e881a1d457f83f34aa5c2. The docs/CLI.md global-core/lab-boundary correction and focused checks therefore have no current-hash evidence binding, so coverage cannot be certified for this material until the stale intent evidence is refreshed and re-recorded.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-26T15:27:14.798Z",
+      "reviewRound": "2026-08-26T15:22:14.772Z",
+      "reviewRunId": "B-5a88:RR-929",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/index.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/CLI.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6e47a7ab5b387cdc66a9c560dabf56f3cd76d58ce31db3f64301ca8ae0d271db",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/checklist.json",
+        "docs/CLI.md",
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        "packages/main/tests/bin-alias-migration.test.mjs",
+        "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+        "packages/main/tests/artifact-schema-migration.test.mjs"
+      ],
+      "signatureTag": "missing|json|verificationintent-records-remain",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-499",
+      "desc": "docs/CLI.md:1074 now says a globally installed @proof-or-stop/core does not load @proof-or-stop/lab automatically and requires bin/proof-or-stop.js, but packages/main/src/cli.ts:13-18 invokes loadCanonicalLabEntrypoint() for direct published-core execution; packages/main/src/cli/lab-entrypoint.ts:27-28 dynamically imports @proof-or-stop/lab; packages/main/package.json declares it as a dependency; node packages/main/dist/cli.js lab_create --help succeeds and scripts/verify-global-lab-entrypoint.mjs published-core-lab-help passes. The docs-only correction therefore reverses the actual published behavior and misdirects users about the global lab boundary. This is a current docs/code mismatch, distinct from the historical F-450/F-451 antecedents, which described the opposite state.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-26T15:30:02.885Z",
+      "reviewRound": "2026-08-26T15:22:14.772Z",
+      "reviewRunId": "B-5a88:RR-931",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "packages/main/src/cli/lab-entrypoint.ts",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/dist/cli.js",
+          "packages/main/package.json",
+          "packages/main/src/cli.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "60f7d925a536224bd21adf5f27a768baefc966b06fb9fe0117ddb36f794c30fb",
+      "files": [
+        "docs/CLI.md",
+        "packages/main/src/cli.ts",
+        "packages/main/src/cli/lab-entrypoint.ts",
+        "packages/main/package.json",
+        "scripts/verify-global-lab-entrypoint.mjs"
+      ],
+      "signatureTag": "global-core-lab-boundary-doc-code-drift-current",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
