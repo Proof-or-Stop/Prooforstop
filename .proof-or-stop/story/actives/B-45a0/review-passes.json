@@ -15110,6 +15110,97 @@
       },
       "readDiagnostics": [],
       "_hash": "8573ef7472699fb2f7e706abeeeb3f255ce90c54841e156d70b58314201ef254"
+    },
+    {
+      "id": "B-45a0:RP-282",
+      "agent": "lattice-review-quality",
+      "note": "RI-080 wave-3 quality re-attestation found the fan-out fix verified at HEAD 40b3d99b40; prior F-344 is addressed by the canonical exclusive heavy-smoke claim and matching runner-smoke assertion. Retained F-345 and F-346 remain real verifier-owned blockers, so this lane adds no new quality finding.",
+      "createdAt": "2026-08-26T12:49:59.084Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-747",
+      "envelopeId": "5c4b41affcfb533bcbed2866f7875cc8a6eef41d45f1566c24a3b8fc5f60ec49",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/lattice-review-quality.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "packages/main/dist/tasks/full-suite-runner-smoke.js",
+          "packages/main/dist/tasks/full-suite-runner.js",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": "Bounded RI-080 wave-3 quality re-attestation limited to commit 5345210688 fan-out fix and retained findings F-345/F-346; owner lease prevented fresh signed run/inventory mutation.",
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "efd7235a087efecdbacb8c0b58831e376711199802c8df0e1b40ebf7c8202686"
+    },
+    {
+      "id": "B-45a0:RP-283",
+      "agent": "lattice-review-docs",
+      "note": "RI-080 wave 3/3 docs parity PASS at HEAD 40b3d99b40: 109 exported symbol anchors and 15 bounded documentation sections compared; no doc-code drift or promised-but-undelivered behavior found.",
+      "createdAt": "2026-08-26T12:53:19.312Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-749",
+      "envelopeId": "e74ee22852a5656ad01022408753a47885cb864f0a0288088ed1266326c6accc",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/templates/agents/lattice-review-docs.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "5af888e25e92355fa6a96ae4d7257c4c743f1184651c247d6bae79938fe5a320"
+      },
+      "readDiagnostics": [],
+      "_hash": "a07d7a4df08051a91ed37bbce4ad931f87f641cfea6c71da1048a6db8f5e8a6e"
     }
   ]
 }
