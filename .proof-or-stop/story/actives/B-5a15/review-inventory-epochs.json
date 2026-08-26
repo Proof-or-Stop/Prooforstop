@@ -11425,6 +11425,56 @@
       "findingDispositions": [],
       "createdAt": "2026-08-25T19:06:22.766Z",
       "_hash": "2ec43dd6c0e3e5977079d7a68dbdcae443eb861b13c837eacd6ce5f25fdc535a"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-048:CRIT-01",
+      "epochId": "B-5a15:RI-048",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-25T19:36:40.358Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "55a1e00343aa6fb9e4327ff4b444fc79bfc367bf",
+        "materialHash": "e6206a5bc1f4e84f3ec5170a44721d322d584fde025daccfae497ef71fe2c3a8",
+        "storyFilesHash": "cf261cf7ae7b0e3f2eb1829ee05207cb44bf7109f9fdf804e82db9effc0d4cb2"
+      },
+      "aggregateFindingSetDigest": "9c009383ffd23e22f874031e52da9eaf0e58f236d5d10a447821007b4914adec",
+      "requiredLaneCoverageDigest": "7900f32e437bdcf9e4fd4b24e8d0e7d05fda76461dff39ec5622cb99c52b7d15",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-737",
+      "terminalEvidenceIds": [
+        "B-5a15:F-321",
+        "B-5a15:F-322"
+      ],
+      "readEvidenceDigest": "8b726b2fe852057eaecce05366c6a184dbdb68830d85c137d67cec86242e2a10",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-317",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-317",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-5a15:F-318",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-318",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-5a15:F-319",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-319",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        },
+        {
+          "findingId": "B-5a15:F-320",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-320",
+          "reason": "Conservative executable default: retain this verified finding as its own family"
+        }
+      ],
+      "createdAt": "2026-08-26T06:13:29.444Z",
+      "_hash": "80055268f23ebf4637e46c98cdf3aa37fcbe3e64732b1fa946555e3fec0bba13"
     }
   ]
 }
