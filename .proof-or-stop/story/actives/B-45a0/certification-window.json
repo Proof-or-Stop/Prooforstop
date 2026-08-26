@@ -188,6 +188,18 @@
       "cancelledAt": "2026-08-26T11:20:36.778Z",
       "cancelReason": "Acceptance rollout resource policy changed; prior certification is invalid.",
       "_hash": "f945fa6b0ec1c10dfb44f219d924fbadfba06cfc74ed39e2dd093c037c76c078"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-45a0:CW-009",
+      "storyId": "B-45a0",
+      "state": "BLOCKED",
+      "createdAt": "2026-08-26T14:46:00.072Z",
+      "updatedAt": "2026-08-26T14:46:00.072Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "757aab14adfc5baf355e041dc82158d16880b16e47a551232361e4457a512ef7"
     }
   ],
   "receipts": [
