@@ -410,19 +410,19 @@
           "command": "node scripts/verify-validation-inventory.mjs --mutation=high-risk-touchpoint",
           "result": "pass",
           "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
-          "headHash": "a45b10b3af77527232f59b8f6c79cabe15cf0269",
-          "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
-          "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "d4d1ef1fa38e78874ee7bf4d8a4b3629eb4f307ad5dec1ce4bd443b6f7aafa2d",
             "outputTail": "mandatory full classification\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T16:35:26.122Z",
+            "executedAt": "2026-08-26T13:37:45.205Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T16:51:02.072Z"
+          "headHash": "070c99eaff79c6230f401d2fd9031a07e37f6bbc",
+          "materialHash": "77025ccb2e399d877935708838ee6d879fbaefa4ea3762effd060b7d44d67b22",
+          "storyFilesHash": "5c16b39974d2f5e3f104387b0beb2eeaa63ba76d0a3219fd46ad45bda411668f",
+          "timestamp": "2026-08-26T13:37:45.398Z"
         }
       ],
       "userSeesSnapshot": {
