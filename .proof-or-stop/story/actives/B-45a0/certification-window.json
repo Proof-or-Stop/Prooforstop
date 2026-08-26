@@ -138,6 +138,30 @@
       "cancelledAt": "2026-08-26T11:00:24.695Z",
       "cancelReason": "DONE-required validation failed during transient acceptance-rollout child contention; fresh isolated full-suite run now passes and needs a new certification window.",
       "_hash": "d1b32124ff5609c6711c9f71811eede7ab4f974ca258ec202e8faac20eb31ad1"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-45a0:CW-007",
+      "storyId": "B-45a0",
+      "state": "ADMITTED",
+      "createdAt": "2026-08-26T11:00:42.976Z",
+      "updatedAt": "2026-08-26T11:00:42.976Z",
+      "frozen": {
+        "headHash": "c6b29c10b17c617722559f1b6552acdc29a8d735",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84",
+        "expectedMainSha": "1591c246544944f229a7f02a6615215cabe8cef9",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-45a0:RIE-092",
+        "receiptId": "B-45a0:RIE-092:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-45a0:PRECERT-004",
+      "_hash": "05afc8576684f76cf5c6f584c9746d15d4bc04462118ec051af8fd052196679c"
     }
   ],
   "receipts": [
@@ -200,6 +224,26 @@
       "inventoryReceiptId": "B-45a0:RIE-091:RCP-001",
       "createdAt": "2026-08-26T10:35:43.210Z",
       "_hash": "1013bb303fbbf5193f650f8784ae19741a7c6d527677abcc01cddc933f93a91c"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-45a0:PRECERT-004",
+      "windowId": "B-45a0:CW-007",
+      "storyId": "B-45a0",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "c6b29c10b17c617722559f1b6552acdc29a8d735",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84",
+        "expectedMainSha": "1591c246544944f229a7f02a6615215cabe8cef9",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-45a0:RIE-092",
+      "inventoryReceiptId": "B-45a0:RIE-092:RCP-001",
+      "createdAt": "2026-08-26T11:00:42.976Z",
+      "_hash": "2c49f5071c4649bbd932c0413cc11b3a2c9bdce1ee580c554a4c345454bec85d"
     }
   ]
 }
