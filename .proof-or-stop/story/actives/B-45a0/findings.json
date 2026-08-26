@@ -18643,6 +18643,21 @@
       "resolvedAt": "2026-08-26T07:28:32.805Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-340",
+      "desc": "Wave 4 verifier-owned acceptance chain is invalid at the current head: proof-or-stop acceptance_topology_check reports AT_ADAPTER_RESULT_DIGEST_MISMATCH with snapshot-seal and story-owned storyFilesHash freshness mismatches, while pre_review_check_read reports PR_ARTIFACT_TAMPERED. The current rollout receipt alone cannot establish acceptance authority; regenerate verifier-owned acceptance artifacts and revalidate the chain before TEST/DONE.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-26T11:49:34.262Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-720",
+      "_hash": "727e9dc6e3a93a47c87e8d032ceef9150b346216c99d8213ec100f78c1a1c53a",
+      "signatureTag": "missing|unknown|wave-verifier-owned",
+      "signatureTagSource": "auto"
     }
   ]
 }
