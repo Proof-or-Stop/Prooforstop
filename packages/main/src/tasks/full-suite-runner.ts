@@ -162,7 +162,11 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   isolatedHeavy('test:proofstory-intent-hardening-smoke', { timeoutMs: 300_000, priority: 900 }),
   isolated('test:scope-shrinkage-withdrawal-floor-smoke'), isolated('test:withdrawn-disposition-smoke'),
   isolatedHeavy('test:milestone-status', { priority: 700 }), repoRead('test:global-core-realpath'),
-  isolated('test:review-incremental-context-smoke', { timeoutMs: 180_000, priority: 800 }),
+  // Incremental-context coverage also creates multiple validation/review
+  // subprocesses and temporary Story state.  Serialize it with the other
+  // heavy fan-out members to keep child receipts deterministic under the
+  // default two-worker scheduler.
+  isolatedHeavy('test:review-incremental-context-smoke', { timeoutMs: 180_000, priority: 800 }),
   isolated('test:review-assurance-floor-storyfileshash-smoke'), isolated('test:docs-drift-smoke'),
   isolated('test:docs-drift-wrapper-root'), isolated('test:gitroot-cwd-contract'), repoRead('test:process-fact-contract'),
   isolated('test:closeout-trust'),
