@@ -17227,6 +17227,47 @@
       ],
       "signatureTag": "missing|ts|acceptance-basis-admissible",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-322",
+      "desc": "The verifier-owned executable pre-review artifact is not admissible: pre_review_check_read returned FAIL with code PR_ARTIFACT_TAMPERED. Although its summary reported plannedActual=complete, executableEvidence=current, mutations=biting, transcript=related, and authority=admissible, the canonical read verifier rejected the artifact and instructed that it be discarded and reissued through proof-or-stop pre_review_check. The required pre-review provenance therefore cannot support a clean review result.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-26T06:11:38.529Z",
+      "reviewRound": "2026-08-25T19:36:40.358Z",
+      "reviewRunId": "B-5a15:RR-737",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c18bdd6ee572c4fc774189f73d172e13c438eb4f918b1bed1a5cb09ff2b1dd61",
+      "files": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "adversarial|ts|verifier-owned-executable",
+      "signatureTagSource": "auto"
     }
   ]
 }
