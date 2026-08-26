@@ -19163,7 +19163,7 @@
       "desc": "RI-080 independent topology review at HEAD ac948dbb7516971d3591b28f04643388edb74685: the verifier-derived acceptance chain is not admissible. acceptance_basis reports status=invalid and evidentiary=false; pre_review_check_read reports status=fail with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED; acceptance_rollout_report_read reports status=fail, mode=enforce, blocking=true, receipt=stale, quorum=full-3x2, and AR_REPORT_STALE. This independently confirms that current topology, closure, and rollout authority cannot receive a pass. Reissue verifier-owned current-lineage acceptance basis, pre-review proof, and rollout evidence; preserve the genuine full-3x2 history but do not treat its stale receipt as authority.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-26T12:19:08.488Z",
@@ -19204,14 +19204,18 @@
         "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
       ],
       "signatureTag": "missing|json|topology-current-acceptance-chain",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate of canonical acceptance-authority finding B-45a0:F-345 confirmed by topology critic RR-737.",
+      "resolvedAt": "2026-08-26T12:55:53.342Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-348",
       "desc": "RI-080 wave-2 coverage re-attestation at current HEAD ac948dbb7516971d3591b28f04643388edb74685 confirms retained finding B-45a0:F-346: all 48 checklist verificationEvidence rows (42 MUST) remain stale against the current materialHash 77025ccb2e399d877935708838ee6d879fbaefa4ea3762effd060b7d44d67b22 and storyFilesHash 5c16b39974d2f5e3f104387b0beb2eeaa63ba76d0a3219fd46ad45bda411668f. acceptance_basis remains invalid/evidentiary=false; acceptance_topology_check fails AT_ADAPTER_RESULT_DIGEST_MISMATCH; pre_review_check_read fails PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED; acceptance_rollout_check remains blocking with AR_REPORT_STALE and a stale receipt despite genuine full-3x2 history. Reissue verifier-owned current-lineage acceptance, pre-review, and rollout artifacts and refresh all stale verification evidence before coverage can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-26T12:27:56.082Z",
@@ -19358,14 +19362,18 @@
         ".proof-or-stop/story/actives/B-45a0/findings.json"
       ],
       "signatureTag": "missing|json|current-head-coverage",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate corroboration of canonical stale-verification-evidence finding B-45a0:F-346; no new defect.",
+      "resolvedAt": "2026-08-26T12:55:54.523Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-349",
       "desc": "RI-080 concept re-attestation wave 2/3 at clean HEAD ac948dbb7516971d3591b28f04643388edb74685: the Wave 4 verifier-owned acceptance chain remains non-admissible. acceptance_basis is status=invalid/evidentiary=false with AT_ADAPTER_RESULT_DIGEST_MISMATCH (semantic discovery digest, snapshot seal, and storyFilesHash freshness mismatch); acceptance_topology_check is status=fail/structuralPass=false/authority=diagnostic_only; pre_review_check_read is status=fail with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED; acceptance_rollout_report_read and acceptance_rollout_check are status=fail/blocking=true with AR_REPORT_STALE and receipt=stale. The preserved full-3x2 quorum does not authorize TEST/DONE while its verifier-owned chain is stale. Reissue and revalidate current-lineage acceptance basis, pre-review proof, and rollout evidence. The separate heavy-fan-out scheduler family F-344 no longer reproduces at this HEAD and is not repeated.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-26T12:28:44.336Z",
@@ -19408,7 +19416,286 @@
       "readDiagnostics": [],
       "_hash": "7d5c3e2b4c8d0d64c7e986373e2970f3fe3d99cef8388bfdfc67d8ec32949fd3",
       "signatureTag": "missing|json|concept-review-clean",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate corroboration of canonical acceptance-authority finding B-45a0:F-345; no new defect.",
+      "resolvedAt": "2026-08-26T12:55:55.688Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-350",
+      "desc": "RI-080 wave-2 topology re-attestation at clean source HEAD 40b3d99b400e298da3745a36b29b1c8a3fb4c18e confirms retained findings B-45a0:F-345 and B-45a0:F-346 as one current acceptance-authority family. acceptance_basis is status=invalid and evidentiary=false; acceptance_topology_check is status=fail, structuralPass=false, authority=diagnostic_only with AT_ADAPTER_RESULT_DIGEST_MISMATCH caused by semantic discovery digest, snapshot seal, and storyFilesHash freshness mismatches; pre_review_check_read is status=fail with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED; acceptance_rollout_report_read and acceptance_rollout_check are status=fail, mode=enforce, blocking=true, receipt=stale with AR_REPORT_STALE. The preserved full-3x2 history cannot authorize TEST or DONE through a stale verifier-owned chain. Reissue and validate current-lineage acceptance basis, pre-review proof, and rollout evidence, then refresh current verification evidence before topology can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-26T12:38:51.853Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-742",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "19afde2ebc85cbbdb4bd91febeeb6504ec785f80c428b6ab36869765de46d921",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/findings.json",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "signatureTag": "missing-json-topology-current-acceptance-chain",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate topology corroboration of canonical acceptance-authority finding B-45a0:F-345.",
+      "resolvedAt": "2026-08-26T12:55:56.916Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-351",
+      "desc": "RI-080 wave-2 topology re-attestation at clean source HEAD 40b3d99b400e298da3745a36b29b1c8a3fb4c18e confirms retained findings B-45a0:F-345 and B-45a0:F-346 as one current acceptance-authority family. acceptance_basis is status=invalid and evidentiary=false; acceptance_topology_check is status=fail, structuralPass=false, authority=diagnostic_only with AT_ADAPTER_RESULT_DIGEST_MISMATCH caused by semantic discovery digest, snapshot seal, and storyFilesHash freshness mismatches; pre_review_check_read is status=fail with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED; acceptance_rollout_report_read and acceptance_rollout_check are status=fail, mode=enforce, blocking=true, receipt=stale with AR_REPORT_STALE. The preserved full-3x2 history cannot authorize TEST or DONE through a stale verifier-owned chain. Reissue and validate current-lineage acceptance basis, pre-review proof, and rollout evidence, then refresh current verification evidence before topology can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-26T12:40:25.365Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-743",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "67819abe345d6addf2f7f6eb64ca6dd55ea45afe63efb9469092ce10e196052b",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/findings.json",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "signatureTag": "missing-json-topology-current-acceptance-chain",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate topology corroboration of canonical acceptance-authority finding B-45a0:F-345.",
+      "resolvedAt": "2026-08-26T12:55:58.142Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-352",
+      "desc": "RI-080 concept re-attestation wave 3/3 at clean source HEAD 40b3d99b400e298da3745a36b29b1c8a3fb4c18e confirms retained families B-45a0:F-345 and B-45a0:F-346. The verifier-owned Wave 4 acceptance chain remains non-admissible: acceptance_basis is invalid/evidentiary=false; acceptance_topology_check fails AT_ADAPTER_RESULT_DIGEST_MISMATCH; pre_review_check_read fails PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED; acceptance_rollout_report_read is blocking with AR_REPORT_STALE and receipt=stale despite genuine full-3x2 history. All 48 verificationEvidence rows (42 MUST) remain stale. Reissue current-lineage basis, pre-review proof, rollout receipt, and checklist evidence before TEST/DONE. This re-attests the two retained families and adds no new family.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-26T12:48:23.718Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-745",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "01c677bd2869ba48042d17050cd4484019720f4d11fb9407c35fc0126ba03610"
+      },
+      "readDiagnostics": [],
+      "_hash": "bee5829c2020f417b7b08157912f64dab23ac57344939b0a91481c70133b4535",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/findings.json"
+      ],
+      "signatureTag": "missing|json|concept-review-clean",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate wave-three concept corroboration of canonical acceptance-authority finding B-45a0:F-345.",
+      "resolvedAt": "2026-08-26T12:55:59.166Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-353",
+      "desc": "RI-080 wave 3/3 coverage re-attestation at current HEAD 40b3d99b400e298da3745a36b29b1c8a3fb4c18e confirms retained stale-evidence and acceptance-chain blockers. The Story has 48 intents (42 MUST) and 48 pass-shaped evidence rows, but none bind the current HEAD; acceptance_basis is invalid/evidentiary=false, acceptance_topology_check fails AT_ADAPTER_RESULT_DIGEST_MISMATCH, pre_review_check_read fails PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED, and acceptance_rollout_check remains blocking with AR_REPORT_STALE and a stale receipt despite genuine full-3x2 history. Reissue verifier-owned current-lineage artifacts and refresh checklist evidence before TEST/DONE.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-26T12:49:12.178Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-746",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/lattice-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a9d4a04ba965a9cc7d1660c1369ac7d3d56586a1f144cc0ecd6241ebb2d87e86",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/findings.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|current-head-coverage",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate wave-three coverage corroboration of canonical stale-verification-evidence finding B-45a0:F-346.",
+      "resolvedAt": "2026-08-26T12:56:00.309Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-354",
+      "desc": "RI-080 wave 3/3 topology re-attestation at HEAD 40b3d99b40 confirms the verifier-owned acceptance chain remains non-admissible: acceptance_basis is invalid/evidentiary=false; acceptance_topology_check fails AT_ADAPTER_RESULT_DIGEST_MISMATCH with storyFilesHash and snapshot-seal freshness mismatches; pre_review_check_read fails PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED; acceptance rollout readers remain enforce-mode blocking with AR_REPORT_STALE and stale receipt despite genuine full-3x2 history. This is a duplicate corroboration of the canonical acceptance-authority family B-45a0:F-345; the stale checklist evidence remains separately covered by B-45a0:F-346.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-26T12:54:40.186Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-750",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "c9b2cc46ab8c6be184c727aa32c888fe95305705f6f4d83a5f8c720925cf6ccc",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/findings.json",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "missing|json|topology-current-acceptance-chain",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate wave-three topology corroboration of canonical acceptance-authority finding B-45a0:F-345.",
+      "resolvedAt": "2026-08-26T12:56:01.508Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
