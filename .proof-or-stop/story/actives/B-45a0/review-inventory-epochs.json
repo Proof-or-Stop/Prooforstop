@@ -7188,9 +7188,9 @@
       "epochId": "B-45a0:RI-079",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-26T11:44:58.068Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-26T12:00:53.352Z",
-      "updatedAt": "2026-08-26T12:00:53.352Z",
+      "updatedAt": "2026-08-26T12:06:54.364Z",
       "cutoff": {
         "headHash": "453eb80c3a9399d221ce01cccb507aee93103269",
         "materialHash": "baf4d7eca4a0409311e6c5a1bf538ea9734a9804d849ce8a6da0079ec69c9d34",
@@ -7207,7 +7207,36 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "fd19a6e00ffe214ff04328ca6c79e8a3016a12952712731c626ed59b210f76e1"
+      "cancelledAt": "2026-08-26T12:06:54.364Z",
+      "cancelReason": "Source resource-policy correction changed the review subject; invalidate RI-079 and restart at the clean current head.",
+      "terminalRunSequenceBoundary": 730,
+      "_hash": "a61f7175a4b8f719a412fa4aa1069f1bbd2075aecd652565da371dc4de900072"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-080",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-26T12:06:58.875Z",
+      "updatedAt": "2026-08-26T12:06:58.875Z",
+      "cutoff": {
+        "headHash": "53452106888276f4f7df570b7c868aa44beff82c",
+        "materialHash": "77025ccb2e399d877935708838ee6d879fbaefa4ea3762effd060b7d44d67b22",
+        "storyFilesHash": "5c16b39974d2f5e3f104387b0beb2eeaa63ba76d0a3219fd46ad45bda411668f"
+      },
+      "scopeDigest": "2ac9444228844472907bad4714239dc5e4fabda893457e0b3832be25d4cf181a",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 730,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "2e9e6ec76fe9fd22453202139bf00b0b663a544df3ad86610603354ad12104d5"
     }
   ],
   "receipts": [
