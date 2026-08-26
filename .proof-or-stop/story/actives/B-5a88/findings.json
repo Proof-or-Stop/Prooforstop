@@ -21555,6 +21555,167 @@
       ],
       "signatureTag": "missing|json|current-review-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-479",
+      "desc": "F-478 remains unresolved: .proof-or-stop/story/actives/B-5a88/pre-review-check.json:1 is rejected by proof-or-stop pre_review_check_read --storyId=B-5a88 with PR_ARTIFACT_TAMPERED, so the signed pre-review basis cannot support the REVIEW-to-TEST gate. Reissue the verifier-owned pre-review artifact from DEV before relying on it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-26T08:02:55.591Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-869",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-concept.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "bin/bootstrap-runner.js",
+          "packages/main/src/cli/lab-entrypoint.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "scripts/verify-lab-scoring-core.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/truth-source.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": "Repository-wide lattice residue scan performed; compatibility, frozen historical evidence, and active unsupported command prose were distinguished by the live residue verifier."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/truth-source.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "63eb89b658af66edca0da8be311d9223a738e4dc55acdfd8741bf0cfbe332d58"
+      },
+      "readDiagnostics": [],
+      "_hash": "61130657beab087100133d0a0d11737c7a9658830c0f4fcd4ff06ca0b53c8569",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|remains-unresolved-proof",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-480",
+      "desc": "quality-review-confirmed: .proof-or-stop/story/actives/B-5a88/pre-review-check.json:1 remains integrity-invalid. Current pre_review_check_read --storyId=B-5a88 returns FAIL / PR_ARTIFACT_TAMPERED while acceptance_topology_check and both acceptance_rollout reads pass. packages/main/src/core/pre-review-check.ts:415 compares the stored artifact with a freshly derived artifact that includes the current HEAD-bound basis, so the signed pre-review receipt issued before review metadata commit fb479ee is not admissible for REVIEW-to-TEST. Reissue verifier-owned pre-review evidence from DEV before TEST.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-26T08:05:43.674Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-871",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/cli/lab-entrypoint.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/legacy-role-alias-sunset.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/release-push-approval.ts"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop-codex/README.md",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "AGENTS.md",
+          "bin/bootstrap-runner.js",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/truth-source.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/utils/package.json",
+          "README.md",
+          "scripts/verify-lab-scoring-core.mjs"
+        ],
+        "scanEscalationReason": "Focused quality review validated current pre-review, topology, rollout, build, migration, residue, process-fact, and retired-lab-command behavior; no external shim write was attempted."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/truth-source.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "63eb89b658af66edca0da8be311d9223a738e4dc55acdfd8741bf0cfbe332d58"
+      },
+      "readDiagnostics": [],
+      "_hash": "c03cdb5f1036e05f03a9ef4dcd696dda52e61bc163092351c6c20d3bb5c266b7",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|current-review-evidence",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
