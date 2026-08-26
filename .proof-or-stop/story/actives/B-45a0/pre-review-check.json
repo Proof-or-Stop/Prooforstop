@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-45a0",
   "mode": "observe",
-  "cutoffAt": "2026-08-26T13:24:12.881Z",
+  "cutoffAt": "2026-08-26T13:27:32.244Z",
   "planBasisDigest": "sha256:206115d8ded9cb5a799630db36cdd970e2655aa25eedbc393fbadbc2e62ef839",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -915,31 +915,727 @@
     "storyId": "B-45a0",
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
-    "commandDigests": [],
+    "commandDigests": [
+      "sha256:645786964d58494a13ae87d98776045e6a8cf3fbe761637d1cd098200c105a98"
+    ],
     "caseRecordsEncoding": "gzip-base64",
-    "caseRecords": "",
+    "caseRecords": "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",
     "provenance": {
-      "runnerPath": "",
-      "runnerDigest": "",
-      "targetPath": "",
-      "targetDigest": "",
-      "buildCommand": ""
+      "runnerPath": "scripts/run-proofstory-pre-review-live-proof.mjs",
+      "runnerDigest": "sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9",
+      "targetPath": "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+      "targetDigest": "sha256:6ccdb1708128a5176d502e35e1fc369b4c62602e5635ca5ee7c50b01a6dbd57b",
+      "buildCommand": "npm --prefix packages/main run build"
     },
-    "bindingProofs": []
+    "bindingProofs": [
+      {
+        "bindingId": "B-45a0-complete-dynamic-validation",
+        "positiveAssertionIds": [
+          "positive-1",
+          "positive-2",
+          "positive-3",
+          "positive-4",
+          "positive-5",
+          "positive-6",
+          "positive-7",
+          "positive-8",
+          "positive-9",
+          "positive-10",
+          "positive-11",
+          "positive-12",
+          "positive-13",
+          "positive-14",
+          "positive-15"
+        ],
+        "mutationProofs": [
+          {
+            "mutationId": "mutation-1",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-3",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-4",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-5",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-6",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-7",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-8",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-9",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-10",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-11",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-12",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-13",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-14",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-15",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-16",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-17",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-18",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-19",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-20",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-21",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-22",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-23",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-24",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-25",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-26",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-27",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-28",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-29",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-30",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          }
+        ],
+        "transcriptProofs": [
+          {
+            "transcriptId": "transcript-1",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 126,
+            "consumerSequence": 127
+          },
+          {
+            "transcriptId": "transcript-2",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 128,
+            "consumerSequence": 129
+          },
+          {
+            "transcriptId": "transcript-3",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 130,
+            "consumerSequence": 131
+          },
+          {
+            "transcriptId": "transcript-4",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 132,
+            "consumerSequence": 133
+          },
+          {
+            "transcriptId": "transcript-5",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 134,
+            "consumerSequence": 135
+          },
+          {
+            "transcriptId": "transcript-6",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 136,
+            "consumerSequence": 137
+          },
+          {
+            "transcriptId": "transcript-7",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 138,
+            "consumerSequence": 139
+          },
+          {
+            "transcriptId": "transcript-8",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 140,
+            "consumerSequence": 141
+          },
+          {
+            "transcriptId": "transcript-9",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 142,
+            "consumerSequence": 143
+          },
+          {
+            "transcriptId": "transcript-10",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 144,
+            "consumerSequence": 145
+          },
+          {
+            "transcriptId": "transcript-11",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 146,
+            "consumerSequence": 147
+          },
+          {
+            "transcriptId": "transcript-12",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 148,
+            "consumerSequence": 149
+          },
+          {
+            "transcriptId": "transcript-13",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 150,
+            "consumerSequence": 151
+          },
+          {
+            "transcriptId": "transcript-14",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 152,
+            "consumerSequence": 153
+          },
+          {
+            "transcriptId": "transcript-15",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 154,
+            "consumerSequence": 155
+          },
+          {
+            "transcriptId": "transcript-16",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 156,
+            "consumerSequence": 157
+          },
+          {
+            "transcriptId": "transcript-17",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 158,
+            "consumerSequence": 159
+          },
+          {
+            "transcriptId": "transcript-18",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 160,
+            "consumerSequence": 161
+          },
+          {
+            "transcriptId": "transcript-19",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 162,
+            "consumerSequence": 163
+          },
+          {
+            "transcriptId": "transcript-20",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 164,
+            "consumerSequence": 165
+          },
+          {
+            "transcriptId": "transcript-21",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 166,
+            "consumerSequence": 167
+          },
+          {
+            "transcriptId": "transcript-22",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 168,
+            "consumerSequence": 169
+          },
+          {
+            "transcriptId": "transcript-23",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 170,
+            "consumerSequence": 171
+          },
+          {
+            "transcriptId": "transcript-24",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 172,
+            "consumerSequence": 173
+          },
+          {
+            "transcriptId": "transcript-25",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 174,
+            "consumerSequence": 175
+          },
+          {
+            "transcriptId": "transcript-26",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 176,
+            "consumerSequence": 177
+          },
+          {
+            "transcriptId": "transcript-27",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 178,
+            "consumerSequence": 179
+          },
+          {
+            "transcriptId": "transcript-28",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 180,
+            "consumerSequence": 181
+          },
+          {
+            "transcriptId": "transcript-29",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 182,
+            "consumerSequence": 183
+          },
+          {
+            "transcriptId": "transcript-30",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 184,
+            "consumerSequence": 185
+          },
+          {
+            "transcriptId": "transcript-31",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 186,
+            "consumerSequence": 187
+          },
+          {
+            "transcriptId": "transcript-32",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 188,
+            "consumerSequence": 189
+          },
+          {
+            "transcriptId": "transcript-33",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 190,
+            "consumerSequence": 191
+          },
+          {
+            "transcriptId": "transcript-34",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 192,
+            "consumerSequence": 193
+          },
+          {
+            "transcriptId": "transcript-35",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 194,
+            "consumerSequence": 195
+          },
+          {
+            "transcriptId": "transcript-36",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 196,
+            "consumerSequence": 197
+          },
+          {
+            "transcriptId": "transcript-37",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 198,
+            "consumerSequence": 199
+          },
+          {
+            "transcriptId": "transcript-38",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 200,
+            "consumerSequence": 201
+          },
+          {
+            "transcriptId": "transcript-39",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 202,
+            "consumerSequence": 203
+          },
+          {
+            "transcriptId": "transcript-40",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 204,
+            "consumerSequence": 205
+          },
+          {
+            "transcriptId": "transcript-41",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 206,
+            "consumerSequence": 207
+          },
+          {
+            "transcriptId": "transcript-42",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 208,
+            "consumerSequence": 209
+          },
+          {
+            "transcriptId": "transcript-43",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 210,
+            "consumerSequence": 211
+          },
+          {
+            "transcriptId": "transcript-44",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 212,
+            "consumerSequence": 213
+          },
+          {
+            "transcriptId": "transcript-45",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 214,
+            "consumerSequence": 215
+          }
+        ]
+      }
+    ]
   },
   "criticReceiptDigest": "sha256:8312756ea9757353dd04946460e54d762310c65aa2dec1a2180262f29871494f",
   "codes": [
     "PR_POSITIVE_EVIDENCE_MISSING",
-    "PR_PRODUCTION_PATH_UNPROVEN",
-    "PR_MUTATION_EVIDENCE_MISSING",
-    "PR_MUTATION_DID_NOT_BITE",
-    "PR_CONTROL_NOT_RESTORED",
-    "PR_TRANSCRIPT_MISSING",
-    "PR_AUTHORITY_INADMISSIBLE",
     "PR_EVIDENCE_STALE"
   ],
   "status": "fail",
-  "issuedAt": "2026-08-26T13:24:12.881Z",
+  "issuedAt": "2026-08-26T13:27:32.244Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "7pPlGai+wYyTzaY4NnXMp5Y3JpkneIz9B950VyK7p9YmKVdKRbZ1oBVs5cSOOWxP/0NbmrbLVOBfHVr1+oz4DA=="
+  "signature": "hHmrISROpCLdiZD5OwGPse226zgmpw01xmNL94tCn7XKHbml4LlvqoWtwikJlr5KcinYXMixN2QESFCNn3rhAA=="
 }
