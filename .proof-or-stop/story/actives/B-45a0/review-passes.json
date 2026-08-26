@@ -16173,6 +16173,77 @@
       },
       "readDiagnostics": [],
       "_hash": "fdce5ff466eb58312b2fec7edd7557859379c0b5bdf51c69de82323a0e134814"
+    },
+    {
+      "id": "B-45a0:RP-303",
+      "agent": "lattice-review-docs",
+      "note": "RI-083 frozen-cutoff docs review: extracted 109 exported declarations (852 raw Step-1 regex identifiers including local consts), compared 11 symbol-referenced documentation sections plus 4 reverse promise/status sections, and found no new docs/code family. F-358/F-359/F-361 remain the baseline replay-assurance family and F-360 remains baseline historical pair-misbinding. Docs truthfully mark default replay plan-only, require execute plus paired current signed admissible evidence before promotion, and describe invalid pre-review artifacts as fail-closed; current PR_ARTIFACT_TAMPERED is artifact state, not doc drift.",
+      "createdAt": "2026-08-26T16:30:25.054Z",
+      "reviewRound": "2026-08-26T15:42:55.036Z",
+      "reviewRunId": "B-45a0:RR-778",
+      "envelopeId": "2039e959b1d11c36bae114b2b734d7fe0451dbd13be4c2b6a8b879cffae15588",
+      "writerSessionId": "sess-42104720d80e054fb0a978160b3758f5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json",
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "ec444bb6c71c1b23dd0686d2b4c25da15fcd9b7e4dd8565a07aa76f1513aae54"
+      },
+      "readDiagnostics": [],
+      "_hash": "73c9f740a42987cc263a21ca991f40f9906f56ad8a6a6db3c348d21e27fae761"
     }
   ]
 }

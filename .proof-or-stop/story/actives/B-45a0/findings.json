@@ -20121,6 +20121,331 @@
       ],
       "signatureTag": "ri060-current-replay-assurance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-362",
+      "desc": "HIGH — RI-083 wave-1 baseline re-attestation at frozen material cutoff 77025ccb/5c16b399 and current HEAD 4fe46f2443: retained replay-assurance family B-45a0:F-358/B-45a0:F-359/B-45a0:F-361 remains current. .proof-or-stop/story/actives/B-45a0/checklist.json:1 still marks CHK-011:happy:0 pass-shaped, but its signed receipt explicitly reports historical replay mode: plan-only and historical replay assurance BLOCKED (plan-only or incomplete). docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:17-30 requires 30-50 executed Story pairs, durable per-command receipts, and three alternating paired current-HEAD runs. Other checklist rows and Wave-4 readers reveal no distinct new coverage family at this cutoff; execute and bind the historical/paired campaign before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-26T16:25:12.423Z",
+      "reviewRound": "2026-08-26T15:42:55.036Z",
+      "reviewRunId": "B-45a0:RR-775",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8f9434c820c08b9091087e6ebc06d9ef24aa425bc9c1a328b2638fa8ccecfd81"
+      },
+      "readDiagnostics": [],
+      "_hash": "3fd9a810edeb1bb9bca6062572449a5502470f9081a870c202fd929f6a4a7074",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "scripts/run-dynamic-validation-replay.mjs"
+      ],
+      "signatureTag": "ri060-current-replay-assurance",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-363",
+      "desc": "HIGH — RI-083 wave-1 baseline re-attestation of B-45a0:F-360 at frozen material cutoff: packages/main/src/tasks/story-aware-validation-historical-replay.ts:66-71 still resolves a Story head as the newest git commit whose message merely mentions the Story ID, then treats its first parent as the replay base. The current plan-only report still binds B-03ac to ca4a7dc4 and B-43de to 0b5e7752, so a future --execute/--paired campaign could sign unrelated later one-commit diffs instead of authoritative Story implementation boundaries. This invalidates CHK-011 historical-pair coverage independently of the plan-only blocker, but it is the existing pair-misbinding family, not a new RI-083 family. Resolve pairs from authoritative Story/DONE merge provenance and fail closed on ambiguous references before accepting replay evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-26T16:26:19.645Z",
+      "reviewRound": "2026-08-26T15:42:55.036Z",
+      "reviewRunId": "B-45a0:RR-775",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "8f9434c820c08b9091087e6ebc06d9ef24aa425bc9c1a328b2638fa8ccecfd81"
+      },
+      "readDiagnostics": [],
+      "_hash": "56992c7c1ec695d32976cda09183b2ca63f8cc349e68647665c1c231b2b21cd0",
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "historical-replay-story-commit-resolution",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-364",
+      "desc": "historical-replay-paired-assurance-bypass: packages/main/src/tasks/story-aware-validation-historical-replay.ts:654-673 makes paired-performance validation conditional on the caller supplying --paired, so a successful --execute-only campaign can leave gateReasons empty and sign admissibility.admissible=true with pairedRequested=false and no pairedPerformance. scripts/run-dynamic-validation-replay.mjs:33-41 likewise requires the paired marker only when --paired was requested and otherwise prints historical replay assurance PASS whenever that report says admissible. This contradicts the mandatory three alternating current-HEAD pairs in docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:17-30 and plan Section 19.2/19.3. It is distinct from baseline F-358/F-359/F-361 (the current campaign was not executed) and F-360 (wrong Story pair resolution): even correctly resolved executable replays can be promoted without any paired campaign. Make paired evidence an unconditional admissibility requirement for assurance PASS and add an execute-without-paired fail-closed regression.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-26T16:27:38.376Z",
+      "reviewRound": "2026-08-26T15:42:55.036Z",
+      "reviewRunId": "B-45a0:RR-777",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json",
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "28ea2f36b735df3980989cfb5af880cb7bd399300bcbd5c56f9fdb0b9d4d593c"
+      },
+      "readDiagnostics": [],
+      "_hash": "ad34b194b2a4429dc890bf9914f60da85288b1532549020a3fb6f65ae9eb66df",
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "historical-replay-paired-assurance-optional",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-365",
+      "desc": "doc-promise-undelivered: RI-083 concept-lane re-attestation at frozen material cutoff 77025ccb/5c16b399 confirms a genuinely new family beyond baseline replay-assurance B-45a0:F-358/B-45a0:F-359/B-45a0:F-361 and pair-misbinding B-45a0:F-360. docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:17-30 makes three alternating current-HEAD full/dynamic pairs mandatory, but packages/main/src/tasks/story-aware-validation-historical-replay.ts:654-673 checks paired-performance only when --paired was supplied. Therefore an --execute-only report can have admissibility.admissible=true with pairedRequested=false and no pairedPerformance, and scripts/run-dynamic-validation-replay.mjs:33-41 will print historical replay assurance PASS. This is the existing B-45a0:F-364 family, not another duplicate family: make paired evidence an unconditional assurance prerequisite and reject execute-without-paired before PASS.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-26T16:32:06.626Z",
+      "reviewRound": "2026-08-26T15:42:55.036Z",
+      "reviewRunId": "B-45a0:RR-779",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "28ea2f36b735df3980989cfb5af880cb7bd399300bcbd5c56f9fdb0b9d4d593c"
+      },
+      "readDiagnostics": [],
+      "_hash": "ee48d4b620bace17a9118e8fb476d6e2b8f9aa598901543a5630bf3a6763779a",
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "scripts/run-dynamic-validation-replay.mjs",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json"
+      ],
+      "signatureTag": "historical-replay-paired-assurance-optional",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-366",
+      "desc": "doc-promise-undelivered: RI-083 concept-lane re-attestation at frozen material cutoff 77025ccb/5c16b399 confirms a genuinely new family beyond baseline replay-assurance B-45a0:F-358/B-45a0:F-359/B-45a0:F-361 and pair-misbinding B-45a0:F-360. docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:17-30 makes three alternating current-HEAD full/dynamic pairs mandatory, but packages/main/src/tasks/story-aware-validation-historical-replay.ts:654-673 checks paired-performance only when --paired was supplied. Therefore an --execute-only report can have admissibility.admissible=true with pairedRequested=false and no pairedPerformance, and scripts/run-dynamic-validation-replay.mjs:33-41 will print historical replay assurance PASS. This is the existing B-45a0:F-364 family, not another duplicate family: make paired evidence an unconditional assurance prerequisite and reject execute-without-paired before PASS.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-26T16:33:42.946Z",
+      "reviewRound": "2026-08-26T15:42:55.036Z",
+      "reviewRunId": "B-45a0:RR-779",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "28ea2f36b735df3980989cfb5af880cb7bd399300bcbd5c56f9fdb0b9d4d593c"
+      },
+      "readDiagnostics": [],
+      "_hash": "cbdedaba59b8b5288e251c4f12db18f7a63e0e4daec1f933be448b72b614c80e",
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "scripts/run-dynamic-validation-replay.mjs",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json"
+      ],
+      "signatureTag": "historical-replay-paired-assurance-optional",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
