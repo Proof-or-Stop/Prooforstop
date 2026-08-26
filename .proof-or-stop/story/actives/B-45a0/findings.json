@@ -19696,6 +19696,182 @@
       "resolvedAt": "2026-08-26T12:56:01.508Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-355",
+      "desc": "acceptance-basis-stale: verifier acceptance_basis is invalid at current HEAD dbb3a81921 because its signed receipt is bound to older HEAD 55260a88d2, with semantic discovery and snapshot seal mismatches plus stale story-owned evidence; canonical family B-45a0:F-345 remains the blocker.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-26T13:08:56.409Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-755",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "d351f5a2c01809ead8a43f0e7806c7b84d69cda3b96e6b925f9ef2d21067d09b",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/findings.json",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|json|acceptance-basis-stale",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of canonical acceptance-authority family B-45a0:F-345; current topology review independently confirmed the same stale signed basis.",
+      "resolvedAt": "2026-08-26T13:10:40.518Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-356",
+      "desc": "acceptance-basis-stale: verifier acceptance_basis is invalid at current HEAD dbb3a81921 because its signed receipt is bound to older HEAD 55260a88d2, with semantic discovery and snapshot seal mismatches plus stale story-owned evidence; canonical family B-45a0:F-345 remains the blocker.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-26T13:10:04.550Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-755",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "7782dec679be3c45946556d136a1d98410a54359a4e45f638e235b00020eee9d",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/findings.json",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|json|acceptance-basis-stale",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of canonical acceptance-authority family B-45a0:F-345; repeated terminal submission carried the same stale signed basis evidence.",
+      "resolvedAt": "2026-08-26T13:10:46.693Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-357",
+      "desc": "acceptance-basis-stale: current verifier basis remains non-admissible at unchanged HEAD dbb3a81921 because the signed receipt is bound to older HEAD 55260a88d2 and stale story-owned evidence; this re-confirms canonical family B-45a0:F-345 with no new topology family.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-26T13:19:06.814Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-760",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "00a52545dbd9f593cb644ff3925d1d30c13098926aa548950fadadb757916542",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/findings.json",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|json|acceptance-basis-stale",
+      "signatureTagSource": "auto"
     }
   ]
 }

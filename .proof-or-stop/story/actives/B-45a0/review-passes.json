@@ -15201,6 +15201,407 @@
       },
       "readDiagnostics": [],
       "_hash": "a07d7a4df08051a91ed37bbce4ad931f87f641cfea6c71da1048a6db8f5e8a6e"
+    },
+    {
+      "id": "B-45a0:RP-284",
+      "agent": "lattice-review-concept",
+      "note": "RI-081 concept re-attestation at HEAD dbb3a81921 reviewed the current verifier-owned acceptance chain and re-confirmed the already-canonical findings F-345 and F-346; no new finding family was discovered.",
+      "createdAt": "2026-08-26T12:59:16.526Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-751",
+      "envelopeId": "a5b9c3c5b84a6b1106ec8939ef763f15028094bb70007e00f7bfde506486bbb5",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "01c677bd2869ba48042d17050cd4484019720f4d11fb9407c35fc0126ba03610"
+      },
+      "readDiagnostics": [],
+      "_hash": "fb8780541659fb0243b0cf3328fb5e28afe4bffa97126b5d90310e4ab14320fb"
+    },
+    {
+      "id": "B-45a0:RP-285",
+      "agent": "lattice-review-quality",
+      "note": "RI-081 quality re-attestation found the fan-out fix verified at HEAD dbb3a81921; retained canonical findings F-345 and F-346 remain verifier-owned blockers and no new quality finding was discovered.",
+      "createdAt": "2026-08-26T13:02:57.685Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-752",
+      "envelopeId": "d52963360eaa1ddee70ffa039b8b221049209843e0c5fb0bdf220a19d3b8be55",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/lattice-review-quality.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "packages/main/dist/tasks/full-suite-runner-smoke.js",
+          "packages/main/dist/tasks/full-suite-runner.js",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": "Bounded RI-081 quality re-attestation limited to the committed fan-out fix and retained canonical findings F-345/F-346.",
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a49753b448ab6924012a906c09f25fe1acbef83e157c258ac66918d83a23c579"
+    },
+    {
+      "id": "B-45a0:RP-286",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-081 coverage re-attestation at HEAD dbb3a81921 confirms the existing stale-evidence family F-346; no new finding family was discovered in this epoch.",
+      "createdAt": "2026-08-26T13:03:56.266Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-753",
+      "envelopeId": "f88944c5f8ec6836001a106a4d37ca168e797303c74d35d85b40533adcc058a6",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/lattice-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json"
+        ],
+        "scanEscalationReason": "Bounded RI-081 coverage re-attestation reviewed current checklist, verifier artifacts, inventory, and canonical finding families.",
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "be5ca2e949513f1d52d67af672be30d95676095f7e17b2c4561fa5143d2bf39b"
+    },
+    {
+      "id": "B-45a0:RP-287",
+      "agent": "lattice-review-docs",
+      "note": "RI-081 docs parity PASS at HEAD dbb3a81921: 109 exported symbol anchors and 15 bounded documentation sections compared; no doc-code drift or promised-but-undelivered behavior found.",
+      "createdAt": "2026-08-26T13:05:05.176Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-754",
+      "envelopeId": "048e7bc880b1ae76382ddc77b615129fbbfaaa034964b57e40bb7761d7c687e2",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/templates/agents/lattice-review-docs.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "5af888e25e92355fa6a96ae4d7257c4c743f1184651c247d6bae79938fe5a320"
+      },
+      "readDiagnostics": [],
+      "_hash": "07c7b2aa31b7b4ab7eb60b943f08f27a450777be6cfc7f90a73aff798e61d69b"
+    },
+    {
+      "id": "B-45a0:RP-288",
+      "agent": "lattice-review-concept",
+      "note": "RI-081 wave 2 concept re-attestation at unchanged HEAD dbb3a81921 found no concept deletion residue or new finding family; canonical F-345/F-346 remain unchanged.",
+      "createdAt": "2026-08-26T13:12:49.291Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-756",
+      "envelopeId": "c41be6c0a2edecdb8608775cc002ea6a3c352ea8f745428cb1e88d6d4745423f",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "packages/main/templates/agents/lattice-review-concept.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "01c677bd2869ba48042d17050cd4484019720f4d11fb9407c35fc0126ba03610"
+      },
+      "readDiagnostics": [],
+      "_hash": "c74c18fe22e8626dc4099393d0f3ee783bf88bdd085e1d373e94bcf00a7df3e4"
+    },
+    {
+      "id": "B-45a0:RP-289",
+      "agent": "lattice-review-quality",
+      "note": "RI-081 wave 2 quality re-attestation found the committed fan-out serialization fix stable at HEAD dbb3a81921; canonical F-345/F-346 remain unchanged and no new quality blocker was discovered.",
+      "createdAt": "2026-08-26T13:14:18.519Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-757",
+      "envelopeId": "c1ec9a4029fd2a47f566bbbdac870e11f26959f80c808027827b99cc0ae3a2c9",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/lattice-review-quality.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "packages/main/dist/tasks/full-suite-runner-smoke.js",
+          "packages/main/dist/tasks/full-suite-runner.js",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": "Bounded RI-081 wave 2 quality re-attestation limited to the committed fan-out fix and retained canonical findings F-345/F-346.",
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8d83d0a3c4059cebabc2da6cf3437813c81d481003f21ff2cab4c4a7b9bfc281"
+    },
+    {
+      "id": "B-45a0:RP-290",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-081 wave 2 coverage re-attestation at unchanged HEAD dbb3a81921 confirms the existing canonical stale-evidence family F-346 and no new finding family.",
+      "createdAt": "2026-08-26T13:15:46.731Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-758",
+      "envelopeId": "5689cb1963cde30ff52f2a037d767046875d9cf3b553415b7428af8530d1ccaa",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/templates/agents/lattice-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json"
+        ],
+        "scanEscalationReason": "Bounded RI-081 wave 2 coverage re-attestation reviewed current checklist, verifier artifacts, inventory, and canonical finding families.",
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "910e118e6aa9ecd9967b9ed63ec002fefc8f7d9fd396e504ad4a0d78247aca4a"
+    },
+    {
+      "id": "B-45a0:RP-291",
+      "agent": "lattice-review-docs",
+      "note": "RI-081 wave 2 docs parity PASS at HEAD dbb3a81921: 109 exported symbol anchors and 15 bounded documentation sections compared; no doc-code drift or promised-but-undelivered behavior found.",
+      "createdAt": "2026-08-26T13:17:30.752Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-759",
+      "envelopeId": "d80f2edf156b8c67c03694c2fd783498f887dfbb7c9ec9be42e663e5850f450a",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/templates/agents/lattice-review-docs.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "5af888e25e92355fa6a96ae4d7257c4c743f1184651c247d6bae79938fe5a320"
+      },
+      "readDiagnostics": [],
+      "_hash": "e6b90978005b475972b3d365853a6264cf9316a1a2ef69371369441c36abea0d"
+    },
+    {
+      "id": "B-45a0:RP-292",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-081 wave 2 topology completeness re-attestation found no new topology family at unchanged HEAD dbb3a81921; the stale verifier basis remains represented by canonical F-345 and F-346 and is not being asserted as a topology pass.",
+      "createdAt": "2026-08-26T13:20:27.885Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-760",
+      "envelopeId": "04c46472eef30929f985da3bb785af7da97e99a98238f49c4d2ef078e6a12360",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "8f0dbbf69bbddf3e8ff6331ea008e2940b0e0736dfae1092329e518bb7f7b9de"
     }
   ]
 }
