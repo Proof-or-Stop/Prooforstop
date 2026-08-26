@@ -17268,6 +17268,55 @@
       ],
       "signatureTag": "adversarial|ts|verifier-owned-executable",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-323",
+      "desc": "The verifier-owned acceptance basis remains stale after commit 55a1e00343: acceptance_topology_check reports AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE, while pre_review_check_read reports PR_ARTIFACT_TAMPERED. DEV must regenerate the verifier-owned basis and pre-review artifact before this review can be admitted.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-26T06:38:53.395Z",
+      "reviewRound": "2026-08-25T19:36:40.358Z",
+      "reviewRunId": "B-5a15:RR-742",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "127741123a1785ff7f29869767ca392ed0e4422548d71f7e9de1f0e31ab848f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "97e25dea3c4eb0cbcfac4441bd34c94eb242943dd37d2ce9a54aac3f907708af",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-topology.ts"
+      ],
+      "signatureTag": "missing|ts|verifier-owned-acceptance",
+      "signatureTagSource": "auto"
     }
   ]
 }

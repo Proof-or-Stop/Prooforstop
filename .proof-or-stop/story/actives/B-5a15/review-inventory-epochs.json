@@ -5720,9 +5720,9 @@
       "epochId": "B-5a15:RI-048",
       "storyId": "B-5a15",
       "reviewRound": "2026-08-25T19:36:40.358Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-25T19:57:14.967Z",
-      "updatedAt": "2026-08-25T19:57:14.967Z",
+      "updatedAt": "2026-08-26T06:40:47.154Z",
       "cutoff": {
         "headHash": "55a1e00343aa6fb9e4327ff4b444fc79bfc367bf",
         "materialHash": "e6206a5bc1f4e84f3ec5170a44721d322d584fde025daccfae497ef71fe2c3a8",
@@ -5740,7 +5740,45 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "84fbe0b4a0b2f2285584ea4511d34612a7b45c6e4f13495ea159b418408f6a32"
+      "cancelledAt": "2026-08-26T06:40:47.154Z",
+      "cancelReason": "Replace RI-048 after the prior topology critic left a conflicting completeness receipt; preserve its verified findings as the baseline for a fresh frozen inventory.",
+      "terminalRunSequenceBoundary": 742,
+      "_hash": "059881e15c9261dfb00041d599ae3d7bb46687952a974869bd6e5594e31f8b4d"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-049",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-25T19:36:40.358Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-26T06:40:54.964Z",
+      "updatedAt": "2026-08-26T06:40:54.964Z",
+      "cutoff": {
+        "headHash": "b9498f1568436921c5f246dec02b86bf9a204792",
+        "materialHash": "e6206a5bc1f4e84f3ec5170a44721d322d584fde025daccfae497ef71fe2c3a8",
+        "storyFilesHash": "cf261cf7ae7b0e3f2eb1829ee05207cb44bf7109f9fdf804e82db9effc0d4cb2"
+      },
+      "scopeDigest": "c6aa9f8200dd61132f3fc1a799af465d15f80258db2799524bbb9ce3c94f99f0",
+      "candidateSpecSetDigest": "f5ef3c332fa094b1f07a5e0e59107237dec68634ce4a572bee15177ace27e743",
+      "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 742,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-5a15:F-317",
+        "B-5a15:F-318",
+        "B-5a15:F-319",
+        "B-5a15:F-320",
+        "B-5a15:F-321",
+        "B-5a15:F-322",
+        "B-5a15:F-323"
+      ],
+      "_hash": "e4b5dce9d51060a908dd6aa5fff92b3f9120cb2090413c5d6a405966100b629c"
     }
   ],
   "receipts": [
