@@ -21082,6 +21082,116 @@
         "scanEscalationReason": null
       },
       "_hash": "5a2dc3bc837147a98030ec56fa436d13c65a981eabfce1dc7c065cd7387f7064"
+    },
+    {
+      "id": "B-5a88:RP-331",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept residue review completed on current HEAD. Existing F-473/F-474 lab import writers and F-477 retired lab command were re-confirmed as already-registered findings, while F-478 remains a separate integrity finding because pre_review_check_read still returns PR_ARTIFACT_TAMPERED. The lattice-residue verifier passed and no additional concept deletion or replacement defect was found; this pass does not clear any existing finding.",
+      "createdAt": "2026-08-26T08:02:02.287Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-870",
+      "envelopeId": "894cdb696cf263ee3a3975d1afd4cb2a168b00d34eb82daf5952bb32528a3e2e",
+      "writerSessionId": "sess-c6af7c35008ab82c38767552ed04f926",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-concept.md",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "bin/bootstrap-runner.js",
+          "packages/main/src/cli/lab-entrypoint.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/templates/agents/proof-or-stop-evaluator-cli.md",
+          "scripts/verify-lab-scoring-core.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/truth-source.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/agent-asset-resolution.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-opt-in.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/templates/agents/",
+          "packages/utils/package.json",
+          "README.md",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "62a3d5d49e81a0c14b09553eceb983e87a9a51a82194402c17304896887a50b9"
+    },
+    {
+      "id": "B-5a88:RP-332",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Current basis/topology/rollout reads are complete; no additional distinct finding beyond the current-wave pre-review integrity family already represented by F-479 and F-480.",
+      "createdAt": "2026-08-26T08:16:56.263Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-872",
+      "envelopeId": "0554d2d34b67581ee66858729cf528ef32802098a9d69127cb2cc9443ed0725a",
+      "writerSessionId": "sess-1a75c1838d9f7bdc51b5898f71babb09",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e7b3500bdf7a0782de43f58ba94583e276d81ccbcbbee3bc9500dc74d3b403fb"
     }
   ]
 }
