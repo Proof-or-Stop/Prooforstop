@@ -236,6 +236,23 @@
       "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
       "inventory": {},
       "_hash": "11ea600ff256e89c14d0a905927babc0d1a151dd1222577de16d9800ecca3c78"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5a88:CW-013",
+      "storyId": "B-5a88",
+      "state": "BLOCKED",
+      "createdAt": "2026-08-26T15:15:56.648Z",
+      "updatedAt": "2026-08-26T15:15:56.648Z",
+      "blockerCode": "pre_cert_blocking_findings_open",
+      "blockerDetail": "Open verified blocking findings: B-5a88:F-450, B-5a88:F-451",
+      "inventory": {
+        "epochId": "B-5a88:RIE-112",
+        "receiptId": "B-5a88:RIE-112:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "e1c373e1b559c339ea3d56761c0f88df1de11066fe7153a86ca47a2e3edbd689"
     }
   ],
   "receipts": [
