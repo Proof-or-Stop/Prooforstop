@@ -24,7 +24,10 @@ const root = resolve(process.cwd());
 // layouts use the configured repository even though no synthetic Story exists.
 const gitCwd = resolveProjectGitCwd(root, root, loadConfig(root));
 const execute = process.argv.includes('--execute');
-const paired = process.argv.includes('--paired');
+// An executable campaign is assurance evidence, not merely a cheaper replay
+// mode.  It must therefore include the alternating full/dynamic pairs; a
+// caller cannot accidentally produce an admissible execute-only report.
+const paired = execute || process.argv.includes('--paired');
 const storyRoot = join(root, '.proof-or-stop', 'story', 'actives');
 const outputRoot = join(root, '.proof-or-stop', 'runtime', 'dynamic-validation', 'historical-replay');
 
@@ -65,7 +68,29 @@ function withHistoricalWorktrees<T>(base: string, head: string, fn: (roots: { ba
 
 function storyCommit(storyId: string): { base: string; head: string } | undefined {
   try {
-    const head = git(['log', '--all', '--format=%H', '--grep', storyId, '-n', '1']);
+    // A Story can be mentioned by many later release, validation, or follow-up
+    // commits.  Replay the canonical implementation boundary only: the local
+    // Story workflow records it as `merge: B-xxxx ...`.  Matching the subject
+    // exactly by this prefix avoids treating an incidental body mention as a
+    // Story head and makes the paired diff correspond to the Story change.
+    // DONE Stories are integrated through the local main branch.  Other refs
+    // retain abandoned/rebased Story branches and can contain duplicate merge
+    // subjects, which would make the canonical boundary ambiguous.
+    const escapedStoryId = storyId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const rows = git([
+      'log', 'main', '--format=%H%x00%s', '--extended-regexp',
+      '--grep', `^merge: ${escapedStoryId}( |$)`,
+    ]).split('\n').filter(Boolean);
+    const prefix = `merge: ${storyId}`;
+    const matches = rows.flatMap((row) => {
+      const separator = row.indexOf('\0');
+      if (separator < 0) return [];
+      const head = row.slice(0, separator);
+      const subject = row.slice(separator + 1);
+      return subject === prefix || subject.startsWith(`${prefix} `) ? [head] : [];
+    });
+    if (matches.length !== 1) return undefined;
+    const [head] = matches;
     if (!head) return undefined;
     const base = git(['rev-parse', `${head}^`]);
     return { base, head };
@@ -658,12 +683,12 @@ const gateReasons = [
   !replayExecutionEquivalent ? 'replay per-command verdict equivalence or residue check failed' : '',
   !verifyPayload(faultInjectionBody, faultInjectionArtifact.signature) ? 'fault-injection artifact signature is invalid' : '',
   !faultInjectionArtifact.allPass ? 'FI-1..FI-5 coverage is incomplete or failing' : '',
-  paired && (!pairedPerformance
+  !paired || !pairedPerformance
     || pairedPerformance.verdictEquivalent !== true
     || pairedPerformance.perCommandEquivalent !== true
     || !Array.isArray(pairedPerformance.runs)
     || (pairedPerformance.runs as Array<Record<string, unknown>>).some((run) => !Array.isArray(run.residue) || run.residue.length > 0)
-    || !verifyPayload(Object.fromEntries(Object.entries(pairedPerformance).filter(([key]) => key !== 'signature')), String(pairedPerformance.signature || ''))) ? 'paired full/dynamic per-command equivalence, residue, verdict or signature is missing' : '',
+    || !verifyPayload(Object.fromEntries(Object.entries(pairedPerformance).filter(([key]) => key !== 'signature')), String(pairedPerformance.signature || '')) ? 'paired full/dynamic per-command equivalence, residue, verdict or signature is missing' : '',
 ].filter(Boolean);
 const reportBody = {
   schema: 'proof-or-stop.dynamic-validation.historical-replay.v1',
