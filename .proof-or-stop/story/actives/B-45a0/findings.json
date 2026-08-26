@@ -18941,7 +18941,7 @@
       "desc": "RI-080 concept review at clean HEAD a3db50f4b9: the required Wave 4 verifier-owned acceptance chain remains non-admissible. acceptance_basis is status=invalid/evidentiary=false and acceptance_topology_check is status=fail/structuralPass=false/authority=diagnostic_only with AT_ADAPTER_RESULT_DIGEST_MISMATCH (semantic discovery digest, snapshot seal, and evidence storyFilesHash freshness mismatch); pre_review_check_read is status=fail/ok=false with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED; acceptance_rollout_report_read and acceptance_rollout_check are status=fail/blocking=true with AR_REPORT_STALE. The stored quorum is genuine full-3x2, but stale rollout shape alone cannot authorize TEST/DONE. Regenerate and revalidate the canonical basis, pre-review artifact, and rollout report before lifecycle admission.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-26T12:09:53.833Z",
@@ -18988,14 +18988,18 @@
         "packages/main/src/core/acceptance-rollout.ts"
       ],
       "signatureTag": "missing|json|concept-review-clean",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Regenerated verifier-owned acceptance basis at current HEAD; pre_review_check is PASS and acceptance_rollout_check is PASS with a current full-3x2 receipt.",
+      "resolvedAt": "2026-08-26T14:00:49.207Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-346",
       "desc": "Current-head coverage is inadmissible: all 48 checklist verificationEvidence rows (42 MUST) are pass-shaped but stale, and all bind to materialHash 5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1 and storyFilesHash 01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84, while current RR-735 HEAD a3db50f4b9a3e11ded146311d0d0b01b9d4a1972 binds materialHash 77025ccb2e399d877935708838ee6d879fbaefa4ea3762effd060b7d44d67b22 and storyFilesHash 5c16b39974d2f5e3f104387b0beb2eeaa63ba76d0a3219fd46ad45bda411668f. pre_review_check_read --storyId=B-45a0 --json returns status=fail with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED; acceptance_rollout_check --storyId=B-45a0 --json returns ok=false, blocking=true, AR_REPORT_STALE, receipt=stale despite report verdict=pass. Reissue current verifier-owned pre-review and acceptance artifacts and refresh all stale verification evidence before coverage can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-26T12:10:44.320Z",
@@ -19156,7 +19160,11 @@
         ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json"
       ],
       "signatureTag": "missing|json|current-head-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All 48 checklist verificationEvidence rows, including 42 MUST intents, were refreshed and bind the current materialHash/storyFilesHash; pre_review_check is PASS.",
+      "resolvedAt": "2026-08-26T14:00:50.283Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-347",
@@ -19822,7 +19830,7 @@
       "desc": "acceptance-basis-stale: current verifier basis remains non-admissible at unchanged HEAD dbb3a81921 because the signed receipt is bound to older HEAD 55260a88d2 and stale story-owned evidence; this re-confirms canonical family B-45a0:F-345 with no new topology family.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-26T13:19:06.814Z",
@@ -19871,7 +19879,11 @@
         "packages/main/src/core/pre-review-check.ts"
       ],
       "signatureTag": "missing|json|acceptance-basis-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate topology corroboration of F-345; the current acceptance basis and rollout evidence were regenerated, so no separate family remains.",
+      "resolvedAt": "2026-08-26T14:00:51.364Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
