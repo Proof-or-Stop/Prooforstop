@@ -21,15 +21,25 @@ const {
   detectCertificationWindowMaterialDrift,
   evaluateCertificationWindowAdmit,
   signCertificationWindow,
+  verifyCertificationWindow,
   CERTIFICATION_WINDOW_SCHEMA,
+  PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY,
+  setReviewInventoryAdmitApisForTest,
 } = await import(
   pathToFileURL(join(distRoot, 'core/certification-window.js')).href,
 );
 const {
   buildCertificationDecision,
+  createCertificationWindowHandlers,
   deriveCertificationDomainInputHashes,
 } = await import(
   pathToFileURL(join(distRoot, 'handlers/certification-window.js')).href,
+);
+const {
+  currentMaterialHash,
+  currentStoryFilesHash,
+} = await import(
+  pathToFileURL(join(distRoot, 'core/evidence-freshness.js')).href,
 );
 
 const {
@@ -1507,6 +1517,126 @@ test('B-5a15 F-314: production domain inputs invalidate only the declared transi
     assert.equal(decision.gateAdmissible, false);
   } finally {
     process.chdir(savedCwd);
+    rmSync(repositoryRoot, { recursive: true, force: true });
+  }
+});
+
+test('B-5a15 F-318/F-320: CertificationWindow handlers preserve advisory drift and invalidate changed test domains', () => {
+  const repositoryRoot = mkdtempSync(join(tmpdir(), 'causal-certification-handler-'));
+  const storyId = 'B-5a15-certification-handler';
+  const git = (args) => execFileSync('git', args, { cwd: repositoryRoot, stdio: 'ignore' });
+  try {
+    writeFileSync(join(repositoryRoot, 'proof-or-stop.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.proof-or-stop/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+    }) + '\n');
+    mkdirSync(join(repositoryRoot, 'packages', 'main', 'tests'), { recursive: true });
+    writeFileSync(join(repositoryRoot, 'README.md'), 'certification handler regression\n');
+    git(['init', '-b', 'main']);
+    git(['config', 'user.name', 'B-5a15 certification handler test']);
+    git(['config', 'user.email', 'b5a15-certification-handler@example.test']);
+    git(['add', '.']);
+    git(['commit', '-m', 'seed certification handler repository']);
+
+    git(['switch', '-c', 'story/certification-handler']);
+    const domainFile = join(repositoryRoot, 'packages', 'main', 'tests', 'domain-input.test.mjs');
+    writeFileSync(domainFile, 'export const version = 1;\n');
+    git(['add', 'packages/main/tests/domain-input.test.mjs']);
+    git(['commit', '-m', 'add story-owned test domain']);
+
+    const store = new StoryStore(repositoryRoot);
+    const now = new Date().toISOString();
+    store.writeStory(storyId, {
+      storyId,
+      name: 'certification-handler-regression',
+      title: 'Certification handler regression',
+      description: 'Production handler mutation regression for CertificationWindow.',
+      type: 'feature',
+      phase: 'DEV',
+      priority: 'high',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      events: [],
+    });
+    store.writeChecklist(storyId, { items: [] });
+
+    const materialHash = currentMaterialHash(repositoryRoot, 'HEAD', repositoryRoot);
+    const storyFilesHash = currentStoryFilesHash(repositoryRoot, 'HEAD', repositoryRoot);
+    assert.ok(materialHash && storyFilesHash);
+    setReviewInventoryAdmitApisForTest({
+      finalizedUnconsumedReviewInventory: () => ({
+        epoch: {
+          epochId: 'B-5a15:RI-handler',
+          storyId,
+          reviewRound: 'handler-round',
+          state: 'FINALIZED',
+          cutoff: { materialHash, storyFilesHash },
+        },
+        receipt: {
+          receiptId: 'B-5a15:INV-handler',
+          storyId,
+          reviewRound: 'handler-round',
+          authority: 'inventory-completeness-only',
+          authorizesTest: false,
+          cutoff: { materialHash, storyFilesHash },
+        },
+      }),
+      consumeReviewInventoryCompletenessReceipt: () => 'B-5a15:INV-handler',
+    });
+    const handlers = createCertificationWindowHandlers({
+      store,
+      root: repositoryRoot,
+      scanRoot: join(repositoryRoot, 'packages', 'main'),
+    });
+
+    assert.match(handlers.certification_window_begin({ storyId }), /^State: ADMITTED$/m);
+    const admitted = store.readCertificationWindows(storyId).windows.at(-1);
+    assert.ok(admitted?.frozen?.causalInputHashes);
+    assert.equal(verifyCertificationWindow(admitted), true, 'begin persists a signed production window');
+
+    git(['switch', 'main']);
+    writeFileSync(join(repositoryRoot, 'unrelated-main-change.txt'), 'unrelated material\n');
+    git(['add', 'unrelated-main-change.txt']);
+    git(['commit', '-m', 'unrelated main material change']);
+    git(['switch', 'story/certification-handler']);
+    git(['merge', 'main', '--no-edit']);
+
+    const advisoryStatus = handlers.certification_window_status({ storyId });
+    assert.match(advisoryStatus, /^State: ADMITTED$/m);
+    assert.match(advisoryStatus, new RegExp(`^Warning: \\[${PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY}\\] `, 'm'));
+    const afterUnrelated = store.readCertificationWindows(storyId).windows.at(-1);
+    assert.equal(afterUnrelated?.state, 'ADMITTED', 'unrelated whole-tree drift keeps specialized evidence admitted');
+    assert.equal(afterUnrelated?.frozen?.materialHash, materialHash, 'advisory does not rewrite the frozen hash');
+    assert.notEqual(currentMaterialHash(repositoryRoot, 'HEAD', repositoryRoot), materialHash);
+    assert.equal(currentStoryFilesHash(repositoryRoot, 'HEAD', repositoryRoot), storyFilesHash);
+
+    writeFileSync(domainFile, 'export const version = 2;\n');
+    git(['add', 'packages/main/tests/domain-input.test.mjs']);
+    git(['commit', '-m', 'mutate story-owned test domain']);
+    const invalidatedStatus = handlers.certification_window_status({ storyId });
+    assert.match(invalidatedStatus, /^State: INVALIDATED$/m);
+    const invalidated = store.readCertificationWindows(storyId).windows.at(-1);
+    assert.equal(invalidated?.state, 'INVALIDATED');
+    assert.equal(invalidated?.invalidation?.blockerCode, 'pre_cert_window_invalidated');
+    assert.equal(verifyCertificationWindow(invalidated), true, 'status persists a signed invalidated window');
+    const currentInputHashes = deriveCertificationDomainInputHashes(repositoryRoot, 'HEAD', repositoryRoot);
+    assert.ok(currentInputHashes);
+    assert.equal(
+      invalidated?.frozen?.causalInputHashes?.['certification:source'],
+      currentInputHashes['certification:source'],
+      'unaffected source domain remains fresh in the frozen production window',
+    );
+    assert.notEqual(
+      invalidated?.frozen?.causalInputHashes?.['certification:test'],
+      currentInputHashes['certification:test'],
+      'changed test domain is represented as stale in the frozen production window',
+    );
+  } finally {
+    setReviewInventoryAdmitApisForTest(undefined);
     rmSync(repositoryRoot, { recursive: true, force: true });
   }
 });

@@ -306,7 +306,7 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
         current: currentCertificationIdentity(ctx, storyId),
       });
       if (existing.window && (existing.window.state === 'ADMITTED' || existing.window.state === 'RUNNING')) {
-        return render(projectCertificationWindowStatus(storyId, existing.window, existing.receipt));
+        return render(projectCertificationWindowStatus(storyId, existing.window, existing.receipt, existing.advisory));
       }
 
       const apis = loadReviewInventoryAdmitApis();
@@ -388,7 +388,7 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
         storyId,
         current: currentCertificationIdentity(ctx, storyId),
       });
-      return render(projectCertificationWindowStatus(storyId, refreshed.window, refreshed.receipt));
+      return render(projectCertificationWindowStatus(storyId, refreshed.window, refreshed.receipt, refreshed.advisory));
     },
 
     certification_window_cancel(args: { storyId: string; reason: string }): string {
