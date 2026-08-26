@@ -1,0 +1,303 @@
+{
+  "passes": [
+    {
+      "id": "B-0b50:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced. Reviewed both checklist items, the integrated source diff, required story context, and related decision documents; the changed recovery command is an additive blocker-specific route, while certification_window_status remains used for other states. Repository-wide residue scan found no incomplete concept cleanup or undelivered promise.",
+      "createdAt": "2026-08-25T20:13:40.313Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-004",
+      "envelopeId": "d73ccf80e4c7b6f9190e8f1d112df4fe93aa5d58fcb4582cfee58f5c0598871b",
+      "writerSessionId": "sess-ae8176c4f8504cede86bc15d1dc43bcb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a419709670c395a06e90dfa6cb4c074ebbdf58d734bdcf54bac12a29293c26bb"
+    },
+    {
+      "id": "B-0b50:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement residue found; the PRE_CERT recovery reroute was checked across the story, decision docs, changed implementation, smoke, and repository references.",
+      "createdAt": "2026-08-25T20:21:45.782Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-007",
+      "envelopeId": "4d1e214479b66e710f71bec97e7877d805849cbe927ca005ecba9783c21355ee",
+      "writerSessionId": "sess-1dcc2d4055e59ff64a7fea19dd172a08",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "accac656376a437531feea6c8b5c55854bb95c563bf9a06690ad0b48ac4fb674"
+      },
+      "readDiagnostics": [],
+      "_hash": "9f7896b56df011ea541b210b0fb4631f57dc53efdf8222e961d6804c4dce4072"
+    },
+    {
+      "id": "B-0b50:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced; the removed helper has no live source residue, and all new recovery identifiers are implemented and referenced. Reviewed the story, checklist, related decisions, source diff, and smoke-test changes.",
+      "createdAt": "2026-08-26T06:19:29.265Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-009",
+      "envelopeId": "a0991c920142596d5c50b682425911fa9e7c25b875cc471dc5fba8f5828770ee",
+      "writerSessionId": "sess-d66f9848af8541c6abaaea707ccf884d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6c021fa3427e5dae987199e022fe502faf2358cf27af5d6925b2f388a40a0c25"
+    },
+    {
+      "id": "B-0b50:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "RI-003 concept review complete: the removed heavyCertificationStatusNext helper has no live source residue, and the recovery behavior is fully routed through nextCommandForBlocker; the new PRE_CERT probe/status symbols are defined, referenced, and smoke-covered. No incomplete concept deletion or replacement blocker found.",
+      "createdAt": "2026-08-26T06:38:09.180Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-011",
+      "envelopeId": "908187a333ecdd24b0d558cb139ac34af638359098863fdc79c4c3170d3bee1a",
+      "writerSessionId": "sess-d40cdfd8f6e6ddb7dcf25a15f9d170f4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": "No concept deletion residue remained in live source; historical review metadata references were excluded as audit history."
+      },
+      "_hash": "9573e04364af9686512b59f26746fe25674e97c08d89c52fb0dbac8981d5357c"
+    },
+    {
+      "id": "B-0b50:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "RI-003 quality review: checked the integrated three-file diff, recovery-command allowlist, inventory probe fail-closed path, and focused smoke coverage; no blocking quality findings.",
+      "createdAt": "2026-08-26T06:39:07.675Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-012",
+      "envelopeId": "dc173ed8697e2ea36f62a4839efd791757580e83165198245b6ad060905a911a",
+      "writerSessionId": "sess-8c0bb2fa7f511116a23df2bbc0bc1eeb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7a79101d8b3a7f5ed56bb3be0f7ba23e79f62025b0cf9a4f5ef21d77ac226517"
+    },
+    {
+      "id": "B-0b50:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified all six must intents across CHK-001 and CHK-002 against current HEAD source and the focused certification-window smoke; no blocker.",
+      "createdAt": "2026-08-26T06:49:42.539Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-014",
+      "envelopeId": "846ce6759e331ee7ad553c0ddd7488f76a20f56d4396ca6e04a92ef20307d4de",
+      "writerSessionId": "sess-a69e8653eced23f1befea589a4985d8b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "7e8dfc1938039a0840d044d37d734e3f69af1a1bd92b24b4f7043d80b18ceaf0"
+      },
+      "readDiagnostics": [],
+      "_hash": "7723a7cc7f7f0737dfa61903a6728d06dfd86755cc4468129ead9556f6f7e1ee"
+    },
+    {
+      "id": "B-0b50:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept review completed for the full B-0b50 story. The committed diff adds probe-failure classification and safe recovery propagation, removes only the unused heavyCertificationStatusNext helper, and leaves no residual deleted-concept references. Checklist CHK-001 and CHK-002 verificationIntent is covered by the current certification-window smoke, including happy, edge, and adversarial recovery cases.",
+      "createdAt": "2026-08-26T07:16:37.213Z",
+      "reviewRound": "2026-08-26T07:07:48.610Z",
+      "reviewRunId": "B-0b50:RR-016",
+      "envelopeId": "b8101a2a59073d7e8fdd2abacc82664a101513f7361b48dcacc9cb43dbb6cb17",
+      "writerSessionId": "sess-c4e4dd51d1fb4acb0ec14b9ebfdd7917",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ff5c6f22198772bd7a69e29d9d467f09c3a5d1f275176b12318f99f3c1efbca8"
+    },
+    {
+      "id": "B-0b50:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of the current main...HEAD implementation diff completed. Checked exception propagation, probe failure handling, recovery-command allowlisting, boundary cases, dead code, type safety, shell isolation, and the focused smoke/build. No new quality blocker found. Existing B-0b50:F-010 remains a separate topology/pre-review evidence finding and is not re-registered by this lane.",
+      "createdAt": "2026-08-26T07:17:37.939Z",
+      "reviewRound": "2026-08-26T07:07:48.610Z",
+      "reviewRunId": "B-0b50:RR-017",
+      "envelopeId": "8668056a2cc6acfcdf4e29d8f8ec089818ab7236c83a8c52476530222800bf97",
+      "writerSessionId": "sess-3c4f0903ec33b866e12837a5f371dab8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9530adbcb2c7063c888b1a8707d62f55c8322cda40b82b7359046341c9c2b16f"
+    },
+    {
+      "id": "B-0b50:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed: F-011 dismissal is scope-valid; all six must intents for CHK-001 and CHK-002 have current-HEAD non-waiver smoke evidence, with no in-scope blocker remaining.",
+      "createdAt": "2026-08-26T07:24:21.824Z",
+      "reviewRound": "2026-08-26T07:07:48.610Z",
+      "reviewRunId": "B-0b50:RR-019",
+      "envelopeId": "e058274c935bc5ca034c666aa15964201aced29e9b1234f5c2a6f89769301157",
+      "writerSessionId": "sess-d1fab5cf06190f798b74ea3f36c325ad",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "accac656376a437531feea6c8b5c55854bb95c563bf9a06690ad0b48ac4fb674"
+      },
+      "readDiagnostics": [],
+      "_hash": "dc78517ed1ffb7d88de5328766d3bf55c856f661a27daa793a86d2646efc6bd8"
+    }
+  ]
+}
