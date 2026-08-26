@@ -6992,9 +6992,9 @@
       "epochId": "B-45a0:RIE-088",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-26T06:51:29.113Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-26T06:59:48.254Z",
-      "updatedAt": "2026-08-26T06:59:48.254Z",
+      "updatedAt": "2026-08-26T07:03:59.068Z",
       "cutoff": {
         "headHash": "e7fa91d81aabac7c07bb2b637166481c28c9c977",
         "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
@@ -7005,7 +7005,36 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-45a0:RIE-088:RCP-001",
-      "_hash": "57c93abae0281d2fff6197fa1884e83d4d68314b905f053995d94b65dde42ad5"
+      "cancelledAt": "2026-08-26T07:03:59.068Z",
+      "cancelReason": "Completeness-only receipt RIE-088 cannot authorize REVIEW-to-DEV remediation; current round requires an acceptance-bound inventory epoch after verifier artifact drift.",
+      "terminalRunSequenceBoundary": 698,
+      "_hash": "88437f38a2a6a2ed2983c313c22bff78971c30f623b313fec1334538066dfc65"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-078",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-26T06:51:29.113Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-26T07:04:12.169Z",
+      "updatedAt": "2026-08-26T07:04:12.169Z",
+      "cutoff": {
+        "headHash": "9a347258abdcb486bda6c0765f2e052e0a9c38b9",
+        "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
+        "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84"
+      },
+      "scopeDigest": "2ac9444228844472907bad4714239dc5e4fabda893457e0b3832be25d4cf181a",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 698,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "e9b2a9bd91883fc54999d7bd23463a8781fcd29b47d56a29722193fba090db1e"
     }
   ],
   "receipts": [
@@ -7882,7 +7911,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-26T06:59:48.254Z",
-      "_hash": "148e80f7676b69b98e2d0fee06941c4cbabe018c537728c59187bd0bb7856b8b"
+      "invalidatedAt": "2026-08-26T07:03:59.068Z",
+      "invalidationReason": "Completeness-only receipt RIE-088 cannot authorize REVIEW-to-DEV remediation; current round requires an acceptance-bound inventory epoch after verifier artifact drift.",
+      "_hash": "a82d35fc9c77a3a3faa83196b56c918218db33c80ec683c85af3be18826e4dd0"
     }
   ],
   "criticReceipts": [
