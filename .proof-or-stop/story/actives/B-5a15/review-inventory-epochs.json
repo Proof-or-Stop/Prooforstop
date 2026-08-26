@@ -11513,6 +11513,73 @@
       ],
       "createdAt": "2026-08-26T06:13:29.444Z",
       "_hash": "80055268f23ebf4637e46c98cdf3aa37fcbe3e64732b1fa946555e3fec0bba13"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a15:RI-049:CRIT-01",
+      "epochId": "B-5a15:RI-049",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-25T19:36:40.358Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "b9498f1568436921c5f246dec02b86bf9a204792",
+        "materialHash": "e6206a5bc1f4e84f3ec5170a44721d322d584fde025daccfae497ef71fe2c3a8",
+        "storyFilesHash": "cf261cf7ae7b0e3f2eb1829ee05207cb44bf7109f9fdf804e82db9effc0d4cb2"
+      },
+      "aggregateFindingSetDigest": "c75ffaa7a29f1c94671d3c438368dada559ad4cda34576f1cf0ed6793393a803",
+      "requiredLaneCoverageDigest": "592106e64717c31be330e744133ea9e19a06ec104388ec8116368fbf92988fda",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-5a15:RR-750",
+      "terminalEvidenceIds": [
+        "B-5a15:RP-232"
+      ],
+      "readEvidenceDigest": "5503d9310f69798e0c5d9bf0e99c34666c99f5605c09e5c9a67897c32e405d5c",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a15:F-317",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-317",
+          "reason": "Retain the stale mandatory verification-evidence family for DEV remediation."
+        },
+        {
+          "findingId": "B-5a15:F-318",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-318",
+          "reason": "Retain the missing production-path coverage family for DEV remediation."
+        },
+        {
+          "findingId": "B-5a15:F-319",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-319",
+          "reason": "Retain the failed DONE-required full-suite family for DEV or TEST remediation."
+        },
+        {
+          "findingId": "B-5a15:F-320",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-320",
+          "reason": "Retain the missing re-attestation-warning family for DEV remediation."
+        },
+        {
+          "findingId": "B-5a15:F-321",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-321",
+          "reason": "Retain the stale acceptance-basis family for DEV remediation."
+        },
+        {
+          "findingId": "B-5a15:F-322",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-322",
+          "reason": "Retain the stale pre-review-artifact family for DEV remediation."
+        },
+        {
+          "findingId": "B-5a15:F-323",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-5a15:F-323",
+          "reason": "Retain the current stale acceptance-basis family for DEV remediation."
+        }
+      ],
+      "createdAt": "2026-08-26T07:01:42.512Z",
+      "_hash": "cab8ba501a5c5ffdf49adc696d41d0e2cf054557c26ead7c69425b62b02694ac"
     }
   ]
 }
