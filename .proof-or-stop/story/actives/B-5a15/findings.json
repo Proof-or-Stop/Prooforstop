@@ -17186,6 +17186,47 @@
       ],
       "signatureTag": "missing|ts|high-current-head",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-321",
+      "desc": "Acceptance basis is not admissible for B-5a15: acceptance_basis returned status=invalid with receiptVerification.ok=false and code AT_ADAPTER_RESULT_DIGEST_MISMATCH, reporting basis semantic discovery digest mismatch, closure files hash mismatch, snapshot seal digest mismatch, and evidence storyFilesHash mismatch. acceptance_topology_check independently returned status=fail, structuralPass=false, result=inconclusive_basis_unverified, and diagnostic AT_CLOSURE_FILES_STALE. The verifier-owned PLAN topology cannot be relied upon until the basis is regenerated and rechecked.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-26T06:11:10.791Z",
+      "reviewRound": "2026-08-25T19:36:40.358Z",
+      "reviewRunId": "B-5a15:RR-737",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8df6bad9251b4980c9322ad8728ba3d1a655f9c5380dc176cc1a808edb59d531",
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|acceptance-basis-admissible",
+      "signatureTagSource": "auto"
     }
   ]
 }
