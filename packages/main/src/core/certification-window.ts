@@ -46,6 +46,7 @@ export const PRE_CERT_INVENTORY_NOT_AUTHORITY = 'pre_cert_inventory_not_certific
 export const PRE_CERT_WINDOW_REQUIRED = 'pre_cert_window_required';
 export const PRE_CERT_WINDOW_INVALIDATED = 'pre_cert_window_invalidated';
 export const PRE_CERT_CAUSAL_FRESHNESS_REQUIRED = 'pre_cert_causal_freshness_required';
+export const PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY = 'pre_cert_material_drift_reattestation_advisory';
 
 export const PRECERT_VERIFIER_IDENTITY = 'proof-or-stop:done_required_validate';
 export const PRECERT_TEST_IDENTITY = 'npm test';
@@ -197,6 +198,10 @@ export interface CertificationWindowStatusProjection {
   receipt: PrecertReceipt | null;
   blockerCode: string | null;
   nextCommand: string;
+  advisory?: {
+    code: typeof PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY;
+    detail: string;
+  };
 }
 
 function canonical(value: unknown): string {
@@ -388,6 +393,7 @@ export function projectCertificationWindowStatus(
   storyId: string,
   window: CertificationWindow | null,
   receipt: PrecertReceipt | null = null,
+  advisory?: CertificationWindowStatusProjection['advisory'],
 ): CertificationWindowStatusProjection {
   if (!window) {
     return {
@@ -396,6 +402,7 @@ export function projectCertificationWindowStatus(
       receipt: null,
       blockerCode: PRE_CERT_WINDOW_MISSING,
       nextCommand: nextCommandForState(storyId, 'BLOCKED', PRE_CERT_WINDOW_MISSING),
+      ...(advisory ? { advisory } : {}),
     };
   }
   const blockerCode = window.blockerCode
@@ -407,6 +414,7 @@ export function projectCertificationWindowStatus(
     receipt,
     blockerCode,
     nextCommand: nextCommandForState(storyId, window.state, blockerCode),
+    ...(advisory ? { advisory } : {}),
   };
 }
 
@@ -538,6 +546,9 @@ export function renderCertificationWindowStatus(projection: CertificationWindowS
     lines.push(`headHash: ${window.frozen.headHash}`);
     lines.push(`expectedMainSha: ${window.frozen.expectedMainSha}`);
     lines.push(`storyFilesHash: ${window.frozen.storyFilesHash}`);
+  }
+  if (projection.advisory) {
+    lines.push(`Warning: [${projection.advisory.code}] ${projection.advisory.detail}`);
   }
   if (blockerCode) lines.push(`Blocker: [${blockerCode}]`);
   if (window?.blockerDetail) lines.push(`Detail: ${window.blockerDetail}`);
@@ -748,7 +759,7 @@ function causalDecisionMatchesCertificationSnapshot(
 export function detectCertificationWindowMaterialDrift(
   window: CertificationWindow,
   current: CertificationWindowCurrentIdentity,
-): { drifted: boolean; reason?: string } {
+): { drifted: boolean; reason?: string; advisory?: CertificationWindowStatusProjection['advisory'] } {
   const frozen = window.frozen;
   if (!frozen) return { drifted: false };
   if (current.hashUnavailable) {
@@ -779,6 +790,15 @@ export function detectCertificationWindowMaterialDrift(
   }
   if (!allowSpecializedUnrelatedDrift && current.materialHash && frozen.materialHash && current.materialHash !== frozen.materialHash) {
     return { drifted: true, reason: 'materialHash changed' };
+  }
+  if (allowSpecializedUnrelatedDrift && current.materialHash && frozen.materialHash && current.materialHash !== frozen.materialHash) {
+    return {
+      drifted: false,
+      advisory: {
+        code: PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY,
+        detail: 'Whole-tree materialHash drifted while storyFilesHash remained unchanged; specialized evidence remains usable only with mandatory re-attestation. Stored hashes are not rewritten.',
+      },
+    };
   }
   if (
     frozen.verifierIdentity === PRECERT_VERIFIER_IDENTITY
@@ -865,14 +885,14 @@ export function refreshCertificationWindowLineage(args: {
   store: CertificationWindowStorePort;
   storyId: string;
   current: CertificationWindowCurrentIdentity;
-}): { window: CertificationWindow | null; receipt: PrecertReceipt | null } {
+}): { window: CertificationWindow | null; receipt: PrecertReceipt | null; advisory?: CertificationWindowStatusProjection['advisory'] } {
   const loaded = loadVerifiedCertificationWindow(args.store, args.storyId);
   if (!loaded.window) return { window: null, receipt: null };
   if (loaded.window.state !== 'ADMITTED' && loaded.window.state !== 'RUNNING') {
     return { window: loaded.window, receipt: loaded.receipt };
   }
   const drift = detectCertificationWindowMaterialDrift(loaded.window, args.current);
-  if (!drift.drifted) return { window: loaded.window, receipt: loaded.receipt };
+  if (!drift.drifted) return { window: loaded.window, receipt: loaded.receipt, advisory: drift.advisory };
   return persistInvalidatedCertificationWindow({
     store: args.store,
     storyId: args.storyId,
