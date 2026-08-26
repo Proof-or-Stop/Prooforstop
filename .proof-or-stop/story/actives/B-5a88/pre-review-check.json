@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5a88",
   "mode": "observe",
-  "cutoffAt": "2026-08-26T09:55:11.940Z",
+  "cutoffAt": "2026-08-26T09:56:47.566Z",
   "planBasisDigest": "sha256:41d1647cab62087a17065e5868363d180aa91a13c35586d1b75d86911ecec578",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -1133,31 +1133,359 @@
     "storyId": "B-5a88",
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
-    "commandDigests": [],
+    "commandDigests": [
+      "sha256:3dfc3c3466833c5409d90a61ab525bef0b6d5e6c287e5b1bfa3268274de6b260"
+    ],
     "caseRecordsEncoding": "gzip-base64",
-    "caseRecords": "",
+    "caseRecords": "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",
     "provenance": {
-      "runnerPath": "",
-      "runnerDigest": "",
-      "targetPath": "",
-      "targetDigest": "",
-      "buildCommand": ""
+      "runnerPath": "scripts/run-proofstory-pre-review-live-proof.mjs",
+      "runnerDigest": "sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9",
+      "targetPath": "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+      "targetDigest": "sha256:9b75b5fa1e309f79513001209725b778cf2faec8547194d3b1f6dce3f9b73625",
+      "buildCommand": "npm --prefix packages/main run build"
     },
-    "bindingProofs": []
+    "bindingProofs": [
+      {
+        "bindingId": "B-5a88-AC-001",
+        "positiveAssertionIds": [
+          "A-HAPPY-01",
+          "A-HAPPY-02",
+          "A-HAPPY-03",
+          "A-HAPPY-04",
+          "A-HAPPY-05",
+          "A-HAPPY-06",
+          "A-HAPPY-07"
+        ],
+        "mutationProofs": [
+          {
+            "mutationId": "M-01",
+            "expectedCode": "PR_MUTATION_DID_NOT_BITE",
+            "observedCode": "PR_MUTATION_DID_NOT_BITE",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-02",
+            "expectedCode": "PR_PLANNED_PATH_UNRESOLVED",
+            "observedCode": "PR_PLANNED_PATH_UNRESOLVED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-03",
+            "expectedCode": "FAIL_CLOSED",
+            "observedCode": "FAIL_CLOSED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-04",
+            "expectedCode": "PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED",
+            "observedCode": "PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-05",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-06",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-07",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-08",
+            "expectedCode": "PROMPT_CONTRACT_REJECTED",
+            "observedCode": "PROMPT_CONTRACT_REJECTED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-09",
+            "expectedCode": "PROMPT_MIRROR_REJECTED",
+            "observedCode": "PROMPT_MIRROR_REJECTED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-10",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-11",
+            "expectedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "observedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-12",
+            "expectedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "observedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-13",
+            "expectedCode": "PACKAGE_GRAPH_REJECTED",
+            "observedCode": "PACKAGE_GRAPH_REJECTED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "M-14",
+            "expectedCode": "BIN_ALIAS_REJECTED",
+            "observedCode": "BIN_ALIAS_REJECTED",
+            "controlRestored": true
+          }
+        ],
+        "transcriptProofs": [
+          {
+            "transcriptId": "T-01",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-02",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-03",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-04",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-05",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-06",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-07",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-08",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-09",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-10",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-11",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-12",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-13",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-14",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-15",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-16",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-17",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-18",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-19",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-20",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "T-21",
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          }
+        ]
+      }
+    ]
   },
   "criticReceiptDigest": "sha256:5914ac29c960a29443cbd6be27ef62989596f4358372a436ac27d15088684e42",
   "codes": [
     "PR_POSITIVE_EVIDENCE_MISSING",
-    "PR_PRODUCTION_PATH_UNPROVEN",
-    "PR_MUTATION_EVIDENCE_MISSING",
-    "PR_MUTATION_DID_NOT_BITE",
-    "PR_CONTROL_NOT_RESTORED",
-    "PR_TRANSCRIPT_MISSING",
-    "PR_AUTHORITY_INADMISSIBLE",
     "PR_EVIDENCE_STALE"
   ],
   "status": "fail",
-  "issuedAt": "2026-08-26T09:55:11.940Z",
+  "issuedAt": "2026-08-26T09:56:47.566Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "HxN3UPm6Ma/C3cTe0Vvhql/mzq+ZSusbvozh5A+PbgZGG/+pvsIuXRe3AHMi3nN0oBPBkDVOFfehimsns0s+CQ=="
+  "signature": "L3wZvC5Z8jUKWUEyHXBbA4hg/AvRPp40oWkqgCpqr3W91JQ/8qJs1lltYKIfbWLH+HuJqz1BW7XV4JM8oaqSAg=="
 }
