@@ -7395,9 +7395,9 @@
       "epochId": "B-5a88:RI-086",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-26T06:01:18.913Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-26T06:31:13.319Z",
-      "updatedAt": "2026-08-26T07:43:07.009Z",
+      "updatedAt": "2026-08-26T08:19:58.926Z",
       "cutoff": {
         "headHash": "244209f46c0c06967a01257c76573374c7c5549c",
         "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
@@ -7508,12 +7508,99 @@
           "criticDigest": "e9026e6daccd362858ba8446729656a318c84f3c43116369757f3d3ab5884e35",
           "saturated": false,
           "nextRunSequenceBoundary": 867
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-08-26T07:43:07.009Z",
+          "completedAt": "2026-08-26T08:19:45.388Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-5a88:RR-870",
+              "terminal": "pass",
+              "hostIdentity": "b1f5e7665a2a6c146ef0dd2ad4cce4c998ae17be647cdfdc18b3f88a764accd2",
+              "promptIdentity": "894cdb696cf263ee3a3975d1afd4cb2a168b00d34eb82daf5952bb32528a3e2e",
+              "evidenceIds": [
+                "B-5a88:RP-331"
+              ],
+              "coverageDigest": "920b658d65984edb79a18893d0bdd3a95bcba342f7444f55b88e7da6d1a75ecb"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-5a88:RR-871",
+              "terminal": "finding",
+              "hostIdentity": "7ab85bda72340da5f5a2b4cbbd882abbb4a8a465747378e374542d923d4c18d8",
+              "promptIdentity": "aafed951156c775f05f089e68928d94534016ddd493a71cc34183494efd43dfa",
+              "evidenceIds": [
+                "B-5a88:F-480"
+              ],
+              "coverageDigest": "de99736b2b2e4e50aa040209f4aad199ef21f6da96c075045bcc0deb965a2d9c"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-868",
+              "terminal": "pass",
+              "hostIdentity": "b1f5e7665a2a6c146ef0dd2ad4cce4c998ae17be647cdfdc18b3f88a764accd2",
+              "promptIdentity": "5060396a163dadab370844613a861f021ad5f2636610eb65fa938f4ca1a0b671",
+              "evidenceIds": [
+                "B-5a88:RP-330"
+              ],
+              "coverageDigest": "0920c248f66876efb92c5e0ed2c7f6074d50114b5f10dd498d9545b7bce01a3a"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-basis-pre-review-integrity",
+            "canonical-lab-import-error-dual-write",
+            "retired-lab-command-verifier"
+          ],
+          "verifiedFindingSetDigest": "93e99cf0f1d26c6726dd1c655f47034e0d2a5c275cea4d6577c763c5bd4fcc38",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "8424c7246e76b70418e3aa8319290e07303ee7cdd431d3dab8426ad0b731439c",
+          "saturated": false,
+          "nextRunSequenceBoundary": 872
         }
       ],
       "baselineFindingIds": [
         "B-5a88:F-473"
       ],
-      "_hash": "0ad9a83db383099866c80cfb59cbcd852f079e3fb13ed22e49b535896f24f3d1"
+      "cancelledAt": "2026-08-26T08:19:58.926Z",
+      "cancelReason": "Replan remediation after review inventory wave budget exhaustion; preserve all findings and return to DEV for evidence repair.",
+      "terminalRunSequenceBoundary": 872,
+      "_hash": "ad9461aa04522c7d1f1defcaa44a7109a62b296718d38ed8215cf685133f1253"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-087",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-26T08:24:25.870Z",
+      "updatedAt": "2026-08-26T08:24:25.870Z",
+      "cutoff": {
+        "headHash": "37bfcbcf6161ab0f402f5f77a27bf00d572903c6",
+        "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
+        "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1"
+      },
+      "scopeDigest": "9b7123b84f141b0b49e7b9d7ffc9d19d88bf51a83553dc08d6387fbf5e78e07c",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 872,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-5a88:F-473",
+        "B-5a88:F-474",
+        "B-5a88:F-475",
+        "B-5a88:F-476",
+        "B-5a88:F-477",
+        "B-5a88:F-478",
+        "B-5a88:F-479",
+        "B-5a88:F-480"
+      ],
+      "_hash": "7a84dc1ad4ee2443cd9650b4f761f1f73e5cb5f12db6417711f51f9f8a0be0c8"
     }
   ],
   "receipts": [
