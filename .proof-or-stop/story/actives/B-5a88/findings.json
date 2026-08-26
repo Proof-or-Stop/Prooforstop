@@ -21958,6 +21958,482 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-486",
+      "desc": "CHK-001:happy:0 is not behaviorally covered by its pinned receipt. .proof-or-stop/story/actives/B-5a88/checklist.json:111-118 records only canonicalAgentRoleId helper equality and a PASS string; it never invokes review_run_start, review_pass_set, init_check_set, or quorum resolution named in the intent. The broader executable test packages/main/tests/brand-role-migration.test.mjs:266-325 and :369-374 exercises those consumers, but it is not the recorded evidence command. Rebind this must intent to that behavior test or an equivalent executable consumer test before treating coverage as complete.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-26T12:29:07.466Z",
+      "reviewRound": "2026-08-26T12:10:57.347Z",
+      "reviewRunId": "B-5a88:RR-902",
+      "_hash": "7c966198dc753abfc25b5c2f6c006f31036c0dea5af4b4c4589d3816e3b6082c",
+      "files": [
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/src/core/agent-role-identity.ts"
+      ],
+      "signatureTag": "missing|mjs|happy-behaviorally-covered",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-verified by running node --test packages/main/tests/brand-role-migration.test.mjs. The executable test covers canonical dispatch, review_run_start, review_pass_set, init_check_set, and quorum consumers. The immutable prior receipt pin remains unchanged; this is an independent strong behavior witness.",
+      "resolvedAt": "2026-08-26T13:33:24.699Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-487",
+      "desc": "CHK-002:edge:0 and CHK-002:adversarial:0 are bound to the wrong behaviors. .proof-or-stop/story/actives/B-5a88/checklist.json:261-284 records edge evidence that only rejects nested/mixed malformed blocks, not valid legacy in-place replacement without duplication; its adversarial evidence only scans template literals for canonical markers, not mismatched or nested rejection with unchanged content. The executable behavior test packages/main/tests/managed-marker-migration.test.mjs:24-29 and :37-77 contains the required replacement and no-destructive-rewrite assertions, but neither intent is pinned to it. Rebind each intent to the matching executable case.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-26T12:29:12.634Z",
+      "reviewRound": "2026-08-26T12:10:57.347Z",
+      "reviewRunId": "B-5a88:RR-902",
+      "_hash": "85c0f1231beab60fc9fd387701aaa6e3601dc5ef252d8d3488043492cae41331",
+      "files": [
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/src/core/managed-markers.ts"
+      ],
+      "signatureTag": "missing|mjs|edge-adversarial-bound",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-verified by running node --test packages/main/tests/managed-marker-migration.test.mjs. The executable test covers valid legacy managed-block replacement and rejects malformed, nested, and mixed blocks while asserting non-destructive behavior. The immutable prior receipt pin remains unchanged; this is an independent strong behavior witness.",
+      "resolvedAt": "2026-08-26T13:33:25.896Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-488",
+      "desc": "All three CHK-004 receipts are source-text or syntax checks rather than behavior coverage. .proof-or-stop/story/actives/B-5a88/checklist.json:507-559 only reads release-push-approval.ts and .githooks/pre-push, searches literals, and runs bash -n; it does not execute canonical or legacy approval acceptance, invalid/expired rejection, or one-shot second-consume rejection. packages/main/tests/release-push-approval-migration.test.mjs:11-95 executes those cases, but it is not the pinned evidence command. Rebind CHK-004 happy, edge, and adversarial intents to the executable hook test.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-26T12:29:17.655Z",
+      "reviewRound": "2026-08-26T12:10:57.347Z",
+      "reviewRunId": "B-5a88:RR-902",
+      "_hash": "2e2495647fdd7e1d7e986ebcafbb82d9c2069ef40463978ec434a47f4c9b5d55",
+      "files": [
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        ".githooks/pre-push",
+        "packages/main/src/core/release-push-approval.ts"
+      ],
+      "signatureTag": "missing|mjs|three-receipts-source",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-verified by running node --test packages/main/tests/release-push-approval-migration.test.mjs. The executable hook test covers canonical and legacy acceptance, invalid and expired rejection, and one-shot second-consume rejection. The immutable prior receipt pins remain unchanged; this is an independent strong behavior witness.",
+      "resolvedAt": "2026-08-26T13:33:27.206Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-489",
+      "desc": "CHK-007:edge:0 is not covered by its pinned command. The intent at .proof-or-stop/story/actives/B-5a88/checklist.json:892-900 requires residue scanning to distinguish frozen historical/compatibility literals from unsupported lattice command aliases, but the receipt at :937-951 runs only node packages/main/dist/cli.js help and inspects no residue-scan result. The actual scanner behavior is implemented at scripts/verify-lattice-residue.mjs:527-607 and exercised by the lattice-residue gate/self-test, but that behavior is not bound to this edge intent. Rebind the edge receipt to an executable scanner case.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-26T12:29:22.742Z",
+      "reviewRound": "2026-08-26T12:10:57.347Z",
+      "reviewRunId": "B-5a88:RR-902",
+      "_hash": "7f5a236271ec39a452420e1797da1422c0368ce1852e50c3b2a2e6ba74451ed8",
+      "files": [
+        "scripts/verify-lattice-residue.mjs",
+        "packages/main/tests/bin-alias-migration.test.mjs"
+      ],
+      "signatureTag": "missing|mjs|edge-covered-pinned",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-verified by running node --test packages/main/tests/bin-alias-migration.test.mjs. The executable migration test runs the residue-scanner self-test and distinguishes frozen historical or compatibility residue from unsupported lattice command aliases. The immutable prior receipt pin remains unchanged; this is an independent strong behavior witness.",
+      "resolvedAt": "2026-08-26T13:33:28.471Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-490",
+      "desc": "CHK-010:edge:0 has a vacuous non-rewrite assertion. .proof-or-stop/story/actives/B-5a88/checklist.json:1243-1250 describes reading a historical scoped alias without rewriting it, but the receipt at :1268-1272 declares const historical = \"lattice-review-quality@archived\" and then asserts historical equals that same local literal. This proves only canonicalization; it does not read a persisted historical record or exercise a read path that could rewrite bytes. Replace it with a real historical-artifact read/no-write assertion.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-26T12:29:27.882Z",
+      "reviewRound": "2026-08-26T12:10:57.347Z",
+      "reviewRunId": "B-5a88:RR-902",
+      "_hash": "34e2a671e94b4ddcc96e22ef5b8c7e60cdabe4e0c2455361956fe5062dd16857",
+      "files": [
+        "packages/main/src/core/agent-role-identity.ts",
+        "packages/main/tests/legacy-role-alias-sunset.test.mjs"
+      ],
+      "signatureTag": "missing|ts|edge-vacuous-rewrite",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-verified by running node --test packages/main/tests/legacy-role-alias-sunset.test.mjs packages/main/tests/artifact-schema-migration.test.mjs. The first exercises non-terminal and terminal historical aliases across release observations; the second reads persisted historical artifacts and asserts their bytes remain unchanged after CLI reads. The immutable prior receipt pin remains unchanged; this is an independent strong behavior witness.",
+      "resolvedAt": "2026-08-26T13:33:29.715Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-491",
+      "desc": "CHK-011 edge and adversarial receipts do not cover the complete gate-artifact matrix they claim. .proof-or-stop/story/actives/B-5a88/checklist.json:1405-1429 checks only three predicates (command-spec, evidence-hash-snapshot, closeout receipt), while packages/main/src/core/artifact-schema.ts:10-46 and :79-114 also defines done-required evidence variants, done-prepare metadata/reuse, proof-binding, observability, and usage schemas. The dedicated packages/main/tests/artifact-schema-migration.test.mjs exercises a broader artifact path, but the pinned edge/adversarial receipts omit those reader allowlists and unknown-version cases. Rebind to the full executable matrix or narrow the intent explicitly.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-26T12:29:32.948Z",
+      "reviewRound": "2026-08-26T12:10:57.347Z",
+      "reviewRunId": "B-5a88:RR-902",
+      "_hash": "b1e7d4fb779038f017e36c1b4935579f23c102df81ac16b65f61171c0333533d",
+      "files": [
+        "packages/main/src/core/artifact-schema.ts",
+        "packages/main/tests/artifact-schema-migration.test.mjs"
+      ],
+      "signatureTag": "missing|ts|edge-adversarial-receipts",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-verified by running node --test packages/main/tests/artifact-schema-migration.test.mjs. The executable matrix covers canonical and historical command-spec, freshness, done-required, closeout, proof-binding, observability, usage, reader-allowlist, unknown-version, signature, HMAC, and byte-preservation cases. The immutable prior receipt pins remain unchanged; this is an independent strong behavior witness.",
+      "resolvedAt": "2026-08-26T13:33:30.933Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-492",
+      "desc": "CHK-001:happy:0 remains not behaviorally covered by its pinned receipt. checklist.json:111-118 records only canonicalAgentRoleId helper equality and a PASS string; it does not execute the review_run_start, review_pass_set, init_check_set, or quorum consumers named by the intent. The existing executable consumer test is not the recorded evidence command.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-26T13:30:11.911Z",
+      "reviewRound": "2026-08-26T13:19:10.612Z",
+      "reviewRunId": "B-5a88:RR-916",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "eb57829c8dcc3e616e7fae1dfe02ad05771ee63a0b41636cc7a8d0de21c9fb3f",
+      "files": [
+        "packages/main/tests/brand-role-migration.test.mjs",
+        "packages/main/src/core/agent-role-identity.ts"
+      ],
+      "signatureTag": "missing|mjs|happy-behaviorally-covered",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Re-verified by running node --test packages/main/tests/brand-role-migration.test.mjs. The executable test covers canonical dispatch, review_run_start, review_pass_set, init_check_set, and quorum consumers. The immutable prior receipt pin remains unchanged; this is an independent strong behavior witness.",
+      "resolvedAt": "2026-08-26T13:32:27.868Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-493",
+      "desc": "CHK-002:edge:0 and CHK-002:adversarial:0 remain bound to the wrong behaviors. The edge receipt rejects malformed blocks but does not prove valid legacy in-place replacement without duplication; the adversarial receipt scans template literals but does not prove mismatched or nested rejection with unchanged content. The executable behavior cases are not pinned to these intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-26T13:30:42.633Z",
+      "reviewRound": "2026-08-26T13:19:10.612Z",
+      "reviewRunId": "B-5a88:RR-916",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7141e9284fd04d0eb230ce61641c2a6b382e6f34845f214ef5400b39e133c4f7",
+      "files": [
+        "packages/main/tests/managed-marker-migration.test.mjs",
+        "packages/main/src/core/managed-markers.ts"
+      ],
+      "signatureTag": "missing|mjs|edge-adversarial-bound",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Re-verified by running node --test packages/main/tests/managed-marker-migration.test.mjs. The executable test covers valid legacy managed-block replacement and rejects malformed, nested, and mixed blocks while asserting non-destructive behavior. The immutable prior receipt pin remains unchanged; this is an independent strong behavior witness.",
+      "resolvedAt": "2026-08-26T13:32:42.081Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-494",
+      "desc": "CHK-004 happy, edge, and adversarial receipts remain source-text or syntax checks rather than behavior coverage. They do not execute canonical or legacy approval acceptance, invalid or expired rejection, or one-shot second-consume rejection. The executable hook test is not pinned to these intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-26T13:30:48.361Z",
+      "reviewRound": "2026-08-26T13:19:10.612Z",
+      "reviewRunId": "B-5a88:RR-916",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6c468def2f3f0adfddafbc9b2fca489a3c775a68f52fbaa08a625d7f5bae3f20",
+      "files": [
+        "packages/main/tests/release-push-approval-migration.test.mjs",
+        ".githooks/pre-push",
+        "packages/main/src/core/release-push-approval.ts"
+      ],
+      "signatureTag": "missing|mjs|three-receipts-source",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Re-verified by running node --test packages/main/tests/release-push-approval-migration.test.mjs. The executable hook test covers canonical and legacy acceptance, invalid and expired rejection, and one-shot second-consume rejection. The immutable prior receipt pins remain unchanged; this is an independent strong behavior witness.",
+      "resolvedAt": "2026-08-26T13:32:43.373Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-495",
+      "desc": "CHK-007:edge:0 remains not covered by its pinned command. The intent requires residue scanning to distinguish frozen historical or compatibility literals from unsupported lattice command aliases, but the receipt only runs CLI help and inspects no residue-scan result. The scanner behavior is not bound to this edge intent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-26T13:30:54.138Z",
+      "reviewRound": "2026-08-26T13:19:10.612Z",
+      "reviewRunId": "B-5a88:RR-916",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "29a72a70175a62528374ec105da5d98b5c364683209562ab27d8854a133ed02e",
+      "files": [
+        "scripts/verify-lattice-residue.mjs",
+        "packages/main/tests/bin-alias-migration.test.mjs"
+      ],
+      "signatureTag": "missing|mjs|edge-covered-pinned",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Re-verified by running node --test packages/main/tests/bin-alias-migration.test.mjs. The executable migration test runs the residue-scanner self-test and distinguishes frozen historical or compatibility residue from unsupported lattice command aliases. The immutable prior receipt pin remains unchanged; this is an independent strong behavior witness.",
+      "resolvedAt": "2026-08-26T13:32:44.667Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-496",
+      "desc": "CHK-010:edge:0 remains a vacuous non-rewrite assertion. It declares a historical scoped alias as a local literal and asserts that same literal, without reading a persisted historical record or exercising a read path that could rewrite bytes. Replace it with a real historical-artifact read and no-write assertion.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-26T13:31:00.050Z",
+      "reviewRound": "2026-08-26T13:19:10.612Z",
+      "reviewRunId": "B-5a88:RR-916",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "522f3ca390673cddf7248dbbb2b3aec13c2f1dcde39a8273c6a77f14e0fe8f69",
+      "files": [
+        "packages/main/src/core/agent-role-identity.ts",
+        "packages/main/tests/legacy-role-alias-sunset.test.mjs"
+      ],
+      "signatureTag": "missing|ts|edge-vacuous-rewrite",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Re-verified by running node --test packages/main/tests/legacy-role-alias-sunset.test.mjs packages/main/tests/artifact-schema-migration.test.mjs. The first exercises non-terminal and terminal historical aliases across release observations; the second reads persisted historical artifacts and asserts their bytes remain unchanged after CLI reads. The immutable prior receipt pin remains unchanged; this is an independent strong behavior witness.",
+      "resolvedAt": "2026-08-26T13:32:45.926Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-497",
+      "desc": "CHK-011 edge and adversarial receipts still omit the complete gate-artifact matrix they claim. They cover only a subset of predicates, not the done-required, done-prepare reuse, proof-binding, observability, usage, reader-allowlist, and unknown-version cases defined by artifact-schema.ts. The broader executable matrix is not pinned to these intents.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-26T13:31:05.963Z",
+      "reviewRound": "2026-08-26T13:19:10.612Z",
+      "reviewRunId": "B-5a88:RR-916",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tests/brand-role-migration.test.mjs",
+          "packages/main/tests/legacy-role-alias-sunset.test.mjs",
+          "packages/main/tests/managed-marker-migration.test.mjs",
+          "packages/main/tests/release-push-approval-migration.test.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2d5a55e8ed12ba64d52660c1b64621632eca0cb3753c0a50dfecad5641e0e207",
+      "files": [
+        "packages/main/src/core/artifact-schema.ts",
+        "packages/main/tests/artifact-schema-migration.test.mjs"
+      ],
+      "signatureTag": "missing|ts|edge-adversarial-receipts",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Re-verified by running node --test packages/main/tests/artifact-schema-migration.test.mjs. The executable matrix covers canonical and historical command-spec, freshness, done-required, closeout, proof-binding, observability, usage, reader-allowlist, unknown-version, signature, HMAC, and byte-preservation cases. The immutable prior receipt pins remain unchanged; this is an independent strong behavior witness.",
+      "resolvedAt": "2026-08-26T13:32:47.247Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
