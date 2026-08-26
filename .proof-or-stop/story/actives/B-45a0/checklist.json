@@ -1064,19 +1064,19 @@
           "command": "npm --prefix packages/main run test:dynamic-validation-receipts",
           "result": "pass",
           "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
-          "headHash": "a45b10b3af77527232f59b8f6c79cabe15cf0269",
-          "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1",
-          "storyFilesHash": "01a3a9942623d1e262f7c8cbea9fb85dba7112b46c8252c490e22e8dc62a4b84",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "31686168cc278b9e25aa6f50f7b03d2e846b0f26359c404dcaa2bf27400ae270",
             "outputTail": "\n> @proof-or-stop/core@0.3.269 test:dynamic-validation-receipts\n> node ../../scripts/run-dynamic-validation-audit.mjs receipts\n\nadmissible per-command reuse PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-25T16:38:02.632Z",
+            "executedAt": "2026-08-26T13:40:25.287Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-25T16:51:02.072Z"
+          "headHash": "325349234c940c67732bc57d4602949ca01269b6",
+          "materialHash": "77025ccb2e399d877935708838ee6d879fbaefa4ea3762effd060b7d44d67b22",
+          "storyFilesHash": "5c16b39974d2f5e3f104387b0beb2eeaa63ba76d0a3219fd46ad45bda411668f",
+          "timestamp": "2026-08-26T13:40:25.468Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
