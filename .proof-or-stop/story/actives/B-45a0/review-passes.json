@@ -15976,6 +15976,57 @@
         "scanEscalationReason": null
       },
       "_hash": "b8629e6cca8e9e37e007ec911845292486069beb9b103c21f4d736c64c0a5f57"
+    },
+    {
+      "id": "B-45a0:RP-299",
+      "agent": "lattice-review-docs",
+      "note": "Docs review compared 109 exported symbols against 14 referenced documentation paragraphs. No blocker: the plan digest and selectors, 112-row inventory/catalog split, dynamic modes and DYN-5 receipts, verifier-owned Wave 4 full-3x2 gates, enforce-only blocking, config-only rollback with retained history, and explicit Wave 3A exclusion all match the implementation.",
+      "createdAt": "2026-08-26T15:58:58.720Z",
+      "reviewRound": "2026-08-26T15:42:55.036Z",
+      "reviewRunId": "B-45a0:RR-768",
+      "envelopeId": "477103b2d9b8171e20a3641c10969c0db0d1a40e601d0bdbb4fd1ae8f7e73654",
+      "writerSessionId": "sess-72a8f40efe7e99917f4efa36ba3581c8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/templates/agents/lattice-review-docs.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs",
+          "scripts/verify-validation-catalog.mjs",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "_hash": "db6b4d911ac55758fdb85f7458a3143913cbd0ee21417055866fedbdb309893b"
     }
   ]
 }
