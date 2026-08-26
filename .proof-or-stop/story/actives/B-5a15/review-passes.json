@@ -11170,6 +11170,165 @@
       },
       "readDiagnostics": [],
       "_hash": "4bdf437c86a83dd77ae60292d1c4770ad8b704ea7073a65f05bad36dd75a510e"
+    },
+    {
+      "id": "B-5a15:RP-233",
+      "agent": "lattice-review-concept",
+      "note": "Wave 2 completeness review found no new concept findings beyond the seven baseline families already recorded for RI-049.",
+      "createdAt": "2026-08-26T07:04:34.605Z",
+      "reviewRound": "2026-08-25T19:36:40.358Z",
+      "reviewRunId": "B-5a15:RR-751",
+      "envelopeId": "6daa17818c5ea9425d6484db47c5a30465cae6954bd1c6215295877ec388df1d",
+      "writerSessionId": "sess-1755cc411c340ba35a2e3f11adc8897d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/done-required-evidence.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "127741123a1785ff7f29869767ca392ed0e4422548d71f7e9de1f0e31ab848f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ac0f6079ee5267d2c7a85b0bdd97fd48b2c5676c636bc6d45a946adf3be1072e"
+    },
+    {
+      "id": "B-5a15:RP-234",
+      "agent": "lattice-review-quality",
+      "note": "Wave 2 correctness and scope review found no new quality findings beyond the seven baseline families already recorded for RI-049.",
+      "createdAt": "2026-08-26T07:06:18.262Z",
+      "reviewRound": "2026-08-25T19:36:40.358Z",
+      "reviewRunId": "B-5a15:RR-752",
+      "envelopeId": "8585cad248cf9ce84c5addebcaf0bd5e0267f1eb9af7a1b39229659c6f6becdb",
+      "writerSessionId": "sess-1e87a0bcc745fa16eb17cd8722e5a898",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/done-required-evidence.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "127741123a1785ff7f29869767ca392ed0e4422548d71f7e9de1f0e31ab848f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c0a34e257f1f7b8569f1332849e413192c898e1fa53ffe0104d02f086cda65f0"
+    },
+    {
+      "id": "B-5a15:RP-235",
+      "agent": "lattice-review-test-coverage",
+      "note": "Wave 2 coverage review found no new coverage findings beyond the seven baseline families already recorded for RI-049.",
+      "createdAt": "2026-08-26T07:11:04.575Z",
+      "reviewRound": "2026-08-25T19:36:40.358Z",
+      "reviewRunId": "B-5a15:RR-753",
+      "envelopeId": "98bc58e43a4bb20644b37cf5454de314a9dd7bffd4b5218024aa21df79638434",
+      "writerSessionId": "sess-70877bbea3cb9d1beb5954592f1aff1a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/done-required-evidence.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "127741123a1785ff7f29869767ca392ed0e4422548d71f7e9de1f0e31ab848f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c020636a7d303b38e06124af80950eb5ea8322783de9f3b101d27e57aece0bc6"
     }
   ]
 }
