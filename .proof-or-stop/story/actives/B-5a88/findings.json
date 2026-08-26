@@ -22508,7 +22508,7 @@
       "desc": "docs/CLI.md:1074 now says a globally installed @proof-or-stop/core does not load @proof-or-stop/lab automatically and requires bin/proof-or-stop.js, but packages/main/src/cli.ts:13-18 invokes loadCanonicalLabEntrypoint() for direct published-core execution; packages/main/src/cli/lab-entrypoint.ts:27-28 dynamically imports @proof-or-stop/lab; packages/main/package.json declares it as a dependency; node packages/main/dist/cli.js lab_create --help succeeds and scripts/verify-global-lab-entrypoint.mjs published-core-lab-help passes. The docs-only correction therefore reverses the actual published behavior and misdirects users about the global lab boundary. This is a current docs/code mismatch, distinct from the historical F-450/F-451 antecedents, which described the opposite state.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-26T15:30:02.885Z",
@@ -22557,7 +22557,11 @@
         "scripts/verify-global-lab-entrypoint.mjs"
       ],
       "signatureTag": "global-core-lab-boundary-doc-code-drift-current",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Corrected docs/CLI.md back to the actual Story worktree implementation: the published core dist entrypoint loads loadCanonicalLabEntrypoint and exposes lab commands when @proof-or-stop/lab is resolvable. node packages/main/dist/cli.js lab_create --help and scripts/verify-global-lab-entrypoint.mjs both pass after the correction.",
+      "resolvedAt": "2026-08-26T15:32:40.647Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
