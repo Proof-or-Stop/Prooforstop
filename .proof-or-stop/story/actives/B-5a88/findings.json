@@ -21495,6 +21495,66 @@
       ],
       "signatureTag": "canonical-lab-command-migration",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-478",
+      "desc": "Current pre-review evidence is integrity-invalid: proof-or-stop pre_review_check_read --storyId=B-5a88 returns FAIL code=PR_ARTIFACT_TAMPERED at HEAD c75d05d9a816c05f2236cbb284770a4adacfb195, so the signed pre-review basis cannot support the REVIEW-to-TEST gate. This is distinct from the lab import writers and the retired lab verifier command; reissue the verifier-owned pre-review artifact through proof-or-stop pre_review_check from DEV before relying on it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-08-26T07:41:22.349Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-867",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a88/review-runs.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [
+          "bin/proof-or-stop.js",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "967b86a90d703c28f069595df0df832d4ac7c2c9b2bbf781f2cb6c6d6842da04"
+      },
+      "readDiagnostics": [],
+      "_hash": "f19da7524709d1c89b508948bdf6b5a100a44b1e82bc326cb1f2c25118ea7bb2",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|current-review-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
