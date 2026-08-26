@@ -1,6 +1,7 @@
 import type { HandlerContext } from '../handlers/context.js';
 import type { Registry } from '../registry.js';
 import type { ToolDef } from './main-tools.js';
+import { setBrandEnv } from '../core/brand-env.js';
 import { z } from 'zod';
 
 const CANONICAL_LAB_PACKAGE = '@proof-or-stop/lab';
@@ -43,7 +44,7 @@ export async function loadCanonicalLabEntrypoint(
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    process.env.LATTICE_LAB_IMPORT_ERROR = message;
+    setBrandEnv(process.env, 'LAB_IMPORT_ERROR', message);
     return null;
   }
 }

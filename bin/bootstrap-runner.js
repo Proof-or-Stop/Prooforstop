@@ -21,6 +21,7 @@ const binDir = dirname(__filename);
 const repoRoot = dirname(binDir);
 
 const MAIN_DIST = join(repoRoot, 'packages', 'main', 'dist', 'cli-engine.js');
+const BRAND_ENV_DIST = join(repoRoot, 'packages', 'main', 'dist', 'core', 'brand-env.js');
 const UTILS_DIST = join(repoRoot, 'packages', 'utils', 'dist', 'index.js');
 const LAB_DIST = join(repoRoot, 'packages', 'lab', 'dist', 'index.js');
 
@@ -146,7 +147,11 @@ export async function runLocalBootstrap() {
         }
       } catch (error) {
         const err = error instanceof Error ? error : new Error(String(error));
-        process.env.LATTICE_LAB_IMPORT_ERROR = err.message;
+        // Main dist is already loaded above, so use its compiled shared helper. Keeping this
+        // dynamic avoids adding an uncompiled TypeScript or third-party dependency to the
+        // bootstrap runner's module-init import graph.
+        const { setBrandEnv } = await import(pathToFileURL(BRAND_ENV_DIST).href);
+        setBrandEnv(process.env, 'LAB_IMPORT_ERROR', err.message);
       }
     }
 
