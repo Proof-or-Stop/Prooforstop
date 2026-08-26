@@ -20145,7 +20145,7 @@
       "desc": "doc-promise-undelivered: docs/CLI.md:1074 claims a globally installed @proof-or-stop/core automatically enables proof-or-stop lab when @proof-or-stop/lab is resolvable, but the published bin is packages/main/dist/cli.js (packages/main/package.json:14-16), whose cli.ts calls runCli() without lab extras; only repo-local bin/bootstrap-runner.js:135-157 loads packages/lab/dist/index.js. A global install with @proof-or-stop/lab resolvable therefore still lacks lab commands. Implement installed-package resolution or correct the documented promise before release.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-25T14:01:13.128Z",
@@ -20159,7 +20159,11 @@
         "bin/bootstrap-runner.js"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Aligned docs/CLI.md with the current published implementation: @proof-or-stop/core resolves the canonical @proof-or-stop/lab entrypoint and exposes lab commands when the package is resolvable. node packages/main/dist/cli.js lab_create --help and scripts/verify-global-lab-entrypoint.mjs pass.",
+      "resolvedAt": "2026-08-26T15:32:17.249Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-451",
