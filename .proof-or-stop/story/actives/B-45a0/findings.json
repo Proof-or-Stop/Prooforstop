@@ -18552,7 +18552,7 @@
       "desc": "RI-078 topology review requests changes: acceptance_basis is complete and receipt-verified with no exclusions, acceptance_topology_check is structuralPass=true but diagnostic_only, and acceptance_rollout_report_read/acceptance_rollout_check are current full-3x2 PASS; however verifier-owned pre_review_check_read remains status=fail, ok=false with PR_ARTIFACT_TAMPERED. The signed pre-review artifact cannot support current Wave 4 acceptance until it is reissued by proof-or-stop pre_review_check.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-26T07:21:12.249Z",
@@ -18638,7 +18638,11 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "ri078-topology-pre-review-artifact-tamper",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Verifier-owned proof-or-stop pre_review_check reran at the current clean head and returned status=pass, ok=true, authority=admissible, executableEvidence=current, and codes=none; the previously observed PR_ARTIFACT_TAMPERED condition is no longer present.",
+      "resolvedAt": "2026-08-26T07:28:32.805Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
