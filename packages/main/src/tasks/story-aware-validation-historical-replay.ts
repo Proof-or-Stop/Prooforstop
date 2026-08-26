@@ -13,7 +13,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, compileValidationCatalog, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt } from '../core/story-aware-validation.js';
+import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, classifyFullValidationReasons, compileValidationCatalog, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt } from '../core/story-aware-validation.js';
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
@@ -35,32 +35,40 @@ function git(args: string[]): string {
   return execFileSync('git', args, { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 }
 
-function withHistoricalWorktrees<T>(base: string, head: string, fn: (roots: { base: string; head: string }) => Promise<T>): Promise<T> {
+function withHistoricalWorktrees<T>(base: string, head: string, fn: (roots: { base: string; head: string; freshHead: string }) => Promise<T>): Promise<T> {
   const parent = mkdtempSync(join(tmpdir(), 'proof-or-stop-historical-replay-'));
   const baseRoot = join(parent, 'base');
   const headRoot = join(parent, 'head');
+  // A full-plan command may legitimately create ignored runtime state.  Run
+  // the selected plan from a second detached checkout so its observed verdicts
+  // are independent of the full-plan process history rather than merely a
+  // second execution in a warmed worktree.
+  const freshHeadRoot = join(parent, 'fresh-head');
   const dependencyRoot = join(root, 'packages/main/node_modules');
   try {
     git(['worktree', 'add', '--detach', baseRoot, base]);
     git(['worktree', 'add', '--detach', headRoot, head]);
+    git(['worktree', 'add', '--detach', freshHeadRoot, head]);
     // Dependencies are intentionally not part of a git worktree. Reuse the
     // already-installed package tree only when it exists; otherwise the real
     // command failure is retained as replay evidence instead of silently
     // falling back to the current checkout.
     if (existsSync(dependencyRoot)) {
-      mkdirSync(join(baseRoot, 'packages/main'), { recursive: true });
-      mkdirSync(join(headRoot, 'packages/main'), { recursive: true });
-      symlinkSync(dependencyRoot, join(baseRoot, 'packages/main/node_modules'), 'dir');
-      symlinkSync(dependencyRoot, join(headRoot, 'packages/main/node_modules'), 'dir');
+      for (const worktreeRoot of [baseRoot, headRoot, freshHeadRoot]) {
+        mkdirSync(join(worktreeRoot, 'packages/main'), { recursive: true });
+        symlinkSync(dependencyRoot, join(worktreeRoot, 'packages/main/node_modules'), 'dir');
+      }
     }
-    return fn({ base: baseRoot, head: headRoot }).finally(() => {
+    return fn({ base: baseRoot, head: headRoot, freshHead: freshHeadRoot }).finally(() => {
       try { git(['worktree', 'remove', '--force', baseRoot]); } catch { /* preserve replay result */ }
       try { git(['worktree', 'remove', '--force', headRoot]); } catch { /* preserve replay result */ }
+      try { git(['worktree', 'remove', '--force', freshHeadRoot]); } catch { /* preserve replay result */ }
       rmSync(parent, { recursive: true, force: true });
     });
   } catch (error) {
     try { git(['worktree', 'remove', '--force', baseRoot]); } catch { /* best effort */ }
     try { git(['worktree', 'remove', '--force', headRoot]); } catch { /* best effort */ }
+    try { git(['worktree', 'remove', '--force', freshHeadRoot]); } catch { /* best effort */ }
     rmSync(parent, { recursive: true, force: true });
     return Promise.reject(error);
   }
@@ -268,7 +276,7 @@ for (const candidate of selected) {
       : { mode: 'plan-only', baseHead: candidate.pair.base, head: candidate.pair.head, status: 'not-run' },
   };
   if (execute) {
-    await withHistoricalWorktrees(candidate.pair.base, candidate.pair.head, async ({ head: historicalRoot }) => {
+    await withHistoricalWorktrees(candidate.pair.base, candidate.pair.head, async ({ head: historicalRoot, freshHead: dynamicRoot }) => {
       const commands = validationCommands(catalog);
       // Establish a canonical full result on this exact historical head, then
       // feed signed PASS receipts back into the selector. Without this step a
@@ -288,11 +296,11 @@ for (const candidate of selected) {
         storyId: candidate.storyId, baseHead: candidate.pair.base, head: candidate.pair.head,
         inventory, catalog, changes, closures, receipts: baselineReceipts,
         baselineEpochId: candidate.pair.base, graph, buildProofDigest: 'historical-replay-plan',
-        mode: 'shadow', gitCwd: historicalRoot,
+        mode: 'shadow', gitCwd: dynamicRoot,
       });
       const selectedIds = new Set(dynamicManifest.rows.filter(row => row.disposition === 'execute').map(row => row.commandId));
       const selectedCommands = catalog.filter(entry => selectedIds.has(entry.id)).map(entry => ({ label: entry.label, command: entry.command, args: entry.args, cwd: entry.cwd, env: entry.env, resources: entry.resources }));
-      const dynamic = await executeValidationPlan({ provider: 'historical-replay-dynamic', commands: selectedCommands, warnings: [] }, historicalRoot, candidate.pair.head, candidate.storyId);
+      const dynamic = await executeValidationPlan({ provider: 'historical-replay-dynamic', commands: selectedCommands, warnings: [] }, dynamicRoot, candidate.pair.head, candidate.storyId);
       const fullFailures = full.commands.flatMap((row, index) => row.code === 0 ? [] : [catalog[index]!.id]);
       assert.ok(fullFailures.every(id => selectedIds.has(id)), `${candidate.storyId} omitted a full-plan failure`);
       const fullVerdicts = commandVerdicts(full);
@@ -345,7 +353,9 @@ for (const candidate of selected) {
 }
 
 const categories = [...new Set(records.map(row => row.category))].sort();
-const fiCandidate = candidates.find(candidate => changedFiles(candidate.pair.base, candidate.pair.head).some(change => change.status === 'renamed'))
+const fiCandidate = selected.find(candidate => changedFiles(candidate.pair.base, candidate.pair.head).some(change => change.status === 'renamed' && change.path.startsWith('packages/main/src/')))
+  || selected.find(candidate => changedFiles(candidate.pair.base, candidate.pair.head).some(change => change.status === 'deleted' && change.path.startsWith('packages/main/src/')))
+  || candidates.find(candidate => changedFiles(candidate.pair.base, candidate.pair.head).some(change => change.status === 'renamed'))
   || candidates.find(candidate => changedFiles(candidate.pair.base, candidate.pair.head).some(change => change.status === 'deleted'))
   || selected[0];
 const fiPair = fiCandidate?.pair || { base: git(['rev-parse', 'HEAD^']), head: git(['rev-parse', 'HEAD']) };
@@ -388,7 +398,27 @@ const focusedSelectionFaults = (() => {
     : undefined;
   const targetEntry = targetMatch?.target;
   const withGraph = targetMatch?.graph;
-  const graphSourceChange = fiRenamed || fiRevisionChanges.find(change => change.status === 'deleted') || sourceChange;
+  // Some deletion Story diffs include several removed files.  The first file
+  // is not necessarily a module with a retained reverse edge, so select the
+  // actual renamed/deleted source that the dual-revision graph can prove has
+  // a dependent instead of making the FI depend on diff ordering.
+  const graphChangeCandidates = [
+    ...(fiRenamed ? [fiRenamed] : []),
+    ...fiRevisionChanges.filter(change => change.status === 'deleted'),
+    ...(sourceChange ? [sourceChange] : []),
+  ];
+  const graphSourceChange = graphChangeCandidates.find(change => {
+    // A head-only reuse probe must avoid an independently full-escalating
+    // path.  Otherwise both graph modes execute for that separate policy
+    // reason and the FI cannot measure the base-only reverse dependency.
+    const changeManifest = buildStoryChangeManifest({
+      storyId: 'B-fi-focused-graph-candidate', gitCwd,
+      baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [change],
+    });
+    if (classifyFullValidationReasons(changeManifest, catalog).length > 0) return false;
+    const probe = directSeed ? { ...directSeed, inputRoots: [change.path] } : undefined;
+    return Boolean(findDependentPath(change, probe, targetSeed));
+  });
   const graphDirectPath = graphSourceChange?.path;
   const graphDirectProbe = directSeed && graphDirectPath ? { ...directSeed, inputRoots: [graphDirectPath] } : undefined;
   const graphDependentPath = findDependentPath(graphSourceChange, graphDirectProbe, targetSeed);
