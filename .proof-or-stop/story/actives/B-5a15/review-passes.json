@@ -11329,6 +11329,59 @@
       },
       "readDiagnostics": [],
       "_hash": "c020636a7d303b38e06124af80950eb5ea8322783de9f3b101d27e57aece0bc6"
+    },
+    {
+      "id": "B-5a15:RP-236",
+      "agent": "lattice-review-topology-critic",
+      "note": "Wave 2 completeness review found no distinct verified findings beyond the seven baseline families already recorded for RI-049.",
+      "createdAt": "2026-08-26T07:15:06.921Z",
+      "reviewRound": "2026-08-25T19:36:40.358Z",
+      "reviewRunId": "B-5a15:RR-754",
+      "envelopeId": "f587286fb88ca5f3926fc3da76bdcde1b5f7bfa503fca9721ba5836b3fa6b9a9",
+      "writerSessionId": "sess-d48074d2450708ea9b1c73c5ae34d356",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/done-required-evidence.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "127741123a1785ff7f29869767ca392ed0e4422548d71f7e9de1f0e31ab848f7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e7de28d0a2ddf7363dab4d072ac9ee37cfd122ba8476ba08bc3ff0f1e083b5fe"
     }
   ]
 }
