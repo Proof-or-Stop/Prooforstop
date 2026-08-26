@@ -7389,6 +7389,82 @@
       "consumedAt": "2026-08-25T20:05:30.003Z",
       "consumedByReviewRound": "2026-08-25T18:47:32.125Z",
       "_hash": "ef644d2471d48b525bb7e74f7524b20d2d486db0c4dce2136f10e76693e2c5ee"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-086",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-26T06:31:13.319Z",
+      "updatedAt": "2026-08-26T07:09:07.008Z",
+      "cutoff": {
+        "headHash": "244209f46c0c06967a01257c76573374c7c5549c",
+        "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
+        "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1"
+      },
+      "scopeDigest": "9b7123b84f141b0b49e7b9d7ffc9d19d88bf51a83553dc08d6387fbf5e78e07c",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 856,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-26T06:31:13.319Z",
+          "completedAt": "2026-08-26T07:09:07.008Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-5a88:RR-859",
+              "terminal": "finding",
+              "hostIdentity": "2ea9fb60fc0b81ad9159076fa7bda0da3fc7e561715156cd813a279916cd3487",
+              "promptIdentity": "dc8455019d8fe429cce9e0f7f512c88f5a2461abc0c0a36cf1e4bd594a89dd6f",
+              "evidenceIds": [
+                "B-5a88:F-474"
+              ],
+              "coverageDigest": "7952d5844a1cdca47b03fd689eacd5171d5536f2bcb47405cf6f74cbb05b88a0"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-5a88:RR-860",
+              "terminal": "pass",
+              "hostIdentity": "2ea9fb60fc0b81ad9159076fa7bda0da3fc7e561715156cd813a279916cd3487",
+              "promptIdentity": "5b3f42546c74e97b518892c9e5bcefa1151c99b3ae259ee06690bbcc5ffbd128",
+              "evidenceIds": [
+                "B-5a88:RP-327"
+              ],
+              "coverageDigest": "63cd0c50f835f4707faa232bdd3f7c470d5b593846a3f6a2eb798f2f62bd3e02"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-858",
+              "terminal": "pass",
+              "hostIdentity": "2ea9fb60fc0b81ad9159076fa7bda0da3fc7e561715156cd813a279916cd3487",
+              "promptIdentity": "46eb1c381cf49f08a67b3991c2f60f7a500860ae1c2ee7d771f5e039b686a896",
+              "evidenceIds": [
+                "B-5a88:RP-326"
+              ],
+              "coverageDigest": "1939e19660db42bfc64c651ec24f72f15a36a15183e8db8495cd909edfb7fdaf"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "canonical-lab-import-error-dual-write"
+          ],
+          "verifiedFindingSetDigest": "988fec776fe71e1a7cc3755d42ae13821dd1659ddc252ec7ad8b16ad4deeb43a",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "5fdf98bfe2b722c8ad3e22d0b494c359960d76d671bed41b46939694f0fdc431",
+          "saturated": false,
+          "nextRunSequenceBoundary": 861
+        }
+      ],
+      "baselineFindingIds": [
+        "B-5a88:F-473"
+      ],
+      "_hash": "fd123b019b2dbd79b3f38c75eb9acd9935fa0189afd2ba85ed40b0d135884062"
     }
   ],
   "receipts": [
@@ -12299,6 +12375,44 @@
       ],
       "createdAt": "2026-08-25T20:02:58.664Z",
       "_hash": "3b1862d10957824c315e29cf1a5b2b5ca2ed6310f327432d4325aaaca200f1a2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-086:CRIT-01",
+      "epochId": "B-5a88:RI-086",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "244209f46c0c06967a01257c76573374c7c5549c",
+        "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
+        "storyFilesHash": "caacfb72009fa365ea0a8b1731ca671a99602d23a7d7dfacfd2c7e64237ec6a1"
+      },
+      "aggregateFindingSetDigest": "988fec776fe71e1a7cc3755d42ae13821dd1659ddc252ec7ad8b16ad4deeb43a",
+      "requiredLaneCoverageDigest": "4459ff60fa8b882721a252fe374f0bbc2d67d6efb88ab671f5896b0c61b28ba2",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-861",
+      "terminalEvidenceIds": [
+        "B-5a88:F-475",
+        "B-5a88:F-476"
+      ],
+      "readEvidenceDigest": "97c4513f9186aedf36baec690fdcb8b126e1b3278fe7ed34058112a97702069e",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-473",
+          "disposition": "verified_family",
+          "familyKey": "canonical-lab-import-error-dual-write",
+          "reason": "Direct source read confirms packages/main/src/cli/lab-entrypoint.ts:46 writes only LATTICE_LAB_IMPORT_ERROR while brand-env.ts setBrandEnv is the shared dual-write contract; this is a verified missing canonical write."
+        },
+        {
+          "findingId": "B-5a88:F-474",
+          "disposition": "verified_family",
+          "familyKey": "canonical-lab-import-error-dual-write",
+          "reason": "Direct source read confirms bin/bootstrap-runner.js:149 writes only LATTICE_LAB_IMPORT_ERROR while brand-env.ts setBrandEnv is the shared dual-write contract; this is a second verified writer in the same family, not a duplicate because the bootstrap path is independently executed."
+        }
+      ],
+      "createdAt": "2026-08-26T07:07:40.945Z",
+      "_hash": "33f367f6a9cddb6a7ffcae6de605f07975d09c317cd0b28d1d4b7964c2cfbcbc"
     }
   ]
 }
