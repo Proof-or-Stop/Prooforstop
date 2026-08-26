@@ -21716,6 +21716,171 @@
       ],
       "signatureTag": "missing|json|current-review-evidence",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-481",
+      "desc": "\"quality-review-current-evidence: packages/main/src/core/pre-review-check.ts:415 and packages/main/src/handlers/proofstory.ts:692-700; pre_review_check_read --storyId=B-5a88 returns FAIL / PR_ARTIFACT_TAMPERED at current HEAD 37bfcbc, while acceptance_topology_check and both acceptance_rollout reads pass. The verifier-owned pre-review artifact is not an admissible current signed PASS for REVIEW-to-TEST; reissue it through pre_review_check from DEV before advancing.\"",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-26T08:34:46.884Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-875",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "bin/bootstrap-runner.js",
+          "packages/main/src/cli/lab-entrypoint.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "scripts/verify-lab-scoring-core.mjs"
+        ],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package-lock.json",
+          "packages/lab/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/utils/package-lock.json",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "006c3bdf2acfd60179c5cb22668b0b160fa3e67b378de76024dcdbb285e81627",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "ri-087-current-pre-review-evidence",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a88:F-482",
+      "desc": "quality-review-current-pre-review-integrity: packages/main/src/core/pre-review-check.ts:407-415 and packages/main/src/handlers/proofstory.ts:692-704; pre_review_check_read --storyId=B-5a88 returns FAIL / PR_ARTIFACT_TAMPERED at current HEAD 701d894 while acceptance_topology_check and both acceptance_rollout reads pass. The persisted pre-review artifact is not an admissible current signed PASS for the REVIEW-to-TEST gate; reissue verifier-owned pre-review evidence from DEV before TEST.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-26T08:37:31.214Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-877",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "bin/bootstrap-runner.js",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/truth-source.md",
+          "packages/main/src/cli/lab-entrypoint.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-lab-scoring-core.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/truth-source.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "63eb89b658af66edca0da8be311d9223a738e4dc55acdfd8741bf0cfbe332d58"
+      },
+      "readDiagnostics": [],
+      "_hash": "0774ba822939eb23ee0cec9422d31f285dacb0bbf8e0a48e1962dc9746eb5f30",
+      "files": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+      ],
+      "signatureTag": "missing|ts|quality-review-current",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-483",
+      "desc": "Current pre_review_check_read remains PR_ARTIFACT_TAMPERED for the signed pre-review evidence; this is the existing pre-review-artifact-integrity family and blocks review closure until regenerated in DEV.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-26T09:34:20.755Z",
+      "reviewRound": "2026-08-26T06:01:18.913Z",
+      "reviewRunId": "B-5a88:RR-885",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a88/pre-review-check.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5a92dadb997801ece20c7097b92cc9bfd6ca183fad1ced348a19e7250272f2ad",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a88/pre-review-check.json",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "ri-087-wave2-pre-review-integrity",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
