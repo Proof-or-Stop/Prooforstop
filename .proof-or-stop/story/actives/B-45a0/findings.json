@@ -18791,6 +18791,30 @@
       ],
       "signatureTag": "missing|json|current-head-coverage",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-342",
+      "desc": "Wave 4 verifier-owned acceptance chain is not admissible at current HEAD 022969ea22: acceptance_basis is status=invalid/evidentiary=false and acceptance_topology_check is status=fail/structuralPass=false/authority=diagnostic_only with AT_ADAPTER_RESULT_DIGEST_MISMATCH (basis semantic discovery digest, snapshot seal, and evidence storyFilesHash freshness mismatch); pre_review_check_read is status=fail/ok=false with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED; acceptance_rollout_report_read and acceptance_rollout_check are status=fail/blocking=true with AR_REPORT_STALE even though the persisted quorum is genuine full-3x2. Regenerate and revalidate the canonical verifier-owned basis, pre-review artifact, and rollout report before TEST/DONE; rollout quorum shape alone cannot establish authority.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-26T11:59:56.150Z",
+      "reviewRound": "2026-08-26T11:44:58.068Z",
+      "reviewRunId": "B-45a0:RR-726",
+      "_hash": "d7da83405afe1b90f28e7b5810a3c1b55a10301836d1e616f41a5a171dec8d93",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|json|wave-verifier-owned",
+      "signatureTagSource": "auto"
     }
   ]
 }
