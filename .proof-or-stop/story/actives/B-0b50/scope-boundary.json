@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0b50",
+  "mode": "correctness_fix",
+  "allowed": [
+    "packages/main/src/handlers/certification-window.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/tests/targeted story-lifecycle tests for B-0b50",
+    "related lifecycle documentation only if implementation requires it"
+  ],
+  "excluded": [
+    "docs/story/",
+    "remote publishing",
+    "tests/fixtures/",
+    "unrelated stories"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "Implement B-0b50 only: route missing PRE_CERT review inventory recovery directly to TEST-safe finalization and add focused regression coverage.",
+  "createdAt": "2026-08-25T19:28:03.669Z",
+  "updatedAt": "2026-08-25T19:28:03.669Z",
+  "_hash": "968fb3f179a12935cfbed83d4d9658b41b710efbd66d8c815cdbf769b2746417"
+}
