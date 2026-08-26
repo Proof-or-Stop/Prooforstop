@@ -19884,6 +19884,62 @@
       "resolvedAt": "2026-08-26T14:00:51.364Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-358",
+      "desc": "HIGH — .proof-or-stop/story/actives/B-45a0/checklist.json:1 and docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:17-30: CHK-011:happy:0 still lacks admissible executable replay coverage at current REVIEW HEAD 0f5ba0a51b. Its refreshed mechanical receipt exits 0 and matches the selector, but the same receipt explicitly reports historical replay mode: plan-only and historical replay assurance BLOCKED (plan-only or incomplete). The contract requires 30-50 executed historical base/head replays with per-command durable receipts plus three alternating current-HEAD pairs; docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:46-59 confirms only --execute/--execute --paired produce those artifacts. The now-green acceptance topology, pre-review, and rollout readers do not substitute for this missing CHK-011 campaign. Retained finding B-45a0:F-299 therefore remains current; execute and bind the historical/paired replay assurance before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-26T15:49:51.784Z",
+      "reviewRound": "2026-08-26T15:42:55.036Z",
+      "reviewRunId": "B-45a0:RR-766",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "_hash": "19491b1f54efdc1d67bd5b4efc359c0364ccbd72ed42a58013bcac865b38dc92",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "scripts/run-dynamic-validation-replay.mjs"
+      ],
+      "signatureTag": "ri060-current-replay-assurance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
