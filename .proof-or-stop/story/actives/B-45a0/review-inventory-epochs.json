@@ -7943,6 +7943,32 @@
       "consumedAt": "2026-08-27T02:09:25.259Z",
       "consumedByReviewRound": "2026-08-27T01:26:58.970Z",
       "_hash": "e223c57e3f15a5285a735ca8b9f285dd8656a0d79c4ad755c1408a7b936779d3"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-085",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-27T02:42:40.094Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-27T02:52:49.967Z",
+      "updatedAt": "2026-08-27T02:52:49.967Z",
+      "cutoff": {
+        "headHash": "a38cc1379ccabc9f70629954c75c5a44471197ca",
+        "materialHash": "bb83a25efc66531aef39c4f6045aaa1619e7851d904a07fc9faf32a3083cd03e",
+        "storyFilesHash": "3c38eaf06b315f94f6a91c5a6d0899070091a17c97dc0c8cd6cd16c2fada5d25"
+      },
+      "scopeDigest": "3344bbc1145d60ef29a501286583552df87aef6d6f2b5207ed30ff1ab22ecd12",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 803,
+      "maxWaves": 1,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "97861bd596de5b1a8d7f72380c6a39fa1305a1bb56338a61e1a571ba7a698df2"
     }
   ],
   "receipts": [
@@ -12814,6 +12840,37 @@
       "findingDispositions": [],
       "createdAt": "2026-08-27T02:07:34.071Z",
       "_hash": "c8c1214e5e9b82ab6dc55e4dd0a31e3789f2128f21ff465c4f55f07afe8a5f8d"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-085:CRIT-01",
+      "epochId": "B-45a0:RI-085",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-27T02:42:40.094Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "a38cc1379ccabc9f70629954c75c5a44471197ca",
+        "materialHash": "bb83a25efc66531aef39c4f6045aaa1619e7851d904a07fc9faf32a3083cd03e",
+        "storyFilesHash": "3c38eaf06b315f94f6a91c5a6d0899070091a17c97dc0c8cd6cd16c2fada5d25"
+      },
+      "aggregateFindingSetDigest": "e4eab24a5f80ec7d871eb8c8cc589f03dba044d3b9d2164fe551747e6d7bdbf0",
+      "requiredLaneCoverageDigest": "4ea21c35f0d1b8f1e0e235c3646d7d927e97e087d1b3a74aa20dac54f14f9c12",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-811",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-326"
+      ],
+      "readEvidenceDigest": "557859d301ed16b8772ad15878f78d09c82d93f00733e0fe44e2cd0186dc2784",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-373",
+          "disposition": "verified_family",
+          "familyKey": "persistent-replay-execution",
+          "reason": "At frozen material bb83a25efc66531aef39c4f6045aaa1619e7851d904a07fc9faf32a3083cd03e, CHK-011:happy:0 remains bound to node scripts/run-dynamic-validation-replay.mjs --verify-threshold. Its current signed receipt reports historical replay mode plan-only and assurance BLOCKED; the durable report has execute=false, pairedRequested=false, admissible=false, and all 50 Story records execution=not-run. Therefore F-373 is a verified persistent replay-execution family, not a duplicate-only or unverified observation."
+        }
+      ],
+      "createdAt": "2026-08-27T03:11:59.724Z",
+      "_hash": "6f35c8b61311e15e3ee38d27e72ea8a84f01394fb9fa98c463143cb140ed4e4d"
     }
   ]
 }

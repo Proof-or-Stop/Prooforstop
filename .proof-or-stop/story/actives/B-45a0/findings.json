@@ -21116,6 +21116,92 @@
       ],
       "signatureTag": "missing|json|persistent-replay-execution",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-373",
+      "desc": "Current-run re-attestation of the unresolved F-372 replay-execution coverage family at frozen REVIEW HEAD a38cc1379ccabc9f70629954c75c5a44471197ca (material bb83a25efc66531aef39c4f6045aaa1619e7851d904a07fc9faf32a3083cd03e; storyFiles 3c38eaf06b315f94f6a91c5a6d0899070091a17c97dc0c8cd6cd16c2fada5d25): CHK-011:happy:0 still points to node scripts/run-dynamic-validation-replay.mjs --verify-threshold, whose signed mechanical PASS receipt simultaneously reports historical replay mode: plan-only and historical replay assurance BLOCKED. The durable report has execute=false, pairedRequested=false, admissible=false, and all 50 historical Story records execution=not-run. The paired-performance artifact remains bound to stale head 726bd14ca9c81ca97b16d25073fda37bef053606 and all six runs have allPass=false. Therefore the required executable 30-50 Story full-vs-dynamic replay campaign with current admissible per-story/per-command evidence is still missing. RR-806 superseded F-372 only at the lane-binding level; it did not remediate these underlying artifacts. Bind CHK-011:happy:0 to a current executable admissible replay campaign before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-27T03:05:12.524Z",
+      "reviewRound": "2026-08-27T02:42:40.094Z",
+      "reviewRunId": "B-45a0:RR-809",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json",
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7",
+        "corpusDigest": "3560867b8df647234d5a7a921dfff14093db079298f315aa2802477a0fd0d54f"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": 4590
+        },
+        "digest": "d4487eabe1ac195be8d569f68b5d5bd66c78c358cbf004a66a8f43ab7606fae0"
+      },
+      "readDiagnostics": [],
+      "_hash": "2b694566a88d8dcd60a20af367efd91317e7486254651921ec7970ffa7c6222e",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "missing|json|persistent-replay-execution",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
