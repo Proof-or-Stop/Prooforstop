@@ -16579,6 +16579,158 @@
       },
       "readDiagnostics": [],
       "_hash": "de11592201373f6d32ae141fbded5708779952da3d68c37ea82c9afd6303cc26"
+    },
+    {
+      "id": "B-45a0:RP-310",
+      "agent": "lattice-review-concept",
+      "note": "RI-084 concept review at frozen material/story lineage bb206fce/7666f3f found no genuinely new concept family. The current failures reproduce signed baseline F-367 (stale acceptance basis/topology and PR_ARTIFACT_TAMPERED while full-3x2 rollout is current) and F-368 (paired-only compatibility alias can exit zero on blocked assurance). Canonical Story-pair resolution, mandatory paired execution for --execute, and isolated full/dynamic replay comparison remain implemented; no additional concept deletion residue or promised-but-undelivered family was found, so no duplicate finding was added.",
+      "createdAt": "2026-08-27T01:40:24.083Z",
+      "reviewRound": "2026-08-27T01:26:58.970Z",
+      "reviewRunId": "B-45a0:RR-791",
+      "envelopeId": "cfdf9c9929d685baf7bfd0d09e9e1c549bf73f0cefd0d8a2b9719dc75a3d0439",
+      "writerSessionId": "sess-f467a6c5a5c41dd81c4646ed530a06fd",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json",
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7",
+        "corpusDigest": "3560867b8df647234d5a7a921dfff14093db079298f315aa2802477a0fd0d54f"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "ed33e65a71280cfe5b1d3a3628e0747599f5330b9c85cce8af4c20c3c150e510"
+      },
+      "readDiagnostics": [],
+      "_hash": "638792f15d9d737f53a3168a67626b6fdab67deadd4ca5333bca5c3c505b85cc"
+    },
+    {
+      "id": "B-45a0:RP-311",
+      "agent": "lattice-review-quality",
+      "note": "RI-084 quality review found no new current-head family at the frozen material cutoff. Baseline F-367 remains the acceptance-chain lineage defect and baseline F-368 remains the paired-only executable alias fail-open; both reproduce unchanged, so neither was duplicated. No additional quality blocker was found.",
+      "createdAt": "2026-08-27T01:40:35.237Z",
+      "reviewRound": "2026-08-27T01:26:58.970Z",
+      "reviewRunId": "B-45a0:RR-792",
+      "envelopeId": "7eb68109af7fc121adb9e683ac29b84b696c19e1057150947fb1031b43028a3a",
+      "writerSessionId": "sess-0237ac0af555432cb3641b9c7e91b0ee",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/clusters.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7",
+        "corpusDigest": "3560867b8df647234d5a7a921dfff14093db079298f315aa2802477a0fd0d54f"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "28ea2f36b735df3980989cfb5af880cb7bd399300bcbd5c56f9fdb0b9d4d593c"
+      },
+      "readDiagnostics": [],
+      "_hash": "fc8f3bf668fe1bf71b5f20285451940ad88c6f2c64632a357356a30b1c749cd8"
+    },
+    {
+      "id": "B-45a0:RP-312",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-084 completeness critic found no additional topology-only family. Retain F-367 acceptance-authority-current-lineage because acceptance_basis/topology and pre-review evidence are stale or tampered despite a current full-3x2 rollout; retain F-368 paired-alias admissibility; treat F-370 as coverage-specific current-evidence family and F-371 as independent documentation drift. Topology receipt therefore requests changes.",
+      "createdAt": "2026-08-27T01:52:09.498Z",
+      "reviewRound": "2026-08-27T01:26:58.970Z",
+      "reviewRunId": "B-45a0:RR-794",
+      "envelopeId": "3b8c2f579fffa73596bcf0c98c1b4ae7af8cb8e1bf4d101717c559ac53cbb304",
+      "writerSessionId": "sess-035276d5431bd9f3ef72d7afbf1d6bed",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7",
+        "corpusDigest": "3560867b8df647234d5a7a921dfff14093db079298f315aa2802477a0fd0d54f"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "70a2ec6a78e8f352dda301b66cc2d160c6559a16c0803cbb031b906108aad445"
+      },
+      "readDiagnostics": [],
+      "_hash": "856554d2590e1eaec97dceea8ecad550aa17e8680ebd08b164c76203a712988c"
     }
   ]
 }
