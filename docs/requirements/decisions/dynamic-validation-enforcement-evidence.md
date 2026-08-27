@@ -72,5 +72,10 @@ its base/head identity, selection identity, per-command equivalence, zero
 residue, and both signed full/dynamic receipts remain valid. Missing,
 malformed, unsigned, or incompatible records are re-executed; the paired
 current-HEAD campaign is never reused.
+
+If an operator interrupts a replay while it is writing one historical record,
+`--repair-story=<id> --execute` may regenerate that exact full/dynamic record.
+It is deliberately non-authoritative: it produces no paired-performance report
+and cannot satisfy the frozen threshold command by itself.
 Operators must not promote this document to an enforcement approval without a
 fresh, signed report bound to the target HEAD and a current canonical baseline.
