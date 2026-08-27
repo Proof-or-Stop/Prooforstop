@@ -7949,9 +7949,9 @@
       "epochId": "B-45a0:RI-085",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-27T02:42:40.094Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-27T02:52:49.967Z",
-      "updatedAt": "2026-08-27T02:52:49.967Z",
+      "updatedAt": "2026-08-27T03:13:20.358Z",
       "cutoff": {
         "headHash": "a38cc1379ccabc9f70629954c75c5a44471197ca",
         "materialHash": "bb83a25efc66531aef39c4f6045aaa1619e7851d904a07fc9faf32a3083cd03e",
@@ -7966,9 +7966,72 @@
       ],
       "initialRunSequenceBoundary": 803,
       "maxWaves": 1,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-27T02:52:49.967Z",
+          "completedAt": "2026-08-27T03:12:56.007Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-808",
+              "terminal": "pass",
+              "hostIdentity": "ea3842bc5571398d9c2a6d8b4aad061df97fcbaed8f44ac2bcd81c0fae60676b",
+              "promptIdentity": "f70f753224d00952b0ccfcfd39cdd5ed07b9083f15b6b2a4af9d73efe8ee7f41",
+              "evidenceIds": [
+                "B-45a0:RP-324"
+              ],
+              "coverageDigest": "1c3157c487244cc60f9bd7021eb05027a7ed2fe23aef19c596e477da1a98b2ab"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-804",
+              "terminal": "pass",
+              "hostIdentity": "ea3842bc5571398d9c2a6d8b4aad061df97fcbaed8f44ac2bcd81c0fae60676b",
+              "promptIdentity": "5c57977e4547bb4d32ed5eb9c8f52cbb2f347abacccdfccbed025b1238491cd8",
+              "evidenceIds": [
+                "B-45a0:RP-322"
+              ],
+              "coverageDigest": "657e0452d9a0193e2feaaac5a55d78d5765e548f1624ac0c582ec694841392f6"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-809",
+              "terminal": "finding",
+              "hostIdentity": "ea3842bc5571398d9c2a6d8b4aad061df97fcbaed8f44ac2bcd81c0fae60676b",
+              "promptIdentity": "060389493edef1934e31d9128608a4f8feb8a2eb7f7062e57d821053ebefde16",
+              "evidenceIds": [
+                "B-45a0:F-373"
+              ],
+              "coverageDigest": "a0c07bd7641c3187e33bdaf9640b74ce05169fe0a0ca3c8b738c27104c4863d5"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-807",
+              "terminal": "pass",
+              "hostIdentity": "ea3842bc5571398d9c2a6d8b4aad061df97fcbaed8f44ac2bcd81c0fae60676b",
+              "promptIdentity": "f5de803ee3e49a53ca09e653e602b834d165a413bc1162cbae0bd549fb945e43",
+              "evidenceIds": [
+                "B-45a0:RP-323"
+              ],
+              "coverageDigest": "f205cca8086beff640cca77158c220d3c4f9d327fa03fc047fb736ad024a1d34"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "persistent-replay-execution"
+          ],
+          "verifiedFindingSetDigest": "e4eab24a5f80ec7d871eb8c8cc589f03dba044d3b9d2164fe551747e6d7bdbf0",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "3559402646888e250478d21c62934130a1d7ba67f02f0b7b278c874645a20b60",
+          "saturated": false,
+          "nextRunSequenceBoundary": 811
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "97861bd596de5b1a8d7f72380c6a39fa1305a1bb56338a61e1a571ba7a698df2"
+      "cancelledAt": "2026-08-27T03:13:20.358Z",
+      "cancelReason": "The inventory was started with a one-wave budget, but certified F-373 requires the mandated zero-new confirmation wave. Restart with the normal bounded inventory budget without changing material.",
+      "terminalRunSequenceBoundary": 811,
+      "_hash": "0d3bbe16a46c5b875ac2e1efca07a348e0d9334c2d232e2f7b1093dde02730ed"
     }
   ],
   "receipts": [
