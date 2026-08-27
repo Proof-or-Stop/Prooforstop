@@ -2191,7 +2191,8 @@ if (target.endsWith('story-aware-validation-historical-replay.ts')) {
   const args = new Set(process.argv.slice(3));
   const mode = args.has('--execute') ? 'execute' : 'plan-only';
   const paired = args.has('--paired') ? 'paired-performance: fake\\n' : '';
-  process.stdout.write('historical stories: 30\\nhistorical replay mode: ' + mode + '\\n' + paired);
+  const resume = args.has('--resume') ? 'historical replay resume: enabled\\n' : '';
+  process.stdout.write('historical stories: 30\\nhistorical replay mode: ' + mode + '\\n' + paired + resume);
 } else {
   process.stdout.write('dynamic-validation mutation audit PASS\\n');
 }
@@ -2213,6 +2214,7 @@ if (target.endsWith('story-aware-validation-historical-replay.ts')) {
   assert.notEqual(thresholdBlocked.status, 0, '--verify-threshold must execute and fail when the replay report is non-admissible');
   assert.match(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay mode: execute/);
   assert.match(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /paired-performance: fake/);
+  assert.match(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay resume: enabled/);
   assert.match(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay assurance gate blocked: forced non-admissible witness/);
   assert.doesNotMatch(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay threshold PASS/);
 

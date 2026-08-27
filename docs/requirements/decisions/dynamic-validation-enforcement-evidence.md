@@ -63,5 +63,14 @@ always paired. The frozen `--verify-threshold` checklist selector also executes
 that paired campaign and fail-closes on an inadmissible report; invoking the
 wrapper with no arguments remains plan-only. The wrapper also writes
 `fault-injection.json` with per-catalog FI-1..FI-5 rows.
+
+When an executable campaign is interrupted after historical records are
+durably written but before the current-HEAD paired campaign completes, the
+wrapper resumes rather than blindly replaying the entire population. It first
+recomputes each historical selection manifest and accepts a record only when
+its base/head identity, selection identity, per-command equivalence, zero
+residue, and both signed full/dynamic receipts remain valid. Missing,
+malformed, unsigned, or incompatible records are re-executed; the paired
+current-HEAD campaign is never reused.
 Operators must not promote this document to an enforcement approval without a
 fresh, signed report bound to the target HEAD and a current canonical baseline.
