@@ -12585,6 +12585,55 @@
       "findingDispositions": [],
       "createdAt": "2026-08-26T16:57:12.075Z",
       "_hash": "13773ee297b3c37ff47b194be8b95f9d9ae957bb89c4a3d03b18bfdd61e461e3"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-084:CRIT-01",
+      "epochId": "B-45a0:RI-084",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-27T01:26:58.970Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "7a9449400338d381f2616056578855c0bccd07e2",
+        "materialHash": "bb206fce1cdcb47b01b40c75a7753651ccfe598d8e024434da911dcd15a8018a",
+        "storyFilesHash": "7666f3f69464f7ab6c8f03c0fef4061dc9aefe108959d827db0a5e2e0918e540"
+      },
+      "aggregateFindingSetDigest": "7ba000f39d8eb627e6e7a06f4e6a11f37eea000c92c7aa69f37caa0bd030ab1e",
+      "requiredLaneCoverageDigest": "b6f6d8465c97ed10b1d7ae4b50bc06b50d8895eace5a1dd1a8c391b4751ddf7f",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-794",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-312"
+      ],
+      "readEvidenceDigest": "b6d6f73c2ddb17f3af9230461eb98275c9415256f025045e4b59729d76fec54f",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-367",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-authority-current-lineage",
+          "reason": "Canonical readers at b902aca6d6 independently reproduce a non-evidentiary basis, AT_ADAPTER_RESULT_DIGEST_MISMATCH, AT_CLOSURE_FILES_STALE, and PR_ARTIFACT_TAMPERED; the current full-3x2 rollout does not repair those upstream producers."
+        },
+        {
+          "findingId": "B-45a0:F-368",
+          "disposition": "verified_family",
+          "familyKey": "historical-replay-paired-alias-admissibility",
+          "reason": "The current wrapper accepts --paired as executable but gates non-admissible report rejection only on the original --execute flag, leaving paired-only execution able to continue after assurance BLOCKED."
+        },
+        {
+          "findingId": "B-45a0:F-370",
+          "disposition": "verified_family",
+          "familyKey": "replay-remediation-current-executable-coverage",
+          "reason": "The current coverage finding is independently distinct from the implementation defects: replay and Wave-4 changes still lack current material/story-files-bound executable checklist evidence, including a biting paired-only blocked-report regression."
+        },
+        {
+          "findingId": "B-45a0:F-371",
+          "disposition": "verified_family",
+          "familyKey": "historical-replay-cli-flag-doc-drift",
+          "reason": "Both current decision documents describe --paired as adding the alternating campaign, while the wrapper and historical replay now make paired assurance implicit for every executable replay; this documentation defect remains after the alias fail-open is fixed."
+        }
+      ],
+      "createdAt": "2026-08-27T01:52:41.432Z",
+      "_hash": "670a353b8376460c9db48aa9f548afec9b96f0f22f88b308046cd2ee5fd1261b"
     }
   ]
 }
