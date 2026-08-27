@@ -400,10 +400,9 @@ const MIN_NON_MECHANICAL_ESCAPE_REASON = 30;
 // budget, so a killed run is diagnosable in one line; (2) this bounded override so a
 // legitimately long witness can earn a REAL receipt.
 //
-// The cap is exactly the value lattice.config.json already uses for the DONE-required
-// root suite. Above the cap is REFUSED, never silently clamped — a caller who asked for
-// more than the framework's own longest sanctioned budget has a design problem the tool
-// must not paper over. The cap is imported from validation-executor.ts (the single source
+// The bounded cap covers both the configured DONE-required root suite and the slower
+// admissible historical replay assurance campaign. Above the cap is REFUSED, never
+// silently clamped. The cap is imported from validation-executor.ts (the single source
 // of truth shared with the Zod bound in command-catalog.ts) so the schema's first line of
 // defense and this runtime re-validation can never drift apart.
 const MAX_EVIDENCE_COMMAND_TIMEOUT_MS = EVIDENCE_COMMAND_TIMEOUT_CAP_MS;
@@ -445,8 +444,8 @@ function resolveEvidenceCommandTimeout(
   }
   if (raw > MAX_EVIDENCE_COMMAND_TIMEOUT_MS) {
     throw new Error(
-      `${label}: commandTimeoutMs ${raw}ms exceeds the ${MAX_EVIDENCE_COMMAND_TIMEOUT_MS}ms cap (the longest budget the ` +
-      `framework itself sanctions — lattice.config.json's DONE-required root suite). REFUSED rather than clamped: a ` +
+      `${label}: commandTimeoutMs ${raw}ms exceeds the ${MAX_EVIDENCE_COMMAND_TIMEOUT_MS}ms cap (the longest bounded budget the ` +
+      `framework sanctions for admissible evidence). REFUSED rather than clamped: a ` +
       `witness that needs more than that is a design problem, not a budget problem. [command_timeout_above_cap]`,
     );
   }

@@ -73,15 +73,17 @@ function runtimeTracerPath(projectRoot: string): string | undefined {
  * under {@link DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS} (270s) while that suite takes 21-24
  * min, so the run was KILLED and no verdict was ever printed. The framework already knew
  * this command legitimately needs longer — lattice.config.json gives the same `npm test`
- * a 7200000ms budget as a DONE-required command — so the cap is set to exactly that
- * value: the longest budget the framework itself sanctions. A request ABOVE the cap is
- * REFUSED, never silently clamped.
+ * a 7200000ms budget as a DONE-required command. The complete story-aware historical
+ * replay is also an admissible pinned witness, however: it executes 50 isolated
+ * historical Stories plus paired full/dynamic comparisons and can legitimately exceed
+ * two hours. The bounded six-hour ceiling covers that real assurance campaign while a
+ * request ABOVE the cap is still REFUSED, never silently clamped.
  *
  * Canonical single source of truth: the CLI schema (`command-catalog.ts`) and the handler
  * enforcement boundary (`handlers/checklist.ts`) both import THIS constant, so the Zod
  * bound and the runtime re-validation can never drift apart.
  */
-export const EVIDENCE_COMMAND_TIMEOUT_CAP_MS = 7_200_000;
+export const EVIDENCE_COMMAND_TIMEOUT_CAP_MS = 21_600_000;
 export const DEFAULT_VALIDATE_HEARTBEAT_MS = 30_000;
 /** Node clamps larger setTimeout delays to ~1ms and emits TimeoutOverflowWarning. */
 export const MAX_NODE_TIMER_DELAY_MS = 2_147_483_647;
