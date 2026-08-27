@@ -79,10 +79,15 @@ When an executable campaign is interrupted after historical records are
 durably written but before the current-HEAD paired campaign completes, the
 wrapper resumes rather than blindly replaying the entire population. It first
 recomputes each historical selection manifest and accepts a record only when
-its base/head identity, selection identity, per-command equivalence, zero
-residue, and both signed full/dynamic receipts remain valid. Missing,
-malformed, unsigned, or incompatible records are re-executed; the paired
-current-HEAD campaign is never reused.
+its base/head identity, exact selected command set, execution/reuse totals,
+full-escalation decision, dependency graph, per-command equivalence, zero
+residue, and both signed full/dynamic receipts remain valid. New records also
+persist a selection-semantics digest for these fields. The complete raw
+manifest digest is retained for diagnosis, but a change to an unrelated global
+catalog or inventory member cannot by itself force the entire historical
+population to re-execute. Missing, malformed, unsigned, or semantically
+incompatible records are re-executed; the paired current-HEAD campaign is
+never reused.
 
 If an operator interrupts a replay while it is writing one historical record,
 `--repair-story=<id> --execute` may regenerate that exact full/dynamic record.

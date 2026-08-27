@@ -224,6 +224,29 @@ function sameStringSet(left: unknown, right: readonly string[]): boolean {
 }
 
 /**
+ * The complete manifest digest intentionally covers the whole catalog and
+ * inventory. That is the right integrity identifier for a newly emitted
+ * plan, but is too broad to decide whether a historical record can be
+ * resumed: an unrelated catalog member can change the raw digest without
+ * changing this Story's selected execution set. Keep the resume identity
+ * deliberately small and fail-closed around the decisions that historical
+ * replay actually proves.
+ */
+function historicalSelectionSemantics(manifest: ReturnType<typeof buildDynamicValidationPlan>) {
+  return {
+    schema: 'proof-or-stop.dynamic-validation.historical-selection-semantics.v1',
+    selectedCommandIds: manifest.rows
+      .filter((row) => row.disposition === 'execute')
+      .map((row) => row.commandId)
+      .sort(),
+    selectedCount: manifest.totals.executed,
+    reusedCount: manifest.totals.reused,
+    fullEscalated: manifest.fullEscalated,
+    dependencyGraphDigest: manifest.dependencyGraphDigest,
+  };
+}
+
+/**
  * Reuse only a complete, signed historical comparison whose identity still
  * matches the manifest just derived from current source. Malformed, unsigned,
  * partial, or incompatible records fall through to the normal replay path.
@@ -241,12 +264,18 @@ function reusableHistoricalRecord(
     const record = JSON.parse(readFileSync(join(outputRoot, `${candidate.storyId}.json`), 'utf8')) as Record<string, unknown>;
     const execution = record.execution as Record<string, unknown> | undefined;
     const selectedCommandIds = manifest.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId);
+    const selectionSemantics = historicalSelectionSemantics(manifest);
+    const selectionSemanticsDigest = stableDigest(selectionSemantics);
     if (!execution) return reject('missing execution evidence');
     if (record.storyId !== candidate.storyId || record.baseHead !== candidate.pair.base || record.head !== candidate.pair.head) return reject('base/head identity mismatch');
-    if (record.selectionDigest !== stableDigest(manifest)) return reject('selection digest mismatch');
     if (record.selectedCount !== manifest.totals.executed || record.reusedCount !== manifest.totals.reused || record.fullEscalated !== manifest.fullEscalated) return reject('record totals mismatch');
     if (record.dependencyGraphDigest !== manifest.dependencyGraphDigest) return reject('dependency graph digest mismatch');
     if (!sameStringSet(record.selectedCommandIds, selectedCommandIds)) return reject('selected command set mismatch');
+    // Records emitted before v1 did not persist this narrow digest. Their
+    // individually checked fields above are exactly the v1 payload, so they
+    // remain safely resumable rather than being forced through an unrelated
+    // full-population replay solely because the raw catalog digest changed.
+    if (record.selectionSemanticsDigest !== undefined && record.selectionSemanticsDigest !== selectionSemanticsDigest) return reject('selection semantics digest mismatch');
     if (execution.selectedCount !== manifest.totals.executed || execution.reusedCount !== manifest.totals.reused || execution.fullEscalated !== manifest.fullEscalated) return reject('execution totals mismatch');
     if (execution.dependencyGraphDigest !== manifest.dependencyGraphDigest) return reject('execution graph digest mismatch');
     // Historical replay proves fail-closed selection: every full-plan failure
@@ -362,6 +391,7 @@ for (const candidate of replayStories) {
   const record: Record<string, unknown> = {
     storyId: candidate.storyId, category: candidate.category, baseHead: candidate.pair.base,
     head: candidate.pair.head, changedFiles: files.length, selectionDigest: stableDigest(manifest),
+    selectionSemanticsDigest: stableDigest(historicalSelectionSemantics(manifest)),
     selectedCommandIds: manifest.rows.filter(row => row.disposition === 'execute').map(row => row.commandId),
     selectedCount: manifest.totals.executed, reusedCount: manifest.totals.reused,
     fullEscalated: manifest.fullEscalated, dependencyGraphDigest: manifest.dependencyGraphDigest,
