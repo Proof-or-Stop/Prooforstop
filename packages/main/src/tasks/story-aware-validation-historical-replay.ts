@@ -28,6 +28,11 @@ const execute = process.argv.includes('--execute');
 // mode.  It must therefore include the alternating full/dynamic pairs; a
 // caller cannot accidentally produce an admissible execute-only report.
 const paired = execute || process.argv.includes('--paired');
+// A paired campaign may be interrupted after every historical Story has
+// already produced a durable comparison. Resume verifies those records against
+// a fresh manifest and executes only missing or incompatible cases before the
+// still-required current-HEAD paired campaign.
+const resumeHistorical = execute && process.argv.includes('--resume');
 const storyRoot = join(root, '.proof-or-stop', 'story', 'actives');
 const outputRoot = join(root, '.proof-or-stop', 'runtime', 'dynamic-validation', 'historical-replay');
 
@@ -186,6 +191,8 @@ const closures = new Map(catalog.map((entry: ValidationCatalogEntry) => [entry.i
   catalogDigest, staticPaths: entry.inputRoots,
 })]));
 const records: Array<Record<string, unknown>> = [];
+let resumedHistoricalRecords = 0;
+let reexecutedHistoricalRecords = 0;
 
 function commandVerdicts(result: Awaited<ReturnType<typeof executeValidationPlan>>) {
   return result.commands.map((row) => ({
@@ -199,6 +206,76 @@ function commandVerdicts(result: Awaited<ReturnType<typeof executeValidationPlan
     timedOut: row.timedOut === true,
     ...(row.failureKind ? { failureKind: row.failureKind } : {}),
   }));
+}
+
+function sameStringSet(left: unknown, right: readonly string[]): boolean {
+  return Array.isArray(left)
+    && left.length === right.length
+    && left.every((value) => typeof value === 'string')
+    && [...left].sort().every((value, index) => value === [...right].sort()[index]);
+}
+
+/**
+ * Reuse only a complete, signed historical comparison whose identity still
+ * matches the manifest just derived from current source. Malformed, unsigned,
+ * partial, or incompatible records fall through to the normal replay path.
+ */
+function reusableHistoricalRecord(
+  candidate: { storyId: string; pair: { base: string; head: string } },
+  manifest: ReturnType<typeof buildDynamicValidationPlan>,
+): Record<string, unknown> | undefined {
+  if (!resumeHistorical) return undefined;
+  try {
+    const record = JSON.parse(readFileSync(join(outputRoot, `${candidate.storyId}.json`), 'utf8')) as Record<string, unknown>;
+    const execution = record.execution as Record<string, unknown> | undefined;
+    const selectedCommandIds = manifest.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId);
+    if (!execution
+      || record.storyId !== candidate.storyId
+      || record.baseHead !== candidate.pair.base
+      || record.head !== candidate.pair.head
+      || record.selectionDigest !== stableDigest(manifest)
+      || record.selectedCount !== manifest.totals.executed
+      || record.reusedCount !== manifest.totals.reused
+      || record.fullEscalated !== manifest.fullEscalated
+      || record.dependencyGraphDigest !== manifest.dependencyGraphDigest
+      || !sameStringSet(record.selectedCommandIds, selectedCommandIds)
+      || execution.selectedCount !== manifest.totals.executed
+      || execution.reusedCount !== manifest.totals.reused
+      || execution.fullEscalated !== manifest.fullEscalated
+      || execution.dependencyGraphDigest !== manifest.dependencyGraphDigest
+      || execution.perCommandEquivalent !== true
+      || !Array.isArray(execution.residue)
+      || execution.residue.length !== 0
+      || !Array.isArray(execution.fullFailures)
+      || !execution.fullFailures.every((id) => typeof id === 'string' && selectedCommandIds.includes(id))) return undefined;
+
+    const receipts = Array.isArray(execution.receipts) ? execution.receipts : [];
+    if (receipts.length !== 2) return undefined;
+    const receiptByMode = new Map<string, Record<string, unknown>>();
+    for (const receipt of receipts) {
+      if (!receipt || typeof receipt !== 'object') return undefined;
+      const signed = receipt as Record<string, unknown>;
+      const body = { ...signed };
+      delete body.signature;
+      if (signed.schema !== 'proof-or-stop.dynamic-validation.replay-command-receipt.v1'
+        || signed.storyId !== candidate.storyId
+        || signed.baseHead !== candidate.pair.base
+        || signed.head !== candidate.pair.head
+        || typeof signed.mode !== 'string'
+        || !verifyPayload(body, signed.signature)) return undefined;
+      receiptByMode.set(signed.mode, signed);
+    }
+    const full = receiptByMode.get('full');
+    const dynamic = receiptByMode.get('dynamic');
+    if (!full || !dynamic
+      || full.allPass !== execution.fullAllPass
+      || dynamic.allPass !== execution.dynamicAllPass
+      || stableDigest(full.verdicts) !== stableDigest(execution.fullVerdicts)
+      || stableDigest(dynamic.verdicts) !== stableDigest(execution.dynamicVerdicts)) return undefined;
+    return record;
+  } catch {
+    return undefined;
+  }
 }
 
 function signedArtifact<T extends Record<string, unknown>>(body: T): T & { signature: string } {
@@ -264,6 +341,13 @@ for (const candidate of selected) {
     buildProofDigest: 'historical-replay-plan', mode: 'shadow', gitCwd,
   });
   assert.equal(verifyValidationSelectionManifest(manifest), true, `${candidate.storyId} produced an invalid selection manifest`);
+  const reusable = reusableHistoricalRecord(candidate, manifest);
+  if (reusable) {
+    records.push(reusable);
+    resumedHistoricalRecords += 1;
+    continue;
+  }
+  if (execute) reexecutedHistoricalRecords += 1;
   const record: Record<string, unknown> = {
     storyId: candidate.storyId, category: candidate.category, baseHead: candidate.pair.base,
     head: candidate.pair.head, changedFiles: files.length, selectionDigest: stableDigest(manifest),
@@ -724,6 +808,11 @@ const reportBody = {
   schema: 'proof-or-stop.dynamic-validation.historical-replay.v1',
   generatedAt: new Date().toISOString(), root, execute, storyCount: records.length,
   categories, recordsDigest: stableDigest(records), records,
+  replayExecution: {
+    resumeRequested: resumeHistorical,
+    resumedHistoricalRecords,
+    reexecutedHistoricalRecords,
+  },
   faultInjection: faultInjectionArtifact,
   admissibility: { execute, pairedRequested: paired, admissible: gateReasons.length === 0, reasons: gateReasons },
   ...(pairedPerformance ? { pairedPerformance } : {}),

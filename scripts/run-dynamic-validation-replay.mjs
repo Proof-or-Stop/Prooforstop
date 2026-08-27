@@ -12,8 +12,10 @@ const executableRequested = requested.has('--verify-threshold') || requested.has
 const historicalArgs = executableRequested
   // Executable replay is always paired assurance.  Keep accepting --paired
   // for compatibility, but never let --execute silently skip the three
-  // alternating full/dynamic experiments.
-  ? ['--execute', '--paired']
+  // alternating full/dynamic experiments. `--resume` validates durable,
+  // signed historical receipts first, so an interrupted final paired campaign
+  // replays only missing or incompatible historical cases.
+  ? ['--execute', '--paired', '--resume']
   : ['--plan-only'];
 const historical = spawnSync(process.env.BUN_BINARY || 'bun', [
   join(root, 'packages/main/src/tasks/story-aware-validation-historical-replay.ts'),
