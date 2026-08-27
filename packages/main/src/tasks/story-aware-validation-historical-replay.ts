@@ -233,6 +233,7 @@ function sameStringSet(left: unknown, right: readonly string[]): boolean {
  * replay actually proves.
  */
 function historicalSelectionSemantics(manifest: ReturnType<typeof buildDynamicValidationPlan>) {
+  const fullInventorySelection = manifest.fullEscalated && manifest.totals.executed === manifest.totals.inventory;
   return {
     schema: 'proof-or-stop.dynamic-validation.historical-selection-semantics.v1',
     selectedCommandIds: manifest.rows
@@ -242,7 +243,10 @@ function historicalSelectionSemantics(manifest: ReturnType<typeof buildDynamicVa
     selectedCount: manifest.totals.executed,
     reusedCount: manifest.totals.reused,
     fullEscalated: manifest.fullEscalated,
-    dependencyGraphDigest: manifest.dependencyGraphDigest,
+    // A full escalation executes the entire inventory, so no graph edge can
+    // affect the selected command set. Do not invalidate a complete legacy
+    // full replay merely because it predates graph fingerprinting.
+    dependencyGraphDigest: fullInventorySelection ? '' : manifest.dependencyGraphDigest,
   };
 }
 
@@ -266,18 +270,19 @@ function reusableHistoricalRecord(
     const selectedCommandIds = manifest.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId);
     const selectionSemantics = historicalSelectionSemantics(manifest);
     const selectionSemanticsDigest = stableDigest(selectionSemantics);
+    const fullInventorySelection = manifest.fullEscalated && manifest.totals.executed === manifest.totals.inventory;
     if (!execution) return reject('missing execution evidence');
     if (record.storyId !== candidate.storyId || record.baseHead !== candidate.pair.base || record.head !== candidate.pair.head) return reject('base/head identity mismatch');
     if (record.selectedCount !== manifest.totals.executed || record.reusedCount !== manifest.totals.reused || record.fullEscalated !== manifest.fullEscalated) return reject('record totals mismatch');
-    if (record.dependencyGraphDigest !== manifest.dependencyGraphDigest) return reject('dependency graph digest mismatch');
+    if (!fullInventorySelection && record.dependencyGraphDigest !== manifest.dependencyGraphDigest) return reject('dependency graph digest mismatch');
     if (!sameStringSet(record.selectedCommandIds, selectedCommandIds)) return reject('selected command set mismatch');
     // Records emitted before v1 did not persist this narrow digest. Their
     // individually checked fields above are exactly the v1 payload, so they
     // remain safely resumable rather than being forced through an unrelated
     // full-population replay solely because the raw catalog digest changed.
-    if (record.selectionSemanticsDigest !== undefined && record.selectionSemanticsDigest !== selectionSemanticsDigest) return reject('selection semantics digest mismatch');
+    if (record.selectionSemanticsDigest !== undefined && !fullInventorySelection && record.selectionSemanticsDigest !== selectionSemanticsDigest) return reject('selection semantics digest mismatch');
     if (execution.selectedCount !== manifest.totals.executed || execution.reusedCount !== manifest.totals.reused || execution.fullEscalated !== manifest.fullEscalated) return reject('execution totals mismatch');
-    if (execution.dependencyGraphDigest !== manifest.dependencyGraphDigest) return reject('execution graph digest mismatch');
+    if (!fullInventorySelection && execution.dependencyGraphDigest !== manifest.dependencyGraphDigest) return reject('execution graph digest mismatch');
     // Historical replay proves fail-closed selection: every full-plan failure
     // must be selected dynamically. Exact historical command equality is
     // recorded for diagnosis but is not an admission predicate because old

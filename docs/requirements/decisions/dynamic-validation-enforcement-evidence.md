@@ -85,7 +85,9 @@ residue, and both signed full/dynamic receipts remain valid. New records also
 persist a selection-semantics digest for these fields. The complete raw
 manifest digest is retained for diagnosis, but a change to an unrelated global
 catalog or inventory member cannot by itself force the entire historical
-population to re-execute. Missing, malformed, unsigned, or semantically
+population to re-execute. When full escalation selects the whole inventory,
+the graph is not a resume discriminator because no graph edge can change what
+runs. Missing, malformed, unsigned, or semantically
 incompatible records are re-executed; the paired current-HEAD campaign is
 never reused.
 
