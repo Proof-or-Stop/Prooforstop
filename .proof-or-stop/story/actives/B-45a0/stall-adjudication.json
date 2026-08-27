@@ -1,9 +1,9 @@
 {
   "storyId": "B-45a0",
-  "action": "authorize_continuation",
-  "reason": "Human-reviewed continuation is safe: F-201 is implemented, the signed selection union now covers execute and reuse rows, and current-head mutation/build tests pass; one fresh review is required to verify the repair.",
-  "reviewRound": "2026-08-23T13:46:47.948Z",
-  "approvedBy": "human-operator",
-  "recordedAt": "2026-08-23T15:41:41.808Z",
-  "_hash": "94ce3b19c98925f12ad9ad11a6e97d9b35cee445b936ee4349d58ae85d266083"
+  "action": "override_budget",
+  "reason": "The user approved continuation; a fresh review is needed only to bind the current passing replay and rollout receipts after historical-review churn.",
+  "reviewRound": "2026-08-26T15:42:55.036Z",
+  "approvedBy": "user",
+  "recordedAt": "2026-08-27T01:26:41.446Z",
+  "_hash": "8157f5afa4325a80bd2fd91067b2dc2f23f94cb3af3c95ec93ea8fb494d05706"
 }
