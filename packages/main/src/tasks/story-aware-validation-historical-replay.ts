@@ -24,10 +24,14 @@ const root = resolve(process.cwd());
 // layouts use the configured repository even though no synthetic Story exists.
 const gitCwd = resolveProjectGitCwd(root, root, loadConfig(root));
 const execute = process.argv.includes('--execute');
+const repairStoryId = process.argv.find((arg) => arg.startsWith('--repair-story='))?.slice('--repair-story='.length);
+if (repairStoryId !== undefined) assert.match(repairStoryId, /^B-[a-z0-9]+$/i, '--repair-story must name one Story ID');
 // An executable campaign is assurance evidence, not merely a cheaper replay
 // mode.  It must therefore include the alternating full/dynamic pairs; a
 // caller cannot accidentally produce an admissible execute-only report.
-const paired = execute || process.argv.includes('--paired');
+// `--repair-story` is an explicitly non-authoritative recovery tool: it
+// rewrites one interrupted historical record and never emits a paired report.
+const paired = !repairStoryId && (execute || process.argv.includes('--paired'));
 // A paired campaign may be interrupted after every historical Story has
 // already produced a durable comparison. Resume verifies those records against
 // a fresh manifest and executes only missing or incompatible cases before the
@@ -182,7 +186,10 @@ for (const candidate of candidates) {
   if (selected.length >= 50) break;
   if (!selectedIds.has(candidate.storyId)) { selected.push(candidate); selectedIds.add(candidate.storyId); }
 }
-assert.ok(selected.length >= 30, `historical replay requires at least 30 committed Stories; found ${selected.length}`);
+const replayStories = repairStoryId ? selected.filter((candidate) => candidate.storyId === repairStoryId) : selected;
+assert.ok(replayStories.length >= (repairStoryId ? 1 : 30), repairStoryId
+  ? `historical replay repair could not find ${repairStoryId}`
+  : `historical replay requires at least 30 committed Stories; found ${replayStories.length}`);
 const inventory = discoverValidationInventory(root);
 const catalog = compileValidationCatalog(inventory);
 const catalogDigest = stableDigest(catalog);
@@ -193,6 +200,7 @@ const closures = new Map(catalog.map((entry: ValidationCatalogEntry) => [entry.i
 const records: Array<Record<string, unknown>> = [];
 let resumedHistoricalRecords = 0;
 let reexecutedHistoricalRecords = 0;
+let historicalResumeFailure: string | undefined;
 
 function commandVerdicts(result: Awaited<ReturnType<typeof executeValidationPlan>>) {
   return result.commands.map((row) => ({
@@ -225,35 +233,30 @@ function reusableHistoricalRecord(
   manifest: ReturnType<typeof buildDynamicValidationPlan>,
 ): Record<string, unknown> | undefined {
   if (!resumeHistorical) return undefined;
+  const reject = (reason: string): undefined => {
+    historicalResumeFailure ||= `${candidate.storyId}: ${reason}`;
+    return undefined;
+  };
   try {
     const record = JSON.parse(readFileSync(join(outputRoot, `${candidate.storyId}.json`), 'utf8')) as Record<string, unknown>;
     const execution = record.execution as Record<string, unknown> | undefined;
     const selectedCommandIds = manifest.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId);
-    if (!execution
-      || record.storyId !== candidate.storyId
-      || record.baseHead !== candidate.pair.base
-      || record.head !== candidate.pair.head
-      || record.selectionDigest !== stableDigest(manifest)
-      || record.selectedCount !== manifest.totals.executed
-      || record.reusedCount !== manifest.totals.reused
-      || record.fullEscalated !== manifest.fullEscalated
-      || record.dependencyGraphDigest !== manifest.dependencyGraphDigest
-      || !sameStringSet(record.selectedCommandIds, selectedCommandIds)
-      || execution.selectedCount !== manifest.totals.executed
-      || execution.reusedCount !== manifest.totals.reused
-      || execution.fullEscalated !== manifest.fullEscalated
-      || execution.dependencyGraphDigest !== manifest.dependencyGraphDigest
-      || execution.perCommandEquivalent !== true
-      || !Array.isArray(execution.residue)
-      || execution.residue.length !== 0
-      || !Array.isArray(execution.fullFailures)
-      || !execution.fullFailures.every((id) => typeof id === 'string' && selectedCommandIds.includes(id))) return undefined;
+    if (!execution) return reject('missing execution evidence');
+    if (record.storyId !== candidate.storyId || record.baseHead !== candidate.pair.base || record.head !== candidate.pair.head) return reject('base/head identity mismatch');
+    if (record.selectionDigest !== stableDigest(manifest)) return reject('selection digest mismatch');
+    if (record.selectedCount !== manifest.totals.executed || record.reusedCount !== manifest.totals.reused || record.fullEscalated !== manifest.fullEscalated) return reject('record totals mismatch');
+    if (record.dependencyGraphDigest !== manifest.dependencyGraphDigest) return reject('dependency graph digest mismatch');
+    if (!sameStringSet(record.selectedCommandIds, selectedCommandIds)) return reject('selected command set mismatch');
+    if (execution.selectedCount !== manifest.totals.executed || execution.reusedCount !== manifest.totals.reused || execution.fullEscalated !== manifest.fullEscalated) return reject('execution totals mismatch');
+    if (execution.dependencyGraphDigest !== manifest.dependencyGraphDigest) return reject('execution graph digest mismatch');
+    if (execution.perCommandEquivalent !== true || !Array.isArray(execution.residue) || execution.residue.length !== 0) return reject('execution equivalence or residue invalid');
+    if (!Array.isArray(execution.fullFailures) || !execution.fullFailures.every((id) => typeof id === 'string' && selectedCommandIds.includes(id))) return reject('full failure coverage invalid');
 
     const receipts = Array.isArray(execution.receipts) ? execution.receipts : [];
-    if (receipts.length !== 2) return undefined;
+    if (receipts.length !== 2) return reject('expected two signed receipts');
     const receiptByMode = new Map<string, Record<string, unknown>>();
     for (const receipt of receipts) {
-      if (!receipt || typeof receipt !== 'object') return undefined;
+      if (!receipt || typeof receipt !== 'object') return reject('receipt shape invalid');
       const signed = receipt as Record<string, unknown>;
       const body = { ...signed };
       delete body.signature;
@@ -262,7 +265,7 @@ function reusableHistoricalRecord(
         || signed.baseHead !== candidate.pair.base
         || signed.head !== candidate.pair.head
         || typeof signed.mode !== 'string'
-        || !verifyPayload(body, signed.signature)) return undefined;
+        || !verifyPayload(body, signed.signature)) return reject('receipt identity or signature invalid');
       receiptByMode.set(signed.mode, signed);
     }
     const full = receiptByMode.get('full');
@@ -271,10 +274,10 @@ function reusableHistoricalRecord(
       || full.allPass !== execution.fullAllPass
       || dynamic.allPass !== execution.dynamicAllPass
       || stableDigest(full.verdicts) !== stableDigest(execution.fullVerdicts)
-      || stableDigest(dynamic.verdicts) !== stableDigest(execution.dynamicVerdicts)) return undefined;
+      || stableDigest(dynamic.verdicts) !== stableDigest(execution.dynamicVerdicts)) return reject('receipt verdict binding invalid');
     return record;
-  } catch {
-    return undefined;
+  } catch (error) {
+    return reject(error instanceof Error ? `record unreadable (${error.message})` : 'record unreadable');
   }
 }
 
@@ -326,7 +329,7 @@ function receiptForBaseline(args: {
   });
 }
 
-for (const candidate of selected) {
+for (const candidate of replayStories) {
   const files = diffCache.get(candidate.storyId) || changedFiles(candidate.pair.base, candidate.pair.head);
   diffCache.set(candidate.storyId, files);
   candidate.category = candidateCategory(candidate);
@@ -346,6 +349,9 @@ for (const candidate of selected) {
     records.push(reusable);
     resumedHistoricalRecords += 1;
     continue;
+  }
+  if (resumeHistorical) {
+    throw new Error(`historical replay resume refused without re-execution: ${historicalResumeFailure || `${candidate.storyId}: record unavailable`}`);
   }
   if (execute) reexecutedHistoricalRecords += 1;
   const record: Record<string, unknown> = {
@@ -434,6 +440,12 @@ for (const candidate of selected) {
   mkdirSync(outputRoot, { recursive: true });
   writeFileSync(join(outputRoot, `${candidate.storyId}.json`), JSON.stringify(record, null, 2) + '\n');
   records.push(record);
+}
+
+if (repairStoryId) {
+  assert.equal(records.length, 1, `historical replay repair must write exactly one record for ${repairStoryId}`);
+  console.log(`historical replay repair complete: ${repairStoryId}`);
+  process.exit(0);
 }
 
 const categories = [...new Set(records.map(row => row.category))].sort();
