@@ -69,6 +69,12 @@ that paired campaign and fail-closes on an inadmissible report; invoking the
 wrapper with no arguments remains plan-only. The wrapper also writes
 `fault-injection.json` with per-catalog FI-1..FI-5 rows.
 
+`node scripts/run-dynamic-validation-replay.mjs --mutation=missing-evidence`
+is deliberately mutation-only: it runs the fail-closed missing-evidence probe
+without scanning or re-executing historical Stories. Historical discovery and
+the signed paired replay remain explicit work performed only by the commands
+above.
+
 When an executable campaign is interrupted after historical records are
 durably written but before the current-HEAD paired campaign completes, the
 wrapper resumes rather than blindly replaying the entire population. It first

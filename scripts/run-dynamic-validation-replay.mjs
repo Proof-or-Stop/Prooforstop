@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 const root = join(fileURLToPath(new URL('..', import.meta.url)));
 const requested = new Set(process.argv.slice(2));
 const mode = requested.has('--mutation=missing-evidence') ? '--mutation=missing-evidence' : '--verify-threshold';
+const mutationOnly = mode === '--mutation=missing-evidence';
 const executableRequested = requested.has('--verify-threshold') || requested.has('--execute') || requested.has('--paired');
 const historicalArgs = executableRequested
   // Executable replay is always paired assurance.  Keep accepting --paired
@@ -17,10 +18,16 @@ const historicalArgs = executableRequested
   // replays only missing or incompatible historical cases.
   ? ['--execute', '--paired', '--resume']
   : ['--plan-only'];
-const historical = spawnSync(process.env.BUN_BINARY || 'bun', [
-  join(root, 'packages/main/src/tasks/story-aware-validation-historical-replay.ts'),
-  ...historicalArgs,
-], { cwd: root, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+// The missing-evidence mutation proves a local fail-closed condition.  It must
+// not scan the historical corpus: the current signed paired replay report is
+// earned by the explicit executable modes above, and a negative mutation does
+// not need to rediscover or re-execute those records.
+const historical = mutationOnly
+  ? { status: 0, stdout: '', stderr: '' }
+  : spawnSync(process.env.BUN_BINARY || 'bun', [
+    join(root, 'packages/main/src/tasks/story-aware-validation-historical-replay.ts'),
+    ...historicalArgs,
+  ], { cwd: root, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
 const mutation = spawnSync(process.env.BUN_BINARY || 'bun', [
   join(root, 'packages/main/src/tasks/story-aware-validation-mutation-smoke.ts'),
 ], { cwd: root, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
@@ -32,7 +39,7 @@ const result = {
 const output = `${result.stdout || ''}${result.stderr || ''}`;
 process.stdout.write(output);
 if (result.status !== 0) process.exit(result.status || 1);
-if (!output.includes('historical stories: ') || !output.includes('dynamic-validation mutation audit PASS')) {
+if ((!mutationOnly && !output.includes('historical stories: ')) || !output.includes('dynamic-validation mutation audit PASS')) {
   throw new Error('replay audit did not prove historical Story discovery plus mutation coverage');
 }
 if (executableRequested && !output.includes('historical replay mode: execute')) throw new Error('execute replay mode was not invoked');
