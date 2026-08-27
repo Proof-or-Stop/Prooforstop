@@ -54,9 +54,10 @@ node scripts/run-dynamic-validation-replay.mjs --execute
 node scripts/run-dynamic-validation-replay.mjs --execute --paired
 ```
 
-The first command restores each historical base/head in detached worktrees and
-records full-vs-dynamic per-command verdicts; the second additionally records
-the three alternating current-HEAD pairs and timing/selection digests. The
-wrapper also writes `fault-injection.json` with per-catalog FI-1..FI-5 rows.
+Both commands restore each historical base/head in detached worktrees, record
+full-vs-dynamic per-command verdicts, and run the three alternating current-HEAD
+pairs with timing/selection digests. `--execute` is the canonical spelling;
+`--paired` remains an executable compatibility alias, and executable replay is
+always paired. The wrapper also writes `fault-injection.json` with per-catalog FI-1..FI-5 rows.
 Operators must not promote this document to an enforcement approval without a
 fresh, signed report bound to the target HEAD and a current canonical baseline.

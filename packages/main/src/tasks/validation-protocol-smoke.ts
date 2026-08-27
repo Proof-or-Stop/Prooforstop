@@ -30,6 +30,7 @@ import type { ChecklistData, StoryInfo } from '../core/types.js';
 process.env.LATTICE_BURN_ALERT_RECENT_HOURS = '0';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const projectRoot = resolve(packageRoot, '../../..');
 const cliPath = join(packageRoot, 'cli.js');
 
 const tmp = mkdtempSync(join(tmpdir(), 'lattice-validation-protocol-'));
@@ -2171,6 +2172,49 @@ try {
   } finally {
     rmSync(noStoryReadOnlyRoot, { recursive: true, force: true });
   }
+
+  // B-45a0 F-368: --paired is an executable compatibility alias and must use
+  // the same fail-closed report admissibility boundary as --execute.
+  const replayWrapperRoot = join(tmp, 'replay-wrapper');
+  const replayWrapperPath = join(replayWrapperRoot, 'scripts', 'run-dynamic-validation-replay.mjs');
+  const replayReportPath = join(replayWrapperRoot, '.proof-or-stop', 'runtime', 'dynamic-validation', 'historical-replay', 'report.json');
+  const fakeBunPath = join(replayWrapperRoot, 'fake-bun.mjs');
+  mkdirSync(dirname(replayWrapperPath), { recursive: true });
+  mkdirSync(dirname(replayReportPath), { recursive: true });
+  writeFileSync(
+    replayWrapperPath,
+    readFileSync(join(projectRoot, 'scripts', 'run-dynamic-validation-replay.mjs'), 'utf8'),
+  );
+  writeFileSync(fakeBunPath, `#!/usr/bin/env node
+const target = process.argv[2] || '';
+if (target.endsWith('story-aware-validation-historical-replay.ts')) {
+  process.stdout.write('historical stories: 30\\nhistorical replay mode: execute\\npaired-performance: fake\\n');
+} else {
+  process.stdout.write('dynamic-validation mutation audit PASS\\n');
+}
+`);
+  chmodSync(fakeBunPath, 0o755);
+  const runReplayWrapper = (...args: string[]) => spawnSync(process.execPath, [replayWrapperPath, ...args], {
+    cwd: replayWrapperRoot,
+    env: { ...process.env, BUN_BINARY: fakeBunPath },
+    encoding: 'utf8',
+  });
+
+  writeFileSync(replayReportPath, JSON.stringify({ admissibility: { admissible: false, reasons: ['forced non-admissible witness'] } }));
+  const pairedBlocked = runReplayWrapper('--paired');
+  assert.notEqual(pairedBlocked.status, 0, '--paired must fail when the executable replay report is non-admissible');
+  assert.match(`${pairedBlocked.stdout}${pairedBlocked.stderr}`, /historical replay assurance gate blocked: forced non-admissible witness/);
+  assert.doesNotMatch(`${pairedBlocked.stdout}${pairedBlocked.stderr}`, /historical replay threshold PASS/);
+
+  writeFileSync(replayReportPath, '{ malformed report');
+  const pairedMalformed = runReplayWrapper('--paired');
+  assert.notEqual(pairedMalformed.status, 0, '--paired must fail when the executable replay report is malformed');
+  assert.doesNotMatch(`${pairedMalformed.stdout}${pairedMalformed.stderr}`, /historical replay threshold PASS/);
+
+  const planOnlyMalformed = runReplayWrapper();
+  assert.equal(planOnlyMalformed.status, 0, 'plan-only replay keeps malformed report handling diagnostic');
+  assert.match(planOnlyMalformed.stdout, /historical replay assurance BLOCKED \(plan-only or incomplete\)/);
+  assert.match(planOnlyMalformed.stdout, /historical replay threshold PASS/);
 
   console.log('✓ validation protocol smoke passed');
 } finally {

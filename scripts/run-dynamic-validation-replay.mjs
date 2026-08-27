@@ -8,7 +8,8 @@ import { fileURLToPath } from 'node:url';
 const root = join(fileURLToPath(new URL('..', import.meta.url)));
 const requested = new Set(process.argv.slice(2));
 const mode = requested.has('--mutation=missing-evidence') ? '--mutation=missing-evidence' : '--verify-threshold';
-const historicalArgs = requested.has('--execute') || requested.has('--paired')
+const executableRequested = requested.has('--execute') || requested.has('--paired');
+const historicalArgs = executableRequested
   // Executable replay is always paired assurance.  Keep accepting --paired
   // for compatibility, but never let --execute silently skip the three
   // alternating full/dynamic experiments.
@@ -32,18 +33,18 @@ if (result.status !== 0) process.exit(result.status || 1);
 if (!output.includes('historical stories: ') || !output.includes('dynamic-validation mutation audit PASS')) {
   throw new Error('replay audit did not prove historical Story discovery plus mutation coverage');
 }
-if (requested.has('--execute') && !output.includes('historical replay mode: execute')) throw new Error('execute replay mode was not invoked');
-if ((requested.has('--execute') || requested.has('--paired')) && !output.includes('paired-performance')) throw new Error('paired performance campaign was not invoked');
+if (executableRequested && !output.includes('historical replay mode: execute')) throw new Error('execute replay mode was not invoked');
+if (executableRequested && !output.includes('paired-performance')) throw new Error('paired performance campaign was not invoked');
 const reportPath = join(root, '.proof-or-stop', 'runtime', 'dynamic-validation', 'historical-replay', 'report.json');
 try {
   const report = JSON.parse(readFileSync(reportPath, 'utf8'));
   const admissible = report?.admissibility?.admissible === true;
-  if (requested.has('--execute') && !admissible) {
+  if (executableRequested && !admissible) {
     throw new Error(`historical replay assurance gate blocked: ${(report?.admissibility?.reasons || []).join('; ')}`);
   }
   process.stdout.write(admissible ? 'historical replay assurance PASS\n' : 'historical replay assurance BLOCKED (plan-only or incomplete)\n');
 } catch (error) {
-  if (requested.has('--execute')) throw error;
+  if (executableRequested) throw error;
   process.stdout.write('historical replay assurance BLOCKED (plan-only or incomplete)\n');
 }
 if (mode === '--mutation=missing-evidence') {
