@@ -17122,6 +17122,371 @@
         "scanEscalationReason": null
       },
       "_hash": "c397146872fdab26496bbeec1e52f2a9b2240ef7334b879419f9f5f3d0095ce1"
+    },
+    {
+      "id": "B-45a0:RP-321",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-085 Wave 1 test-coverage re-attestation at a38cc1379ccabc9f70629954c75c5a44471197ca found zero genuinely new coverage families: 48/48 MUST intents have exactly one mechanical PASS receipt, zero waivers/failures, all four Wave-4 readers pass, and known verified F-372 remains the sole current replay-execution remediation family (50/50 historical records not-run and inadmissible; six paired runs allPass=false). This inventory pass records saturation only and does not negate, duplicate, or resolve F-372.",
+      "createdAt": "2026-08-27T02:57:37.825Z",
+      "reviewRound": "2026-08-27T02:42:40.094Z",
+      "reviewRunId": "B-45a0:RR-806",
+      "envelopeId": "dfce550da38a1883ab4337a93d2db17fe5cb319c1658164e5cf5b6df1e159783",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json",
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7",
+        "corpusDigest": "3560867b8df647234d5a7a921dfff14093db079298f315aa2802477a0fd0d54f"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": 4590
+        },
+        "digest": "d4487eabe1ac195be8d569f68b5d5bd66c78c358cbf004a66a8f43ab7606fae0"
+      },
+      "readDiagnostics": [],
+      "_hash": "bcbd79bc875b21ca6999e01645bdaf58a649563610326d7b4df76435871a4674"
+    },
+    {
+      "id": "B-45a0:RP-322",
+      "agent": "lattice-review-quality",
+      "note": "RI-085 Wave 1 quality PASS at a38cc1379ccabc9f70629954c75c5a44471197ca: current material and story files are unchanged from the prior clean quality attestation; F-368/F-371 remediation remains structurally sound, the focused validation-protocol smoke passes, all four Wave 4 readers remain green/current, and no new quality family was verified. F-372 is the sole known current remediation family and is coverage-only, so it was not duplicated.",
+      "createdAt": "2026-08-27T02:58:26.328Z",
+      "reviewRound": "2026-08-27T02:42:40.094Z",
+      "reviewRunId": "B-45a0:RR-804",
+      "envelopeId": "5c57977e4547bb4d32ed5eb9c8f52cbb2f347abacccdfccbed025b1238491cd8",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7",
+        "corpusDigest": "3560867b8df647234d5a7a921dfff14093db079298f315aa2802477a0fd0d54f"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "4871463fda88ad87422208bdc71f5bacbe2eafd41b1fd9b407098be8e996f37f"
+      },
+      "readDiagnostics": [],
+      "_hash": "7760ba55ef8a7cb943f51aca156353b6dd454ec763b3425a61c8a83f39c5682e"
+    },
+    {
+      "id": "B-45a0:RP-323",
+      "agent": "lattice-review-docs",
+      "note": "RI-085 Wave 1 docs review passed at a38cc1379c. Step 1 extracted 868 declaration symbols (109 exported anchors); Step 2 compared 20 symbol-anchored documentation section windows against their current definitions and executable consumers. Code/docs material is unchanged from the prior current-material docs pass, the replay wrapper and task agree that --execute is canonical, --paired is an executable compatibility alias, and executable replay is always paired. The four Wave 4 verifier-owned readers are current PASS, with diagnostic-only topology, current executable pre-review evidence, current signed rollout receipt, genuine full-3x2 codex-cli plus claude-cli quorum, mode-invariant diagnostics, and config-only rollback semantics. No new docs family exists; F-372 remains the sole verified current remediation family.",
+      "createdAt": "2026-08-27T03:00:36.548Z",
+      "reviewRound": "2026-08-27T02:42:40.094Z",
+      "reviewRunId": "B-45a0:RR-807",
+      "envelopeId": "f5de803ee3e49a53ca09e653e602b834d165a413bc1162cbae0bd549fb945e43",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/story-change-resolver.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "db7d70d05a344a4fd2d97cb49c2141ee6751d4a859fbd3edab8de942cfe23e33"
+      },
+      "readDiagnostics": [],
+      "_hash": "8e0346eda8f66bb16e9cc2225fea50b6d17fd80a2ed4b87800960e9e26dc065f"
+    },
+    {
+      "id": "B-45a0:RP-324",
+      "agent": "lattice-review-concept",
+      "note": "RI-085 Wave 1 concept review at frozen HEAD a38cc1379ccabc9f70629954c75c5a44471197ca found zero genuinely new concept families. The main-to-HEAD diff is predominantly additive; the metadata-path helper extraction preserves existing imports through evidence-freshness re-exports, the validation command normalization preserves the command while adding policy, and B-38b7 survives only as explicitly negative zombie history. The verifier-owned Wave-4 chain remains registered and current: topology, pre-review, rollout report, and rollout policy readers PASS; genuine full-3x2 codex-cli+claude-cli is required, degraded 3x1 is rejected, diagnostics are mode-invariant with enforce-only blocking, and acceptanceRolloutGateMode rollback preserves signed history. F-372 remains the sole known remediation family and is neither duplicated nor resolved by this saturation pass.",
+      "createdAt": "2026-08-27T03:02:06.928Z",
+      "reviewRound": "2026-08-27T02:42:40.094Z",
+      "reviewRunId": "B-45a0:RR-808",
+      "envelopeId": "f70f753224d00952b0ccfcfd39cdd5ed07b9083f15b6b2a4af9d73efe8ee7f41",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/templates/agents/lattice-review-concept.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7",
+        "corpusDigest": "3560867b8df647234d5a7a921dfff14093db079298f315aa2802477a0fd0d54f"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "d0e4ae0d35da35e174fd19812bfa2af1cab61734ad0bbc9b9bd1e44628079c98"
+      },
+      "readDiagnostics": [],
+      "_hash": "438251ec87cd616529a3ffddd87368e20ce2aef7b7f70b0fba69b680fbe24927"
+    },
+    {
+      "id": "B-45a0:RP-325",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-085 topology completeness critic PASS at frozen head a38cc1379ccabc9f70629954c75c5a44471197ca. All required lanes are terminal; the signed acceptance basis is complete and verified with no exclusions or blind spots; topology, pre-review, rollout-report, and rollout-check readers pass with current full-3x2 authority. Raw current-wave finding F-373 is independently verified as the persistent-replay-execution family because CHK-011:happy:0 remains plan-only, reports assurance BLOCKED, and supplies no executed current admissible historical replay evidence. No additional topology finding was found.",
+      "createdAt": "2026-08-27T03:10:05.811Z",
+      "reviewRound": "2026-08-27T02:42:40.094Z",
+      "reviewRunId": "B-45a0:RR-810",
+      "envelopeId": "9ef896073627f53083ba533b45e52d27bac294690dc187422bfe41b7b830ed37",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json",
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/topology-critic-receipt.json",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7",
+        "corpusDigest": "3560867b8df647234d5a7a921dfff14093db079298f315aa2802477a0fd0d54f"
+      },
+      "_hash": "d5845aa5e537c940fe9faab908ced7828abc4aed1b145717d5e6880b64af5ee3"
+    },
+    {
+      "id": "B-45a0:RP-326",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-085 topology completeness critic PASS at frozen head a38cc1379ccabc9f70629954c75c5a44471197ca. All required lanes are terminal; the signed basis is complete with no exclusions or blind spots; topology, pre-review, rollout-report, and rollout-check readers pass with current full-3x2 authority. F-373 is independently verified as persistent-replay-execution because CHK-011:happy:0 remains plan-only with assurance BLOCKED and no executed admissible historical replay records. No additional topology family was found.",
+      "createdAt": "2026-08-27T03:11:41.147Z",
+      "reviewRound": "2026-08-27T02:42:40.094Z",
+      "reviewRunId": "B-45a0:RR-811",
+      "envelopeId": "82e4f5b2862d6310e81544469cb702f20a16deba0ba10ec2a9d9e15143d9d6c2",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json",
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/topology-critic-receipt.json",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7",
+        "corpusDigest": "3560867b8df647234d5a7a921dfff14093db079298f315aa2802477a0fd0d54f"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1482e5939aa9f4255b6fc4a96bd4cac2a8be8a1b9d99aa5a48f74d6d56b023b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "740751313499ef70740cf35d3f7d22b4d33e0590fee73724cf56a985abae46e4"
     }
   ]
 }
