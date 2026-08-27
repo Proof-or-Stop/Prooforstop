@@ -10,7 +10,11 @@ import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import { runPreReviewCheckGate } from '../handlers/transition-orchestrator.js';
-import { loadVerifiedPreReviewExecutableProof, PRE_REVIEW_LIVE_PROOF_COMMAND } from '../core/pre-review-check.js';
+import {
+  criticReceiptDigestForPreReviewSemanticComparison,
+  loadVerifiedPreReviewExecutableProof,
+  PRE_REVIEW_LIVE_PROOF_COMMAND,
+} from '../core/pre-review-check.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
 import { adapterSessionEnv } from './adapter-session-env.js';
@@ -44,6 +48,7 @@ const baseAt = '2026-07-22T00:00:00.000Z';
 const liveProofMode = process.argv.includes('--live-proof');
 const scenarioMode = process.argv.includes('--proof-scenarios');
 const rolloutTerminalContractOnly = process.argv.includes('--rollout-terminal-contract-only');
+const criticDigestRenewalContractOnly = process.argv.includes('--critic-digest-renewal-contract-only');
 const cohortArgPath = process.argv.find(arg => arg.startsWith('--cohort='))?.slice('--cohort='.length);
 const activeStoryArgId = process.argv.find(arg => arg.startsWith('--story='))?.slice('--story='.length);
 const CANONICAL_ROLLOUT_SMOKE_PASS = 'ProofStory acceptance rollout smoke: PASS (58 assertions)';
@@ -84,6 +89,19 @@ function assertCanonicalRolloutSmokeTerminalContract(): void {
 if (rolloutTerminalContractOnly) {
   assertCanonicalRolloutSmokeTerminalContract();
   console.log('ProofStory pre-review rollout terminal contract: PASS (exactly 58 assertions)');
+  process.exit(0);
+}
+
+if (criticDigestRenewalContractOnly) {
+  const signedDigest = 'sha256:signed-critic-receipt';
+  const renewedDigest = 'sha256:renewed-critic-receipt';
+  assert.equal(criticReceiptDigestForPreReviewSemanticComparison('observe', renewedDigest, signedDigest), signedDigest,
+    'observe semantic replay retains the signed artifact digest across a legal critic receipt renewal');
+  assert.equal(criticReceiptDigestForPreReviewSemanticComparison('warn', renewedDigest, signedDigest), signedDigest,
+    'warn semantic replay retains the signed artifact digest across a legal critic receipt renewal');
+  assert.equal(criticReceiptDigestForPreReviewSemanticComparison('enforce', renewedDigest, signedDigest), renewedDigest,
+    'enforce semantic replay remains bound to the current critic receipt digest');
+  console.log('ProofStory pre-review critic digest renewal contract: PASS');
   process.exit(0);
 }
 
@@ -1099,6 +1117,12 @@ try {
   const warnCtx = { root, scanRoot: join(root, 'packages/main'), store: new StoryStore(root) } as unknown as HandlerContext;
   const warnLifecycle = runPreReviewCheckGate(warnCtx, storyId);
   assert.match(warnLifecycle, /mode=warn; status=pass/);
+  cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic');
+  const warnAfterCriticRenewal = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
+  assert.equal(warnAfterCriticRenewal.ok, true,
+    `a legal critic receipt renewal at unchanged material/story binding must not invalidate a non-enforcing artifact: ${JSON.stringify(warnAfterCriticRenewal.codes)}`);
+  assert.equal(warnAfterCriticRenewal.criticReattestation, 'not_required');
+  assert.ok(!warnAfterCriticRenewal.codes.includes('PR_ARTIFACT_TAMPERED'));
   recordExecutedCase(['A-MUT-13', 'mutation', 'config:warn-rollback', 'legacy-config-rollback', 'rollback enforce configuration to warn without stale blocking state', 'PASS', warn.ok && !warn.blocking && /mode=warn; status=pass/.test(warnLifecycle) ? 'PASS' : 'FAIL', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
 
   const handlerSource = readFileSync(join(repositoryRoot, 'packages/main/src/handlers/proofstory.ts'), 'utf8');

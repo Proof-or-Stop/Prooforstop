@@ -94,6 +94,14 @@ function unsignedArtifact(artifact: PreReviewCheckArtifactV1): Omit<PreReviewChe
   return unsigned;
 }
 
+export function criticReceiptDigestForPreReviewSemanticComparison(
+  mode: AcceptanceTopologyGateMode,
+  currentDigest: string | undefined,
+  signedDigest: string | undefined,
+): string | undefined {
+  return mode === 'enforce' ? currentDigest : signedDigest;
+}
+
 function allEvidence(checklist: ChecklistData): Array<{ itemId: string; index: number; evidence: VerificationEvidence }> {
   return checklist.items.flatMap(item => (item.verificationEvidence ?? []).map((evidence, index) => ({ itemId: item.id, index, evidence })));
 }
@@ -396,7 +404,16 @@ export function verifyPreReviewCheckArtifact(input: PreReviewCheckInput & { arti
   // Re-evaluate semantic evidence against the signed basis while the canonical
   // receipt freshness reader below independently rejects material/story/closure
   // drift; do not silently rebind the stored artifact to the later HEAD.
-  const expectedInput = { ...input, currentArtifact: artifact.preReviewBasisArtifact, executableProof: artifact.executableProof };
+  const expectedInput: PreReviewCheckInput = {
+    ...input,
+    currentArtifact: artifact.preReviewBasisArtifact,
+    executableProof: artifact.executableProof,
+    criticReceiptDigest: criticReceiptDigestForPreReviewSemanticComparison(
+      input.mode,
+      input.criticReceiptDigest,
+      artifact.criticReceiptDigest,
+    ),
+  };
   const expected = issuePreReviewCheckArtifact(expectedInput);
   const codes: PreReviewCheckCodeV1[] = [...expected.codes];
   const executableProvenanceCurrent = preReviewExecutableProvenanceIsCurrent(realpathSync(input.gitCwd), artifact.executableProof?.provenance);
