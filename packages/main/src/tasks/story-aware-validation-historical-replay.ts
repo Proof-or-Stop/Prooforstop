@@ -37,6 +37,12 @@ const paired = !repairStoryId && (execute || process.argv.includes('--paired'));
 // a fresh manifest and executes only missing or incompatible cases before the
 // still-required current-HEAD paired campaign.
 const resumeHistorical = execute && process.argv.includes('--resume');
+// `--resume` alone is diagnostic and fail-closed: it stops at the first
+// missing/incompatible record. A human must opt into this separate mode to
+// repair only that bounded remainder, while preserving every signed record
+// that already passed the reuse checks.
+const repairMissingHistorical = resumeHistorical && process.argv.includes('--repair-missing');
+assert.ok(!process.argv.includes('--repair-missing') || resumeHistorical, '--repair-missing requires --execute --resume');
 const storyRoot = join(root, '.proof-or-stop', 'story', 'actives');
 const outputRoot = join(root, '.proof-or-stop', 'runtime', 'dynamic-validation', 'historical-replay');
 
@@ -389,7 +395,7 @@ for (const candidate of replayStories) {
     resumedHistoricalRecords += 1;
     continue;
   }
-  if (resumeHistorical) {
+  if (resumeHistorical && !repairMissingHistorical) {
     throw new Error(`historical replay resume refused without re-execution: ${historicalResumeFailure || `${candidate.storyId}: record unavailable`}`);
   }
   if (execute) reexecutedHistoricalRecords += 1;
@@ -865,6 +871,7 @@ const reportBody = {
   historicalVerdictDriftCount: executableRecords.filter((row) => (row.execution as Record<string, unknown>).perCommandEquivalent !== true).length,
   replayExecution: {
     resumeRequested: resumeHistorical,
+    repairMissingRequested: repairMissingHistorical,
     resumedHistoricalRecords,
     reexecutedHistoricalRecords,
   },

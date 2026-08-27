@@ -10,13 +10,15 @@ const requested = new Set(process.argv.slice(2));
 const mode = requested.has('--mutation=missing-evidence') ? '--mutation=missing-evidence' : '--verify-threshold';
 const mutationOnly = mode === '--mutation=missing-evidence';
 const executableRequested = requested.has('--verify-threshold') || requested.has('--execute') || requested.has('--paired');
+const repairMissingRequested = requested.has('--repair-missing');
+if (repairMissingRequested && !executableRequested) throw new Error('--repair-missing requires an executable replay mode');
 const historicalArgs = executableRequested
   // Executable replay is always paired assurance.  Keep accepting --paired
   // for compatibility, but never let --execute silently skip the three
   // alternating full/dynamic experiments. `--resume` validates durable,
   // signed historical receipts first, so an interrupted final paired campaign
   // replays only missing or incompatible historical cases.
-  ? ['--execute', '--paired', '--resume']
+  ? ['--execute', '--paired', '--resume', ...(repairMissingRequested ? ['--repair-missing'] : [])]
   : ['--plan-only'];
 // The missing-evidence mutation proves a local fail-closed condition.  It must
 // not scan the historical corpus: the current signed paired replay report is
