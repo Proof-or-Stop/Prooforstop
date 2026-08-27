@@ -21092,6 +21092,30 @@
       ],
       "signatureTag": "historical-replay-cli-flag-doc-drift",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-372",
+      "desc": "Persistent F-370 replay-execution coverage gap at current REVIEW HEAD ef436c2bff0c4f8979bc772151e12fcc44cd7ca1 (material bb83a25efc66531aef39c4f6045aaa1619e7851d904a07fc9faf32a3083cd03e; storyFiles 3c38eaf06b315f94f6a91c5a6d0899070091a17c97dc0c8cd6cd16c2fada5d25): the refreshed checklist now has 48/48 unique mechanical PASS rows and the four Wave-4 readers pass, but CHK-011:happy:0 still uses node scripts/run-dynamic-validation-replay.mjs --verify-threshold. Its current receipt explicitly reports historical replay mode: plan-only and historical replay assurance BLOCKED. The durable report confirms execute=false, pairedRequested=false, admissible=false, and all 50 records execution=not-run. The paired-performance artifact is bound to stale head 726bd14ca9c81ca97b16d25073fda37bef053606 and all six runs have allPass=false. The new validation-protocol paired-alias regression bites F-368 but does not execute or evidence the required 30-50 historical full-vs-dynamic Story campaign. Bind CHK-011:happy:0 to a current executable admissible replay campaign before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-27T02:49:09.312Z",
+      "reviewRound": "2026-08-27T02:42:40.094Z",
+      "reviewRunId": "B-45a0:RR-802",
+      "_hash": "78df04374c00b45b4374595c6d5483a5d41814f057d8db7ca42d9cc15a0d4239",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "missing|json|persistent-replay-execution",
+      "signatureTagSource": "auto"
     }
   ]
 }
