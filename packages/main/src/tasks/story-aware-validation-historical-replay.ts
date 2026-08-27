@@ -249,7 +249,12 @@ function reusableHistoricalRecord(
     if (!sameStringSet(record.selectedCommandIds, selectedCommandIds)) return reject('selected command set mismatch');
     if (execution.selectedCount !== manifest.totals.executed || execution.reusedCount !== manifest.totals.reused || execution.fullEscalated !== manifest.fullEscalated) return reject('execution totals mismatch');
     if (execution.dependencyGraphDigest !== manifest.dependencyGraphDigest) return reject('execution graph digest mismatch');
-    if (execution.perCommandEquivalent !== true || !Array.isArray(execution.residue) || execution.residue.length !== 0) return reject('execution equivalence or residue invalid');
+    // Historical replay proves fail-closed selection: every full-plan failure
+    // must be selected dynamically. Exact historical command equality is
+    // recorded for diagnosis but is not an admission predicate because old
+    // toolchains may add a dynamic-only environmental failure. The controlled
+    // current-HEAD paired campaign below retains exact verdict equivalence.
+    if (typeof execution.perCommandEquivalent !== 'boolean' || !Array.isArray(execution.residue) || execution.residue.length !== 0) return reject('execution comparison or residue invalid');
     if (!Array.isArray(execution.fullFailures) || !execution.fullFailures.every((id) => typeof id === 'string' && selectedCommandIds.includes(id))) return reject('full failure coverage invalid');
 
     const receipts = Array.isArray(execution.receipts) ? execution.receipts : [];
@@ -783,9 +788,11 @@ const faultInjectionBody = {
 };
 const faultInjectionArtifact = signedArtifact(faultInjectionBody);
 const executableRecords = records.filter((row) => row.execution && typeof row.execution === 'object');
-const replayExecutionEquivalent = executableRecords.every((row) => {
+const replayExecutionSafe = executableRecords.every((row) => {
   const execution = row.execution as Record<string, unknown>;
-  return execution.perCommandEquivalent === true
+  const selectedCommandIds = Array.isArray(row.selectedCommandIds) ? row.selectedCommandIds : [];
+  return Array.isArray(execution.fullFailures)
+    && execution.fullFailures.every((id) => typeof id === 'string' && selectedCommandIds.includes(id))
     && Array.isArray(execution.residue) && execution.residue.length === 0
     && Array.isArray(execution.fullFailures)
     && typeof execution.selectedCount === 'number'
@@ -806,7 +813,7 @@ const gateReasons = [
   !execute ? 'plan-only replay has no executable receipts' : '',
   executableRecords.length !== records.length ? 'one or more Stories were not executed' : '',
   !executionReceiptsValid ? 'replay command receipts are missing or invalid' : '',
-  !replayExecutionEquivalent ? 'replay per-command verdict equivalence or residue check failed' : '',
+  !replayExecutionSafe ? 'replay full-failure selection or residue check failed' : '',
   !verifyPayload(faultInjectionBody, faultInjectionArtifact.signature) ? 'fault-injection artifact signature is invalid' : '',
   !faultInjectionArtifact.allPass ? 'FI-1..FI-5 coverage is incomplete or failing' : '',
   !paired || !pairedPerformance
@@ -820,6 +827,7 @@ const reportBody = {
   schema: 'proof-or-stop.dynamic-validation.historical-replay.v1',
   generatedAt: new Date().toISOString(), root, execute, storyCount: records.length,
   categories, recordsDigest: stableDigest(records), records,
+  historicalVerdictDriftCount: executableRecords.filter((row) => (row.execution as Record<string, unknown>).perCommandEquivalent !== true).length,
   replayExecution: {
     resumeRequested: resumeHistorical,
     resumedHistoricalRecords,

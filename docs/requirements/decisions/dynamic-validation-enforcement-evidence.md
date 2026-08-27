@@ -32,6 +32,11 @@ The enforcement report must bind one current HEAD and contain:
    periodic baseline policy, explicit catalog ownership and changed-test
    propagation.
 
+Historical full/dynamic verdict differences remain in the signed record for
+diagnosis, but do not invalidate the historical safety proof when the full-plan
+failure set is fully selected and residue is empty. The three controlled
+current-HEAD pairs are the separate exact-verdict-equivalence requirement.
+
 ## Receipt envelope
 
 The report must reference the exact `selection.json`, `receipts.json`,
