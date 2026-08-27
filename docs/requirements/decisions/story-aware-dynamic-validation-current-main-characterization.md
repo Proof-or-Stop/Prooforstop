@@ -60,6 +60,7 @@ node scripts/verify-story-aware-validation-plan.mjs
 node scripts/run-dynamic-validation-replay.mjs
 
 # Optional assurance campaigns (they execute real historical/current plans):
+node scripts/run-dynamic-validation-replay.mjs --verify-threshold
 node scripts/run-dynamic-validation-replay.mjs --execute
 node scripts/run-dynamic-validation-replay.mjs --execute --paired
 ```
@@ -78,8 +79,9 @@ historical base/head pair, runs the full and selected plans there, writes
 per-Story records, and always runs the required alternating `full→dynamic`,
 `dynamic→full`, `full→dynamic` current-HEAD campaign with a durable
 `paired-performance.json`. `--execute` is the canonical spelling and `--paired`
-is an executable compatibility alias; neither flag is implied by the default
-smoke wrapper.
+is an executable compatibility alias. The frozen `--verify-threshold` selector
+also executes the paired campaign and fail-closes on inadmissible evidence;
+none of these execution modes is implied by the no-argument smoke wrapper.
 
 ## Interpretation
 

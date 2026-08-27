@@ -2188,7 +2188,10 @@ try {
   writeFileSync(fakeBunPath, `#!/usr/bin/env node
 const target = process.argv[2] || '';
 if (target.endsWith('story-aware-validation-historical-replay.ts')) {
-  process.stdout.write('historical stories: 30\\nhistorical replay mode: execute\\npaired-performance: fake\\n');
+  const args = new Set(process.argv.slice(3));
+  const mode = args.has('--execute') ? 'execute' : 'plan-only';
+  const paired = args.has('--paired') ? 'paired-performance: fake\\n' : '';
+  process.stdout.write('historical stories: 30\\nhistorical replay mode: ' + mode + '\\n' + paired);
 } else {
   process.stdout.write('dynamic-validation mutation audit PASS\\n');
 }
@@ -2206,6 +2209,13 @@ if (target.endsWith('story-aware-validation-historical-replay.ts')) {
   assert.match(`${pairedBlocked.stdout}${pairedBlocked.stderr}`, /historical replay assurance gate blocked: forced non-admissible witness/);
   assert.doesNotMatch(`${pairedBlocked.stdout}${pairedBlocked.stderr}`, /historical replay threshold PASS/);
 
+  const thresholdBlocked = runReplayWrapper('--verify-threshold');
+  assert.notEqual(thresholdBlocked.status, 0, '--verify-threshold must execute and fail when the replay report is non-admissible');
+  assert.match(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay mode: execute/);
+  assert.match(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /paired-performance: fake/);
+  assert.match(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay assurance gate blocked: forced non-admissible witness/);
+  assert.doesNotMatch(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay threshold PASS/);
+
   writeFileSync(replayReportPath, '{ malformed report');
   const pairedMalformed = runReplayWrapper('--paired');
   assert.notEqual(pairedMalformed.status, 0, '--paired must fail when the executable replay report is malformed');
@@ -2213,6 +2223,8 @@ if (target.endsWith('story-aware-validation-historical-replay.ts')) {
 
   const planOnlyMalformed = runReplayWrapper();
   assert.equal(planOnlyMalformed.status, 0, 'plan-only replay keeps malformed report handling diagnostic');
+  assert.match(planOnlyMalformed.stdout, /historical replay mode: plan-only/);
+  assert.doesNotMatch(planOnlyMalformed.stdout, /paired-performance: fake/);
   assert.match(planOnlyMalformed.stdout, /historical replay assurance BLOCKED \(plan-only or incomplete\)/);
   assert.match(planOnlyMalformed.stdout, /historical replay threshold PASS/);
 

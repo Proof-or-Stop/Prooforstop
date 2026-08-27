@@ -50,14 +50,18 @@ replay/performance artifacts when capacity permits, but those artifacts remain
 non-authoritative until a current signed review/baseline gate consumes them:
 
 ```sh
+node scripts/run-dynamic-validation-replay.mjs --verify-threshold
 node scripts/run-dynamic-validation-replay.mjs --execute
 node scripts/run-dynamic-validation-replay.mjs --execute --paired
 ```
 
-Both commands restore each historical base/head in detached worktrees, record
+All three commands restore each historical base/head in detached worktrees, record
 full-vs-dynamic per-command verdicts, and run the three alternating current-HEAD
 pairs with timing/selection digests. `--execute` is the canonical spelling;
 `--paired` remains an executable compatibility alias, and executable replay is
-always paired. The wrapper also writes `fault-injection.json` with per-catalog FI-1..FI-5 rows.
+always paired. The frozen `--verify-threshold` checklist selector also executes
+that paired campaign and fail-closes on an inadmissible report; invoking the
+wrapper with no arguments remains plan-only. The wrapper also writes
+`fault-injection.json` with per-catalog FI-1..FI-5 rows.
 Operators must not promote this document to an enforcement approval without a
 fresh, signed report bound to the target HEAD and a current canonical baseline.
