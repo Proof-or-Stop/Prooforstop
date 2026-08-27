@@ -20812,6 +20812,164 @@
       "signatureTag": "historical-replay-paired-assurance-optional",
       "signatureTagSource": "confirmed",
       "clusterId": "CL-012"
+    },
+    {
+      "id": "B-45a0:F-367",
+      "desc": "Wave4-acceptance-chain-current-lineage: HIGH — at current REVIEW head f4751865d2519763300aa0fc694bb8aa8d8e9fa8 (material bb206fce1cdcb47b01b40c75a7753651ccfe598d8e024434da911dcd15a8018a; storyFiles 7666f3f69464f7ab6c8f03c0fef4061dc9aefe108959d827db0a5e2e0918e540), the canonical verifier-owned Wave-4 chain is not fully current. `acceptance_basis` returns status=invalid/evidentiary=false because its signed receipt remains bound to c1384072/material 77025ccb/storyFiles 5c16b399; `acceptance_topology_check` returns fail/diagnostic_only with AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE; and `pre_review_check_read` returns fail with PR_ARTIFACT_TAMPERED. `acceptance_rollout_report_read` and `acceptance_rollout_check` do pass with a current genuine full-3x2 receipt, but that downstream receipt cannot substitute for the stale basis/pre-review producers. Regenerate and verify the acceptance basis and pre-review artifact against the current material/story-files lineage before the concept lane can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-27T01:33:28.025Z",
+      "reviewRound": "2026-08-27T01:26:58.970Z",
+      "reviewRunId": "B-45a0:RR-788",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json",
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7",
+        "corpusDigest": "3560867b8df647234d5a7a921dfff14093db079298f315aa2802477a0fd0d54f"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "ed33e65a71280cfe5b1d3a3628e0747599f5330b9c85cce8af4c20c3c150e510"
+      },
+      "readDiagnostics": [],
+      "_hash": "a2fcf876f0e75eb0d0a620e818e6da1d8ef9530261deb5b38411b87f87e00237",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "acceptance-authority-current-lineage",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-368",
+      "desc": "historical-replay-paired-alias-fail-open: scripts/run-dynamic-validation-replay.mjs:11-16 explicitly accepts `--paired` as an executable compatibility alias and forwards both `--execute` and `--paired`, but lines 41-47 reject a non-admissible or malformed report only when the original argv contains `--execute`. Therefore `node scripts/run-dynamic-validation-replay.mjs --paired` can complete an executable campaign whose report says assurance BLOCKED, then continue to print `historical replay threshold PASS` and exit zero. This leaves a current-head assurance bypass after the paired remediation. Treat either executable alias as requiring admissibility and add a paired-only blocked-report regression.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-27T01:33:57.514Z",
+      "reviewRound": "2026-08-27T01:26:58.970Z",
+      "reviewRunId": "B-45a0:RR-789",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/clusters.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7",
+        "corpusDigest": "3560867b8df647234d5a7a921dfff14093db079298f315aa2802477a0fd0d54f"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "28ea2f36b735df3980989cfb5af880cb7bd399300bcbd5c56f9fdb0b9d4d593c"
+      },
+      "readDiagnostics": [],
+      "_hash": "817bfcdf73daeabf7261fb860890009adbb661d40276f7fb4ac840e8f96330ae",
+      "files": [
+        "scripts/run-dynamic-validation-replay.mjs",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "historical-replay-paired-alias-admissibility",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-369",
+      "desc": "Fresh current-head coverage review at live REVIEW HEAD f4751865d2519763300aa0fc694bb8aa8d8e9fa8 finds the replay remediation unverified. The Story has 48 MUST verification intents and 48 pass-shaped evidence rows, but zero rows bind current materialHash bb206fce1cdcb47b01b40c75a7753651ccfe598d8e024434da911dcd15a8018a or current storyFilesHash 7666f3f69464f7ab6c8f03c0fef4061dc9aefe108959d827db0a5e2e0918e540; all remain bound to 77025ccb/5c16b399. This is material because commits c5acc72917 and 726bd14ca9 changed canonical Story-pair resolution, made executable replay always paired, and isolated full versus dynamic runs, while CHK-011:happy:0 still verifies only `node scripts/run-dynamic-validation-replay.mjs --verify-threshold`; its signed receipt explicitly ran plan-only and reported historical replay assurance BLOCKED. Current Wave 4 readers do not substitute: acceptance_rollout_report_read and acceptance_rollout_check pass with current full-3x2, but acceptance_topology_check fails AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE, and pre_review_check_read fails PR_ARTIFACT_TAMPERED. Refresh current signed checklist evidence with executable regressions for canonical pair resolution, mandatory paired assurance, and isolated clean replays, then reissue the verifier-owned topology/pre-review artifacts before coverage can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-27T01:34:34.460Z",
+      "reviewRound": "2026-08-27T01:26:58.970Z",
+      "reviewRunId": "B-45a0:RR-787",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "f1115a154cd052cce0642ba4eb8469fafbc9039f88ebec18b3e97e8313e82de7"
+      },
+      "_hash": "9b4d06c7597fb4dc9a1fb3f52b20c3c5c553dd7873771dac665bd3be4e33f937",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|current-head-coverage",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
