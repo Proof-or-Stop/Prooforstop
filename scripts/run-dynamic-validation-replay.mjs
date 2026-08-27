@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const root = join(fileURLToPath(new URL('..', import.meta.url)));
 const requested = new Set(process.argv.slice(2));
 const mode = requested.has('--mutation=missing-evidence') ? '--mutation=missing-evidence' : '--verify-threshold';
-const executableRequested = requested.has('--execute') || requested.has('--paired');
+const executableRequested = requested.has('--verify-threshold') || requested.has('--execute') || requested.has('--paired');
 const historicalArgs = executableRequested
   // Executable replay is always paired assurance.  Keep accepting --paired
   // for compatibility, but never let --execute silently skip the three
