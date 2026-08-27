@@ -91,6 +91,12 @@ runs. Missing, malformed, unsigned, or semantically
 incompatible records are re-executed; the paired current-HEAD campaign is
 never reused.
 
+`--resume` is intentionally diagnostic and stops at the first incompatible
+record. After human approval, `--resume --repair-missing` performs the bounded
+repair: it reuses every admissible signed record and executes only the missing
+or semantically incompatible remainder before the mandatory current-HEAD
+paired campaign. It is not equivalent to a fresh replay of the whole corpus.
+
 If an operator interrupts a replay while it is writing one historical record,
 `--repair-story=<id> --execute` may regenerate that exact full/dynamic record.
 It is deliberately non-authoritative: it produces no paired-performance report
