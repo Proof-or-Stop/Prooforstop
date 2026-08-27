@@ -73,11 +73,12 @@ signal; a failure in an unrelated legacy assertion must not be relabeled as a
 dynamic-validation PASS.
 
 `run-dynamic-validation-replay.mjs` defaults to a safe plan-only inventory
-characterization. `--execute` creates detached git worktrees for each
-historical base/head pair, runs the full and selected plans there, and writes
-per-Story records. `--paired` adds the required alternating
-`full→dynamic`, `dynamic→full`, `full→dynamic` current-HEAD campaign and a
-durable `paired-performance.json`; neither flag is implied by the default
+characterization. Executable replay creates detached git worktrees for each
+historical base/head pair, runs the full and selected plans there, writes
+per-Story records, and always runs the required alternating `full→dynamic`,
+`dynamic→full`, `full→dynamic` current-HEAD campaign with a durable
+`paired-performance.json`. `--execute` is the canonical spelling and `--paired`
+is an executable compatibility alias; neither flag is implied by the default
 smoke wrapper.
 
 ## Interpretation
