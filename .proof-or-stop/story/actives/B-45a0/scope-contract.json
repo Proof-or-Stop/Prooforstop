@@ -391,10 +391,35 @@
       "phase": "DEV",
       "headHash": "f1b5e6cc14ddc6e18d67de996d7ef23b8536eac8",
       "materialHash": "5ab7aca0a620e3f4907675eec549bcdc2e655889a0382016dd6e6546d1baded1"
+    },
+    {
+      "actor": "human-approved-main-agent",
+      "reason": "These paths are necessary to make pre-review validation and tool-executed evidence fail closed for the documented layered validation program.",
+      "timestamp": "2026-08-27T16:08:09.550Z",
+      "paths": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "8b5b19d268865c49f7cfd837f39a04e2c43c112a",
+      "materialHash": "e02316bb6009f79d80d8a9ab1e5e3e8cc84fc1ea6fd3d7aae8be8b06107a5ff7",
+      "anchors": [
+        "pre_review_executable_proof",
+        "tool_executed_evidence",
+        "verification_evidence_refresh"
+      ]
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-25T17:27:56.671Z",
+  "updatedAt": "2026-08-27T16:08:09.550Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -473,6 +498,9 @@
     "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
     "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
-    "packages/main/src/tasks/full-suite-runner-smoke.ts": "packages/main/src/tasks/full-suite-runner-smoke.ts"
+    "packages/main/src/tasks/full-suite-runner-smoke.ts": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+    "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
   }
 }
