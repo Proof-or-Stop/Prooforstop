@@ -8032,6 +8032,34 @@
       "cancelReason": "The inventory was started with a one-wave budget, but certified F-373 requires the mandated zero-new confirmation wave. Restart with the normal bounded inventory budget without changing material.",
       "terminalRunSequenceBoundary": 811,
       "_hash": "0d3bbe16a46c5b875ac2e1efca07a348e0d9334c2d232e2f7b1093dde02730ed"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-086",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-27T02:42:40.094Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-27T03:13:45.532Z",
+      "updatedAt": "2026-08-27T03:13:45.532Z",
+      "cutoff": {
+        "headHash": "07a1494dddc033f08c3171aa4d70d09407dacad3",
+        "materialHash": "bb83a25efc66531aef39c4f6045aaa1619e7851d904a07fc9faf32a3083cd03e",
+        "storyFilesHash": "3c38eaf06b315f94f6a91c5a6d0899070091a17c97dc0c8cd6cd16c2fada5d25"
+      },
+      "scopeDigest": "3344bbc1145d60ef29a501286583552df87aef6d6f2b5207ed30ff1ab22ecd12",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 811,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-45a0:F-373"
+      ],
+      "_hash": "71b764bdb290568946b9ef15a7e172e9a3ffed2f290cd2829a93df86137ba827"
     }
   ],
   "receipts": [
@@ -12934,6 +12962,49 @@
       ],
       "createdAt": "2026-08-27T03:11:59.724Z",
       "_hash": "6f35c8b61311e15e3ee38d27e72ea8a84f01394fb9fa98c463143cb140ed4e4d"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-086:CRIT-01",
+      "epochId": "B-45a0:RI-086",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-27T02:42:40.094Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "07a1494dddc033f08c3171aa4d70d09407dacad3",
+        "materialHash": "bb83a25efc66531aef39c4f6045aaa1619e7851d904a07fc9faf32a3083cd03e",
+        "storyFilesHash": "3c38eaf06b315f94f6a91c5a6d0899070091a17c97dc0c8cd6cd16c2fada5d25"
+      },
+      "aggregateFindingSetDigest": "228b704342446140402887ab4a7a59b2f0827fd4d925e4469ccb4c7d2b38ff17",
+      "requiredLaneCoverageDigest": "e20c541051cf4c24228a14ce283ed8b4b3b53ec203ead5cc4bf53408c2253ef8",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-816",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-329"
+      ],
+      "readEvidenceDigest": "724a78222a953ba495162914baa1ad106befeb1a850fd5172291523e2f96f4ef",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-373",
+          "disposition": "verified_family",
+          "familyKey": "persistent-replay-execution",
+          "reason": "F-373 is the prior current-round re-attestation of the same unresolved replay-execution family: CHK-011 remains backed by plan-only replay evidence rather than executable admissible paired replay."
+        },
+        {
+          "findingId": "B-45a0:F-374",
+          "disposition": "verified_family",
+          "familyKey": "persistent-replay-execution",
+          "reason": "At frozen material bb83a25..., CHK-011:happy:0 remains bound to node scripts/run-dynamic-validation-replay.mjs --verify-threshold; its mechanical PASS says plan-only and assurance BLOCKED, durable report execute=false, pairedRequested=false, admissible=false, all 50 records execution=not-run, so current executable admissible replay evidence is missing."
+        },
+        {
+          "findingId": "B-45a0:F-375",
+          "disposition": "verified_family",
+          "familyKey": "pre-review-critic-receipt-digest-churn",
+          "reason": "At frozen unchanged material/storyFiles, handlers/proofstory.ts:232-246 injects current criticReceiptDigest into expected pre-review input even while observe reports criticReattestation=not_required; core/pre-review-check.ts:399-407 regenerates and maps digest mismatch to PR_ARTIFACT_TAMPERED. Current pre_review_check_read reproduces this fail while executable evidence remains current/admissible."
+        }
+      ],
+      "createdAt": "2026-08-27T03:29:26.342Z",
+      "_hash": "c8a9e219f2e85f5e619f2ff9b5af1b8647e425b921ec9e42e76f8299ba221998"
     }
   ]
 }
