@@ -18,6 +18,7 @@ import { dirname, join } from 'node:path';
 import { StoryStore } from '../core/store.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { buildVerificationCoverage } from '../core/verification.js';
+import { EVIDENCE_COMMAND_TIMEOUT_CAP_MS } from '../core/validation-executor.js';
 import { resetConfigCache } from '../core/config.js';
 import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import type { ChecklistData, StoryInfo, VerificationExecutionReceipt, VerificationIntentType } from '../core/types.js';
@@ -761,7 +762,7 @@ const SLOW_THEN_SELECTOR_CMD = `node -e "setTimeout(()=>console.log('MARKER_OK')
 //        every Zod constraint is re-validated at the handler entry AND at the consuming
 //        enforcement boundary, so an old-JSON / internal-call payload cannot slip past).
 {
-  const CAP = 7_200_000;
+  const CAP = EVIDENCE_COMMAND_TIMEOUT_CAP_MS;
   const env = makeEnv([{ ref: 'INT-CAP', type: 'cli' }]);
   try {
     // 15a: above the cap → REFUSED, explicitly not clamped.
@@ -797,7 +798,7 @@ const SLOW_THEN_SELECTOR_CMD = `node -e "setTimeout(()=>console.log('MARKER_OK')
       storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-CAP', kind: 'integration_test',
       command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'exactly at the cap is allowed',
       commandTimeoutMs: CAP,
-      commandTimeoutReason: 'exactly the cap: the same budget the DONE-required root suite already uses in config',
+      commandTimeoutReason: 'exactly the bounded cap permitted for the longest admissible evidence witness',
     });
     cl = env.store.readChecklist(env.storyId);
     const atCap = cl.items[0].verificationEvidence?.find(e => e.intentRef === 'INT-CAP');
