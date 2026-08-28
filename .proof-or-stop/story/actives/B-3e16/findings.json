@@ -183,6 +183,45 @@
       "resolvedAt": "2026-08-28T10:26:57.664Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-008",
+      "desc": "forward-risk: packages/main/src/handlers/graph.ts resolveGraphPackage() (lines ~90-138) currently does TWO jobs bundled together: (1) module resolution -- locate dist/index.js to build the file:// URL for the dynamic import(), and (2) filesystem-path derivation -- assetDir=join(packageRoot,\"assets\") and vendorDir=join(packageRoot,\"node_modules\"), both derived from packageRoot which is itself derived from the resolved entry path. The planned fix (convert the runtime import() at line ~318 into a static import from a file:../graph dependency) only removes the need for job (1) -- a static import gives bound function values, not a filesystem path. packages/graph/package.json has no exports map and no dedicated export for its own root/assets path, so there is no existing seam that hands the handler assetDir/vendorDir once resolveGraphPackage is deleted wholesale. startServer(...) at line ~365 is called with assetDir and vendorDir every time graph serves (CHK-004 core requirement), so deleting job (2) alongside job (1) would break asset/vendor serving (blank page or 404s on vendor bundles) with no compile-time signal, since the GraphLibrary/GraphApp interfaces disappearing removes the only place those fields were type-checked. Recommend: keep a package-root-and-asset-path resolution function (via createRequire(...).resolve on the package.json itself, or import.meta.resolve, not on the now-removed entry-file import) even after the import() becomes static, and add a regression test asserting startServer still receives a real assetDir/vendorDir after the conversion.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-28T10:57:35.734Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/.gitignore",
+          "packages/graph/package.json",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          "CLAUDE.md",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "15c86a47181285cfad782a4fb0083b9e7e35cbf86f407efb4fcb2d36fca3d95a",
+      "signatureTag": "missing|unknown|forward-risk-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
