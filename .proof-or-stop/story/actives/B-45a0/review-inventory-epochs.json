@@ -13314,6 +13314,37 @@
       ],
       "createdAt": "2026-08-28T05:07:00.288Z",
       "_hash": "20a2ed220cd90ab96b59c10e71449ca4f941c099e3d81e7845aa75bbf2282c40"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-087:CRIT-02",
+      "epochId": "B-45a0:RI-087",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "73037bf9d49ba25f4981d6ed8fdbe651c68b4f7e",
+        "materialHash": "0139448ad23b8872064aa5fd0e5f0ace56a76425beaa83e95c03aab8fb030f3c",
+        "storyFilesHash": "2f34e2c8afaf4f85b9c3dedf37525a032a9fc3b3f966be96a57c8cb5f143b6e6"
+      },
+      "aggregateFindingSetDigest": "74914790e41b091d73fa6a3e5027500fceb8eb22526c4eaf39de59818790e419",
+      "requiredLaneCoverageDigest": "f69d4d8062560e24e66d30c1b9f92297f61d94b42e2943fa7dc1470c6b532a3a",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-835",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-344"
+      ],
+      "readEvidenceDigest": "b88785a2baf227fa9be103c0d0fa2d1cd0b687a14522978a9975dfb8afee6264",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-383",
+          "disposition": "verified_family",
+          "familyKey": "receipt-lookup-helper-doc-contract-drift",
+          "reason": "Independent comparison confirms that the decision record names loadBestMatchingAdmissiblePassReceipt as the full deterministic admissibility lookup, while the exported helper lacks current ancestry, ledger, catalog, inventory, runner, toolchain, build-proof, and clean-tree inputs; those checks exist only in a separate internal gate predicate, making this a distinct verified documentation/API-contract family rather than an authority bypass."
+        }
+      ],
+      "createdAt": "2026-08-28T05:23:37.463Z",
+      "_hash": "6fe962f52fd4f8c2f983f71861136575c65a78fb31c60fa4ca54ef8d221707c3"
     }
   ]
 }
