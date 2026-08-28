@@ -21774,6 +21774,282 @@
       "_hash": "59f6db5a8e2a01e38fffc9c7496bee83f288fcfe85d03e599d9c47bf1eb466c7",
       "signatureTag": "missing|unknown|high-packages-main",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-387",
+      "desc": "doc-code-drift: docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:63-65 says every executable replay command restores every historical base/head and records fresh full-vs-dynamic verdicts. In the implemented bounded-resume path, packages/main/src/tasks/story-aware-validation-historical-replay.ts:392-396 accepts an admissible signed record and continues before the detached-worktree execution at :414-415. The same document correctly describes that reuse at :78-103, so its absolute earlier promise is internally inconsistent and gives operators a false cost/execution expectation. State that only missing or incompatible records are restored/re-executed while every current-head paired campaign is rerun.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T07:18:58.441Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-849",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": 3100
+        },
+        "digest": "bda87a7a29c947b5e9bb14dfcf9c7361ace7b98b4468a4b01c70b31c595aad2f"
+      },
+      "readDiagnostics": [],
+      "_hash": "decc53b55104172e03b1aafa1e5446ae857aecfb02ba6e8392f8b7c4ce76a901",
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-388",
+      "desc": "HIGH: CHK-014’s 45/45 passing rows do not provide current executable Wave-4 coverage. At current review binding ae9b81b/fcdb24b, acceptance_topology_check returns status=fail, structuralPass=false, evidentiary=false with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING, while pre_review_check_read returns fail with PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. The separately passing rollout report cannot repair an invalid topology/pre-review authority chain. Regenerate and bind the verifier-owned acceptance basis and executable pre-review artifacts to the actual current scope/material, then rerun all four CHK-014 acceptance surfaces before treating the intent receipts as covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-28T07:22:04.654Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-851",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 12,
+          "tokenCount": null
+        },
+        "digest": "e0b7394d4660e522a5e633ffca1f99a80254553ab1cc71b95531140ac0071085"
+      },
+      "readDiagnostics": [],
+      "_hash": "bca66d3a5a3dfa9ef4c2f92638a8db2743aa007f1dcfd6cc168d577e7b2dc7ba",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|high-passing-rows",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-389",
+      "desc": "Independent topology critic: the current verifier-derived acceptance basis is complete but inadmissible. acceptance_topology_check reports structuralPass=false with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING; pre_review_check_read reports PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. The independently passing full-3x2 rollout report cannot grant authority or repair those stale/tampered topology and pre-review bindings. Regenerate the verifier-owned basis and executable pre-review evidence at the actual material/scope binding, then rerun all Wave-4 surfaces.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-28T07:27:09.830Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-852",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "d18c8e1d79ce0b5d3592cf3929eb1d98e2734b2b3f0830de4aa4f1a901c0386f"
+      },
+      "readDiagnostics": [],
+      "_hash": "c223095838827d4ba4f78350d83d9269e722dda5161637d2453018faca81aff2",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "signatureTag": "acceptance-topology-current-basis-invalid",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-390",
+      "desc": "scheduler-capacity-verifier-omission: packages/main/src/core/story-aware-validation.ts:1030-1052 verifies only membership, timeline, and resource conflicts; it receives neither workerCapacity nor cpuCapacity despite packages/main/src/handlers/story-aware-validation.ts:958-963 claiming this check rejects an unsafe dynamic resource schedule. Repro: a three-command same-wave schedule with cpuWeight=1 and no resource conflicts returns {\"ok\":true,\"errors\":[]} from verifyValidationSchedule even when the intended capacity is 2. Therefore a corrupted/incorrect schedule can be certified without proving CHK-012 capacity admission; pass capacities into the verifier, reject over-capacity waves, and add the negative mutation.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-28T07:34:08.842Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-854",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bd291b73268f45cf8b432d828a5a1b693f3cdc202b01168af077cebd7ce91e0f",
+      "files": [
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+      ],
+      "signatureTag": "scheduler-capacity-verifier-omission",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-391",
+      "desc": "doc-code-drift: docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md:432-440 states that executable replay creates detached worktrees and runs full/selected plans for every historical base/head pair. The implemented --execute --resume --repair-missing path explicitly accepts an admissible signed record and continues before detached-worktree execution (packages/main/src/tasks/story-aware-validation-historical-replay.ts:264-292,392-415); the frozen --verify-threshold wrapper uses that bounded repair path. This separate operator document omits the qualifier already required by F-387 and therefore promises a whole-corpus rerun where compatible durable historical records are intentionally reused. State that only missing or semantically incompatible historical records are restored/re-executed, while current-HEAD paired assurance always reruns.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T07:37:31.593Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-858",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": 3900
+        },
+        "digest": "bb81e583f5d5b88d90db9d79eb8302879f9f8b3542978ce0169fe9dee6e2ff2b"
+      },
+      "readDiagnostics": [],
+      "_hash": "c13b23cef0871724a1a7fbb0e41c22e196dbaa97fee73aff2c47a9516d46e62c",
+      "files": [
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-docs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-392",
+      "desc": "Duplicate of canonical B-45a0:F-389, not a new remediation family. Fresh host-adapter critic ReviewRun B-45a0:RR-876 independently reproduced the same current-basis invalidity: acceptance_basis reports status=invalid/evidentiary=false; acceptance_topology_check reports AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING; pre_review_check_read reports PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. acceptance_rollout_report_read and acceptance_rollout_check pass, so this duplicate is limited to the existing acceptance-topology/current-basis family.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-28T08:28:02.422Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-876",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d1e80b9ba073357d1851e2bfddc147c01f1c2bb14f3372f1ab204458148ce6e9",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "signatureTag": "acceptance-topology-current-basis-invalid",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
