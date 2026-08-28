@@ -67,7 +67,7 @@
       "desc": "doc-promise-undelivered: packages/graph/README.md:54-56 Architecture tree still lists shells/cli/main.ts as an existing file (\"standalone entry, retained from the pre-migration package (unused here -- proof-or-stop graph is the entrypoint)\"), but that file was deleted in commit 235a98f8a8 (F-002 fix) and packages/graph/src/shells/ now contains only web/. This directly contradicts the same README top-of-file claim (\"This package has no binary of its own\", \"The migration into Proof-or-Stop is complete\") and the deletion commit message (\"Deleted, along with its stale compiled output\"). Root cause matches the note already left in that commit: verify-docs.mjs (packages/graph/scripts/verify-docs.mjs) only scans CLAUDE.md and the decisions doc, so this file is structurally outside the check meant to catch exactly this drift.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-28T10:13:09.309Z",
@@ -75,7 +75,11 @@
       "reviewRunId": "B-3e16:RR-005",
       "_hash": "e0b5df76c2bab74e7d247896133e3134dc12fae7abde4e7603e4e8e8aa02d364",
       "signatureTag": "missing|unknown|promise-undelivered-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 2a2d2de82a. Removed the deleted src/shells/cli/main.ts entry from the README architecture tree, and closed the root cause the reviewer identified: verify-docs now scans the README as well, asserting both that no removed-binary vocabulary returns and that every architecture-tree path exists on disk. Verified by negative control against the committed README rather than a synthetic one: at the prior HEAD the new check reported this exact defect, and it also fails on a re-injected stale path, an emptied tree, a reintroduced standalone-binary invocation, and a reintroduced npm start. The first version of the path check was itself broken (its description-column regex ate the indentation, so it resolved zero paths and passed on the defect it targeted); it was replaced with an indent-stack parser plus a fail-closed floor that errors if fewer than ten paths resolve.",
+      "resolvedAt": "2026-08-28T10:16:15.493Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
