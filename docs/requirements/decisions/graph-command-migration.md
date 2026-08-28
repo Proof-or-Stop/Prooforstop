@@ -124,6 +124,21 @@ The same applies to `scripts/verify-lattice-residue.mjs`, whose `SRC_SCAN_ROOTS`
 explicit list of package source roots rather than a glob, so a new package is unscanned
 until it is named there.
 
+## The registration surface set is discovered by gate, not fixed
+
+Registering a new top-level command touches a set of fail-closed surfaces. Scoping for
+this work enumerated eight; a ninth — `packages/main/src/core/process-fact-levels.ts` —
+only surfaced when `test:process-fact-contract` failed after the other eight were done.
+
+Treat that number as a lower bound, not a checklist. The authoritative answer is what the
+contract tasks say: `command-ownership-contract`, `command-catalog-smoke`,
+`cli-surface-smoke`, `verify-orphan-surface`, `lifecycle-registry-contract` and
+`test:process-fact-contract` each assert a different registration invariant, and several
+derive their expectations rather than listing them (`COMMAND_PROCESS_FACTS` is computed
+from `PROCESS_FACT_LEVELS` and `COMMAND_POLICIES`, so one missing entry there produced
+eight separate complaints across seven phases). Run them all and fix what they report;
+do not assume a fixed count is complete.
+
 ## Terminology
 
 **Recursive tsc gate** — both `proof-or-stop validate --lint` and `.githooks/pre-push`
