@@ -47,8 +47,11 @@ export function buildIndex(root: string, dbPath: string, sig?: string): BuildRes
   const t0 = Date.now();
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
   const tmp = `${dbPath}.build-${process.pid}`;
-  for (const f of [tmp, `${tmp}-wal`, `${tmp}-shm`])
-    if (fs.existsSync(f)) fs.rmSync(f, { force: true });
+  // Named tmpPath, not `f`: the write guard requires every allowlisted write target to be
+  // self-evidently derived from dbPath/tmp, so a single-letter alias cannot hide a
+  // root-derived path (independent review host, B-3e16).
+  for (const tmpPath of [tmp, `${tmp}-wal`, `${tmp}-shm`])
+    if (fs.existsSync(tmpPath)) fs.rmSync(tmpPath, { force: true });
   const db = new DatabaseSync(tmp);
   db.exec(`
     PRAGMA journal_mode=WAL;
@@ -136,8 +139,8 @@ export function buildIndex(root: string, dbPath: string, sig?: string): BuildRes
     seal.close();
   } catch { /* WAL fold is best-effort; the rename below is what matters */ }
   fs.renameSync(tmp, dbPath);
-  for (const f of [`${tmp}-wal`, `${tmp}-shm`])
-    if (fs.existsSync(f)) fs.rmSync(f, { force: true });
+  for (const tmpPath of [`${tmp}-wal`, `${tmp}-shm`])
+    if (fs.existsSync(tmpPath)) fs.rmSync(tmpPath, { force: true });
   return { rows, ms: Date.now() - t0 };
 }
 

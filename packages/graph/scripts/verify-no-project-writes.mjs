@@ -29,12 +29,19 @@ const WRITE_CALL = /\b(writeFileSync|writeFile|appendFileSync|appendFile|createW
    that is derived from dbPath (the cache path), never from `root`. */
 const ALLOWED = [
   { file: 'core/search/fn.ts', target: 'path.dirname(dbPath)', reason: 'creates the index cache directory' },
-  { file: 'core/search/fn.ts', target: 'f', reason: 'removes a stale pid-suffixed temp file derived from dbPath' },
+  { file: 'core/search/fn.ts', target: 'tmpPath', reason: 'removes a stale pid-suffixed temp file derived from dbPath' },
   { file: 'core/search/fn.ts', target: 'tmp, dbPath', reason: 'atomic rename of the pid-suffixed temp onto the cache path' },
 ];
 
-/** Reject any write whose first argument mentions a project-root identifier. */
-const ROOT_DERIVED = /\b(root|projectRoot|repoRoot)\b/;
+/* CLASS rule, not a blocklist. An allowlisted target must be SELF-EVIDENTLY cache-derived:
+   its text must mention dbPath, or tmp/tmpPath (which are themselves built from dbPath one
+   line below the mkdir). A previous version paired the file with an exact target string and
+   additionally rejected the literal identifiers root/projectRoot/repoRoot — the review host
+   showed that still passed a single-letter alias like `f` holding a root-derived path, and
+   that each fix here had narrowed the demonstrated hole rather than the class. Requiring
+   positive evidence of cache derivation closes the class: an alias that does not name the
+   cache path cannot be allowlisted at all, whatever it is called. */
+const CACHE_DERIVED = /\b(dbPath|tmpPath|tmp)\b/;
 
 const walk = dir => fs.readdirSync(dir, { withFileTypes: true }).flatMap(e => {
   const p = path.join(dir, e.name);
@@ -56,8 +63,11 @@ for (const abs of walk(srcRoot)) {
 const unexpected = found.filter((f) => {
   // A write is acceptable only when its FILE and its TARGET ARGUMENT are both allowlisted,
   // and the target never mentions a project-root identifier.
-  const args = f.text.slice(f.text.indexOf('(') + 1);
-  if (ROOT_DERIVED.test(args)) return true;
+  /* Take the write call's own argument list, not the whole line: a call nested inside an
+     `if (...)` would otherwise start at the enclosing condition and never match its entry. */
+  const call = WRITE_CALL.exec(f.text);
+  const args = call ? f.text.slice(f.text.indexOf('(', call.index) + 1) : f.text;
+  if (!CACHE_DERIVED.test(args)) return true;          // no positive cache evidence -> reject
   return !ALLOWED.some(a => f.rel === a.file && args.startsWith(a.target));
 });
 
@@ -73,7 +83,8 @@ if (unexpected.length) {
 
 console.log(`write paths in served runtime source: ${found.length}`);
 for (const f of found) {
-  const args = f.text.slice(f.text.indexOf('(') + 1);
+  const call = WRITE_CALL.exec(f.text);
+  const args = call ? f.text.slice(f.text.indexOf('(', call.index) + 1) : f.text;
   const why = ALLOWED.find(a => f.rel === a.file && args.startsWith(a.target))?.reason ?? '';
   console.log(`  ${f.rel}:${f.line} — ${why}`);
 }

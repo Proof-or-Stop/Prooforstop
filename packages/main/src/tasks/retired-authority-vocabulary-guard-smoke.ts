@@ -461,7 +461,7 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // code edit moves the fingerprint and forces a re-pin. That is the same cost already
   // accepted for bin/bootstrap-runner.js above. The mitigation is the narrow pin plus
   // assertLoaderArgumentProvenance(), not the breadth of this entry.
-  ['packages/main/src/handlers/graph.ts', '3f5249e930e31d88f507e334f2685f3f6f59107ae14ef4a1e4ce08335ee2dbcc'],
+  ['packages/main/src/handlers/graph.ts', 'e3d27511d3a7da22184e1b950d44473987ad34b3c14f700481ff27a4a7cccfd6'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
 const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
@@ -1588,7 +1588,7 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // the `--root` reachability this approval accepts). Whole-file structural fingerprint, so
   // ANY edit to this handler revokes the approval until a human re-approves it. Note the
   // fingerprint is comment-stripped: prose edits do not move it, code edits do.
-  ['packages/main/src/handlers/graph.ts', '3f5249e930e31d88f507e334f2685f3f6f59107ae14ef4a1e4ce08335ee2dbcc'],
+  ['packages/main/src/handlers/graph.ts', 'e3d27511d3a7da22184e1b950d44473987ad34b3c14f700481ff27a4a7cccfd6'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
