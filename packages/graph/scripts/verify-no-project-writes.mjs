@@ -39,10 +39,20 @@ const repo = execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: pkgRoo
    host appended to an already-dirty CLAUDE.md and the previous version reported
    byte-identical. Hashing every path's bytes closes that and the ignored-file gap together. */
 const snapshot = () => {
-  const listed = execFileSync('git',
-    ['ls-files', '-z', '--cached', '--others', '--exclude-standard'],
-    { cwd: repo, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 })
+  /* Two passes. `--exclude-standard` alone was a DETECTION REGRESSION the review host
+     caught: it hides every gitignored path, so `.proof-or-stop/**` and this package's own
+     `assets/` were not hashed at all — precisely where a write would matter. Dropping the
+     flag outright is not the answer either: node_modules then floods the list past git's
+     own output buffer. So pass one takes tracked plus non-ignored untracked files, and pass
+     two adds ignored paths while pruning the dependency and build trees that are not part
+     of the repository's meaningful state. */
+  const run = (args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8', maxBuffer: 512 * 1024 * 1024 })
     .split('\0').filter(Boolean);
+  const PRUNED = /(^|\/)(node_modules|dist|\.git)(\/|$)/;
+  const listed = [...new Set([
+    ...run(['ls-files', '-z', '--cached', '--others', '--exclude-standard']),
+    ...run(['ls-files', '-z', '--others', '--ignored', '--exclude-standard']).filter(p => !PRUNED.test(p)),
+  ])];
   const hash = createHash('sha256');
   for (const rel of listed.sort()) {
     hash.update(rel);
@@ -54,16 +64,22 @@ const snapshot = () => {
 };
 
 /* Exercise the synchronous cold-cache build in a SUBPROCESS, so any write primitive --
-   worker threads, child processes, streams, sqlite -- lands inside the measured window.
+   worker threads, child processes, streams, sqlite -- lands inside the measured window,
+   PROVIDED it completes before the subprocess exits.
 
    HONEST COVERAGE BOUNDARY: this does NOT exercise the worker-thread rebuild. That branch
    needs two ensure() calls on one live instance more than statThrottleMs (1500ms) apart WITH
    a repo content change between, and this driver deliberately does not mutate the repository
    it is asserting about. An earlier version printed "both index paths exercised"; the review
-   host disproved it with a canary in the compiled worker. The subprocess boundary means a
-   worker write WOULD be caught if one occurred -- but no worker is spawned here, so that is
-   an untested capability, not a demonstrated one. Recorded as a known limitation rather than
-   claimed. */
+   host disproved it with a canary in the compiled worker.
+
+   Do NOT read the subprocess boundary as an unconditional promise that a worker write would
+   be caught. The host identified two conditions I had left unstated: app.close() only closes
+   the db handle and the worker is unref()'d, so a worker still writing at subprocess exit is
+   killed and its write may never land inside the measured window; and a completed worker
+   write is only visible if its path is one this digest hashes. The boundary helps, but no
+   worker is spawned here, so it is an untested capability under unstated conditions -- not a
+   demonstrated one. */
 const driver = `
 import { createApp } from ${JSON.stringify(path.join(pkgRoot, 'dist', 'index.js'))};
 const repo = ${JSON.stringify(repo)};
