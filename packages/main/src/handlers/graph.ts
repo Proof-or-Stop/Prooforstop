@@ -45,7 +45,7 @@
  *     shutdown, with a watchdog heartbeat so a session survives idle periods.
  */
 
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import type { HandlerContext } from './context.js';
@@ -138,6 +138,105 @@ function describeLocation(packageRoot: string, entry: string): GraphPackageLocat
   };
 }
 
+/**
+ * The builtin module that sets this subpackage's Node floor.
+ *
+ * `packages/graph/src/core/search/fn.ts` imports `DatabaseSync` from it to build the
+ * FTS5 index. It is the ONLY reason the floor exists, so it is the thing the failure
+ * message has to name — "upgrade Node" without saying why is not diagnosable.
+ */
+export const GRAPH_REQUIRED_BUILTIN = 'node:sqlite';
+
+/** Inputs the runtime-support decision is made from. Injectable so the failure path is testable. */
+export interface GraphRuntimeProbe {
+  /** The running Node version, i.e. `process.versions.node`. */
+  readonly nodeVersion: string;
+  /** Whether `node:sqlite` can actually be loaded in this process. */
+  readonly builtinAvailable: boolean;
+  /** The `engines.node` range declared by packages/graph, or null if unreadable. */
+  readonly requiredRange: string | null;
+}
+
+/**
+ * Read `engines.node` out of the graph subpackage's own manifest.
+ *
+ * Deliberately NOT a second hardcoded "22.5.0" in this file. The floor is a property of
+ * `packages/graph` (it is that package that imports `node:sqlite`), and a copy here would
+ * be free to drift from the manifest that npm actually enforces on install. Reading it
+ * keeps one source of truth; if the manifest is unreadable we degrade to a message that
+ * omits the range rather than inventing one.
+ */
+export function readGraphEnginesRange(packageRoot: string): string | null {
+  try {
+    const manifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8')) as {
+      engines?: { node?: unknown };
+    };
+    const range = manifest.engines?.node;
+    return typeof range === 'string' && range.trim().length > 0 ? range.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Decide whether this runtime can host the graph library, and if not, say why readably.
+ *
+ * Pure: every input arrives through `probe`, so the unsupported branch can be exercised
+ * directly with an old version string instead of requiring an old Node binary. Returns
+ * null when the runtime is fine.
+ *
+ * Capability over version parsing: the check is "can `node:sqlite` be loaded", not a
+ * semver comparison against `engines.node`. Parsing the range would re-derive an answer
+ * the runtime can just be asked for, and would go wrong on exactly the runtimes that
+ * matter (an odd build with the module compiled out still satisfies `>=22.5.0`). The
+ * required range is still REPORTED, because that is what tells the reader what to do.
+ */
+export function graphRuntimeUnsupportedMessage(probe: GraphRuntimeProbe): string | null {
+  if (probe.builtinAvailable) return null;
+  const required = probe.requiredRange
+    ? `requires Node ${probe.requiredRange}`
+    : `requires a newer Node (see engines.node in packages/graph/package.json)`;
+  return [
+    `graph: this Node runtime cannot load ${GRAPH_REQUIRED_BUILTIN}, which the graph`,
+    `  full-text index is built on.`,
+    `  running Node: v${probe.nodeVersion}`,
+    `  ${GRAPH_PACKAGE_NAME} ${required}`,
+    `  → upgrade Node, then re-run: proof-or-stop graph`,
+  ].join('\n');
+}
+
+/** Probe the live runtime for `node:sqlite` support without letting the failure escape. */
+export function graphBuiltinAvailable(): boolean {
+  try {
+    // `process.getBuiltinModule` is itself Node >= 22.3, so it cannot be assumed on the
+    // very runtimes this guard exists to reject; fall back to require() when absent.
+    const get = (process as { getBuiltinModule?: (id: string) => unknown }).getBuiltinModule;
+    if (typeof get === 'function') return get(GRAPH_REQUIRED_BUILTIN) != null;
+    createRequire(import.meta.url)(GRAPH_REQUIRED_BUILTIN);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Fail readably before the graph library is imported.
+ *
+ * Placement is load-bearing: `packages/graph`'s entry pulls in `node:sqlite` transitively,
+ * so the `await import(...)` below is itself what throws on an old runtime — and it throws
+ * a raw `ERR_UNKNOWN_BUILTIN_MODULE` stack naming an internal file, with no mention of the
+ * required version. A guard after the import cannot produce a better message because there
+ * is nothing left to guard. Hence: check first, then import.
+ */
+export function assertGraphRuntimeSupported(packageRoot: string): void {
+  const message = graphRuntimeUnsupportedMessage({
+    nodeVersion: process.versions.node,
+    builtinAvailable: graphBuiltinAvailable(),
+    requiredRange: readGraphEnginesRange(packageRoot),
+  });
+  if (message !== null) throw new Error(message);
+}
+
 /** Minimal shape of the graph library surface this handler consumes. */
 interface GraphLibrary {
   createApp: (opts: { root: string; onLog?: (m: string) => void }) => GraphApp;
@@ -185,6 +284,9 @@ export function createGraphHandlers(ctx: HandlerContext): Record<string, (...arg
       // instead of silently dropping the heartbeat.
       const log = ctx.log ?? ((m: string) => process.stderr.write(`${m}\n`));
       const location = resolveGraphPackage(ctx.root);
+      // Must precede the import: the import is what throws ERR_UNKNOWN_BUILTIN_MODULE on
+      // a runtime older than the node:sqlite floor. See assertGraphRuntimeSupported.
+      assertGraphRuntimeSupported(location.packageRoot);
       const lib = await import(`file://${location.entry}`) as GraphLibrary;
 
       // `path.resolve` matches the source shell: a relative --root is resolved
