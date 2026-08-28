@@ -68,19 +68,19 @@
           "command": "npm --prefix packages/graph run build",
           "result": "pass",
           "note": "The graph package build runs tsc then assembles the browser shell; the selector proves assets/app.html was assembled from the src/shells/web parts.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0aa468876323b4549a8a4dd24587284b56bc227d2f63cdb21662fa77969c5418",
             "outputTail": "\n> @proof-or-stop/graph@0.1.0 build\n> tsc && node scripts/build-web.mjs\n\nassets: app.html (391KB)\nassets: d3.min.js\nassets: mermaid.min.js\nassets: gsap.min.js\nassets: mediabunny.min.mjs\nassets: gifenc.esm.js\nassets: gif-palette.js\nassets: gif-encoder.worker.js\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:26:02.548Z",
+            "executedAt": "2026-08-28T10:02:23.535Z",
             "timeoutMs": 270000
           },
-          "headHash": "4a74e5e35b39c6670b3b6b5232e205914c91ff5c",
-          "materialHash": "bc4c64a4ec59ab745062b78430e4075b5ad5612d7df89ebed0013033959d71fe",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-08-28T09:26:02.722Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -88,19 +88,19 @@
           "command": "npm --prefix packages/graph run typecheck",
           "result": "pass",
           "note": "tsc --noEmit is silent on success, so the typecheck script chains a success token. The selector proves tsc exited clean, meaning the new tsconfig does not break the recursive tsc gate that validate --lint and .githooks/pre-push run over every tsconfig.json in the repo.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "d84b0740ef21c7739e97f009c459a81edcf80cf5830c9924c7ca804a035eb676",
             "outputTail": "\n> @proof-or-stop/graph@0.1.0 typecheck\n> tsc --noEmit && node scripts/ok.mjs GRAPH_TSC_CLEAN\n\nGRAPH_TSC_CLEAN\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:26:50.897Z",
+            "executedAt": "2026-08-28T10:02:24.297Z",
             "timeoutMs": 270000
           },
-          "headHash": "6bfae08bd5bd2405b067737e2f61e3f33e78d77d",
-          "materialHash": "bc4c64a4ec59ab745062b78430e4075b5ad5612d7df89ebed0013033959d71fe",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-08-28T09:26:51.074Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -108,19 +108,19 @@
           "command": "npm --prefix packages/graph run verify-assets-ignored",
           "result": "pass",
           "note": "Proves the regenerable vendor bundles and the assembled app.html cannot enter git: the check asserts git check-ignore covers them and that nothing under assets is tracked. Verified to have real discriminating power by removing the assets rule from .gitignore, observing ASSETS_NOT_IGNORED with exit 1, then restoring it.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a832e220f26d4802a9d04da634aaddce07b003cc7c73a7069e5aed00baf03fb8",
             "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-assets-ignored\n> node scripts/verify-assets-ignored.mjs\n\nASSETS_IGNORED_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:27:16.950Z",
+            "executedAt": "2026-08-28T10:02:24.641Z",
             "timeoutMs": 270000
           },
-          "headHash": "ac969ce4f1fd343dc1c17564448fe43f2ee95622",
-          "materialHash": "bc4c64a4ec59ab745062b78430e4075b5ad5612d7df89ebed0013033959d71fe",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-08-28T09:27:17.113Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         }
       ],
       "userSeesSnapshot": {
@@ -191,19 +191,19 @@
           "command": "npm --prefix packages/graph run verify-engines-floor",
           "result": "pass",
           "note": "Confirms packages/graph declares engines.node >=22.5.0 and that the required version is sourced from the manifest rather than duplicated, so the message and the manifest cannot drift apart.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "874824f57c49ef117e882a9fca1b09f36b53b8fe0ff4a1d07276359b3d65ffa9",
             "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-engines-floor\n> node scripts/verify-engines-floor.mjs\n\nnegative control: unguarded import on v20.19.6 throws ERR_UNKNOWN_BUILTIN_MODULE\nguard on real v20.19.6 produced a readable diagnostic:\n    graph: this Node runtime cannot load node:sqlite, which the graph\n      full-text index is built on.\n      running Node: v20.19.6\n      @proof-or-stop/graph requires Node >=22.5.0\n      → upgrade Node, then re-run: proof-or-stop graph\nengines.node=>=22.5.0 declared once, sourced from the manifest; supported runtimes pass\nENGINES_FLOOR_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:56:33.239Z",
+            "executedAt": "2026-08-28T10:02:25.197Z",
             "timeoutMs": 270000
           },
-          "headHash": "98fa8ef8218e63431c8c1412718dcc32f30b4455",
-          "materialHash": "589d5e7531c14675ad8cf7ed50c190a01b8ad37fac34135db9e8768a75c9bd1b",
-          "storyFilesHash": "c8327d9bb4af62cedb2485bb3852aa95be11d611869cd93d7dccb9b97c3abfb1",
-          "timestamp": "2026-08-28T09:56:33.408Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -211,19 +211,19 @@
           "command": "npm --prefix packages/graph run verify-engines-floor",
           "result": "pass",
           "note": "Exercised against a genuine Node v20.19.6 installed via nvm, not a simulation: the guard produces a message naming node:sqlite, the running version and the required version. A negative control first confirmed the unguarded import on that same binary throws ERR_UNKNOWN_BUILTIN_MODULE, so the clean message proves something.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "874824f57c49ef117e882a9fca1b09f36b53b8fe0ff4a1d07276359b3d65ffa9",
             "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-engines-floor\n> node scripts/verify-engines-floor.mjs\n\nnegative control: unguarded import on v20.19.6 throws ERR_UNKNOWN_BUILTIN_MODULE\nguard on real v20.19.6 produced a readable diagnostic:\n    graph: this Node runtime cannot load node:sqlite, which the graph\n      full-text index is built on.\n      running Node: v20.19.6\n      @proof-or-stop/graph requires Node >=22.5.0\n      → upgrade Node, then re-run: proof-or-stop graph\nengines.node=>=22.5.0 declared once, sourced from the manifest; supported runtimes pass\nENGINES_FLOOR_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:56:43.740Z",
+            "executedAt": "2026-08-28T10:02:25.596Z",
             "timeoutMs": 270000
           },
-          "headHash": "49b4e442f5b29e36aa6d75c720d2371ddd04cd1c",
-          "materialHash": "589d5e7531c14675ad8cf7ed50c190a01b8ad37fac34135db9e8768a75c9bd1b",
-          "storyFilesHash": "c8327d9bb4af62cedb2485bb3852aa95be11d611869cd93d7dccb9b97c3abfb1",
-          "timestamp": "2026-08-28T09:56:43.928Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -231,19 +231,19 @@
           "command": "npm --prefix packages/graph run verify-engines-floor",
           "result": "pass",
           "note": "Proves no raw ERR_UNKNOWN_BUILTIN_MODULE stack reaches the user. Three mutation tests confirmed the check can fail: neutering the guard, moving it after the dynamic import (proving placement is load-bearing, not just wording), and hardcoding the version instead of reading engines.node all make it fail.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "874824f57c49ef117e882a9fca1b09f36b53b8fe0ff4a1d07276359b3d65ffa9",
             "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-engines-floor\n> node scripts/verify-engines-floor.mjs\n\nnegative control: unguarded import on v20.19.6 throws ERR_UNKNOWN_BUILTIN_MODULE\nguard on real v20.19.6 produced a readable diagnostic:\n    graph: this Node runtime cannot load node:sqlite, which the graph\n      full-text index is built on.\n      running Node: v20.19.6\n      @proof-or-stop/graph requires Node >=22.5.0\n      → upgrade Node, then re-run: proof-or-stop graph\nengines.node=>=22.5.0 declared once, sourced from the manifest; supported runtimes pass\nENGINES_FLOOR_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:56:55.570Z",
+            "executedAt": "2026-08-28T10:02:26.014Z",
             "timeoutMs": 270000
           },
-          "headHash": "2ec55fc678b86863b8245e94599940980e19a3cf",
-          "materialHash": "589d5e7531c14675ad8cf7ed50c190a01b8ad37fac34135db9e8768a75c9bd1b",
-          "storyFilesHash": "c8327d9bb4af62cedb2485bb3852aa95be11d611869cd93d7dccb9b97c3abfb1",
-          "timestamp": "2026-08-28T09:56:55.762Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         }
       ],
       "userSeesSnapshot": {
@@ -329,19 +329,19 @@
           "command": "node bin/proof-or-stop.js graph --help",
           "result": "pass",
           "note": "The command is registered and dispatchable: its help renders all four flags the source CLI parses. Help also groups it under a Graph heading via the explicit KNOWN_GROUP entry, since a bare name has no underscore prefix to derive a group from.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0041d5d4fc5634d9b8d90f412e4ccc6450a3208f06a1134930c62fd7dab9ee29",
             "outputTail": "\n  proof-or-stop graph — Interactive story + evidence graph for this repository (reads story state; writes its index cache outside the repo)\n\n  Proof-or-Stop 0.3.269\n\nproof-or-stop graph [--root=<dir>] [--port=<n>] [--no-open] [--json]\n\nRead-only visualizer for the stories and evidence of a Proof-or-Stop repository:\na browsable graph plus full-text search and per-story detail.\n\nOptions:\n  --root=<dir>   Repository to read (default: nearest Proof-or-Stop root from cwd).\n  --port=<n>     HTTP port (default: 8731).\n  --no-open      Do not launch a browser.\n  --json         Print status as JSON and exit without serving.\n\nBehavior:\n  - Reads story state only; it never mutates story metadata, so it is allowed in\n    every phase (readOnly / destructiveRisk none).\n  - Its search index is written under the user cache directory, keyed by a hash of\n    the repository root, so running it never dirties the worktree that DONE gates\n    on a clean tree.\n  - The graph library, browser client and static assets live in the packages/graph\n    subpackage and are resolved at runtime; if they are missing, the command names\n    the missing directory and the build command instead of failing obscurely.\n  - Long-running when it serves (same shape as serve): the command stays in the\n    foreground until interrupted.\n\n  Arguments:\n    --root   string           Repository to read (default: nearest Proof-or-Stop root from cwd). \n    --port   number           HTTP port (default: 8731). \n    --open   boolean          Launch a browser once the server is listening; default true, use --no-open to suppress. \n    --json   boolean          Print status as JSON and exit without serving. \n\n  Usage: proof-or-stop graph [--root=value] [--port=value] [--open] [--json]\n  (* = required)\n\n-> Not sure what to do next? Run proof-or-stop session_brief to recover the project context.\n\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:38:07.236Z",
+            "executedAt": "2026-08-28T10:02:26.651Z",
             "timeoutMs": 270000
           },
-          "headHash": "21995bb9ac1d678839f9a96a514e7efa09684fdb",
-          "materialHash": "0de16f654db5791c55f3cccf060007305797a197cad30e483a60d91ee3753142",
-          "storyFilesHash": "aacd6b5753cad5a24199577af925a3f8d1cb3710d1e6995d78b5d5b82602dec0",
-          "timestamp": "2026-08-28T09:38:07.422Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -349,19 +349,19 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "Proves the COMMAND_POLICIES row carries a valid ownershipClass (readOnly) and that the handler is registered and dispatchable. The contract fails closed on a missing ownershipClass, so a pass covers all 358 commands including the new one.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e8f6a86d2b5b6291ed76be697766b6d39a9d3cbdf44ff0047d341b0909a7f17b",
             "outputTail": "\n> @proof-or-stop/core@0.3.269 test:command-ownership-contract\n> node dist/tasks/command-ownership-contract.js\n\n✓ scope_check_save allowedPhases: PLAN\n✓ scope_contract_acknowledge allowedPhases: DEV, REVIEW\n✓ LATTICE_REVIEWER_READONLY=1 enables read-only reviewer mode\n✓ enforceReviewerReadOnlyCommandGate: allows readOnly, blocks reviewerWrite/storyScopedMutating/unclassified\n✓ with env unset, normal reviewerWrite reaches enforceStoryOwnerLeaseGate unblocked\n✓ ownerLeaseHelpBlock: owner-gated commands have takeover/forceTakeover guidance; readOnly/reviewerWrite/mainSharedMutating return null\n✓ command-ownership contract passed — 358 CLI commands all carry a valid ownershipClass and a dispatchable handler; unclassified commands fail-closed; finding B-META / validate --story / delivery_check_set boundary rules resolve as ruled; read-only reviewer command gate (B-4f15 CHK-002) assertions all pass; owner lease help block (B-a30e CHK-003) discoverable for gated commands, absent for read-only\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:38:14.027Z",
+            "executedAt": "2026-08-28T10:02:27.375Z",
             "timeoutMs": 270000
           },
-          "headHash": "1660cce28754f0927fa5f1846359f13259e87d5f",
-          "materialHash": "0de16f654db5791c55f3cccf060007305797a197cad30e483a60d91ee3753142",
-          "storyFilesHash": "aacd6b5753cad5a24199577af925a3f8d1cb3710d1e6995d78b5d5b82602dec0",
-          "timestamp": "2026-08-28T09:38:14.205Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -369,19 +369,19 @@
           "command": "npm run test:orphan-surface",
           "result": "pass",
           "note": "Proves the handler is reachable from the catalog rather than dead code, so no surface was left half-registered. The implementer chose a normal registered handler over the dashboard standalone route precisely so this assertion keeps covering every catalog command and STANDALONE_COMMANDS stays a set of one.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "56cc8be74c2323bc6c3019c1618c5b2a25bdc241969240088bf1f58641062317",
             "outputTail": "\n> lattice@0.3.269 test:orphan-surface\n> node scripts/verify-orphan-surface.mjs\n\norphan-surface check passed: 123 handler factories registered, 358 catalog commands checked, 7 retired surfaces absent.\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:38:20.785Z",
+            "executedAt": "2026-08-28T10:02:27.723Z",
             "timeoutMs": 270000
           },
-          "headHash": "b2ccf3db7da74ced3e4e31dd0606a297b7351ffa",
-          "materialHash": "0de16f654db5791c55f3cccf060007305797a197cad30e483a60d91ee3753142",
-          "storyFilesHash": "aacd6b5753cad5a24199577af925a3f8d1cb3710d1e6995d78b5d5b82602dec0",
-          "timestamp": "2026-08-28T09:38:20.966Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         }
       ]
     },
@@ -446,19 +446,19 @@
           "command": "npm --prefix packages/graph run verify-serves",
           "result": "pass",
           "note": "Starts the real CLI command on a confirmed-free port and requires the HTML document plus all three API routes to answer with the shapes the page depends on. Verified live: 400500-byte document, 369 stories and 426 edges from /api/graph, 23943 indexed rows from /api/status, 80 search hits. It refuses to run against a busy port rather than curling a foreign server, which would be a false pass.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "c896d32d0b16678301cfcd4ed955cad97aad02a52a455e982459b94ee208f8bc",
-            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-serves\n> node scripts/verify-serves.mjs\n\n/            → HTML document (400500 bytes)\n/api/graph   → 369 stories, 426 edges\n/api/status  → 369 stories, 23943 indexed rows\n/api/search  → 80 hits for \"graph\"\nSERVES_OK\n",
+            "outputDigest": "3f3488c9634293dd355090cee28ed140030f60fea0e6f67129e657a38fc02ec1",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-serves\n> node scripts/verify-serves.mjs\n\n/            → HTML document (400500 bytes)\n/api/graph   → 369 stories, 426 edges\n/api/status  → 369 stories, 23955 indexed rows\n/api/search  → 80 hits for \"graph\"\nSERVES_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:47:38.948Z",
+            "executedAt": "2026-08-28T10:02:32.172Z",
             "timeoutMs": 270000
           },
-          "headHash": "c000f9ae4854bb5bda1c70118d5e9038d529fed5",
-          "materialHash": "0480fa011a5c0e52f4701cb112ecfdac9e2c1dd364573486347940ee8816d343",
-          "storyFilesHash": "c3055960c7b15802df3ede93b0ebfcb7f59df804cc8cd6853f049fb55351f620",
-          "timestamp": "2026-08-28T09:47:39.136Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -466,19 +466,19 @@
           "command": "npm --prefix packages/graph run verify-json-no-listener",
           "result": "pass",
           "note": "Proves --json prints parseable status JSON and exits 0 while leaving no listener on the port, checked free before and after. An earlier attempt to verify this was inconclusive because an unrelated 16-hour-old standalone server held the default port; this check uses a confirmed-free port and refuses a busy one.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "703759c62c775007b3efb51aeffb5554e54309e26b4994967b37c4a047d04194",
             "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-json-no-listener\n> node scripts/verify-json-no-listener.mjs\n\n[0.0s] running graph...\n[0.2s] graph done\n--json → 369 stories, 426 edges, no listener on 8815\nJSON_NO_LISTENER_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:48:04.844Z",
+            "executedAt": "2026-08-28T10:02:33.230Z",
             "timeoutMs": 270000
           },
-          "headHash": "a7b563f189a67ae99b17dc9974f78e7530fac556",
-          "materialHash": "0480fa011a5c0e52f4701cb112ecfdac9e2c1dd364573486347940ee8816d343",
-          "storyFilesHash": "c3055960c7b15802df3ede93b0ebfcb7f59df804cc8cd6853f049fb55351f620",
-          "timestamp": "2026-08-28T09:48:05.023Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -486,19 +486,19 @@
           "command": "npm --prefix packages/graph run verify-missing-assets-fail",
           "result": "pass",
           "note": "Closes pre-mortem scenario 1 from decision.json: with the browser client absent the command exits 1 before opening any listener and names both the missing asset and the build command, rather than serving a blank page that looks like a working install. The check stashes and restores the asset in a finally block.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "1ac36dd6f25805066891f38dcb9cc657e841f29e7c73336e50ddb73022e7c4a6",
             "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-missing-assets-fail\n> node scripts/verify-missing-assets-fail.mjs\n\nrefused with exit 1, named the asset and the build command, started no listener\nMISSING_ASSETS_FAIL_LOUDLY_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:48:40.260Z",
+            "executedAt": "2026-08-28T10:02:34.082Z",
             "timeoutMs": 270000
           },
-          "headHash": "eaf79a25e21e214516864503a64d9aae160776e5",
-          "materialHash": "0480fa011a5c0e52f4701cb112ecfdac9e2c1dd364573486347940ee8816d343",
-          "storyFilesHash": "c3055960c7b15802df3ede93b0ebfcb7f59df804cc8cd6853f049fb55351f620",
-          "timestamp": "2026-08-28T09:48:40.446Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         }
       ],
       "userSeesSnapshot": {
@@ -569,19 +569,19 @@
           "command": "npm --prefix packages/graph run verify-clean-tree",
           "result": "pass",
           "note": "The check resolves the real index database path from the app and asserts it is not inside the inspected repository; the selector proves the resolved path is under the user cache directory.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "bc5845e313aece3ac7e45dc930a4f75c546472c65a21888a72ac396d9ba35e98",
             "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-clean-tree\n> node scripts/verify-clean-tree.mjs\n\nscanned 369 stories, 426 relations\nindex db: /Users/qipan/.cache/proof-or-stop-graph/B-3e16-122d23e30fea/index.db\nCLEAN_TREE_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:30:55.992Z",
+            "executedAt": "2026-08-28T10:02:34.724Z",
             "timeoutMs": 270000
           },
-          "headHash": "e7dc993c3abf37fd7169189ec0d393c2eb5950a1",
-          "materialHash": "8b998f97fee173bc56c34ac0a3226336b78811cf1e84d78af21bb276ba5e50d8",
-          "storyFilesHash": "e5dbd68fb1693028972b8ecefa6974de4ea6fa8debd65b545bdd150f3b645d22",
-          "timestamp": "2026-08-28T09:30:56.168Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -589,19 +589,19 @@
           "command": "npm --prefix packages/graph run verify-clean-tree",
           "result": "pass",
           "note": "The check captures git status --porcelain before and after a real full scan (graph build, FTS index build, story serialisation, search) and fails if the two differ. It measures delta rather than absolute cleanliness, so it stays honest when unrelated CLI metadata writes are already present.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "bc5845e313aece3ac7e45dc930a4f75c546472c65a21888a72ac396d9ba35e98",
             "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-clean-tree\n> node scripts/verify-clean-tree.mjs\n\nscanned 369 stories, 426 relations\nindex db: /Users/qipan/.cache/proof-or-stop-graph/B-3e16-122d23e30fea/index.db\nCLEAN_TREE_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:31:00.057Z",
+            "executedAt": "2026-08-28T10:02:35.374Z",
             "timeoutMs": 270000
           },
-          "headHash": "00a34602948395aac8cba8eff65a5f0640b7aae7",
-          "materialHash": "8b998f97fee173bc56c34ac0a3226336b78811cf1e84d78af21bb276ba5e50d8",
-          "storyFilesHash": "e5dbd68fb1693028972b8ecefa6974de4ea6fa8debd65b545bdd150f3b645d22",
-          "timestamp": "2026-08-28T09:31:00.233Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -609,19 +609,19 @@
           "command": "npm --prefix packages/graph run verify-no-project-writes",
           "result": "pass",
           "note": "Enumerates every filesystem write call in the served runtime source and asserts each targets the out-of-repo index cache rather than the inspected project. This is why the command needs no runtime-artifact-registry entry, unlike the serve discovery file. Verified to have real discriminating power by adding a simulated discovery-file write to io/http.ts, observing UNEXPECTED_PROJECT_WRITE, then restoring.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "6265bb83ad1a807f90df30bb4ebe3d09ff2a907e0988af06f44a2b12bca3ea49",
             "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-no-project-writes\n> node scripts/verify-no-project-writes.mjs\n\nwrite paths in served runtime source: 4\n  core/search/fn.ts:48 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:51 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:138 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:140 — creates the index cache directory, which resolves under the user cache dir\nNO_PROJECT_WRITES_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:31:40.482Z",
+            "executedAt": "2026-08-28T10:02:35.686Z",
             "timeoutMs": 270000
           },
-          "headHash": "ec445616ec685fd57073e802e701a97489cbedcb",
-          "materialHash": "8b998f97fee173bc56c34ac0a3226336b78811cf1e84d78af21bb276ba5e50d8",
-          "storyFilesHash": "e5dbd68fb1693028972b8ecefa6974de4ea6fa8debd65b545bdd150f3b645d22",
-          "timestamp": "2026-08-28T09:31:40.658Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         }
       ],
       "userSeesSnapshot": {
@@ -696,19 +696,19 @@
           "command": "npm --prefix packages/graph run check",
           "result": "pass",
           "note": "The full ported check suite runs build, typecheck, anchor-check, the two clean-tree guards, audit and bench. Verified against this repository: audit PASS over 369 stories and 426 edges, and bench PASS with all seven latency budgets met.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "72f2294ee92fb272a45afe7e837c603e1e2a28c06ed6e0f0d355c9b067838978",
-            "outputTail": "\n> @proof-or-stop/graph@0.1.0 check\n> npm run build && npm run typecheck && npm run anchor-check && npm run verify-assets-ignored && npm run verify-clean-tree && npm run verify-no-project-writes && node dist/tasks/audit.js && node dist/tasks/bench.js\n\n\n> @proof-or-stop/graph@0.1.0 build\n> tsc && node scripts/build-web.mjs\n\nassets: app.html (391KB)\nassets: d3.min.js\nassets: mermaid.min.js\nassets: gsap.min.js\nassets: mediabunny.min.mjs\nassets: gifenc.esm.js\nassets: gif-palette.js\nassets: gif-encoder.worker.js\n\n> @proof-or-stop/graph@0.1.0 typecheck\n> tsc --noEmit && node scripts/ok.mjs GRAPH_TSC_CLEAN\n\nGRAPH_TSC_CLEAN\n\n> @proof-or-stop/graph@0.1.0 anchor-check\n> node src/tasks/anchor-check.mjs\n\nanchor-check PASS · finding-id anchors normalise across both spellings\n\n> @proof-or-stop/graph@0.1.0 verify-assets-ignored\n> node scripts/verify-assets-ignored.mjs\n\nASSETS_IGNORED_OK\n\n> @proof-or-stop/graph@0.1.0 verify-clean-tree\n> node scripts/verify-clean-tree.mjs\n\nscanned 369 stories, 426 relations\nindex db: /Users/qipan/.cache/proof-or-stop-graph/B-3e16-122d23e30fea/index.db\nCLEAN_TREE_OK\n\n> @proof-or-stop/graph@0.1.0 verify-no-project-writes\n> node scripts/verify-no-project-writes.mjs\n\nwrite paths in served runtime source: 4\n  core/search/fn.ts:48 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:51 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:138 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:140 — creates the index cache directory, which resolves under the user cache dir\nNO_PROJECT_WRITES_OK\naudit PASS · 369 stories · 426 edges · heaviest detail 7.3MB (B-45a0)\nbench · 369 stories · 426 edges\n\n  ok   getGraph (warm)                p50=0.0ms p95=0.0ms (budget 5ms)\n  ok   getGraphBuffer (warm)          p50=0.0ms p95=0.0ms (budget 5ms)\n  ok   getStatus                      p50=0.0ms p95=0.0ms (budget 5ms)\n  ok   search (warm cache)            p50=0.0ms p95=0.0ms (budget 5ms)\n  ok   story buffer (warm)            p50=0.0ms p95=0.0ms (budget 10ms)\n  ok   story buffer (cold sweep)      p50=1.8ms p95=6.6ms (budget 40ms)\n  ok   search (cold, distinct)        p50=19.8ms p95=29.0ms (budget 120ms)\n\nbench PASS\n",
+            "outputDigest": "98104b6895aba1f4acc2bf45ffdb979b951cbadbcfe920c919aa728020380c59",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 check\n> npm run build && npm run typecheck && npm run anchor-check && npm run verify-assets-ignored && npm run verify-clean-tree && npm run verify-no-project-writes && npm run verify-docs && npm run verify-json-no-listener && npm run verify-missing-assets-fail && npm run verify-engines-floor && npm run verify-serves && node dist/tasks/audit.js && node dist/tasks/bench.js\n\n\n> @proof-or-stop/graph@0.1.0 build\n> tsc && node scripts/build-web.mjs\n\nassets: app.html (391KB)\nassets: d3.min.js\nassets: mermaid.min.js\nassets: gsap.min.js\nassets: mediabunny.min.mjs\nassets: gifenc.esm.js\nassets: gif-palette.js\nassets: gif-encoder.worker.js\n\n> @proof-or-stop/graph@0.1.0 typecheck\n> tsc --noEmit && node scripts/ok.mjs GRAPH_TSC_CLEAN\n\nGRAPH_TSC_CLEAN\n\n> @proof-or-stop/graph@0.1.0 anchor-check\n> node src/tasks/anchor-check.mjs\n\nanchor-check PASS · finding-id anchors normalise across both spellings\n\n> @proof-or-stop/graph@0.1.0 verify-assets-ignored\n> node scripts/verify-assets-ignored.mjs\n\nASSETS_IGNORED_OK\n\n> @proof-or-stop/graph@0.1.0 verify-clean-tree\n> node scripts/verify-clean-tree.mjs\n\nscanned 369 stories, 426 relations\nindex db: /Users/qipan/.cache/proof-or-stop-graph/B-3e16-122d23e30fea/index.db\nCLEAN_TREE_OK\n\n> @proof-or-stop/graph@0.1.0 verify-no-project-writes\n> node scripts/verify-no-project-writes.mjs\n\nwrite paths in served runtime source: 4\n  core/search/fn.ts:48 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:51 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:138 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:140 — creates the index cache directory, which resolves under the user cache dir\nNO_PROJECT_WRITES_OK\n\n> @proof-or-stop/graph@0.1.0 verify-docs\n> node scripts/verify-docs.mjs\n\nCLAUDE.md graph section: 40 lines, all four flags present\ndecisions doc: all four migration decisions recorded\ndecisions doc: test-surface placement recorded (validate.commands and SRC_SCAN_ROOTS traps named)\nDOCS_OK\n\n> @proof-or-stop/graph@0.1.0 verify-json-no-listener\n> node scripts/verify-json-no-listener.mjs\n\n[0.0s] running graph...\n[0.2s] graph done\n--json → 369 stories, 426 edges, no listener on 8815\nJSON_NO_LISTENER_OK\n\n> @proof-or-stop/graph@0.1.0 verify-missing-assets-fail\n> node scripts/verify-missing-assets-fail.mjs\n\nrefused with exit 1, named the asset and the build command, started no listener\nMISSING_ASSETS_FAIL_LOUDLY_OK\n\n> @proof-or-stop/graph@0.1.0 verify-engines-floor\n> node scripts/verify-engines-floor.mjs\n\nnegative control: unguarded import on v20.19.6 throws ERR_UNKNOWN_BUILTIN_MODULE\nguard on real v20.19.6 produced a readable diagnostic:\n    graph: this Node runtime cannot load node:sqlite, which the graph\n      full-text index is built on.\n      running Node: v20.19.6\n      @proof-or-stop/graph requires Node >=22.5.0\n      → upgrade Node, then re-run: proof-or-stop graph\nengines.node=>=22.5.0 declared once, sourced from the manifest; supported runtimes pass\nENGINES_FLOOR_OK\n\n> @proof-or-stop/graph@0.1.0 verify-serves\n> node scripts/verify-serves.mjs\n\n/            → HTML document (400500 bytes)\n/api/graph   → 369 stories, 426 edges\n/api/status  → 369 stories, 23955 indexed rows\n/api/search  → 80 hits for \"graph\"\nSERVES_OK\naudit PASS · 369 stories · 426 edges · heaviest detail 7.3MB (B-45a0)\nbench · 369 stories · 426 edges\n\n  ok   getGraph (warm)                p50=0.0ms p95=0.0ms (budget 5ms)\n  ok   getGraphBuffer (warm)          p50=0.0ms p95=0.0ms (budget 5ms)\n  ok   getStatus                      p50=0.0ms p95=0.0ms (budget 5ms)\n  ok   search (warm cache)            p50=0.0ms p95=0.0ms (budget 5ms)\n  ok   story buffer (warm)            p50=0.0ms p95=0.0ms (budget 10ms)\n  ok   story buffer (cold sweep)      p50=1.7ms p95=6.4ms (budget 40ms)\n  ok   search (cold, distinct)        p50=19.0ms p95=28.3ms (budget 120ms)\n\nbench PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:34:58.482Z",
+            "executedAt": "2026-08-28T10:02:44.630Z",
             "timeoutMs": 290000
           },
-          "headHash": "875f7c9b341b53eab4a1143470d5b1e71b66db19",
-          "materialHash": "a3e4ae1aa02e9bd65efe24735bb8ad1bbd35764aa084ac54b6e51689ed4b0e79",
-          "storyFilesHash": "c93f137ed9c484c15c31019ea094a376bdf15edac11c718238617018a343eaa8",
-          "timestamp": "2026-08-28T09:34:58.674Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -716,19 +716,19 @@
           "command": "npm --prefix packages/graph run verify-docs",
           "result": "pass",
           "note": "Asserts the CLAUDE.md graph SECTION (not the whole file) contains all four flags and the default port, and that the decisions doc records all four migration decisions. Section-scoped deliberately: a whole-file search passed even with a flag deleted, because the token recurred elsewhere in a 1400-line document.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "92e4b287c80fb31df11fba55e15ded9e903bdf986b0c9d6b879bf6cd79946be3",
-            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-docs\n> node scripts/verify-docs.mjs\n\nCLAUDE.md graph section: 40 lines, all four flags present\ndecisions doc: all four migration decisions recorded\nDOCS_OK\n",
+            "outputDigest": "fa055a30aeec371492a88f3ac583dbd4a74f210c831c2dc17bf6dc8dc91a841f",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-docs\n> node scripts/verify-docs.mjs\n\nCLAUDE.md graph section: 40 lines, all four flags present\ndecisions doc: all four migration decisions recorded\ndecisions doc: test-surface placement recorded (validate.commands and SRC_SCAN_ROOTS traps named)\nDOCS_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:36:08.467Z",
+            "executedAt": "2026-08-28T10:02:44.928Z",
             "timeoutMs": 270000
           },
-          "headHash": "edd01e4ae072fb72bad5cbdb37c04612193c9ed9",
-          "materialHash": "a3e4ae1aa02e9bd65efe24735bb8ad1bbd35764aa084ac54b6e51689ed4b0e79",
-          "storyFilesHash": "c93f137ed9c484c15c31019ea094a376bdf15edac11c718238617018a343eaa8",
-          "timestamp": "2026-08-28T09:36:08.656Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -736,19 +736,19 @@
           "command": "npm --prefix packages/graph run verify-docs",
           "result": "pass",
           "note": "The decisions doc explicitly records the test-surface placement decision, including the trap that validate.commands runs the packages/main build rather than the root build (so adding graph to the root chain alone would leave it silently uncovered) and that verify-lattice-residue SRC_SCAN_ROOTS is an explicit list rather than a glob. Both traps were found by inspection during this story, not assumed.",
+          "headHash": "b30679d63f028d545d1a103e6667d02ca340b678",
+          "materialHash": "1ca6a9447d1f3631d508629f944d8b4d0c993835cd33f493078b3f9e826596af",
+          "storyFilesHash": "f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "fa055a30aeec371492a88f3ac583dbd4a74f210c831c2dc17bf6dc8dc91a841f",
             "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-docs\n> node scripts/verify-docs.mjs\n\nCLAUDE.md graph section: 40 lines, all four flags present\ndecisions doc: all four migration decisions recorded\ndecisions doc: test-surface placement recorded (validate.commands and SRC_SCAN_ROOTS traps named)\nDOCS_OK\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-28T09:36:24.031Z",
+            "executedAt": "2026-08-28T10:02:45.207Z",
             "timeoutMs": 270000
           },
-          "headHash": "54dc36d00140e39856ecace3d007df1aefc2a1e4",
-          "materialHash": "a3e4ae1aa02e9bd65efe24735bb8ad1bbd35764aa084ac54b6e51689ed4b0e79",
-          "storyFilesHash": "c93f137ed9c484c15c31019ea094a376bdf15edac11c718238617018a343eaa8",
-          "timestamp": "2026-08-28T09:36:24.205Z"
+          "timestamp": "2026-08-28T10:02:45.239Z"
         }
       ],
       "userSeesSnapshot": {
