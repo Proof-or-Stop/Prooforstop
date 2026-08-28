@@ -20,7 +20,7 @@
     "audit": "node src/tasks/anchor-check.mjs && node dist/tasks/audit.js",
     "bench": "node dist/tasks/bench.js",
     "anchor-check": "node src/tasks/anchor-check.mjs",
-    "check": "npm run build && npm run typecheck && npm run anchor-check && npm run verify-assets-ignored && npm run verify-clean-tree && npm run verify-no-project-writes && npm run verify-docs && npm run verify-json-no-listener && npm run verify-missing-assets-fail && npm run verify-serves && node dist/tasks/audit.js && node dist/tasks/bench.js",
+    "check": "npm run build && npm run typecheck && npm run anchor-check && npm run verify-assets-ignored && npm run verify-clean-tree && npm run verify-no-project-writes && npm run verify-docs && npm run verify-json-no-listener && npm run verify-missing-assets-fail && npm run verify-engines-floor && npm run verify-serves && node dist/tasks/audit.js && node dist/tasks/bench.js",
     "typecheck": "tsc --noEmit && node scripts/ok.mjs GRAPH_TSC_CLEAN",
     "verify-assets-ignored": "node scripts/verify-assets-ignored.mjs",
     "verify-clean-tree": "node scripts/verify-clean-tree.mjs",
@@ -28,7 +28,8 @@
     "verify-docs": "node scripts/verify-docs.mjs",
     "verify-serves": "node scripts/verify-serves.mjs",
     "verify-json-no-listener": "node scripts/verify-json-no-listener.mjs",
-    "verify-missing-assets-fail": "node scripts/verify-missing-assets-fail.mjs"
+    "verify-missing-assets-fail": "node scripts/verify-missing-assets-fail.mjs",
+    "verify-engines-floor": "node scripts/verify-engines-floor.mjs"
   },
   "dependencies": {
     "d3": "^7.9.0",
