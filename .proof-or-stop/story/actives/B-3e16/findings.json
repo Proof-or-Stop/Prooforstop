@@ -5,7 +5,7 @@
       "desc": "doc-promise-undelivered: packages/graph/README.md (lines 1-8, 51, 122-133) still documents the DELETED standalone-binary concept as current: it tells a reader to invoke `proof-or-stop-graph` directly (package.json has no `bin` field anymore, and packages/main/src/handlers/graph.ts never calls packages/graph/src/shells/cli/main.ts -- it imports dist/index.js as a library), the Architecture section still labels shells/cli/main.ts as \"the proof-or-stop-graph command\", the \"Migration into Proof-or-Stop\" section speaks of the migration in the future tense with the wrong tentative command name `proof_graph` (the chosen name is bare `graph`) even though the migration is this story, and the Development section instructs `npm start` to \"run the CLI from dist/\" even though no `start` script exists in packages/graph/package.json. CHK-006 explicitly promised \"grep for stale wording afterwards\"; scripts/verify-docs.mjs only checks CLAUDE.md and the decisions doc, never packages/graph/README.md, so this stale content shipped uncaught. The file is shipped in the published package (package.json files: [\"dist\",\"assets\",\"README.md\"]) and is the first thing a developer opens under packages/graph.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-28T10:04:14.526Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-3e16:RR-001",
       "_hash": "64b6476fa77b3a3ae1709ca59a5958134b5f2aab2698f6881671d49188a61dee",
       "signatureTag": "missing|unknown|promise-undelivered-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Rewrote packages/graph/README.md in commit 235a98f8a8. The usage block now shows proof-or-stop graph and states the package has no binary of its own; the architecture table no longer labels the shell as the command; the migration section is rewritten as How the CLI reaches this package, describing the completed runtime-resolution design and pointing at docs/requirements/decisions/graph-command-migration.md; the removed npm start reference is replaced with npm run check plus the Node >= 22.5 floor. Verified: grep for proof-or-stop-graph, npm start and proof_graph in that README now returns only the cache directory name, which the reviewer separately confirmed is a legitimate internal cache key rather than binary branding.",
+      "resolvedAt": "2026-08-28T10:08:26.014Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3e16:F-002",
