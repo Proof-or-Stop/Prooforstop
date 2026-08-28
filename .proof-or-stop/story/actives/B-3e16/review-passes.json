@@ -34,6 +34,32 @@
         "scanEscalationReason": null
       },
       "_hash": "744659549079b4bd95021d77423a7c0ad6af888e9447cf151a1cfe1ff5db9d5c"
+    },
+    {
+      "id": "B-3e16:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "README architecture tree, package.json, CLAUDE.md graph section, and verify-docs.mjs cross-checked against disk/code for commit 2a2d2de82a (F-004 fix). All 16 tree-listed paths under packages/graph/src exist; no stale src/shells/cli/main.ts reference remains. Reproduced all 4 negative controls claimed in the commit message (stale-path reinject, emptied tree, standalone-binary reintro, npm start reintro) by temporarily mutating and byte-identically restoring README.md; each correctly fails verify-docs.mjs. No blocking drift found.",
+      "createdAt": "2026-08-28T10:18:26.975Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-009",
+      "envelopeId": "13f52079f8839093aa8bd2cc9101198427c1427162d05f0b9454d5d97343bef7",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c10b4572f02f6473c5deab5aa27ba940a65a9868d69622f473f4df6faa52592a"
     }
   ]
 }
