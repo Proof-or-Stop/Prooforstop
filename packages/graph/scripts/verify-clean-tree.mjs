@@ -53,6 +53,20 @@ if (before !== after) {
 
 fs.rmSync(path.dirname(probeCache), { recursive: true, force: true });
 
+const realDefault = createApp({ root: repo });
+const defaultDbPath = path.resolve(realDefault.dbPath);
+/* Assert the DEFAULT path, not just the probe's. The startsWith check above guards
+   app.dbPath, which is the pid-scoped tmpdir probe and therefore tautologically outside the
+   repo — a branch that can never fire. The review host showed the script still exited 0
+   under a real violation, leaving enforcement resting entirely on the immutable evidence
+   pin and invisible to anyone running this standalone. This makes the script fail on its
+   own for the property it claims to check. */
+if (defaultDbPath === repo || defaultDbPath.startsWith(repo + path.sep)) {
+  failures.push(`default index db is INSIDE the inspected repo: ${defaultDbPath}`);
+}
+console.log(`index db: ${defaultDbPath}`);
+realDefault.close();
+
 if (failures.length) {
   console.error('CLEAN_TREE_VIOLATED');
   for (const f of failures) console.error(`  ${f}`);
@@ -68,7 +82,5 @@ console.log(`index db resolved OUTSIDE the inspected repo: ${dbPath}`);
    CHK-005 matches this line, and the pin is immutable by design — an author who could
    rewrite a pin to fit changed output would defeat the mechanism. The probe above uses a
    pid-scoped temp cache to force a cold build, so this reports what a real run resolves. */
-const realDefault = createApp({ root: repo });
-console.log(`index db: ${path.resolve(realDefault.dbPath)}`);
-realDefault.close();
+
 console.log('CLEAN_TREE_OK');
