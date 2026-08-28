@@ -23,7 +23,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/graph run build assembles assets/app.html and copies the d3 bundle, and dist/index.js exists afterwards",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "npx tsc --noEmit -p packages/graph exits 0, so the new tsconfig does not break the recursive tsc gate that validate --lint and pre-push run over every tsconfig in the repo",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git check-ignore confirms packages/graph/assets is ignored, so the regenerable vendor bundles cannot be committed",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
