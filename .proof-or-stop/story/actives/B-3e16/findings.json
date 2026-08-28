@@ -464,7 +464,7 @@
       "desc": "concept-completeness: cli-surface-smoke (packages/main/src/tasks/cli-surface-smoke.ts, npm script test:cli-surface-smoke) and verify-orphan-surface (scripts/verify-orphan-surface.mjs, npm script test:orphan-surface) are the two checks CHK-003 names as acceptance evidence for the eight-surface command registration (checklist.json CHK-003 userSees: the command-ownership-contract, command-catalog-smoke, cli-surface-smoke and orphan-surface checks all pass), but neither is wired into proof-or-stop.config.json validate.commands (grep: zero matches) nor into root package.json test:serial-reference (grep: zero matches). They exist only as standalone npm scripts a human or CI step must remember to invoke by name; nothing currently fails if graph (or a future command) silently regresses either check. Pre-existing gap (matches wave-1 docs-lane F-012), but B-3e16 is exactly the kind of change these two guards exist to catch (eight command-surface touchpoints), so leaving them unwired while citing their pass as CHK-003 acceptance evidence is a concept-completeness defect on the current tree: a guard that exists but nothing calls is close to dead code. Recommendation: wire both into validate.commands or test:serial-reference in this story or a narrowly-scoped fast-follow.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-28T13:50:08.333Z",
@@ -497,7 +497,11 @@
       "readDiagnostics": [],
       "_hash": "f6adf3d4da0634389822dd65244a0313f55de060a5fb162fad151121e595f743",
       "signatureTag": "missing|unknown|concept-completeness-surface",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 1bea73b55a. I confirmed the finding and it was slightly worse than reported: three of the four checks CHK-003 userSees promises as acceptance evidence were unwired, not two. cli-surface-smoke had no npm script at all, verify-orphan-surface had one that nothing called, and command-ownership-contract ran only transitively embedded inside red-evidence-target-binding-smoke.ts. All three now run in validate.commands, each verified passing standalone first. The sharpest part of this finding was framing it as a promise gap in the checklist item own userSees rather than a wiring nit.",
+      "resolvedAt": "2026-08-28T16:05:42.206Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3e16:F-015",
