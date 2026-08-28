@@ -339,7 +339,11 @@
           {
             "desc": "proof-or-stop graph --json prints status JSON and exits 0 without starting a listener",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run verify-json-no-listener",
+              "selector": "JSON_NO_LISTENER_OK"
+            }
           }
         ],
         "adversarial": [
@@ -370,6 +374,26 @@
           "materialHash": "0480fa011a5c0e52f4701cb112ecfdac9e2c1dd364573486347940ee8816d343",
           "storyFilesHash": "c3055960c7b15802df3ede93b0ebfcb7f59df804cc8cd6853f049fb55351f620",
           "timestamp": "2026-08-28T09:47:39.136Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/graph run verify-json-no-listener",
+          "result": "pass",
+          "note": "Proves --json prints parseable status JSON and exits 0 while leaving no listener on the port, checked free before and after. An earlier attempt to verify this was inconclusive because an unrelated 16-hour-old standalone server held the default port; this check uses a confirmed-free port and refuses a busy one.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "703759c62c775007b3efb51aeffb5554e54309e26b4994967b37c4a047d04194",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-json-no-listener\n> node scripts/verify-json-no-listener.mjs\n\n[0.0s] running graph...\n[0.2s] graph done\n--json → 369 stories, 426 edges, no listener on 8815\nJSON_NO_LISTENER_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:48:04.844Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "a7b563f189a67ae99b17dc9974f78e7530fac556",
+          "materialHash": "0480fa011a5c0e52f4701cb112ecfdac9e2c1dd364573486347940ee8816d343",
+          "storyFilesHash": "c3055960c7b15802df3ede93b0ebfcb7f59df804cc8cd6853f049fb55351f620",
+          "timestamp": "2026-08-28T09:48:05.023Z"
         }
       ]
     },
