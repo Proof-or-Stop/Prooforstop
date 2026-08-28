@@ -74,6 +74,15 @@ requireAll('decisions doc', decision, [
   'validate.commands',            // the trap worth naming
   'SRC_SCAN_ROOTS',
   'Recursive tsc gate',           // the INIT reviewer's INIT-001 advisory
+  // Decision 5 (F-015): the BINDING reason the dynamic import is permanent. The
+  // README and handler header give only the removable "no workspaces" reason, so a
+  // future reader could convert to a static import and break the CLI on Node < 22.5.
+  // These assertions keep the real reason -- and its evidence -- in the doc.
+  'the runtime dynamic import is permanent',
+  'ERR_UNKNOWN_BUILTIN_MODULE',
+  'always-evaluated module graph',
+  // F-011: the count must stay a derivation, never a hand-typed digit.
+  'ALL_PHASES.length + 2',
 ]);
 
 /* The package README: check it does not resurrect the deleted standalone binary,

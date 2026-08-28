@@ -124,6 +124,42 @@ The same applies to `scripts/verify-lattice-residue.mjs`, whose `SRC_SCAN_ROOTS`
 explicit list of package source roots rather than a glob, so a new package is unscanned
 until it is named there.
 
+## Decision 5: the runtime dynamic import is permanent, and why
+
+`packages/main/src/handlers/graph.ts` reaches this package through a runtime
+`await import(...)` rather than a static `import`. The README and the handler's own header
+give one reason — this repository declares no npm workspaces and `packages/graph` is not a
+dependency of `packages/main`. **That reason is removable, and it is not the binding one.**
+Someone could add the dependency, convert to a static import, and believe they had tidied
+things up.
+
+The binding reason is the Node floor from Decision 3. `packages/graph/src/core/app.ts`
+statically imports `./search/fn.js`, which top-level imports `node:sqlite`, and the handler
+cannot avoid `createApp`. ESM static imports are hoisted and evaluated eagerly, so a static
+import would pull `node:sqlite` into `packages/main`'s always-evaluated module graph — and
+that graph is evaluated for **every** CLI command, not just `graph`.
+
+Verified on a real Node v20.19.6, not reasoned about:
+
+| probe | result |
+|---|---|
+| `import('packages/graph/dist/index.js')` | `ERR_UNKNOWN_BUILTIN_MODULE` |
+| `import('packages/graph/dist/core/app.js')` | `ERR_UNKNOWN_BUILTIN_MODULE` |
+| `proof-or-stop --version` (today, dynamic import) | works |
+| a real read-only command (today) | works |
+
+So the CLI is usable on Node 20 today *because* the import is dynamic. Converting it would
+turn a feature that degrades gracefully on old runtimes into a CLI that cannot start at all.
+Reorganising `packages/graph/src/index.ts` would not help either: the chain runs through
+`core/app.ts`, which any consumer of `createApp` must load.
+
+The cost of keeping it is that the loader trips
+`retired-authority-vocabulary-guard-smoke`'s ban on non-literal dynamic module loads, so
+`handlers/graph.ts` carries an approval entry in that guard. The approval records that the
+resolved path is `--root`-influenceable and that this matches the trust model already
+accepted there for `verifier/serve.ts`'s `startCircuitServe`. See the comment on the entry
+itself for the full reasoning.
+
 ## The registration surface set is discovered by gate, not fixed
 
 Registering a new top-level command touches a set of fail-closed surfaces. Scoping for
@@ -134,10 +170,19 @@ Treat that number as a lower bound, not a checklist. The authoritative answer is
 contract tasks say: `command-ownership-contract`, `command-catalog-smoke`,
 `cli-surface-smoke`, `verify-orphan-surface`, `lifecycle-registry-contract` and
 `test:process-fact-contract` each assert a different registration invariant, and several
-derive their expectations rather than listing them (`COMMAND_PROCESS_FACTS` is computed
-from `PROCESS_FACT_LEVELS` and `COMMAND_POLICIES`, so one missing entry there produced
-eight separate complaints across seven phases). Run them all and fix what they report;
-do not assume a fixed count is complete.
+derive their expectations rather than listing them: `COMMAND_PROCESS_FACTS` is computed
+from `PROCESS_FACT_LEVELS` and `COMMAND_POLICIES`, so a single missing entry there fails
+three distinct assertion sites in `scripts/verify-process-fact-contract.mjs` — one
+missing-from-`PROCESS_FACT_LEVELS`, one missing-from-`PROCESS_FACT_REGISTRY`, and one
+phase-allowlist-drift complaint per phase in `ALL_PHASES`. Recompute the total from
+`ALL_PHASES.length + 2` rather than trusting a figure typed here; an earlier draft of this
+paragraph stated a hand-counted number and it was wrong. Run them all and fix what they
+report; do not assume a fixed count is complete.
+
+Note the six tasks run through **two separately-maintained mechanisms**, the same split the
+"Test-surface placement" section above describes: most are entries in `validate.commands`,
+while `test:process-fact-contract` is reached only through the root `test:serial-reference`
+list. Neither list is derived from the other, so a task can be in one, both, or neither.
 
 ## Terminology
 
