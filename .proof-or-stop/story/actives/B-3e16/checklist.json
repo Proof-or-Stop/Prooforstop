@@ -115,7 +115,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "proof-or-stop help lists graph and proof-or-stop graph --help prints the root, port, open and json flags",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "command-ownership-contract passes, proving the COMMAND_POLICIES row carries a valid ownershipClass and the handler is registered",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "orphan-surface passes, proving the handler is reachable from the catalog rather than dead code, and no surface was left half-registered",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
