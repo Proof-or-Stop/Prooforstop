@@ -496,6 +496,40 @@
       },
       "readDiagnostics": [],
       "_hash": "fba854e969a2af35cf5d5d3bf08268b470c7da197ca50563e6577d48dfcadadb"
+    },
+    {
+      "id": "B-3e16:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "Targeted post-remediation verification per lane brief (not a full symbol re-scan, since prior 18 findings are resolved and this round is scoped to F-015/F-011/F-012 follow-through). (1) Decision 5 in docs/requirements/decisions/graph-command-migration.md verified against code: packages/main/src/handlers/graph.ts:292 uses await import(...) not static import; its header (lines 20-26) states the no-npm-workspaces reason exactly as Decision 5 characterizes it as removable-but-not-binding; packages/graph/src/core/app.ts:15 statically imports ./search/fn.js which at fn.ts:10 top-level imports DatabaseSync from node:sqlite; index.ts re-exports createApp from app.js confirming the handler cannot avoid the chain. Probe table: ran all four probes for real on Node v20.19.6 via nvm (import(dist/index.js) and import(dist/core/app.js) both threw ERR_UNKNOWN_BUILTIN_MODULE; proof-or-stop --version and status both worked) -- all four rows match the doc exactly. startCircuitServe/verifier/serve.ts precedent citation verified real in retired-authority-vocabulary-guard-smoke.ts. (2) No hand-typed measured value in the Decision 5 probe table: all four cells are either literal commands, an error-code string, or qualitative works/fails -- no digit/count that could drift like F-011's stale number. (3) Checked whether the seven-to-nine guard exemption-count coupling from commit 2aeb29a508 (DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size === 9, and its verbatim-pinned twin in scripts/verify-process-fact-contract.mjs:2032) is described anywhere in docs: grepped graph-command-migration.md and CLAUDE.md for nine/seven/the two exemption map symbol names -- zero hits. The doc genuinely does not describe that count (a separate, unrelated eight-to-nine registration-surface count exists in the docs registration-surface section but is clearly disambiguated by subject and not conflated), so there is no third stale-number-in-docs hazard to fix; nothing to derive because nothing is asserted there. Also independently verified the ALL_PHASES.length + 2 = 9 derivation is structurally accurate against scripts/verify-process-fact-contract.mjs (assertProcessFactCommandInventory: missingCliEntries check + findUninventoriedProcessFactCommands check = the fixed +2, plus assertCommandPolicyPhaseAlignment looping ALL_PHASES = the per-phase term), and reran packages/graph/scripts/verify-docs.mjs both at baseline (DOCS_OK) and via negative control in an isolated /tmp copy for both the Decision-5-rationale string and the ALL_PHASES.length + 2 string (each independently made the check fail with DOCS_INCOMPLETE, then restored to DOCS_OK). Also spot-checked F-012: cli-surface-smoke, command-ownership-contract, and verify-orphan-surface are all present in proof-or-stop.config.json validate.commands. Worktree left clean (only review-run bookkeeping files touched).",
+      "createdAt": "2026-08-28T16:12:22.781Z",
+      "reviewRound": "2026-08-28T16:04:35.811Z",
+      "reviewRunId": "B-3e16:RR-041",
+      "envelopeId": "9621a88b7f24e656a84fb13b7dc100e7b5b6de1b642dd854a8d6ef6797c8241f",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/src/core/app.ts",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/index.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/background.md",
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          ".proof-or-stop/story/actives/B-3e16/plan.md",
+          "CLAUDE.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b55b3fa850bb2cbba5a73c8079162a4795471e5ebeec0bd4253712740f4fd4d0"
     }
   ]
 }
