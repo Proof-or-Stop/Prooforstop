@@ -569,12 +569,12 @@
           "command": "npm --prefix packages/graph run verify-clean-tree",
           "result": "pass",
           "note": "The check resolves the real index database path from the app and asserts it is not inside the inspected repository; the selector proves the resolved path is under the user cache directory.",
-          "headHash": "5f53a97f4e58350657b118b94711bcb2c6d4b0b7",
+          "headHash": "cdac9f67b0f896cb54f68a7abf5ba8b05fa4f7fd",
           "materialHash": "469c3b94c6f775275157f28fc3d9fdcfc2f64c2b41d837b8fd23afc4aa26f70c",
           "storyFilesHash": "25b3440f5da1dc18b62496f04a96621e4d7f004d5a9f384e820fa7335121d6e1",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-28T21:45:34.136Z"
+          "timestamp": "2026-08-28T22:03:20.759Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
