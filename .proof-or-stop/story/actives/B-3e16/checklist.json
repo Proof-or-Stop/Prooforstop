@@ -31,7 +31,11 @@
           {
             "desc": "npm --prefix packages/graph run build assembles assets/app.html and copies the d3 bundle, and dist/index.js exists afterwards",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run build",
+              "selector": "assets: app.html"
+            }
           }
         ],
         "edge": [
@@ -48,7 +52,29 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/graph run build",
+          "result": "pass",
+          "note": "The graph package build runs tsc then assembles the browser shell; the selector proves assets/app.html was assembled from the src/shells/web parts.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0aa468876323b4549a8a4dd24587284b56bc227d2f63cdb21662fa77969c5418",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 build\n> tsc && node scripts/build-web.mjs\n\nassets: app.html (391KB)\nassets: d3.min.js\nassets: mermaid.min.js\nassets: gsap.min.js\nassets: mediabunny.min.mjs\nassets: gifenc.esm.js\nassets: gif-palette.js\nassets: gif-encoder.worker.js\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:26:02.548Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "4a74e5e35b39c6670b3b6b5232e205914c91ff5c",
+          "materialHash": "bc4c64a4ec59ab745062b78430e4075b5ad5612d7df89ebed0013033959d71fe",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-08-28T09:26:02.722Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
