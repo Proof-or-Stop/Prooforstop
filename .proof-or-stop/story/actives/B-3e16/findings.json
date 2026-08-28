@@ -409,7 +409,7 @@
       "desc": "forward-risk (advisory, not a defect in the current merged state): the planned follow-up fix for retired-authority-vocabulary-guard-smoke -- making packages/graph a file:../graph dependency of packages/main and converting the runtime import() in resolveGraphPackage() to a static import -- will make several currently-accurate doc passages describing runtime resolution stale. Enumerated every passage that asserts this design, verified each is currently accurate against packages/main/src/handlers/graph.ts:19-26 (the MODULE RESOLUTION header comment, which itself explains why: no npm workspaces, packages/graph not a dependency of packages/main, tsc cannot resolve it statically, rootDir:src forbids compiling files from outside the package): (1) packages/graph/README.md lines 124-133, section \"## How the CLI reaches this package\" -- states resolveGraphPackage() resolves this package at RUNTIME rather than importing it statically because packages/graph is not a dependency of packages/main; becomes false once it is a file: dependency and the import is static. (2) docs/requirements/decisions/graph-command-migration.md Decision 1 (lines 24-48), specifically lines 17-19 (createApp/startServer are the seams... so the migration is a copy plus a thin handler) and line 48 (packages/main holds only a handler that calls the exported library surface) -- these describe the handler calling into the package generically and do not name the runtime-import mechanism explicitly, so they likely survive, but the doc has no section discussing the switch from hand-written GraphLibrary interface types to real imported types, which the follow-up explicitly intends as a benefit; that gain will be undocumented unless added. (3) CLAUDE.md lines 348-349, section Story graph, states packages/main only has a thin handler that calls its library surface (createApp/startServer) -- this sentence survives the fix (still true), but the packages/main/src/handlers/graph.ts MODULE RESOLUTION header comment (lines 19-26) explaining the runtime-import rationale will be flatly false and must be rewritten alongside the code change, not left as a stale rationale for a mechanism that no longer exists. Recommend the implementer of the follow-up fix update packages/graph/README.md How the CLI reaches this package section and the graph.ts header comment in the same commit as the import() to static-import conversion, per this storys own established discipline of updating docs+code+tests together (this story already resolved F-001/F-003/F-004 for exactly this drift class).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-28T11:02:46.973Z",
@@ -445,7 +445,11 @@
         "packages/main/src/handlers/graph.ts"
       ],
       "signatureTag": "missing|md|forward-risk-advisory",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Premise removed rather than fixed. The finding enumerated doc passages that would go stale once the static-import follow-up landed; that follow-up is abandoned, so the runtime-resolution passages in packages/graph/README.md and the handlers/graph.ts header remain TRUE and were deliberately left unedited. Both the docs lane (wave 2) and the topology critic independently reached the same conclusion. Decision 5 was added alongside them to state the stronger Node-floor reason those passages omit.",
+      "resolvedAt": "2026-08-28T16:05:14.143Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3e16:F-014",
