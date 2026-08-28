@@ -350,7 +350,11 @@
           {
             "desc": "When the asset directory is absent the command fails with an explicit message naming the missing directory and the build command, rather than serving a blank page",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run verify-missing-assets-fail",
+              "selector": "MISSING_ASSETS_FAIL_LOUDLY_OK"
+            }
           }
         ]
       },
@@ -394,6 +398,26 @@
           "materialHash": "0480fa011a5c0e52f4701cb112ecfdac9e2c1dd364573486347940ee8816d343",
           "storyFilesHash": "c3055960c7b15802df3ede93b0ebfcb7f59df804cc8cd6853f049fb55351f620",
           "timestamp": "2026-08-28T09:48:05.023Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/graph run verify-missing-assets-fail",
+          "result": "pass",
+          "note": "Closes pre-mortem scenario 1 from decision.json: with the browser client absent the command exits 1 before opening any listener and names both the missing asset and the build command, rather than serving a blank page that looks like a working install. The check stashes and restores the asset in a finally block.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1ac36dd6f25805066891f38dcb9cc657e841f29e7c73336e50ddb73022e7c4a6",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-missing-assets-fail\n> node scripts/verify-missing-assets-fail.mjs\n\nrefused with exit 1, named the asset and the build command, started no listener\nMISSING_ASSETS_FAIL_LOUDLY_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:48:40.260Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "eaf79a25e21e214516864503a64d9aae160776e5",
+          "materialHash": "0480fa011a5c0e52f4701cb112ecfdac9e2c1dd364573486347940ee8816d343",
+          "storyFilesHash": "c3055960c7b15802df3ede93b0ebfcb7f59df804cc8cd6853f049fb55351f620",
+          "timestamp": "2026-08-28T09:48:40.446Z"
         }
       ]
     },
