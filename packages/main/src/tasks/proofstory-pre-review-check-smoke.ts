@@ -17,7 +17,8 @@ import {
 } from '../core/pre-review-check.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
-import { adapterSessionEnv } from './adapter-session-env.js';
+import { currentImplementationBusinessCommit } from '../core/topology-critic-receipt.js';
+import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
 import {
   assemblePreReviewCaseRecords,
   buildPreReviewProofFromExecutedCases,
@@ -1089,6 +1090,11 @@ try {
     cli(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'lattice-implementer' }, false, 'lattice-implementer', 'sess-pre-review-impl');
     git(root, ['config', 'user.name', 'Independent Topology Critic']); git(root, ['config', 'user.email', 'critic@noreply.local']);
     cli(root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic');
+    const criticDispatch = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch' && event.agentType === 'lattice-review-topology-critic').at(-1);
+    assert.ok(criticDispatch, 'topology critic dispatch is durably recorded before receipt issuance');
+    assert.equal(criticDispatch.sessionId, adapterSessionId(root, 'sess-pre-review-critic', 'lattice-review-topology-critic'), 'critic receipt and dispatch use the same host-adapter session identity');
+    assert.equal(criticDispatch.storyFilesHash, currentStoryFilesHash(root, 'HEAD', root), 'critic dispatch is bound to the current Story-owned files');
+    assert.equal(criticDispatch.businessCommit, currentImplementationBusinessCommit(root).businessCommit, 'critic dispatch is bound to the implementation commit the receipt will verify');
     const critic = JSON.parse(cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic'));
     assert.equal(critic.verification.ok, true);
     const enforcePass = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
@@ -1117,6 +1123,10 @@ try {
   const warnCtx = { root, scanRoot: join(root, 'packages/main'), store: new StoryStore(root) } as unknown as HandlerContext;
   const warnLifecycle = runPreReviewCheckGate(warnCtx, storyId);
   assert.match(warnLifecycle, /mode=warn; status=pass/);
+  // The config rollback changes the Story-owned hash. Re-dispatch the same
+  // independent critic so a receipt can only bind the current material, never
+  // revive the enforce-mode dispatch provenance.
+  cli(root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic');
   cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic');
   const warnAfterCriticRenewal = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
   assert.equal(warnAfterCriticRenewal.ok, true,

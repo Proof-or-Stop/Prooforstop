@@ -60,9 +60,12 @@ node scripts/run-dynamic-validation-replay.mjs --execute
 node scripts/run-dynamic-validation-replay.mjs --execute --paired
 ```
 
-All three commands restore each historical base/head in detached worktrees, record
-full-vs-dynamic per-command verdicts, and run the three alternating current-HEAD
-pairs with timing/selection digests. `--execute` is the canonical spelling;
+An executable campaign restores and executes every *missing or semantically
+incompatible* historical base/head record in detached worktrees, records
+full-vs-dynamic per-command verdicts for that bounded remainder, and always runs
+the three alternating current-HEAD pairs with timing/selection digests. Compatible
+durable historical records are verified and reused rather than restored again.
+`--execute` is the canonical spelling;
 `--paired` remains an executable compatibility alias, and executable replay is
 always paired. The frozen `--verify-threshold` checklist selector also executes
 that paired campaign and fail-closes on an inadmissible report; invoking the

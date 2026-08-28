@@ -955,11 +955,12 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     expectedP50Ms: entry.expectedP50Ms || Math.max(1, Math.min(300_000, entry.timeoutMs || 1_000)),
     resources: entry.resources,
   }));
-  const scheduled = buildValidationSchedule(scheduleEntries, {
+  const schedulerCapacity = {
     workerCapacity: Number(process.env.LATTICE_VALIDATE_JOBS) || 4,
     cpuCapacity: Number(process.env.LATTICE_VALIDATE_CPU) || Number(process.env.LATTICE_VALIDATE_JOBS) || 4,
-  });
-  const scheduleCheck = verifyValidationSchedule(scheduled, scheduleEntries);
+  };
+  const scheduled = buildValidationSchedule(scheduleEntries, schedulerCapacity);
+  const scheduleCheck = verifyValidationSchedule(scheduled, scheduleEntries, schedulerCapacity);
   if (!scheduleCheck.ok) throw new Error('dynamic resource schedule rejected: ' + scheduleCheck.errors.join('; '));
   const byWave = new Map<number, ValidationCatalogEntry[]>();
   for (const row of scheduled) {

@@ -8,6 +8,7 @@
 const fs = require('node:fs');
 const Module = require('node:module');
 const childProcess = require('node:child_process');
+const path = require('node:path');
 const traceFile = process.env.PROOF_OR_STOP_RUNTIME_TRACE_FILE;
 if (!traceFile) return;
 
@@ -127,7 +128,15 @@ for (const name of ['spawn', 'spawnSync', 'execFile', 'execFileSync']) {
 process.on('exit', () => {
   try {
     fs.mkdirSync(require('node:path').dirname(traceFile), { recursive: true });
-    fs.writeFileSync(traceFile, JSON.stringify(trace) + '\n', 'utf8');
+    // Every instrumented process inherits one logical trace root. Writing the
+    // root directly lets the outer wrapper overwrite child reads/spawns on
+    // exit. Use one atomically-created sidecar per process; the executor
+    // merges all sidecars once the command tree has closed.
+    const fragment = `${traceFile}.${process.pid}.${Date.now()}.${Math.random().toString(16).slice(2)}.json`;
+    fs.writeFileSync(fragment, JSON.stringify({ ...trace, pid: process.pid, traceRoot: path.basename(traceFile) }) + '\n', {
+      encoding: 'utf8',
+      flag: 'wx',
+    });
   } catch {
     // The executor treats a missing trace as unknown and fails closed.
   }

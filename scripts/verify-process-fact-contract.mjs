@@ -7531,6 +7531,20 @@ function assertStoryAwareDynamicValidationRuntime() {
     assert(registryText.includes(`'runtime:story_aware_dynamic_selection_manifest':`) && registryText.includes(`'runtime:story_aware_dynamic_authority_gate':`), 'process-fact-registry: dynamic fact semantic map must remain present');
     assert(registryText.includes(token), `process-fact-registry: dynamic semantic map missing ${token}`);
   }
+  for (const fact of [
+    'runtime:story_aware_dynamic_selection_manifest',
+    'runtime:story_aware_dynamic_closure_receipt',
+    'runtime:story_aware_dynamic_shard_aggregate',
+  ]) {
+    const line = registryText.split('\n').find((candidate) => candidate.includes(`'${fact}':`)) || '';
+    assert(line.includes("'workspace-binding'"), `process-fact-registry: ${fact} must retain Git-rooted provenance binding`);
+  }
+  const signingText = read('packages/main/src/core/validation-artifact-signing.ts');
+  const validationText = read('packages/main/src/core/story-aware-validation.ts');
+  assert(signingText.includes("VALIDATION_ARTIFACT_SIGNING_KEY_ID = 'validation-artifact-v1'"), 'dynamic validation provenance must retain an explicit signing key ID');
+  assert(signingText.includes('ed25519:${VALIDATION_ARTIFACT_SIGNING_KEY_ID}:'), 'dynamic validation provenance must retain its Ed25519 signature prefix');
+  assert(signingText.includes('git-common-dir') && signingText.includes("flag: 'wx'"), 'dynamic validation provenance key must remain Git-common-metadata-rooted and creation-race-safe');
+  assert(validationText.includes('signValidationArtifact(value)') && validationText.includes('verifyValidationArtifact(value, signature)'), 'dynamic validation artifacts must delegate signing and verification to the trusted signer');
   assert(read('packages/main/src/handlers/story-aware-validation.ts').includes('originalOracle'), 'DYN-5 aggregate must retain complete-plan oracle equivalence evidence');
 }
 

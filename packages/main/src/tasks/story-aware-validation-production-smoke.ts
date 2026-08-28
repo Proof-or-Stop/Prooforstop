@@ -59,6 +59,18 @@ try {
   assert.equal(configured[1]?.caseRegistryPath, caseRegistryPath);
   assert.equal(configured[1]?.assurance, 'story-selectable');
   assert.equal(configured[1]?.fullBaselineReusePolicy, 'not-applicable');
+  const tracedChild = await executeValidationPlan({
+    provider: 'runtime-trace-child-aggregation',
+    commands: [{
+      label: 'child-read-probe',
+      command: runtimeNode,
+      args: ['-e', "require('node:child_process').execFileSync(process.execPath, ['-e', \"require('node:fs').readFileSync('/dev/null')\"])"] ,
+    }],
+    warnings: [],
+  }, root, head, 'B-production', { jobs: 1 });
+  assert.equal(tracedChild.allPass, true);
+  assert.equal(tracedChild.commands[0]?.runtimeTrace?.readPaths?.includes('/dev/null'), true,
+    'runtime closure trace merges child reads instead of allowing the parent wrapper to overwrite them');
   const run = await runStoryAwareDynamicValidation({
     projectRoot: root,
     gitCwd: root,

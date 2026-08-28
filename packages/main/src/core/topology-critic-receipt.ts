@@ -172,7 +172,17 @@ export function deriveRoleProvenance(args: {
     && candidate.businessCommit === args.implementation.businessCommit
     && candidate.storyFilesHash === args.context.storyFilesHash,
   );
-  if (!event) throw new Error(`no current registered dispatch provenance for ${args.expectedRole} in session ${args.sessionId}`);
+  if (!event) {
+    const candidates = args.events
+      .filter(candidate => candidate.type === 'dispatch' && candidate.agentType === args.expectedRole && candidate.storyId === args.context.storyId)
+      .slice(-3)
+      .map(candidate => `session=${candidate.sessionId ?? '<missing>'},businessCommit=${candidate.businessCommit ?? '<missing>'},storyFilesHash=${candidate.storyFilesHash ?? '<missing>'}`)
+      .join(' | ') || 'none';
+    throw new Error(
+      `no current registered dispatch provenance for ${args.expectedRole} in session ${args.sessionId}; ` +
+      `expected businessCommit=${args.implementation.businessCommit}, storyFilesHash=${args.context.storyFilesHash}; candidates=${candidates}`,
+    );
+  }
   const headHash = typeof event.headHash === 'string' ? event.headHash : '';
   const businessCommit = typeof event.businessCommit === 'string' ? event.businessCommit : '';
   const businessCommitAuthor = typeof event.businessCommitAuthor === 'string' ? event.businessCommitAuthor.trim() : '';
