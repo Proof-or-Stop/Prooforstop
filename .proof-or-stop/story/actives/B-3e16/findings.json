@@ -80,6 +80,21 @@
       "resolvedAt": "2026-08-28T10:16:15.493Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-005",
+      "desc": "packages/graph/scripts/verify-docs.mjs README standalone-binary check: the .cache exemption is line-wide (!line.includes(\".cache\")), not scoped to the matched occurrence, so a line that both keeps a legitimate ~/.cache/proof-or-stop-graph/ mention and reintroduces a real standalone-binary invocation on the same line (e.g. \"run proof-or-stop-graph --help, then check ~/.cache/proof-or-stop-graph/ for the index.\") is silently exempted and the check passes on exactly the regression class it was written to catch. Reproduced locally: the regex+includes combo flags the invocation alone (flagged:true) but not when a .cache substring co-occurs on the same line (flagged:false). Narrow scope (only reachable if a future doc edit places both phrases on one line) but same failure shape as the bug this commit already fixed once (an over-broad match silently passing on its target defect).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-28T10:18:25.271Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-011",
+      "_hash": "4ae973b7641150f5360b656b9dcf8f875836991dc78c79f00ad58fc3a716fda4",
+      "signatureTag": "missing|unknown|packages-graph-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
