@@ -246,7 +246,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/graph run check runs the ported anchor-check, audit and bench self-checks and passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CLAUDE.md contains a section describing proof-or-stop graph and its four flags, and the decisions doc records all four migration decisions",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The decision about which self-checks belong in the repo test surface is written down explicitly rather than left implicit, given that validate.commands and test:serial-reference are separately maintained lists",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
