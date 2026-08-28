@@ -36,6 +36,9 @@ try {
   for (;;) {
     if (Date.now() > deadline) { failures.push('server never came up within 90s'); break }
     try { get(`http://localhost:${PORT}/`); break } catch { /* not listening yet */ }
+    // Brief pause between attempts: a tight spawn loop burns CPU for no benefit
+    // while the server binds.
+    try { execFileSync('sleep', ['0.2']) } catch { /* best effort */ }
   }
 
   if (!failures.length) {

@@ -272,9 +272,11 @@ export function createGraphHandlers(ctx: HandlerContext): Record<string, (...arg
      *
      * Reads story state, builds the index, and — unless `--json` was passed —
      * serves the browser client until the process is interrupted. Behavior
-     * mirrors the source CLI shell (packages/graph/src/shells/cli/main.ts): the
-     * same default port, the same cwd-based repository discovery, the same
-     * `--json` / `--no-open` semantics, and the same signal shutdown.
+     * mirrors the standalone shell this command replaced (B-3e16 deleted it as
+     * unreachable once `bin` was dropped; see git history or the pre-migration
+     * proof-or-stop-graph repository): the same default port, the same cwd-based
+     * repository discovery, the same `--json` / `--no-open` semantics, and the
+     * same signal shutdown.
      */
     async graph(args: GraphArgs = {}) {
       // `ctx.log` is optional on HandlerContext, but the heartbeat below is
