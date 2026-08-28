@@ -1,0 +1,137 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Stand up packages/graph as a workspace subpackage with its own build",
+      "context": "Copy the source repo tree (src/, scripts/build-web.mjs, scripts/copy-assets.mjs, tsconfig.json) into packages/graph and register it in the root workspace. Name it @proof-or-stop/graph. Its tsconfig in the source repo already matches packages/main on target ES2022, module Node16, moduleResolution Node16, strict, rootDir src, outDir dist and declaration, so it is a drop-in for the recursive tsc gate that validate --lint and .githooks/pre-push both run over every tsconfig.json in the repo. Declare d3 and zod as dependencies and mermaid, gsap, mediabunny and gifenc as optionalDependencies, matching the source manifest; the browser client feature-detects each one so a missing bundle degrades one feature rather than breaking the page. Keep assets/ gitignored: assets/app.html is assembled by scripts/build-web.mjs from the src/shells/web parts and the vendor bundles are copied out of node_modules, so both are reproducible build output. Wire the graph build into the root build script, which currently runs packages/main then packages/utils then verify-full-suite-build-binding.mjs.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "docs/requirements/decisions/"
+      ],
+      "userSees": "npm run build at the repo root prints the graph build output including 'assets: app.html' and 'assets: d3.min.js', and packages/graph/dist/index.js exists afterwards",
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [
+          "packages/graph/package.json",
+          "packages/graph/tsconfig.json",
+          "packages/graph/.gitignore",
+          "packages/graph/scripts/build-web.mjs"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Declare the Node engines floor that node:sqlite requires",
+      "context": "The full-text search index in packages/graph/src/core/search/fn.ts imports DatabaseSync from node:sqlite, which needs Node 22.5 or newer. No package.json anywhere in this repo currently declares an engines field, and node:sqlite appears nowhere else in the repo, so this subpackage is the first consumer of that constraint. Set engines.node to >=22.5.0 on packages/graph, matching the source manifest, and make the graph command fail with a readable message naming the required version rather than an unhandled module-not-found error when the runtime is too old.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "proof-or-stop graph on a Node runtime older than 22.5 prints a message naming node:sqlite and the required Node version instead of an unhandled ERR_UNKNOWN_BUILTIN_MODULE stack trace",
+      "files": {
+        "modify": [
+          "packages/graph/package.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Register graph across all eight command-surface touchpoints",
+      "context": "Add the command as name 'graph' to MAIN_TOOLS in packages/main/src/cli/command-catalog.ts with a zod schema covering the flags the source CLI already parses: root (string, optional), port (number, optional), open (boolean, optional, default true) and json (boolean, optional). Add a COMMAND_POLICIES row in packages/main/src/core/command-policy.ts; the command only reads story state and writes its index cache outside the repository, so ownershipClass is readOnly and destructiveRisk is none. The ownershipClass field is mandatory: packages/main/src/tasks/command-ownership-contract.ts rejects a missing value fail-closed. Then add the handler factory under packages/main/src/handlers/, its registerBatch call in packages/main/src/registry.ts, the text-only marker line in the alphabetical process-fact mirror comment in packages/main/src/cli-engine.ts (lines 194-440), an entry in DEFAULT_PHASE_TOOLS in packages/main/src/core/config.ts so isCommandAllowed permits it, an entry in READ_ONLY_COMMANDS in packages/main/src/cli/activity-policy.ts, and placement in KNOWN_GROUP and KNOWN_ORDER in packages/main/src/cli/help-renderer.ts (help groups derive from the prefix before the first underscore, and a bare name has none).",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "proof-or-stop help lists graph in a sensible group, proof-or-stop graph --help prints its flags, and the command-ownership-contract, command-catalog-smoke, cli-surface-smoke and orphan-surface checks all pass",
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/help-renderer.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Serve the browser client from packages/graph so the long-running command works end to end",
+      "context": "packages/main ships zero static web assets today (its serve dashboard is an inline template literal in packages/main/src/verifier/serve.ts) and has no files field, and tsc does not copy non-TS files into dist, so the browser client must be served out of packages/graph rather than routed through the packages/main build. The graph handler should resolve the packages/graph package root and hand startServer the assetDir and vendorDir the source CLI already passes. graph is long-running rather than request-response, which is the same shape as dashboard: dashboard is dispatched from its own pre-dispatch branch in packages/main/src/cli-engine.ts near line 818 via a dynamic import and is the single command the registry dispatchability assertion exempts, so follow that precedent for whichever of the two mechanisms is chosen. Preserve the source behaviour: default port 8731, repository discovery from cwd when root is absent, --json printing status and exiting without serving, --no-open suppressing the browser launch, and SIGINT and SIGTERM shutting the server and the app down.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "proof-or-stop graph prints the story and relation counts, then a http://localhost:8731/ URL, and that page loads the graph with working search and a story drawer",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Keep the index cache out of the inspected repository and off the runtime-artifact surface",
+      "context": "Proof-or-Stop gates DONE on a clean worktree, so the tool must never dirty the tree it inspects. The source implementation already places the SQLite index under the user cache directory keyed by a hash of the repo root (packages/graph/src/core/app.ts) and builds to a pid-suffixed temp file that is atomically renamed into place so concurrent processes never read a half-populated FTS table. Verify that property survives the move and that running the command inside a story worktree leaves git status unchanged. Also confirm nothing new needs a runtime-artifact-registry entry: unlike the serve discovery file, which is registered in packages/main/src/core/runtime-artifact-registry.ts, the graph command writes no discovery file into the project.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "git status is byte-identical before and after running proof-or-stop graph inside a story worktree, and the index database lives under the user cache directory rather than in the repository",
+      "files": {
+        "modify": [
+          "packages/graph/src/core/app.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Carry over the source repo's own checks and document the command",
+      "context": "The source repo ships three self-checks that would otherwise be lost: src/tasks/anchor-check.mjs, src/tasks/audit.ts and src/tasks/bench.ts, run together by its check script. Port them as npm scripts on packages/graph and decide explicitly which belong in the repo test surface, noting that the validate command list in the project config and the root package.json test:serial-reference list are separately maintained and neither is a subset of the other. Then document the command: a CLAUDE.md section covering what proof-or-stop graph does and its flags, and a docs/requirements/decisions/ entry recording the migration decisions, namely the subpackage boundary, assets as gitignored build output, the node:sqlite engines floor, and the dashboard-style long-running dispatch. Grep for stale wording afterwards; nothing in this repo currently references proof-or-stop-graph outside one runtime log, so this is new documentation rather than an edit of existing claims.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "docs/requirements/decisions/"
+      ],
+      "userSees": "npm run check inside packages/graph passes, and CLAUDE.md plus a docs/requirements/decisions/ file both describe proof-or-stop graph and its flags",
+      "files": {
+        "modify": [
+          "CLAUDE.md",
+          "packages/graph/package.json"
+        ],
+        "create": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
