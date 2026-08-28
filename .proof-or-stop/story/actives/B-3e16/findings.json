@@ -263,6 +263,44 @@
       "_hash": "c45dc911d6bc77761800de61b81e16720dff533c244edc1c89aee6b40badab58",
       "signatureTag": "missing|unknown|forward-risk-planned",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-010",
+      "desc": "forward-risk (planned fix): converting the runtime import() in packages/main/src/handlers/graph.ts:292 to a static top-level import from a file:../graph dependency has two compounding structural problems, both verified against current code. (1) BUILD-ORDER INVERSION: the root package.json build script is `npm --prefix packages/main run build && npm --prefix packages/utils run build && npm --prefix packages/graph run build` -- packages/main is built BEFORE packages/graph. A static import requires packages/graph/dist to already exist (both for packages/main tsc to type-check the import and for the compiled packages/main/dist/handlers/graph.js to resolve the module at runtime), so this order must be reversed (graph before main) or main tsc/module resolution will fail on a clean build. (2) STATIC IMPORT DEFEATS THE DELIBERATE GUARD ORDERING DOCUMENTED IN THE SAME FILE: graph.ts lines ~224-230 explicitly say check-first-then-import is load-bearing because packages/graph pulls in node:sqlite transitively and an import after the check cannot produce a good error message. Verified: packages/graph/src/index.ts (the package entry, line 10) statically re-exports from ./core/search/fn.ts, which has a top-level `import { DatabaseSync } from \"node:sqlite\"` (fn.ts line 10). ESM static imports are hoisted and evaluated eagerly at module-load time, before any function body (including assertGraphRuntimeSupported) can run. So converting the dynamic import() to a static import moves the node:sqlite load out of the currently-guarded, on-demand `graph` command path and into packages/main module evaluation itself -- meaning EVERY invocation of the proof-or-stop CLI (not just the graph command) would throw a raw ERR_UNKNOWN_BUILTIN_MODULE on any Node < 22.5, regressing the entire CLI rather than just gracefully degrading the graph feature, unless the static import is deliberately isolated behind a separate lazily-loaded module boundary. Recommend the migration plan explicitly address both: reorder the root build script, and either keep the node:sqlite-importing code behind a dynamic import/lazy boundary even after packages/graph becomes a real dependency, or accept and document the new hard Node >=22.5 floor for the whole packages/main / CLI (not just the graph feature) with a corresponding root engines field.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-28T10:59:30.835Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-020",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/index.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/graph/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b9f1c6238276d6da1dc1e2f1381caf6be15c8e91b5795de73500cbd4537d28ce",
+      "signatureTag": "missing|unknown|forward-risk-planned",
+      "signatureTagSource": "auto"
     }
   ]
 }
