@@ -18297,6 +18297,94 @@
       },
       "readDiagnostics": [],
       "_hash": "4998e1630790b1125f21b73794666cc07eca1479077b3dc2d2b05a00dbf2fcfd"
+    },
+    {
+      "id": "B-45a0:RP-340",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-087 wave 2 test-coverage PASS with zero new coverage family: frozen material 0139448ad23b8872064aa5fd0e5f0ace56a76425beaa83e95c03aab8fb030f3c and story-files hash 2f34e2c8afaf4f85b9c3dedf37525a032a9fc3b3f966be96a57c8cb5f143b6e6 are unchanged; wave delta is review metadata only. The matrix remains 48 intents to 48 matching evidence records, zero must-gaps, waivers, or failed receipts, with CHK-011 mechanical selector-matched executable replay evidence intact.",
+      "createdAt": "2026-08-28T05:10:30.824Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-830",
+      "envelopeId": "202fa02ce8bf38e7c44df341b8ae6e94bb590b212cdd2b3d90c2c097d476c503",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-fault-injection.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "da8a19f3b4ce8fc007a10ec1e1df1f58603d84fc5a79aa3b02ada1167f35f2fb"
+      },
+      "readDiagnostics": [],
+      "_hash": "d24fa8887033a23e1689d152acf9ff5bf9494ead0dbbf416a9befe14693bd794"
+    },
+    {
+      "id": "B-45a0:RP-341",
+      "agent": "lattice-review-quality",
+      "note": "RI-087 wave 2 quality re-attestation found no new quality family at the unchanged frozen material cutoff. Commits since the original current-round review are inventory/reviewer metadata only; verified carry-in F-379 remains unchanged and is not duplicated.",
+      "createdAt": "2026-08-28T05:11:56.243Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-832",
+      "envelopeId": "d182ed0c287aa297ab8e75eaa969ad8e31e95d59540a783d35d46449025330f7",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/process-events.jsonl",
+          ".proof-or-stop/story/actives/B-45a0/process-metrics.json",
+          ".proof-or-stop/story/actives/B-45a0/prompt-envelopes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          ".proof-or-stop/story/actives/B-45a0/topology-critic-receipt.json",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": "RI-087 wave 2 is frozen at the same material/story hashes as RR-824 and RR-827; c2f1db33fd..62adf5d816 contains review-inventory metadata only, and the F-379 source blob is byte-identical."
+      },
+      "_hash": "fe25a142b2dd981134b85f3c1b6216244b4903fff7a1fc05dfa6331639b595f2"
     }
   ]
 }
