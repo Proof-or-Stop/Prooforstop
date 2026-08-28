@@ -85,13 +85,27 @@ const readme = read(readmeRel);
 if (readme === null) failures.push(`${readmeRel}: missing`);
 else {
   if (!readme.includes('proof-or-stop graph')) failures.push(`${readmeRel}: does not mention the command`);
-  // The cache directory name legitimately contains the old spelling; a bare
-  // invocation of it as a command does not.
-  for (const line of readme.split('\n')) {
-    if (/(^|[^\w./~-])proof-or-stop-graph(\s|$)/.test(line) && !line.includes('.cache')) {
+  /* The cache directory name legitimately contains the old spelling; a bare invocation
+     of it as a command does not.
+
+     The exemption is MATCH-LOCAL, not line-local. A first version skipped any line
+     containing '.cache', which meant one line mixing a legitimate `~/.cache/proof-or-stop-graph/`
+     mention with a real `proof-or-stop-graph --help` invocation passed silently -- the same
+     over-broad-match, silent-pass-on-the-target-defect shape as the indentation bug in the
+     path parser below. Each occurrence is now judged on its own surrounding characters:
+     a path-like context ('/' or '~' immediately before, or a '/' immediately after) is a
+     cache path; anything else is an invocation. */
+  const BINARY = /proof-or-stop-graph/g;
+  readme.split('\n').forEach((line) => {
+    for (let m; (m = BINARY.exec(line)) !== null; ) {
+      const before = line.slice(0, m.index);
+      const after = line.slice(m.index + m[0].length);
+      const pathLike = /[/~]$/.test(before) || after.startsWith('/');
+      if (pathLike) continue;                       // part of the cache directory path
+      if (/[\w.-]$/.test(before)) continue;          // substring of a longer token
       failures.push(`${readmeRel}: still invokes the removed standalone binary: ${line.trim()}`);
     }
-  }
+  });
   if (/\bnpm start\b/.test(readme)) failures.push(`${readmeRel}: references the removed npm start script`);
   if (readme.includes('proof_graph')) failures.push(`${readmeRel}: uses the rejected speculative command name proof_graph`);
 
