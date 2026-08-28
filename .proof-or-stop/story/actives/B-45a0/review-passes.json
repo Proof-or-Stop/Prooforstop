@@ -18385,6 +18385,104 @@
         "scanEscalationReason": "RI-087 wave 2 is frozen at the same material/story hashes as RR-824 and RR-827; c2f1db33fd..62adf5d816 contains review-inventory metadata only, and the F-379 source blob is byte-identical."
       },
       "_hash": "fe25a142b2dd981134b85f3c1b6216244b4903fff7a1fc05dfa6331639b595f2"
+    },
+    {
+      "id": "B-45a0:RP-342",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-087 Wave 2 completeness-critic terminal: independently verified that the sole raw finding is F-383 and that it is a distinct documentation/API-contract family. The normative plan assigns full current-context admissibility filtering to the exported loadBestMatchingAdmissiblePassReceipt helper, while the exported helper performs only basic command/input/baseline filtering and the live gate applies the remaining checks through a separate internal receiptAdmissible predicate. This completeness pass does not override the separate topology request_changes receipt for the stale acceptance basis.",
+      "createdAt": "2026-08-28T05:18:01.238Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-833",
+      "envelopeId": "dafc9f056cb016cf02e28ad756139748f98ddb53eb0edf2ec683d4670633295a",
+      "writerSessionId": "sess-3be20523a0e332ac7e09053318c32f76",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-command-receipt.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "980a4ed6fb2f4a09d8bb290474c880e175da1984b66a0529b98600076b3aaedb"
+      },
+      "readDiagnostics": [],
+      "_hash": "89ae205e426eded835a6edcdee631b8637cfc74ae8eeca56a424ef57b198f05b"
+    },
+    {
+      "id": "B-45a0:RP-343",
+      "agent": "lattice-review-concept",
+      "note": "RI-087 wave 2 concept PASS with zero new concept family at unchanged frozen material. Repository sweep of B-38b7, testIntent, TEST_CASE, and TEST_CASE_REVIEW found only explicitly documented legacy compatibility/history or maintained compatibility handlers; no incomplete concept deletion or replacement residue was introduced. The wave delta is review metadata only. Existing promised-but-undelivered command/document mismatches remain registered in the docs lane and are not duplicated here.",
+      "createdAt": "2026-08-28T05:20:31.520Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-834",
+      "envelopeId": "d3ee3ae8f98d9c123bf3fe917cf2b9abb2b86a94da50d66fc83b0f1302545528",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/handlers/lifecycle-orchestrate.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/testintent-handoff.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9c6005035baa3229b4ca389dbb0215d312759f4e3e3e5b6350307b2d1d8157a0"
+      },
+      "readDiagnostics": [],
+      "_hash": "8a378d47318502fc861408470b807a38b178c9d1359ce5cf881a34e6a21910a0"
     }
   ]
 }
