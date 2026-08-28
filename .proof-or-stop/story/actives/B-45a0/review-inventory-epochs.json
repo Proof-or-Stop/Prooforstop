@@ -13207,6 +13207,49 @@
       "findingDispositions": [],
       "createdAt": "2026-08-27T03:42:51.623Z",
       "_hash": "d1f7c202a0b708296bf761d8571af2b1413e2b125684b4df8b741f3f615e7760"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-087:CRIT-01",
+      "epochId": "B-45a0:RI-087",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "73037bf9d49ba25f4981d6ed8fdbe651c68b4f7e",
+        "materialHash": "0139448ad23b8872064aa5fd0e5f0ace56a76425beaa83e95c03aab8fb030f3c",
+        "storyFilesHash": "2f34e2c8afaf4f85b9c3dedf37525a032a9fc3b3f966be96a57c8cb5f143b6e6"
+      },
+      "aggregateFindingSetDigest": "0dce7eb8013c003e810f7c3036d65a83800ef57098a0506422fb1e6465cc92fe",
+      "requiredLaneCoverageDigest": "948d3a3fefd62f7fcd002e64819f099f9e06c06763a287ef1bebd3ffb23cd0d1",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-829",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-339"
+      ],
+      "readEvidenceDigest": "fc0bad87d601041b1394a9eb1acd7a2f6aba0d95b191e78858f4f39c942d07ad",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-380",
+          "disposition": "verified_family",
+          "familyKey": "doc-timeout-cap-stale",
+          "reason": "The operator documentation still states the prior 2-hour cap while the current runtime and enforcement evidence use the 6-hour cap; this is a distinct stale timeout-documentation family."
+        },
+        {
+          "findingId": "B-45a0:F-381",
+          "disposition": "verified_family",
+          "familyKey": "historical-resume-equivalence-doc-drift",
+          "reason": "The documentation requires an equivalence-valid resume predicate, while the implementation accepts the boolean false state when the full failure set is selected and no residue remains; this is a distinct resume-predicate documentation family."
+        },
+        {
+          "findingId": "B-45a0:F-382",
+          "disposition": "verified_family",
+          "familyKey": "replay-executable-command-promise-undelivered",
+          "reason": "The published execute and paired campaign commands are forced through diagnostic resume behavior and cannot populate a missing corpus without repair mode; this is a distinct executable-command contract family."
+        }
+      ],
+      "createdAt": "2026-08-28T05:07:00.288Z",
+      "_hash": "20a2ed220cd90ab96b59c10e71449ca4f941c099e3d81e7845aa75bbf2282c40"
     }
   ]
 }

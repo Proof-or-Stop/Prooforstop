@@ -18251,6 +18251,52 @@
       },
       "readDiagnostics": [],
       "_hash": "6fe52fcd102f0fac59a115e4aab75fd9c762d13bc494e2e73a1dbe65e892fd61"
+    },
+    {
+      "id": "B-45a0:RP-339",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-087 Wave 1 completeness-critic terminal: all four required lanes have terminal signed evidence, the aggregate raw finding set F-379/F-380/F-381/F-382 is complete, and each is independently classifiable into one verified family. This is a completeness pass only; the separate topology receipt correctly remains request_changes because acceptance_basis is stale/invalid.",
+      "createdAt": "2026-08-28T05:06:15.962Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-829",
+      "envelopeId": "b80d3cf7a7e6177330aecfe075f8dbd33f216074d68b20c00393000344383e7e",
+      "writerSessionId": "sess-3be20523a0e332ac7e09053318c32f76",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "387b0ea639ddd37edcd755b298c78dacabf2cf785f86b54ffa8da0c6b72b8a6f"
+      },
+      "readDiagnostics": [],
+      "_hash": "4998e1630790b1125f21b73794666cc07eca1479077b3dc2d2b05a00dbf2fcfd"
     }
   ]
 }
