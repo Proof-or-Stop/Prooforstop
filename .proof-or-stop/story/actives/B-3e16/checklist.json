@@ -311,7 +311,11 @@
           {
             "desc": "The command writes no discovery file into the project, so unlike the serve metadata file it needs no runtime-artifact-registry entry",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run verify-no-project-writes",
+              "selector": "NO_PROJECT_WRITES_OK"
+            }
           }
         ]
       },
@@ -355,6 +359,26 @@
           "materialHash": "8b998f97fee173bc56c34ac0a3226336b78811cf1e84d78af21bb276ba5e50d8",
           "storyFilesHash": "e5dbd68fb1693028972b8ecefa6974de4ea6fa8debd65b545bdd150f3b645d22",
           "timestamp": "2026-08-28T09:31:00.233Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/graph run verify-no-project-writes",
+          "result": "pass",
+          "note": "Enumerates every filesystem write call in the served runtime source and asserts each targets the out-of-repo index cache rather than the inspected project. This is why the command needs no runtime-artifact-registry entry, unlike the serve discovery file. Verified to have real discriminating power by adding a simulated discovery-file write to io/http.ts, observing UNEXPECTED_PROJECT_WRITE, then restoring.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6265bb83ad1a807f90df30bb4ebe3d09ff2a907e0988af06f44a2b12bca3ea49",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-no-project-writes\n> node scripts/verify-no-project-writes.mjs\n\nwrite paths in served runtime source: 4\n  core/search/fn.ts:48 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:51 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:138 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:140 — creates the index cache directory, which resolves under the user cache dir\nNO_PROJECT_WRITES_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:31:40.482Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "ec445616ec685fd57073e802e701a97489cbedcb",
+          "materialHash": "8b998f97fee173bc56c34ac0a3226336b78811cf1e84d78af21bb276ba5e50d8",
+          "storyFilesHash": "e5dbd68fb1693028972b8ecefa6974de4ea6fa8debd65b545bdd150f3b645d22",
+          "timestamp": "2026-08-28T09:31:40.658Z"
         }
       ]
     },
