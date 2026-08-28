@@ -22116,6 +22116,157 @@
       ],
       "signatureTag": "acceptance-topology-current-basis-invalid",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-395",
+      "desc": "Duplicate of canonical B-45a0:F-389, not a distinct remediation family: at RI-090 pinned HEAD 7ba31f35f874c505d933af5dd6ba114d780e1710, the required Wave-4 verifier chain is not admissible. acceptance_topology_check reports structuralPass=false with AT_SCOPE_BINDING_MISSING because acceptance-basis.json.receipt has a scope-contract digest mismatch; the receipt check maps scope digest mismatches to that code in packages/main/src/core/acceptance-basis-receipt.ts:130-152. pre_review_check_read reports PR_ARTIFACT_TAMPERED, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, and PR_AUTHORITY_INADMISSIBLE; pre-review validation treats uncurrent provenance as inadmissible and bad receipt integrity as tampering in packages/main/src/core/pre-review-check.ts:418-450. Rollout report/check are current PASS with genuine full-3x2 quorum, but cannot repair B-45a0 own topology/pre-review authority.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-28T19:30:15.011Z",
+      "reviewRound": "2026-08-28T19:18:13.536Z",
+      "reviewRunId": "B-45a0:RR-884",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "431e83f7d3f8741d538c77680f93e47216c874d2b55b9981c16d1469cbd22225"
+      },
+      "readDiagnostics": [],
+      "_hash": "8c81f930f2b0e7f9235222be85f4440fc6f231a8bc94d311e362b4329953f65d",
+      "files": [
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "signatureTag": "acceptance-topology-current-basis-invalid",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-396",
+      "desc": "doc-code-drift: dynamic-validation-enforcement-evidence.md:68-72 and :105-107, plus story-aware-dynamic-validation-current-main-characterization.md:62-65 and :82-85, say --verify-threshold executes or repairs the paired historical campaign and call --paired an executable alias. scripts/run-dynamic-validation-replay.mjs:14-16 rejects --verify-threshold with producer flags and rejects --paired without --execute; :35-54 makes the selector verify-only over persisted signed artifacts plus mutation audit. This misleading operational contract can cause operators to expect or schedule a 4-hour replay contrary to the fail-closed no-producer boundary; update the decision records to name --execute as the only producer and --verify-threshold as admission-only.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T19:31:34.446Z",
+      "reviewRound": "2026-08-28T19:18:13.536Z",
+      "reviewRunId": "B-45a0:RR-886",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "63b8724adb843679d312f8e1f939a9dfb9a50baf998de3a314eced41e0b9da06"
+      },
+      "readDiagnostics": [],
+      "_hash": "e86c56b82814efd219cf8933eb136c97c4315a7ae10944ededefceb986a44080",
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "scripts/run-dynamic-validation-replay.mjs"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-dynamic",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-397",
+      "desc": "Duplicate of current open B-45a0:F-393, not a new remediation family. RI-090 run B-45a0:RR-885 independently confirms CHK-014 still has only three passing rows: acceptance_rollout_check twice and pre_review_check_read once. It has no pinned executable coverage for acceptance_topology_check or acceptance_rollout_report_read, despite the coverage role requiring all four verifier-owned commands and their signed 3x2/degraded/mutation/mode/rollback outcomes. The handlers remain distinct at packages/main/src/handlers/proofstory.ts:745-770 and :1052-1056; acceptance_rollout_check calls the evaluator directly and cannot prove report-read execution.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-28T19:32:52.418Z",
+      "reviewRound": "2026-08-28T19:18:13.536Z",
+      "reviewRunId": "B-45a0:RR-885",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1482e5939aa9f4255b6fc4a96bd4cac2a8be8a1b9d99aa5a48f74d6d56b023b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "f8bf97c2ae730fa6bd6b950318b7af101662971b50e4f0cb55969d8d7c704729",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|duplicate-current-open",
+      "signatureTagSource": "auto"
     }
   ]
 }
