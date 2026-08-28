@@ -64,12 +64,12 @@
         ],
         "adversarial": [
           {
-            "desc": "Flip one byte in the decision payload or replace the source SHA-256, run the integrity verifier, and assert nonzero exit plus no decision-record approval or gate evidence. WHY: tampering must fail closed.",
+            "desc": "Flip one byte in the decision payload or replace the source SHA-256, run the tamper self-test, and assert nonzero-equivalent rejection before any decision-record approval or gate evidence. WHY: tampering must fail closed.",
             "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node scripts/verify-story-aware-validation-plan.mjs",
-              "selector": "bytes: 79541"
+              "command": "node scripts/verify-story-aware-validation-plan.mjs --tamper-self-test",
+              "selector": "tamper self-test PASS"
             }
           },
           {
