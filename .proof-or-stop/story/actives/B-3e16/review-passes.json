@@ -373,6 +373,32 @@
         "scanEscalationReason": null
       },
       "_hash": "29fb162b42826bf89f6ca5c27370232684eae52f5577042f3e87ea2b799185e6"
+    },
+    {
+      "id": "B-3e16:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Wave-3 verdict on the settled whole-file-pin remediation (graph.ts registered in knownBenignNonLiteralLoaderCalls + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS for the import(), plus DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS for the 5 lib.X() calls, approval comment naming --root influence and the serve.ts precedent, plus F-016 mechanical provenance assertion): PASS, no new code-quality or type-safety gap. Verified live: on current tree graph.ts is NOT yet in either map (grep zero hits) and the compiled guard smoke throws exactly the 6 violations the plan describes (line 292 import(), lines 298/312/336/345/365 the 5 lib.X() calls) -- matches the reported 112/113 state exactly, so the remediation is pending-but-correctly-scoped, not already-applied-and-broken. Read canonicalAstFingerprint (ts.createPrinter comment-stripped, sha256 of the WHOLE file) confirms the pin is genuinely whole-file, matching the F-017/F-018 characterization; isKnownBenignNonLiteralLoaderCall additionally requires an exact (enclosingFunctionName, argument-text) match per call for the import() map, so that half of the remediation is call-site-scoped even though the fingerprint gating it is whole-file. One nuance for the record, not a new blocker: DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS (scanDynamicCodeGeneration line ~3744) is a single early-return keyed only on the whole-file fingerprint match -- once graph.ts pin matches, ALL dynamic-code-generation findings in the file are suppressed, not just the 5 named lib.X() call sites, so any future edit that adds a 6th dynamic-execution pattern to this file inherits the exemption silently until the next unrelated edit forces a re-pin. This is the same class of risk already accepted for every other whole-file exemption in this guard (bootstrap-runner.js, proof-or-stop-codex.js) and is the documented cost of choosing whole-file-pin over the dropped graph-runtime.ts extraction (F-016/F-018) -- worth naming explicitly in the approval comment alongside the --root/serve.ts trust-model note, but not something that changes my verdict. type-safety/dead-code/I-O-isolation pass on graph.ts itself: no as any, HandlerContext return type Record<string,(...args:any[])=>any> matches the createXHandlers convention used by every other handler factory in this repo (not graph.ts-specific), resolveGraphPackage throws a fully-specified error naming both attempted resolution paths and the fix command, no dead code or unused imports.",
+      "createdAt": "2026-08-28T14:06:20.456Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-034",
+      "envelopeId": "6061f1cbbc744efbd2d0268fa7ef6518f66cefccbb539facb156c017d210d683",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "41077dea4fa7a0dd0215d9757d4ca6817b59ba3f578c20d3e17d4383b8e76407"
     }
   ]
 }
