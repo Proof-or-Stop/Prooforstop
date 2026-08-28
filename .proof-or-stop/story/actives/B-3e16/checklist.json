@@ -289,7 +289,11 @@
           {
             "desc": "The resolved index database path is under the user cache directory rather than anywhere inside the inspected repository",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run verify-clean-tree",
+              "selector": "index db: /Users/qipan/.cache"
+            }
           }
         ],
         "edge": [
@@ -306,7 +310,29 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/graph run verify-clean-tree",
+          "result": "pass",
+          "note": "The check resolves the real index database path from the app and asserts it is not inside the inspected repository; the selector proves the resolved path is under the user cache directory.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "bc5845e313aece3ac7e45dc930a4f75c546472c65a21888a72ac396d9ba35e98",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-clean-tree\n> node scripts/verify-clean-tree.mjs\n\nscanned 369 stories, 426 relations\nindex db: /Users/qipan/.cache/proof-or-stop-graph/B-3e16-122d23e30fea/index.db\nCLEAN_TREE_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:30:55.992Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "e7dc993c3abf37fd7169189ec0d393c2eb5950a1",
+          "materialHash": "8b998f97fee173bc56c34ac0a3226336b78811cf1e84d78af21bb276ba5e50d8",
+          "storyFilesHash": "e5dbd68fb1693028972b8ecefa6974de4ea6fa8debd65b545bdd150f3b645d22",
+          "timestamp": "2026-08-28T09:30:56.168Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
