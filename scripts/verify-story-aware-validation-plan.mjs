@@ -5,8 +5,8 @@ import { readFileSync, statSync } from 'node:fs';
 
 const path = 'docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md';
 const navPath = 'docs/requirements/NAV.md';
-const expectedSha256 = 'db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a';
-const expectedBytes = 79541;
+const expectedSha256 = 'b197fb6cf90914edfb50df91affa7010148860818348b53e78759fd40bb26454';
+const expectedBytes = 79749;
 const requiredSelectors = [
   '# Story-Aware Dynamic Validation — Execution and Audit Plan',
   '## 1. Executive decision',

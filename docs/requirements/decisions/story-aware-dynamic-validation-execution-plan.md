@@ -1012,7 +1012,7 @@ Any missing or mismatched field changes disposition from `reuse` to `execute`.
 
 ### 13.3.2 Deterministic receipt lookup
 
-Replace ambiguous `loadLatestCommandReceipt` behavior with `loadBestMatchingAdmissiblePassReceipt`. Filter by command ID, current input digest, baseline epoch, ancestry, expiry, revocation, catalog, inventory, runner, toolchain, exact `buildProofDigest`, and clean-tree proof. Among admissible matches, choose greatest `createdAt`; break ties by lexicographically greatest receipt ID. A more recent nonmatching or failed receipt does not hide an older admissible PASS, but revocation always wins.
+Replace ambiguous `loadLatestCommandReceipt` behavior with a two-step receipt lookup. The exported `loadBestMatchingAdmissiblePassReceipt` is the deterministic basic lookup: it filters by command ID, current input digest, baseline epoch, receipt signature/expiry, then chooses greatest `createdAt` (breaking ties by lexicographically greatest receipt ID). Its caller must apply the authoritative current-context admission predicate (`receiptAdmissible`): ancestry, revocation, catalog, inventory, runner, toolchain, exact `buildProofDigest`, execution environment, and clean-tree proof. A more recent nonmatching or failed receipt does not hide an older fully admissible PASS, but revocation always wins.
 
 ## 14. Component F — Selection manifest
 
