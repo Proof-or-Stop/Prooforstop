@@ -474,6 +474,52 @@
       "_hash": "f6adf3d4da0634389822dd65244a0313f55de060a5fb162fad151121e595f743",
       "signatureTag": "missing|unknown|concept-completeness-surface",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-015",
+      "desc": "doc-code-drift: docs/requirements/decisions/graph-command-migration.md never records WHY packages/main/src/handlers/graph.ts uses a runtime dynamic import() rather than a static import, even though the doc explicitly frames itself (lines 21-22) as recording every place the obvious alternative is wrong in a way that is not obvious later. The handler header comment documents one reason (no npm workspaces, packages/graph is not a package.json dependency of packages/main, so tsc cannot resolve it statically), but the stronger reason -- verified empirically on Node v20.19.6, that packages/graph/src/core/app.ts statically imports ./search/fn.js which top-level imports node:sqlite, so any static import chain into the graph library is unavoidably reachable through node:sqlite regardless of how index.ts re-exports are organised, meaning static import would raise the Node floor for the whole proof-or-stop CLI entrypoint -- appears nowhere in the decisions doc. A future reader who only sees the workspace-dependency reason may reasonably conclude that wiring packages/graph as a proper workspace or file: dependency removes the obstacle and makes static import safe, silently breaking the CLI on Node less than 22.5. Recommend adding a short passage (Decision 5, or an amendment to Decision 3) stating the dynamic import is retained specifically because node:sqlite is unavoidably reachable through any static import chain into the graph library, and that this is why the loader is registered as an approved benign non-literal call in retired-authority-vocabulary-guard-smoke.ts rather than converted to static.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T13:50:21.779Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "cfc2faa4b8a8bf588b33e61c48efbe664a0e948d8ccd0e6af7011297f415fc86"
+      },
+      "readDiagnostics": [],
+      "_hash": "d24bdbc646b5f176c31535247116acdf8c917da6cdd6a6aee86ca73ad48d5d72",
+      "files": [
+        "docs/requirements/decisions/graph-command-migration.md",
+        "packages/main/src/handlers/graph.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
