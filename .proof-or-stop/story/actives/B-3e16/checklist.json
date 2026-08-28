@@ -158,7 +158,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "proof-or-stop graph --no-open prints story and relation counts then a localhost URL, and that URL serves the HTML document plus an /api/graph JSON payload with nodes and edges",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "proof-or-stop graph --json prints status JSON and exits 0 without starting a listener",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "When the asset directory is absent the command fails with an explicit message naming the missing directory and the build command, rather than serving a blank page",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
