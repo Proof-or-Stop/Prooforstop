@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-3e16:F-001",
+      "desc": "doc-promise-undelivered: packages/graph/README.md (lines 1-8, 51, 122-133) still documents the DELETED standalone-binary concept as current: it tells a reader to invoke `proof-or-stop-graph` directly (package.json has no `bin` field anymore, and packages/main/src/handlers/graph.ts never calls packages/graph/src/shells/cli/main.ts -- it imports dist/index.js as a library), the Architecture section still labels shells/cli/main.ts as \"the proof-or-stop-graph command\", the \"Migration into Proof-or-Stop\" section speaks of the migration in the future tense with the wrong tentative command name `proof_graph` (the chosen name is bare `graph`) even though the migration is this story, and the Development section instructs `npm start` to \"run the CLI from dist/\" even though no `start` script exists in packages/graph/package.json. CHK-006 explicitly promised \"grep for stale wording afterwards\"; scripts/verify-docs.mjs only checks CLAUDE.md and the decisions doc, never packages/graph/README.md, so this stale content shipped uncaught. The file is shipped in the published package (package.json files: [\"dist\",\"assets\",\"README.md\"]) and is the first thing a developer opens under packages/graph.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-28T10:04:14.526Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-001",
+      "_hash": "64b6476fa77b3a3ae1709ca59a5958134b5f2aab2698f6881671d49188a61dee",
+      "signatureTag": "missing|unknown|promise-undelivered-packages",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
