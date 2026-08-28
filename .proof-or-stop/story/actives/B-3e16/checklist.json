@@ -569,12 +569,19 @@
           "command": "npm --prefix packages/graph run verify-clean-tree",
           "result": "pass",
           "note": "The check resolves the real index database path from the app and asserts it is not inside the inspected repository; the selector proves the resolved path is under the user cache directory.",
-          "headHash": "cdac9f67b0f896cb54f68a7abf5ba8b05fa4f7fd",
+          "headHash": "bc287870f8a8719db54e8a8b4adf6cf6e8b1dea5",
           "materialHash": "469c3b94c6f775275157f28fc3d9fdcfc2f64c2b41d837b8fd23afc4aa26f70c",
           "storyFilesHash": "25b3440f5da1dc18b62496f04a96621e4d7f004d5a9f384e820fa7335121d6e1",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-28T22:03:20.759Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c90ed501f4f02644b00bca9a7135fb9b687431ec3501fa9bf08d5cb774c1cec8",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-clean-tree\n> node scripts/verify-clean-tree.mjs\n\nscanned 369 stories, 426 relations\nindex db resolved OUTSIDE the inspected repo: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-clean-tree-probe-15106/index.db\nindex db: /Users/qipan/.cache/proof-or-stop-graph/B-3e16-122d23e30fea/index.db\nCLEAN_TREE_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T22:04:34.581Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-28T22:04:34.608Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
