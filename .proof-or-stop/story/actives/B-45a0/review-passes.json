@@ -19337,6 +19337,94 @@
         "scanEscalationReason": null
       },
       "_hash": "ffd17ee0d9dde98ab954309e1a1f1099043f47a97cccb93fbb507e2869842bf5"
+    },
+    {
+      "id": "B-45a0:RP-364",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-090 Wave 2 disposition-only coverage review: the three already-recorded finding families remain formally represented (including the CHK-014 executable-verifier-coverage family in F-393/F-397). No new or non-duplicate coverage defect was identified at HEAD d9deb374a296fd9af1b6cdcbbe94b57d82a21e4b. This pass records complete disposition coverage for this lane only; it does not resolve or waive the existing open findings.",
+      "createdAt": "2026-08-28T19:42:57.361Z",
+      "reviewRound": "2026-08-28T19:18:13.536Z",
+      "reviewRunId": "B-45a0:RR-888",
+      "envelopeId": "bb78ac228641907510fc9466d65116cbfc3d8e3fc3b90148d3e36613db041f7f",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json"
+        ],
+        "scanEscalationReason": "RI-090 Wave 2 was explicitly disposition-only: review the three already-recorded finding families, do not launch validation/replay, and do not create a duplicate for unchanged evidence."
+      },
+      "_hash": "1699b478551a4ec794ef9511afa4daa411ebb77b2abedc1a66790e7de243215f"
+    },
+    {
+      "id": "B-45a0:RP-365",
+      "agent": "lattice-review-quality",
+      "note": "RI-090 wave-2 disposition review confirms exactly three current finding families: Wave-4 coverage, acceptance-topology basis, and replay-command documentation drift; no duplicate quality finding.",
+      "createdAt": "2026-08-28T19:43:49.632Z",
+      "reviewRound": "2026-08-28T19:18:13.536Z",
+      "reviewRunId": "B-45a0:RR-889",
+      "envelopeId": "a94eacff1b587978a0a0c467b664caf7fa966552c042c74c8a218818c0b7ea92",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e0724e44e232621cf39e6a0cb957d910bec9e1ea757e5ae24a268df5a696909a"
+    },
+    {
+      "id": "B-45a0:RP-366",
+      "agent": "lattice-review-docs",
+      "note": "RI-090 Wave 2 disposition-only documentation review: existing verified finding B-45a0:F-396 remains accurate at HEAD d9deb374a296fd9af1b6cdcbbe94b57d82a21e4b. The two decision records still say --verify-threshold executes the paired campaign, whereas scripts/run-dynamic-validation-replay.mjs makes it admission-only and reserves production for --execute. No distinct documentation-drift family was found, so no duplicate was created. This pass records complete disposition coverage for this lane only; it does not resolve, waive, or contradict F-396.",
+      "createdAt": "2026-08-28T19:45:09.033Z",
+      "reviewRound": "2026-08-28T19:18:13.536Z",
+      "reviewRunId": "B-45a0:RR-891",
+      "envelopeId": "1192c5b39148df8d7bd137985fe0dd81c1d5549d6f2ab6fc70fd3d5d31db32b0",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/findings.json"
+        ],
+        "scanEscalationReason": "RI-090 Wave 2 was explicitly disposition-only: verify the existing documentation-drift finding, do not run replay, and do not duplicate unchanged evidence."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "4871463fda88ad87422208bdc71f5bacbe2eafd41b1fd9b407098be8e996f37f"
+      },
+      "readDiagnostics": [],
+      "_hash": "c78feb0582663af95919f56764d427d3765ca83c09bcb6cae9868b2461ae40b2"
     }
   ]
 }
