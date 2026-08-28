@@ -1687,19 +1687,30 @@ function loaderArgumentValueExpression(
     && ts.isCallExpression(node.expression)
     && ts.isIdentifier(node.expression.expression)
     && node.expression.expression.text === allowedUrlHelper
-    && isNodeUrlHelperImport(node.expression.expression, checker)) {
+    && isNodeUrlHelperImport(node.expression.expression, allowedUrlHelper, checker)) {
     const inner = node.expression.arguments[0];
     if (inner) return loaderArgumentValueExpression(inner, allowedUrlHelper, checker) ?? inner;
   }
   return ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) ? node as ts.Expression : undefined;
 }
 
-/** True only when `id` resolves to an import specifier whose module is 'node:url'. */
-function isNodeUrlHelperImport(id: ts.Identifier, checker: ts.TypeChecker): boolean {
+/**
+ * True only when `id` resolves to a NAMED import of exactly `expected` from 'node:url'.
+ *
+ * Checking the module alone is not enough: codex (round 4) showed that
+ * `import { parse as pathToFileURL } from 'node:url'` yields an ImportSpecifier from the
+ * right module while the real export is something else entirely, so the pinned helper name
+ * would be satisfied by a different function. When an alias is used, `propertyName` holds
+ * the true export name and must equal `expected`.
+ */
+function isNodeUrlHelperImport(id: ts.Identifier, expected: string, checker: ts.TypeChecker): boolean {
   const declaration = checker.getSymbolAtLocation(id)?.declarations?.[0];
   if (!declaration || !ts.isImportSpecifier(declaration)) return false;
   const specifier = declaration.parent.parent.parent.moduleSpecifier;
-  return ts.isStringLiteral(specifier) && specifier.text === 'node:url';
+  if (!ts.isStringLiteral(specifier) || specifier.text !== 'node:url') return false;
+  // `propertyName` is set only for `{ real as local }`; otherwise the local name IS the export.
+  const exported = declaration.propertyName?.text ?? declaration.name.text;
+  return exported === expected;
 }
 
 /**
@@ -5141,6 +5152,33 @@ function assertLoaderArgumentProvenance(): void {
           + '}\n'
           + `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
         )],
+      /* PROBES (codex round 4): the independent review host wrote these four while
+         attempting further bypasses. It labelled them review-only, but the fourth found a
+         REAL hole (a different node:url export aliased to the pinned helper name), so all
+         four are kept permanently -- they are exactly the mutation classes a future editor
+         of this pin would need to stay honest about. */
+      ['aliased node:url import followed by local helper shadow', original.replace(
+        "import { pathToFileURL } from 'node:url';",
+        "import { pathToFileURL as p } from 'node:url';\n"
+        + 'function pathToFileURL(value: string): { href: string } {\n'
+        + '  return { href: String((globalThis as { __evil?: string }).__evil ?? p(value).href) };\n'
+        + '}',
+      )],
+      ['namespace node:url import followed by destructuring', original.replace(
+        "import { pathToFileURL } from 'node:url';",
+        "import * as url from 'node:url';\nconst { pathToFileURL } = url;",
+      )],
+      ['url helper shadowed inside anchor', original.replace(
+        'export function createGraphHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {',
+        'export function createGraphHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {\n'
+        + '  function pathToFileURL(value: string): { href: string } {\n'
+        + '    return { href: String((globalThis as { __evil?: string }).__evil ?? value) };\n'
+        + '  }',
+      )],
+      ['different node:url export aliased as pinned helper', original.replace(
+        "import { pathToFileURL } from 'node:url';",
+        "import { parse as pathToFileURL } from 'node:url';",
+      )],
       // PROBE (codex round 3b): a bodyless ambient producer declaration, which Node ESM can
       // resolve from an attacker-installed globalThis property.
       ['ambient bodyless producer', original.replace(
