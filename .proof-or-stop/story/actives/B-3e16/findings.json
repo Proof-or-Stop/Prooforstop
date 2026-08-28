@@ -222,6 +222,47 @@
       "_hash": "15c86a47181285cfad782a4fb0083b9e7e35cbf86f407efb4fcb2d36fca3d95a",
       "signatureTag": "missing|unknown|forward-risk-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-009",
+      "desc": "forward-risk (planned fix): the plan to make packages/graph a real file:../graph dependency of packages/main has no working precedent in this repo to model it on. This repo has NO npm workspaces field (verified: workspaces key absent from root package.json) and package-lock.json (lockfileVersion 3) tracks zero entries for packages/main, packages/utils, or packages/graph as local packages. The only existing analog -- packages/main/package.json declaring \"@lattice/lab\": \"0.3.65\" -- resolves today ONLY via a manually-created symlink at packages/main/node_modules/@lattice/lab -> ../../../lab that is gitignored (node_modules is in .gitignore) and NOT reproduced by npm install (no workspaces, no file: protocol, no postinstall/prepare script anywhere in the repo creates it); grep confirms @lattice/lab is not even statically imported anywhere in packages/main/src, so this precedent has never been exercised live. The reverse case -- packages/utils/package.json declaring \"@proof-or-stop/core\": \"0.3.65\" -- does not resolve at all (require.resolve fails) and is likewise never imported in packages/utils/src. Recommend the plan explicitly specify how file:../graph will be installed/verified reproducibly (npm install of a file: spec does create a real symlink and IS lockfile-tracked, unlike the current bare-version @lattice/lab entry, so this is fixable -- but the plan should say so and a fresh-clone-then-npm-install smoke test should be added, since the only sibling-package wiring precedent in this repo today is silently unreproducible).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-28T10:59:13.315Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-020",
+      "readManifest": {
+        "filesReadFully": [
+          "package-lock.json",
+          "package.json",
+          "packages/graph/package.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/graph.ts",
+          "packages/utils/package.json"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/index.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c45dc911d6bc77761800de61b81e16720dff533c244edc1c89aee6b40badab58",
+      "signatureTag": "missing|unknown|forward-risk-planned",
+      "signatureTagSource": "auto"
     }
   ]
 }
