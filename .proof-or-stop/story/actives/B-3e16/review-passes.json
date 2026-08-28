@@ -560,6 +560,29 @@
         "scanEscalationReason": null
       },
       "_hash": "47b780ec6b078458fdadb0b9f20e028fb988f1b558a5ef0960984deede6b945b"
+    },
+    {
+      "id": "B-3e16:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Verified 9906b0072d (assertLoaderArgumentProvenance) and 2aeb29a508 (contract-string sync) by direct code read + independent execution, not just trusting the commit messages. (1) assertLoaderArgumentProvenance is correct: root identifier resolved via checker.getSymbolAtLocation (not name matching), requires a same-scope const (NodeFlags.Const checked), requires a direct call to resolveGraphPackage as initializer, and validates the producer parameter list is unwidened; every unresolved path returns a violation string (fail-closed). Confirmed graph.ts:288 (const location = resolveGraphPackage(ctx.root);) and graph.ts:94 (resolveGraphPackage(projectRoot: string)) match the pin exactly. The four self-test mutants (rebind/indirect-alias/signature-widen/hoist-out-of-scope) are real distinct code mutations and are each scanned with fingerprintOverride set to the mutant's own fingerprint; confirmed fingerprintOverride only substitutes the whole-file pin check, leaving the provenance check unaffected, so the controls do prove provenance independent of fingerprint drift. Re-ran the guard twice after a clean rebuild and it passes: 'retired authority vocabulary guard PASS builds=809 cacheHits=2 fullAnalysis=1284 astCandidates=499 reachability=34'. One transient failure racing with a concurrent lane's build in this shared worktree self-resolved on rebuild with zero source changes -- not a defect in the reviewed commits. (2) Coarse anchor accepted: confirmed enclosingFunctionName only matches ts.isFunctionDeclaration (line 1594-1601), and graph.ts's graph method is inside an object literal, not a FunctionDeclaration, so the walk lands on createGraphHandlers. Confirmed createGraphHandlers's returned object literal has exactly one method (graph itself), so there is no anchor-collision risk today; the whole-file structural fingerprint is the actual backstop against future edits smuggling a second same-anchor location binding. Acceptable, not materially weakening. (3) All three required facts appear verbatim and are well-substantiated in the approval comment (lines 1525-1547): --root influenceability traced through named line numbers in cli-engine.ts and runtime-root.ts (independently confirmed the story_discard-only-exception claim against runtime-root.ts:51-53); the startCircuitServe precedent citation is accurate (same map, same trust pattern, verified at line 1491); the whole-file early-return / silent sixth-pattern-inheritance risk is explicitly named. (4) 2aeb29a508: ran verify-process-fact-contract.mjs directly (exit 0, Process fact contract verified) confirming the sync fix is functionally correct. Design note (non-blocking, advisory): unlike this story's F-011 fix (which replaced a hand-typed docs digit with a live derivation, ALL_PHASES.length + 2), this hazard is structurally different -- the count in the guard's own assert.equal is already computed via .size + .size; what is hand-duplicated is the English message STRING, pinned as a required verbatim substring in a separate contract script. verify-process-fact-contract.mjs already imports typescript and does AST parsing elsewhere, so a more robust design (asserting the guard's computed count structurally instead of pinning prose) is architecturally available and would remove this recurring hand-sync hazard for future exemption-map entries. Not blocking: both files pass, the fix is correct, and the limitation is already documented in the commit message. No code-quality findings: no dead code, no unnecessary as any, no swallowed errors introduced by either commit; npx tsc --noEmit -p packages/main exits 0.",
+      "createdAt": "2026-08-28T16:14:22.228Z",
+      "reviewRound": "2026-08-28T16:04:35.811Z",
+      "reviewRunId": "B-3e16:RR-039",
+      "envelopeId": "0d260fdcd66e4b28d66e95b22079c3aec8dda9cc048c54eda3f3d620bfff4eff",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/runtime-root.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (commit 9906b0072d diff)",
+          "scripts/verify-process-fact-contract.mjs (commit 2aeb29a508 diff + assertCloseoutTrustBoundary context)"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a7d9f875ccefd4a3b999cca277c701bb8460b71710de8706dd7d8edd72d5b3c"
     }
   ]
 }
