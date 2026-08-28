@@ -21345,6 +21345,87 @@
       ],
       "signatureTag": "pre-review-critic-receipt-digest-churn",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-376",
+      "desc": "doc-code-drift: CLAUDE.md:837 still documents EVIDENCE_COMMAND_TIMEOUT_CAP_MS as 7,200,000 ms (2h) and says it equals the DONE-required root-suite budget, but packages/main/src/core/validation-executor.ts:71-86 now exports 21,600,000 ms (6h) specifically to accommodate historical replay, and packages/main/src/handlers/checklist.ts:445-449 enforces that value. Operators following the documented audited ceiling will receive the wrong accepted range and rationale; update the table to the current 6h cap while retaining the inclusive-boundary and refuse-not-clamp semantics.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T04:49:34.177Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-823",
+      "_hash": "5ab5f3f3ed2950faf41b7418e12c1e92895917fffe88c3f41d55dde1f83156a1",
+      "files": [
+        "CLAUDE.md",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "doc-timeout-cap-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-377",
+      "desc": "doc-code-drift: docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:81-84 says a resumable historical record is accepted only when its per-command equivalence remains valid. The implementation at packages/main/src/tasks/story-aware-validation-historical-replay.ts:292-298 deliberately accepts perCommandEquivalent=false (it checks only that the field is boolean) when every full-plan failure is selected and residue is empty, consistent with the earlier paragraph at lines 35-38. Rewrite the resume predicate paragraph to say the historical comparison field is present and full-failure selection plus zero residue remain valid; reserve exact per-command equivalence for the mandatory current-HEAD paired campaign.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T04:50:04.642Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-823",
+      "_hash": "8aa8027d72f038c21af3c7215fc89b165c9cfc571fcb37352649c616fa2e2090",
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+      ],
+      "signatureTag": "historical-resume-equivalence-doc-drift",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-378",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:57-70 and story-aware-dynamic-validation-current-main-characterization.md:62-84 publish plain --execute and --paired as executable assurance commands that restore historical pairs and run the paired campaign. In scripts/run-dynamic-validation-replay.mjs:12-24 every executable mode is forced through --resume, but repairMissingRequested is true only for --verify-threshold or an explicit --repair-missing. Consequently packages/main/src/tasks/story-aware-validation-historical-replay.ts:268-275 and 398-400 reject the first absent or incompatible record for plain --execute/--paired instead of executing it. On a fresh or incomplete corpus, two of the three documented commands cannot deliver the promised campaign. Either make plain --execute/--paired perform a fresh/bounded executable run, or document their diagnostic-resume precondition and publish the actual repair command.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T04:50:45.053Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-823",
+      "_hash": "1c7374ec69b7da4a2b1b85c824434d7eb1fdf3c08c8438bb1b4fcbabb6c84803",
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ],
+      "signatureTag": "replay-executable-command-promise-undelivered",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-379",
+      "desc": "quality-fail-open: scripts/run-dynamic-validation-replay.mjs:40 uses `historical.status ?? mutation.status`, so the defined historical status masks a nonzero mutation subprocess exit. In `--mutation=missing-evidence` mode historical.status is hard-coded to 0; a witness BUN that printed the expected mutation markers and exited 23 still made the wrapper exit 0 and report `historical replay assurance PASS` plus `enforcement threshold blocked`. This can admit mutation/enforcement evidence even though the mutation verifier failed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-28T04:51:28.961Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-824",
+      "_hash": "51bb58208de65ae596480db744eb02f82e800614d5005ca686da0cf523b6d0fe",
+      "files": [
+        "scripts/run-dynamic-validation-replay.mjs",
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ],
+      "signatureTag": "replay-wrapper-subprocess-status-shadowed",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
