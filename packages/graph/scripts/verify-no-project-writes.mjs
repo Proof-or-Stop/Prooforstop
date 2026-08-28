@@ -1,91 +1,78 @@
 /**
- * Proves the graph tool needs no runtime-artifact-registry entry.
+ * Proves the graph tool writes nothing into the repository it inspects.
  *
- * `proof-or-stop serve` writes a discovery file (.lattice-serve.json) into the project,
- * which is why that path is registered in packages/main/src/core/runtime-artifact-registry.ts
- * with materialHash:'exclude' -- otherwise it would perturb the material hash that signed
- * evidence is bound to. The graph command deliberately writes NO such file: its only
- * filesystem write is the index cache, which lives under the user cache directory.
+ * WHY THIS IS A RUNTIME CHECK, NOT A SOURCE SCAN. Three earlier versions of this guard
+ * scanned the source text and each was defeated, because provenance is not a lexical
+ * property. The last one required a write target to be *named* dbPath/tmpPath/tmp, which
+ * an independent review host defeated with `const tmpPath = path.join(root, '.evil.json')`
+ * — a name-matching, root-derived path. Worse, the rule punished honest naming (a genuine
+ * cache write called `indexFile` was rejected) and so actively pressured a developer toward
+ * the exact rename that defeats it. The class was never "single-letter alias"; it was "the
+ * guard trusts the identifier's name."
  *
- * This check enumerates every write call in the runtime source (excluding src/tasks, which
- * are developer self-checks that never run inside the served command) and asserts each one
- * is a cache-directory write rather than a project write. It fails if a new write path is
- * introduced without revisiting the registry question.
+ * So this asserts the property actually being claimed: with fs write APIs instrumented, a
+ * real full scan — graph build, FTS index build, story serialisation, search — must direct
+ * every write under the user cache directory and none into the inspected repository.
  */
-import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
+import { execFileSync } from 'node:child_process';
 
+// Patch the SAME module record the package resolves. Importing 'fs' here while the package
+// imports 'node:fs' yields distinct namespaces, and the probe silently observes nothing --
+// caught by the fail-closed NO_WRITES_OBSERVED branch below rather than passing vacuously.
+const fs = (await import('node:fs')).default;
+
+const repo = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
 const here = path.dirname(new URL(import.meta.url).pathname);
-const srcRoot = path.resolve(here, '..', 'src');
+const { createApp } = await import(path.join(here, '..', 'dist', 'index.js'));
 
-const WRITE_CALL = /\b(writeFileSync|writeFile|appendFileSync|appendFile|createWriteStream|mkdirSync|mkdir|rmSync|unlinkSync|renameSync|copyFileSync)\s*\(/;
+/** Every write the run attempts, as an absolute path. */
+const attempted = [];
+const record = (target) => {
+  if (typeof target === 'string' || Buffer.isBuffer(target)) attempted.push(path.resolve(String(target)));
+  else if (target instanceof URL) attempted.push(path.resolve(target.pathname));
+};
 
-/* Write calls that are known-good because they target the out-of-repo index cache.
-   Keyed by file AND by the argument text of the write, because a file-only allowlist is
-   vacuous: an independent review host demonstrated that adding
-   `fs.writeFileSync(path.join(root, '.lattice-graph.json'), ...)` to the allowed
-   core/search/fn.ts passed this check while it printed "resolves under the user cache
-   dir" against a write into the project root. Each entry must name a target expression
-   that is derived from dbPath (the cache path), never from `root`. */
-const ALLOWED = [
-  { file: 'core/search/fn.ts', target: 'path.dirname(dbPath)', reason: 'creates the index cache directory' },
-  { file: 'core/search/fn.ts', target: 'tmpPath', reason: 'removes a stale pid-suffixed temp file derived from dbPath' },
-  { file: 'core/search/fn.ts', target: 'tmp, dbPath', reason: 'atomic rename of the pid-suffixed temp onto the cache path' },
-];
-
-/* CLASS rule, not a blocklist. An allowlisted target must be SELF-EVIDENTLY cache-derived:
-   its text must mention dbPath, or tmp/tmpPath (which are themselves built from dbPath one
-   line below the mkdir). A previous version paired the file with an exact target string and
-   additionally rejected the literal identifiers root/projectRoot/repoRoot — the review host
-   showed that still passed a single-letter alias like `f` holding a root-derived path, and
-   that each fix here had narrowed the demonstrated hole rather than the class. Requiring
-   positive evidence of cache derivation closes the class: an alias that does not name the
-   cache path cannot be allowlisted at all, whatever it is called. */
-const CACHE_DERIVED = /\b(dbPath|tmpPath|tmp)\b/;
-
-const walk = dir => fs.readdirSync(dir, { withFileTypes: true }).flatMap(e => {
-  const p = path.join(dir, e.name);
-  return e.isDirectory() ? walk(p) : [p];
-});
-
-const found = [];
-for (const abs of walk(srcRoot)) {
-  const rel = path.relative(srcRoot, abs);
-  if (rel.startsWith('tasks' + path.sep)) continue;   // developer self-checks, not served code
-  if (!/\.(ts|mjs|js)$/.test(rel)) continue;
-  const lines = fs.readFileSync(abs, 'utf8').split('\n');
-  lines.forEach((line, i) => {
-    if (line.trimStart().startsWith('*') || line.trimStart().startsWith('//')) return;
-    if (WRITE_CALL.test(line)) found.push({ rel, line: i + 1, text: line.trim() });
-  });
+// Instrument every write-shaped fs API the package could reach.
+for (const name of ['writeFileSync', 'appendFileSync', 'mkdirSync', 'rmSync', 'unlinkSync',
+                    'renameSync', 'copyFileSync', 'createWriteStream', 'openSync', 'truncateSync']) {
+  const original = fs[name];
+  if (typeof original !== 'function') continue;
+  fs[name] = function instrumented(...args) {
+    // openSync only writes when its flag says so; everything else here is a write by nature.
+    if (name !== 'openSync' || /[wa+]/.test(String(args[1] ?? ''))) record(args[0]);
+    if (name === 'renameSync') record(args[1]);
+    return original.apply(this, args);
+  };
 }
 
-const unexpected = found.filter((f) => {
-  // A write is acceptable only when its FILE and its TARGET ARGUMENT are both allowlisted,
-  // and the target never mentions a project-root identifier.
-  /* Take the write call's own argument list, not the whole line: a call nested inside an
-     `if (...)` would otherwise start at the enclosing condition and never match its entry. */
-  const call = WRITE_CALL.exec(f.text);
-  const args = call ? f.text.slice(f.text.indexOf('(', call.index) + 1) : f.text;
-  if (!CACHE_DERIVED.test(args)) return true;          // no positive cache evidence -> reject
-  return !ALLOWED.some(a => f.rel === a.file && args.startsWith(a.target));
-});
+// A FRESH cache path, so the run must actually create and populate the index. Reusing an
+// existing cache means no writes occur and the probe observes nothing.
+const probeCache = path.join(os.tmpdir(), `graph-write-probe-${process.pid}`, 'index.db');
+const app = createApp({ root: repo, dbPath: probeCache });
+const graph = app.getGraph();
+app.getGraphBuffer();
+app.getStatus();
+if (graph.stories.length > 0) app.getStoryBuffer(graph.stories[0].id);
+app.getSearchBuffer('graph', 5);
+app.close();
 
-if (unexpected.length) {
+const inRepo = attempted.filter(p => p === repo || p.startsWith(repo + path.sep));
+if (inRepo.length) {
   console.error('UNEXPECTED_PROJECT_WRITE');
-  console.error('  A new filesystem write appeared in the served runtime source. If it writes');
-  console.error('  into the inspected project, it needs a runtime-artifact-registry entry the');
-  console.error('  way .lattice-serve.json has one. Confirm where it writes, then either move');
-  console.error('  it under the cache dir or add it to ALLOWED with a reason.');
-  for (const u of unexpected) console.error(`    ${u.rel}:${u.line}  ${u.text}`);
+  console.error('  A real scan wrote into the inspected repository. The graph command must');
+  console.error('  write only its index cache, outside the repo, so DONE\'s clean-tree gate');
+  console.error('  cannot be sabotaged by the tool that reports on it.');
+  for (const p of [...new Set(inRepo)]) console.error(`    ${p}`);
   process.exit(1);
 }
-
-console.log(`write paths in served runtime source: ${found.length}`);
-for (const f of found) {
-  const call = WRITE_CALL.exec(f.text);
-  const args = call ? f.text.slice(f.text.indexOf('(', call.index) + 1) : f.text;
-  const why = ALLOWED.find(a => f.rel === a.file && args.startsWith(a.target))?.reason ?? '';
-  console.log(`  ${f.rel}:${f.line} — ${why}`);
+if (attempted.length === 0) {
+  console.error('NO_WRITES_OBSERVED — the probe recorded nothing, so it proves nothing.');
+  console.error('  Expected at least the index cache directory creation. Instrumentation is broken.');
+  process.exit(1);
 }
+console.log(`observed ${attempted.length} write(s), ${new Set(attempted).size} distinct, none inside the repo`);
+console.log(`repo: ${repo}`);
+fs.rmSync(path.dirname(probeCache), { recursive: true, force: true });
 console.log('NO_PROJECT_WRITES_OK');
