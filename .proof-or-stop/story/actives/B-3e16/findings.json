@@ -43,7 +43,7 @@
       "desc": "doc-code-drift: packages/graph/README.md:1-134 still documents this package as a standalone tool invoked via bin `proof-or-stop-graph` (usage block at line 7, shells/cli description at line 51) and its \"Migration into Proof-or-Stop\" section (lines 121-124) frames the migration as still-future work (\"would call\", speculating the command would be named `proof_graph`), but this story already performed that migration: the actual entrypoint is the bare `proof-or-stop graph` command registered in packages/main/src/handlers/graph.ts, packages/graph/package.json has no `bin` field so `proof-or-stop-graph` cannot be invoked at all in this repo, and packages/main now does depend on this package's library surface (createApp/startServer) via runtime resolution. A reader of this README post-migration would try the wrong command and get a wrong mental model of the naming/dependency direction that the decisions doc and CLAUDE.md correctly state. This is the exact kind of promised-vs-delivered drift the docs-review closing self-check calls out, just inverted (pre-migration prose left stale rather than a promise never implemented).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-28T10:05:09.337Z",
@@ -56,7 +56,11 @@
         "docs/requirements/decisions/graph-command-migration.md"
       ],
       "signatureTag": "missing|md|code-drift-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-3e16:F-001, which the concept reviewer filed earlier in run RR-001 against the same file and the same substance (standalone bin usage plus stale future-tense migration framing). The docs reviewer noted the duplication itself. Fixed by the same README rewrite in commit 235a98f8a8; see the F-001 resolution for the verification detail.",
+      "resolvedAt": "2026-08-28T10:08:37.434Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
