@@ -416,10 +416,30 @@
         "tool_executed_evidence",
         "verification_evidence_refresh"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Correct the published evidence timeout cap so operator guidance matches the six-hour enforcement boundary used by the historical replay assurance campaign.",
+      "timestamp": "2026-08-28T06:04:08.636Z",
+      "paths": [
+        "CLAUDE.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "CLAUDE.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "9391afe8368a92e986ea67e9a180fa03bd9c3824",
+      "materialHash": "37f6332c3a05a892f036d5ee9da3e1c01777da250177dfacf9865aa4849bed74",
+      "anchors": [
+        "verification_evidence_refresh",
+        "historical_replay_assurance"
+      ]
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-27T16:08:09.550Z",
+  "updatedAt": "2026-08-28T06:04:08.636Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -501,6 +521,7 @@
     "packages/main/src/tasks/full-suite-runner-smoke.ts": "packages/main/src/tasks/full-suite-runner-smoke.ts",
     "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
     "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
-    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+    "CLAUDE.md": "CLAUDE.md"
   }
 }
