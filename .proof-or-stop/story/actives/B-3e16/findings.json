@@ -118,6 +118,67 @@
       "resolvedAt": "2026-08-28T10:20:18.144Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-007",
+      "desc": "concept-cleanup: packages/graph/.gitignore:6 has a dead entry `.proof-or-stop-graph/` (a project-local dotdir) that nothing in the migrated code ever writes -- the search index cache is correctly written to `~/.cache/proof-or-stop-graph/` outside the repo (packages/graph/src/core/app.ts:38), per CHK-005's explicit no-project-writes requirement. This ignore-list entry is inert noise left over from migration and could mislead a future reader into thinking a project-local cache directory was once written here and later relocated. Low severity: no functional harm, cosmetic residue only.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-28T10:25:26.285Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/graph/.gitignore",
+          "packages/graph/package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/src/core/app.ts",
+          "packages/graph/src/core/machine.ts",
+          "packages/graph/src/io/find-root.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/package-lock.json",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/scripts/copy-assets.mjs",
+          "packages/graph/scripts/verify-assets-ignored.mjs",
+          "packages/graph/scripts/verify-clean-tree.mjs",
+          "packages/graph/scripts/verify-engines-floor.mjs",
+          "packages/graph/scripts/verify-json-no-listener.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/graph/scripts/verify-serves.mjs",
+          "packages/graph/tsconfig.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/registry.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bdd21896fa1897adbcd1f94601b2052826d491fa18c73d1fdc2a1b402e63b027",
+      "signatureTag": "missing|unknown|concept-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
