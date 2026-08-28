@@ -33,6 +33,7 @@ import { createTaskHandlers } from './handlers/task.js';
 import { createTruthHandlers } from './handlers/truth.js';
 import { createGapHandlers } from './handlers/gap.js';
 import { createVerifierHandlers } from './handlers/verifier.js';
+import { createGraphHandlers } from './handlers/graph.js';
 import { createFindingHandlers } from './handlers/finding.js';
 import { createEvaluateHandlers } from './handlers/evaluate.js';
 import { createWorkflowHandlers } from './handlers/workflow.js';
@@ -201,6 +202,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createTruthHandlers(ctx));
   registry.registerBatch(createGapHandlers(ctx));
   registry.registerBatch(createVerifierHandlers(ctx));
+  // B-3e16 CHK-003: graph is a NORMAL registered handler (like the long-running
+  // serve), not a dashboard-style standalone branch, so the command-ownership
+  // dispatchability assertion keeps covering it with no new exemption.
+  registry.registerBatch(createGraphHandlers(ctx));
   registry.registerBatch(createReviewRunHandlers(ctx));
   registry.registerBatch(createReviewInventoryHandlers(ctx));
   registry.registerBatch(createReviewLoopHandlers(ctx));
