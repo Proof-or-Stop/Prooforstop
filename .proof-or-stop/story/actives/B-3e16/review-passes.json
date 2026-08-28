@@ -84,6 +84,49 @@
         "scanEscalationReason": null
       },
       "_hash": "84d0fb780e7eaf463218dc5600cf62889eb22879a1c62b04bd977c9d2d4306b8"
+    },
+    {
+      "id": "B-3e16:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality lane round 2 (incremental, prior pass RP-003): verified F-006 match-local fix, verify-docs.mjs indent-stack parser + 10-floor, process-fact-levels.ts L0 classification via mechanical registry-contract check, and spot-checked handlers/graph.ts seams. No blocking issues found.",
+      "createdAt": "2026-08-28T10:25:46.254Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-015",
+      "envelopeId": "7d2d932252ee353e5dc5f342f4b311d7a921217d5df6d06ea437a9fe23f4b7f5",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/src/core/search/worker.ts",
+          "packages/graph/src/index.ts",
+          "packages/graph/src/io/find-root.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/src/core/store/fn.ts",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/io/open-browser.ts",
+          "packages/graph/src/tasks/anchor-check.mjs",
+          "packages/graph/src/tasks/audit.ts",
+          "packages/graph/src/tasks/bench.ts",
+          "packages/graph/tsconfig.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/registry.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "463df6a494c9f7c3dc961827bc7218c5e689e8d8ba49835a202c441ea3d0609b"
     }
   ]
 }
