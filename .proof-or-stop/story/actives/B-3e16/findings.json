@@ -29,6 +29,26 @@
       "_hash": "0c84be38d15bb37fd3d0ef8552665564bba0658a42a6fcec2ab89c98a7d9449c",
       "signatureTag": "missing|unknown|packages-graph-shells",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-003",
+      "desc": "doc-code-drift: packages/graph/README.md:1-134 still documents this package as a standalone tool invoked via bin `proof-or-stop-graph` (usage block at line 7, shells/cli description at line 51) and its \"Migration into Proof-or-Stop\" section (lines 121-124) frames the migration as still-future work (\"would call\", speculating the command would be named `proof_graph`), but this story already performed that migration: the actual entrypoint is the bare `proof-or-stop graph` command registered in packages/main/src/handlers/graph.ts, packages/graph/package.json has no `bin` field so `proof-or-stop-graph` cannot be invoked at all in this repo, and packages/main now does depend on this package's library surface (createApp/startServer) via runtime resolution. A reader of this README post-migration would try the wrong command and get a wrong mental model of the naming/dependency direction that the decisions doc and CLAUDE.md correctly state. This is the exact kind of promised-vs-delivered drift the docs-review closing self-check calls out, just inverted (pre-migration prose left stale rather than a promise never implemented).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T10:05:09.337Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-004",
+      "_hash": "51afb5ff746158f015178df74c7760497eb41697c302c985120b97a61bb22626",
+      "files": [
+        "packages/graph/README.md",
+        "packages/main/src/handlers/graph.ts",
+        "docs/requirements/decisions/graph-command-migration.md"
+      ],
+      "signatureTag": "missing|md|code-drift-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
