@@ -176,7 +176,11 @@
           {
             "desc": "The unsupported-runtime path never surfaces a raw ERR_UNKNOWN_BUILTIN_MODULE stack trace to the user",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run verify-engines-floor",
+              "selector": "negative control: unguarded import"
+            }
           }
         ]
       },
@@ -220,6 +224,26 @@
           "materialHash": "589d5e7531c14675ad8cf7ed50c190a01b8ad37fac34135db9e8768a75c9bd1b",
           "storyFilesHash": "c8327d9bb4af62cedb2485bb3852aa95be11d611869cd93d7dccb9b97c3abfb1",
           "timestamp": "2026-08-28T09:56:43.928Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/graph run verify-engines-floor",
+          "result": "pass",
+          "note": "Proves no raw ERR_UNKNOWN_BUILTIN_MODULE stack reaches the user. Three mutation tests confirmed the check can fail: neutering the guard, moving it after the dynamic import (proving placement is load-bearing, not just wording), and hardcoding the version instead of reading engines.node all make it fail.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "874824f57c49ef117e882a9fca1b09f36b53b8fe0ff4a1d07276359b3d65ffa9",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-engines-floor\n> node scripts/verify-engines-floor.mjs\n\nnegative control: unguarded import on v20.19.6 throws ERR_UNKNOWN_BUILTIN_MODULE\nguard on real v20.19.6 produced a readable diagnostic:\n    graph: this Node runtime cannot load node:sqlite, which the graph\n      full-text index is built on.\n      running Node: v20.19.6\n      @proof-or-stop/graph requires Node >=22.5.0\n      → upgrade Node, then re-run: proof-or-stop graph\nengines.node=>=22.5.0 declared once, sourced from the manifest; supported runtimes pass\nENGINES_FLOOR_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:56:55.570Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "2ec55fc678b86863b8245e94599940980e19a3cf",
+          "materialHash": "589d5e7531c14675ad8cf7ed50c190a01b8ad37fac34135db9e8768a75c9bd1b",
+          "storyFilesHash": "c8327d9bb4af62cedb2485bb3852aa95be11d611869cd93d7dccb9b97c3abfb1",
+          "timestamp": "2026-08-28T09:56:55.762Z"
         }
       ]
     },
