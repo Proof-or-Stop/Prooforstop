@@ -60,6 +60,30 @@
         "scanEscalationReason": null
       },
       "_hash": "c10b4572f02f6473c5deab5aa27ba940a65a9868d69622f473f4df6faa52592a"
+    },
+    {
+      "id": "B-3e16:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified at head 2d82650 (materialHash unchanged from RR-012, only metadata moved). Prior rounds on this dispatch: at head 423a35d I filed F-006, the same defect independently found as F-005 (lattice-review-concept) -- the verify-docs.mjs .cache exemption was line-wide not match-local, letting a real proof-or-stop-graph reintroduction pass DOCS_OK if it shared a line with any .cache substring (demonstrated with a crafted README line). Commit 108d4cc287 fixed F-005 with a match-local regex before I finished reporting; I re-verified that fix directly: my original mixed-line adversarial input now correctly fails DOCS_INCOMPLETE, a bare cache-path-only line still passes, a plain standalone-binary invocation is still caught, and additional cases (substring-of-longer-token before/after the match, no-trailing-slash cache reference) resolve in the safe direction. F-006 is now resolved as a duplicate of F-005 per the finding_resolve metadata in this commit. Also re-confirmed the original dispatch target, F-004: the stale src/shells/cli/main.ts line is gone from the README tree, the 16-entry indent-stack parser resolves every current architecture-tree path against disk with all existing, and the ten-path fail-closed floor (checked=16, floor=10) is a sound margin, not brittle. All four negative controls from the F-004 commit (stale path reinjection, emptied tree, standalone-binary reintroduction, npm start reintroduction) reproduce DOCS_INCOMPLETE as claimed. Working tree confirmed clean after every adversarial README mutation was reverted in testing. No remaining blocking issues found in the reviewed scope (packages/graph/README.md, packages/graph/scripts/verify-docs.mjs).",
+      "createdAt": "2026-08-28T10:21:22.934Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-013",
+      "envelopeId": "a4b9769f2438aa9e463fcde647f3993793fdcb37424bc948c87253a192c3bc8f",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "84d0fb780e7eaf463218dc5600cf62889eb22879a1c62b04bd977c9d2d4306b8"
     }
   ]
 }
