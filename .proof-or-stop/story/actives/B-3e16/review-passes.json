@@ -317,6 +317,35 @@
       },
       "readDiagnostics": [],
       "_hash": "9314a26937e4f34a73b3055c51b1880ea7be075325b23365e950a1c825a09a3b"
+    },
+    {
+      "id": "B-3e16:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Wave 3 story-level docs verdict on current tree with the settled remediation plan. Confirmed pre-remediation state for all three of this lane's findings still matches their described fixes: (1) graph-command-migration.md still states the surface count as a flat digit with no per-phase derivation (F-011 premise live). (2) Decision 3 (Node engines floor) names node:sqlite/22.5.0 but gives no rationale for the version choice (F-015 premise live). (3) validate.commands wires npm --prefix packages/graph run check plus command-catalog-smoke/lifecycle-registry-contract already, but NOT cli-surface-smoke/verify-orphan-surface/command-ownership-contract yet (F-012/F-014 premise live). (4) retired-authority-vocabulary-guard-smoke.ts confirmed: handlers/graph.ts absent from both knownBenignNonLiteralLoaderCalls and DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS -- the 6 violations are real, matching the plan's stated remaining blocker. (5) CLAUDE.md's graph section already matches current handler code and command-catalog.ts help text exactly (flags, default port 8731, cwd-upward root discovery, read-only framing) -- no drift there, nothing to fix. CONCLUSION: no doc-vs-code inconsistency remains on the current tree that the described remediation (F-011 derivation wording, F-015 rationale, F-012/F-014 validate.commands wiring, F-016/F-017 approval comment) would fail to fix. F-013 correctly reclassified moot in wave 2; concur it should stay untouched. Judgement call (not filed, noted only): post-remediation, 3 of the 6 named contract tasks in the 'registration surface set' section move to validate.commands while command-catalog-smoke/lifecycle-registry-contract are already there and test:process-fact-contract stays wired only in test:serial-reference (a separately-maintained list per the doc's own earlier point). The section's 'run them all' phrasing never claims a specific wiring mechanism so it stays true post-fix -- not a doc-vs-code inconsistency, so not filed as a finding; flagging as an optional wording nit for the implementer.",
+      "createdAt": "2026-08-28T14:05:37.133Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-033",
+      "envelopeId": "57c5d00d0425cce2433dcef5d6ef07f11e913d892e053e50c4a17e398ad102fa",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/src/io/find-root.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "83e6c0166ec8173f86645ada3453cdc429e05df163321913a0136bef7bfc9b7d"
     }
   ]
 }
