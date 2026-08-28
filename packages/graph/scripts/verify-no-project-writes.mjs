@@ -20,10 +20,21 @@ const srcRoot = path.resolve(here, '..', 'src');
 
 const WRITE_CALL = /\b(writeFileSync|writeFile|appendFileSync|appendFile|createWriteStream|mkdirSync|mkdir|rmSync|unlinkSync|renameSync|copyFileSync)\s*\(/;
 
-/** Write calls that are known-good because they target the out-of-repo index cache. */
+/* Write calls that are known-good because they target the out-of-repo index cache.
+   Keyed by file AND by the argument text of the write, because a file-only allowlist is
+   vacuous: an independent review host demonstrated that adding
+   `fs.writeFileSync(path.join(root, '.lattice-graph.json'), ...)` to the allowed
+   core/search/fn.ts passed this check while it printed "resolves under the user cache
+   dir" against a write into the project root. Each entry must name a target expression
+   that is derived from dbPath (the cache path), never from `root`. */
 const ALLOWED = [
-  { file: 'core/search/fn.ts', reason: 'creates the index cache directory, which resolves under the user cache dir' },
+  { file: 'core/search/fn.ts', target: 'path.dirname(dbPath)', reason: 'creates the index cache directory' },
+  { file: 'core/search/fn.ts', target: 'f', reason: 'removes a stale pid-suffixed temp file derived from dbPath' },
+  { file: 'core/search/fn.ts', target: 'tmp, dbPath', reason: 'atomic rename of the pid-suffixed temp onto the cache path' },
 ];
+
+/** Reject any write whose first argument mentions a project-root identifier. */
+const ROOT_DERIVED = /\b(root|projectRoot|repoRoot)\b/;
 
 const walk = dir => fs.readdirSync(dir, { withFileTypes: true }).flatMap(e => {
   const p = path.join(dir, e.name);
@@ -42,7 +53,13 @@ for (const abs of walk(srcRoot)) {
   });
 }
 
-const unexpected = found.filter(f => !ALLOWED.some(a => f.rel === a.file));
+const unexpected = found.filter((f) => {
+  // A write is acceptable only when its FILE and its TARGET ARGUMENT are both allowlisted,
+  // and the target never mentions a project-root identifier.
+  const args = f.text.slice(f.text.indexOf('(') + 1);
+  if (ROOT_DERIVED.test(args)) return true;
+  return !ALLOWED.some(a => f.rel === a.file && args.startsWith(a.target));
+});
 
 if (unexpected.length) {
   console.error('UNEXPECTED_PROJECT_WRITE');
@@ -56,7 +73,8 @@ if (unexpected.length) {
 
 console.log(`write paths in served runtime source: ${found.length}`);
 for (const f of found) {
-  const why = ALLOWED.find(a => a.rel === f.rel || f.rel === a.file)?.reason ?? '';
+  const args = f.text.slice(f.text.indexOf('(') + 1);
+  const why = ALLOWED.find(a => f.rel === a.file && args.startsWith(a.target))?.reason ?? '';
   console.log(`  ${f.rel}:${f.line} — ${why}`);
 }
 console.log('NO_PROJECT_WRITES_OK');

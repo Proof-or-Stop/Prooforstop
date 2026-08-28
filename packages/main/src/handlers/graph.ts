@@ -298,8 +298,21 @@ export function createGraphHandlers(ctx: HandlerContext): Record<string, (...arg
 
       // `path.resolve` matches the source shell: a relative --root is resolved
       // against cwd rather than handed to the app verbatim.
+      /* An explicit --root is VALIDATED, not trusted. Passing it through unchecked made a
+         typo indistinguishable from an empty repository: `--root=/nonexistent` exited 0
+         reporting `stories: 0, edges: 0`, and the serving path started a real server on a
+         real port showing an empty graph. That silently contradicts the worktree-precedence
+         warning in CLAUDE.md, whose whole point is that reading the wrong directory
+         misreports story state. Found by an independent review host (B-3e16 round 3), which
+         also noted this package's own audit task already refuses the same input. */
       const probe = args.root
-        ? { root: resolve(args.root), reason: 'explicit --root' }
+        ? ((): { root: string | null; reason: string } => {
+            const explicit = resolve(args.root);
+            const checked = lib.findRoot(explicit);
+            return checked.root === explicit
+              ? { root: explicit, reason: 'explicit --root' }
+              : { root: null, reason: `--root=${explicit} is not a Proof-or-Stop repository (no story directory found there)` };
+          })()
         : lib.findRoot(process.cwd());
       if (!probe.root) {
         throw new Error(
