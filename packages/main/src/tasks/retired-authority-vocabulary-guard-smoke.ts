@@ -1810,6 +1810,24 @@ function loaderArgumentProvenanceFailure(
       || parameters.some((name, index) => name !== pin.producerParameters[index])) {
       return `producer ${pin.producer} signature was widened: expected (${pin.producerParameters.join(', ')}), got (${parameters.join(', ')})`;
     }
+    /* Names and arity are not the whole signature. A DEFAULT INITIALIZER smuggles an
+       attacker-influenceable value in without changing the name list:
+         resolveGraphPackage(projectRoot: string = String(globalThis.__evil))
+       Found by claude as an independent review host (B-3e16 round 5) — the same class as
+       codex's `entryOverride` and overload findings, whose fixes closed the arity and
+       overload paths but not this one. Optional and rest markers are rejected for the same
+       reason: both change what a caller can supply while leaving the names identical. */
+    for (const parameter of candidate.parameters) {
+      if (parameter.initializer) {
+        return `producer ${pin.producer} parameter ${parameter.name.getText(candidate.getSourceFile())} must not have a default initializer; a default can carry caller- or globally-influenced input while the parameter name list stays identical`;
+      }
+      if (parameter.questionToken) {
+        return `producer ${pin.producer} parameter ${parameter.name.getText(candidate.getSourceFile())} must not be optional`;
+      }
+      if (parameter.dotDotDotToken) {
+        return `producer ${pin.producer} parameter ${parameter.name.getText(candidate.getSourceFile())} must not be a rest parameter`;
+      }
+    }
   }
   return undefined;
 }
@@ -5178,6 +5196,13 @@ function assertLoaderArgumentProvenance(): void {
       ['different node:url export aliased as pinned helper', original.replace(
         "import { pathToFileURL } from 'node:url';",
         "import { parse as pathToFileURL } from 'node:url';",
+      )],
+      // PROBE (claude round 5): a DEFAULT INITIALIZER on the pinned parameter. The name list
+      // stays exactly ['projectRoot'], so the arity/name check alone was satisfied while the
+      // producer gained a globally-influenced default.
+      ['producer parameter default initializer', original.replace(
+        `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
+        `export function ${pin.producer}(projectRoot: string = String((globalThis as { __evil?: string }).__evil ?? '')): GraphPackageLocation {`,
       )],
       // PROBE (codex round 3b): a bodyless ambient producer declaration, which Node ESM can
       // resolve from an attacker-installed globalThis property.
