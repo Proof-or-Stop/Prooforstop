@@ -18049,6 +18049,64 @@
       },
       "readDiagnostics": [],
       "_hash": "d990aadcc1fc2336fb3bccfe72ef73285e6b59ed5cfe002fa93b501b8012fcbd"
+    },
+    {
+      "id": "B-45a0:RP-335",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-head test coverage review passed: 48 intents have 48 matching evidence records, zero must-gaps, zero waivers, and zero failed receipts. CHK-011 happy evidence at source head 378896b executed 50 historical replays plus the paired campaign and is story-files-identical to current REVIEW head c2f1db3; a fresh validation-protocol smoke independently confirmed --verify-threshold execution and fail-closed behavior. Subsequent commits are story metadata only.",
+      "createdAt": "2026-08-28T04:50:25.302Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-822",
+      "envelopeId": "ee7d47879fe9b10776cde95c3ee7629a64356d1890666322cfbff15cdeee0742",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-fault-injection.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "da8a19f3b4ce8fc007a10ec1e1df1f58603d84fc5a79aa3b02ada1167f35f2fb"
+      },
+      "readDiagnostics": [],
+      "_hash": "7767a4aa12b92dcd7de4d2a98bd65e1432ece288a28a60130326cbbe5f0039a1"
     }
   ]
 }
