@@ -45,7 +45,13 @@ const snapshot = () => {
      flag outright is not the answer either: node_modules then floods the list past git's
      own output buffer. So pass one takes tracked plus non-ignored untracked files, and pass
      two adds ignored paths while pruning the dependency and build trees that are not part
-     of the repository's meaningful state. */
+     of the repository's meaningful state.
+
+     KNOWN BOUNDARY: a write under a pruned path (node_modules, dist, .git) is not detected.
+     The review host confirmed this and judged it acceptable rather than an overclaim: those
+     paths are gitignored, so they are invisible to the DONE clean-tree gate this guard
+     exists to protect, and a write there cannot sabotage it. Stated so the boundary is
+     recorded rather than discovered. */
   const run = (args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8', maxBuffer: 512 * 1024 * 1024 })
     .split('\0').filter(Boolean);
   const PRUNED = /(^|\/)(node_modules|dist|\.git)(\/|$)/;
