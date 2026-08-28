@@ -124,7 +124,7 @@
       "desc": "concept-cleanup: packages/graph/.gitignore:6 has a dead entry `.proof-or-stop-graph/` (a project-local dotdir) that nothing in the migrated code ever writes -- the search index cache is correctly written to `~/.cache/proof-or-stop-graph/` outside the repo (packages/graph/src/core/app.ts:38), per CHK-005's explicit no-project-writes requirement. This ignore-list entry is inert noise left over from migration and could mislead a future reader into thinking a project-local cache directory was once written here and later relocated. Low severity: no functional harm, cosmetic residue only.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-28T10:25:26.285Z",
@@ -178,7 +178,11 @@
       "readDiagnostics": [],
       "_hash": "bdd21896fa1897adbcd1f94601b2052826d491fa18c73d1fdc2a1b402e63b027",
       "signatureTag": "missing|unknown|concept-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 00a2592925. Removed the dead .proof-or-stop-graph/ entry from packages/graph/.gitignore after verifying nothing in packages/graph/src, packages/graph/scripts or packages/main/src writes that dotdir; the real cache path is the user cache directory outside the repo, as CHK-005 requires. Confirmed assets/ is still gitignored afterwards via git check-ignore, so removing the line did not weaken the build-output protection.",
+      "resolvedAt": "2026-08-28T10:26:57.664Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
