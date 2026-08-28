@@ -20,11 +20,12 @@
     "audit": "node src/tasks/anchor-check.mjs && node dist/tasks/audit.js",
     "bench": "node dist/tasks/bench.js",
     "anchor-check": "node src/tasks/anchor-check.mjs",
-    "check": "npm run build && npm run typecheck && npm run anchor-check && npm run verify-assets-ignored && npm run verify-clean-tree && npm run verify-no-project-writes && node dist/tasks/audit.js && node dist/tasks/bench.js",
+    "check": "npm run build && npm run typecheck && npm run anchor-check && npm run verify-assets-ignored && npm run verify-clean-tree && npm run verify-no-project-writes && npm run verify-docs && node dist/tasks/audit.js && node dist/tasks/bench.js",
     "typecheck": "tsc --noEmit && node scripts/ok.mjs GRAPH_TSC_CLEAN",
     "verify-assets-ignored": "node scripts/verify-assets-ignored.mjs",
     "verify-clean-tree": "node scripts/verify-clean-tree.mjs",
-    "verify-no-project-writes": "node scripts/verify-no-project-writes.mjs"
+    "verify-no-project-writes": "node scripts/verify-no-project-writes.mjs",
+    "verify-docs": "node scripts/verify-docs.mjs"
   },
   "dependencies": {
     "d3": "^7.9.0",

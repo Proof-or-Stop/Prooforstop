@@ -1504,6 +1504,23 @@
           "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs"
         ],
         "timeoutMs": 180000
+      },
+      {
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/graph",
+          "run",
+          "check"
+        ],
+        "timeoutMs": 290000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
       }
     ]
   },
