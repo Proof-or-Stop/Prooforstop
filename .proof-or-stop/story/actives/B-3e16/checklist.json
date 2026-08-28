@@ -416,7 +416,11 @@
           {
             "desc": "npm --prefix packages/graph run check runs the ported anchor-check, audit and bench self-checks and passes",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run check",
+              "selector": "bench PASS"
+            }
           }
         ],
         "edge": [
@@ -433,7 +437,29 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/graph run check",
+          "result": "pass",
+          "note": "The full ported check suite runs build, typecheck, anchor-check, the two clean-tree guards, audit and bench. Verified against this repository: audit PASS over 369 stories and 426 edges, and bench PASS with all seven latency budgets met.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "72f2294ee92fb272a45afe7e837c603e1e2a28c06ed6e0f0d355c9b067838978",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 check\n> npm run build && npm run typecheck && npm run anchor-check && npm run verify-assets-ignored && npm run verify-clean-tree && npm run verify-no-project-writes && node dist/tasks/audit.js && node dist/tasks/bench.js\n\n\n> @proof-or-stop/graph@0.1.0 build\n> tsc && node scripts/build-web.mjs\n\nassets: app.html (391KB)\nassets: d3.min.js\nassets: mermaid.min.js\nassets: gsap.min.js\nassets: mediabunny.min.mjs\nassets: gifenc.esm.js\nassets: gif-palette.js\nassets: gif-encoder.worker.js\n\n> @proof-or-stop/graph@0.1.0 typecheck\n> tsc --noEmit && node scripts/ok.mjs GRAPH_TSC_CLEAN\n\nGRAPH_TSC_CLEAN\n\n> @proof-or-stop/graph@0.1.0 anchor-check\n> node src/tasks/anchor-check.mjs\n\nanchor-check PASS · finding-id anchors normalise across both spellings\n\n> @proof-or-stop/graph@0.1.0 verify-assets-ignored\n> node scripts/verify-assets-ignored.mjs\n\nASSETS_IGNORED_OK\n\n> @proof-or-stop/graph@0.1.0 verify-clean-tree\n> node scripts/verify-clean-tree.mjs\n\nscanned 369 stories, 426 relations\nindex db: /Users/qipan/.cache/proof-or-stop-graph/B-3e16-122d23e30fea/index.db\nCLEAN_TREE_OK\n\n> @proof-or-stop/graph@0.1.0 verify-no-project-writes\n> node scripts/verify-no-project-writes.mjs\n\nwrite paths in served runtime source: 4\n  core/search/fn.ts:48 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:51 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:138 — creates the index cache directory, which resolves under the user cache dir\n  core/search/fn.ts:140 — creates the index cache directory, which resolves under the user cache dir\nNO_PROJECT_WRITES_OK\naudit PASS · 369 stories · 426 edges · heaviest detail 7.3MB (B-45a0)\nbench · 369 stories · 426 edges\n\n  ok   getGraph (warm)                p50=0.0ms p95=0.0ms (budget 5ms)\n  ok   getGraphBuffer (warm)          p50=0.0ms p95=0.0ms (budget 5ms)\n  ok   getStatus                      p50=0.0ms p95=0.0ms (budget 5ms)\n  ok   search (warm cache)            p50=0.0ms p95=0.0ms (budget 5ms)\n  ok   story buffer (warm)            p50=0.0ms p95=0.0ms (budget 10ms)\n  ok   story buffer (cold sweep)      p50=1.8ms p95=6.6ms (budget 40ms)\n  ok   search (cold, distinct)        p50=19.8ms p95=29.0ms (budget 120ms)\n\nbench PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:34:58.482Z",
+            "timeoutMs": 290000
+          },
+          "headHash": "875f7c9b341b53eab4a1143470d5b1e71b66db19",
+          "materialHash": "a3e4ae1aa02e9bd65efe24735bb8ad1bbd35764aa084ac54b6e51689ed4b0e79",
+          "storyFilesHash": "c93f137ed9c484c15c31019ea094a376bdf15edac11c718238617018a343eaa8",
+          "timestamp": "2026-08-28T09:34:58.674Z"
+        }
+      ]
     }
   ]
 }
