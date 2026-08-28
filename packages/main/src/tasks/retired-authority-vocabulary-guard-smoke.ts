@@ -1827,7 +1827,19 @@ function loaderArgumentProvenanceFailure(
        initializer/optional/rest, so every earlier check passed while a caller could name the
        loaded file outright. That is the closest analogue to codex's original entryOverride
        finding. The pin claims the producer's signature must not widen, so it has to compare
-       types for that claim to be true. */
+       types for that claim to be true.
+
+       This comparison is the SOLE catcher for that mutant: deleting it outright leaves the
+       type-widened mutant producing zero violations while all other mutants still produce
+       'approved loader argument provenance drift'. Verified by the reviewing host, which
+       also caught that an earlier neuter of this check was a PRECEDENCE bug -- prefixing
+       `cond &&` into a compound `... || ...` disabled only the first disjunct, leaving the
+       positional comparison live, so the check appeared redundant when it was not. When
+       probing a compound condition, delete the branch rather than prefixing a guard onto
+       it. Type aliases and `import('...').T` forms are compared textually and will trip
+       this check: that is deliberate fail-closed behaviour, not a false positive -- a
+       reviewer must re-pin deliberately rather than have an equivalent-looking rewrite
+       pass silently. */
     const parameterTypes = candidate.parameters.map(parameter => parameter.type?.getText(candidate.getSourceFile()) ?? '<inferred>');
     if (parameterTypes.length !== pin.producerParameterTypes.length
       || parameterTypes.some((text, index) => text !== pin.producerParameterTypes[index])) {
