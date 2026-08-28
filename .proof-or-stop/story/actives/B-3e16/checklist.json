@@ -328,7 +328,11 @@
           {
             "desc": "proof-or-stop graph --no-open prints story and relation counts then a localhost URL, and that URL serves the HTML document plus an /api/graph JSON payload with nodes and edges",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run verify-serves",
+              "selector": "SERVES_OK"
+            }
           }
         ],
         "edge": [
@@ -345,7 +349,29 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/graph run verify-serves",
+          "result": "pass",
+          "note": "Starts the real CLI command on a confirmed-free port and requires the HTML document plus all three API routes to answer with the shapes the page depends on. Verified live: 400500-byte document, 369 stories and 426 edges from /api/graph, 23943 indexed rows from /api/status, 80 search hits. It refuses to run against a busy port rather than curling a foreign server, which would be a false pass.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c896d32d0b16678301cfcd4ed955cad97aad02a52a455e982459b94ee208f8bc",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-serves\n> node scripts/verify-serves.mjs\n\n/            → HTML document (400500 bytes)\n/api/graph   → 369 stories, 426 edges\n/api/status  → 369 stories, 23943 indexed rows\n/api/search  → 80 hits for \"graph\"\nSERVES_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:47:38.948Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c000f9ae4854bb5bda1c70118d5e9038d529fed5",
+          "materialHash": "0480fa011a5c0e52f4701cb112ecfdac9e2c1dd364573486347940ee8816d343",
+          "storyFilesHash": "c3055960c7b15802df3ede93b0ebfcb7f59df804cc8cd6853f049fb55351f620",
+          "timestamp": "2026-08-28T09:47:39.136Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
