@@ -438,7 +438,11 @@
           {
             "desc": "The decision about which self-checks belong in the repo test surface is written down explicitly rather than left implicit, given that validate.commands and test:serial-reference are separately maintained lists",
             "type": "docs",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run verify-docs",
+              "selector": "test-surface placement recorded"
+            }
           }
         ]
       },
@@ -482,6 +486,26 @@
           "materialHash": "a3e4ae1aa02e9bd65efe24735bb8ad1bbd35764aa084ac54b6e51689ed4b0e79",
           "storyFilesHash": "c93f137ed9c484c15c31019ea094a376bdf15edac11c718238617018a343eaa8",
           "timestamp": "2026-08-28T09:36:08.656Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/graph run verify-docs",
+          "result": "pass",
+          "note": "The decisions doc explicitly records the test-surface placement decision, including the trap that validate.commands runs the packages/main build rather than the root build (so adding graph to the root chain alone would leave it silently uncovered) and that verify-lattice-residue SRC_SCAN_ROOTS is an explicit list rather than a glob. Both traps were found by inspection during this story, not assumed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fa055a30aeec371492a88f3ac583dbd4a74f210c831c2dc17bf6dc8dc91a841f",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-docs\n> node scripts/verify-docs.mjs\n\nCLAUDE.md graph section: 40 lines, all four flags present\ndecisions doc: all four migration decisions recorded\ndecisions doc: test-surface placement recorded (validate.commands and SRC_SCAN_ROOTS traps named)\nDOCS_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:36:24.031Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "54dc36d00140e39856ecace3d007df1aefc2a1e4",
+          "materialHash": "a3e4ae1aa02e9bd65efe24735bb8ad1bbd35764aa084ac54b6e51689ed4b0e79",
+          "storyFilesHash": "c93f137ed9c484c15c31019ea094a376bdf15edac11c718238617018a343eaa8",
+          "timestamp": "2026-08-28T09:36:24.205Z"
         }
       ]
     }
