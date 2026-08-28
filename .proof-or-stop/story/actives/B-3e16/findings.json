@@ -542,7 +542,7 @@
       "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts: the planned graph.ts allowlist entry (whole-file AST fingerprint pin gating the import() at handlers/graph.ts:292 plus 5 downstream unresolved-nested-member violations on lib.findRoot/createApp/startServer/openBrowser) relies entirely on a human-written re-approval-basis comment at each future repin to prove the approved call site is still narrow (verified this is the existing convention for cli-engine.ts and bin/bootstrap-runner.js pins -- multiple real repin comments read in the guard smoke file). The fingerprint mechanism (verified via scanConcealedCompatibilityLoads tests at guard-smoke.ts lines ~4951-4977) only proves the whole file has not changed since the last approval; it has no assertion that the import target argument, location.entry provenance, or reachable-input surface of the call site is still the specific narrow shape (packages/graph/dist/index.js resolved from packageRoot, not caller-influenced) that was originally approved. A future edit could widen what is imported (e.g. accept partially caller-controlled input) while keeping the same anchor function name and general call shape, and a rushed re-pin comment could pass review without anyone re-verifying narrowness -- the AST-fingerprint pass proves the entry exists and the file changed, not that the approval still holds. Recommend adding a mechanical assertion (e.g. a dedicated check on handlers/graph.ts asserting the import argument is derived only from resolveGraphPackage()/packageRoot and not from args/env/network input) alongside the whole-file fingerprint, so the guard does not depend solely on comment discipline for this narrow-shape invariant going forward.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-28T13:51:28.805Z",
@@ -578,7 +578,11 @@
         "packages/main/src/handlers/graph.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 9906b0072d. assertLoaderArgumentProvenance now pins {anchor, argument, rootIdentifier, producer, producerParameters} and resolves the argument root identifier through the TYPE CHECKER rather than by name, requiring a same-scope const inside the anchor initialized by a direct call to resolveGraphPackage with an exactly-matching parameter list, failing closed on anything unresolvable. It is wired into the live scan as its own violation label evaluated BEFORE the allowlist check, so a guard pass now means more than an entry exists. Crucially the four self-test mutants are scanned with the MUTANT own fingerprint as the expected pin, proving the check works independently of the fingerprint. I verified it is load-bearing by neutering the detector: the guard then failed naming the caller-influenced rebinding, and restoring made it pass.",
+      "resolvedAt": "2026-08-28T16:05:15.344Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3e16:F-017",
