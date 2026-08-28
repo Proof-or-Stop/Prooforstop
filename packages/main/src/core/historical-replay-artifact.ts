@@ -12,6 +12,18 @@ const RECEIPT_SCHEMA = 'proof-or-stop.dynamic-validation.replay-command-receipt.
 const REQUIRED_FAULT_FAMILIES = ['FI-1', 'FI-2', 'FI-3', 'FI-4', 'FI-5'];
 const MINIMUM_HISTORICAL_STORIES = 50;
 
+// A historical replay proves the validation subject (inventory, catalog, and
+// executed runners), not the bookkeeping that subsequently records its use.
+// These are the only non-metadata paths that may appear after the recorded
+// replay HEAD: this verifier and its bounded temporary-repository smoke test.
+// They are consumers of the signed artifact, never inputs to its replay
+// campaign. Keep this list deliberately exact; a config, catalog, runner, or
+// producer change must force a new signed replay.
+const REPLAY_ADMISSION_CONSUMER_PATHS = new Set([
+  'packages/main/src/core/historical-replay-artifact.ts',
+  'packages/main/src/tasks/historical-replay-artifact-smoke.ts',
+]);
+
 export interface HistoricalReplayArtifactAdmission {
   ok: boolean;
   reasons: string[];
@@ -125,11 +137,19 @@ function checkFaultInjection(value: unknown): string[] {
 
 function checkPairedPerformance(
   value: unknown,
-  expected: { head: string; inventoryDigest: string; catalogDigest: string },
+  expected: {
+    head: string;
+    inventoryDigest: string;
+    catalogDigest: string;
+    admittedHistoricalHead?: string;
+    historicalHeadRejection?: string;
+  },
 ): string[] {
   if (!signed(value)) return ['paired-performance-signature-invalid'];
   if (value.schema !== PAIRED_SCHEMA) return ['paired-performance-schema-invalid'];
-  if (value.head !== expected.head) return ['paired-performance-head-stale'];
+  if (value.head !== expected.head && value.head !== expected.admittedHistoricalHead) {
+    return ['paired-performance-head-stale', expected.historicalHeadRejection || 'paired-performance-head-drift-unadmitted'];
+  }
   if (value.inventoryDigest !== expected.inventoryDigest) return ['paired-performance-inventory-stale'];
   if (value.catalogDigest !== expected.catalogDigest) return ['paired-performance-catalog-stale'];
   if (value.perCommandEquivalent !== true || value.verdictEquivalent !== true) return ['paired-performance-equivalence-invalid'];
@@ -147,6 +167,59 @@ function checkPairedPerformance(
     if (modes.size !== 2 || !modes.has('full') || !modes.has('dynamic')) return [`paired-performance-pair-${pair}-missing`];
   }
   return [];
+}
+
+function isPermittedReplayHeadDriftPath(path: string): boolean {
+  return /^\.proof-or-stop\/story\/(?:actives|archived)\/[^/]+\//.test(path)
+    || REPLAY_ADMISSION_CONSUMER_PATHS.has(path);
+}
+
+function readGitNameStatus(gitCwd: string, recordedHead: string, currentHead: string): { ok: true; paths: string[] } | { ok: false; reason: string } {
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', recordedHead, currentHead], {
+      cwd: gitCwd,
+      stdio: 'ignore',
+    });
+  } catch {
+    return { ok: false, reason: 'paired-performance-head-nonancestor' };
+  }
+
+  try {
+    const output = execFileSync('git', [
+      'diff', '--name-status', '-z', '--find-renames', '--find-copies', recordedHead, currentHead,
+    ], { cwd: gitCwd, encoding: 'buffer', stdio: ['ignore', 'pipe', 'pipe'] });
+    const tokens = output.toString('utf8').split('\0');
+    if (tokens[tokens.length - 1] === '') tokens.pop();
+    const paths: string[] = [];
+    for (let index = 0; index < tokens.length;) {
+      const status = tokens[index++];
+      if (!status) return { ok: false, reason: 'paired-performance-head-drift-unreadable' };
+      const requiresTwoPaths = status.startsWith('R') || status.startsWith('C');
+      const count = requiresTwoPaths ? 2 : 1;
+      const changedPaths = tokens.slice(index, index + count);
+      if (changedPaths.length !== count || changedPaths.some((path) => !path)) {
+        return { ok: false, reason: 'paired-performance-head-drift-unreadable' };
+      }
+      index += count;
+      paths.push(...changedPaths);
+    }
+    return { ok: true, paths };
+  } catch {
+    return { ok: false, reason: 'paired-performance-head-drift-unreadable' };
+  }
+}
+
+function admitMetadataOnlyReplayHeadDrift(
+  gitCwd: string,
+  recordedHead: string,
+  currentHead: string,
+): { ok: true } | { ok: false; reason: string } {
+  if (recordedHead === currentHead) return { ok: true };
+  const diff = readGitNameStatus(gitCwd, recordedHead, currentHead);
+  if (!diff.ok) return diff;
+  return diff.paths.every(isPermittedReplayHeadDriftPath)
+    ? { ok: true }
+    : { ok: false, reason: 'paired-performance-head-drift-nonadmissible' };
 }
 
 /**
@@ -209,8 +282,16 @@ export function verifyHistoricalReplayArtifact(projectRoot: string): HistoricalR
     reasons.push('paired-performance-report-mismatch');
   }
   if (head && inventoryDigest && catalogDigest) {
-    reasons.push(...checkPairedPerformance(pairedInReport, { head, inventoryDigest, catalogDigest }));
-    if (pairedOnDisk) reasons.push(...checkPairedPerformance(pairedOnDisk, { head, inventoryDigest, catalogDigest }));
+    let admittedHistoricalHead: string | undefined;
+    let historicalHeadRejection: string | undefined;
+    if (isRecord(pairedInReport) && signed(pairedInReport) && typeof pairedInReport.head === 'string') {
+      const admission = admitMetadataOnlyReplayHeadDrift(gitCwd, pairedInReport.head, head);
+      if (admission.ok) admittedHistoricalHead = pairedInReport.head;
+      else historicalHeadRejection = admission.reason;
+    }
+    const expected = { head, inventoryDigest, catalogDigest, admittedHistoricalHead, historicalHeadRejection };
+    reasons.push(...checkPairedPerformance(pairedInReport, expected));
+    if (pairedOnDisk) reasons.push(...checkPairedPerformance(pairedOnDisk, expected));
   }
 
   return {

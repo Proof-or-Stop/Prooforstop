@@ -118,10 +118,24 @@ try {
   assert.ok(invalidPair.reasons.includes('paired-performance-signature-invalid'), 'tampered paired artifact signature is rejected');
 
   writeJson(pairedPath, valid.paired);
-  git(root, ['commit', '--allow-empty', '-m', 'advance source identity']);
+  const metadataPath = join(root, '.proof-or-stop', 'story', 'actives', 'B-smoke', 'checklist.json');
+  mkdirSync(join(root, '.proof-or-stop', 'story', 'actives', 'B-smoke'), { recursive: true });
+  writeJson(metadataPath, { id: 'B-smoke', refreshedAt: '2026-08-29T00:00:00.000Z' });
+  git(root, ['add', '.proof-or-stop/story/actives/B-smoke/checklist.json']);
+  git(root, ['commit', '-m', 'record story verification evidence']);
+  assert.equal(
+    verifyHistoricalReplayArtifact(root).ok,
+    true,
+    'a signed replay remains admissible across committed Proof-or-Stop story metadata only',
+  );
+
+  writeFileSync(join(root, 'validation-subject.ts'), 'export const changed = true;\n');
+  git(root, ['add', 'validation-subject.ts']);
+  git(root, ['commit', '-m', 'change validation subject']);
   const stale = verifyHistoricalReplayArtifact(root);
   assert.equal(stale.ok, false);
-  assert.ok(stale.reasons.includes('paired-performance-head-stale'), 'a valid old report is rejected once HEAD changes');
+  assert.ok(stale.reasons.includes('paired-performance-head-stale'), 'a valid old report is rejected once a source file changes');
+  assert.ok(stale.reasons.includes('paired-performance-head-drift-nonadmissible'), 'source drift is not reclassified as metadata');
 
   console.log('historical replay artifact smoke PASS');
 } finally {
