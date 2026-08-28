@@ -343,6 +343,54 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-012",
+      "desc": "doc-code-drift: docs/requirements/decisions/graph-command-migration.md:134-139 names six contract tasks (command-ownership-contract, command-catalog-smoke, cli-surface-smoke, verify-orphan-surface, lifecycle-registry-contract, test:process-fact-contract) as authoritative and instructs the reader to Run them all and fix what they report. Verified each ones actual wiring: command-catalog-smoke and lifecycle-registry-contract are in proof-or-stop.config.jsons validate.commands (run by proof-or-stop validate); test:process-fact-contract is a member of test:serial-reference consumed by full-suite-runner.ts (run by npm test); command-ownership-contract is separately embedded as a sub-invocation inside red-evidence-target-binding-smoke.ts (which IS in validate.commands), so it too is transitively covered. But cli-surface-smoke (packages/main/package.json test:cli-surface-smoke) and verify-orphan-surface (packages/main/package.json test:orphan-surface, root package.json test:orphan-surface) exist ONLY as standalone npm scripts -- grepped proof-or-stop.config.json, root package.json test:serial-reference, and full-suite-runner.ts RESOURCE_POLICY: no caller. They are not run by proof-or-stop validate or npm test, so registering a new command and skipping them produces no automatic failure signal; a developer must remember to invoke both by hand. The doc should either say so explicitly (2 of 6 are manual-only, not mechanically enforced) or the follow-up should wire them into validate/test:serial-reference so Run them all is actually true of one command.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T11:02:26.631Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "package.json",
+          "packages/main/package.json",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/red-evidence-target-binding-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "cfc2faa4b8a8bf588b33e61c48efbe664a0e948d8ccd0e6af7011297f415fc86"
+      },
+      "readDiagnostics": [],
+      "_hash": "7f613f1b0285b46828d1d5ce046533df8fd8ee3afb0ad558bdc50a08283bf260",
+      "files": [
+        "docs/requirements/decisions/graph-command-migration.md",
+        "packages/main/package.json",
+        "package.json",
+        "proof-or-stop.config.json",
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/red-evidence-target-binding-smoke.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
