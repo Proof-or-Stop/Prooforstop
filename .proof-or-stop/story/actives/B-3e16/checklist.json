@@ -42,7 +42,11 @@
           {
             "desc": "npx tsc --noEmit -p packages/graph exits 0, so the new tsconfig does not break the recursive tsc gate that validate --lint and pre-push run over every tsconfig in the repo",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run typecheck",
+              "selector": "GRAPH_TSC_CLEAN"
+            }
           }
         ],
         "adversarial": [
@@ -73,6 +77,26 @@
           "materialHash": "bc4c64a4ec59ab745062b78430e4075b5ad5612d7df89ebed0013033959d71fe",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-08-28T09:26:02.722Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/graph run typecheck",
+          "result": "pass",
+          "note": "tsc --noEmit is silent on success, so the typecheck script chains a success token. The selector proves tsc exited clean, meaning the new tsconfig does not break the recursive tsc gate that validate --lint and .githooks/pre-push run over every tsconfig.json in the repo.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d84b0740ef21c7739e97f009c459a81edcf80cf5830c9924c7ca804a035eb676",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 typecheck\n> tsc --noEmit && node scripts/ok.mjs GRAPH_TSC_CLEAN\n\nGRAPH_TSC_CLEAN\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:26:50.897Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "6bfae08bd5bd2405b067737e2f61e3f33e78d77d",
+          "materialHash": "bc4c64a4ec59ab745062b78430e4075b5ad5612d7df89ebed0013033959d71fe",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-08-28T09:26:51.074Z"
         }
       ]
     },
