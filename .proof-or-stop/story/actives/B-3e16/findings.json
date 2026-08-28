@@ -434,6 +434,46 @@
       ],
       "signatureTag": "missing|md|forward-risk-advisory",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-014",
+      "desc": "concept-completeness: cli-surface-smoke (packages/main/src/tasks/cli-surface-smoke.ts, npm script test:cli-surface-smoke) and verify-orphan-surface (scripts/verify-orphan-surface.mjs, npm script test:orphan-surface) are the two checks CHK-003 names as acceptance evidence for the eight-surface command registration (checklist.json CHK-003 userSees: the command-ownership-contract, command-catalog-smoke, cli-surface-smoke and orphan-surface checks all pass), but neither is wired into proof-or-stop.config.json validate.commands (grep: zero matches) nor into root package.json test:serial-reference (grep: zero matches). They exist only as standalone npm scripts a human or CI step must remember to invoke by name; nothing currently fails if graph (or a future command) silently regresses either check. Pre-existing gap (matches wave-1 docs-lane F-012), but B-3e16 is exactly the kind of change these two guards exist to catch (eight command-surface touchpoints), so leaving them unwired while citing their pass as CHK-003 acceptance evidence is a concept-completeness defect on the current tree: a guard that exists but nothing calls is close to dead code. Recommendation: wire both into validate.commands or test:serial-reference in this story or a narrowly-scoped fast-follow.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-28T13:50:08.333Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-029",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/graph.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "1ebf6b1d6a1f49c6a2bef45e63cc8e0e01f3ba78d17dc60e862c4bbda7a19218"
+      },
+      "readDiagnostics": [],
+      "_hash": "f6adf3d4da0634389822dd65244a0313f55de060a5fb162fad151121e595f743",
+      "signatureTag": "missing|unknown|concept-completeness-surface",
+      "signatureTagSource": "auto"
     }
   ]
 }
