@@ -127,6 +127,33 @@
         "scanEscalationReason": null
       },
       "_hash": "463df6a494c9f7c3dc961827bc7218c5e689e8d8ba49835a202c441ea3d0609b"
+    },
+    {
+      "id": "B-3e16:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Re-confirmed prior pass at new epoch RI-001. Step 1 symbol extraction on git diff main...HEAD yielded no new/changed exported TS symbols requiring doc cross-reference beyond what the prior pass already verified; fell back to full-text scan of CLAUDE.md graph section + graph-command-migration.md + packages/graph/README.md per Fallback 1, comparing 3 documents/sections against current code and disk state. (1) verify-docs.mjs .cache exemption re-verified match-local after F-005/F-006 fix: ran verify-docs.mjs on the frozen tree (exit 0, DOCS_OK) plus 4 mutation controls in an isolated /private/tmp scratch copy (never touching the frozen worktree, restored+confirmed clean each time): real invocation proof-or-stop-graph --help correctly FAILS; the exact F-005/F-006 regression shape (one line mixing the legitimate ~/.cache/proof-or-stop-graph/ path with a real invocation, both orderings) correctly FAILS in both cases; two legitimate path-like cache mentions on one line correctly PASSES. Guard genuinely discriminates the target defect. (2) Ninth registration surface (process-fact-levels.ts) independently investigated: confirmed via git diff it is a real, mechanically-enforced fail-closed surface (lifecycle-registry-contract.ts checkProcessFactLifecycle reverse-direction check, wired into validate.commands; ran the compiled task directly - PASS, 0 divergences) that story metadata (description/plan.md) undercounted at eight. Grepped CLAUDE.md, graph-command-migration.md, and packages/graph/README.md and confirmed none of these three committed docs assert any numeric surface count or claim the registration set is closed - the eight-count lives only in story metadata (index.json description, plan.md CHK-003), out of this lane's doc-truth scope. No committed doc under-describes reality; no doc-code-drift finding warranted. Advisory only, not a finding: the decisions doc could optionally note the surface set is discovered-by-gate rather than fixed, to preempt a future reader treating the story-metadata eight as authoritative - a nice-to-have addition to a doc that never made the false claim, not a correction. Zero doc-code-drift or doc-promise-undelivered findings identified.",
+      "createdAt": "2026-08-28T10:25:49.871Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-017",
+      "envelopeId": "4958404957e8e6e91bf6162ae31e88d3b6b224818447c3d9d8a8456985392cfa",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/index.json",
+          ".proof-or-stop/story/actives/B-3e16/plan.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e9f7af49f5dcce67c24627f99a1c683b4b0269e07bb9074ae162015494cace59"
     }
   ]
 }
