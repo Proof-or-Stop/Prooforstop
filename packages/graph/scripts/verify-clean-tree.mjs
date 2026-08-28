@@ -13,13 +13,21 @@
  */
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
+import os from 'node:os';
+import fs from 'node:fs';
 import { createApp } from '../dist/index.js';
 
 const repo = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
 const status = () => execFileSync('git', ['status', '--porcelain'], { cwd: repo, encoding: 'utf8' });
 
 const before = status();
-const app = createApp({ root: repo });
+/* A FRESH cache path, so the scan below must actually build the index rather than reading a
+   warm one. With the default cache this check measured almost nothing: an existing index
+   means no rebuild fires, so an independent review host found it passing with a planted
+   project-root write present (B-3e16). Same defect class as the write guard's earlier
+   versions -- a probe that exercises no write path proves nothing about writes. */
+const probeCache = path.join(os.tmpdir(), `graph-clean-tree-probe-${process.pid}`, 'index.db');
+const app = createApp({ root: repo, dbPath: probeCache });
 
 const failures = [];
 
@@ -42,6 +50,8 @@ if (before !== after) {
   failures.push(`  before: ${before.length} bytes`);
   failures.push(`  after:  ${after.length} bytes`);
 }
+
+fs.rmSync(path.dirname(probeCache), { recursive: true, force: true });
 
 if (failures.length) {
   console.error('CLEAN_TREE_VIOLATED');
