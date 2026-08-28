@@ -154,7 +154,11 @@
           {
             "desc": "packages/graph package.json declares engines.node as >=22.5.0",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run verify-engines-floor",
+              "selector": "engines.node=>=22.5.0 declared once"
+            }
           }
         ],
         "edge": [
@@ -171,7 +175,29 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/graph run verify-engines-floor",
+          "result": "pass",
+          "note": "Confirms packages/graph declares engines.node >=22.5.0 and that the required version is sourced from the manifest rather than duplicated, so the message and the manifest cannot drift apart.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "874824f57c49ef117e882a9fca1b09f36b53b8fe0ff4a1d07276359b3d65ffa9",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-engines-floor\n> node scripts/verify-engines-floor.mjs\n\nnegative control: unguarded import on v20.19.6 throws ERR_UNKNOWN_BUILTIN_MODULE\nguard on real v20.19.6 produced a readable diagnostic:\n    graph: this Node runtime cannot load node:sqlite, which the graph\n      full-text index is built on.\n      running Node: v20.19.6\n      @proof-or-stop/graph requires Node >=22.5.0\n      → upgrade Node, then re-run: proof-or-stop graph\nengines.node=>=22.5.0 declared once, sourced from the manifest; supported runtimes pass\nENGINES_FLOOR_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:56:33.239Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "98fa8ef8218e63431c8c1412718dcc32f30b4455",
+          "materialHash": "589d5e7531c14675ad8cf7ed50c190a01b8ad37fac34135db9e8768a75c9bd1b",
+          "storyFilesHash": "c8327d9bb4af62cedb2485bb3852aa95be11d611869cd93d7dccb9b97c3abfb1",
+          "timestamp": "2026-08-28T09:56:33.408Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
