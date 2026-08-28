@@ -602,6 +602,53 @@
       "_hash": "e493db3e2e9525213be434d5534ad20d053219e7f30b2a2f99b56f3716d483f7",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-018",
+      "desc": "scope-contract-gap: the DEV remediation directed for F-016/F-017 (extract the dynamic-import loader plus the four lib.findRoot/createApp/startServer/openBrowser call sites out of packages/main/src/handlers/graph.ts into a new dedicated module handlers/graph-runtime.ts, so both AST-fingerprint allowlist maps in retired-authority-vocabulary-guard-smoke.ts pin a small stable file instead of the whole 414-line evolving handler) creates a NEW file at a path the current scope-contract.json does not authorize. allowedCreate is exactly [\"docs/requirements/decisions/graph-command-migration.md\",\"packages/graph/**\",\"packages/main/src/handlers/graph.ts\"] -- the graph.ts entry is an exact-rule literal (scope-path-classifier.ts pathRule(): no glob chars -> exact), not a packages/main/src/handlers/** subtree/glob. allowedModify carries the identical exact literal, nothing broader. A new sibling file packages/main/src/handlers/graph-runtime.ts therefore matches none of allowedModify/allowedCreate/allowedTest/explicitExcludes and falls through scope-path-classifier.ts classifyScopePath into the default deny path, i.e. out-of-scope creation, which scope-anti-expansion / DEV-time scope enforcement is designed to catch. This is a direct, mechanical consequence of the extraction plan stated for this remediation, not a hypothetical: confirmed by reading the live scope-contract.json and the assembled task-context JSON emitted by review_run_start (scope.allowedCreate is byte-identical to the file). None of the four wave-2 lanes flagged this because none examined the interaction between the F-016/F-017 remediation plan and the scope contract; it is a gap in the plan, not in the merged tree today. Recommend: before DEV creates graph-runtime.ts, amend scope-contract.json (scope_contract handler) to add the new path to allowedCreate/allowedModify -- either the literal path or a narrow glob such as packages/main/src/handlers/graph*.ts -- so the extraction does not trip scope enforcement mid-remediation.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-28T13:59:25.371Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/README.md",
+          "packages/main/src/core/scope-path-classifier.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          ".proof-or-stop/story/actives/B-3e16/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-3e16/scope-check.json",
+          ".proof-or-stop/story/actives/B-3e16/scope-contract.json",
+          "CLAUDE.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7b3748d5fa419270009fb0a73d9c3058eb583405e3d429d120fc44bfce64e4d1",
+      "files": [
+        "packages/main/src/handlers/graph.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|scope-contract-remediation",
+      "signatureTagSource": "auto"
     }
   ]
 }
