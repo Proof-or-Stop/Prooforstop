@@ -4,10 +4,14 @@ Interactive 3D story + evidence graph for Proof-or-Stop repositories.
 
 ```bash
 cd /path/to/a/proof-or-stop/repo
-proof-or-stop-graph
+proof-or-stop graph
 ```
 
 Collects every story, builds a full-text index, serves the graph, opens the browser.
+
+This package has no binary of its own: it is the library behind the `proof-or-stop graph`
+command, whose handler lives in `packages/main/src/handlers/graph.ts` and reaches this
+package through `dist/index.js`.
 
 ## Options
 
@@ -48,7 +52,8 @@ src/
     open-browser.ts    best-effort browser launch
     find-root.ts       repository discovery
   shells/
-    cli/main.ts        the proof-or-stop-graph command
+    cli/main.ts        standalone entry, retained from the pre-migration package
+                       (unused here -- `proof-or-stop graph` is the entrypoint)
     web/                browser client, assembled into assets/app.html by
       app.head.html     scripts/build-web.mjs -- edit these, never the asset
       app.css
@@ -118,10 +123,16 @@ or Edge; the viewer itself works anywhere Mermaid does.
 Two files (`prompt-envelopes.json`, `review-runs.json`) are ~96% of story bytes and hold
 only digests; they are returned as a summary (count + keys + sample) rather than in full.
 
-## Migration into Proof-or-Stop
+## How the CLI reaches this package
 
-`src/index.ts` is the library surface. `createApp()` and `startServer()` are the seams a
-`proof_graph` CLI command would call; nothing depends on this package's own shell.
+`src/index.ts` is the library surface. `createApp()` and `startServer()` are the seams the
+`proof-or-stop graph` command calls; nothing outside this package depends on its own shell.
+
+The migration into Proof-or-Stop is complete (B-3e16). Because this repository declares no
+npm workspaces and `packages/graph` is not a dependency of `packages/main`, the handler
+resolves this package at RUNTIME rather than importing it statically -- see
+`resolveGraphPackage()` in `packages/main/src/handlers/graph.ts`. Design decisions are
+recorded in `docs/requirements/decisions/graph-command-migration.md`.
 
 ## Development
 
@@ -129,5 +140,10 @@ only digests; they are returned as a summary (count + keys + sample) rather than
 npm install
 npm run build        # tsc + assemble assets/app.html + vendor d3, mermaid, gsap,
                      #   mediabunny and gifenc into assets/
-npm start            # run the CLI from dist/
+npm run check        # build + typecheck + the verify-* guards + audit + bench
 ```
+
+Run the command itself from the repository root with `proof-or-stop graph`; this package
+has no `start` script, because it is a library rather than a standalone tool.
+
+Requires Node >= 22.5 (`node:sqlite`, used by the full-text index).
