@@ -53,7 +53,11 @@
           {
             "desc": "git check-ignore confirms packages/graph/assets is ignored, so the regenerable vendor bundles cannot be committed",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run verify-assets-ignored",
+              "selector": "ASSETS_IGNORED_OK"
+            }
           }
         ]
       },
@@ -97,6 +101,26 @@
           "materialHash": "bc4c64a4ec59ab745062b78430e4075b5ad5612d7df89ebed0013033959d71fe",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-08-28T09:26:51.074Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/graph run verify-assets-ignored",
+          "result": "pass",
+          "note": "Proves the regenerable vendor bundles and the assembled app.html cannot enter git: the check asserts git check-ignore covers them and that nothing under assets is tracked. Verified to have real discriminating power by removing the assets rule from .gitignore, observing ASSETS_NOT_IGNORED with exit 1, then restoring it.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a832e220f26d4802a9d04da634aaddce07b003cc7c73a7069e5aed00baf03fb8",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-assets-ignored\n> node scripts/verify-assets-ignored.mjs\n\nASSETS_IGNORED_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:27:16.950Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "ac969ce4f1fd343dc1c17564448fe43f2ee95622",
+          "materialHash": "bc4c64a4ec59ab745062b78430e4075b5ad5612d7df89ebed0013033959d71fe",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-08-28T09:27:17.113Z"
         }
       ]
     },
