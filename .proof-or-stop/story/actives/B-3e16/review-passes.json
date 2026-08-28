@@ -1,0 +1,39 @@
+{
+  "passes": [
+    {
+      "id": "B-3e16:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independent re-audit confirms coverage sound: all 18 verificationIntent entries across 6 done checklist items have valid non-waiver tool-executed evidence with real discriminating power (negative controls, real HTTP round-trips, real git-status diffing, section-scoped doc checks, stash/restore asset checks). Deleted dead file packages/graph/src/shells/cli/main.ts is referenced by no intent/evidence/check script, so no coverage gap. Evidence hash staleness is an observation, not a coverage gap.",
+      "createdAt": "2026-08-28T10:12:02.669Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-006",
+      "envelopeId": "cb3003be8589064ced117f70aaf8d4bfca70dace193dda6ca8234e2e0ef59a35",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/story/actives/B-3e16/checklist.json",
+          "packages/graph/package.json",
+          "packages/graph/scripts/ok.mjs",
+          "packages/graph/scripts/verify-assets-ignored.mjs",
+          "packages/graph/scripts/verify-clean-tree.mjs",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/scripts/verify-engines-floor.mjs",
+          "packages/graph/scripts/verify-json-no-listener.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/graph/scripts/verify-serves.mjs",
+          "packages/graph/src/tasks/anchor-check.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/src/shells/cli/main.ts (deleted, confirmed via git show 235a98f8a8)",
+          "packages/graph/src/tasks/audit.ts",
+          "packages/graph/src/tasks/bench.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "744659549079b4bd95021d77423a7c0ad6af888e9447cf151a1cfe1ff5db9d5c"
+    }
+  ]
+}
