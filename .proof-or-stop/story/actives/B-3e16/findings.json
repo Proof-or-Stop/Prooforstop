@@ -508,7 +508,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/graph-command-migration.md never records WHY packages/main/src/handlers/graph.ts uses a runtime dynamic import() rather than a static import, even though the doc explicitly frames itself (lines 21-22) as recording every place the obvious alternative is wrong in a way that is not obvious later. The handler header comment documents one reason (no npm workspaces, packages/graph is not a package.json dependency of packages/main, so tsc cannot resolve it statically), but the stronger reason -- verified empirically on Node v20.19.6, that packages/graph/src/core/app.ts statically imports ./search/fn.js which top-level imports node:sqlite, so any static import chain into the graph library is unavoidably reachable through node:sqlite regardless of how index.ts re-exports are organised, meaning static import would raise the Node floor for the whole proof-or-stop CLI entrypoint -- appears nowhere in the decisions doc. A future reader who only sees the workspace-dependency reason may reasonably conclude that wiring packages/graph as a proper workspace or file: dependency removes the obstacle and makes static import safe, silently breaking the CLI on Node less than 22.5. Recommend adding a short passage (Decision 5, or an amendment to Decision 3) stating the dynamic import is retained specifically because node:sqlite is unavoidably reachable through any static import chain into the graph library, and that this is why the loader is registered as an approved benign non-literal call in retired-authority-vocabulary-guard-smoke.ts rather than converted to static.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-28T13:50:21.779Z",
@@ -547,7 +547,11 @@
         "packages/main/src/handlers/graph.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 1bea73b55a by adding Decision 5 to docs/requirements/decisions/graph-command-migration.md. You called this the most valuable doc addition this story could make and that was right: the README and handler header gave only the REMOVABLE reason (no npm workspaces), so a future reader could add the dependency, convert to a static import and break the CLI on Node < 22.5. Decision 5 records the binding reason (core/app.ts statically imports search/fn.js which imports node:sqlite, and createApp is unavoidable, so a static import hoists node:sqlite into the module graph evaluated for every command) together with the Node v20.19.6 probe table that demonstrates it. verify-docs now asserts that rationale is present, confirmed by negative control.",
+      "resolvedAt": "2026-08-28T16:05:43.425Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3e16:F-016",
