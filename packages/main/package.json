@@ -124,6 +124,7 @@
     "test:story-aware-validation": "node dist/tasks/story-aware-validation-smoke.js",
     "test:story-aware-validation-mutation": "node dist/tasks/story-aware-validation-mutation-smoke.js",
     "test:story-aware-validation-production": "bun src/tasks/story-aware-validation-production-smoke.ts",
+    "test:historical-replay-artifact": "node dist/tasks/historical-replay-artifact-smoke.js",
     "test:dynamic-validation-change-manifest": "node ../../scripts/run-dynamic-validation-audit.mjs change-manifest",
     "test:dynamic-validation-dual-graph": "node ../../scripts/run-dynamic-validation-audit.mjs dual-graph",
     "test:dynamic-validation-scope-escalation": "node ../../scripts/run-dynamic-validation-audit.mjs scope-escalation",
