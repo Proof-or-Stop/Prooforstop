@@ -263,6 +263,60 @@
         "scanEscalationReason": null
       },
       "_hash": "4be6d87939871bcdb071f396a9b07d96f9e336ca49f7f49ae12272df169bfb03"
+    },
+    {
+      "id": "B-3e16:RP-009",
+      "agent": "lattice-review-topology-critic",
+      "note": "Independent completeness critic pass for review-inventory epoch RI-002 wave 1, resubmitted on a fresh run with mechanical read events for the decisions-doc entries. Reproduced F-011's process-fact-contract count claim from scratch in an isolated tmp copy with positive/negative/restore controls (confirmed 9 complaints, not 8). Independently re-derived F-008/F-009/F-010's technical claims against current source. Confirmed F-012's wiring gap and F-013's doc citations. Ran additional adversarial probes of verify-docs.mjs for a third instance of the guard-passes-on-its-own-defect pattern already seen twice (F-004/F-005); found none. Checked verification evidence: all 18 intents carry mechanical:true receipts. No unfound completeness gap surfaced; all six open findings independently verified as legitimate.",
+      "createdAt": "2026-08-28T13:27:43.601Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-024",
+      "envelopeId": "3284ecdd2b8f2ada758f6f8e1a04110d4421ab2075d2775a536e8beeea4bab21",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          ".proof-or-stop/story/actives/B-3e16/review-inventory-epochs.json",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/graph/package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/index.ts",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/utils/package.json",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "cfc2faa4b8a8bf588b33e61c48efbe664a0e948d8ccd0e6af7011297f415fc86"
+      },
+      "readDiagnostics": [],
+      "_hash": "9314a26937e4f34a73b3055c51b1880ea7be075325b23365e950a1c825a09a3b"
     }
   ]
 }
