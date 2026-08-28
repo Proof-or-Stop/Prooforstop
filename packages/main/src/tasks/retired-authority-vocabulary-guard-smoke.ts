@@ -1724,6 +1724,17 @@ function loaderArgumentProvenanceFailure(
   if (!producerDeclaration) {
     return `producer ${pin.producer} must resolve to a function declaration`;
   }
+  /* The producer must be the MODULE-LEVEL declaration, not a same-named local.
+     Codex (independent review host, B-3e16) found this bypass: a nested function with
+     the identical name AND identical parameter list shadows the export and can return
+     caller-controlled data, while `const location = resolveGraphPackage(ctx.root)` and
+     the pinned import text stay byte-identical. The name check above and the parameter
+     check below both pass, so without declaration-identity checking the provenance pin
+     is defeated by a re-approver who merely refreshes the fingerprint. Covered by the
+     'nested producer shadow' control in assertLoaderArgumentProvenance. */
+  if (!ts.isSourceFile(producerDeclaration.parent)) {
+    return `producer ${pin.producer} must be the module-level declaration, got one nested inside ${enclosingFunctionName(producerDeclaration) ?? '<non-module scope>'}`;
+  }
   const parameters = producerDeclaration.parameters.map(parameter => parameter.name.getText(producerDeclaration.getSourceFile()));
   if (parameters.length !== pin.producerParameters.length
     || parameters.some((name, index) => name !== pin.producerParameters[index])) {
@@ -5058,6 +5069,16 @@ function assertLoaderArgumentProvenance(): void {
       ['producer signature widened with override', original.replace(
         `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
         `export function ${pin.producer}(projectRoot: string, entryOverride?: string): GraphPackageLocation {\n  if (entryOverride) return describeLocation(dirname(dirname(entryOverride)), entryOverride);`,
+      )],
+      // PROBE (codex F-019): a NESTED producer with the same name AND the same signature,
+      // shadowing the module-level export. The pinned line and the import argument text are
+      // byte-identical, so only real declaration-identity checking can catch it.
+      ['nested producer shadow', original.replace(
+        `      const location = ${pin.producer}(ctx.root);`,
+        `      function ${pin.producer}(projectRoot: string): GraphPackageLocation {\n`
+        + `        const injected = String((args as { root?: string }).root ?? projectRoot);\n`
+        + `        return { packageRoot: injected, entry: injected + '/evil.js', assetDir: injected, vendorDir: injected };\n`
+        + `      }\n      const location = ${pin.producer}(ctx.root);`,
       )],
       // Hoisted out of the approved scope, widening the binding's lifetime/visibility.
       // Hoisted to module scope while KEEPING the pinned producer call verbatim, so the
