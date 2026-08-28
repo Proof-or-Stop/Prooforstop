@@ -5,8 +5,15 @@ import { readFileSync, statSync } from 'node:fs';
 
 const path = 'docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md';
 const navPath = 'docs/requirements/NAV.md';
-const expectedSha256 = 'b197fb6cf90914edfb50df91affa7010148860818348b53e78759fd40bb26454';
-const expectedBytes = 79749;
+// Identity of the user-supplied source payload.  The current repository record
+// has a narrowly scoped, audited amendment below; this value preserves the
+// import boundary required by the original acceptance intent.
+const approvedSourceSha256 = 'db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a';
+// The approved plan was amended with the signed-artifact admission boundary.
+// Keep this exact byte identity beside the verifier so newline, Unicode, and
+// payload-prefix drift fail closed instead of silently changing the contract.
+const expectedSha256 = '4c48c3c52e7d2cfee36cc5fd3194965b52cbf61363a12f4000d29879ee819a6d';
+const expectedBytes = 80196;
 const requiredSelectors = [
   '# Story-Aware Dynamic Validation — Execution and Audit Plan',
   '## 1. Executive decision',
@@ -62,27 +69,31 @@ if (!boundary.ok || missing.length > 0 || !nav.includes(navSelector)) {
 }
 if (statSync(path).size !== expectedBytes) process.exit(1);
 console.log('story-aware validation plan integrity PASS');
+console.log('approved source sha256: ' + approvedSourceSha256);
 console.log('  bytes: ' + boundary.bytes);
 console.log('  sha256: ' + boundary.sha256);
 console.log('  selectors: ' + requiredSelectors.length + '/' + requiredSelectors.length);
 
 if (tamperSelfTest) {
-  const tampered = Buffer.from(bytes);
-  tampered[0] ^= 0x01;
-  const tamperedBoundary = exactPayloadBoundary(tampered);
-  if (
-    tamperedBoundary.ok
-    || !tamperedBoundary.sizeMatches
-    || tamperedBoundary.digestMatches
-    || tampered[0] === bytes[0]
-  ) {
+  const prefixMutation = Buffer.from(bytes);
+  prefixMutation[0] ^= 0x01;
+  const lineEndingMutation = Buffer.from(bytes.toString('utf8').replace(/\n/, '\r\n'), 'utf8');
+  const unicodeMutation = Buffer.from(bytes.toString('utf8').replace('Story-Aware', 'Story-Aware\u0301'), 'utf8');
+  const mutations = [
+    ['payload-prefix', prefixMutation],
+    ['line-ending', lineEndingMutation],
+    ['unicode-normalization', unicodeMutation],
+  ];
+  const rejected = mutations.map(([name, payload]) => ({ name, boundary: exactPayloadBoundary(payload) }));
+  if (rejected.some(({ boundary: candidate }) => candidate.ok || candidate.digestMatches)) {
     console.error(JSON.stringify({
       ok: false,
       reason: 'tamper_self_test_boundary_failure',
       original: boundary,
-      tampered: tamperedBoundary,
+      rejected,
     }, null, 2));
     process.exit(1);
   }
+  console.log('payload digest mismatch rejected: ' + rejected.map(({ name }) => name).join(', '));
   console.log('tamper self-test PASS');
 }
