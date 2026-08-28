@@ -65,7 +65,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "packages/graph package.json declares engines.node as >=22.5.0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "On a runtime older than 22.5 the command prints a readable diagnostic naming node:sqlite and the required Node version",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The unsupported-runtime path never surfaces a raw ERR_UNKNOWN_BUILTIN_MODULE stack trace to the user",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
