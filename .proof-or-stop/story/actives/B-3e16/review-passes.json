@@ -583,6 +583,41 @@
         "scanEscalationReason": null
       },
       "_hash": "0a7d9f875ccefd4a3b999cca277c701bb8460b71710de8706dd7d8edd72d5b3c"
+    },
+    {
+      "id": "B-3e16:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final post-remediation test-coverage pass. All 18 checklist verificationIntent entries have valid verificationEvidence (0 failing, 0 waivers). F-016 remediation independently confirmed load-bearing: I built two of my own mutant constructions (caller-influenced rebinding via an indirection helper, and a resolveGraphPackage signature widened with an override param) not among the implementers four canned self-test fixtures, and called scanConcealedCompatibilityLoads directly with NO fingerprint override -- both were caught under the approved loader argument provenance drift label naming the exact violation, while an unrelated benign comment edit produced zero false positives, confirming the check proves provenance rather than just an allowlist entry existing. Verified CHK-003 evidence wiring: test:orphan-surface and test:command-ownership-contract both still pass standalone and both now also appear in validate.commands (confirmed via proof-or-stop.config.json), same underlying scripts on both paths so this is belt-and-braces not double counting; cli-surface-smoke likewise passes standalone and is newly wired into validate.commands per the F-014/F-012 remediation commit. Read the property-proving scripts behind CHK-001/002/004/005 evidence (verify-assets-ignored, verify-engines-floor, verify-clean-tree, verify-no-project-writes, verify-missing-assets-fail) and confirmed each asserts a real, falsifiable property (git check-ignore/ls-files, negative control on real Node v20.19.6, git status delta before/after a real scan, static write-call enumeration against an explicit allowlist, real asset-removal + spawn + exit-code/message check) rather than merely confirming the check ran. No evidence found that only proves execution without proving the property. F-011 nine-count and seven-to-nine wording fix verified consistent between the guard source (DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size derivation) and scripts/verify-process-fact-contract.mjs pinned string. No blocking finding.",
+      "createdAt": "2026-08-28T16:20:35.849Z",
+      "reviewRound": "2026-08-28T16:04:35.811Z",
+      "reviewRunId": "B-3e16:RR-040",
+      "envelopeId": "6ad6373914c33a78bfbd0d26317e818e58a989545701e80ca5535a6d847ebfef",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/graph/scripts/verify-assets-ignored.mjs",
+          "packages/graph/scripts/verify-clean-tree.mjs",
+          "packages/graph/scripts/verify-engines-floor.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/package.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6c8af5f808f970489c4a9122ae34853630a987a24537ed9dc70421365a3e1801"
     }
   ]
 }
