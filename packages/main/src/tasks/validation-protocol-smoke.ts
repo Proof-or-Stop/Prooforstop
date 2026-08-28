@@ -2173,8 +2173,9 @@ try {
     rmSync(noStoryReadOnlyRoot, { recursive: true, force: true });
   }
 
-  // B-45a0 F-368: --paired is an executable compatibility alias and must use
-  // the same fail-closed report admissibility boundary as --execute.
+  // B-45a0 F-379/F-382: every documented executable spelling must run bounded
+  // repair, and a mutation subprocess failure must not be masked by the
+  // historical replay's successful status.
   const replayWrapperRoot = join(tmp, 'replay-wrapper');
   const replayWrapperPath = join(replayWrapperRoot, 'scripts', 'run-dynamic-validation-replay.mjs');
   const replayReportPath = join(replayWrapperRoot, '.proof-or-stop', 'runtime', 'dynamic-validation', 'historical-replay', 'report.json');
@@ -2192,43 +2193,56 @@ if (target.endsWith('story-aware-validation-historical-replay.ts')) {
   const mode = args.has('--execute') ? 'execute' : 'plan-only';
   const paired = args.has('--paired') ? 'paired-performance: fake\\n' : '';
   const resume = args.has('--resume') ? 'historical replay resume: enabled\\n' : '';
-  process.stdout.write('historical stories: 30\\nhistorical replay mode: ' + mode + '\\n' + paired + resume);
+  const repair = args.has('--repair-missing') ? 'historical replay repair: enabled\\n' : '';
+  process.stdout.write('historical stories: 30\\nhistorical replay mode: ' + mode + '\\n' + paired + resume + repair);
 } else {
   process.stdout.write('dynamic-validation mutation audit PASS\\n');
+  if (process.env.FAKE_MUTATION_STATUS) process.exit(Number(process.env.FAKE_MUTATION_STATUS));
 }
 `);
   chmodSync(fakeBunPath, 0o755);
-  const runReplayWrapper = (...args: string[]) => spawnSync(process.execPath, [replayWrapperPath, ...args], {
+  const runReplayWrapper = (args: string[], extraEnv: NodeJS.ProcessEnv = {}) => spawnSync(process.execPath, [replayWrapperPath, ...args], {
     cwd: replayWrapperRoot,
-    env: { ...process.env, BUN_BINARY: fakeBunPath },
+    env: { ...process.env, ...extraEnv, BUN_BINARY: fakeBunPath },
     encoding: 'utf8',
   });
 
   writeFileSync(replayReportPath, JSON.stringify({ admissibility: { admissible: false, reasons: ['forced non-admissible witness'] } }));
-  const pairedBlocked = runReplayWrapper('--paired');
+  const pairedBlocked = runReplayWrapper(['--paired']);
   assert.notEqual(pairedBlocked.status, 0, '--paired must fail when the executable replay report is non-admissible');
   assert.match(`${pairedBlocked.stdout}${pairedBlocked.stderr}`, /historical replay assurance gate blocked: forced non-admissible witness/);
   assert.doesNotMatch(`${pairedBlocked.stdout}${pairedBlocked.stderr}`, /historical replay threshold PASS/);
+  assert.match(`${pairedBlocked.stdout}${pairedBlocked.stderr}`, /historical replay repair: enabled/);
 
-  const thresholdBlocked = runReplayWrapper('--verify-threshold');
+  const thresholdBlocked = runReplayWrapper(['--verify-threshold']);
   assert.notEqual(thresholdBlocked.status, 0, '--verify-threshold must execute and fail when the replay report is non-admissible');
   assert.match(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay mode: execute/);
   assert.match(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /paired-performance: fake/);
   assert.match(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay resume: enabled/);
+  assert.match(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay repair: enabled/);
   assert.match(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay assurance gate blocked: forced non-admissible witness/);
   assert.doesNotMatch(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay threshold PASS/);
 
   writeFileSync(replayReportPath, '{ malformed report');
-  const pairedMalformed = runReplayWrapper('--paired');
+  const pairedMalformed = runReplayWrapper(['--paired']);
   assert.notEqual(pairedMalformed.status, 0, '--paired must fail when the executable replay report is malformed');
   assert.doesNotMatch(`${pairedMalformed.stdout}${pairedMalformed.stderr}`, /historical replay threshold PASS/);
 
-  const planOnlyMalformed = runReplayWrapper();
+  const planOnlyMalformed = runReplayWrapper([]);
   assert.equal(planOnlyMalformed.status, 0, 'plan-only replay keeps malformed report handling diagnostic');
   assert.match(planOnlyMalformed.stdout, /historical replay mode: plan-only/);
   assert.doesNotMatch(planOnlyMalformed.stdout, /paired-performance: fake/);
   assert.match(planOnlyMalformed.stdout, /historical replay assurance BLOCKED \(plan-only or incomplete\)/);
   assert.match(planOnlyMalformed.stdout, /historical replay threshold PASS/);
+
+  writeFileSync(replayReportPath, JSON.stringify({ admissibility: { admissible: true, reasons: [] } }));
+  const executeRepair = runReplayWrapper(['--execute']);
+  assert.equal(executeRepair.status, 0, '--execute must run a repair-capable executable campaign');
+  assert.match(executeRepair.stdout, /historical replay repair: enabled/);
+
+  const mutationFailure = runReplayWrapper(['--mutation=missing-evidence'], { FAKE_MUTATION_STATUS: '23' });
+  assert.equal(mutationFailure.status, 23, 'a failing mutation probe must propagate its own non-zero status');
+  assert.match(`${mutationFailure.stdout}${mutationFailure.stderr}`, /dynamic-validation mutation audit PASS/);
 
   console.log('✓ validation protocol smoke passed');
 } finally {

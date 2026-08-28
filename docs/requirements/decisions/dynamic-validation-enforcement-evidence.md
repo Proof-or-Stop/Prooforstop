@@ -80,8 +80,11 @@ durably written but before the current-HEAD paired campaign completes, the
 wrapper resumes rather than blindly replaying the entire population. It first
 recomputes each historical selection manifest and accepts a record only when
 its base/head identity, exact selected command set, execution/reuse totals,
-full-escalation decision, dependency graph, per-command equivalence, zero
-residue, and both signed full/dynamic receipts remain valid. New records also
+full-escalation decision, dependency graph, zero residue, and both signed
+full/dynamic receipts remain valid. Historical verdict differences remain
+admissible only when every full-plan failure is dynamically selected; exact
+per-command equivalence is required for the controlled current-HEAD pairs.
+New records also
 persist a selection-semantics digest for these fields. The complete raw
 manifest digest is retained for diagnosis, but a change to an unrelated global
 catalog or inventory member cannot by itself force the entire historical

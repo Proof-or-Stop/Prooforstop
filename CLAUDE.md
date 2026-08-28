@@ -834,7 +834,7 @@ executable intent（logic|cli|browser）的 evidence 会真的 **执行** pinned
 
 | 约束 | 规则 |
 |---|---|
-| 上限 | `EVIDENCE_COMMAND_TIMEOUT_CAP_MS = 7_200_000`（2h）——即 `lattice.config.json` 给 DONE-required 根套件的同一预算；**边界含等号**（恰好等于上限允许） |
+| 上限 | `EVIDENCE_COMMAND_TIMEOUT_CAP_MS = 21_600_000`（6h）——覆盖完整的历史回放与成对动态验证保证活动；**边界含等号**（恰好等于上限允许） |
 | 超上限 | **拒绝**（`[command_timeout_above_cap]`），**不静默 clamp** |
 | 理由 | `commandTimeoutReason` 必填且 trim 后 ≥ 30 字符（同 `nonMechanicalReason` 口径），否则 `[command_timeout_reason_too_short]`；只给理由不给预算 → `[command_timeout_reason_without_override]` |
 | gate 可见 | 武装的预算记在 **tool-owned receipt** 上：`receipt.timeoutMs` 恒记录，raise 时另加 `receipt.timeoutOverride{timeoutMs, defaultTimeoutMs, reason}`。receipt 块被所有 caller-facing schema `.strip()`，故**无法被 caller 注入**到实际按默认预算挣到的 receipt 上；handler 输出也追加 `timeoutOverride=<n>ms` |

@@ -13,7 +13,11 @@ const executableRequested = requested.has('--verify-threshold') || requested.has
 // The pinned threshold command is an enforcement path, not a diagnostic.
 // It must complete a bounded interrupted campaign so it can emit its required
 // selector, while still reusing every admissible signed historical record.
-const repairMissingRequested = requested.has('--repair-missing') || requested.has('--verify-threshold');
+// A documented executable mode is a completion-capable assurance campaign.
+// It may reuse signed historical records, but it must repair the missing or
+// incompatible remainder instead of stopping at the first gap.  Keep the
+// explicit flag for callers of the underlying task and for clarity in logs.
+const repairMissingRequested = executableRequested || requested.has('--repair-missing');
 if (repairMissingRequested && !executableRequested) throw new Error('--repair-missing requires an executable replay mode');
 const historicalArgs = executableRequested
   // Executable replay is always paired assurance.  Keep accepting --paired
@@ -36,8 +40,12 @@ const historical = mutationOnly
 const mutation = spawnSync(process.env.BUN_BINARY || 'bun', [
   join(root, 'packages/main/src/tasks/story-aware-validation-mutation-smoke.ts'),
 ], { cwd: root, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+const subprocessStatus = (child) => child.status === 0 ? 0 : (child.status || 1);
 const result = {
-  status: historical.status ?? mutation.status,
+  // `status ??` let the synthetic successful historical placeholder mask a
+  // failing mutation probe. Both pieces are required assurance, so propagate
+  // the first non-zero status fail-closed (historical before mutation).
+  status: subprocessStatus(historical) || subprocessStatus(mutation),
   stdout: `${historical.stdout || ''}${mutation.stdout || ''}`,
   stderr: `${historical.stderr || ''}${mutation.stderr || ''}`,
 };
