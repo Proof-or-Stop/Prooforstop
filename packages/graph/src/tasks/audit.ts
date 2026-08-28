@@ -94,6 +94,18 @@ function main(): void {
       const t = String(v);
       return t.includes(':') ? t.slice(t.lastIndexOf(':') + 1) : t;
     };
+    /* Audit/finding containers (B-META-*) are exempt: their findings come from
+       `audit` / `finding_add`, not from a reviewer run, so they legitimately have
+       no `reviewer_finding` events to be reachable from. They are not lifecycle
+       stories and never bounce a phase, which is what this check exists to explain.
+
+       This exemption is load-bearing rather than cosmetic. Before it, such a
+       container passed only because it happened to have NO process-events.jsonl at
+       all, so the `continue` above skipped it. The first unrelated event written to
+       one (a single `finding_add`) made the file exist and the check fire at
+       1-of-36 -- a latent failure that had nothing to do with the change that
+       tripped it. */
+    if (/^B-META/i.test(s.id)) continue;
     const known = new Set(list.map(f => bare(f['id'])));
     let referenced = 0;
     for (const r of pe.rows as Record<string, unknown>[]) {
