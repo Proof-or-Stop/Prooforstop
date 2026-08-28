@@ -226,7 +226,11 @@
           {
             "desc": "orphan-surface passes, proving the handler is reachable from the catalog rather than dead code, and no surface was left half-registered",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:orphan-surface",
+              "selector": "orphan-surface check passed"
+            }
           }
         ]
       },
@@ -277,6 +281,26 @@
           "materialHash": "0de16f654db5791c55f3cccf060007305797a197cad30e483a60d91ee3753142",
           "storyFilesHash": "aacd6b5753cad5a24199577af925a3f8d1cb3710d1e6995d78b5d5b82602dec0",
           "timestamp": "2026-08-28T09:38:14.205Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:orphan-surface",
+          "result": "pass",
+          "note": "Proves the handler is reachable from the catalog rather than dead code, so no surface was left half-registered. The implementer chose a normal registered handler over the dashboard standalone route precisely so this assertion keeps covering every catalog command and STANDALONE_COMMANDS stays a set of one.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "56cc8be74c2323bc6c3019c1618c5b2a25bdc241969240088bf1f58641062317",
+            "outputTail": "\n> lattice@0.3.269 test:orphan-surface\n> node scripts/verify-orphan-surface.mjs\n\norphan-surface check passed: 123 handler factories registered, 358 catalog commands checked, 7 retired surfaces absent.\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:38:20.785Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "b2ccf3db7da74ced3e4e31dd0606a297b7351ffa",
+          "materialHash": "0de16f654db5791c55f3cccf060007305797a197cad30e483a60d91ee3753142",
+          "storyFilesHash": "aacd6b5753cad5a24199577af925a3f8d1cb3710d1e6995d78b5d5b82602dec0",
+          "timestamp": "2026-08-28T09:38:20.966Z"
         }
       ]
     },
