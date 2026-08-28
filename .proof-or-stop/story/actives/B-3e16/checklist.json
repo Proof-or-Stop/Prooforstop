@@ -215,7 +215,11 @@
           {
             "desc": "command-ownership-contract passes, proving the COMMAND_POLICIES row carries a valid ownershipClass and the handler is registered",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:command-ownership-contract",
+              "selector": "command-ownership contract passed"
+            }
           }
         ],
         "adversarial": [
@@ -253,6 +257,26 @@
           "materialHash": "0de16f654db5791c55f3cccf060007305797a197cad30e483a60d91ee3753142",
           "storyFilesHash": "aacd6b5753cad5a24199577af925a3f8d1cb3710d1e6995d78b5d5b82602dec0",
           "timestamp": "2026-08-28T09:38:07.422Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Proves the COMMAND_POLICIES row carries a valid ownershipClass (readOnly) and that the handler is registered and dispatchable. The contract fails closed on a missing ownershipClass, so a pass covers all 358 commands including the new one.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e8f6a86d2b5b6291ed76be697766b6d39a9d3cbdf44ff0047d341b0909a7f17b",
+            "outputTail": "\n> @proof-or-stop/core@0.3.269 test:command-ownership-contract\n> node dist/tasks/command-ownership-contract.js\n\n✓ scope_check_save allowedPhases: PLAN\n✓ scope_contract_acknowledge allowedPhases: DEV, REVIEW\n✓ LATTICE_REVIEWER_READONLY=1 enables read-only reviewer mode\n✓ enforceReviewerReadOnlyCommandGate: allows readOnly, blocks reviewerWrite/storyScopedMutating/unclassified\n✓ with env unset, normal reviewerWrite reaches enforceStoryOwnerLeaseGate unblocked\n✓ ownerLeaseHelpBlock: owner-gated commands have takeover/forceTakeover guidance; readOnly/reviewerWrite/mainSharedMutating return null\n✓ command-ownership contract passed — 358 CLI commands all carry a valid ownershipClass and a dispatchable handler; unclassified commands fail-closed; finding B-META / validate --story / delivery_check_set boundary rules resolve as ruled; read-only reviewer command gate (B-4f15 CHK-002) assertions all pass; owner lease help block (B-a30e CHK-003) discoverable for gated commands, absent for read-only\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:38:14.027Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1660cce28754f0927fa5f1846359f13259e87d5f",
+          "materialHash": "0de16f654db5791c55f3cccf060007305797a197cad30e483a60d91ee3753142",
+          "storyFilesHash": "aacd6b5753cad5a24199577af925a3f8d1cb3710d1e6995d78b5d5b82602dec0",
+          "timestamp": "2026-08-28T09:38:14.205Z"
         }
       ]
     },
