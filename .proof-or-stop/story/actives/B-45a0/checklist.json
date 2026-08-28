@@ -160,15 +160,22 @@
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
-          "command": "node scripts/verify-story-aware-validation-plan.mjs",
+          "command": "node scripts/verify-story-aware-validation-plan.mjs --tamper-self-test",
           "result": "pass",
-          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
-          "headHash": "ec8c3415c440be06aa8c3a04622418882c788b48",
-          "materialHash": "37f6332c3a05a892f036d5ee9da3e1c01777da250177dfacf9865aa4849bed74",
-          "storyFilesHash": "3164c4104e4642364779fe1c4cca8003489a56cccede9a6e2d7612946e67bdfa",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-28T06:03:21.191Z"
+          "note": "The in-memory one-byte mutation preserves byte length but fails the exact SHA-256 boundary before any approval can be emitted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d55a81808793e6da178812de47a50d4563d41f9cb0e7ba2225c8015d27cf9805",
+            "outputTail": "story-aware validation plan integrity PASS\n  bytes: 79749\n  sha256: b197fb6cf90914edfb50df91affa7010148860818348b53e78759fd40bb26454\n  selectors: 14/14\ntamper self-test PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T06:18:37.823Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "7315438d7894d087717f6f12b7165c30092f3d93",
+          "materialHash": "fcdb24b37de93f0145a9f6871e509291a1ba4010854c1a6540e575fc6efa9e82",
+          "storyFilesHash": "373eef1c4e5bebf0fc6448aab47bf420788b7c12b7bde238d3e64417ba50970a",
+          "timestamp": "2026-08-28T06:18:38.022Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
