@@ -1628,6 +1628,8 @@ const APPROVED_LOADER_ARGUMENT_PROVENANCE = new Map<string, {
   readonly rootIdentifier: string;
   readonly producer: string;
   readonly producerParameters: readonly string[];
+  /** Allowlisted URL helper wrapping the value expression; must be a 'node:url' import. */
+  readonly urlHelper?: string;
 }>([
   // B-3e16 CHK-003: `location` must be a same-scope const initialized by
   // resolveGraphPackage(ctx.root), and resolveGraphPackage must keep its single
@@ -1641,6 +1643,7 @@ const APPROVED_LOADER_ARGUMENT_PROVENANCE = new Map<string, {
     rootIdentifier: 'location',
     producer: 'resolveGraphPackage',
     producerParameters: ['projectRoot'],
+    urlHelper: 'pathToFileURL',
   }],
 ]);
 
@@ -1662,23 +1665,41 @@ function rootIdentifierOf(node: ts.Node): ts.Identifier | undefined {
 }
 
 /** The template's first interpolated expression, i.e. `location.entry`. */
-function firstInterpolatedExpression(node: ts.Node): ts.Expression | undefined {
+/**
+ * The value-bearing expression inside a pinned loader argument.
+ *
+ * Handles a raw template (`file://${x}`) and a URL built by an ALLOWLISTED helper
+ * (`pathToFileURL(x).href`). The helper is not merely name-matched: `allowedUrlHelper`
+ * must resolve, through the type checker, to an import of that name from 'node:url'.
+ * Codex (independent review host, B-3e16 round 3) showed that following any call's first
+ * argument let an attacker-supplied helper of the same name pass while keeping the pinned
+ * text identical. Anything else returns undefined so the caller fails closed.
+ */
+function loaderArgumentValueExpression(
+  node: ts.Node,
+  allowedUrlHelper: string | undefined,
+  checker: ts.TypeChecker,
+): ts.Expression | undefined {
   if (ts.isTemplateExpression(node)) return node.templateSpans[0]?.expression;
-  /* A URL built by a helper call carries its value-bearing expression in the call's
-     arguments, e.g. `pathToFileURL(location.entry).href`. Descend so the provenance pin
-     still sees `location` rather than reporting <none> and failing closed on a correctly
-     escaped construction. Introduced when the B-3e16 handler moved off a raw
-     `file://${...}` template (codex, independent review host: `#`/`?` in a path were
-     being parsed as fragment/query). */
-  if (ts.isPropertyAccessExpression(node) && ts.isCallExpression(node.expression)) {
+  if (allowedUrlHelper
+    && ts.isPropertyAccessExpression(node)
+    && node.name.text === 'href'
+    && ts.isCallExpression(node.expression)
+    && ts.isIdentifier(node.expression.expression)
+    && node.expression.expression.text === allowedUrlHelper
+    && isNodeUrlHelperImport(node.expression.expression, checker)) {
     const inner = node.expression.arguments[0];
-    if (inner) return firstInterpolatedExpression(inner) ?? inner;
-  }
-  if (ts.isCallExpression(node)) {
-    const inner = node.arguments[0];
-    if (inner) return firstInterpolatedExpression(inner) ?? inner;
+    if (inner) return loaderArgumentValueExpression(inner, allowedUrlHelper, checker) ?? inner;
   }
   return ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) ? node as ts.Expression : undefined;
+}
+
+/** True only when `id` resolves to an import specifier whose module is 'node:url'. */
+function isNodeUrlHelperImport(id: ts.Identifier, checker: ts.TypeChecker): boolean {
+  const declaration = checker.getSymbolAtLocation(id)?.declarations?.[0];
+  if (!declaration || !ts.isImportSpecifier(declaration)) return false;
+  const specifier = declaration.parent.parent.parent.moduleSpecifier;
+  return ts.isStringLiteral(specifier) && specifier.text === 'node:url';
 }
 
 /**
@@ -1699,7 +1720,7 @@ function loaderArgumentProvenanceFailure(
   const argumentNode = call.arguments[0];
   if (!argumentNode || argumentNode.getText(source) !== pin.argument) return undefined;
 
-  const interpolated = firstInterpolatedExpression(argumentNode);
+  const interpolated = loaderArgumentValueExpression(argumentNode, pin.urlHelper, checker);
   const root = interpolated && rootIdentifierOf(interpolated);
   if (!root || root.text !== pin.rootIdentifier) {
     return `pinned loader argument root identifier must be ${pin.rootIdentifier}, got ${interpolated?.getText(source) ?? '<none>'}`;
@@ -1755,6 +1776,21 @@ function loaderArgumentProvenanceFailure(
   for (const candidate of producerDeclarations) {
     if (!ts.isSourceFile(candidate.parent)) {
       return `producer ${pin.producer} must be the module-level declaration, got one nested inside ${enclosingFunctionName(candidate) ?? '<non-module scope>'}`;
+    }
+    /* Codex round 3: a bodyless `declare function resolveGraphPackage(projectRoot: string)`
+       satisfied the module-level and parameter checks, and Node ESM can resolve that free
+       identifier from an attacker-installed globalThis property. Require a concrete body,
+       reject ambient/declare, and require the declaration to live in the SAME source file
+       as the pinned call so a same-named export elsewhere cannot stand in. */
+    if (!candidate.body) {
+      return `producer ${pin.producer} must have a concrete body; a bodyless or ambient declaration can resolve to an attacker-installed global`;
+    }
+    if ((ts.getCombinedModifierFlags(candidate) & ts.ModifierFlags.Ambient) !== 0
+      || candidate.getSourceFile().isDeclarationFile) {
+      return `producer ${pin.producer} must not be an ambient declaration`;
+    }
+    if (candidate.getSourceFile().fileName !== source.fileName) {
+      return `producer ${pin.producer} must be declared in the same source file as the pinned loader call, got ${candidate.getSourceFile().fileName}`;
     }
   }
   for (const candidate of producerDeclarations) {
@@ -5093,6 +5129,24 @@ function assertLoaderArgumentProvenance(): void {
       ['producer signature widened with override', original.replace(
         `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
         `export function ${pin.producer}(projectRoot: string, entryOverride?: string): GraphPackageLocation {\n  if (entryOverride) return describeLocation(dirname(dirname(entryOverride)), entryOverride);`,
+      )],
+      // PROBE (codex round 3a): an attacker-supplied helper of the same name replaces the
+      // node:url import, keeping the pinned argument text byte-identical.
+      ['attacker-supplied url helper', original
+        .replace("import { pathToFileURL } from 'node:url';", '')
+        .replace(
+          `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
+          'function pathToFileURL(p: string): { href: string } {\n'
+          + '  return { href: String((globalThis as { __evil?: string }).__evil ?? p) };\n'
+          + '}\n'
+          + `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
+        )],
+      // PROBE (codex round 3b): a bodyless ambient producer declaration, which Node ESM can
+      // resolve from an attacker-installed globalThis property.
+      ['ambient bodyless producer', original.replace(
+        `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
+        `declare function ${pin.producer}(projectRoot: string): GraphPackageLocation;\n`
+        + `function __unusedRealProducer(projectRoot: string): GraphPackageLocation {`,
       )],
       // PROBE (codex, 2nd finding): an exact-matching OVERLOAD signature hiding a widened
       // implementation. `.find(isFunctionDeclaration)` used to select the overload and pass.
