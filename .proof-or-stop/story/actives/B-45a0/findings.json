@@ -21650,6 +21650,85 @@
       ],
       "signatureTag": "replay-executable-command-promise-undelivered",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-383",
+      "desc": "doc-code-drift: docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md:1013-1015 promises that the exported loadBestMatchingAdmissiblePassReceipt lookup filters candidates by ancestry, revocation, catalog, inventory, runner, toolchain, exact build proof, and clean-tree proof before choosing the newest admissible PASS. packages/main/src/core/story-aware-validation.ts:650-653 exposes that exact helper name with no parameters for those bindings and filters only commandId, inputDigest, baselineEpochId, and basic verifyValidationCommandReceipt validity. The authoritative selection path applies the omitted checks through the separate internal receiptAdmissible predicate at lines 701-712 and 840, so the gate path remains fail-closed, but the named exported API documented as the deterministic admissibility lookup does not implement its published contract. Reconcile the design record with the actual split predicate or make the exported helper accept and enforce the promised current-context checks.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T05:14:43.933Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-831",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-command-receipt.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "c55c5900cacae627225c7c2914cc9c394885c2fc7ef24e4ac98178af1b88c432"
+      },
+      "readDiagnostics": [],
+      "_hash": "4d8dad8b9c56d15f839fb0abeb4f128c23744bcfe3084d41b21d2c7b5be82820",
+      "files": [
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/core/validation-command-receipt.ts"
+      ],
+      "signatureTag": "receipt-lookup-helper-doc-contract-drift",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
