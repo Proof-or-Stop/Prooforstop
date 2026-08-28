@@ -436,10 +436,36 @@
         "verification_evidence_refresh",
         "historical_replay_assurance"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These six files implement and verify the required dynamic-validation replay admission, signed evidence, and acceptance-topology guarantees in the approved execution plan.",
+      "timestamp": "2026-08-28T19:17:54.789Z",
+      "paths": [
+        "packages/main/src/core/historical-replay-artifact.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/core/validation-artifact-signing.ts",
+        "packages/main/src/tasks/historical-replay-artifact-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-historical-replay-artifact-verify.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/historical-replay-artifact.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/core/validation-artifact-signing.ts",
+        "packages/main/src/tasks/historical-replay-artifact-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-historical-replay-artifact-verify.ts"
+      ],
+      "affectedPathCount": 6,
+      "phase": "DEV",
+      "headHash": "b88f8323f40598df611f132a81a2513f7a2c8d88",
+      "materialHash": "f78303594ec05a4edaa34a396e2903514416acbbf0a138425cf40a6a9db4d6f1"
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-28T06:04:08.636Z",
+  "updatedAt": "2026-08-28T19:17:54.789Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -522,6 +548,12 @@
     "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
     "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
     "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
-    "CLAUDE.md": "CLAUDE.md"
+    "CLAUDE.md": "CLAUDE.md",
+    "packages/main/src/core/historical-replay-artifact.ts": "packages/main/src/core/historical-replay-artifact.ts",
+    "packages/main/src/core/topology-critic-receipt.ts": "packages/main/src/core/topology-critic-receipt.ts",
+    "packages/main/src/core/validation-artifact-signing.ts": "packages/main/src/core/validation-artifact-signing.ts",
+    "packages/main/src/tasks/historical-replay-artifact-smoke.ts": "packages/main/src/tasks/historical-replay-artifact-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+    "packages/main/src/tasks/story-aware-validation-historical-replay-artifact-verify.ts": "packages/main/src/tasks/story-aware-validation-historical-replay-artifact-verify.ts"
   }
 }
