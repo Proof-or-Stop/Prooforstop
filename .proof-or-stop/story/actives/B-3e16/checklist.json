@@ -200,7 +200,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The resolved index database path is under the user cache directory rather than anywhere inside the inspected repository",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git status --porcelain is byte-identical before and after running the command inside a story worktree",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The command writes no discovery file into the project, so unlike the serve metadata file it needs no runtime-artifact-registry entry",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
