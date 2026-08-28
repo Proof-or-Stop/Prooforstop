@@ -300,7 +300,11 @@
           {
             "desc": "git status --porcelain is byte-identical before and after running the command inside a story worktree",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run verify-clean-tree",
+              "selector": "CLEAN_TREE_OK"
+            }
           }
         ],
         "adversarial": [
@@ -331,6 +335,26 @@
           "materialHash": "8b998f97fee173bc56c34ac0a3226336b78811cf1e84d78af21bb276ba5e50d8",
           "storyFilesHash": "e5dbd68fb1693028972b8ecefa6974de4ea6fa8debd65b545bdd150f3b645d22",
           "timestamp": "2026-08-28T09:30:56.168Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/graph run verify-clean-tree",
+          "result": "pass",
+          "note": "The check captures git status --porcelain before and after a real full scan (graph build, FTS index build, story serialisation, search) and fails if the two differ. It measures delta rather than absolute cleanliness, so it stays honest when unrelated CLI metadata writes are already present.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "bc5845e313aece3ac7e45dc930a4f75c546472c65a21888a72ac396d9ba35e98",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 verify-clean-tree\n> node scripts/verify-clean-tree.mjs\n\nscanned 369 stories, 426 relations\nindex db: /Users/qipan/.cache/proof-or-stop-graph/B-3e16-122d23e30fea/index.db\nCLEAN_TREE_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T09:31:00.057Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "00a34602948395aac8cba8eff65a5f0640b7aae7",
+          "materialHash": "8b998f97fee173bc56c34ac0a3226336b78811cf1e84d78af21bb276ba5e50d8",
+          "storyFilesHash": "e5dbd68fb1693028972b8ecefa6974de4ea6fa8debd65b545bdd150f3b645d22",
+          "timestamp": "2026-08-28T09:31:00.233Z"
         }
       ]
     },
