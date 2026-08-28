@@ -95,6 +95,21 @@
       "_hash": "4ae973b7641150f5360b656b9dcf8f875836991dc78c79f00ad58fc3a716fda4",
       "signatureTag": "missing|unknown|packages-graph-scripts",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-006",
+      "desc": "packages/graph/scripts/verify-docs.mjs:91 the `.cache` exemption for the standalone-binary vocabulary scan is per-line, not per-token: `!line.includes(\".cache\")` exempts the ENTIRE line from the bare `proof-or-stop-graph` invocation check whenever any substring `.cache` appears anywhere on that same line. Demonstrated: changing the current README line to `worktree, so the index cache lives under `~/.cache/`. Run proof-or-stop-graph to start.` still reports DOCS_OK -- a real reintroduction of the removed standalone binary invocation is silently missed because it shares a line with an unrelated .cache mention. Low severity: requires the specific coincidence of both substrings on one line, does not affect the current committed README, and is a guard-of-a-guard (doc-check tooling, not production code). Fix would be to scope the exemption to the specific `.cache/proof-or-stop-graph` match rather than the whole line, e.g. only skip a match when it is immediately preceded by `.cache/`.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-28T10:18:48.076Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-010",
+      "_hash": "8d2780880e5d73ba2f2bd333fdf192293f3bef9c7f77b42924c24ac38cdb5213",
+      "signatureTag": "edge|unknown|packages-graph-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
