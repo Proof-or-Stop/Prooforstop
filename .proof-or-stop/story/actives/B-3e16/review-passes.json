@@ -189,6 +189,38 @@
         "scanEscalationReason": null
       },
       "_hash": "7242f7ecde4b0571b1a31d2ba4dafb0ff5913ebba5114d7f1ed761e81133966e"
+    },
+    {
+      "id": "B-3e16:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review: re-confirmed RP-006 findings, no new coverage gap. All 6 items done, 18 must intents, all 18 have tool-executed manual_transcript evidence with matching receipts (exitCode 0, selectorMatched true) recorded at commit b30679d. Verified all 18 share that single headHash, so validate --story reporting 18/18 stale is a uniform binding-staleness fact, safe for the main agent to refresh mechanically -- not a coverage gap. Checked every non-story-metadata file changed between b30679d and current HEAD (1012f1f) for impact on the 18 checked properties: graph.ts doc-comment fix (no behavior change), dead main.ts removal (unreferenced at evidence time, confirmed via git grep plus package.json bin field absent both then and now), gitignore dead-entry removal (F-007, unrelated), verify-serves.mjs poll-delay (cosmetic), verify-docs.mjs additive README checks (CHK-006 evidence properties are a strict subset of what the script now asserts; re-ran it live, still DOCS_OK including the original three lines). None of the 18 point at a check that was weakened, removed, or now proves a different or lesser property -- all 18 are stale bindings over intact checks, none are stale because the underlying check regressed or vanished. Second question: CHK-004 verify-missing-assets-fail currently proves guard-fires-before-listener because assertGraphRuntimeSupported runs before the dynamic import call; I independently confirmed packages/graph/src/index.ts statically re-exports core/search/fn.ts which top-level imports node:sqlite (fn.ts line 10), and resolveGraphPackage() (graph.ts lines 90-138) derives both the dynamic-import entry path and assetDir/vendorDir from one resolution. Converting the runtime import() to a static import would not just require re-verifying verify-missing-assets-fail's guard-ordering property under a new import shape (assetDir/vendorDir derivation must survive independently of resolveGraphPackage, as F-008 already flags) -- it would relocate the node:sqlite load to packages/main module-evaluation time, making CHK-002 verify-engines-floor a false-passing check for the post-fix world since the guard could no longer run before the failure point for any CLI command, not just graph. That graver risk is already filed and open as F-010 (quality lane) with F-008 (concept lane) on the narrower assetDir/vendorDir angle; both are verified against current source and correctly scoped outside my lane, so I am not duplicating them. Recorded for the record: CHK-002 and CHK-004 evidence will both need fresh runs (not just hash refresh) after the static-import fix lands, since the fix changes the code path each check exercises, not just its content hash. No coverage gap found in the current inventory; 18 of 18 must intents covered by valid mechanical evidence with concrete, intent-matching assertions, no broad validate-passed evidence seen.",
+      "createdAt": "2026-08-28T11:01:35.798Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-021",
+      "envelopeId": "b0123f8f03457957b57d883f05d85536c86c60ea599f8e54e98561a5a9c379aa",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          "packages/graph/.gitignore",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/scripts/verify-serves.mjs",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/index.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/background.md",
+          ".proof-or-stop/story/actives/B-3e16/plan.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8fded6ea54d3c79bde83e23af5e870f59c5403c8b6b2008011e72f971404964a"
     }
   ]
 }
