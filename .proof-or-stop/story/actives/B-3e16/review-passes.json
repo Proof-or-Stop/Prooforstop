@@ -530,6 +530,36 @@
         "scanEscalationReason": null
       },
       "_hash": "b55b3fa850bb2cbba5a73c8079162a4795471e5ebeec0bd4253712740f4fd4d0"
+    },
+    {
+      "id": "B-3e16:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Post-remediation concept-residue re-verification of the two abandoned designs (static import + graph-runtime.ts extraction), the guard remediation's assertLoaderArgumentProvenance wiring, and verify-docs.mjs Decision 5 growth. All three areas clean, no residue or duplication found; see readManifest for files checked.",
+      "createdAt": "2026-08-28T16:13:42.878Z",
+      "reviewRound": "2026-08-28T16:04:35.811Z",
+      "reviewRunId": "B-3e16:RR-045",
+      "envelopeId": "111ee0e43c15b1b1a492ea64c2b05a93256e9ae33230b1adb526e94a1f3f871c",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/package.json",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "47b780ec6b078458fdadb0b9f20e028fb988f1b558a5ef0960984deede6b945b"
     }
   ]
 }
