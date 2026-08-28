@@ -319,7 +319,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/graph-command-migration.md:138-139 claims one missing process-fact-levels.ts entry produced \"eight separate complaints across seven phases\" from test:process-fact-contract. Reproduced via negative control (removed the graph entry from packages/main/src/core/process-fact-levels.ts in an isolated /tmp copy, rebuilt, ran node scripts/verify-process-fact-contract.mjs): the failure output has 9 distinct complaint lines (1x MAIN_TOOLS command(s) missing from registry: graph, 7x DEFAULT_PHASE_TOOLS phase allowlist drift one per phase DEV/DONE/INIT/INIT_CHECK/PLAN/REVIEW/TEST, 1x MAIN_TOOLS command missing from PROCESS_FACT_REGISTRY), not 8. The seven-phases part is accurate; the complaint count is off by one. Positive control (fix restored) reproduces the documented pass. Fix the number to nine.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-28T11:02:09.947Z",
@@ -354,7 +354,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 1bea73b55a. The paragraph claimed eight separate complaints where the true figure is nine, which the docs lane and the topology critic each reproduced independently in isolated copies. I had typed it from an implementer report without counting: exactly the never-restate-a-measured-number-in-prose trap this repo dev-memory warns about. Rather than substituting a corrected digit I took the reviewer own recommendation and stated the derivation (three assertion sites in verify-process-fact-contract.mjs, one firing once per phase in ALL_PHASES, so ALL_PHASES.length + 2), so it cannot drift again. verify-docs asserts the derivation string is present, confirmed by negative control: reverting it to a hand-typed digit makes the check fail. Note the same hazard bit again later in this story, in a pinned count string shared between the guard file and the process-fact contract (commit 2aeb29a508).",
+      "resolvedAt": "2026-08-28T16:05:39.747Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3e16:F-012",
