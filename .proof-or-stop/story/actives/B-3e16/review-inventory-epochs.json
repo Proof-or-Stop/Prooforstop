@@ -43,7 +43,7 @@
       "reviewRound": "2026-08-28T10:02:05.350Z",
       "state": "OPEN",
       "begunAt": "2026-08-28T10:55:04.187Z",
-      "updatedAt": "2026-08-28T13:45:54.018Z",
+      "updatedAt": "2026-08-28T14:02:41.356Z",
       "cutoff": {
         "headHash": "26a0794a2e0a74153e740c8a4db6b90888461b7d",
         "materialHash": "dfd39d4ac4f8e221b77a8d27ff6c9e3a4577845b99d9d4ab85e6f5579ae054c1",
@@ -125,10 +125,78 @@
           "criticDigest": "84ef3326e26962b0af1d5c3dd693ee7687732918627d0025c028e375df22cc55",
           "saturated": false,
           "nextRunSequenceBoundary": 24
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-28T13:45:54.018Z",
+          "completedAt": "2026-08-28T14:02:41.356Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-3e16:RR-029",
+              "terminal": "finding",
+              "hostIdentity": "b28503367b039396ff5a24f806ff0335120e3d97f902aa602dee744633d3663d",
+              "promptIdentity": "2c5979e04991f7f2f8d2262b93dbf25311ec01c118e525508e8203735e4f6e6e",
+              "evidenceIds": [
+                "B-3e16:F-014"
+              ],
+              "coverageDigest": "791170a8559dca31e1484fa87d5355c3d91219c1ffbbbda854027b2c1644671b"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-3e16:RR-025",
+              "terminal": "finding",
+              "hostIdentity": "b28503367b039396ff5a24f806ff0335120e3d97f902aa602dee744633d3663d",
+              "promptIdentity": "8ca74a62b49530200a6e967193eea3618a47718da429da647987c4639a9947ac",
+              "evidenceIds": [
+                "B-3e16:F-017"
+              ],
+              "coverageDigest": "41e22f8173ffcb9c447885d51e7bb1c23074b81d89825bfb4022dfb9065c10cf"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-3e16:RR-028",
+              "terminal": "finding",
+              "hostIdentity": "b28503367b039396ff5a24f806ff0335120e3d97f902aa602dee744633d3663d",
+              "promptIdentity": "c9b9a4660e6d24c7b599a2a89beb1d8ace6d928e6191187b8d014ba0fb701300",
+              "evidenceIds": [
+                "B-3e16:F-016"
+              ],
+              "coverageDigest": "052b5caf2ae82a3d6d9e9dfff58d9262ef0797ee6f146f3ea6779f653c213371"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-3e16:RR-027",
+              "terminal": "finding",
+              "hostIdentity": "b28503367b039396ff5a24f806ff0335120e3d97f902aa602dee744633d3663d",
+              "promptIdentity": "3b76f60e8a05f7076e5d214d5ea2785d1f216b7815dec10ad8c11083245ba69a",
+              "evidenceIds": [
+                "B-3e16:F-015"
+              ],
+              "coverageDigest": "eca1c6aa9cf02c1fa5913d12c496b9c3ea1ee851614fbe1563eb9f9ddbf8953e"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "concept-completeness-unwired-CHK-003-acceptance-guards",
+            "doc-code-drift-complaint-count-off-by-one",
+            "doc-code-drift-unwired-contract-tasks",
+            "doc-missing-binding-reason-for-dynamic-import",
+            "forward-risk-advisory-stale-runtime-resolution-docs",
+            "forward-risk-file-dependency-precedent-unproven",
+            "forward-risk-resolveGraphPackage-asset-vendor-coupling",
+            "forward-risk-static-import-build-order-and-sqlite-hoist",
+            "guard-narrowness-no-mechanical-reverification",
+            "security-caller-controlled-root-dynamic-import-precedent"
+          ],
+          "verifiedFindingSetDigest": "fbd2189d88d238f3b2a49bf519d47ec48dd99646cbbb58d545971be8de08276d",
+          "newVerifiedFindingCount": 4,
+          "criticDigest": "483dbc7326c2def48d88e6e7241af5d9699806215d259980f9149fae42599d86",
+          "saturated": false,
+          "nextRunSequenceBoundary": 30
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "8c62907e631fb327a7a3d028d0a05583815556f0e35464124316ad20edbddaef"
+      "_hash": "25b735ccabd933b3f37a61771c629f9d294519a8fe90b2d6323e866fa5ef6bc1"
     }
   ],
   "receipts": [],
@@ -193,6 +261,55 @@
       ],
       "createdAt": "2026-08-28T13:27:51.159Z",
       "_hash": "5473be7d6f6465888b1271571b3379c91ce20619cd199ba50fee7af0c607c8f5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-3e16:RI-002:CRIT-02",
+      "epochId": "B-3e16:RI-002",
+      "storyId": "B-3e16",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "26a0794a2e0a74153e740c8a4db6b90888461b7d",
+        "materialHash": "dfd39d4ac4f8e221b77a8d27ff6c9e3a4577845b99d9d4ab85e6f5579ae054c1",
+        "storyFilesHash": "553c480ed60b1ca3a453ab0feb1f537be323f556adc308c41482f33f80352a27"
+      },
+      "aggregateFindingSetDigest": "fbd2189d88d238f3b2a49bf519d47ec48dd99646cbbb58d545971be8de08276d",
+      "requiredLaneCoverageDigest": "f46e0d6c244c9b1ea2316e9576118490661c8e0e816306cd57a91f2132a19b08",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-3e16:RR-030",
+      "terminalEvidenceIds": [
+        "B-3e16:F-018"
+      ],
+      "readEvidenceDigest": "93824c462e63b24f02d82b8ae6def426dc4f749fe0daf8acf1b1833bc0f1d299",
+      "findingDispositions": [
+        {
+          "findingId": "B-3e16:F-014",
+          "disposition": "verified_family",
+          "familyKey": "concept-completeness-unwired-CHK-003-acceptance-guards",
+          "reason": "Independently confirmed cli-surface-smoke and verify-orphan-surface are absent from proof-or-stop.config.json validate.commands and root package.json test:serial-reference (same grep result as F-012), and independently confirmed checklist.json CHK-003 userSees names exactly these two plus command-ownership-contract and command-catalog-smoke as acceptance evidence. The distinguishing claim beyond F-012 -- that this story's OWN acceptance criteria cites unwired guards as evidence, making it a concept-completeness defect in this story's deliverable rather than a general doc-accuracy complaint -- is independently verified and correctly scoped as a separate, non-duplicate family from F-012 (see F-012 reasoning for why they do not auto-cluster)."
+        },
+        {
+          "findingId": "B-3e16:F-015",
+          "disposition": "verified_family",
+          "familyKey": "doc-missing-binding-reason-for-dynamic-import",
+          "reason": "Independently read packages/graph/README.md and the graph.ts MODULE RESOLUTION header: both currently give only the removable reason (no workspaces / not a declared dependency) for the dynamic import, and neither states the binding reason (node:sqlite is unavoidably reachable through any static import chain into the graph library, per F-010's independently-confirmed empirical finding on Node v20.19.6). Confirmed the decisions doc frames itself as recording exactly this class of non-obvious rationale. This finding's recommendation is now more urgent, not less, given the plan explicitly keeps the dynamic import permanently rather than as a temporary stopgap -- if the binding reason is never written down, a future contributor who adds packages/graph as a dependency has no documented reason not to also convert the import to static, silently reintroducing the F-010 regression. Concurs with docs lane."
+        },
+        {
+          "findingId": "B-3e16:F-016",
+          "disposition": "verified_family",
+          "familyKey": "guard-narrowness-no-mechanical-reverification",
+          "reason": "Independently read isKnownBenignNonLiteralLoaderCall in retired-authority-vocabulary-guard-smoke.ts: it checks only (a) the whole-file AST fingerprint matches the pinned digest and (b) the enclosing function name plus the call's first-argument TEXT matches an approved {anchor,argument} pair. It performs no check on the argument's underlying data-flow provenance (e.g., that location.entry still traces only to resolveGraphPackage()/packageRoot rather than becoming caller-influenced) -- confirmed by reading the full function body and its call sites at lines ~1537-1548. The mechanism proves 'the file has not changed since approval', not 'the approved narrow shape still holds after a semantically-different edit that preserves the same textual anchor/argument shape'. This is a real, currently-unaddressed mechanical gap that would also apply, with equal force, to the planned graph-runtime.ts extraction itself: extracting the loader into a smaller file does not add a provenance check, it only shrinks the blast radius of what a whole-file fingerprint pins -- the underlying reliance on human-written re-approval-basis comments (rather than a mechanical assertion) is unchanged by the extraction. Concurs with test-coverage lane and extends its relevance to the planned remediation."
+        },
+        {
+          "findingId": "B-3e16:F-017",
+          "disposition": "verified_family",
+          "familyKey": "security-caller-controlled-root-dynamic-import-precedent",
+          "reason": "Independently traced the same chain: cli-engine.ts strips a global --root flag into rootOverride, cli/runtime-root.ts resolveRoot returns it verbatim with no sanitization for any command other than story_discard, and ctx.root reaches resolveGraphPackage(ctx.root) in graph.ts. Independently confirmed the existing precedent this finding cites -- verifier/serve.ts startCircuitServe is already in the same knownBenignNonLiteralLoaderCalls allowlist and walks a --root-derived directory to dynamically import whatever machine.ts it finds -- so the trust model genuinely already exists and graph.ts extends rather than introduces it. Independently confirmed the dual-map maintenance cost claim: knownBenignNonLiteralLoaderCalls/BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS and DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS are two separate maps in the same file, both pinning whole-file digests, so a single future edit to graph.ts (or to a would-be graph-runtime.ts) needs two coordinated re-pins -- consistent with the existing bin/bootstrap-runner.js entries in both maps, which is real precedent for this being an ongoing, not one-time, maintenance cost. Concurs with quality lane; this is the wave's strongest finding because it is the only one that surfaced a security property (attacker-controlled --root reaching a live dynamic import with zero markers required) that none of the other three lanes, nor the wave-1 critic, examined."
+        }
+      ],
+      "createdAt": "2026-08-28T14:00:57.506Z",
+      "_hash": "c4b8ba3dd9ccf79b5a42c919adb4e4bc07a7952fad1ef4f63af6626c0000c965"
     }
   ]
 }
