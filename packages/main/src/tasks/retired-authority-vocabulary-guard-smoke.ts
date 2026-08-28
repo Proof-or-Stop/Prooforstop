@@ -1628,6 +1628,9 @@ const APPROVED_LOADER_ARGUMENT_PROVENANCE = new Map<string, {
   readonly rootIdentifier: string;
   readonly producer: string;
   readonly producerParameters: readonly string[];
+  /** Parameter TYPES, positionally. Names and arity alone let `string` widen to
+      `string | { entry: string }`, which lets a caller name the loaded file outright. */
+  readonly producerParameterTypes: readonly string[];
   /** Allowlisted URL helper wrapping the value expression; must be a 'node:url' import. */
   readonly urlHelper?: string;
 }>([
@@ -1643,6 +1646,7 @@ const APPROVED_LOADER_ARGUMENT_PROVENANCE = new Map<string, {
     rootIdentifier: 'location',
     producer: 'resolveGraphPackage',
     producerParameters: ['projectRoot'],
+    producerParameterTypes: ['string'],
     urlHelper: 'pathToFileURL',
   }],
 ]);
@@ -1817,6 +1821,18 @@ function loaderArgumentProvenanceFailure(
        codex's `entryOverride` and overload findings, whose fixes closed the arity and
        overload paths but not this one. Optional and rest markers are rejected for the same
        reason: both change what a caller can supply while leaving the names identical. */
+    /* Types, not just names. claude (independent review host, B-3e16 round 6) escaped the
+       pin with `resolveGraphPackage(projectRoot: string | { entry: string })` plus a branch
+       returning describeLocation from `projectRoot.entry` — arity 1, name list unchanged, no
+       initializer/optional/rest, so every earlier check passed while a caller could name the
+       loaded file outright. That is the closest analogue to codex's original entryOverride
+       finding. The pin claims the producer's signature must not widen, so it has to compare
+       types for that claim to be true. */
+    const parameterTypes = candidate.parameters.map(parameter => parameter.type?.getText(candidate.getSourceFile()) ?? '<inferred>');
+    if (parameterTypes.length !== pin.producerParameterTypes.length
+      || parameterTypes.some((text, index) => text !== pin.producerParameterTypes[index])) {
+      return `producer ${pin.producer} parameter types were widened: expected (${pin.producerParameterTypes.join(', ')}), got (${parameterTypes.join(', ')})`;
+    }
     for (const parameter of candidate.parameters) {
       if (parameter.initializer) {
         return `producer ${pin.producer} parameter ${parameter.name.getText(candidate.getSourceFile())} must not have a default initializer; a default can carry caller- or globally-influenced input while the parameter name list stays identical`;
@@ -5196,6 +5212,13 @@ function assertLoaderArgumentProvenance(): void {
       ['different node:url export aliased as pinned helper', original.replace(
         "import { pathToFileURL } from 'node:url';",
         "import { parse as pathToFileURL } from 'node:url';",
+      )],
+      // PROBE (claude round 6): the parameter TYPE widened to accept an entry object, so a
+      // caller can name the loaded file outright. Arity, names and markers all unchanged.
+      ['producer parameter type widened', original.replace(
+        `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
+        `export function ${pin.producer}(projectRoot: string | { entry: string }): GraphPackageLocation {\n`
+        + `  if (typeof projectRoot !== 'string') return describeLocation(dirname(dirname(projectRoot.entry)), projectRoot.entry);`,
       )],
       // PROBE (claude round 5): a DEFAULT INITIALIZER on the pinned parameter. The name list
       // stays exactly ['projectRoot'], so the arity/name check alone was satisfied while the
