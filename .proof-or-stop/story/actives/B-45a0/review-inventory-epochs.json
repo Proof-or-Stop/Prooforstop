@@ -13883,6 +13883,56 @@
       "findingDispositions": [],
       "createdAt": "2026-08-28T08:29:38.320Z",
       "_hash": "900a6a5afc1dd0526ffd86f151c534b77fe2047609fb1f0997c4c695f1c2d870"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-090:CRIT-01",
+      "epochId": "B-45a0:RI-090",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-28T19:18:13.536Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "39ed796fcaa20cd020c63db7553788243a527fc2",
+        "materialHash": "f78303594ec05a4edaa34a396e2903514416acbbf0a138425cf40a6a9db4d6f1",
+        "storyFilesHash": "34467d1ff2826fa3e20468422a1bd651e624f722bac1ea2778f4c973d8a2308d"
+      },
+      "aggregateFindingSetDigest": "4ef7827ac068be126bc188c98f331aeb7f1d7020f4d6fb05725bbc3c9340edf7",
+      "requiredLaneCoverageDigest": "f66a20366eb3f0fb686a6654efa2c3de9cb6853d071333a48b623a2c886e2a4f",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-887",
+      "terminalEvidenceIds": [
+        "B-45a0:F-398"
+      ],
+      "readEvidenceDigest": "291f43aa59280487f2c8356280e0eef4eee6ef8106b8c3b2755a4cd24205a267",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-394",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-topology-current-basis-invalid",
+          "reason": "Baseline raw finding independently confirmed: current basis receipt has a scope-contract mismatch, acceptance_topology_check is structural fail, and pre-review authority remains inadmissible."
+        },
+        {
+          "findingId": "B-45a0:F-395",
+          "disposition": "duplicate",
+          "familyKey": "acceptance-topology-current-basis-invalid",
+          "canonicalFindingId": "B-45a0:F-394",
+          "reason": "F-395 re-attests the same topology/pre-review authority failure with the same acceptance-topology signature and no independent remediation family."
+        },
+        {
+          "findingId": "B-45a0:F-396",
+          "disposition": "verified_family",
+          "familyKey": "doc-code-drift-replay-command-semantics",
+          "reason": "Independent source read confirms the decision records promise that --verify-threshold and --paired execute a campaign, while scripts/run-dynamic-validation-replay.mjs rejects those combinations and makes --verify-threshold admission-only."
+        },
+        {
+          "findingId": "B-45a0:F-397",
+          "disposition": "verified_family",
+          "familyKey": "wave4-verifier-owned-command-coverage-incomplete",
+          "reason": "Independent inspection confirms CHK-014 covers only rollout-check/pre-review rows and lacks executable pinned evidence for acceptance_topology_check and acceptance_rollout_report_read; its prior canonical F-393 is outside this raw first-wave set, so this raw row is retained as the family representative."
+        }
+      ],
+      "createdAt": "2026-08-28T19:40:07.030Z",
+      "_hash": "210abdca6217f257e3b835a30c91df1afbe4f6fc2ca9826b5fd1fa661b1b3a90"
     }
   ]
 }

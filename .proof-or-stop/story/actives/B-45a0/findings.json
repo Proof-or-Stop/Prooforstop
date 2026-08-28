@@ -22267,6 +22267,58 @@
       ],
       "signatureTag": "missing|ts|duplicate-current-open",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-398",
+      "desc": "Duplicate of canonical B-45a0:F-389, not a distinct remediation family: independent topology critic at current HEAD a302608c3145f740cc2bb31772f44fbae5b66259 confirms acceptance_basis status=invalid despite basisStatus=complete. Its signed receipt is stale on scope-contract digest, yielding AT_SCOPE_BINDING_MISSING; acceptance_topology_check is structuralPass=false. pre_review_check_read is also fail/inadmissible with PR_ARTIFACT_TAMPERED, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, and PR_AUTHORITY_INADMISSIBLE. The rollout report/check is independently current PASS with genuine full-3x2, but does not repair B-45a0 own invalid topology/pre-review evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-28T19:39:30.364Z",
+      "reviewRound": "2026-08-28T19:18:13.536Z",
+      "reviewRunId": "B-45a0:RR-887",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "431e83f7d3f8741d538c77680f93e47216c874d2b55b9981c16d1469cbd22225"
+      },
+      "readDiagnostics": [],
+      "_hash": "0c26b373d2634b74f06caf2509a61ce17939fec8a54aea5c6fe9223ba6e0e087",
+      "files": [
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "signatureTag": "acceptance-topology-current-basis-invalid",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
