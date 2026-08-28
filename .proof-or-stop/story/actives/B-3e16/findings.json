@@ -86,7 +86,7 @@
       "desc": "packages/graph/scripts/verify-docs.mjs README standalone-binary check: the .cache exemption is line-wide (!line.includes(\".cache\")), not scoped to the matched occurrence, so a line that both keeps a legitimate ~/.cache/proof-or-stop-graph/ mention and reintroduces a real standalone-binary invocation on the same line (e.g. \"run proof-or-stop-graph --help, then check ~/.cache/proof-or-stop-graph/ for the index.\") is silently exempted and the check passes on exactly the regression class it was written to catch. Reproduced locally: the regex+includes combo flags the invocation alone (flagged:true) but not when a .cache substring co-occurs on the same line (flagged:false). Narrow scope (only reachable if a future doc edit places both phrases on one line) but same failure shape as the bug this commit already fixed once (an over-broad match silently passing on its target defect).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-28T10:18:25.271Z",
@@ -94,7 +94,11 @@
       "reviewRunId": "B-3e16:RR-011",
       "_hash": "4ae973b7641150f5360b656b9dcf8f875836991dc78c79f00ad58fc3a716fda4",
       "signatureTag": "missing|unknown|packages-graph-scripts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 108d4cc287. The reviewer was right and the hole was reproduced before fixing: the guard reported DOCS_OK on a line that mixed a legitimate ~/.cache/proof-or-stop-graph/ mention with a real proof-or-stop-graph --help invocation. The exemption is now match-local rather than whole-line: each occurrence is judged on its own surrounding characters, where a path-like context (slash or tilde immediately before, or slash immediately after) is the cache path and anything else is an invocation, with substring matches inside longer tokens also skipped. Verified by three controls: the mixed line is now caught, a legitimate cache path alone still passes, and a plain invocation is still caught. The reviewer also correctly identified this as the same over-broad-match shape as the indentation bug fixed one commit earlier.",
+      "resolvedAt": "2026-08-28T10:19:39.088Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3e16:F-006",
