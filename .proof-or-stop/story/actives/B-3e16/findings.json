@@ -520,6 +520,49 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-016",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts: the planned graph.ts allowlist entry (whole-file AST fingerprint pin gating the import() at handlers/graph.ts:292 plus 5 downstream unresolved-nested-member violations on lib.findRoot/createApp/startServer/openBrowser) relies entirely on a human-written re-approval-basis comment at each future repin to prove the approved call site is still narrow (verified this is the existing convention for cli-engine.ts and bin/bootstrap-runner.js pins -- multiple real repin comments read in the guard smoke file). The fingerprint mechanism (verified via scanConcealedCompatibilityLoads tests at guard-smoke.ts lines ~4951-4977) only proves the whole file has not changed since the last approval; it has no assertion that the import target argument, location.entry provenance, or reachable-input surface of the call site is still the specific narrow shape (packages/graph/dist/index.js resolved from packageRoot, not caller-influenced) that was originally approved. A future edit could widen what is imported (e.g. accept partially caller-controlled input) while keeping the same anchor function name and general call shape, and a rushed re-pin comment could pass review without anyone re-verifying narrowness -- the AST-fingerprint pass proves the entry exists and the file changed, not that the approval still holds. Recommend adding a mechanical assertion (e.g. a dedicated check on handlers/graph.ts asserting the import argument is derived only from resolveGraphPackage()/packageRoot and not from args/env/network input) alongside the whole-file fingerprint, so the guard does not depend solely on comment discipline for this narrow-shape invariant going forward.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-28T13:51:28.805Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-engines-floor.mjs",
+          "packages/graph/scripts/verify-serves.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          "packages/graph/package.json",
+          "packages/graph/README.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "66f27e5c118d64542d27cb04ed777eb0b82a692c136dfad501315c963cae9b04",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/handlers/graph.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
