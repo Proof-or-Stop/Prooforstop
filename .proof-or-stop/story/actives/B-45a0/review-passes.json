@@ -18833,6 +18833,436 @@
         "scanEscalationReason": null
       },
       "_hash": "c602b2a3afb349a4e782d5673dbaa1253c7e626e4d3a7a35e192dbaabb700544"
+    },
+    {
+      "id": "B-45a0:RP-351",
+      "agent": "lattice-review-concept",
+      "note": "Checked B-38b7 removal, documented command support, legacy compatibility annotations, and the Wave 4 producer/consumer chain; no active concept residue or promised-but-undelivered blocker found.",
+      "createdAt": "2026-08-28T07:17:10.220Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-847",
+      "envelopeId": "879ff9b7a370a44fdea87ac202d034e4298abc758a1b25738b3114bebd9ccaf1",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c5b9a04859ae9ad802190b9f29373dfb31454535eeb9f6d3adc6dea34a81a171"
+    },
+    {
+      "id": "B-45a0:RP-352",
+      "agent": "lattice-review-quality",
+      "note": "Post-cutoff quality review found no new unique blocker. It independently reproduced already-registered F-385 child-trace loss; TypeScript and diff checks are clean.",
+      "createdAt": "2026-08-28T07:18:27.082Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-850",
+      "envelopeId": "c0b91e2c4058366fbe1b5d59161009138b8a95ba7aa58961296d72353e5228a6",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-runtime-tracer.cjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/verify-story-aware-validation-plan.mjs"
+        ],
+        "scanEscalationReason": "Quality lane reviewed changed runtime and verifier surfaces; decision-record content is owned by the independent documentation lane."
+      },
+      "_hash": "cd1ffacbd0a4339e226056a9505204f526099726e2549748c602f24f30e00e39"
+    },
+    {
+      "id": "B-45a0:RP-353",
+      "agent": "lattice-review-concept",
+      "note": "Concept saturation review found no new independent gap beyond F-384 through F-389; the signed-receipt, trace-completeness, rollout, and topology concerns already cover every observed conceptual violation.",
+      "createdAt": "2026-08-28T07:33:53.733Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-853",
+      "envelopeId": "5e966c45d49791ec58642d2ca502b2863c79ce47bd832101d99e0f83ba3a8b95",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 1826
+        },
+        "digest": "ca07c9b3fec5ba81dcd1b23c0ff74af69a6a372798dd0f7e52cfa1a3827f02fd"
+      },
+      "readDiagnostics": [],
+      "_hash": "4f27670f8787bf2ab3cf21007ed06d7a7f0f282d6ebe34818a98049c23a7d6c9"
+    },
+    {
+      "id": "B-45a0:RP-354",
+      "agent": "lattice-review-test-coverage",
+      "note": "Wave 1 saturation coverage review: all 45 must intent rows are present, but the current Wave-4 defects are already captured by F-386, F-388, and F-389; F-390 separately captures the scheduler verifier defect. No additional verified coverage finding.",
+      "createdAt": "2026-08-28T07:39:00.414Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-859",
+      "envelopeId": "d5da2fcd1c5fbbc35d88b1f92210489d774b0938bb06e6ac4c06366048296382",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bc5e99c4c8b0745c02c1015db9defc9c9e4c8cbe2851a6eacfc4b8fd90dece9d"
+    },
+    {
+      "id": "B-45a0:RP-355",
+      "agent": "lattice-review-topology-critic",
+      "note": "No additional topology defect was found beyond the already verified F-389; the RI-089 raw findings F-390 and F-391 are separate scheduler and documentation families.",
+      "createdAt": "2026-08-28T07:45:39.951Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-860",
+      "envelopeId": "d8ab3b771269e539b3c7dad4da94aabd263bcdb49c394f516019f64002d183e1",
+      "writerSessionId": "sess-86c11cdce25094d96295c9b2250cda10",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/owner-session-adapters.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "af8971dfc148101439a251318b593ea2da20d725881214adca4756aa9fb4d6c9"
+    },
+    {
+      "id": "B-45a0:RP-356",
+      "agent": "lattice-review-topology-critic",
+      "note": "No additional topology defect was found beyond the already verified F-389; the RI-089 raw findings F-387 through F-391 are independently classified below.",
+      "createdAt": "2026-08-28T07:48:28.915Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-861",
+      "envelopeId": "75dec378f62d142f6e0fc202e63a38eb02f9b78d9f1b699178cffdc8b58372ed",
+      "writerSessionId": "sess-86c11cdce25094d96295c9b2250cda10",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/core/owner-session-adapters.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "4871463fda88ad87422208bdc71f5bacbe2eafd41b1fd9b407098be8e996f37f"
+      },
+      "readDiagnostics": [],
+      "_hash": "18b122169485c1edc6534aeb826a28c0c37592d616aec56a8313a4f0625be5ba"
+    },
+    {
+      "id": "B-45a0:RP-357",
+      "agent": "lattice-review-quality",
+      "note": "Wave-2 saturation recheck found no distinct quality issue beyond the already inventoried F-384 through F-391 families.",
+      "createdAt": "2026-08-28T07:55:15.076Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-865",
+      "envelopeId": "5a26ffeaade24a0cd044b286e942fbc83d4667ce62e3b13819065b98022610a3",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/core/validation-runtime-tracer.cjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": 5102
+        },
+        "digest": "6e344e2b325a54029c78aeb1ab3dd72523efb62135101c382d58a49d5f4ff7ca"
+      },
+      "readDiagnostics": [],
+      "_hash": "3b86551b0be4953f3588ed0bee4d240e96664d6a27e17d4255b4663dc50640da"
+    },
+    {
+      "id": "B-45a0:RP-358",
+      "agent": "lattice-review-docs",
+      "note": "Final documentation saturation review of F-384 through F-391: no distinct new documentation mismatch; F-387 and F-391 already capture the bounded historical-replay wording defects.",
+      "createdAt": "2026-08-28T08:00:22.672Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-870",
+      "envelopeId": "1244041ef90aefcf2aec3a23124922597fb1c91adaf320be2cd0ca44ba6ce7e1",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "d6b2f0ba8d428092ecb1c02b1804192eab9ede829594225097e9b25f9c917961"
+      },
+      "readDiagnostics": [],
+      "_hash": "8f2a7c4d20bb4ba5f78ad075e23c8faa242b7b6520925a3b410dae89e144a329"
+    },
+    {
+      "id": "B-45a0:RP-359",
+      "agent": "lattice-review-concept",
+      "note": "Saturation review checked the seven current documented findings F-384 through F-391 against their cited source and current decision records; no distinct additional concept blocker was found.",
+      "createdAt": "2026-08-28T08:05:45.744Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-871",
+      "envelopeId": "4ec580c7c07ef89009d0bb5f92027d98389d0783da49f06eed903128adf93a1e",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "7c5aac182ad82944e68c691ba92d4c8c85aec9b736689c7f44844df04a06285e"
+      },
+      "readDiagnostics": [],
+      "_hash": "1a4f3816406a5b9c01c61b1b797f513d0e4d2dabe759f5d1421ad5bdc9c06ed3"
+    },
+    {
+      "id": "B-45a0:RP-360",
+      "agent": "lattice-review-topology-critic",
+      "note": "No distinct topology family was found in the final saturation wave; the inadmissible current basis and pre-review chain remain covered by F-389.",
+      "createdAt": "2026-08-28T08:11:56.493Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-873",
+      "envelopeId": "a4b2f78fc54352bf2bd8b40d246aa868430a5dcab9f115f76aeb3fdab50f1364",
+      "writerSessionId": "sess-b715ebe0a3d3fbfe65720a8738efdebf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "d18c8e1d79ce0b5d3592cf3929eb1d98e2734b2b3f0830de4aa4f1a901c0386f"
+      },
+      "readDiagnostics": [],
+      "_hash": "bd87a6ed0a4bd1ec1627e56ff2675793a7433b38d840b7b441f0f5e34dcfa6ab"
+    },
+    {
+      "id": "B-45a0:RP-361",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final saturation coverage review: checked the known F-384 through F-391 scope and current Wave-4 read-only results; no distinct coverage defect beyond F-386 and F-388.",
+      "createdAt": "2026-08-28T08:18:56.902Z",
+      "reviewRound": "2026-08-28T06:53:33.145Z",
+      "reviewRunId": "B-45a0:RR-874",
+      "envelopeId": "1258ce3855f1fe8eed16d0299362bf9f2c71e36bb34361600ba46fd7bd517756",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "55cf54babf4bac644ddbced2808f9936b2ab480bec014f131f2847d370f6292b"
     }
   ]
 }
