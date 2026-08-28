@@ -14,6 +14,21 @@
       "_hash": "64b6476fa77b3a3ae1709ca59a5958134b5f2aab2698f6881671d49188a61dee",
       "signatureTag": "missing|unknown|promise-undelivered-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-002",
+      "desc": "packages/graph/src/shells/cli/main.ts is now dead code: packages/main/src/handlers/graph.ts (the actual CLI entrypoint) resolves and imports packages/graph dist/index.js as a pure library and never invokes shells/cli/main.ts, and the package.json bin field was deliberately removed. But tsconfig.json includes src/**/* with no exclusion, so this file still compiles into dist/shells/cli/main.js, and package.json files:[\"dist\",...] ships it inside the package tree unreachable and unreferenced. Its content (lines 3, 35-38, 57, 71) still hardcodes the removed standalone-binary name proof-or-stop-graph in its help text and error prefix (e.g. `proof-or-stop-graph: ${probe.reason}`), so if anyone stumbles on this file or its compiled output they see instructions for a binary that no longer exists. This is unreachable duplicate logic left over from the pre-migration standalone tool, not intentionally-retained back-compat (no back-compat comment present).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-28T10:04:25.955Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-001",
+      "_hash": "0c84be38d15bb37fd3d0ef8552665564bba0658a42a6fcec2ab89c98a7d9449c",
+      "signatureTag": "missing|unknown|packages-graph-shells",
+      "signatureTagSource": "auto"
     }
   ]
 }
