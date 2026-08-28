@@ -47,9 +47,9 @@ export function buildIndex(root: string, dbPath: string, sig?: string): BuildRes
   const t0 = Date.now();
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
   const tmp = `${dbPath}.build-${process.pid}`;
-  // Named tmpPath, not `f`: the write guard requires every allowlisted write target to be
-  // self-evidently derived from dbPath/tmp, so a single-letter alias cannot hide a
-  // root-derived path (independent review host, B-3e16).
+  // Named tmpPath rather than `f` for readability at the write site. (An earlier lexical
+  // write guard REQUIRED this spelling; that rule is gone -- the guard now measures where
+  // writes actually land -- so the name is a convention, not a contract.)
   for (const tmpPath of [tmp, `${tmp}-wal`, `${tmp}-shm`])
     if (fs.existsSync(tmpPath)) fs.rmSync(tmpPath, { force: true });
   const db = new DatabaseSync(tmp);
