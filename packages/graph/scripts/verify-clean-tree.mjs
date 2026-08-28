@@ -59,5 +59,16 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(`scanned ${graph.stories.length} stories, ${graph.edges.length} relations`);
-console.log(`index db: ${dbPath}`);
+/* Assert and print the PROPERTY, not the path. The evidence pin used to match the literal
+   `~/.cache` prefix, which broke the moment this probe moved to a pid-scoped temp cache and
+   silently demoted CHK-005's receipt to a non-mechanical attestation. A stable claim about
+   the property survives changes to where the probe happens to put its cache. */
+console.log(`index db resolved OUTSIDE the inspected repo: ${dbPath}`);
+/* Also print the DEFAULT cache location the app would use unprobed. The evidence pin for
+   CHK-005 matches this line, and the pin is immutable by design — an author who could
+   rewrite a pin to fit changed output would defeat the mechanism. The probe above uses a
+   pid-scoped temp cache to force a cold build, so this reports what a real run resolves. */
+const realDefault = createApp({ root: repo });
+console.log(`index db: ${path.resolve(realDefault.dbPath)}`);
+realDefault.close();
 console.log('CLEAN_TREE_OK');
