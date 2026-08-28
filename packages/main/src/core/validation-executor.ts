@@ -1,6 +1,6 @@
 import { execSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
-import { isAbsolute, join, resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { loadConfig } from './config.js';
 import {
   classifyGitStatusRows,
@@ -63,6 +63,60 @@ const RUNTIME_TRACER_RELATIVE_PATH = 'packages/main/src/core/validation-runtime-
 function runtimeTracerPath(projectRoot: string): string | undefined {
   const candidate = resolve(projectRoot, RUNTIME_TRACER_RELATIVE_PATH);
   return existsSync(candidate) ? candidate : undefined;
+}
+
+type RuntimeTraceFragment = {
+  readPaths?: unknown; loadedPaths?: unknown; spawnedPaths?: unknown;
+  registryKeys?: unknown; environmentKeys?: unknown; events?: unknown;
+};
+
+function stringValues(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+}
+
+/** Collect the legacy trace or every child-safe sidecar for one command. */
+function readRuntimeTraceFragments(traceFile: string): {
+  observed?: { readPaths: string[]; loadedPaths: string[]; spawnedPaths: string[]; registryKeys: string[]; environmentKeys: string[]; events: string[] };
+  files: string[];
+  malformed: boolean;
+} {
+  const base = basename(traceFile);
+  const directory = dirname(traceFile);
+  let files: string[] = [];
+  try {
+    files = readdirSync(directory)
+      .filter(name => name === base || name.startsWith(`${base}.`))
+      .map(name => join(directory, name))
+      .sort();
+  } catch {
+    return { files: [], malformed: false };
+  }
+  if (files.length === 0) return { files, malformed: false };
+  const merged = {
+    readPaths: new Set<string>(), loadedPaths: new Set<string>(), spawnedPaths: new Set<string>(),
+    registryKeys: new Set<string>(), environmentKeys: new Set<string>(), events: new Set<string>(),
+  };
+  try {
+    for (const file of files) {
+      const fragment = JSON.parse(readFileSync(file, 'utf8')) as RuntimeTraceFragment;
+      for (const value of stringValues(fragment.readPaths)) merged.readPaths.add(value);
+      for (const value of stringValues(fragment.loadedPaths)) merged.loadedPaths.add(value);
+      for (const value of stringValues(fragment.spawnedPaths)) merged.spawnedPaths.add(value);
+      for (const value of stringValues(fragment.registryKeys)) merged.registryKeys.add(value);
+      for (const value of stringValues(fragment.environmentKeys)) merged.environmentKeys.add(value);
+      for (const value of stringValues(fragment.events)) merged.events.add(value);
+    }
+  } catch {
+    return { files, malformed: true };
+  }
+  return {
+    files,
+    malformed: false,
+    observed: {
+      readPaths: [...merged.readPaths], loadedPaths: [...merged.loadedPaths], spawnedPaths: [...merged.spawnedPaths],
+      registryKeys: [...merged.registryKeys], environmentKeys: [...merged.environmentKeys], events: [...merged.events],
+    },
+  };
 }
 
 /**
@@ -1328,6 +1382,9 @@ export function runValidationCommand(
       const failureKind = commandFailureKind({ code, timedOut, runnerFailure });
       const statusAfter = readGitStatus(statusGitCwd);
       const pollutionStatusLines = detectNewDirtyStatus(statusBefore, statusAfter);
+      const traceFragments: ReturnType<typeof readRuntimeTraceFragments> = traceFile
+        ? readRuntimeTraceFragments(traceFile)
+        : { files: [], malformed: false };
       const result: ValidationCommandResult = {
         label: command.label,
         command: command.command,
@@ -1353,24 +1410,11 @@ export function runValidationCommand(
           endedAt: new Date().toISOString(),
           exitCode: code,
           events: [...runtimeEvents],
-          ...(traceFile && existsSync(traceFile)
-            ? (() => {
-                try {
-                  const observed = JSON.parse(readFileSync(traceFile, 'utf8')) as Record<string, unknown>;
-                  return {
-                    readPaths: Array.isArray(observed.readPaths) ? observed.readPaths.filter((v): v is string => typeof v === 'string') : [],
-                    loadedPaths: Array.isArray(observed.loadedPaths) ? observed.loadedPaths.filter((v): v is string => typeof v === 'string') : [],
-                    spawnedPaths: Array.isArray(observed.spawnedPaths) ? observed.spawnedPaths.filter((v): v is string => typeof v === 'string') : [],
-                    registryKeys: Array.isArray(observed.registryKeys) ? observed.registryKeys.filter((v): v is string => typeof v === 'string') : [],
-                    environmentKeys: Array.isArray(observed.environmentKeys) ? observed.environmentKeys.filter((v): v is string => typeof v === 'string') : [],
-                    events: Array.isArray(observed.events) ? observed.events.filter((v): v is string => typeof v === 'string') : [...runtimeEvents],
-                    unknownRuntimeInputs: [],
-                  };
-                } catch {
-                  return { unknownRuntimeInputs: ['runtime trace malformed'] };
-                }
-              })()
-            : { unknownRuntimeInputs: ['runtime tracer unavailable for command'] }),
+          ...(traceFragments.malformed
+            ? { unknownRuntimeInputs: ['runtime trace malformed'] }
+            : traceFragments.observed
+              ? { ...traceFragments.observed, unknownRuntimeInputs: [] }
+              : { unknownRuntimeInputs: ['runtime tracer unavailable for command'] }),
         },
         ...(pollutionStatusLines.length > 0
           ? {
@@ -1391,7 +1435,7 @@ export function runValidationCommand(
         timedOut,
       }));
       resolveResult(result);
-      if (traceFile) rmSync(traceFile, { force: true });
+      for (const file of traceFragments.files) rmSync(file, { force: true });
     };
 
     const child = spawn(command.command, command.args, {

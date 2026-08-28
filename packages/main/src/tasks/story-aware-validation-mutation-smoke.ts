@@ -40,6 +40,7 @@ import {
 } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 import type { ValidationCommand } from '../core/validation-types.js';
+import { generateEd25519KeyPair, signCanonical } from '../core/authority-signing.js';
 
 const replayRoot = mkdtempSync(`${tmpdir()}/proof-story-aware-replay-`);
 const replayCommand = (name: string) => ({
@@ -172,6 +173,16 @@ function receipt(overrides: Partial<ValidationCommandReceipt> = {}): ValidationC
 
 const validReceipt = receipt();
 assert.equal(verifyValidationCommandReceipt(validReceipt).ok, true);
+const unsignedReceipt = { ...validReceipt } as Record<string, unknown>;
+delete unsignedReceipt.signature;
+const artifactWriterKey = generateEd25519KeyPair();
+const forgedByArtifactWriter = {
+  ...validReceipt,
+  inputDigest: 'forged-and-recomputed-without-trusted-key',
+  signature: `ed25519:validation-artifact-v1:${signCanonical({ ...unsignedReceipt, inputDigest: 'forged-and-recomputed-without-trusted-key' }, artifactWriterKey.privateKey)}`,
+};
+assert.equal(verifyValidationCommandReceipt(forgedByArtifactWriter).ok, false,
+  'an artifact writer without the trusted private key cannot recompute a receipt signature');
 const cleanRun = buildDynamicValidationPlan({
   ...context('packages/main/src/no-change.ts'), changes: buildStoryChangeManifest({
     storyId: 'B-mutation', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [],
@@ -325,6 +336,13 @@ assert.equal(verifyValidationSchedule(scheduled.map((row) => ({ ...row, wave: 0 
   { commandId: 'a', originalIndex: 0, cpuWeight: 1, expectedP50Ms: 10, resources: [{ class: 'git-common-dir', key: '.', access: 'exclusive' }] },
   { commandId: 'b', originalIndex: 1, cpuWeight: 1, expectedP50Ms: 9, resources: [{ class: 'git-common-dir', key: '.', access: 'exclusive' }] },
 ]).ok, false);
+const overCapacitySchedule = [
+  { commandId: 'capacity-a', originalIndex: 0, cpuWeight: 1, expectedP50Ms: 10, resources: [], wave: 0, startOffsetMs: 0, endOffsetMs: 10 },
+  { commandId: 'capacity-b', originalIndex: 1, cpuWeight: 1, expectedP50Ms: 10, resources: [], wave: 0, startOffsetMs: 0, endOffsetMs: 10 },
+  { commandId: 'capacity-c', originalIndex: 2, cpuWeight: 1, expectedP50Ms: 10, resources: [], wave: 0, startOffsetMs: 0, endOffsetMs: 10 },
+];
+assert.equal(verifyValidationSchedule(overCapacitySchedule, overCapacitySchedule, { workerCapacity: 2, cpuCapacity: 2 }).ok, false,
+  'a forged same-wave schedule above worker/CPU capacity is rejected');
 
 const cases = Array.from({ length: 12 }, (_, index) => ({ caseId: `mutation-case-${index}`, domain: 'quorum' as const, sentinel: index < 4 }));
 const shards = buildValidationShards(cases);

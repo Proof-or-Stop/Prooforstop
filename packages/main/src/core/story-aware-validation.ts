@@ -3,9 +3,9 @@
  *
  * This module keeps dynamic planning separate from the existing complete-plan
  * executor.  The complete plan remains the oracle in observe and shadow mode.
- * Every signed artifact is a SHA-256 digest over canonical JSON; the adapter
- * can replace the digest signer with trusted Ed25519 without changing the
- * signed domain or gate predicates.
+ * Every signed artifact uses a repository-local Ed25519 signer whose private
+ * key lives outside writable runtime artifacts. Digest helpers remain for
+ * identity and cache keys; they are not provenance signatures.
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -16,6 +16,7 @@ import { validateResourceClaims } from './keyed-scheduler.js';
 import { CAPABILITY_CATEGORIES } from './capabilities.js';
 import { PROCESS_FACT_REGISTRY } from './process-fact-registry.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
+import { signValidationArtifact, verifyValidationArtifact } from './validation-artifact-signing.js';
 
 export const STORY_CHANGE_MANIFEST_SCHEMA = 'proof-or-stop.story-change-manifest.v1' as const;
 export const VALIDATION_CATALOG_SCHEMA = 'proof-or-stop.validation-catalog.v1' as const;
@@ -102,10 +103,10 @@ function withoutSignature<T extends object>(value: T): Omit<T, 'signature'> {
   return copy as Omit<T, 'signature'>;
 }
 export function signPayload(value: unknown): string {
-  return 'sha256:' + stableDigest(value);
+  return signValidationArtifact(value);
 }
 export function verifyPayload(value: unknown, signature: unknown): boolean {
-  return typeof signature === 'string' && signature === signPayload(value);
+  return verifyValidationArtifact(value, signature);
 }
 function normalPath(path: string): string {
   return path.replace(/\\/g, '/').replace(/^\.\//, '').replace(/^\//, '');
@@ -1027,8 +1028,14 @@ export function buildValidationSchedule(entries: ScheduledValidationEntry[], opt
   return waves.flat().sort((a, b) => a.wave - b.wave || b.expectedP50Ms - a.expectedP50Ms || a.originalIndex - b.originalIndex);
 }
 export const buildLptSchedule = buildValidationSchedule;
-export function verifyValidationSchedule(schedule: ValidationScheduleRow[], entries: ScheduledValidationEntry[]): { ok: boolean; errors: string[] } {
+export function verifyValidationSchedule(
+  schedule: ValidationScheduleRow[],
+  entries: ScheduledValidationEntry[],
+  options: { workerCapacity?: number; cpuCapacity?: number } = {},
+): { ok: boolean; errors: string[] } {
   const errors: string[] = []; const expected = new Set(entries.map(row => row.commandId)); const actual = schedule.map(row => row.commandId);
+  const workerCapacity = Math.max(1, Math.floor(options.workerCapacity || 4));
+  const cpuCapacity = Math.max(1, options.cpuCapacity || workerCapacity);
   if (actual.length !== expected.size || new Set(actual).size !== actual.length || actual.some(id => !expected.has(id))) errors.push('schedule missing or duplicate command');
   const waveEnds = new Map<number, number>();
   for (const row of schedule) {
@@ -1036,6 +1043,20 @@ export function verifyValidationSchedule(schedule: ValidationScheduleRow[], entr
     const priorEnd = [...waveEnds.entries()].filter(([wave]) => wave < row.wave).reduce((max, [, end]) => Math.max(max, end), 0);
     if (row.startOffsetMs < priorEnd) errors.push('wave starts before prior wave drains:' + row.commandId);
     waveEnds.set(row.wave, Math.max(waveEnds.get(row.wave) || 0, row.endOffsetMs));
+  }
+  const rowsByWave = new Map<number, ValidationScheduleRow[]>();
+  for (const row of schedule) {
+    const rows = rowsByWave.get(row.wave) || [];
+    rows.push(row);
+    rowsByWave.set(row.wave, rows);
+  }
+  for (const [wave, rows] of rowsByWave) {
+    if (rows.length > workerCapacity) errors.push(`worker capacity exceeded:wave-${wave}`);
+    const cpu = rows.reduce((sum, row) => sum + row.cpuWeight, 0);
+    if (!Number.isFinite(cpu) || cpu > cpuCapacity) errors.push(`cpu capacity exceeded:wave-${wave}`);
+    for (const row of rows) if (!Number.isFinite(row.cpuWeight) || row.cpuWeight < 1 || row.cpuWeight > cpuCapacity) {
+      errors.push(`invalid cpu weight:${row.commandId}`);
+    }
   }
   for (const left of schedule) for (const right of schedule) {
     if (left.commandId >= right.commandId) continue;

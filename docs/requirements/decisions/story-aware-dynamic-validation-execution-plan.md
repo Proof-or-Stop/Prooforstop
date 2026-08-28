@@ -1009,6 +1009,7 @@ Any missing or mismatched field changes disposition from `reuse` to `execute`.
 3. Full-baseline receipts and Story receipts may be revoked through an append-only signed ledger keyed by receipt ID and optionally command/catalog epoch. TEST reads the current ledger digest and refuses revoked receipts.
 4. Cross-branch reuse is allowed only when `sourceHead` is a trusted ancestor of the current HEAD and belongs to the same canonical baseline epoch. An unrelated branch receipt is inadmissible even if file digests happen to match.
 5. The worktree must be clean at selection, immediately before command execution, and after execution except for explicitly classified runtime/Story metadata. Receipt issuance records this clean-tree proof.
+6. Receipts, ledgers, closure certificates, build proofs, manifests, and shard receipts use an Ed25519 signature with an explicit key ID. The private signing material is kept in Git common metadata, never beside runtime or Story artifacts; verification resolves the trusted public key and rejects unsigned, legacy digest-only, or different-key signatures. An artifact writer can therefore neither alter a payload nor recompute its provenance tag.
 
 ### 13.3.2 Deterministic receipt lookup
 
