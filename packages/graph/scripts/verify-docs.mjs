@@ -1,10 +1,18 @@
 /**
  * Proves the command is actually documented, rather than assumed to be.
  *
- * Two places must describe `proof-or-stop graph`: the CLAUDE.md section a reader
- * lands on, and the decisions entry recording why the migration was shaped the way
- * it was. This check asserts both exist and cover the specific claims the story
- * promised, so a doc that silently loses a flag or a decision fails here.
+ * Three places must describe `proof-or-stop graph`: the CLAUDE.md section a reader
+ * lands on, the decisions entry recording why the migration was shaped the way it
+ * was, and the package README. This check asserts they exist and cover the specific
+ * claims the story promised, so a doc that silently loses a flag or a decision fails
+ * here.
+ *
+ * The README was NOT originally in scope, and that omission cost two review findings:
+ * it kept teaching a standalone binary that had been deleted (F-001/F-003), and after
+ * that was fixed its architecture tree still listed a source file that no longer
+ * existed (F-004). A documentation guard is only as good as its file list, so the
+ * README is checked here both for stale vocabulary and for describing paths that are
+ * actually present on disk.
  *
  * The CLAUDE.md assertions are scoped to the graph SECTION, not the whole file.
  * Searching the whole file was the first implementation and it was too weak to be
@@ -68,6 +76,64 @@ requireAll('decisions doc', decision, [
   'Recursive tsc gate',           // the INIT reviewer's INIT-001 advisory
 ]);
 
+/* The package README: check it does not resurrect the deleted standalone binary,
+   and that every source path its architecture tree names actually exists. The second
+   half is what F-004 needed: prose can go stale by describing a file that was removed,
+   which no vocabulary check would notice. */
+const readmeRel = 'packages/graph/README.md';
+const readme = read(readmeRel);
+if (readme === null) failures.push(`${readmeRel}: missing`);
+else {
+  if (!readme.includes('proof-or-stop graph')) failures.push(`${readmeRel}: does not mention the command`);
+  // The cache directory name legitimately contains the old spelling; a bare
+  // invocation of it as a command does not.
+  for (const line of readme.split('\n')) {
+    if (/(^|[^\w./~-])proof-or-stop-graph(\s|$)/.test(line) && !line.includes('.cache')) {
+      failures.push(`${readmeRel}: still invokes the removed standalone binary: ${line.trim()}`);
+    }
+  }
+  if (/\bnpm start\b/.test(readme)) failures.push(`${readmeRel}: references the removed npm start script`);
+  if (readme.includes('proof_graph')) failures.push(`${readmeRel}: uses the rejected speculative command name proof_graph`);
+
+  /* Architecture-tree paths must exist.
+
+     Paths are reconstructed with an indent stack: each line's leading whitespace gives
+     its depth, a token ending in `/` opens a directory at that depth, and anything at
+     or deeper than a previous entry closes it. Only the FIRST token on a line is a
+     path -- the rest is the description column.
+
+     A first attempt stripped the description with /\s{2,}\S.*$/ before matching, which
+     silently ate the indentation itself (every nested line starts with two or more
+     spaces), so the loop matched exactly one line and then quietly found nothing. It
+     reported DOCS_OK against a tree that named a deleted file -- the very defect it was
+     added for. Keep the indent; drop only what follows the first token. */
+  const pkgDir = path.join(repo, 'packages', 'graph');
+  const treeStart = readme.indexOf('```\nsrc/');
+  if (treeStart < 0) failures.push(`${readmeRel}: no src/ architecture tree found to verify`);
+  else {
+    const tree = readme.slice(treeStart + 4, readme.indexOf('```', treeStart + 4));
+    const stack = [];               // [indentDepth, 'name/']
+    let checked = 0;
+    for (const raw of tree.split('\n')) {
+      const m = /^(\s*)(\S+)/.exec(raw);
+      if (!m) continue;
+      const depth = m[1].length;
+      const tok = m[2];
+      while (stack.length && stack[stack.length - 1][0] >= depth) stack.pop();
+      if (tok.endsWith('/')) { stack.push([depth, tok]); continue }
+      if (!/\.(ts|js|mjs|html|css)$/.test(tok)) continue;
+      const rel = stack.map(e => e[1]).join('') + tok;
+      checked++;
+      if (!fs.existsSync(path.join(pkgDir, rel))) {
+        failures.push(`${readmeRel}: architecture tree names a path that does not exist: ${rel}`);
+      }
+    }
+    /* Fail closed: a tree that suddenly resolves no files means the parser broke, not
+       that the docs are clean. */
+    if (checked < 10) failures.push(`${readmeRel}: architecture-tree parser resolved only ${checked} paths; expected the full tree`);
+  }
+}
+
 if (failures.length) {
   console.error('DOCS_INCOMPLETE');
   for (const f of failures) console.error(`  ${f}`);
@@ -76,4 +142,5 @@ if (failures.length) {
 console.log(`CLAUDE.md graph section: ${graphSection.split('\n').length} lines, all four flags present`);
 console.log('decisions doc: all four migration decisions recorded');
 console.log('decisions doc: test-surface placement recorded (validate.commands and SRC_SCAN_ROOTS traps named)');
+console.log('package README: no removed-binary vocabulary, and every architecture-tree path exists');
 console.log('DOCS_OK');

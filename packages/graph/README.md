@@ -52,8 +52,6 @@ src/
     open-browser.ts    best-effort browser launch
     find-root.ts       repository discovery
   shells/
-    cli/main.ts        standalone entry, retained from the pre-migration package
-                       (unused here -- `proof-or-stop graph` is the entrypoint)
     web/                browser client, assembled into assets/app.html by
       app.head.html     scripts/build-web.mjs -- edit these, never the asset
       app.css
