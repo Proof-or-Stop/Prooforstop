@@ -563,6 +563,45 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-017",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (planned approval site) + packages/main/src/handlers/graph.ts:292-365: the KEEP-dynamic-import decision is directionally correct (F-010 is real and unavoidable), but two points need to be recorded before the approval entry lands. (1) SECURITY: I independently traced ctx.root end to end -- cli-engine.ts:740-741 strips a GLOBAL --root flag from argv into rootOverride, cli/runtime-root.ts:7-8 resolveRoot(explicit) returns it VERBATIM with zero sanitization for any command other than story_discard, and cli-engine.ts:928 stamps it into ctx.root, which graph.ts:279 hands to resolveGraphPackage(ctx.root). I empirically confirmed on this tree (clean before/after, no source files touched) that `proof-or-stop graph --root <attacker-dir> --json` executes arbitrary code the instant a caller-controlled directory contains packages/graph/dist/index.js, with zero markers required (no .git, no .proof-or-stop) -- because node module resolution genuinely misses in this unlinked-workspace layout, so the sibling-path fallback in resolveGraphPackage is the live path today, not theoretical. location.entry IS attacker-influenceable through --root, gated only by needing a writable directory plus that one relative file. HOWEVER this is not a NEW risk class: verifier/serve.ts startCircuitServe (already in the same knownBenignNonLiteralLoaderCalls allowlist) does the identical thing -- findMachineFiles(projectRoot) walks a --root-derived directory and dynamically imports whatever machine.ts it finds there. The precedent for accepting this trust model already exists and applies with equal force; graph.ts extends an already-accepted pattern rather than introducing a new one. This reasoning should be stated explicitly in the approval entry's comment (mirroring the existing BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS precedent style) so a future reader does not have to re-derive it -- silently omitting it would look like attacker-controllability was never checked, when the correct conclusion is that it was checked and matches an existing accepted pattern. (2) MAINTENANCE COST is larger than described: running the guard confirms 6 violations split across TWO independent mechanisms, not one -- the `file://${location.entry}` import (graph.ts:292) needs an entry in knownBenignNonLiteralLoaderCalls + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS, AND the five lib.findRoot/lib.createApp/lib.startServer/lib.openBrowser calls at lines 298/312/336/345/365 are separately flagged 'unapproved dynamic code generation' and need their own whole-file entry in DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS. Both maps hash the SAME whole 414-line, multi-CHK, actively-evolving file (this story's own plan still has CHK-005/CHK-006 touching this area), so every future edit needs two re-pins, not one; the existing exemption comments in this guard file document a real repin cadence (13 repinned/re-pinned occurrences across current entries) for exactly this class of file. Recommendation: extract the `await import(...)` call plus the four `lib.X(...)` call sites into a small dedicated module (e.g. handlers/graph-runtime.ts, roughly 30 lines, changed only when the loader shape itself changes) so both pinned fingerprints stay small and stable, and the frequently-edited CLI-argument/serving logic in graph.ts stops forcing re-pins unrelated to the loader. This is a design suggestion, not a blocker -- the whole-file pin as currently planned is workable, just costlier and less explicit about the security precedent than necessary.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-28T13:52:56.699Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-025",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/runtime-root.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/verifier/serve.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e493db3e2e9525213be434d5534ad20d053219e7f30b2a2f99b56f3716d483f7",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
