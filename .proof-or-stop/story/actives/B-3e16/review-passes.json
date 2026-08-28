@@ -399,6 +399,31 @@
         "scanEscalationReason": null
       },
       "_hash": "41077dea4fa7a0dd0215d9757d4ca6817b59ba3f578c20d3e17d4383b8e76407"
+    },
+    {
+      "id": "B-3e16:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "Wave 3: re-verified with plan settled (dynamic import stays, no graph-runtime.ts extraction). Confirmed no code commits landed since 00a2592925; abandoned static-import/extraction exploration leaves zero residue on current tree (graph-runtime hits are only historical review-artifact JSON text, no such file exists); resolveGraphPackage remains one seam, F-008 moot as stated; guard maps not yet updated and validate.commands not yet wired, consistent with F-014/F-016/F-017/F-018 correctly still open pending DEV remediation. No new or residual concept-completeness issue found. PASS.",
+      "createdAt": "2026-08-28T14:07:17.103Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-032",
+      "envelopeId": "7dd369145e32c6ccd5d262e23a890e5eb1fcac19ed535973f539a94ff8bd408e",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          ".proof-or-stop/story/actives/B-3e16/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1ed622ecc00b210aae32b89239deb6596669a1d76a736342ba32f719ed791cd6"
     }
   ]
 }
