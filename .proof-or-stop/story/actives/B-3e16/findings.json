@@ -301,6 +301,48 @@
       "_hash": "b9f1c6238276d6da1dc1e2f1381caf6be15c8e91b5795de73500cbd4537d28ce",
       "signatureTag": "missing|unknown|forward-risk-planned",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-011",
+      "desc": "doc-code-drift: docs/requirements/decisions/graph-command-migration.md:138-139 claims one missing process-fact-levels.ts entry produced \"eight separate complaints across seven phases\" from test:process-fact-contract. Reproduced via negative control (removed the graph entry from packages/main/src/core/process-fact-levels.ts in an isolated /tmp copy, rebuilt, ran node scripts/verify-process-fact-contract.mjs): the failure output has 9 distinct complaint lines (1x MAIN_TOOLS command(s) missing from registry: graph, 7x DEFAULT_PHASE_TOOLS phase allowlist drift one per phase DEV/DONE/INIT/INIT_CHECK/PLAN/REVIEW/TEST, 1x MAIN_TOOLS command missing from PROCESS_FACT_REGISTRY), not 8. The seven-phases part is accurate; the complaint count is off by one. Positive control (fix restored) reproduces the documented pass. Fix the number to nine.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T11:02:09.947Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "cfc2faa4b8a8bf588b33e61c48efbe664a0e948d8ccd0e6af7011297f415fc86"
+      },
+      "readDiagnostics": [],
+      "_hash": "eb1e353a97c89c2c1b5b0fdf48cf213304eef38c889f0aea0e910e60b2d7543f",
+      "files": [
+        "docs/requirements/decisions/graph-command-migration.md",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
