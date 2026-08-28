@@ -461,7 +461,7 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // code edit moves the fingerprint and forces a re-pin. That is the same cost already
   // accepted for bin/bootstrap-runner.js above. The mitigation is the narrow pin plus
   // assertLoaderArgumentProvenance(), not the breadth of this entry.
-  ['packages/main/src/handlers/graph.ts', 'c58956a860d07216809b427b66c508079d7696934bb27630c95cef52e0ddb937'],
+  ['packages/main/src/handlers/graph.ts', '3f5249e930e31d88f507e334f2685f3f6f59107ae14ef4a1e4ce08335ee2dbcc'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
 const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
@@ -1553,7 +1553,7 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
   // anchor is therefore coarser than the call site, which is exactly why the provenance
   // assertion below binds the argument's producer instead of trusting the anchor.
   ['packages/main/src/handlers/graph.ts', {
-    calls: [{ anchor: 'createGraphHandlers', argument: '`file://${location.entry}`' }],
+    calls: [{ anchor: 'createGraphHandlers', argument: 'pathToFileURL(location.entry).href' }],
   }],
 ]);
 
@@ -1588,7 +1588,7 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // the `--root` reachability this approval accepts). Whole-file structural fingerprint, so
   // ANY edit to this handler revokes the approval until a human re-approves it. Note the
   // fingerprint is comment-stripped: prose edits do not move it, code edits do.
-  ['packages/main/src/handlers/graph.ts', 'c58956a860d07216809b427b66c508079d7696934bb27630c95cef52e0ddb937'],
+  ['packages/main/src/handlers/graph.ts', '3f5249e930e31d88f507e334f2685f3f6f59107ae14ef4a1e4ce08335ee2dbcc'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
@@ -1637,7 +1637,7 @@ const APPROVED_LOADER_ARGUMENT_PROVENANCE = new Map<string, {
   // allowlist entry approved.
   ['packages/main/src/handlers/graph.ts', {
     anchor: 'createGraphHandlers',
-    argument: '`file://${location.entry}`',
+    argument: 'pathToFileURL(location.entry).href',
     rootIdentifier: 'location',
     producer: 'resolveGraphPackage',
     producerParameters: ['projectRoot'],
@@ -1664,6 +1664,20 @@ function rootIdentifierOf(node: ts.Node): ts.Identifier | undefined {
 /** The template's first interpolated expression, i.e. `location.entry`. */
 function firstInterpolatedExpression(node: ts.Node): ts.Expression | undefined {
   if (ts.isTemplateExpression(node)) return node.templateSpans[0]?.expression;
+  /* A URL built by a helper call carries its value-bearing expression in the call's
+     arguments, e.g. `pathToFileURL(location.entry).href`. Descend so the provenance pin
+     still sees `location` rather than reporting <none> and failing closed on a correctly
+     escaped construction. Introduced when the B-3e16 handler moved off a raw
+     `file://${...}` template (codex, independent review host: `#`/`?` in a path were
+     being parsed as fragment/query). */
+  if (ts.isPropertyAccessExpression(node) && ts.isCallExpression(node.expression)) {
+    const inner = node.expression.arguments[0];
+    if (inner) return firstInterpolatedExpression(inner) ?? inner;
+  }
+  if (ts.isCallExpression(node)) {
+    const inner = node.arguments[0];
+    if (inner) return firstInterpolatedExpression(inner) ?? inner;
+  }
   return ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) ? node as ts.Expression : undefined;
 }
 
@@ -1719,8 +1733,14 @@ function loaderArgumentProvenanceFailure(
   // let a caller name the loaded file directly instead of only influencing the root that
   // the producer's own resolution order consumes.
   const producerSymbol = checker.getSymbolAtLocation(initializer.expression);
-  const producerDeclaration = producerSymbol?.declarations
-    ?.find((node): node is ts.FunctionDeclaration => ts.isFunctionDeclaration(node));
+  /* EVERY function declaration of the symbol, not just the first. `.find(...)` returned
+     the overload SIGNATURE, so an exact-matching overload could hide a widened
+     implementation and satisfy the parameter check below — the second bypass codex found
+     as an independent review host (B-3e16). Checking all declarations means an overload
+     set only passes when no member widens the signature. */
+  const producerDeclarations = (producerSymbol?.declarations ?? [])
+    .filter((node): node is ts.FunctionDeclaration => ts.isFunctionDeclaration(node));
+  const producerDeclaration = producerDeclarations[0];
   if (!producerDeclaration) {
     return `producer ${pin.producer} must resolve to a function declaration`;
   }
@@ -1732,13 +1752,17 @@ function loaderArgumentProvenanceFailure(
      check below both pass, so without declaration-identity checking the provenance pin
      is defeated by a re-approver who merely refreshes the fingerprint. Covered by the
      'nested producer shadow' control in assertLoaderArgumentProvenance. */
-  if (!ts.isSourceFile(producerDeclaration.parent)) {
-    return `producer ${pin.producer} must be the module-level declaration, got one nested inside ${enclosingFunctionName(producerDeclaration) ?? '<non-module scope>'}`;
+  for (const candidate of producerDeclarations) {
+    if (!ts.isSourceFile(candidate.parent)) {
+      return `producer ${pin.producer} must be the module-level declaration, got one nested inside ${enclosingFunctionName(candidate) ?? '<non-module scope>'}`;
+    }
   }
-  const parameters = producerDeclaration.parameters.map(parameter => parameter.name.getText(producerDeclaration.getSourceFile()));
-  if (parameters.length !== pin.producerParameters.length
-    || parameters.some((name, index) => name !== pin.producerParameters[index])) {
-    return `producer ${pin.producer} signature was widened: expected (${pin.producerParameters.join(', ')}), got (${parameters.join(', ')})`;
+  for (const candidate of producerDeclarations) {
+    const parameters = candidate.parameters.map(parameter => parameter.name.getText(candidate.getSourceFile()));
+    if (parameters.length !== pin.producerParameters.length
+      || parameters.some((name, index) => name !== pin.producerParameters[index])) {
+      return `producer ${pin.producer} signature was widened: expected (${pin.producerParameters.join(', ')}), got (${parameters.join(', ')})`;
+    }
   }
   return undefined;
 }
@@ -5069,6 +5093,14 @@ function assertLoaderArgumentProvenance(): void {
       ['producer signature widened with override', original.replace(
         `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
         `export function ${pin.producer}(projectRoot: string, entryOverride?: string): GraphPackageLocation {\n  if (entryOverride) return describeLocation(dirname(dirname(entryOverride)), entryOverride);`,
+      )],
+      // PROBE (codex, 2nd finding): an exact-matching OVERLOAD signature hiding a widened
+      // implementation. `.find(isFunctionDeclaration)` used to select the overload and pass.
+      ['overload hides widened implementation', original.replace(
+        `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
+        `export function ${pin.producer}(projectRoot: string): GraphPackageLocation;\n`
+        + `export function ${pin.producer}(projectRoot: string, entryOverride?: string): GraphPackageLocation {\n`
+        + `  if (entryOverride) return describeLocation(dirname(dirname(entryOverride)), entryOverride);`,
       )],
       // PROBE (codex F-019): a NESTED producer with the same name AND the same signature,
       // shadowing the module-level export. The pinned line and the import argument text are

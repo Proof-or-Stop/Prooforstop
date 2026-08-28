@@ -47,6 +47,7 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import type { HandlerContext } from './context.js';
 
@@ -289,7 +290,11 @@ export function createGraphHandlers(ctx: HandlerContext): Record<string, (...arg
       // Must precede the import: the import is what throws ERR_UNKNOWN_BUILTIN_MODULE on
       // a runtime older than the node:sqlite floor. See assertGraphRuntimeSupported.
       assertGraphRuntimeSupported(location.packageRoot);
-      const lib = await import(`file://${location.entry}`) as GraphLibrary;
+      // pathToFileURL, not `file://${...}`: a repo path containing `#` or `?` would
+      // otherwise be parsed as a URL fragment/query and the module would fail to load
+      // (verified: `file:///tmp/my#dir/app.js` yields pathname=/tmp/my). Found by codex
+      // as an independent review host (B-3e16).
+      const lib = await import(pathToFileURL(location.entry).href) as GraphLibrary;
 
       // `path.resolve` matches the source shell: a relative --root is resolved
       // against cwd rather than handed to the app verbatim.
