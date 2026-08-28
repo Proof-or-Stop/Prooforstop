@@ -10,7 +10,10 @@ const requested = new Set(process.argv.slice(2));
 const mode = requested.has('--mutation=missing-evidence') ? '--mutation=missing-evidence' : '--verify-threshold';
 const mutationOnly = mode === '--mutation=missing-evidence';
 const executableRequested = requested.has('--verify-threshold') || requested.has('--execute') || requested.has('--paired');
-const repairMissingRequested = requested.has('--repair-missing');
+// The pinned threshold command is an enforcement path, not a diagnostic.
+// It must complete a bounded interrupted campaign so it can emit its required
+// selector, while still reusing every admissible signed historical record.
+const repairMissingRequested = requested.has('--repair-missing') || requested.has('--verify-threshold');
 if (repairMissingRequested && !executableRequested) throw new Error('--repair-missing requires an executable replay mode');
 const historicalArgs = executableRequested
   // Executable replay is always paired assurance.  Keep accepting --paired
