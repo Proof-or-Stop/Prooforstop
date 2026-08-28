@@ -154,6 +154,41 @@
         "scanEscalationReason": null
       },
       "_hash": "e9f7af49f5dcce67c24627f99a1c683b4b0269e07bb9074ae162015494cace59"
+    },
+    {
+      "id": "B-3e16:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 18 verificationIntent entries across CHK-001..006 have valid tool-executed verificationEvidence, concretely tied to specific behavior, no coverage gap found.",
+      "createdAt": "2026-08-28T10:26:00.555Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-016",
+      "envelopeId": "1efb6e04ae2b3bc7179295308511f1697b8717255c90600a9a705d74a71e3c9e",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-assets-ignored.mjs",
+          "packages/graph/scripts/verify-clean-tree.mjs",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/scripts/verify-engines-floor.mjs",
+          "packages/graph/scripts/verify-json-no-listener.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/graph/scripts/verify-serves.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/background.md",
+          ".proof-or-stop/story/actives/B-3e16/plan.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7242f7ecde4b0571b1a31d2ba4dafb0ff5913ebba5114d7f1ed761e81133966e"
     }
   ]
 }
