@@ -22050,6 +22050,72 @@
       ],
       "signatureTag": "acceptance-topology-current-basis-invalid",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-393",
+      "desc": "CHK-014 Wave-4 evidence is incomplete: its current 3/3 passing rows execute only acceptance_rollout_check (twice) and pre_review_check_read. None executes acceptance_topology_check or acceptance_rollout_report_read, although the coverage role requires executable evidence for all four verifier-owned commands. These are separate handlers at packages/main/src/handlers/proofstory.ts:745-770 and :1052-1056; acceptance_rollout_check calls the rollout evaluator directly, so it cannot prove the report-read route. Add current-material, pinned evidence that exercises the two missing commands and explicitly demonstrates the required 3x2/degraded/mutation/mode/rollback outcomes before considering Wave-4 coverage complete.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-28T19:24:07.509Z",
+      "reviewRound": "2026-08-28T19:18:13.536Z",
+      "reviewRunId": "B-45a0:RR-881",
+      "_hash": "67336e0b9c03db59e9c2dd14dfeb7088daa9029f984a884ed6adb8eb8a31cf2c",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|wave-evidence-incomplete",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-394",
+      "desc": "Duplicate of canonical B-45a0:F-389, not a distinct remediation family: the current Wave-4 acceptance chain remains inadmissible at HEAD 4879acb15181f4910793569a837e7017ba8d07e1. acceptance_topology_check --storyId=B-45a0 --json reports structuralPass=false and AT_SCOPE_BINDING_MISSING for a scope-contract digest mismatch in acceptance-basis.json.receipt. pre_review_check_read --storyId=B-45a0 --json reports PR_ARTIFACT_TAMPERED, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, and PR_AUTHORITY_INADMISSIBLE. acceptance_rollout_report_read and acceptance_rollout_check pass, but cannot repair the absent admissible topology/pre-review authority. This blocks CHK-014 verifier-owned current-head coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-28T19:25:13.586Z",
+      "reviewRound": "2026-08-28T19:18:13.536Z",
+      "reviewRunId": "B-45a0:RR-879",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "431e83f7d3f8741d538c77680f93e47216c874d2b55b9981c16d1469cbd22225"
+      },
+      "readDiagnostics": [],
+      "_hash": "6a24a3987a8cc439ed8e5c5559c9d785a1de43c1d0f13a791ec3968666d7176f",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "signatureTag": "acceptance-topology-current-basis-invalid",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
