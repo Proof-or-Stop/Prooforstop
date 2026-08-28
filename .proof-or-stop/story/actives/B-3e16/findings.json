@@ -632,7 +632,7 @@
       "desc": "scope-contract-gap: the DEV remediation directed for F-016/F-017 (extract the dynamic-import loader plus the four lib.findRoot/createApp/startServer/openBrowser call sites out of packages/main/src/handlers/graph.ts into a new dedicated module handlers/graph-runtime.ts, so both AST-fingerprint allowlist maps in retired-authority-vocabulary-guard-smoke.ts pin a small stable file instead of the whole 414-line evolving handler) creates a NEW file at a path the current scope-contract.json does not authorize. allowedCreate is exactly [\"docs/requirements/decisions/graph-command-migration.md\",\"packages/graph/**\",\"packages/main/src/handlers/graph.ts\"] -- the graph.ts entry is an exact-rule literal (scope-path-classifier.ts pathRule(): no glob chars -> exact), not a packages/main/src/handlers/** subtree/glob. allowedModify carries the identical exact literal, nothing broader. A new sibling file packages/main/src/handlers/graph-runtime.ts therefore matches none of allowedModify/allowedCreate/allowedTest/explicitExcludes and falls through scope-path-classifier.ts classifyScopePath into the default deny path, i.e. out-of-scope creation, which scope-anti-expansion / DEV-time scope enforcement is designed to catch. This is a direct, mechanical consequence of the extraction plan stated for this remediation, not a hypothetical: confirmed by reading the live scope-contract.json and the assembled task-context JSON emitted by review_run_start (scope.allowedCreate is byte-identical to the file). None of the four wave-2 lanes flagged this because none examined the interaction between the F-016/F-017 remediation plan and the scope contract; it is a gap in the plan, not in the merged tree today. Recommend: before DEV creates graph-runtime.ts, amend scope-contract.json (scope_contract handler) to add the new path to allowedCreate/allowedModify -- either the literal path or a narrow glob such as packages/main/src/handlers/graph*.ts -- so the extraction does not trip scope enforcement mid-remediation.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-28T13:59:25.371Z",
@@ -672,7 +672,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "missing|ts|scope-contract-remediation",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The finding did its job before any code was written, which is the ideal outcome for a forward-risk. I verified the claim: scope-contract.json allowedCreate lists packages/main/src/handlers/graph.ts as an exact literal with no glob, so a graph-runtime.ts sibling would have been default-deny. The extraction was consequently dropped in favour of whole-file pinning, so the blocker cannot materialise and no scope amendment was needed. Without this finding I would have hit the denial mid-DEV.",
+      "resolvedAt": "2026-08-28T16:05:17.759Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
