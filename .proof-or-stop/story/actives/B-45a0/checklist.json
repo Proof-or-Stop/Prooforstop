@@ -1592,16 +1592,28 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-011:happy:0",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
           "command": "node scripts/run-dynamic-validation-replay.mjs --verify-threshold",
           "result": "pass",
-          "note": "Validated durable historical replay receipts using the required full-failure selection and zero-residue rule, then executed the missing alternating current-head paired assurance campaign.",
-          "headHash": "f2f47a4a4ac34c5428b55000fa5ac8875c44cd80",
-          "materialHash": "70a73b83e669242199fbcfb1ba46fcefb9078b66361682594dac4a705b4bd184",
-          "storyFilesHash": "cfc29c585b98c4073cb02659c3f7cb91b39e3d2196b2ccd01ddd31862c697b9e",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-27T16:33:59.972Z"
+          "note": "Current signed historical replay report covers all 50 records and the paired threshold.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efde378b774a75dbe69da96f266c8bfaff38add6b9bf1181daae65d2aea120db",
+            "outputTail": "historical stories: 50\nhistorical categories: intentional red/failing change, lifecycle gate, local handler, package/config, process fact, rename/delete, shared core, test-only, validation runtime\nhistorical replay mode: execute\nhistorical replay report: /Users/qipan/work/repo/Prooforstop/.worktrees/B-45a0/.proof-or-stop/runtime/dynamic-validation/historical-replay/report.json\npaired-performance: /Users/qipan/work/repo/Prooforstop/.worktrees/B-45a0/.proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json\ndynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\nhistorical replay assurance PASS\nhistorical replay discovery threshold PASS\nhistorical replay threshold PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-28T04:40:40.110Z",
+            "timeoutMs": 21600000,
+            "timeoutOverride": {
+              "timeoutMs": 21600000,
+              "defaultTimeoutMs": 270000,
+              "reason": "Historical receipt verification runs the required current-head paired campaign under the approved six-hour ceiling."
+            }
+          },
+          "headHash": "378896bb3d06613c3754c46ce60ab458f32852f7",
+          "materialHash": "0139448ad23b8872064aa5fd0e5f0ace56a76425beaa83e95c03aab8fb030f3c",
+          "storyFilesHash": "2f34e2c8afaf4f85b9c3dedf37525a032a9fc3b3f966be96a57c8cb5f143b6e6",
+          "timestamp": "2026-08-28T04:40:40.427Z"
         },
         {
           "intentRef": "CHK-011:edge:0",
