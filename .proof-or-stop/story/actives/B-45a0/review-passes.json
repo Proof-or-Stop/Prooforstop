@@ -18483,6 +18483,43 @@
       },
       "readDiagnostics": [],
       "_hash": "8a378d47318502fc861408470b807a38b178c9d1359ce5cf881a34e6a21910a0"
+    },
+    {
+      "id": "B-45a0:RP-344",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-087 Wave 2 completeness-critic terminal after all required lanes became terminal: the aggregate raw finding set contains only F-383. Independent source/doc comparison verifies F-383 as the distinct receipt-lookup-helper-doc-contract-drift family; the exported helper does not implement the full current-context contract named by the normative plan, while the authoritative gate remains fail-closed through a separate internal predicate. This completeness pass does not override the separate request_changes topology receipt for the stale acceptance basis.",
+      "createdAt": "2026-08-28T05:23:24.359Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-835",
+      "envelopeId": "a5946c174a050bd6109d5e2a284023e86307c09c3984aaf73aff4a1260af8663",
+      "writerSessionId": "sess-3be20523a0e332ac7e09053318c32f76",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-command-receipt.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "980a4ed6fb2f4a09d8bb290474c880e175da1984b66a0529b98600076b3aaedb"
+      },
+      "readDiagnostics": [],
+      "_hash": "81c88b063ca3864add04fbb185a799f59acdefe605f36d3f1cb91641f2b30a5f"
     }
   ]
 }
