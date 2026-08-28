@@ -21426,6 +21426,230 @@
       ],
       "signatureTag": "replay-wrapper-subprocess-status-shadowed",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-380",
+      "desc": "RI-087 current-head re-attestation of the unresolved doc-timeout-cap-stale family at 73037bf9d49ba25f4981d6ed8fdbe651c68b4f7e: CLAUDE.md:837 still documents EVIDENCE_COMMAND_TIMEOUT_CAP_MS as 7,200,000 ms (2h), while packages/main/src/core/validation-executor.ts:71-86 exports 21,600,000 ms (6h) and packages/main/src/handlers/checklist.ts:445-449 enforces it. The c2f1db33fd..73037bf9d4 delta is review metadata only, so the mismatch remains current and verified.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T04:55:52.659Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-826",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "f473d7151490dfcca0b28db2c6f737539cf9bfad09bbda4681d881914a4a3db3"
+      },
+      "readDiagnostics": [],
+      "_hash": "b83ec47b2f3a4651304c70fe36245c60fe7288164bd4c976a3d8fc74c072230e",
+      "files": [
+        "CLAUDE.md",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "doc-timeout-cap-stale",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-381",
+      "desc": "RI-087 current-head re-attestation of the unresolved historical-resume-equivalence-doc-drift family at 73037bf9d49ba25f4981d6ed8fdbe651c68b4f7e: docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:81-84 says a resumable record requires per-command equivalence to remain valid, but packages/main/src/tasks/story-aware-validation-historical-replay.ts:292-298 intentionally accepts perCommandEquivalent=false when full failures are selected and residue is empty. The metadata-only head movement did not repair the conflicting resume predicate.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T04:56:20.463Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-826",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "f473d7151490dfcca0b28db2c6f737539cf9bfad09bbda4681d881914a4a3db3"
+      },
+      "readDiagnostics": [],
+      "_hash": "aae722ece2c31a90afb1be85ee8d46f7ba95327dc2cd864b845b2ee5003a871e",
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+      ],
+      "signatureTag": "historical-resume-equivalence-doc-drift",
+      "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-382",
+      "desc": "RI-087 current-head re-attestation of the unresolved replay-executable-command-promise-undelivered family at 73037bf9d49ba25f4981d6ed8fdbe651c68b4f7e: enforcement-evidence.md:57-70 and current-main-characterization.md:62-84 publish plain --execute/--paired as executable campaigns, but scripts/run-dynamic-validation-replay.mjs:12-24 forces both through --resume without --repair-missing, and story-aware-validation-historical-replay.ts:268-275,398-400 refuses the first missing or incompatible record. The metadata-only head movement did not deliver the documented fresh or incomplete-corpus behavior.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T04:56:49.145Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-826",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "f473d7151490dfcca0b28db2c6f737539cf9bfad09bbda4681d881914a4a3db3"
+      },
+      "readDiagnostics": [],
+      "_hash": "6935e7505913ea3311111d41346aac3d44aa91d971320516d7a053f35fba8504",
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ],
+      "signatureTag": "replay-executable-command-promise-undelivered",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

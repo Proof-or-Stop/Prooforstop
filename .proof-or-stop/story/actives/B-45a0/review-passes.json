@@ -18107,6 +18107,150 @@
       },
       "readDiagnostics": [],
       "_hash": "7767a4aa12b92dcd7de4d2a98bd65e1432ece288a28a60130326cbbe5f0039a1"
+    },
+    {
+      "id": "B-45a0:RP-336",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-087 wave 1 test-coverage inventory PASS: current frozen material and story-files hashes are unchanged from the prior terminal coverage review; 48 intents have 48 matching evidence records, with zero must-gaps, waivers, or failed receipts. CHK-011 retains mechanical selector-matched evidence for 50 real historical replays, execute mode, paired performance, assurance PASS, and threshold PASS. No new test-coverage finding family exists at the frozen cutoff.",
+      "createdAt": "2026-08-28T04:56:09.359Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-825",
+      "envelopeId": "87bd656c3750d516b439c84ac0ea9d748794db486355d554b66bbd259dfd7eca",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-fault-injection.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "da8a19f3b4ce8fc007a10ec1e1df1f58603d84fc5a79aa3b02ada1167f35f2fb"
+      },
+      "readDiagnostics": [],
+      "_hash": "bc7b8395d64f1b84adeb3230f9c74bcf0fc543a914f342406a96d6bbe86f3c74"
+    },
+    {
+      "id": "B-45a0:RP-337",
+      "agent": "lattice-review-quality",
+      "note": "RI-087 wave 1 quality re-attestation found no new quality family at the frozen material cutoff. The only change since RR-824 is committed reviewer metadata; the source blob reproducing verified carry-in F-379 is identical, so F-379 remains the existing blocker and is not duplicated.",
+      "createdAt": "2026-08-28T04:56:29.409Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-827",
+      "envelopeId": "b19a91cb872e4c9f1ed9ad14ab2e0dfbf9aba68088643ed81f5e50465292812b",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/process-events.jsonl",
+          ".proof-or-stop/story/actives/B-45a0/process-metrics.json",
+          ".proof-or-stop/story/actives/B-45a0/prompt-envelopes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": "RI-087 is frozen at the same material/story hashes as RR-824; c2f1db33fd..73037bf9d4 contains reviewer metadata only, and the F-379 source blob is byte-identical."
+      },
+      "_hash": "3fe61cba6976494d5a650d8d82b5862e0d3bf22aa8ca993b7c4d0d30a2c1df44"
+    },
+    {
+      "id": "B-45a0:RP-338",
+      "agent": "lattice-review-concept",
+      "note": "RI-087 wave 1 concept PASS with zero new concept family at frozen material 0139448ad23b8872064aa5fd0e5f0ace56a76425beaa83e95c03aab8fb030f3c. The integrated design remains internally coherent around a complete inventory denominator, conservative uncertainty escalation, source-first build proof, independent authority, and paired executable replay assurance. Current mutation-exit fail-open and executable-command/resume/timeout documentation mismatches are already captured by quality/docs lanes and are not duplicated as concept findings.",
+      "createdAt": "2026-08-28T05:00:47.009Z",
+      "reviewRound": "2026-08-28T04:45:06.194Z",
+      "reviewRunId": "B-45a0:RR-828",
+      "envelopeId": "20ef1d7acc5876c0a92002583057b314d7bfdc96fa18b9e33511c0245c714300",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/dynamic-validation-enforcement.ts",
+          "packages/main/src/core/dynamic-validation-selection.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9c6005035baa3229b4ca389dbb0215d312759f4e3e3e5b6350307b2d1d8157a0"
+      },
+      "readDiagnostics": [],
+      "_hash": "6fe52fcd102f0fac59a115e4aab75fd9c762d13bc494e2e73a1dbe65e892fd61"
     }
   ]
 }
