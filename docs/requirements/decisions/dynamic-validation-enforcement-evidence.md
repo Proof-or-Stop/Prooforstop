@@ -96,6 +96,9 @@ record. After human approval, `--resume --repair-missing` performs the bounded
 repair: it reuses every admissible signed record and executes only the missing
 or semantically incompatible remainder before the mandatory current-HEAD
 paired campaign. It is not equivalent to a fresh replay of the whole corpus.
+The pinned `--verify-threshold` wrapper uses this bounded repair behavior so
+its mechanical selector is emitted only after the complete assurance report
+is admissible.
 
 If an operator interrupts a replay while it is writing one historical record,
 `--repair-story=<id> --execute` may regenerate that exact full/dynamic record.
