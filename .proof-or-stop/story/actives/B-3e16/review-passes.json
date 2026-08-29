@@ -974,6 +974,31 @@
         "scanEscalationReason": null
       },
       "_hash": "94252be9dfd5df39af5ee678f41281ae855555861fa258313e9183e4216981a0"
+    },
+    {
+      "id": "B-3e16:RP-032",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified at head 4a0441c after DEV->REVIEW re-mint of acceptance-basis/rollout artifacts. Confirmed zero product-code change since prior pass RP-028: no @proof-or-stop/graph dependency in any package.json (only packages/graph/package.json self-declares its own name), no static import/require of @proof-or-stop/graph anywhere (handler uses dynamic file-path import via pathToFileURL, unchanged decision from prior rounds), and zero graph-runtime residue in packages/ or scripts/ (only historical findings.json audit text describing an abandoned extraction that was never created). No blocker.",
+      "createdAt": "2026-08-29T08:26:48.353Z",
+      "reviewRound": "2026-08-29T08:18:34.466Z",
+      "reviewRunId": "B-3e16:RR-062",
+      "envelopeId": "1d5e2a126be679a29d1d837b257db2d000ac67339a905e22ee680c7a365c82b3",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/graph/package.json",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e2f373ee7f96c9a0423940ddac423e82ea66d746f10c831ac75d8c8970073be5"
     }
   ]
 }
