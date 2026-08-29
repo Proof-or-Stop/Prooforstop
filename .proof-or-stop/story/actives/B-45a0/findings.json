@@ -22522,6 +22522,50 @@
       ],
       "signatureTag": "acceptance-topology-current-basis-invalid",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-403",
+      "desc": "Current RR-894 binds head ed85ff41374a8bbfb488dbfe5d53d514a203166b, materialHash 0594e68a1f5bb51566a1408ff39dfcdec8a4f88eb73b45b6fd9e27e6af2d5fa3, and storyFilesHash f664c11013c4ccc46b7ada938ccb91a9f6b0b33720579fd8a1c1e3b833a0b84b. CLI audit finds 49/50 verificationEvidence rows do not match that material/story binding: all five CHK-014 rows, including the new direct topology/report-read receipts, remain at b601eaa/048dfaa; CHK-011 edge and adversarial bounded replay-admission rows are also b601eaa/048dfaa. Only CHK-011 happy --verify-threshold matches current material/story. The freshness reader accepts current evidence only on material match, or advisory whole-tree drift with matching storyFilesHash (packages/main/src/core/evidence-freshness.ts:452-477), so the added direct receipts and FI/mutation rows cannot establish current REVIEW coverage. Refresh the affected pinned receipts once the current material is stable; do not infer freshness from their old exitCode/selector matches.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-29T05:30:34.452Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-894",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1482e5939aa9f4255b6fc4a96bd4cac2a8be8a1b9d99aa5a48f74d6d56b023b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "f9b19b137e326e731cd08bf05146ea8ed8adbbc91454e5fa77f276eabfef96f4",
+      "files": [
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "signatureTag": "missing|ts|current-binds-head",
+      "signatureTagSource": "auto"
     }
   ]
 }
