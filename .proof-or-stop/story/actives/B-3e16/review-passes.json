@@ -1020,6 +1020,34 @@
         "scanEscalationReason": null
       },
       "_hash": "04f3f57e3f1729e31ab0324fed316498d7dccba6c8c7a863ff3754d953ad7148"
+    },
+    {
+      "id": "B-3e16:RP-034",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified at head 4a0441c / storyFilesHash 7ea223d (post re-mint of acceptance-basis and rollout-report). All 6 checklist items done with all 18 must-priority verificationIntent entries (happy/edge/adversarial x6) each backed by concrete manual_transcript evidence result=pass naming a specific npm script per item, not a generic passed claim. Confirmed every referenced npm script exists in packages/graph/package.json and test:command-ownership-contract / test:orphan-surface exist in packages/main and root package.json. No checklist verificationEvidence claims coverage of acceptance-basis/topology/rollout machinery, so no false-pass risk there. Checked open high findings F-019/020/021 (topology-critic + main): live acceptance_rollout_check now shows receipt=current quorum=full-3x2 status=pass (rollout report genuinely re-minted). acceptance_topology_check and pre_review_check_read still fail live at current head, a genuine unresolved condition, but it concerns Proof-or-Stop framework acceptance/topology self-verification machinery, not the packages/graph product code this story delivers (git diff main...HEAD touches no acceptance/topology/rollout source, only story-metadata artifacts). Already tracked as open F-019/020/021 owned by lattice-review-topology-critic/main; not duplicated here. Test-coverage mandate (verificationIntent/verificationEvidence mapping for this checklist) is satisfied: no blocker in this lane.",
+      "createdAt": "2026-08-29T08:28:44.154Z",
+      "reviewRound": "2026-08-29T08:18:34.466Z",
+      "reviewRunId": "B-3e16:RR-065",
+      "envelopeId": "05e3b6e278677989c09d4f9f941c02c29fa0587f22e49fce95cbb359d3ab9ca0",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          "packages/graph/package.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-3e16/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-3e16/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-3e16/topology-critic-receipt.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6c96a7eb710cf5bfbca5b5c974549716f84129530e97b4fbf4cc2af0628aa07d"
     }
   ]
 }
