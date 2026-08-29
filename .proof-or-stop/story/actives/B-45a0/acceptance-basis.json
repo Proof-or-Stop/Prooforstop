@@ -486,9 +486,9 @@
         "provenanceRefs": [
           "source-file:docs/CLI.md:sha256:47ab23cf00703ca6a636f8d76d02fc57f13015aafac0587463f698b9d21363a9",
           "source-file:docs/requirements/NAV.md:sha256:c6cd05959a09023d90bb416b8dae3e7f389502a2521652a81f7cf4c327c3f78a",
-          "source-file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:sha256:aebce89aa7427bdba36f0398424f20b35e245dcd703f2c4435b1916782f34f8a",
+          "source-file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:sha256:8f2e80aaab3d209bcd9d258267730e9fa71b9773c1572893306484faca687638",
           "source-file:docs/requirements/decisions/dynamic-validation-operations.md:sha256:cfc60fbf0c8b5e7369c7bb2ae05edb6f1653711508871ed7683412b854640af0",
-          "source-file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md:sha256:4dfd86003d257666b5014b257e19bcb1a522a7f711609d3187abcc6747d62a87",
+          "source-file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md:sha256:19feb1a8b5123e1e94da23d73edb8fd816d0915038f8a507a4abbb895c1ec418",
           "source-file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md:sha256:c929c08390e6830d9d31105ef2a727f984539d3dc5d8b7d8fdf2a93f589aded2",
           "source-file:lattice.config.json:sha256:23e15948a96e18c3dc803f28fb2338bf6d88dd67e1c375fb323411cf3e5d8784",
           "source-file:package.json:sha256:02644fa2878bb575589ec4cf58cb49359df9bad952b239aff0235d1b4aa4dc67",
@@ -620,7 +620,7 @@
             "scope:file:scripts/verify-validation-catalog.mjs"
           ]
         },
-        "resultDigest": "sha256:16a7804327074cc9bf69f9cef835c3c890ce6af24bba4ff97a4f5cfc98adca38"
+        "resultDigest": "sha256:53f698a419146a7e3ced7e917ddc8df37ec16baf925f8b93856d9120da545cc5"
       }
     ],
     "scopeRefs": [
@@ -843,42 +843,42 @@
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:02d73861a141fd5c1caabba224f0f8d67ab0b45f45882e773300e73c832eee27",
       "inventoryDirectoryCount": 21,
-      "sourceSnapshotDigest": "sha256:0dc16d56e242235cbd2644c62aeeb46eccff2d6b906bc41415ea03cca33db423",
+      "sourceSnapshotDigest": "sha256:32a7ec3a1751fcb3ee76ce73da539c624825d96637ab965ab715063169231f0a",
       "sourceSnapshotCount": 865,
       "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
       "status": "complete",
       "issues": [],
-      "sealDigest": "sha256:477a89588ecc36786cde3a2e60fc1ea32512f5a5fb030878462bd9ea953e7ef0"
+      "sealDigest": "sha256:7cc0fba26414f054b41e05a70118d9c38f9148bf91acd52254361cb82babfeee"
     },
     "binding": {
-      "headHash": "ae54a527cdb57284778d7a26527a65aab4e58bbb",
-      "materialHash": "f78303594ec05a4edaa34a396e2903514416acbbf0a138425cf40a6a9db4d6f1",
-      "storyFilesHash": "34467d1ff2826fa3e20468422a1bd651e624f722bac1ea2778f4c973d8a2308d",
+      "headHash": "4878f39c90987e29f9f935bd8d6f56791b1e1db5",
+      "materialHash": "b601eaa2b2468999702a190f68ebd8dfc43c61166b2ee43f430476539310daa3",
+      "storyFilesHash": "048dfaa6d7c9f166461c0137c89058608e7f9fe5774b40fa39008016b21a4c33",
       "scopeCheckDigest": "sha256:1045b3dd58644a41e921e0cc28f548b8c3faad93bcb1012edcd94c7542e11602",
-      "scopeContractDigest": "sha256:437b48ee7e04e3bf55e18a3d44217be2ead0c018adfa8cd415122d0556a57303",
-      "closureFilesHash": "sha256:851a26363423dd0387be0c11b7c174388fcc1c3566568c2a55564d0d1d50608a"
+      "scopeContractDigest": "sha256:1589ce84b31c86456bd43eb7a444b4b350e5fcb9b1a12e04fa130da83d678e7c",
+      "closureFilesHash": "sha256:a4f1709a34051c20ddd0937aa767d5c783be54a6dcb6157c0fad3a47a9bcc7d0"
     },
-    "receiptRef": "receipt:coverage-basis:B-45a0:plan:3db4cf5e11b00db3",
-    "basisDigest": "sha256:82d5f1f3e9cd272ec4f05ff082e95d1cfb9d59a1b7b2704f8edb295823ecd280"
+    "receiptRef": "receipt:coverage-basis:B-45a0:plan:d40938948e2d3eb6",
+    "basisDigest": "sha256:be7f788cd9172e54f05f7d8c6051c4dfe32fffe592d4d9eb583bd2fc7901cae1"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-45a0:plan:3db4cf5e11b00db3",
+    "receiptRef": "receipt:coverage-basis:B-45a0:plan:d40938948e2d3eb6",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
     "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
     "storyId": "B-45a0",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:82d5f1f3e9cd272ec4f05ff082e95d1cfb9d59a1b7b2704f8edb295823ecd280",
+    "basisDigest": "sha256:be7f788cd9172e54f05f7d8c6051c4dfe32fffe592d4d9eb583bd2fc7901cae1",
     "topologyDigest": "sha256:0a71e566eebd058398e7b336dd448074eab68bd83d4383dd05a0305b70668102",
     "scopeCheckDigest": "sha256:1045b3dd58644a41e921e0cc28f548b8c3faad93bcb1012edcd94c7542e11602",
-    "scopeContractDigest": "sha256:437b48ee7e04e3bf55e18a3d44217be2ead0c018adfa8cd415122d0556a57303",
-    "headHash": "ae54a527cdb57284778d7a26527a65aab4e58bbb",
-    "materialHash": "f78303594ec05a4edaa34a396e2903514416acbbf0a138425cf40a6a9db4d6f1",
-    "storyFilesHash": "34467d1ff2826fa3e20468422a1bd651e624f722bac1ea2778f4c973d8a2308d",
-    "closureFilesHash": "sha256:851a26363423dd0387be0c11b7c174388fcc1c3566568c2a55564d0d1d50608a",
-    "sealDigest": "sha256:477a89588ecc36786cde3a2e60fc1ea32512f5a5fb030878462bd9ea953e7ef0",
+    "scopeContractDigest": "sha256:1589ce84b31c86456bd43eb7a444b4b350e5fcb9b1a12e04fa130da83d678e7c",
+    "headHash": "4878f39c90987e29f9f935bd8d6f56791b1e1db5",
+    "materialHash": "b601eaa2b2468999702a190f68ebd8dfc43c61166b2ee43f430476539310daa3",
+    "storyFilesHash": "048dfaa6d7c9f166461c0137c89058608e7f9fe5774b40fa39008016b21a4c33",
+    "closureFilesHash": "sha256:a4f1709a34051c20ddd0937aa767d5c783be54a6dcb6157c0fad3a47a9bcc7d0",
+    "sealDigest": "sha256:7cc0fba26414f054b41e05a70118d9c38f9148bf91acd52254361cb82babfeee",
     "workspaceIdentityDigest": "sha256:3982df8a3a496488d75aa257cf83262705901996a517a2a911848309f9519ccd",
-    "signature": "QNOjHJY8syPyGTWj++PaUFXgLjVrqdlv9PlgxSG/yYgXh1IcKcZN0/hBQtZiWD6xhalqk0vy4hSwax2og6BdDw=="
+    "signature": "dzormCjVl/Rj38IBU+og4wBt9oweiiAukpZfu7lr3GYAK0hoIRIjMziLPa56WyVqEcTOZEsKj3gHDMi+jyWmCQ=="
   }
 }
