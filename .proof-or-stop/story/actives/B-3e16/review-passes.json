@@ -895,6 +895,31 @@
         "scanEscalationReason": null
       },
       "_hash": "2e8a2bd89776f676e05ff16af78640e07438059565143d9342df38a9638ea90a"
+    },
+    {
+      "id": "B-3e16:RP-030",
+      "agent": "lattice-review-docs",
+      "note": "Binding refresh at RI-004 frozen cutoff (head 1594b47). Verified the 3 commits since last pass (0d555e2, 050baab, 1594b47) touch only dev-memory/experience.jsonl and review-inventory-epochs.json, no docs/code. CLAUDE.md graph section matches command-catalog.ts + handlers/graph.ts exactly. Live re-ran graph --json: 369 stories/426 edges match B-3e16-RESUME.md. 0 inconsistencies, 0 findings.",
+      "createdAt": "2026-08-29T05:47:06.111Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-059",
+      "envelopeId": "ae55263c73edeacb2db8b9b8844aff59b8faf8ad17e25d0e167092731604c75d",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "B-3e16-RESUME.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/package.json",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1987ed309c66efe8d9cc6d3d18104d2a6d9b917776b9bb15ac0aea79b89092fc"
     }
   ]
 }
