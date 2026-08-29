@@ -816,6 +816,34 @@
         "scanEscalationReason": null
       },
       "_hash": "c5454b366d16d778e10b20978692316fbd7d08eb78771dd011d93964034072a3"
+    },
+    {
+      "id": "B-3e16:RP-027",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified at frozen epoch RI-003 cutoff (headHash 0d555e2, materialHash unchanged from RP-022 binding). Confirmed no product code changed since RP-022: git log main..HEAD for packages/main/src/handlers/graph.ts, packages/graph/src/io/find-root.ts, packages/graph/src/index.ts shows the last touching commit is f26f92536a (the --root validation fix); the two commits since then are doc-only (drop stale metric from handoff doc, dev-memory capture). Re-checked the two items load-bearing to my role: (1) explicit --root is validated via lib.findRoot(explicit) and rejected with a clear message when not a Proof-or-Stop repo (graph.ts:308-324) -- F-017 fix intact; (2) assertGraphRuntimeSupported(location.packageRoot) at graph.ts:292 still precedes the dynamic import at graph.ts:297 -- F-010 ordering intact, with comment explaining why order is load-bearing. Ran npx tsc --noEmit on both packages/main and packages/graph: both exit 0. git status clean outside .proof-or-stop/ story metadata. Quality checks on this diff: no new as-any beyond one pre-existing-pattern occurrence in the wholesale-imported packages/graph/src/core/search/fn.ts:100 (reading untyped story JSON, already covered by 12 prior review rounds/18 resolved findings, not a fresh regression); all catch{} blocks in graph.ts are documented fallback probes with clear next-step behavior, not silent swallows; web shell (packages/graph/src/shells/web/app.js) does not import fn.ts, consistent with the unrewritten-web-shell migration decision. CLAUDE.md graph section (flags, defaults, cache-dir isolation, missing-asset error) cross-checked against command-catalog.ts longHelp and handler code -- no doc-promise-undelivered gap. Could not locate an artifact literally named assertLoaderArgumentProvenance or a 14-mutant guard test anywhere in packages/graph or packages/main/src/handlers/graph.ts at this cutoff; that phrase does not correspond to any function/file in the current diff, though it does not affect the substance of what I verified (the --root and runtime-guard fixes I actually reviewed line-by-line, past and present, are intact and covered by real checks including verify-no-project-writes.mjs and verify-clean-tree.mjs). No blocking findings.",
+      "createdAt": "2026-08-29T05:34:52.638Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-052",
+      "envelopeId": "92bff0b3fdf003315a492a7743111e0d298f32a7e5062484b93f61194a6ccda9",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/src/io/find-root.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/graph/package.json",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/shells/web/app.js"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "966916ceb34c2d62df2980d2cb3457ddf087b6bc9b748ca4f438f0fc1b8f1e1d"
     }
   ]
 }
