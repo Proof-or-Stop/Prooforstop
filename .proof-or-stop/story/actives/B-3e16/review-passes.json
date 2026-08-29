@@ -920,6 +920,60 @@
         "scanEscalationReason": null
       },
       "_hash": "1987ed309c66efe8d9cc6d3d18104d2a6d9b917776b9bb15ac0aea79b89092fc"
+    },
+    {
+      "id": "B-3e16:RP-031",
+      "agent": "lattice-review-quality",
+      "note": "RI-004 binding refresh at frozen cutoff (head 1594b47). Independently re-verified prior RP-027 self-correction on assertLoaderArgumentProvenance (guard-smoke.ts:5162 def, :5653 invocation, 14 tuple mutants lines 5172-5278) -- confirmed first-hand, RP-027 error was search-scope not the fact itself. Re-checked F-017 (--root validated via findRoot match) and F-010 (assertGraphRuntimeSupported precedes dynamic import) intact in graph.ts. Rebuilt packages/main and re-ran test:retired-authority-vocabulary-guard against fresh dist: PASS. Swept quality-relevant diff (33 files) for dead code/as-any/empty-catch/shell-fn-import: no new issues, unchanged since RP-027. finding_list confirms all 18 findings resolved/verified, 0 open, my 5 findings (F-004/F-006/F-009/F-010/F-017) intact. Confirmed the two post-RI-003 commits touch only dev-memory/epoch metadata, zero product code. No blocker.",
+      "createdAt": "2026-08-29T05:48:01.270Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-057",
+      "envelopeId": "88d4a2469c2d38c2600381b2c8d1a84dcd7964a0155909607258bb5f1d62cb55",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/src/core/app.ts",
+          "packages/graph/src/core/data.ts",
+          "packages/graph/src/core/detail/fn.ts",
+          "packages/graph/src/core/graph/fn.ts",
+          "packages/graph/src/core/machine.ts",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/core/search/worker.ts",
+          "packages/graph/src/core/store/fn.ts",
+          "packages/graph/src/index.ts",
+          "packages/graph/src/io/find-root.ts",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/io/open-browser.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.head.html",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/gif-encoder.worker.js",
+          "packages/graph/src/shells/web/gif-palette.js",
+          "packages/graph/src/shells/web/graph2d.js",
+          "packages/graph/src/shells/web/playback.js",
+          "packages/graph/src/tasks/anchor-check.mjs",
+          "packages/graph/src/tasks/audit.ts",
+          "packages/graph/src/tasks/bench.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "94252be9dfd5df39af5ee678f41281ae855555861fa258313e9183e4216981a0"
     }
   ]
 }
