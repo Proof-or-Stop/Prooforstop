@@ -20355,6 +20355,36 @@
       },
       "readDiagnostics": [],
       "_hash": "f0f70cb7b0f8256a87b1f9c1993c7013ad6b344f74a0b0b47c2f65dadcbd22ba"
+    },
+    {
+      "id": "B-45a0:RP-402",
+      "agent": "lattice-review-quality",
+      "note": "Current-head quality review confirms story_resume alone bypasses the pre-handler breaker; ordinary frozen takeover commands remain rejected and the human handler retains TTY, ack, and reason checks.",
+      "createdAt": "2026-08-29T17:33:01.364Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-952",
+      "envelopeId": "d526e4c32f96c3d6981b1e8630e1ff90079262a1734ce144d187f1b1f50eca5d",
+      "writerSessionId": "sess-af5fbdf564093962ec403894b4a26a14",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/handlers/story.ts"
+        ],
+        "scanEscalationReason": "Review is bounded to the acknowledged recovery gate and its retained handler safeguards."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c6e80192447c13ce34963fdaf505bdf485f936a00caade2ee8bd8d0ea4d6394c"
     }
   ]
 }
