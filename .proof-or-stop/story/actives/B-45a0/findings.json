@@ -22570,6 +22570,50 @@
       "resolvedAt": "2026-08-29T05:53:04.051Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-404",
+      "desc": "After the current-material refresh, CHK-014:happy:1 is still not executable direct coverage for acceptance_topology_check. Its passing integration_test row is mechanical:false, has no receipt/exitCode/selector proof, and records: `receipt invalidated by verification_evidence_refresh_stale ... pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt`. The other four CHK-014 rows are current mechanical receipts, and CHK-011 verify-threshold is current; therefore this is not a duplicate of resolved stale-batch F-403. Wave-4 requires an executable verifier-owned topology route, while checklist_update/refresh cannot mint a new receipt (packages/main/src/handlers/checklist.ts:598-654). Run the pinned topology command once through verification_evidence_add after material is stable, then preserve its stamped current receipt.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-29T05:55:44.085Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-896",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1482e5939aa9f4255b6fc4a96bd4cac2a8be8a1b9d99aa5a48f74d6d56b023b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "2a31c83073f0b75abc5329a4178f0b63404a8ca1acd82204467aa015bddb6247",
+      "files": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "missing|ts|current-material-refresh",
+      "signatureTagSource": "auto"
     }
   ]
 }
