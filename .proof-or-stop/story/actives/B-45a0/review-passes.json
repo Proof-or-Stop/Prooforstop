@@ -20052,6 +20052,59 @@
         "scanEscalationReason": null
       },
       "_hash": "96ee790b0291493f3997186abcd456d0cc4c0fd48e70d739e9888c3120eba717"
+    },
+    {
+      "id": "B-45a0:RP-391",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed all 14 high-assurance checklist intents against their command-specific current evidence. The coverage diagnostic has zero gaps; CHK-014 routes all four verifier-owned commands and the pre-review reader fails closed with explicit current codes rather than silently passing.",
+      "createdAt": "2026-08-29T14:52:13.099Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-935",
+      "envelopeId": "385edaacb75398760c1b472ae9d2cf2d07ffdcda39d6969260f9d75c198cc4da",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-story-aware-validation-plan.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6029cf3332878914bb7c5b891d34b21e8f89a45222802ae179fb685ceb2ef510"
+    },
+    {
+      "id": "B-45a0:RP-392",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed operator and developer documentation, navigation, and the authoritative execution plan. Commands, mode boundaries, DYN-1 observe versus DYN-3 authority, rollback, artifact, and replay terms match the implementation; no documentation blocker.",
+      "createdAt": "2026-08-29T14:53:14.484Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-936",
+      "envelopeId": "f4b5b782d1054b9b230bfb6d6e628815d42a368472e1592705643f5aef4cc5cf",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f31f530ee516c342952834ade5597d69ea1c9119fe890629a283c8f77d3f4094"
     }
   ]
 }

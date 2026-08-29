@@ -9010,6 +9010,29 @@
       "consumedAt": "2026-08-29T08:42:14.779Z",
       "consumedByReviewRound": "2026-08-29T05:26:37.023Z",
       "_hash": "88312b0627d4932a84839421f3e0db1f0cca82ef319c51d8e4367f3578fc54c1"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RIE-111",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-29T14:48:01.163Z",
+      "updatedAt": "2026-08-29T14:49:36.995Z",
+      "cutoff": {
+        "headHash": "f0fdf72d08df4a944af2d5c8bf7992fa6cebc4d4",
+        "materialHash": "c5175be3b0459c832622dd5b057c96c9b32128575f38eb35b0373c34f3603e24",
+        "storyFilesHash": "01455f07bb68b9bc9e19aec5180aa5bfdd9220411e73a3688396e8c4f0223a19"
+      },
+      "scopeDigest": "0514933b81b99213a849d3a99e9843ebe0ecdc632f1073d4725f2a29a87442b2",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-45a0:RIE-111:RCP-001",
+      "cancelledAt": "2026-08-29T14:49:36.995Z",
+      "cancelReason": "The completeness-only receipt was created while attempting a non-required pre-review reissue in observe mode; remaining current REVIEW lanes need fresh terminal evidence, so this receipt cannot authorize a remediation transition.",
+      "terminalRunSequenceBoundary": 934,
+      "_hash": "d95aec79ff63c0d081732f5551cd9c8236f7e11ec4741d34c8b4846d01c7ba26"
     }
   ],
   "receipts": [
@@ -10255,6 +10278,30 @@
       "issuedAt": "2026-08-29T08:40:56.273Z",
       "consumedAt": "2026-08-29T08:42:14.779Z",
       "_hash": "4267647149641d85a43b0c2e6e01f79a8145774e0ef0a6a44552273c174957b8"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-45a0:RIE-111:RCP-001",
+      "epochId": "B-45a0:RIE-111",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "cutoff": {
+        "headHash": "f0fdf72d08df4a944af2d5c8bf7992fa6cebc4d4",
+        "materialHash": "c5175be3b0459c832622dd5b057c96c9b32128575f38eb35b0373c34f3603e24",
+        "storyFilesHash": "01455f07bb68b9bc9e19aec5180aa5bfdd9220411e73a3688396e8c4f0223a19"
+      },
+      "scopeDigest": "0514933b81b99213a849d3a99e9843ebe0ecdc632f1073d4725f2a29a87442b2",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-29T14:48:01.163Z",
+      "invalidatedAt": "2026-08-29T14:49:36.995Z",
+      "invalidationReason": "The completeness-only receipt was created while attempting a non-required pre-review reissue in observe mode; remaining current REVIEW lanes need fresh terminal evidence, so this receipt cannot authorize a remediation transition.",
+      "_hash": "a60a81b05dcc71ac3913029c7a67f4188de60236c2215ef82d9983ea7605bf22"
     }
   ],
   "criticReceipts": [
