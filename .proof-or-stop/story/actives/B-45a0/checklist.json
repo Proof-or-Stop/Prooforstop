@@ -1595,13 +1595,20 @@
           "kind": "logic_test",
           "command": "node scripts/run-dynamic-validation-replay.mjs --verify-threshold",
           "result": "pass",
-          "note": "Current signed historical replay report covers all 50 records and the paired threshold.",
-          "headHash": "2a1b221bff5fde5b6ac23e4cc764d9a6ff5ff418",
-          "materialHash": "b601eaa2b2468999702a190f68ebd8dfc43c61166b2ee43f430476539310daa3",
-          "storyFilesHash": "048dfaa6d7c9f166461c0137c89058608e7f9fe5774b40fa39008016b21a4c33",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-29T04:37:58.012Z"
+          "note": "Re-verify the existing signed replay artifact under the bounded consumer-drift admission rule; this command never invokes --execute.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9151aac06b9b547421291b538be910aa207f69d3fb984aef9afa3a40dbd9b982",
+            "outputTail": "historical replay artifact admission PASS\ndynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\nhistorical replay assurance PASS\nhistorical replay discovery threshold PASS\nhistorical replay threshold PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-29T05:22:23.684Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "bf4a185420096c30b00e1450fbfb8bb629698cb5",
+          "materialHash": "0594e68a1f5bb51566a1408ff39dfcdec8a4f88eb73b45b6fd9e27e6af2d5fa3",
+          "storyFilesHash": "f664c11013c4ccc46b7ada938ccb91a9f6b0b33720579fd8a1c1e3b833a0b84b",
+          "timestamp": "2026-08-29T05:22:23.905Z"
         },
         {
           "intentRef": "CHK-011:edge:0",
