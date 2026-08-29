@@ -676,6 +676,35 @@
         "scanEscalationReason": null
       },
       "_hash": "4abcf5e4bd2bdf30859c87fe9df059877bd83af587badd3450924958a00a27d6"
+    },
+    {
+      "id": "B-3e16:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Refresh at current material (round 2 binding refresh, all 18 prior findings resolved including my own F-010 Node-floor and F-017 root code-execution). Re-verified mechanically: rebuilt and ran retired-authority-vocabulary-guard-smoke.js -- PASS, exercising all 14 assertLoaderArgumentProvenance mutants plus the whole-file fingerprint pin for handlers/graph.ts. Ran verify-clean-tree.mjs and verify-no-project-writes.mjs live -- both OK, git status byte-identical before/after. Exercised graph --json, graph --help, and graph --root=<nonexistent> -- all behave as documented. Read handlers/graph.ts end to end: no dead code, no problematic any usage beyond repo-wide handler-factory convention, catch blocks all intentional, watchdog heartbeat and shutdown correct. No regression found.",
+      "createdAt": "2026-08-29T05:21:55.382Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-047",
+      "envelopeId": "40735d2603219180d3f18696ef00071b596a898246bb5ddfe5a03aecf7ccc40f",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/graph/scripts/verify-clean-tree.mjs",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/runtime-root.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "04ec5430a39f75b587229c9c56295f7bd268aa048fc30565891b996e4498d9b4"
     }
   ]
 }
