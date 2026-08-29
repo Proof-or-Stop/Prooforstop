@@ -844,6 +844,34 @@
         "scanEscalationReason": null
       },
       "_hash": "966916ceb34c2d62df2980d2cb3457ddf087b6bc9b748ca4f438f0fc1b8f1e1d"
+    },
+    {
+      "id": "B-3e16:RP-028",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified at frozen cutoff (head 1594b47) for epoch RI-004. (1) No package.json anywhere declares @proof-or-stop/graph as a dependency -- only packages/graph/package.json own name field. (2) Zero static/bare imports of @proof-or-stop/graph anywhere in *.ts/*.js/*.mjs/*.cjs outside node_modules/dist. (3) handlers/graph.ts loads the sibling package via pathToFileURL dynamic import of a resolved filesystem dist/index.js path, not a bare module specifier. (4) All 4 graph-runtime grep hits are inside story process-evidence JSON discussing a prior REJECTED extraction proposal; find -name graph-runtime* returns zero files, confirming no such module was ever created. All three re-verification targets remain clean, consistent with prior passes RP-017/RP-020/RP-024. No new findings.",
+      "createdAt": "2026-08-29T05:45:14.514Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-056",
+      "envelopeId": "c8e7c4a84b74553d092eed201fa7ac92189ab88cc82a039ccba8df0966e0908a",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/graph/package.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/graph.ts",
+          "packages/utils/package.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          ".proof-or-stop/story/actives/B-3e16/prompt-envelopes.json",
+          ".proof-or-stop/story/actives/B-3e16/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-3e16/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "531af46712e0009b7336d848f56b0976bef9b93f0c502126e184b2ce9629e4da"
     }
   ]
 }
