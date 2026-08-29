@@ -3,19 +3,19 @@
   "expected": "The repository contains the approved design record with a reproducible payload digest and authority boundary.",
   "actual": {
     "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
-    "exitCode": 1,
+    "exitCode": null,
     "stdout": "",
-    "stderr": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: direct acceptance_rollout_report_read must verify the signed report for the live positive witness: {\n  \"ok\": false,\n  \"status\": \"fail\",\n  \"mode\": \"enforce\",\n  \"blocking\": true,\n  \"diagnostics\": [\n    \"AR_REPORT_STALE\"\n  ],\n  \"receipt\": \"stale\",\n  \"quorum\": \"full-3x2\",\n  \"report\": {\n    \"schemaVersion\": \"proofstory.acceptance_rollout_report.v1\",\n    \"storyId\": \"B-45a0\",\n    \"projectPolicy\": \"flat-project\",\n    \"eligibilityRuleVersion\": \"proofstory.acceptance_rollout_eligibility.v1\",\n    \"thresholdVersion\": \"proofstory.acceptance_rollout_thresholds.v1\",\n    \"evaluationWindow\": {\n      \"start\": \"2026-07-23T11:59:00.000Z\",\n      \"end\": \"2026-07-23T12:06:00.000Z\"\n    },\n    \"eligibleMembership\": [\n      {\n        \"pairId\": \"PAIR-DOCS\",\n        \"baselineStoryId\": \"B-cb04\",\n        \"candidateStoryId\": \"B-cc04\"\n      },\n      {\n        \"pairId\": \"PAIR-FORGERY\",\n        \"baselineStoryId\": \"B-cb02\",\n        \"candidateStoryId\": \"B-cc02\"\n      },\n      {\n        \"pairId\": \"PAIR-FRESHNESS\",\n        \"baselineStoryId\": \"B-cb03\",\n        \"candidateStoryId\": \"B-cc03\"\n      },\n      {\n        \"pairId\": \"PAIR-LEGACY\",\n        \"baselineStoryId\": \"B-cb05\",\n        \"candidateStoryId\": \"B-cc05\"\n      },\n      {\n        \"pairId\": \"PAIR-OMISSION\",\n        \"baselineStoryId\": \"B-cb01\",\n        \"candidateStoryId\": \"B-cc01\"\n      },\n      {\n        \"pairId\": \"PAIR-ORDINARY\",\n        \"baselineStoryId\": \"B-cb06\",\n        \"candidateStoryId\": \"B-cc06\"\n      }\n    ],\n    \"membershipDigest\": \"sha256:3c2575050fc300b7d44b7b09ce1f8c7a55ad94359f0de9934db83ce198dd720f\",\n    \"sourceInventoryDigest\": \"sha\n...[truncated 129935 chars]"
+    "stderr": "[capture error] command exceeded 123000ms timeout; process group terminated"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-08-29T18:09:29.386Z",
+  "capturedAtIso": "2026-08-29T18:14:24.611Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "01e9c9c735acb034d5214bc696c3ec2faacac2b0",
+  "headHash": "d263796d7fbdfb81a98854946a4c8b324ba84104",
   "materialHash": "e51e3cca220f461d5054ffb7ffd7aaef3c2d1505fe37a3708cd7621a934101a0"
 }
