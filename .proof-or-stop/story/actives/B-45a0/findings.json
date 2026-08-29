@@ -22874,6 +22874,44 @@
       ],
       "signatureTag": "pre-review-admissibility",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-413",
+      "desc": "Current executable pre-review evidence is inadmissible: pre_review_check_read returns PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. Reissue the verifier-owned pre-review receipt after repairing its reported conditions before TEST.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-29T17:47:12.415Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-959",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "scanEscalationReason": "The second-wave coverage finding is based on the current verifier-owned pre-review report and its cited freshness producers."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7bc46ebc5b73d90f9004324fce2a0c67046fbd3b12ddd422a72fd4308939c6b1",
+      "files": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "signatureTag": "pre-review-admissibility",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
