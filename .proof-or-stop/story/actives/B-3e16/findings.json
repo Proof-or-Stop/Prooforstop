@@ -693,6 +693,25 @@
       "resolvedAt": "2026-08-28T16:05:17.759Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-019",
+      "desc": "acceptance_basis receiptVerification.ok=false (AT_ADAPTER_RESULT_DIGEST_MISMATCH): the PLAN acceptance-basis receipt is bound to headHash 5d12ee45b5d3379297f1dec8fe907a75f8375749 / storyFilesHash f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9, neither of which matches the current story-owned file state at frozen cutoff head 0bea278926109e9c4b0740e548622540d07671b8 (materialHash 715e737dfdcac359f73bac5895d88ad73067adfc8aec7d0b26e1bfefdf7cc2ac). Diagnostics report basis semantic discovery digest mismatch, closure files hash mismatch, snapshot seal digest mismatch, and freshness mismatch. blindSpots additionally list snapshot_missing / source-file-unreadable-or-disappeared for packages/graph/**, packages/graph/src/tasks/**, and packages/main/src/tasks/** -- the exact packages this story created -- so the basis cannot mechanically account for the delivered surface. acceptance_topology_check independently corroborates this with Basis status: partial and structuralPass: no, and pre_review_check_read independently reports PR_ARTIFACT_MISSING (plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, authority=inadmissible). Per role mandate a pass is forbidden when the basis is missing, partial, unsupported, or stale; this basis is stale and partially unsupported on all three counts simultaneously. Separately, acceptance_rollout_check independently reports mode=enforce; status=fail; blocking=true; receipt=stale; codes=AR_REPORT_STALE at the same frozen cutoff -- a genuine full-envelope (quorum=full-3x2, not a degraded 3x1) receipt that has gone stale due to head drift since it was minted, not a fabricated or degraded quorum.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-29T05:52:33.739Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "RR-060",
+      "_hash": "b18ebf711430261d5a5b051856a33e4292e92ad15392d1d4debfa97d601db2c9",
+      "files": [
+        "docs/story/actives/B-3e16/acceptance-basis.json",
+        "docs/story/actives/B-3e16/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|acceptance-basis-receiptverification",
+      "signatureTagSource": "auto"
     }
   ]
 }
