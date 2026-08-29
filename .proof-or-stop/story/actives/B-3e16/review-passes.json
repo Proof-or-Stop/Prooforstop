@@ -705,6 +705,32 @@
         "scanEscalationReason": null
       },
       "_hash": "04ec5430a39f75b587229c9c56295f7bd268aa048fc30565891b996e4498d9b4"
+    },
+    {
+      "id": "B-3e16:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "Refresh at current material (head ec08664). Re-verified all 18/18 verificationIntents against their verificationEvidence by direct field inspection of checklist.json (not prompt claims): every intentRef (CHK-001..CHK-006 x happy/edge/adversarial) has a matching manual_transcript evidence record with mechanical=true, receipt.selectorMatched=true, receipt.exitCode=0, result=pass, evidence.command matching the pinned verification.command, and the pinned selector string genuinely present in receipt.outputTail (programmatic cross-check, zero gaps, re-run at two successive heads during this session as the story churned). Specifically re-checked CHK-005 (the lane previously silently demoted to non-mechanical): all three intents carry real receipts from verify-clean-tree and verify-no-project-writes with selectorMatched=true and exitCode=0 -- no non-mechanical attestation or waiver present; the prior demotion is not reproduced at this material. Evidence is bound to an older headHash (bb8fa9f) than current, but git diff bb8fa9f..HEAD -- packages/graph packages/main/src is empty at every head observed this session: all drift since evidence was recorded is story-metadata churn (checklist.json, index.json, delivery-check.json, acceptance-rollout-report.json, review-pass records from other lanes) and a resume-notes doc, not product-code drift invalidating the receipts. No coverage gap found; no regression found in the interval.",
+      "createdAt": "2026-08-29T05:29:31.672Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-051",
+      "envelopeId": "151ea4b9a1882d6c206e263d771723f88c2af26ea0b979a8bb0f964ac9d62483",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/background.md",
+          ".proof-or-stop/story/actives/B-3e16/plan.md",
+          ".proof-or-stop/story/actives/B-3e16/process-events.jsonl",
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "57f4558c3d7d52462cacdf2018edac91739c3fb2f912f11f1004c079ae1a67e3"
     }
   ]
 }
