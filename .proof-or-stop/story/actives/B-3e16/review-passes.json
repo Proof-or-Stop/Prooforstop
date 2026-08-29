@@ -785,6 +785,37 @@
         "scanEscalationReason": null
       },
       "_hash": "1d6d155e0a324ef9b95e54de010a33fb10fdf37daf35fd4cb49be9798e28b883"
+    },
+    {
+      "id": "B-3e16:RP-026",
+      "agent": "lattice-review-docs",
+      "note": "Frozen-cutoff re-verification (epoch RI-003, head 0d555e2). Verified ec08664 and 0d555e2 diffs match their commit messages; re-checked retained CLAUDE.md graph section against current code; no new doc-vs-code drift in scanned scope; no new findings.",
+      "createdAt": "2026-08-29T05:34:26.750Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-053",
+      "envelopeId": "20256e0fe03f425ee5132a36bcd27c3c58a72b8e14b113f28b75b84b8c971065",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "B-3e16-RESUME.md",
+          "CLAUDE.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/dev-memory/experience.jsonl",
+          "packages/graph/src/core/app.ts",
+          "packages/graph/src/core/machine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/transition-effects.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c5454b366d16d778e10b20978692316fbd7d08eb78771dd011d93964034072a3"
     }
   ]
 }
