@@ -55,9 +55,11 @@ replay/performance artifacts when capacity permits, but those artifacts remain
 non-authoritative until a current signed review/baseline gate consumes them:
 
 ```sh
+# Verify-only admission of an already-persisted signed replay artifact.
 node scripts/run-dynamic-validation-replay.mjs --verify-threshold
+
+# The only replay producer. It creates the paired campaign itself.
 node scripts/run-dynamic-validation-replay.mjs --execute
-node scripts/run-dynamic-validation-replay.mjs --execute --paired
 ```
 
 An executable campaign restores and executes every *missing or semantically
@@ -65,11 +67,12 @@ incompatible* historical base/head record in detached worktrees, records
 full-vs-dynamic per-command verdicts for that bounded remainder, and always runs
 the three alternating current-HEAD pairs with timing/selection digests. Compatible
 durable historical records are verified and reused rather than restored again.
-`--execute` is the canonical spelling;
-`--paired` remains an executable compatibility alias, and executable replay is
-always paired. The frozen `--verify-threshold` checklist selector also executes
-that paired campaign and fail-closes on an inadmissible report; invoking the
-wrapper with no arguments remains plan-only. The wrapper also writes
+`--execute` is the only producer path, and executable replay is always paired.
+`--paired` is not an alias: it is rejected unless `--execute` is also present.
+The frozen `--verify-threshold` checklist selector is verify-only: it admits an
+already-persisted signed paired artifact plus mutation audit and never starts,
+repairs, resumes, or replays a campaign. It fails closed when that artifact is
+inadmissible; invoking the wrapper with no arguments remains plan-only. The wrapper also writes
 `fault-injection.json` with per-catalog FI-1..FI-5 rows.
 
 `node scripts/run-dynamic-validation-replay.mjs --mutation=missing-evidence`
@@ -98,13 +101,12 @@ incompatible records are re-executed; the paired current-HEAD campaign is
 never reused.
 
 `--resume` is intentionally diagnostic and stops at the first incompatible
-record. After human approval, `--resume --repair-missing` performs the bounded
-repair: it reuses every admissible signed record and executes only the missing
-or semantically incompatible remainder before the mandatory current-HEAD
-paired campaign. It is not equivalent to a fresh replay of the whole corpus.
-The pinned `--verify-threshold` wrapper uses this bounded repair behavior so
-its mechanical selector is emitted only after the complete assurance report
-is admissible.
+record. After human approval, `--execute --resume --repair-missing` performs
+the bounded repair: it reuses every admissible signed record and executes only
+the missing or semantically incompatible remainder before the mandatory
+current-HEAD paired campaign. It is not equivalent to a fresh replay of the
+whole corpus. `--verify-threshold` never performs this repair; its mechanical
+selector is emitted only after the existing assurance report is admitted.
 
 If an operator interrupts a replay while it is writing one historical record,
 `--repair-story=<id> --execute` may regenerate that exact full/dynamic record.

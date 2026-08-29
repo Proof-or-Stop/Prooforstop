@@ -273,6 +273,44 @@ function executeActiveScenarioWitnesses(
     }
   };
 
+  /**
+   * Wave 4 has four separate verifier-owned routes.  The pre-review lifecycle
+   * gate is a consumer of one signed artifact; it must not stand in for the
+   * topology read route or the signed rollout-report read route.  Exercise
+   * both handlers for every live positive witness so the persisted live proof
+  * is earned only when all current-head read boundaries agree.
+  */
+  const invokeDirectWave4ReadRoutes = (): { topologyOutput: string; rolloutOutput: string } => {
+    // The active-scenario runner intentionally keeps mutation fixtures in an
+    // isolated temporary root.  That root has no B-45a0 rollout report, so a
+    // production witness must read the actual Story artifacts through the
+    // canonical CLI root.  These are read-only consumer routes; the fixture
+    // root remains the authority for every mutating pre-review scenario.
+    // `fixtureStoryId` remains B-pre-review-smoke in the isolated mutation
+    // fixture.  Production mode has an explicit active Story selector, and
+    // the canonical root must never fall back to that fixture identity.
+    const directStoryId = productionScenarioMode ? activeScenarioStoryId : fixtureStoryId;
+    if (!directStoryId) throw new Error('production direct verifier routes require an explicit active Story selector');
+    const topologyOutput = productionScenarioMode
+      ? cli(repositoryRoot, 'acceptance_topology_check', { storyId: directStoryId, json: true })
+      : createProofStoryHandlers(ctx).acceptance_topology_check({ storyId: fixtureStoryId, json: true });
+    const topology = JSON.parse(topologyOutput) as { structuralPass?: unknown; status?: unknown };
+    assert.equal(topology.structuralPass, true,
+      `direct acceptance_topology_check must pass for the live positive witness: ${topologyOutput}`);
+    assert.equal(topology.status, 'pass',
+      `direct acceptance_topology_check must report pass for the live positive witness: ${topologyOutput}`);
+
+    const rolloutOutput = productionScenarioMode
+      ? cli(repositoryRoot, 'acceptance_rollout_report_read', { storyId: directStoryId, json: true })
+      : createProofStoryHandlers(ctx).acceptance_rollout_report_read({ storyId: fixtureStoryId, json: true });
+    const rollout = JSON.parse(rolloutOutput) as { ok?: unknown; quorum?: unknown };
+    assert.equal(rollout.ok, true,
+      `direct acceptance_rollout_report_read must verify the signed report for the live positive witness: ${rolloutOutput}`);
+    assert.equal(rollout.quorum, 'full-3x2',
+      `direct acceptance_rollout_report_read must retain the full-3x2 receipt: ${rolloutOutput}`);
+    return { topologyOutput, rolloutOutput };
+  };
+
   for (const [id, assertion] of expected) {
     // Legacy A-* rows are already produced by their individual focused
     // scenarios above.  Never overwrite one with a synthetic replacement.
@@ -280,11 +318,14 @@ function executeActiveScenarioWitnesses(
 
     if (assertion.kind === 'positive') {
       const producerEvent = scenarioEvent(`producer-evaluated:${id}`);
+      const directRoutes = invokeDirectWave4ReadRoutes();
       const verification = invokeVerifier();
       const consumerEvent = scenarioEvent(`consumer-verified:${id}`);
       assert.equal(verification.ok, true, `positive witness verifier failed for ${id}: ${verification.output}`);
       assert.match(verification.output, /status=pass/, `positive witness gate failed for ${id}: ${verification.output}`);
-      recordExecutedCase([id, 'positive', `active-positive:${id}`, `active-positive-verifier:${id}`, `execute canonical pre-review gate for ${id}`, 'PASS', verification.ok && /status=pass/.test(verification.output) ? 'PASS' : 'FAIL', true, [['producer-evaluated', producerEvent], ['consumer-verified', consumerEvent]]]);
+      const directRoutesPassed = /"structuralPass"\s*:\s*true/.test(directRoutes.topologyOutput)
+        && /"ok"\s*:\s*true/.test(directRoutes.rolloutOutput);
+      recordExecutedCase([id, 'positive', `active-positive:${id}`, `active-positive-verifier:${id}`, 'execute direct acceptance_topology_check and acceptance_rollout_report_read, then consume the signed pre-review artifact through the canonical lifecycle gate', 'PASS', verification.ok && /status=pass/.test(verification.output) && directRoutesPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', producerEvent], ['consumer-verified', consumerEvent]]]);
       continue;
     }
 
