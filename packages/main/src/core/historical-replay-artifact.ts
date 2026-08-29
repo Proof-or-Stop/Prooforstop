@@ -15,13 +15,21 @@ const MINIMUM_HISTORICAL_STORIES = 50;
 // A historical replay proves the validation subject (inventory, catalog, and
 // executed runners), not the bookkeeping that subsequently records its use.
 // These are the only non-metadata paths that may appear after the recorded
-// replay HEAD: this verifier and its bounded temporary-repository smoke test.
-// They are consumers of the signed artifact, never inputs to its replay
+// replay HEAD. They are consumers of the signed artifact or exact decision
+// records describing that consumer behavior, never inputs to its replay
 // campaign. Keep this list deliberately exact; a config, catalog, runner, or
 // producer change must force a new signed replay.
-const REPLAY_ADMISSION_CONSUMER_PATHS = new Set([
+const REPLAY_ADMISSION_NONEXECUTING_PATHS = new Set([
   'packages/main/src/core/historical-replay-artifact.ts',
   'packages/main/src/tasks/historical-replay-artifact-smoke.ts',
+  // This smoke reads pre-review evidence after it exists. It is not selected by
+  // the replay producer and cannot affect inventory, catalog, or execution.
+  'packages/main/src/tasks/proofstory-pre-review-check-smoke.ts',
+  // These documents explain the verify-only/execute split. They are exact
+  // records, rather than a broad docs/** exception, to keep the admission
+  // boundary auditable.
+  'docs/requirements/decisions/dynamic-validation-enforcement-evidence.md',
+  'docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md',
 ]);
 
 export interface HistoricalReplayArtifactAdmission {
@@ -171,7 +179,7 @@ function checkPairedPerformance(
 
 function isPermittedReplayHeadDriftPath(path: string): boolean {
   return /^\.proof-or-stop\/story\/(?:actives|archived)\/[^/]+\//.test(path)
-    || REPLAY_ADMISSION_CONSUMER_PATHS.has(path);
+    || REPLAY_ADMISSION_NONEXECUTING_PATHS.has(path);
 }
 
 function readGitNameStatus(gitCwd: string, recordedHead: string, currentHead: string): { ok: true; paths: string[] } | { ok: false; reason: string } {
