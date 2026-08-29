@@ -20385,6 +20385,41 @@
       },
       "readDiagnostics": [],
       "_hash": "c6e80192447c13ce34963fdaf505bdf485f936a00caade2ee8bd8d0ea4d6394c"
+    },
+    {
+      "id": "B-45a0:RP-403",
+      "agent": "lattice-review-docs",
+      "note": "Current-head documentation re-attestation found no documentation/code inconsistency in the acknowledged recovery-gate patch: the existing lifecycle references remain accurate, and the patch adds no user-facing command or configuration surface.",
+      "createdAt": "2026-08-29T17:39:30.235Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-954",
+      "envelopeId": "f27691ba8abe5fa66fc72e9dd659f7320e6590e5e79e957ef240b0b2c2decd01",
+      "writerSessionId": "sess-d811f5b097c34b0177e1c2d538fcbe0e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/step3-review-budget-breaker-handoff.md",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": "The current-head re-attestation is bounded to the explicitly acknowledged recovery-gate patch; it changes no documentation files."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "bfaa3987ab581a83da4aee7ad4488f5a2446bc67c4e511f42e11557a907c28fe"
+      },
+      "readDiagnostics": [],
+      "_hash": "3744a34d9bd7ced69adcd2bca0fddf44fd67388e1d7a0be0f53f9f0fc6bf2a37"
     }
   ]
 }
