@@ -20201,6 +20201,130 @@
         "scanEscalationReason": null
       },
       "_hash": "e62b6dd248e5fb922a9541d5f7bfd277447976c904e8c7fca62bb049a9474582"
+    },
+    {
+      "id": "B-45a0:RP-397",
+      "agent": "lattice-review-concept",
+      "note": "RI-095 concept review found no distinct blocker beyond established pre-review admissibility finding F-409; current signed full-review context and structural acceptance topology were checked.",
+      "createdAt": "2026-08-29T16:32:40.357Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-944",
+      "envelopeId": "2445d6c08838b91e39aa135dd47c9582508f49b1a3b0e3ed0ed427dcbf2304d8",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "34513f97bdfd046030ff5946ce599a72eae10373a53d8b5ae001191889cb8be6"
+      },
+      "readDiagnostics": [],
+      "_hash": "2f77960f58123f350975398c02b6286f1dec624489334fdadeb9891852a22a6d"
+    },
+    {
+      "id": "B-45a0:RP-398",
+      "agent": "lattice-review-quality",
+      "note": "RI-095 quality review found no distinct quality blocker. RR-946 has full review context and its prompt-envelope verifier fail-closes eligibility mismatch; the pre-review condition remains established F-409.",
+      "createdAt": "2026-08-29T16:37:20.942Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-946",
+      "envelopeId": "02dded7d1d4ca98d494bf830e12a48a69fe340a0f29cbda336de169df273f4b3",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "scanEscalationReason": "Current quality review triaged the exact prompt-envelope assembly and verification predicates for the signed current run."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "42c3e2ba5ce60d498f70c5c212c11146ba26606522956325108cfa83cc3707aa"
+    },
+    {
+      "id": "B-45a0:RP-399",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-095 independent test-coverage review found no distinct current blocker. checklist_get maps all 44 required verification intents to passing evidence with zero waivers. Read-only evidence inspection reports 52 fresh evidence-status entries at current head 235852c1b8, including CHK-011’s signed paired replay artifact admitted through the verify-only threshold checker and CHK-014’s direct verifier-owned acceptance-topology receipt. No validate, refresh, inventory mutation, or replay was run.",
+      "createdAt": "2026-08-29T16:40:38.630Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-947",
+      "envelopeId": "8ed5f05b51bfb00bd36a4ff814bca62495b8296146b30fbefb4cb3f65567f6c5",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Coverage review used current signed CLI-projected checklist and evidence inspection only; direct Story files, source files, and test fixtures were not read or changed."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6b831aeabc9b27bc9dd28d779c7a0194c796bf77e9727363ed7a212072f20dd4"
+    },
+    {
+      "id": "B-45a0:RP-400",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass on the sole valid current run RR-948. The governing enforcement, operations, and current-main documentation remains consistent with the replay wrapper: default plan-only behavior, execute-only producer, verify-only fail-closed threshold admission, execute-required paired mode, and bounded repair. Current intent_coverage_check reports zero diagnostic gaps. The rejected stale RR-940 claim was not used; no independent current docs/code issue was verified.",
+      "createdAt": "2026-08-29T16:44:11.474Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-948",
+      "envelopeId": "4379f4847e6fb2045bc1ace895d81c5a821c0dd25f60c7d3b81ad78877089d9e",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "scanEscalationReason": "RR-948 is the valid current head run and has the same material/story documentation subject read in full. This disposition did not run validation, replay, or evidence refresh and did not mutate source, checklist, or review inventory."
+      },
+      "_hash": "327f926e48c955901fbe29280002e6a2391aecd89803b3d23f2a30be2ff88930"
     }
   ]
 }
