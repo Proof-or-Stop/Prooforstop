@@ -20325,6 +20325,36 @@
         "scanEscalationReason": "RR-948 is the valid current head run and has the same material/story documentation subject read in full. This disposition did not run validation, replay, or evidence refresh and did not mutate source, checklist, or review inventory."
       },
       "_hash": "327f926e48c955901fbe29280002e6a2391aecd89803b3d23f2a30be2ff88930"
+    },
+    {
+      "id": "B-45a0:RP-401",
+      "agent": "lattice-review-concept",
+      "note": "Current-head concept review confirms the scoped recovery path restores human acknowledgement without weakening the freeze for any ordinary lifecycle transition.",
+      "createdAt": "2026-08-29T17:31:11.316Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-951",
+      "envelopeId": "eb2e3722c667b1267aefff5cc7527cae3e5a6a215146e4391f6af219ca92964b",
+      "writerSessionId": "sess-3ed4a4424966d302a11420cbb081a5c1",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": "Current-head re-attestation is confined to the explicitly acknowledged recovery-gate patch."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f0f70cb7b0f8256a87b1f9c1993c7013ad6b344f74a0b0b47c2f65dadcbd22ba"
     }
   ]
 }
