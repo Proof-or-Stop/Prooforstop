@@ -19425,6 +19425,37 @@
       },
       "readDiagnostics": [],
       "_hash": "c78feb0582663af95919f56764d427d3765ca83c09bcb6cae9868b2461ae40b2"
+    },
+    {
+      "id": "B-45a0:RP-367",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the bounded replay-admission change and adjacent producer boundary: exact non-executing paths only, current signed artifact admission passes, and the producer path remains fail-closed. No quality blocker found.",
+      "createdAt": "2026-08-29T05:30:53.599Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-895",
+      "envelopeId": "e3c97cf856f4bd34665212a87acc3daa26750055e6399e8f7c59465715c54f45",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "proof-or-stop.config.json",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8bfc3c8cb9ad4b8ee447af64ac694929468d66748d30241e1ad1e6a6f1d509d9"
     }
   ]
 }
