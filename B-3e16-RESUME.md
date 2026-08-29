@@ -31,9 +31,9 @@ The agent session declined to run it for that reason.
 
 | | |
 |---|---|
-| Branch | `story/B-3e16`, 169 commits, tree clean |
+| Branch | `story/B-3e16`, tree clean |
 | main | untouched (`8a44611980`), nothing pushed to origin |
-| Command | `proof-or-stop graph` → 369 stories, 426 relations, 23,991 rows |
+| Command | `proof-or-stop graph` → 369 stories, 426 relations |
 | Checklist / findings | 6/6 · 18/18 resolved |
 | `npm test` / `validate` | 58/58 · 116/116, 0 dirty |
 | Host verdicts | 3× PASS — "nothing here should not ship" |
