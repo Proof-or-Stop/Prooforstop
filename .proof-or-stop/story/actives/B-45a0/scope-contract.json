@@ -488,10 +488,28 @@
         "review_run_list",
         "reviewInventoryHandlerSmoke"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The user authorized this minimal recovery-gate fix because fresh session identities require force takeover and the frozen Story cannot otherwise resume.",
+      "timestamp": "2026-08-29T17:27:28.606Z",
+      "paths": [
+        "packages/main/src/core/convergence-breaker.ts",
+        "packages/main/src/tasks/convergence-breaker-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/convergence-breaker.ts",
+        "packages/main/src/tasks/convergence-breaker-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "ca37e5166abba9c39b236545499a2586e5b990bc",
+      "materialHash": "e51e3cca220f461d5054ffb7ffd7aaef3c2d1505fe37a3708cd7621a934101a0"
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-29T07:29:44.903Z",
+  "updatedAt": "2026-08-29T17:27:28.606Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -584,6 +602,8 @@
     "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
     "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
     "packages/main/src/handlers/review-run.ts": "packages/main/src/handlers/review-run.ts",
-    "packages/main/src/tasks/review-inventory-handler-smoke.ts": "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "packages/main/src/core/convergence-breaker.ts": "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/tasks/convergence-breaker-smoke.ts": "packages/main/src/tasks/convergence-breaker-smoke.ts"
   }
 }
