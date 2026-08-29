@@ -20484,6 +20484,41 @@
       },
       "readDiagnostics": [],
       "_hash": "6b03e14e3ad8a14bc3c6681aa6984014d7f009fe725bd25cddc07171d426c2d5"
+    },
+    {
+      "id": "B-45a0:RP-406",
+      "agent": "lattice-review-docs",
+      "note": "Second-wave documentation review compared 0 newly exported symbols and 3 operational lifecycle paragraphs; the recovery-gate patch introduces no documentation/code drift or unsupported operational claim.",
+      "createdAt": "2026-08-29T17:46:01.158Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-958",
+      "envelopeId": "c16f0b17496831184aede3436043abcd5c287d2c0e8ec596b3031e089613d6ce",
+      "writerSessionId": "sess-d811f5b097c34b0177e1c2d538fcbe0e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/step3-review-budget-breaker-handoff.md",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": "Second-wave review is bounded to the acknowledged recovery patch, which changes no documentation files and introduces no exported API."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "bfaa3987ab581a83da4aee7ad4488f5a2446bc67c4e511f42e11557a907c28fe"
+      },
+      "readDiagnostics": [],
+      "_hash": "42f3da82c1ccd4525f74b43b8b8d7282f7393a8c6353349d642143f2d034c301"
     }
   ]
 }
