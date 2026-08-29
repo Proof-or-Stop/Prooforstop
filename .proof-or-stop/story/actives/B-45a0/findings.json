@@ -22633,6 +22633,36 @@
       "_hash": "9ff78681f6e4cf6f79eca0bae98e6899311ce7669e2e725fd8db21cc6eb9b274",
       "signatureTag": "missing|unknown|review-admissibility-missing",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-406",
+      "desc": "Current re-attestation of established B-45a0:F-405; not a new defect family. The required verifier-owned CHK-014 chain remains incomplete because current pre_review_check_read reports PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. acceptance_topology_check and acceptance rollout PASS do not substitute for the invalid pre-review receipt. Reissue the canonical pre-review artifact through proof-or-stop pre_review_check after repairing its reported bindings.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-29T06:15:07.668Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-908",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "RI-091 disposition-only re-attestation of established F-405; no additional files were reviewed."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "35ce00cabd06c6f583fd6a861ab73c6b480bbbdc652bc84379b6d4bf5c10e46a",
+      "signatureTag": "missing|unknown|current-attestation-established",
+      "signatureTagSource": "auto"
     }
   ]
 }
