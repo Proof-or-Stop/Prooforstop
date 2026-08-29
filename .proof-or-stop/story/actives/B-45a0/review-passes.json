@@ -20452,6 +20452,38 @@
       },
       "readDiagnostics": [],
       "_hash": "84dd05ce3d3d6b56a6d0351ee78d3dc9f8f64335635bed5a2aed00cba48dd740"
+    },
+    {
+      "id": "B-45a0:RP-405",
+      "agent": "lattice-review-quality",
+      "note": "Second-wave quality review found no new correctness or maintainability blocker in the acknowledged recovery-gate change; the focused convergence-breaker smoke covers the only new control-flow exception.",
+      "createdAt": "2026-08-29T17:44:51.219Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-957",
+      "envelopeId": "fa2d174eeaf08532418f75d90a2468f752c95d63abd2200fb334e8a8fb633e51",
+      "writerSessionId": "sess-af5fbdf564093962ec403894b4a26a14",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": "Second-wave review is bounded to current material and the known evidence-freshness consumer path."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6b03e14e3ad8a14bc3c6681aa6984014d7f009fe725bd25cddc07171d426c2d5"
     }
   ]
 }
