@@ -13995,6 +13995,49 @@
       ],
       "createdAt": "2026-08-28T19:40:07.030Z",
       "_hash": "210abdca6217f257e3b835a30c91df1afbe4f6fc2ca9826b5fd1fa661b1b3a90"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-090:CRIT-02",
+      "epochId": "B-45a0:RI-090",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-28T19:18:13.536Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "39ed796fcaa20cd020c63db7553788243a527fc2",
+        "materialHash": "f78303594ec05a4edaa34a396e2903514416acbbf0a138425cf40a6a9db4d6f1",
+        "storyFilesHash": "34467d1ff2826fa3e20468422a1bd651e624f722bac1ea2778f4c973d8a2308d"
+      },
+      "aggregateFindingSetDigest": "4ef7827ac068be126bc188c98f331aeb7f1d7020f4d6fb05725bbc3c9340edf7",
+      "requiredLaneCoverageDigest": "ce5cd6f2bc820a4f8f165729ed505a4f7a6d9cd711d5be5192f730f7ded45fea",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-892",
+      "terminalEvidenceIds": [
+        "B-45a0:F-402"
+      ],
+      "readEvidenceDigest": "ee2943d04a206faf9f7a07ce75efe85cc3c6b82df53e84f002110ad578d34873",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-399",
+          "disposition": "verified_family",
+          "familyKey": "wave4-verifier-owned-command-coverage-incomplete",
+          "reason": "Current coverage finding independently identifies the two missing verifier-owned acceptance command paths; this is the same Wave-4 coverage family certified in RI-090 wave 1."
+        },
+        {
+          "findingId": "B-45a0:F-400",
+          "disposition": "verified_family",
+          "familyKey": "doc-code-drift-replay-command-semantics",
+          "reason": "Current docs finding independently identifies the same producer versus verify-only replay command semantic drift certified in RI-090 wave 1."
+        },
+        {
+          "findingId": "B-45a0:F-401",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-topology-current-basis-invalid",
+          "reason": "Current topology check remains structuralPass=false with AT_SCOPE_BINDING_MISSING and pre-review remains inadmissible; this is the same acceptance-topology family certified in RI-090 wave 1."
+        }
+      ],
+      "createdAt": "2026-08-29T03:50:40.779Z",
+      "_hash": "470cd8908bff7e62d758de980a306bd65b94c4d0377b7321c6485db4a1dd2b76"
     }
   ]
 }
