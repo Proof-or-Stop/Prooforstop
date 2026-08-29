@@ -20420,6 +20420,38 @@
       },
       "readDiagnostics": [],
       "_hash": "3744a34d9bd7ced69adcd2bca0fddf44fd67388e1d7a0be0f53f9f0fc6bf2a37"
+    },
+    {
+      "id": "B-45a0:RP-404",
+      "agent": "lattice-review-concept",
+      "note": "Second-wave concept review found no new residual or contradictory acceptance concept in the current acknowledged recovery patch; the known evidence-freshness issue is already represented by the test-coverage finding.",
+      "createdAt": "2026-08-29T17:43:42.033Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-956",
+      "envelopeId": "e96b4c90a1ec5bf665c7a3452a82433e10f4644bd06f3e6962b8fc5d7f447f95",
+      "writerSessionId": "sess-3ed4a4424966d302a11420cbb081a5c1",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": "The second-wave re-attestation is bounded to new current-head material and its concept-facing integration points."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "84dd05ce3d3d6b56a6d0351ee78d3dc9f8f64335635bed5a2aed00cba48dd740"
     }
   ]
 }
