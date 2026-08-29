@@ -9033,6 +9033,32 @@
       "cancelReason": "The completeness-only receipt was created while attempting a non-required pre-review reissue in observe mode; remaining current REVIEW lanes need fresh terminal evidence, so this receipt cannot authorize a remediation transition.",
       "terminalRunSequenceBoundary": 934,
       "_hash": "d95aec79ff63c0d081732f5551cd9c8236f7e11ec4741d34c8b4846d01c7ba26"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-095",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-29T16:23:56.689Z",
+      "updatedAt": "2026-08-29T16:23:56.689Z",
+      "cutoff": {
+        "headHash": "ea2b895d4e36660d01d96d4d696c5e4d51368c8b",
+        "materialHash": "2592c2d05ec92760a9d2b15125e3b9c39c7b97cef51261209d7180d445cb3454",
+        "storyFilesHash": "3f65544707410b8ce83a3610110815402720ae58234e1be82b16ad48494190b8"
+      },
+      "scopeDigest": "068a148156f5b29896d441c66792802613ed4e86316cea303dbbcb41bfafccf1",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 940,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "167a61b3c59e591aeb4fbc6caaa4959210e27ca66dae0b6d3736735723be26f6"
     }
   ],
   "receipts": [
