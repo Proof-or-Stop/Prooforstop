@@ -20105,6 +20105,102 @@
         "scanEscalationReason": null
       },
       "_hash": "f31f530ee516c342952834ade5597d69ea1c9119fe890629a283c8f77d3f4094"
+    },
+    {
+      "id": "B-45a0:RP-393",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed the current source delta and integrated layered-validation design. The heartbeat smoke fixture now meets the validator Git precondition, preserving the intended heartbeat and idle-watchdog assertions; no conceptual or implementation blocker found.",
+      "createdAt": "2026-08-29T15:21:10.124Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-937",
+      "envelopeId": "9dd3e8ade9d42b11749c910fd0970b82231773d95e9df38f6c1b108ce2bf10a5",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "aa70e72a2bb20a713c5f754e4eef25eca56dd9d6d33392174aea51fa251e2037"
+    },
+    {
+      "id": "B-45a0:RP-394",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the current test-fixture repair and its focused terminal smoke. The fixture now creates a clean Git baseline and ignores only generated markers and locks; production validation behavior and fail-closed timeout coverage remain unchanged.",
+      "createdAt": "2026-08-29T15:22:02.979Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-938",
+      "envelopeId": "f6b17927cfd35601e3cb6f30ad51da9ddcd0417b09049f533f1e92d541ebf7cd",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1949bc3f1d39683be4a06853e8da84b70990d45d2f9411e7e760a886dbd09169"
+    },
+    {
+      "id": "B-45a0:RP-395",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed all 14 high-assurance checklist intents against the current coverage diagnostic: 5/5 milestones are confirmed and there are zero diagnostic gaps. The focused heartbeat smoke passed after fixture Git initialization; the CHK-014 verifier routes remain covered.",
+      "createdAt": "2026-08-29T15:22:49.359Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-939",
+      "envelopeId": "2dbf96f0121f5f081b9e1044323c20df0737fbdc1931a157a504a6fde0cd75ef",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "129b38032e4c3757b9e4df3dbde3914ab43a5832aec2af3e538a5ab7b4215622"
+    },
+    {
+      "id": "B-45a0:RP-396",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed the current source delta against the dynamic-validation operations and enforcement documentation. The fixture-only Git initialization does not alter operator commands, mode boundaries, authority claims, artifacts, or rollback semantics; no documentation update or blocker is required.",
+      "createdAt": "2026-08-29T15:23:41.435Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-940",
+      "envelopeId": "dbb612437b3382d9a7cbe93f2ffb90ca7c11d784bec3890d13bd6fbdc0002c07",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e62b6dd248e5fb922a9541d5f7bfd277447976c904e8c7fca62bb049a9474582"
     }
   ]
 }
