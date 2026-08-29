@@ -59,10 +59,11 @@ node scripts/verify-validation-catalog.mjs
 node scripts/verify-story-aware-validation-plan.mjs
 node scripts/run-dynamic-validation-replay.mjs
 
-# Optional assurance campaigns (they execute real historical/current plans):
+# Verify-only admission of an existing signed artifact (never produces/replays):
 node scripts/run-dynamic-validation-replay.mjs --verify-threshold
+
+# Optional assurance campaign producer (the only producer path):
 node scripts/run-dynamic-validation-replay.mjs --execute
-node scripts/run-dynamic-validation-replay.mjs --execute --paired
 ```
 
 The production smoke uses the same configured-command parser as the verifier,
@@ -74,15 +75,17 @@ signal; a failure in an unrelated legacy assertion must not be relabeled as a
 dynamic-validation PASS.
 
 `run-dynamic-validation-replay.mjs` defaults to a safe plan-only inventory
-characterization. Executable replay verifies durable historical records first,
-then creates detached git worktrees and runs full/selected plans only for
-missing or semantically incompatible historical base/head pairs. It always
-runs the required alternating `full→dynamic`, `dynamic→full`, `full→dynamic`
-current-HEAD campaign with a durable
-`paired-performance.json`. `--execute` is the canonical spelling and `--paired`
-is an executable compatibility alias. The frozen `--verify-threshold` selector
-also executes the paired campaign and fail-closes on inadmissible evidence;
-none of these execution modes is implied by the no-argument smoke wrapper.
+characterization. `--execute` is the only producer: it verifies durable
+historical records first, then creates detached git worktrees and runs
+full/selected plans only for missing or semantically incompatible historical
+base/head pairs. It always runs the required alternating
+`full→dynamic`, `dynamic→full`, `full→dynamic` current-HEAD campaign with a
+durable `paired-performance.json`. `--paired` is not an executable alias and
+is rejected without explicit `--execute`. The frozen `--verify-threshold`
+selector is admission-only: it verifies the already-persisted signed paired
+artifact and mutation audit, fails closed on inadmissible evidence, and never
+executes, resumes, repairs, or replays the campaign. No execution mode is
+implied by the no-argument wrapper.
 
 ## Interpretation
 
