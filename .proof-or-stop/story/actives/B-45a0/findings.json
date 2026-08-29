@@ -22528,7 +22528,7 @@
       "desc": "Current RR-894 binds head ed85ff41374a8bbfb488dbfe5d53d514a203166b, materialHash 0594e68a1f5bb51566a1408ff39dfcdec8a4f88eb73b45b6fd9e27e6af2d5fa3, and storyFilesHash f664c11013c4ccc46b7ada938ccb91a9f6b0b33720579fd8a1c1e3b833a0b84b. CLI audit finds 49/50 verificationEvidence rows do not match that material/story binding: all five CHK-014 rows, including the new direct topology/report-read receipts, remain at b601eaa/048dfaa; CHK-011 edge and adversarial bounded replay-admission rows are also b601eaa/048dfaa. Only CHK-011 happy --verify-threshold matches current material/story. The freshness reader accepts current evidence only on material match, or advisory whole-tree drift with matching storyFilesHash (packages/main/src/core/evidence-freshness.ts:452-477), so the added direct receipts and FI/mutation rows cannot establish current REVIEW coverage. Refresh the affected pinned receipts once the current material is stable; do not infer freshness from their old exitCode/selector matches.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-29T05:30:34.452Z",
@@ -22565,7 +22565,11 @@
         "packages/main/src/core/evidence-freshness.ts"
       ],
       "signatureTag": "missing|ts|current-binds-head",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The one current-head verification_evidence_refresh_stale execution re-ran the pinned verifier receipts and replaced the stale rows; CHK-014 direct topology/report receipts and CHK-011 verify-only receipt now have mechanical current bindings.",
+      "resolvedAt": "2026-08-29T05:53:04.051Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
