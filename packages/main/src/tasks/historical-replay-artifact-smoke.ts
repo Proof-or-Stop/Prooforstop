@@ -129,13 +129,37 @@ try {
     'a signed replay remains admissible across committed Proof-or-Stop story metadata only',
   );
 
-  writeFileSync(join(root, 'validation-subject.ts'), 'export const changed = true;\n');
-  git(root, ['add', 'validation-subject.ts']);
-  git(root, ['commit', '-m', 'change validation subject']);
+  const documentationPath = join(root, 'docs', 'requirements', 'decisions', 'dynamic-validation-enforcement-evidence.md');
+  mkdirSync(join(root, 'docs', 'requirements', 'decisions'), { recursive: true });
+  writeFileSync(documentationPath, '# Verification semantics\n');
+  git(root, ['add', 'docs/requirements/decisions/dynamic-validation-enforcement-evidence.md']);
+  git(root, ['commit', '-m', 'document verify-only replay admission']);
+  assert.equal(
+    verifyHistoricalReplayArtifact(root).ok,
+    true,
+    'an exact decision-document drift remains admissible without executing a replay',
+  );
+
+  const preReviewSmokePath = join(root, 'packages', 'main', 'src', 'tasks', 'proofstory-pre-review-check-smoke.ts');
+  mkdirSync(join(root, 'packages', 'main', 'src', 'tasks'), { recursive: true });
+  writeFileSync(preReviewSmokePath, 'export const consumerOnly = true;\n');
+  git(root, ['add', 'packages/main/src/tasks/proofstory-pre-review-check-smoke.ts']);
+  git(root, ['commit', '-m', 'change evidence consumer smoke']);
+  assert.equal(
+    verifyHistoricalReplayArtifact(root).ok,
+    true,
+    'the bounded pre-review evidence consumer drift remains admissible without executing a replay',
+  );
+
+  const producerPath = join(root, 'scripts', 'run-dynamic-validation-replay.mjs');
+  mkdirSync(join(root, 'scripts'), { recursive: true });
+  writeFileSync(producerPath, 'export const producerInputChanged = true;\n');
+  git(root, ['add', 'scripts/run-dynamic-validation-replay.mjs']);
+  git(root, ['commit', '-m', 'change replay producer input']);
   const stale = verifyHistoricalReplayArtifact(root);
   assert.equal(stale.ok, false);
-  assert.ok(stale.reasons.includes('paired-performance-head-stale'), 'a valid old report is rejected once a source file changes');
-  assert.ok(stale.reasons.includes('paired-performance-head-drift-nonadmissible'), 'source drift is not reclassified as metadata');
+  assert.ok(stale.reasons.includes('paired-performance-head-stale'), 'a valid old report is rejected once a replay producer input changes');
+  assert.ok(stale.reasons.includes('paired-performance-head-drift-nonadmissible'), 'producer drift is not reclassified as non-executing evidence consumption');
 
   console.log('historical replay artifact smoke PASS');
 } finally {
