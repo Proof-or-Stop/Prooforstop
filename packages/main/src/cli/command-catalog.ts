@@ -2083,6 +2083,40 @@ Behavior:
     dev: z.string().optional().describe('Dev server command, for example npm run dev; enables browser proxy.'),
     port: z.number().optional().describe('API port (default: 3456).'),
   }},
+  { name: 'graph', description: 'Interactive story + evidence graph for this repository (reads story state; writes its index cache outside the repo)', longHelp:
+`proof-or-stop graph [--root=<dir>] [--port=<n>] [--no-open] [--json]
+
+Read-only visualizer for the stories and evidence of a Proof-or-Stop repository:
+a browsable graph plus full-text search and per-story detail.
+
+Options:
+  --root=<dir>   Repository to read (default: nearest Proof-or-Stop root from cwd).
+  --port=<n>     HTTP port (default: 8731).
+  --no-open      Do not launch a browser.
+  --json         Print status as JSON and exit without serving.
+
+Behavior:
+  - Reads story state only; it never mutates story metadata, so it is allowed in
+    every phase (readOnly / destructiveRisk none).
+  - Its search index is written under the user cache directory, keyed by a hash of
+    the repository root, so running it never dirties the worktree that DONE gates
+    on a clean tree.
+  - The graph library, browser client and static assets live in the packages/graph
+    subpackage and are resolved at runtime; if they are missing, the command names
+    the missing directory and the build command instead of failing obscurely.
+  - Long-running when it serves (same shape as serve): the command stays in the
+    foreground until interrupted.`,
+    schema: {
+    root: z.string().optional().describe('Repository to read (default: nearest Proof-or-Stop root from cwd).'),
+    port: z.number().optional().describe('HTTP port (default: 8731).'),
+    // Default true, applied in the handler (`args.open !== false`), NOT via
+    // `.default(true)`: the help renderer detects optionality with
+    // `instanceof ZodOptional`, and a ZodDefault wrapper would render this flag
+    // as required with type `any`. Every other catalog flag follows this same
+    // convention — document the default in the description, apply it in code.
+    open: z.boolean().optional().describe('Launch a browser once the server is listening; default true, use --no-open to suppress.'),
+    json: z.boolean().optional().describe('Print status as JSON and exit without serving.'),
+  }},
 
   // Evaluate (AI evaluation for browser projects).
   { name: 'evaluate', description: 'Ask the evaluator agent to score a browser app (completeness and usability)', schema: {
