@@ -872,6 +872,29 @@
         "scanEscalationReason": null
       },
       "_hash": "531af46712e0009b7336d848f56b0976bef9b93f0c502126e184b2ce9629e4da"
+    },
+    {
+      "id": "B-3e16:RP-029",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified at RI-004 frozen cutoff (run RR-058, head 1594b47). Direct inspection of checklist.json: all 18 must-priority verificationIntent entries across 6 checklist items have matching verificationEvidence via intentRef, all mechanical:true, receipt.exitCode 0, receipt.selectorMatched true, result pass, zero waivers, zero gaps. CHK-005 (previously demoted) re-checked specifically: verify-clean-tree and verify-no-project-writes evidence intact with matching selectors -- demotion not reproduced. Working tree dirty files limited to review-inventory/prompt-envelope/review-run bookkeeping only, no product code delta. No blocker found.",
+      "createdAt": "2026-08-29T05:45:40.287Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-058",
+      "envelopeId": "40e738d039e783ddf2de3b7171ef6c5ed7048147a69d6cceecf8b61238455bd7",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/background.md",
+          ".proof-or-stop/story/actives/B-3e16/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e8a2bd89776f676e05ff16af78640e07438059565143d9342df38a9638ea90a"
     }
   ]
 }
