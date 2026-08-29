@@ -760,6 +760,31 @@
         "scanEscalationReason": null
       },
       "_hash": "bf9dfde6ed7b1344e956f12d3046c4b18330fd1e467a401dd249b9d60cb223bc"
+    },
+    {
+      "id": "B-3e16:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified at frozen cutoff (head 0d555e2, epoch RI-003) after two doc-only commits that invalidated the prior pass; neither touches any story-owned material file, confirmed via git show --name-only against scope.allowedCreate/allowedModify. Re-ran field-by-field mechanical check across all 6 checklist items: 18/18 verificationIntent entries have matching verificationEvidence, mechanical=true, result=pass, selectorMatched=true, exitCode=0, zero must-priority gaps. CHK-005 demotion concern not reproduced. finding_list confirms all 18 findings resolved, zero open. Test coverage review passed, no blocker.",
+      "createdAt": "2026-08-29T05:33:50.557Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-054",
+      "envelopeId": "7205c78adbfbbaed4c34723c15aeed027afe38fccd71ca72927899bc46a993a8",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/background.md",
+          ".proof-or-stop/story/actives/B-3e16/plan.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1d6d155e0a324ef9b95e54de010a33fb10fdf37daf35fd4cb49be9798e28b883"
     }
   ]
 }
