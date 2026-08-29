@@ -20002,6 +20002,56 @@
       },
       "readDiagnostics": [],
       "_hash": "2d91b9007ea1d79775c3be032224f44e9328e3ebd2ff1d8c482c0dea1139c609"
+    },
+    {
+      "id": "B-45a0:RP-389",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed the implemented resolver, catalog, closure, selection, authority, scheduling, and shard contracts against the approved execution plan; found no conceptual blocker.",
+      "createdAt": "2026-08-29T14:43:15.184Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-932",
+      "envelopeId": "53928f668732c8d36e78f8497c8ab3feafcae772e25d564b679011ac3cda70a4",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2ddd9800b86bc7e428c6696c7b0380680da86f84809df335d284b059f9b845c6"
+    },
+    {
+      "id": "B-45a0:RP-390",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed artifact admission, signature trust boundaries, dynamic execution, receipts, and shard aggregation. Malformed, stale, unsigned, static, and incomplete evidence fails closed; no quality blocker found.",
+      "createdAt": "2026-08-29T14:44:24.654Z",
+      "reviewRound": "2026-08-29T14:38:58.346Z",
+      "reviewRunId": "B-45a0:RR-933",
+      "envelopeId": "2dc0aef6d6f2f10dec3a42501e37aab1a398e75ac365e70fda41aa36f455870d",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/validation-artifact-signing.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "96ee790b0291493f3997186abcd456d0cc4c0fd48e70d739e9888c3120eba717"
     }
   ]
 }
