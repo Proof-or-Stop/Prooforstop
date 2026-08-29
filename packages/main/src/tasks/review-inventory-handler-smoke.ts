@@ -159,6 +159,16 @@ const actualCriticRun = cli(first.root, 'review_run_start', { storyId, agent: 'l
   LATTICE_SESSION_ID: 'sess-inventory-topology-critic',
 });
 assert.match(actualCriticRun, /Review run B-inventory-handler:RR-/);
+const listedCriticRuns = JSON.parse(cli(first.root, 'review_run_list', {
+  storyId,
+  lane: 'lattice-review-topology-critic',
+  latest: true,
+  json: true,
+})) as { latest: boolean; runs: Array<{ reviewRunId: string; signatureValid: boolean }> };
+assert.equal(listedCriticRuns.latest, true, 'review_run_list acknowledges the compact latest-only filter');
+assert.equal(listedCriticRuns.runs.length, 1, 'review_run_list returns the compact persisted run record');
+assert.match(listedCriticRuns.runs[0].reviewRunId, /^B-inventory-handler:RR-\d+$/, 'review_run_list exposes the durable run ID');
+assert.equal(listedCriticRuns.runs[0].signatureValid, true, 'review_run_list verifies its returned run signature');
 const begin = cli(first.root, 'review_inventory_begin', { storyId, maxWaves: 2 });
 assert.match(begin, /State: OPEN/);
 assert.match(first.handlers.review_inventory_status({ storyId }), /REVIEW_INVENTORY_LANES_INCOMPLETE/);

@@ -660,6 +660,20 @@ Behavior:
     reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.'),
     reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
   }},
+  { name: 'review_run_list', description: 'Read compact signed reviewer-run metadata for recovery and inspection; never writes evidence or prompt bytes', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+    lane: z.enum([
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
+      'lattice-review-behavior',
+      'lattice-review-docs',
+      'lattice-review-channel',
+      'lattice-review-topology-critic',
+    ]).optional().describe('Optional reviewer lane filter.'),
+    latest: z.boolean().optional().describe('Return only the newest matching signed ReviewRun.'),
+    json: z.boolean().optional().describe('Emit compact machine-readable signed run metadata.'),
+  }},
   { name: 'review_inventory_begin', description: 'Begin one signed frozen-candidate REVIEW inventory epoch', schema: {
     storyId: z.string().min(1).describe('Story ID in REVIEW.'),
     maxWaves: z.number().int().min(1).max(5).optional().describe('Bounded discovery-wave budget; defaults to 3.'),

@@ -72,6 +72,7 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'parallel_report',
   'grill_get',
   'reviewer_list',
+  'review_run_list',
   'review_incremental_context',
   'workflow_explain',
   'help',

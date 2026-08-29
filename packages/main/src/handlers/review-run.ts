@@ -10,6 +10,7 @@ import {
   hashReviewPrompt,
   resolveReviewRunLane,
   signReviewRun,
+  verifyReviewRun,
   verifyCurrentReviewerDispatchBinding,
 } from '../core/review-run.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
@@ -88,6 +89,52 @@ function resolveGitTopLevel(gitCwd: string): string | null {
 export function createReviewRunHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
+    review_run_list(args: {
+      storyId: string;
+      lane?: string;
+      latest?: boolean;
+      json?: boolean;
+    }): string {
+      if (!args.storyId) throw new Error('review_run_list: storyId is required');
+      store.readStory(args.storyId);
+      const lane = args.lane?.trim();
+      if (args.lane !== undefined && !lane) throw new Error('review_run_list: lane must be nonblank when provided');
+
+      // Recovery reader for a run that was durably published before a host timed
+      // out while consuming the intentionally large assembled review prompt.
+      // Return only signed, compact metadata: this reader neither mints evidence
+      // nor exposes prompt bytes that can be mistaken for a newly issued prompt.
+      const matchingRuns = store.readReviewRuns(args.storyId).runs
+        .filter(run => (!lane || run.lane === lane))
+        .sort((left, right) => right.startedAt.localeCompare(left.startedAt) || right.reviewRunId.localeCompare(left.reviewRunId));
+      const runs = (args.latest ? matchingRuns.slice(0, 1) : matchingRuns)
+        .map(run => ({
+          reviewRunId: run.reviewRunId,
+          lane: run.lane,
+          agent: run.agent,
+          reviewRound: run.reviewRound,
+          startedAt: run.startedAt,
+          headHash: run.headHash,
+          materialHash: run.materialHash,
+          storyFilesHash: run.storyFilesHash ?? null,
+          signatureValid: verifyReviewRun(run),
+        }));
+      const report = {
+        schemaVersion: 'proofbound.review_run_list.v1',
+        storyId: args.storyId,
+        lane: lane ?? null,
+        latest: args.latest === true,
+        runs,
+      };
+      if (args.json) return JSON.stringify(report);
+      return [
+        `Review runs: ${args.storyId}${lane ? ` lane=${lane}` : ''}${args.latest ? ' latest=true' : ''}`,
+        ...(runs.length === 0
+          ? ['  (none)']
+          : runs.map(run => `  ${run.reviewRunId} lane=${run.lane} started=${run.startedAt} signature=${run.signatureValid ? 'valid' : 'invalid'}`)),
+      ].join('\n');
+    },
+
     review_run_start(args: {
       storyId: string;
       agent?: string;
