@@ -1048,6 +1048,30 @@
         "scanEscalationReason": null
       },
       "_hash": "6c96a7eb710cf5bfbca5b5c974549716f84129530e97b4fbf4cc2af0628aa07d"
+    },
+    {
+      "id": "B-3e16:RP-035",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified prior finding B-3e16:F-022 against author-provided counter-evidence and resolved it as refuted/superseded (see finding_resolve). sourceProvenance() hashes via digestCanonicalJson(text), not raw bytes; 15/16 provenanceRefs including graph.ts match exactly under the correct algorithm, refuting the fabrication claim. Non-refuted residual (proof-or-stop.config.json provenance anomaly) lacks an established mechanism, too narrow to re-file. executableProof-empty half reconfirmed real but non-blocking (pre_review_check observe/non-blocking, gates already-passed DEV->REVIEW) and already covered by open F-019/F-020/F-021 topology-critic findings; re-filing would duplicate. No independent quality-lane blocker this round; diff unchanged since prior pass RP-031.",
+      "createdAt": "2026-08-29T08:36:04.046Z",
+      "reviewRound": "2026-08-29T08:18:34.466Z",
+      "reviewRunId": "B-3e16:RR-066",
+      "envelopeId": "60db3e46208b60a2af64c34c2659dcccf35aef42a559dc5fa875fa368e777ced",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-3e16/pre-review-check.json",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/digest.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "fd0279f90b75457fd21b4bbf0345cd825856b757875fda0a1089e7e536a6b740"
     }
   ]
 }
