@@ -618,6 +618,35 @@
         "scanEscalationReason": null
       },
       "_hash": "6c8af5f808f970489c4a9122ae34853630a987a24537ed9dc70421365a3e1801"
+    },
+    {
+      "id": "B-3e16:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Refresh at head f1db620. Verified both named concept-deletion concerns leave zero residue: no @proof-or-stop/graph dependency in packages/main/package.json, no static import (only a runtime await-import via GRAPH_PACKAGE_NAME constant), no graph-runtime file anywhere (only historical mentions in this stories own process artifacts), and graphRuntimeUnsupportedMessage confirmed unrelated legitimate CHK-002 diagnostic. No blocker.",
+      "createdAt": "2026-08-29T05:17:34.333Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-050",
+      "envelopeId": "491f18a6ab747723d0028d30b51809c55f3c2ecd702e680cb40ab2fb3d447280",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/package.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          ".proof-or-stop/story/actives/B-3e16/prompt-envelopes.json",
+          ".proof-or-stop/story/actives/B-3e16/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-3e16/review-passes.json",
+          ".proof-or-stop/story/actives/B-3e16/scope-freeze-check.json",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "484afb3ff2d110e3ef458616a7a508fe30c8162bb7baad44d802a38aef0a4e1a"
     }
   ]
 }
