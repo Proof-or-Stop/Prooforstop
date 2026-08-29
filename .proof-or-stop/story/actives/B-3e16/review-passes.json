@@ -999,6 +999,27 @@
         "scanEscalationReason": null
       },
       "_hash": "e2f373ee7f96c9a0423940ddac423e82ea66d746f10c831ac75d8c8970073be5"
+    },
+    {
+      "id": "B-3e16:RP-033",
+      "agent": "lattice-review-docs",
+      "note": "Incremental re-verification (binding refresh): storyFilesHash unchanged since prior pass RR-059/RP-030 (both 7ea223d5...). Diff between the two heads touches only .proof-or-stop/story/actives/B-3e16/* process/evidence files, zero README/CLAUDE.md/docs/packages files. Re-checked CLAUDE.md Story graph section vs proof-or-stop graph --help: flags/defaults/behavior claims still match. Checked new live-smoke-transcript.json evidence for contradiction with docs: none found (internally consistent, matches packages/graph build-artifact description). No doc-code drift found.",
+      "createdAt": "2026-08-29T08:26:54.603Z",
+      "reviewRound": "2026-08-29T08:18:34.466Z",
+      "reviewRunId": "B-3e16:RR-064",
+      "envelopeId": "3a1acccf3ac556accadafd078702e1062f80ebc326ef43882fa4aedc2223fc66",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/evidence/live-smoke-transcript.json",
+          "CLAUDE.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "04f3f57e3f1729e31ab0324fed316498d7dccba6c8c7a863ff3754d953ad7148"
     }
   ]
 }
