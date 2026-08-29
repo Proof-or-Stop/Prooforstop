@@ -19580,6 +19580,83 @@
         "scanEscalationReason": "This independent lane is restricted to read-only Story/checklist CLI data. It reviewed every intent/evidence binding and its current material/story pair without executing acceptance routes or historical replay."
       },
       "_hash": "eca1bc5750d85efe0885c3b65818ed9c85cbc81367ed547932718ec33b3a5e9f"
+    },
+    {
+      "id": "B-45a0:RP-372",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the compact signed ReviewRun recovery reader and its registration contracts. It returns only compact metadata, verifies each run signature, writes no review evidence or prompt bytes, and the current latest run is valid. No distinct quality issue found.",
+      "createdAt": "2026-08-29T07:24:11.614Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-911",
+      "envelopeId": "026e5faf88ef3e746d7ace7608912ff8fa741898adb24ed9e479dd21fb12a0b9",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b7f3fce3a3cd25c2ae8c06b777fa56808fc303304938b28a0808e4cc13b5b349"
+    },
+    {
+      "id": "B-45a0:RP-373",
+      "agent": "lattice-review-docs",
+      "note": "RI-092 documentation-contract review passed. The enforcement-evidence, operations, and current-main characterization records agree with the replay wrapper: no-argument is plan-only; --execute is the only producer; --verify-threshold admits an existing signed artifact only and fails closed; --paired requires execute; bounded repair executes only missing or semantically incompatible records. F-405/F-406 are established process-envelope blockers and were not duplicated. No distinct documentation consistency finding was observed.",
+      "createdAt": "2026-08-29T07:27:04.812Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-913",
+      "envelopeId": "e6cdd3500daa49c6746d20434f6d88b9a18f7d9d53a2d49622b5eca616619130",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "scanEscalationReason": "Independent docs-lane review compared the complete governing decision records with the bounded replay wrapper. It performed no source change, evidence write, acceptance route, or replay execution."
+      },
+      "_hash": "c4c3b7d8c854515a96dd4e11c532d391f090d65ce2e21054824ade920b0acd8c"
+    },
+    {
+      "id": "B-45a0:RP-374",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independent test-coverage review found no distinct new coverage family. checklist_get reports all 14 checklist items done with 44 required verification intents and 44 matching passing evidence rows. The read-only evidence_inspect result correctly reports those rows stale against the current Story-owned hash; the current acceptance/pre-review freshness failure is already verified as F-407, so this lane does not duplicate it.",
+      "createdAt": "2026-08-29T07:28:50.138Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-914",
+      "envelopeId": "4f7cd2fb0d7fb6ff40c3bf1bf970222e2e0da554defbf19e9e2fea3c91fa033f",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": "Reviewed the compact recovery-reader change and the full CLI-projected verificationIntent/evidence inventory; read-only evidence inspection shows only the already-recorded F-407 current freshness failure."
+      },
+      "_hash": "357b8f58adfbdacb172f5c0c1ba8ee0e52795316b093f6d10f9409ca5ac987dd"
     }
   ]
 }

@@ -22663,6 +22663,45 @@
       "_hash": "35ce00cabd06c6f583fd6a861ab73c6b480bbbdc652bc84379b6d4bf5c10e46a",
       "signatureTag": "missing|unknown|current-attestation-established",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-407",
+      "desc": "Current-head RI-092 pre-review/acceptance freshness failure: `pre_review_check_read --storyId=B-45a0` reports PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND; `acceptance_topology_check --storyId=B-45a0` reports AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE. These are fail-closed by packages/main/src/core/pre-review-check.ts:424, packages/main/src/core/acceptance-topology.ts:652, and packages/main/src/handlers/proofstory.ts:285. CHK-014 cannot claim current verifier-owned acceptance coverage until the pre-review artifact and topology basis are regenerated and re-bound at current material.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-29T07:25:05.673Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-912",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": "Current RI-092 review triaged the exact verifier predicates for the observed pre-review and acceptance-topology failure codes."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2b98cbd4007d7905720bfe18efeb997a1e23b95a0fea0a5476eb2b8cec32d5df",
+      "files": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|current-head-review",
+      "signatureTagSource": "auto"
     }
   ]
 }

@@ -462,10 +462,36 @@
       "phase": "DEV",
       "headHash": "b88f8323f40598df611f132a81a2513f7a2c8d88",
       "materialHash": "f78303594ec05a4edaa34a396e2903514416acbbf0a138425cf40a6a9db4d6f1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required compact signed-run recovery for host-safe independent review completion.",
+      "timestamp": "2026-08-29T07:29:44.903Z",
+      "paths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "REVIEW",
+      "headHash": "f30254d002d17a7e6508de9904e52e0ea70185d1",
+      "materialHash": "c5175be3b0459c832622dd5b057c96c9b32128575f38eb35b0373c34f3603e24",
+      "anchors": [
+        "review_run_list",
+        "reviewInventoryHandlerSmoke"
+      ]
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-28T19:17:54.789Z",
+  "updatedAt": "2026-08-29T07:29:44.903Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -554,6 +580,10 @@
     "packages/main/src/core/validation-artifact-signing.ts": "packages/main/src/core/validation-artifact-signing.ts",
     "packages/main/src/tasks/historical-replay-artifact-smoke.ts": "packages/main/src/tasks/historical-replay-artifact-smoke.ts",
     "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
-    "packages/main/src/tasks/story-aware-validation-historical-replay-artifact-verify.ts": "packages/main/src/tasks/story-aware-validation-historical-replay-artifact-verify.ts"
+    "packages/main/src/tasks/story-aware-validation-historical-replay-artifact-verify.ts": "packages/main/src/tasks/story-aware-validation-historical-replay-artifact-verify.ts",
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/handlers/review-run.ts": "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts": "packages/main/src/tasks/review-inventory-handler-smoke.ts"
   }
 }
