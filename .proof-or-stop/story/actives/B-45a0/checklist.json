@@ -1943,7 +1943,7 @@
             "priority": "must",
             "verification": {
               "command": "node bin/proof-or-stop.js acceptance_topology_check --storyId=B-45a0 --json",
-              "selector": "\"ok\": true"
+              "selector": "\"status\": \"pass\""
             }
           },
           {
