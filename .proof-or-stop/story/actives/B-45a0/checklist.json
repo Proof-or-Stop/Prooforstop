@@ -1936,6 +1936,24 @@
               "command": "node bin/proof-or-stop.js acceptance_rollout_check --storyId=B-45a0 --json",
               "selector": "\"ok\": true"
             }
+          },
+          {
+            "desc": "Verifier-owned acceptance topology check reports an admissible current Story topology through its direct command route.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/proof-or-stop.js acceptance_topology_check --storyId=B-45a0 --json",
+              "selector": "\"ok\": true"
+            }
+          },
+          {
+            "desc": "Verifier-owned acceptance rollout report reader reports an admissible current report through its direct command route.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/proof-or-stop.js acceptance_rollout_report_read --storyId=B-45a0 --json",
+              "selector": "\"ok\": true"
+            }
           }
         ],
         "edge": [
