@@ -22576,7 +22576,7 @@
       "desc": "After the current-material refresh, CHK-014:happy:1 is still not executable direct coverage for acceptance_topology_check. Its passing integration_test row is mechanical:false, has no receipt/exitCode/selector proof, and records: `receipt invalidated by verification_evidence_refresh_stale ... pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt`. The other four CHK-014 rows are current mechanical receipts, and CHK-011 verify-threshold is current; therefore this is not a duplicate of resolved stale-batch F-403. Wave-4 requires an executable verifier-owned topology route, while checklist_update/refresh cannot mint a new receipt (packages/main/src/handlers/checklist.ts:598-654). Run the pinned topology command once through verification_evidence_add after material is stable, then preserve its stamped current receipt.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-29T05:55:44.085Z",
@@ -22613,7 +22613,11 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "missing|ts|current-material-refresh",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Regenerated the verifier-owned acceptance basis for the refreshed evidence binding, then re-executed CHK-014:happy:1 acceptance_topology_check through verification_evidence_add with exit=0 and selectorMatched=true.",
+      "resolvedAt": "2026-08-29T05:57:22.544Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
