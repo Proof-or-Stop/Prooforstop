@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-45a0",
   "mode": "observe",
-  "cutoffAt": "2026-08-29T08:55:29.648Z",
+  "cutoffAt": "2026-08-29T09:22:36.458Z",
   "planBasisDigest": "sha256:bf876bcb60671b87afb5c1a4b8efe51500edbb07621b7abed5b8e35a0ebb2af2",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -909,37 +909,1081 @@
   "scopeContractDigest": "sha256:f3431a3b940c17845c342cdd552929778bd6de67489aca024d6ef095ab6c9249",
   "storyFilesHash": "01455f07bb68b9bc9e19aec5180aa5bfdd9220411e73a3688396e8c4f0223a19",
   "closureFilesHash": "sha256:d26cb5711e1b4f962daf53d2492af735d6124f2fb4499ccd44cc1e0e4cd22cf4",
-  "evidenceRefs": [],
+  "evidenceRefs": [
+    {
+      "intentRef": "CHK-001:adversarial:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:ded0e6b8264eb607c80dea2c5649c4ab2723de206c4e28b856e9a4000c77cfb2"
+    },
+    {
+      "intentRef": "CHK-001:adversarial:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:e7d92e15ec6380cd7fb95be4550a747191eeedc2d4b5f984d2c3ada5ba499baa"
+    },
+    {
+      "intentRef": "CHK-001:edge:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:ee1d218d1d47619614014033250627e1d617844364a796dca59f972442fc69a8"
+    },
+    {
+      "intentRef": "CHK-001:edge:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 3,
+      "kind": "docs_check",
+      "evidenceDigest": "sha256:19d7a549da96aec59a1f2297649efc6434f78594f1fc25500c4541fcae9b1914"
+    },
+    {
+      "intentRef": "CHK-001:happy:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 0,
+      "kind": "docs_check",
+      "evidenceDigest": "sha256:453681434af1d7779fabff8495dcbe87ceca26b122fa293f3abf4f4c91c6676c"
+    },
+    {
+      "intentRef": "CHK-001:happy:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 1,
+      "kind": "docs_check",
+      "evidenceDigest": "sha256:e82753091cd673a6b29af2cca52e8795a929e2165580a7cd8e0e9a1f1541b0e5"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:0c7e80127ea6ece69db6f3c95e25749944591a95440c280c4dcaac990313ac88"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:5d7a478c559bd801633f0ed6b3d48917c807ed89aaf4d9ef692a6704b89f5b3d"
+    },
+    {
+      "intentRef": "CHK-002:edge:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:6f45caa03f01ceb887885f1a832d5b0b6d0f21705746b928ef32780055e203c9"
+    },
+    {
+      "intentRef": "CHK-002:edge:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:4420bb5049c9d3e0b044da630c0dbf8e9fedf2581ea1bbc342ab04287058c5ed"
+    },
+    {
+      "intentRef": "CHK-002:happy:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:b601de94673e2346d67efb28841e3c921bc1667a91e1acfff81a05ec0e516c0f"
+    },
+    {
+      "intentRef": "CHK-002:happy:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 1,
+      "kind": "docs_check",
+      "evidenceDigest": "sha256:f27ea77595c7a7f790c02c538f15af32ba5edd67fde45dc50197c8f90575bdf2"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:461560c26d3f9342caf0bf6e53282f7970d382bfd95dc515d1e617aa191abbaa"
+    },
+    {
+      "intentRef": "CHK-003:edge:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:122777e65b4fd7b2c1b40a28310f4d9ea05c402cc6720596a421d522e99778ca"
+    },
+    {
+      "intentRef": "CHK-003:happy:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:9e943caae8207b8ece7830bd1e70e0272a10b9e39157b5351c207a5c47d3ce86"
+    },
+    {
+      "intentRef": "CHK-004:adversarial:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c1920f8b9c9515f61c574a8f1a5eee613ae3a9b865cd3674fa913895b25e593e"
+    },
+    {
+      "intentRef": "CHK-004:edge:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:bec2a51ae8ef424dcedca43f92c79a33883d20b382efaee11ea827cfcb38ec28"
+    },
+    {
+      "intentRef": "CHK-004:happy:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:83fe5deebb44ac23fb1beaefbf0ca5a5a556fd0829c71ced7bc964d425eaebfb"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:368da25d050a4ebba69c04fa77dbc28048eaf2db26b87ae3cdf3db07fb574e83"
+    },
+    {
+      "intentRef": "CHK-005:edge:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:b5e3f4c1f98bc7ee48e48d6859ce544b7f894fa27632b4a16aa7fd3459062b3c"
+    },
+    {
+      "intentRef": "CHK-005:happy:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:1c0a8174e69ae62cfc292e6423404ce90ce3d4c67e48c635b454b5c491c84ffe"
+    },
+    {
+      "intentRef": "CHK-006:adversarial:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:ef9d9a231d26f2367bc03b09b841539d630d27f49f4c4e01bedede67c372cd75"
+    },
+    {
+      "intentRef": "CHK-006:edge:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:0e937df59bccb635aa8addef41f9b76590beeae18df90a9fa9e250b7d87a69f6"
+    },
+    {
+      "intentRef": "CHK-006:happy:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:7efcf7c264c049979ee718810ae06e0f24b591cf86745b8dde1794940eafe236"
+    },
+    {
+      "intentRef": "CHK-007:adversarial:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:81bef4834bd83bc3ba7295d8cd2ef4e6756f09d9e07dbe07dd7d2e67162b0983"
+    },
+    {
+      "intentRef": "CHK-007:edge:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:fca06ca85a64d4bfb1b1dee8f771389e8b39932dc583d73dc66f6e9dc0aca846"
+    },
+    {
+      "intentRef": "CHK-007:happy:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:84df993b97a1cefe39940d926889203a5cdc4395abc482773f1337a068544327"
+    },
+    {
+      "intentRef": "CHK-008:adversarial:0",
+      "itemId": "CHK-008",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:5172c99fea22c00e5b934a41223eed799fd847b820fece9848cc8069a65cc34d"
+    },
+    {
+      "intentRef": "CHK-008:edge:0",
+      "itemId": "CHK-008",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:16b7d88b2f7bec8584e9d7658be822e41766d7ba58d07fce5d104e13605eeaf3"
+    },
+    {
+      "intentRef": "CHK-008:happy:0",
+      "itemId": "CHK-008",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:3298551402e6f70d201a34862a8f665a97ade32160d3011bf1a82f4cda16288a"
+    },
+    {
+      "intentRef": "CHK-009:adversarial:0",
+      "itemId": "CHK-009",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:f2cab7c8c19e834843a8f897193a1c6b8f11feb98734013d3350e7f1b300cec2"
+    },
+    {
+      "intentRef": "CHK-009:edge:0",
+      "itemId": "CHK-009",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:681f8ecb4230f6d0a6c5fdab7d5f6f18f614a1000ce326f72e6443510f60a0df"
+    },
+    {
+      "intentRef": "CHK-009:happy:0",
+      "itemId": "CHK-009",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:b3f995db4a78abc6fe5d2ce382dddee172fa57be5086bda4acd88ef5a585b700"
+    },
+    {
+      "intentRef": "CHK-010:adversarial:0",
+      "itemId": "CHK-010",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:fbca7534bd31829c83c2c91c0a09bd4867f2197e5d7773dd2bfa94178b96d6b0"
+    },
+    {
+      "intentRef": "CHK-010:edge:0",
+      "itemId": "CHK-010",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:a83d4c3e1b59b0ab9d9d341c59ae52e614f1b3710a3817b79d791d65d4136a24"
+    },
+    {
+      "intentRef": "CHK-010:happy:0",
+      "itemId": "CHK-010",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:0be3f552c6291c15ecdd13e1cb8f500c2a049f0e3d532219aaaa8e74d9efee2e"
+    },
+    {
+      "intentRef": "CHK-011:adversarial:0",
+      "itemId": "CHK-011",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:730a2ee1f7448f31e71df80c178a89ea35c934326d1d5ad76cec5e3950e7fea9"
+    },
+    {
+      "intentRef": "CHK-011:edge:0",
+      "itemId": "CHK-011",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:73836b1cb5cdce92591eef0d093e38d8f957de46af352636f90209f2b739d540"
+    },
+    {
+      "intentRef": "CHK-011:happy:0",
+      "itemId": "CHK-011",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:ed7e79a0c29778ba83369abfeb3ef6ed050a695d5bc14694969d794cd74dc069"
+    },
+    {
+      "intentRef": "CHK-012:adversarial:0",
+      "itemId": "CHK-012",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:1bb55e9c4ae17a30079a510017adf6f2e0b18a1f29c8492ccd45cdd6eb5d19dd"
+    },
+    {
+      "intentRef": "CHK-012:edge:0",
+      "itemId": "CHK-012",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:ffddd5aafe4f9d4df0607a57dc877e8520aab1fb2274d9ea6d105340972e790c"
+    },
+    {
+      "intentRef": "CHK-012:happy:0",
+      "itemId": "CHK-012",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:1604a49f188f4f72d6c7dc68cef8a4f719c1e196d39629de00a414b2e442c0d9"
+    },
+    {
+      "intentRef": "CHK-013:adversarial:0",
+      "itemId": "CHK-013",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:bb45905137957eaf94d42edd0c37ec9597658cbfcce64cf8272f6ea1d0494e1b"
+    },
+    {
+      "intentRef": "CHK-013:edge:0",
+      "itemId": "CHK-013",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:d05b25dbd84f2f882b46c4b4b23e55cbe6fe984f5dd1c1b119ff1a8831e243be"
+    },
+    {
+      "intentRef": "CHK-013:happy:0",
+      "itemId": "CHK-013",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:cda02bcd544fd237d16ca245747dbdee3a2d3b1eeff9c246b4fdf26e3d426a67"
+    },
+    {
+      "intentRef": "CHK-014:adversarial:0",
+      "itemId": "CHK-014",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:2db78c562ce5f3b4df8472630620fda02372b09e8abfcad08d3a58eb423a2719"
+    },
+    {
+      "intentRef": "CHK-014:edge:0",
+      "itemId": "CHK-014",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:6ab5c718de8774e851365e62d2ed3ad5c047b7e0cee5612705030651a790b36e"
+    },
+    {
+      "intentRef": "CHK-014:happy:0",
+      "itemId": "CHK-014",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:33362092de556c22f0ba5b6198ab559e7fa69fcadfc57262aa3f77f8cd01fb6d"
+    },
+    {
+      "intentRef": "CHK-014:happy:1",
+      "itemId": "CHK-014",
+      "evidenceIndex": 3,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:51d48d319880166cfa99b23e7ceff915a2610cabc0db643e285b9ad89b0d7ca1"
+    },
+    {
+      "intentRef": "CHK-014:happy:2",
+      "itemId": "CHK-014",
+      "evidenceIndex": 4,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:951fd0d0139734674bc78f42eb318fbe490c0285694ff09a42f692dfd309f526"
+    }
+  ],
   "executableProof": {
     "schemaVersion": "proofstory.pre_review_executable_proof.v1",
     "storyId": "B-45a0",
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
-    "commandDigests": [],
+    "commandDigests": [
+      "sha256:a2cf3c8f1874ebc124b6f2062b638af2424b835345371d618eba6f2b480d6da4"
+    ],
     "caseRecordsEncoding": "gzip-base64",
-    "caseRecords": "",
+    "caseRecords": "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",
     "provenance": {
-      "runnerPath": "",
-      "runnerDigest": "",
-      "targetPath": "",
-      "targetDigest": "",
-      "buildCommand": ""
+      "runnerPath": "scripts/run-proofstory-pre-review-live-proof.mjs",
+      "runnerDigest": "sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9",
+      "targetPath": "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+      "targetDigest": "sha256:594014578c2bf7f4ac5a8e4335b5367f3c6c308b80e7aa7dddbded7936eda476",
+      "buildCommand": "npm --prefix packages/main run build"
     },
-    "bindingProofs": []
+    "bindingProofs": [
+      {
+        "bindingId": "B-45a0-complete-dynamic-validation",
+        "positiveAssertionIds": [
+          "positive-1",
+          "positive-2",
+          "positive-3",
+          "positive-4",
+          "positive-5",
+          "positive-6",
+          "positive-7",
+          "positive-8",
+          "positive-9",
+          "positive-10",
+          "positive-11",
+          "positive-12",
+          "positive-13",
+          "positive-14",
+          "positive-15"
+        ],
+        "mutationProofs": [
+          {
+            "mutationId": "mutation-1",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-2",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-3",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-4",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-5",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-6",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-7",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-8",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-9",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-10",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-11",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-12",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-13",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-14",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-15",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-16",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-17",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-18",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-19",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-20",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-21",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-22",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-23",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-24",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-25",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-26",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-27",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-28",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-29",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-30",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          }
+        ],
+        "transcriptProofs": [
+          {
+            "transcriptId": "transcript-1",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 126,
+            "consumerSequence": 127
+          },
+          {
+            "transcriptId": "transcript-2",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 128,
+            "consumerSequence": 129
+          },
+          {
+            "transcriptId": "transcript-3",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 130,
+            "consumerSequence": 131
+          },
+          {
+            "transcriptId": "transcript-4",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 132,
+            "consumerSequence": 133
+          },
+          {
+            "transcriptId": "transcript-5",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 134,
+            "consumerSequence": 135
+          },
+          {
+            "transcriptId": "transcript-6",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 136,
+            "consumerSequence": 137
+          },
+          {
+            "transcriptId": "transcript-7",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 138,
+            "consumerSequence": 139
+          },
+          {
+            "transcriptId": "transcript-8",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 140,
+            "consumerSequence": 141
+          },
+          {
+            "transcriptId": "transcript-9",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 142,
+            "consumerSequence": 143
+          },
+          {
+            "transcriptId": "transcript-10",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 144,
+            "consumerSequence": 145
+          },
+          {
+            "transcriptId": "transcript-11",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 146,
+            "consumerSequence": 147
+          },
+          {
+            "transcriptId": "transcript-12",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 148,
+            "consumerSequence": 149
+          },
+          {
+            "transcriptId": "transcript-13",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 150,
+            "consumerSequence": 151
+          },
+          {
+            "transcriptId": "transcript-14",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 152,
+            "consumerSequence": 153
+          },
+          {
+            "transcriptId": "transcript-15",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 154,
+            "consumerSequence": 155
+          },
+          {
+            "transcriptId": "transcript-16",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 156,
+            "consumerSequence": 157
+          },
+          {
+            "transcriptId": "transcript-17",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 158,
+            "consumerSequence": 159
+          },
+          {
+            "transcriptId": "transcript-18",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 160,
+            "consumerSequence": 161
+          },
+          {
+            "transcriptId": "transcript-19",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 162,
+            "consumerSequence": 163
+          },
+          {
+            "transcriptId": "transcript-20",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 164,
+            "consumerSequence": 165
+          },
+          {
+            "transcriptId": "transcript-21",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 166,
+            "consumerSequence": 167
+          },
+          {
+            "transcriptId": "transcript-22",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 168,
+            "consumerSequence": 169
+          },
+          {
+            "transcriptId": "transcript-23",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 170,
+            "consumerSequence": 171
+          },
+          {
+            "transcriptId": "transcript-24",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 172,
+            "consumerSequence": 173
+          },
+          {
+            "transcriptId": "transcript-25",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 174,
+            "consumerSequence": 175
+          },
+          {
+            "transcriptId": "transcript-26",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 176,
+            "consumerSequence": 177
+          },
+          {
+            "transcriptId": "transcript-27",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 178,
+            "consumerSequence": 179
+          },
+          {
+            "transcriptId": "transcript-28",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 180,
+            "consumerSequence": 181
+          },
+          {
+            "transcriptId": "transcript-29",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 182,
+            "consumerSequence": 183
+          },
+          {
+            "transcriptId": "transcript-30",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 184,
+            "consumerSequence": 185
+          },
+          {
+            "transcriptId": "transcript-31",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 186,
+            "consumerSequence": 187
+          },
+          {
+            "transcriptId": "transcript-32",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 188,
+            "consumerSequence": 189
+          },
+          {
+            "transcriptId": "transcript-33",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 190,
+            "consumerSequence": 191
+          },
+          {
+            "transcriptId": "transcript-34",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 192,
+            "consumerSequence": 193
+          },
+          {
+            "transcriptId": "transcript-35",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 194,
+            "consumerSequence": 195
+          },
+          {
+            "transcriptId": "transcript-36",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 196,
+            "consumerSequence": 197
+          },
+          {
+            "transcriptId": "transcript-37",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 198,
+            "consumerSequence": 199
+          },
+          {
+            "transcriptId": "transcript-38",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 200,
+            "consumerSequence": 201
+          },
+          {
+            "transcriptId": "transcript-39",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 202,
+            "consumerSequence": 203
+          },
+          {
+            "transcriptId": "transcript-40",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 204,
+            "consumerSequence": 205
+          },
+          {
+            "transcriptId": "transcript-41",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 206,
+            "consumerSequence": 207
+          },
+          {
+            "transcriptId": "transcript-42",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 208,
+            "consumerSequence": 209
+          },
+          {
+            "transcriptId": "transcript-43",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 210,
+            "consumerSequence": 211
+          },
+          {
+            "transcriptId": "transcript-44",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 212,
+            "consumerSequence": 213
+          },
+          {
+            "transcriptId": "transcript-45",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 214,
+            "consumerSequence": 215
+          }
+        ]
+      }
+    ]
   },
   "criticReceiptDigest": "sha256:ba67469b36a557b2dd680a72d3fbd95e941170632af53decbb62f9883154ddb8",
-  "codes": [
-    "PR_POSITIVE_EVIDENCE_MISSING",
-    "PR_PRODUCTION_PATH_UNPROVEN",
-    "PR_MUTATION_EVIDENCE_MISSING",
-    "PR_MUTATION_DID_NOT_BITE",
-    "PR_CONTROL_NOT_RESTORED",
-    "PR_TRANSCRIPT_MISSING",
-    "PR_AUTHORITY_INADMISSIBLE",
-    "PR_EVIDENCE_STALE"
-  ],
-  "status": "fail",
-  "issuedAt": "2026-08-29T08:55:29.648Z",
+  "codes": [],
+  "status": "pass",
+  "issuedAt": "2026-08-29T09:22:36.458Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "/nvl+bEE0FHlxiVbItyAPoHodgF4weAtu6rx8fSpIih+msX7jWdnC89OM43afEyiKwiGCaqUYlB0bSTXJpcmDA=="
+  "signature": "7AmVNZJ1nOLzIIp/SglOHw0fMCnMNodmn3M62xwR6uE8iDu+rd+f3u7IinH0sK1IFoFSR4ATMozWUNnoDSgCAw=="
 }
