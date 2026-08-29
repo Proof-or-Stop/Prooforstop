@@ -22618,6 +22618,21 @@
       "resolvedAt": "2026-08-29T05:57:22.544Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-405",
+      "desc": "pre-review-admissibility-missing: current verifier-owned pre_review_check_read fails PR_ARTIFACT_TAMPERED with PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. CHK-014 requires the canonical acceptance_topology_check -> pre_review_check_read -> rollout report/check chain to have current signed executable evidence; a topology/rollout PASS cannot substitute for the invalid pre-review receipt. Reissue the pre-review artifact through proof-or-stop pre_review_check after repairing its reported bindings.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-29T06:06:16.119Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-902",
+      "_hash": "9ff78681f6e4cf6f79eca0bae98e6899311ce7669e2e725fd8db21cc6eb9b274",
+      "signatureTag": "missing|unknown|review-admissibility-missing",
+      "signatureTagSource": "auto"
     }
   ]
 }
