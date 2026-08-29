@@ -647,6 +647,35 @@
         "scanEscalationReason": null
       },
       "_hash": "484afb3ff2d110e3ef458616a7a508fe30c8162bb7baad44d802a38aef0a4e1a"
+    },
+    {
+      "id": "B-3e16:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Refresh pass at current material (prior RP-016..RP-019 stale per prompt-envelope eligibility recompute). Scoped via review_incremental_context: 8 changed files since RP-016. Verified new B-3e16-RESUME.md (commit 8de1065ea7, isolated 62-line add) against actual state: story_resume text verbatim matches command-policy.ts:155; checklist 6/6 and findings 18/18 resolved confirmed via CLI; delivery-check.json confirms 13/13 docsPromises verified; three dev-memory lessons cited exist verbatim in experience.jsonl with matching B-3e16 sourceStoryId and category names (guard-bypass, anti-pattern, workflow); verify-no-project-writes.mjs and verify-clean-tree.mjs diffs match the guard-evolution narrative and CLAUDE.md's existing prose about subprocess+content-digest measurement and default-cache-path assertion. One minor inaccuracy: RESUME.md states 169 commits ahead of main; actual was 170 at commit time (off-by-one) -- non-blocking, does not misstate any promised CLI/command behavior or code signature, not filed as doc-code-drift per pass-only-normalization policy. On placement: root-level story handoff .md is not novel here -- RESUME-B-cc10.md and B-3f3d-HANDOFF.md/B-3f3d-FOLLOWUP-STORIES.md already persist on main from prior stories uncleaned post-DONE, so this follows established repo convention; no gate references this file as authoritative evidence. No doc-code drift, no doc-promise-undelivered found.",
+      "createdAt": "2026-08-29T05:21:23.264Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-049",
+      "envelopeId": "f0420669d15380ddf9304ed0edad95616f1e1091f7c86d82f593476bb2f59a42",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/dev-memory/experience.jsonl",
+          "B-3e16-RESUME.md",
+          "CLAUDE.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/scripts/verify-clean-tree.mjs",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4abcf5e4bd2bdf30859c87fe9df059877bd83af587badd3450924958a00a27d6"
     }
   ]
 }
