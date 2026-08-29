@@ -108,6 +108,30 @@
       "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
       "inventory": {},
       "_hash": "addc2d14701009ca21e50342f42ccf3a5a9c85da6857e2935f22c50a65d77336"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-3e16:CW-006",
+      "storyId": "B-3e16",
+      "state": "ADMITTED",
+      "createdAt": "2026-08-29T09:45:01.555Z",
+      "updatedAt": "2026-08-29T09:45:01.555Z",
+      "frozen": {
+        "headHash": "10355ae803e5cab93f5c67185def405f1c65533d",
+        "materialHash": "715e737dfdcac359f73bac5895d88ad73067adfc8aec7d0b26e1bfefdf7cc2ac",
+        "storyFilesHash": "7ea223d5557f9d66a3960162cd66a3f8e77d8feb8c0dd83d22f89397e6bd1574",
+        "expectedMainSha": "8a44611980ef8f3c47697efc3ef17a0b32cd010a",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-3e16:RIE-007",
+        "receiptId": "B-3e16:RIE-007:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-3e16:PRECERT-003",
+      "_hash": "a166c078c7355c1a6e22add7f37acfb0c1ea378d08581ca85c045bd9d55a85df"
     }
   ],
   "receipts": [
@@ -150,6 +174,26 @@
       "inventoryReceiptId": "B-3e16:RIE-004:RCP-001",
       "createdAt": "2026-08-28T22:42:43.471Z",
       "_hash": "2ea0ffbd41b3a040faaa9c5cedc5bc04c91dc10f3bb0e6e4d9d6694a78972ec7"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-3e16:PRECERT-003",
+      "windowId": "B-3e16:CW-006",
+      "storyId": "B-3e16",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "10355ae803e5cab93f5c67185def405f1c65533d",
+        "materialHash": "715e737dfdcac359f73bac5895d88ad73067adfc8aec7d0b26e1bfefdf7cc2ac",
+        "storyFilesHash": "7ea223d5557f9d66a3960162cd66a3f8e77d8feb8c0dd83d22f89397e6bd1574",
+        "expectedMainSha": "8a44611980ef8f3c47697efc3ef17a0b32cd010a",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-3e16:RIE-007",
+      "inventoryReceiptId": "B-3e16:RIE-007:RCP-001",
+      "createdAt": "2026-08-29T09:45:01.555Z",
+      "_hash": "c367f55c8d5e6c85a24850860a340451f22179e519f858a526e3c6036c9a88a3"
     }
   ]
 }
