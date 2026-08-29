@@ -19657,6 +19657,351 @@
         "scanEscalationReason": "Reviewed the compact recovery-reader change and the full CLI-projected verificationIntent/evidence inventory; read-only evidence inspection shows only the already-recorded F-407 current freshness failure."
       },
       "_hash": "357b8f58adfbdacb172f5c0c1ba8ee0e52795316b093f6d10f9409ca5ac987dd"
+    },
+    {
+      "id": "B-45a0:RP-375",
+      "agent": "lattice-review-docs",
+      "note": "RI-093 documentation-contract review passed. RR-915 binds the same material and story hashes as the completed full documentation/wrapper comparison: no-argument replay remains plan-only; --execute is the only producer; --verify-threshold is verify-only and fail-closed; --paired requires execute; and bounded repair re-executes only missing or semantically incompatible records. The authorized scope acknowledgement changed review state, not the documentation subject. Established F-405/F-406 process findings were not duplicated.",
+      "createdAt": "2026-08-29T07:31:53.892Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-915",
+      "envelopeId": "c668cecbe68c487b18d21531931baf6db671b756e37c20e486c152a538df913c",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "scanEscalationReason": "RR-915 material and story hashes exactly match the documentation subject previously read in full. This independent review recorded no source/evidence changes and ran no acceptance or replay command."
+      },
+      "_hash": "541f591a11e168233769317c13a5582e727b74e414b6a4c3f4e8b5b2a225359f"
+    },
+    {
+      "id": "B-45a0:RP-376",
+      "agent": "lattice-review-quality",
+      "note": "Independent RI-093 quality review found no distinct new source-quality issue. The signed run is bound to current head 84b2cf0. The current delta after the previously reviewed source head f30254d is limited to Proof-or-Stop Story metadata, with no new runtime or handler implementation to assess. Existing formal finding families are not duplicated by this lane.",
+      "createdAt": "2026-08-29T07:34:21.846Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-916",
+      "envelopeId": "51d6c532b27562f2108019ee3347de30981d79d6835dfbea9e7941f545c72f7f",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": "Compared the current source head with f30254d and confirmed the intervening committed delta is only Story metadata; re-triaged the bounded compact review-run reader and its smoke coverage without treating existing finding families as new."
+      },
+      "_hash": "d6cad02f4fa9a166828d45de37173fb61be08e4e773c4780ce429d0f58024872"
+    },
+    {
+      "id": "B-45a0:RP-377",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independent RI-093 test-coverage review found no distinct new coverage family. checklist_get maps all 44 required verification intents to 44 passing evidence rows. Read-only evidence_inspect reports those rows stale at the current Story-owned hash, but that current pre-review/topology freshness defect is already formally established by F-407; this lane records a non-duplicate disposition and does not request replay or evidence refresh.",
+      "createdAt": "2026-08-29T07:37:20.852Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-917",
+      "envelopeId": "52a50ce7c1e9d6f15bc694247fbc316e15d9a8e33bea96ce2957be3d31f8f270",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "scanEscalationReason": "Reviewed the full CLI-projected coverage totals and the current read-only freshness report, then triaged the exact fail-closed Story-hash predicate at evidence-freshness.ts:485-493; F-407 already owns the resulting freshness family."
+      },
+      "_hash": "871c3aee6a69249584e789878c22f462091a27f12121b111be7b076f009da84c"
+    },
+    {
+      "id": "B-45a0:RP-378",
+      "agent": "lattice-review-topology-critic",
+      "note": "No additional topology finding; F-408 requires current evidence regeneration.",
+      "createdAt": "2026-08-29T08:11:35.560Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-920",
+      "envelopeId": "fcfece4f76991a3b258aaa7583511490ec20541738d9d1eb6f47be9c2744ae30",
+      "writerSessionId": "sess-0bde48f175a669bcbafa696b3683e99f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "9e0b77ca7a78071aa0ce27318861ff8b876c6a3a0791a01ca5921dec9e515bf0"
+    },
+    {
+      "id": "B-45a0:RP-379",
+      "agent": "lattice-review-topology-critic",
+      "note": "No additional topology family; F-407 remains verified and requires regeneration.",
+      "createdAt": "2026-08-29T08:13:52.713Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-921",
+      "envelopeId": "80daa72846378c94c2fa5e7e1ba4d8dc931f0877e660d1a891cef5e7e9b113f8",
+      "writerSessionId": "sess-0bde48f175a669bcbafa696b3683e99f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "cfbea1ad1fd7f6846b1a03253f46cb9fcd5e4fa434b09aed9eea31e80993e0e5"
+    },
+    {
+      "id": "B-45a0:RP-380",
+      "agent": "lattice-review-docs",
+      "note": "RI-094 wave-1 docs review passed. Current implementation and governing documentation agree that the default wrapper is plan-only, --execute is the only producer, --verify-threshold is admission-only and fail-closed, --paired requires execute, and --execute --resume --repair-missing is bounded to missing or semantically incompatible records. No documentation/contract contradiction was found and no replay or acceptance route was run.",
+      "createdAt": "2026-08-29T08:21:12.125Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-922",
+      "envelopeId": "f2884c9e7778f1dafee0371e884a71805b1ead9ca96a4fdfff9e7a8d30db3836",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "scanEscalationReason": "This docs lane compared the current replay wrapper contract with its governing documentation and recorded no source/evidence edits or replay execution."
+      },
+      "_hash": "36606873d9acd4ca13b7f1b8cddaf3f9bd12d714f9b369284a7eb53e4a1baaf3"
+    },
+    {
+      "id": "B-45a0:RP-381",
+      "agent": "lattice-review-quality",
+      "note": "RI-094 wave-1 independent quality review found no distinct new source-quality defect. RR-923 is signed at current head 84b2cf0. The committed delta since the previously reviewed source head f30254d is only Proof-or-Stop Story metadata; the bounded recovery reader remains read-only, returns signature status rather than prompt bytes, and has focused latest-record smoke coverage. Existing finding families are not duplicated.",
+      "createdAt": "2026-08-29T08:23:13.883Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-923",
+      "envelopeId": "0d4244d309b63229864123d693c7ac4cfe6b237364f288f1e9960537f5457322",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": "Compared the current head to f30254d and verified only Story metadata intervenes; triaged the current compact reader and its focused smoke diff, plus git diff --check for the material change."
+      },
+      "_hash": "d1852198bccd757e449041a776642d3735636b8e47a9e764953765dcbd1e5b0e"
+    },
+    {
+      "id": "B-45a0:RP-382",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-094 wave-1 independent test-coverage review found no distinct new coverage family. checklist_get maps all 44 required verification intents to 44 passing evidence rows. Read-only evidence_inspect reports Story-hash freshness drift, already formally owned by F-407; this non-duplicate lane disposition neither requests nor runs replay or evidence refresh.",
+      "createdAt": "2026-08-29T08:25:10.545Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-924",
+      "envelopeId": "c0e3c96489ab3cc9524a345ac7214e5416e9b001c13dbc81bf7fd5303073ee05",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "scanEscalationReason": "Reviewed the full CLI-projected intent/evidence inventory and current read-only freshness result; the stale Story-hash condition is the existing F-407 family, not a new coverage defect."
+      },
+      "_hash": "cdcb20424a555f589c64294b3eec84d7ac39557eeb79b8c84dcc4abd71093cad"
+    },
+    {
+      "id": "B-45a0:RP-383",
+      "agent": "lattice-review-topology-critic",
+      "note": "Independent critic confirmed the existing acceptance/pre-review freshness family; no distinct topology family was found.",
+      "createdAt": "2026-08-29T08:31:47.025Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-926",
+      "envelopeId": "6082cdce99b942f39be0395c49884853f414acfc876a3e28dbd08b57690a8260",
+      "writerSessionId": "sess-0bde48f175a669bcbafa696b3683e99f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b1950f703c8455ac9792ae91dfdd3b69469c311ff1413d8ebd901dc44d2fc6d2"
+    },
+    {
+      "id": "B-45a0:RP-384",
+      "agent": "lattice-review-docs",
+      "note": "RI-094 wave-2 docs saturation pass. RR-927 binds the unchanged material/story subject already fully reviewed: the governing records and replay wrapper retain the same plan-only default, execute-only producer, verify-only fail-closed threshold admission, execute-required paired mode, and bounded repair semantics. No distinct documentation finding exists and no replay, source edit, or evidence mutation was performed.",
+      "createdAt": "2026-08-29T08:33:34.769Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-927",
+      "envelopeId": "f98df27df36c2a5f3f75bb9431f36652200123d6701edde09128e5aefc2b3ee1",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "scanEscalationReason": "The signed RR-927 material and story hashes are unchanged from the complete docs/wrapper review, so this saturation lane reused that exact read-only subject without executing replay or changing source/evidence."
+      },
+      "_hash": "0a14034984531a674b1ddd4019d4ae9d4bd47ff0a804e7319485dcb60fadbcf5"
+    },
+    {
+      "id": "B-45a0:RP-385",
+      "agent": "lattice-review-quality",
+      "note": "RI-094 wave-2 quality saturation review found no distinct current source-quality issue. RR-928 is signed at current head 84b2cf0. Source material is unchanged since f30254d; intervening commits are only Story metadata. The compact recovery reader remains bounded to signed metadata, hides prompt bytes, and its focused smoke verifies latest filtering and signature reporting. Existing finding families are not duplicated.",
+      "createdAt": "2026-08-29T08:35:21.694Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-928",
+      "envelopeId": "33b15af7cba673a0312fb5d9361b12153a985a10f4dcf7a7af6553553d658b2d",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": "Saturation review compared current material with f30254d, verified only Story metadata intervenes, and re-triaged the current reader plus focused smoke assertions."
+      },
+      "_hash": "304232e83af980053bcaf53a1a3d8c4c4ee2c90f4832ed3c5cc503fe747426a7"
+    },
+    {
+      "id": "B-45a0:RP-386",
+      "agent": "lattice-review-test-coverage",
+      "note": "RI-094 wave-2 test-coverage saturation review found no distinct current coverage gap. The CLI-projected checklist has 44 required verification intents and 44 matching passing rows, with zero waivers. Existing Story-hash freshness drift remains the established F-407 family and is not duplicated; no evidence refresh or replay was performed.",
+      "createdAt": "2026-08-29T08:36:56.244Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-929",
+      "envelopeId": "46a6ffca96f0e67b05695ba3965a47d2b7c1ec5f1ff6de3b28fecfd964f71363",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Saturation review used the current signed run and full CLI-projected verificationIntent/evidence matrix. No source files changed in this read-only lane and no new coverage family was identified."
+      },
+      "_hash": "6aed5c6ef5097ea458c9198f201de06c54d3a339976ff304350eec99ca5e3a7e"
+    },
+    {
+      "id": "B-45a0:RP-387",
+      "agent": "lattice-review-concept",
+      "note": "RI-094 wave-2 saturation review found no distinct concept defect beyond the established current pre-review admissibility family F-409; RR-930 uses full-review context.",
+      "createdAt": "2026-08-29T08:39:01.119Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-930",
+      "envelopeId": "4672e0bb65d86d5fe7cbd5fa5021f4ef7b11ab520ff99a1e2fff0096fdeec177",
+      "writerSessionId": "sess-2572767ce6f8be782a51d9f0d23a64ab",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "RI-094 wave-2 saturation review used signed CLI run and incremental-context diagnostics only; no source files were read."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7d61c4e8461a3b8c696b2272eb726003c98a50465a8867618e29581b8e2461d3"
+    },
+    {
+      "id": "B-45a0:RP-388",
+      "agent": "lattice-review-topology-critic",
+      "note": "Saturation critic confirmed no new finding family beyond the existing F-407 acceptance and pre-review evidence blocker.",
+      "createdAt": "2026-08-29T08:40:28.222Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-931",
+      "envelopeId": "6b79295fcfc737ba243854e9a731a1c3b363e781ca8803ee701b56e06d59b441",
+      "writerSessionId": "sess-0bde48f175a669bcbafa696b3683e99f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2d91b9007ea1d79775c3be032224f44e9328e3ebd2ff1d8c482c0dea1139c609"
     }
   ]
 }

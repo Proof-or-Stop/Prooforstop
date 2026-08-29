@@ -22702,6 +22702,66 @@
       ],
       "signatureTag": "missing|ts|current-head-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-408",
+      "desc": "Current RI-093 re-attestation of established B-45a0:F-407, not a new defect family. At head 84b2cf06291853b3b54bc0fc163d5dbca790ac89, pre_review_check_read still fails PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. acceptance_topology_check still fails AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING. CHK-014 cannot claim current verifier-owned acceptance coverage until the pre-review artifact and acceptance basis are regenerated and re-bound to current material.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-29T07:38:56.617Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-918",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "RI-093 terminal re-attestation based exclusively on the prescribed read-only pre-review and acceptance-topology verifier outputs; no additional source files were read."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "27e8f3d86e29ef0ac367db96c7b2068cdb29abf2ed661e5b95ff7a40084d6984",
+      "signatureTag": "missing|unknown|current-attestation-established",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-409",
+      "desc": "RI-094 current-head re-attestation of the established pre-review admissibility blocker, not a new remediation family. RR-925 is signed for head 84b2cf06291853b3b54bc0fc163d5dbca790ac89 with a full (non-incremental) context; however pre_review_check_read still returns fail with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, and PR_CUTOFF_UNBOUND. Therefore CHK-014 cannot claim current verifier-owned acceptance coverage until the canonical pre-review artifact is reissued after repairing its bindings.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-29T08:30:17.070Z",
+      "reviewRound": "2026-08-29T05:26:37.023Z",
+      "reviewRunId": "B-45a0:RR-925",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "RI-094 prompt-envelope and pre-review terminal review used only signed CLI diagnostics; no source files were read."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b942d6a1b1f57443221f07acc3d54154ab6f4fa7db44228fcc1f32d1f6430c67",
+      "signatureTag": "current-pre-review-admissibility-reattest",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
