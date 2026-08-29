@@ -350,6 +350,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'init_preflight', // B-62c8: read-only INIT→INIT_CHECK prerequisite surveyor; lists ALL prerequisites at once (vs story_advance fail-fast) + echoes the authoritative scope gate verdict; no command execution or evidence writes
     'evidence_plan', // B-09e7 (P3): read-only verification-evidence DRY planner (missing/rerun/refresh-only/fresh); no command execution or evidence writes
     'reviewer_batch', // P7: read-only reviewer-launcher PLAN producer; per-lane current-pass/scope-changed/no-receipt/blocking classification + Agent(...) launch instruction (orchestrator subagent-spawn form, not a dispatch CLI command); launches no reviewer, runs no review_run_start, writes no evidence
+    'review_run_list', // read-only compact signed ReviewRun recovery/inspection; never emits prompt bytes or writes review evidence
     'evidence_refresh', // B-4896 (P4): opt-in one-pass refresh-only orchestrator; dry default read-only, --apply re-stamps once via verification_evidence_refresh_stale; never runs a command
     'live_smoke_transcript', // B-9b5e (P5): live-smoke transcript producer; read-only status default, --capture runs ONLY the provided command, --write persists the artifact (ownership-gated); independent opt-ins
     'delivery_context_pack', // P6: delivery-review context PRODUCER (not a signer); read-only pack default, --write persists the pack artifact (ownership-gated); consumes the V1 deliveryCheckRef, never writes delivery-check.json or accepts a waiver
