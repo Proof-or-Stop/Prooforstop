@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/validation-evidence-artifact-growth.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-08-30T22:58:35.708Z",
       "endTime": "2026-08-30T23:14:12.039Z",
       "verificationIntent": {
@@ -186,6 +186,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Fixed F-001 and replaced all six weak receipts per F-002; fresh strengthened receipts and mutation probes pass."
+    },
+    {
+      "timestamp": "2026-08-30T23:24:05.324Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix critical executable-contract finding F-003 and verification-strength finding F-004."
     }
   ]
 }
