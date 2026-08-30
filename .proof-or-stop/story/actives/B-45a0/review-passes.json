@@ -21838,6 +21838,51 @@
         "scanEscalationReason": null
       },
       "_hash": "5feac26fb110068d19c8e5151271dd16c270f8021c75a5efe3eb43e21dd2931f"
+    },
+    {
+      "id": "B-45a0:RP-441",
+      "agent": "lattice-review-docs",
+      "note": "RI-101 documentation review confirms the replay-admission contract is aligned and fail-closed: verify-threshold only reads a signed persisted paired artifact, current source/inventory/canonical input drift is rejected, and the current artifact verifier correctly reports paired-performance head drift as nonadmissible. No distinct documentation blocker was found.",
+      "createdAt": "2026-08-30T14:18:51.133Z",
+      "reviewRound": "2026-08-30T13:07:40.639Z",
+      "reviewRunId": "B-45a0:RR-1010",
+      "envelopeId": "14bb34e10c9b0e4c34150c0b36f2e443150c1db32be60f762c6a75ba8dd2e8df",
+      "writerSessionId": "sess-36f272870b26f429c11140590aec86c6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay-artifact-verify.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": "RI-101 was intentionally bounded to the replay-admission policy, the verify-only wrapper, and the artifact-admission consumer; no historical campaign was started."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 8000
+        },
+        "digest": "6d9b1e5a831e16cad7bbb8280466dfb0570c2f153623fe7fd1287a30b70060af"
+      },
+      "readDiagnostics": [],
+      "_hash": "9efce6df506a3d940eb851efa6153b75a1d5eb9ecf4501a6bed5bda07ecde4cd"
     }
   ]
 }
