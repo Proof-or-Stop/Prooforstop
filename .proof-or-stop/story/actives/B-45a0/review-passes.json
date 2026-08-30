@@ -22331,6 +22331,32 @@
         "scanEscalationReason": null
       },
       "_hash": "8e6d7389caff64cb5f619c92958c943063ec3a8059ec2eef3a522d6f20e0a6e9"
+    },
+    {
+      "id": "B-45a0:RP-455",
+      "agent": "lattice-review-test-coverage",
+      "note": "Audited all 14 checklist items / 50 verificationEvidence rows: every row has mechanical=true and a receipt (or is a docs_check/manual_transcript kind with no receipt requirement), no nonMechanicalReason attestations found, and all 50 rows share one materialHash/storyFilesHash (only headHash varies across metadata-only commits, expected per DONE-convergence doctrine). CHK-014:happy:1 confirmed re-earned via verification_run: real receipt exitCode=0, selectorMatched=true, mechanical=true, current materialHash, timestamp 2026-08-30T15:57:19Z. F-423/F-424/F-425 (replay-admission bounded consumer family) confirmed resolved in e3a6186f7f: REPLAY_ADMISSION_NONEXECUTING_PATHS matches the claimed consumer set, MINIMUM/MAXIMUM_HISTORICAL_STORIES=30/50 enforced with boundary tests at 29/30/51, and the smoke test genuinely exercises rejection of an unlisted-path producer change (paired-performance-head-stale + paired-performance-head-drift-nonadmissible). Filed B-45a0:F-427 (medium) because the smoke test never actually drives an inventoryDigest/catalogDigest mismatch through checkPairedPerformance -- it only tests the coarser path-allowlist rejection, so the two digest-comparison branches remain untested; this is a narrower gap than F-423 originally described, not a re-opening of it.",
+      "createdAt": "2026-08-30T16:20:53.559Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1041",
+      "envelopeId": "898dc5f41d5f6374d66cd7449afb042aa5504400393b3a167483d0b28dd12ff1",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1fa0ecf248d8c7463641f47a8ed54b8ed61c2c7fdd3621bdc24932cadc9426e8"
     }
   ]
 }
