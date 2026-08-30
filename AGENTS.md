@@ -1,4 +1,4 @@
-<!-- lattice:start -->
+<!-- proof-or-stop:start -->
 # AGENTS.md
 
 > Current lifecycle override: this branch uses the second Proof-or-Stop flow
@@ -119,7 +119,7 @@ INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
 
 **远端写入纪律**：Proof-or-Stop 的 story 分支是本地实现细节，用于隔离 worktree 和 DONE merge；不要把 `story/*`、`codex/*`、`lab/*` 等任务分支推到 GitHub。并行任务完成后的收束路径是本地 merge main + 清理 worktree，不是开远端 PR 分支。任何远端 publish 都默认被 `.githooks/pre-push` 拒绝；只有人类在干净本地 main 上运行 `proof-or-stop release_approve_push --confirm` 后，hook 才允许一次 exact `refs/heads/main` + exact SHA 的 `git push origin main`。
 
-**版本递增纪律**：每个会改变 Proof-or-Stop CLI / runtime 行为的 story 合并回本地 `main` 后，必须把 CLI patch 版本递增 1（例如 `0.3.6` → `0.3.7`），同步 `package.json` / lockfile / `LATTICE_CLI_VERSION`，运行 `npm --prefix packages/main run build`，并确认 `proof-or-stop --version` 输出新版本。纯文档、story metadata-only、review evidence-only 合并不强制 bump，避免无意义消耗版本号。
+**版本递增纪律**：每个会改变 Proof-or-Stop CLI / runtime 行为的 story 合并回本地 `main` 后，必须把 CLI patch 版本递增 1（例如 `0.3.6` → `0.3.7`），同步 `package.json` / lockfile / `PROOF_OR_STOP_CLI_VERSION`，运行 `npm --prefix packages/main run build`，并确认 `proof-or-stop --version` 输出新版本。纯文档、story metadata-only、review evidence-only 合并不强制 bump，避免无意义消耗版本号。
 
 **Host DONE convergence / drift handling（DONE 收束纪律）**：并行 story 收束时按此操作，避免在 DONE 前反复撞。这是对既有机制的**投影**，规则源以下列决策文档为准、不在此重定义：`docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md`、`docs/requirements/decisions/story-files-hash-material-drift.md`、`docs/requirements/decisions/done-prepare-automation-execution-plan.md`、`docs/requirements/decisions/review-assurance-floor-execution-plan.md`，以及 `proof-or-stop done_prepare --help`。
 
@@ -151,7 +151,7 @@ proof-or-stop validate 执行
   ├─ validation FAIL → 写 bug/evidence，hint 回 DEV 修复
   └─ verification coverage missing/stale → allPass:false，提示补 `verificationEvidence`
 → validate PASS + bug fixed + DONE pre-check 全绿 → DONE
-→ 若项目配置 `doneRequiredCommands` / DONE-required policy：DONE 前必须运行 `proof-or-stop done_required_validate --storyId=<id>`，生成 `.lattice/story/actives/<storyId>/done-required-evidence.json`；该证据必须绑定当前 HEAD/materialHash/storyFilesHash，过期则阻塞
+→ 若项目配置 `doneRequiredCommands` / DONE-required policy：DONE 前必须运行 `proof-or-stop done_required_validate --storyId=<id>`，生成 `.proof-or-stop/story/actives/<storyId>/done-required-evidence.json`；该证据必须绑定当前 HEAD/materialHash/storyFilesHash，过期则阻塞
 → 无 DONE-required policy：该路径仅 advisory，表示没有 full-suite DONE assurance，不应夸大为已跑全量套件
 → 有 FAIL / stale / missing evidence → 回 DEV 或补对应证据后重跑 `proof-or-stop validate`
 ```
@@ -595,4 +595,4 @@ Legacy `fixture_batch_add` 批量添加时自动按顺序建立 `prevCaseId/next
 
 写 silent catch 时问自己一个问题：**如果这里失败了，10 分钟后用户会怎么发现？** 没答案就用 `reportHealthIssue` 留痕。
 
-<!-- lattice:end -->
+<!-- proof-or-stop:end -->

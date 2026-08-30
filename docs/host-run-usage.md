@@ -12,7 +12,7 @@ through the choke point.
 A 2026-07-10 token-burn audit found the usage ledger only ever saw a handful of
 probe rows: host-side reviewer launches, quorum cross-host reviews, and long
 desktop sessions all burned real tokens that the ledger never recorded. Every
-lattice-initiated host run now flows through `host_run`, which records a
+Proof-or-Stop-initiated host run now flows through `host_run`, which records a
 preflight estimate row and a provider-reported final row per run. Runs that
 Proof-or-Stop cannot route through the choke point (interactive desktop sessions)
 are covered after the fact by the read-only `usage_sweep`.
@@ -99,9 +99,9 @@ command never throws and `exitCode` is a field.
 Reviewer Prompt 不应由调用方手工拼接或假定某个 rollout mode。先由
 `review_run_start` 按当前 Story、lane 和 `promptEnvelope.roles` 的逐角色 flag
 选择可信正文与 full/incremental context，再将它返回的 dispatch Prompt 交给
-`host_run`。当前可独立启用 `lattice-review-concept`、
-`lattice-review-quality`、`lattice-review-test-coverage`、
-`lattice-review-behavior`、`lattice-review-docs`；未启用角色保持
+`host_run`。当前可独立启用 `proof-or-stop-review-concept`、
+`proof-or-stop-review-quality`、`proof-or-stop-review-test-coverage`、
+`proof-or-stop-review-behavior`、`proof-or-stop-review-docs`；未启用角色保持
 `legacy-full-context`，retired channel 不可进入该 rollout。
 
 ReviewRun 摘要会记录 rollout mode、role-body/context/assembled digest、selection
@@ -112,7 +112,7 @@ reason 请求 full context；feature flag 本身不会授予 incremental eligibi
 
 ```
 proof-or-stop host_run --host codex --storyId B-xxxx --agentType reviewer \
-  --reviewRunId B-xxxx:RR-001 --lane lattice-review-quality \
+  --reviewRunId B-xxxx:RR-001 --lane proof-or-stop-review-quality \
   --promptFile reviewer-prompt.txt
 ```
 
@@ -121,17 +121,17 @@ proof-or-stop host_run --host codex --storyId B-xxxx --agentType reviewer \
 ```
 # Codex host
 proof-or-stop host_run --host codex --storyId B-xxxx --agentType reviewer \
-  --reviewRunId B-xxxx:RR-002 --lane lattice-review-quality \
+  --reviewRunId B-xxxx:RR-002 --lane proof-or-stop-review-quality \
   --promptFile quorum-prompt.txt
 
 # Claude host
 proof-or-stop host_run --host claude --storyId B-xxxx --agentType reviewer \
-  --reviewRunId B-xxxx:RR-002 --lane lattice-review-quality \
+  --reviewRunId B-xxxx:RR-002 --lane proof-or-stop-review-quality \
   --promptFile quorum-prompt.txt
 
 # Antigravity / agy host
 proof-or-stop host_run --host agy --storyId B-xxxx --agentType reviewer \
-  --reviewRunId B-xxxx:RR-002 --lane lattice-review-quality \
+  --reviewRunId B-xxxx:RR-002 --lane proof-or-stop-review-quality \
   --promptFile quorum-prompt.txt
 ```
 
@@ -145,7 +145,7 @@ Every usage row carries the attribution passed to `host_run`:
 | `--agentType` | `agentType` | e.g. `reviewer`, `autopilot-repair`, `host-readiness-probe`. Required. |
 | `--phase` | `phase` | When omitted and `--storyId` is set, the phase resolves from the **configured story store** at call time (honoring a project's `storyDir`); an explicit `--phase` is used as-is and the store is never read. |
 | `--reviewRunId` | `threadId` | e.g. `B-xxxx:RR-001`. Joins rows against `review-runs.json`. |
-| `--lane` | `subagentId` | e.g. `lattice-review-quality`. |
+| `--lane` | `subagentId` | e.g. `proof-or-stop-review-quality`. |
 
 `--reviewRunId` must start with `<storyId>:` when `--storyId` is given, so a
 ledger row can never silently mis-join across stories — a mismatch is refused
@@ -210,17 +210,17 @@ minted for a blocked row that never persisted.
 Both caps run at the choke point BEFORE a host is spawned, and every refusal is
 recorded as a `decision.kind=blocked` ledger row (diagnostics-honest).
 
-- **Per-dispatch hard budget** — reuses the existing `LATTICE_HARD_BUDGET_TOKENS`
+- **Per-dispatch hard budget** — reuses the existing `PROOF_OR_STOP_HARD_BUDGET_TOKENS`
   preflight guard per call. An over-budget preflight estimate refuses with
   `reasonCode hard_budget_exceeded` before spawning.
-- **Host-run concurrency** — a slot registry under `.lattice/usage/host-run-slots/`
+- **Host-run concurrency** — a slot registry under `.proof-or-stop/usage/host-run-slots/`
   holds **fixed numbered slots** `slot-0.json` .. `slot-(cap-1).json`, one per
   live run (pid + `startedAt` + an acquire-minted **ownership token**).
   Admission is **atomic**: each index is tried in order with an exclusive
   (`wx`) create, and winning an index *is* the admission — only `cap`
   contenders can ever hold the `cap` fixed names, so simultaneous starts
   cannot all slip past the cap (no check-then-acquire race). When every index
-  under `LATTICE_HOST_RUN_MAX_CONCURRENT` (default **4**; unset / invalid /
+  under `PROOF_OR_STOP_HOST_RUN_MAX_CONCURRENT` (default **4**; unset / invalid /
   `<=0` falls back to the default; an explicit larger value is honored) is
   held, the run refuses fail-closed with a non-zero exit, prints the live-run
   list, and writes a blocked row with `reasonCode concurrency_cap_exceeded`.
@@ -228,7 +228,7 @@ recorded as a `decision.kind=blocked` ledger row (diagnostics-honest).
   below): a slot with a recorded **dead pid** is reclaimed at any age; a slot
   whose metadata is **missing/corrupt** (the holder crashed between creating
   the file and its metadata landing) is reclaimed once its mtime exceeds the
-  `LATTICE_HOST_RUN_SLOT_STALE_MS` orphan backstop (default **6h**); a slot
+  `PROOF_OR_STOP_HOST_RUN_SLOT_STALE_MS` orphan backstop (default **6h**); a slot
   with a **live** recorded pid is **never reclaimed by age** — a long host run
   keeps its admission and waiters refuse at cap. Reclaim re-verifies the
   occupant immediately before the unlink and then re-creates exclusively (a
@@ -269,14 +269,14 @@ ownership-aware: the acquirer records `owner.json` (holder pid + a unique
 release token) inside the lock dir, and a held lock is reclaimed only when
 that pid is dead, or — for an ownerless/corrupt lock, i.e. the holder crashed
 between creating the dir and recording ownership — when the dir mtime exceeds
-the `LATTICE_USAGE_LEDGER_LOCK_STALE_MS` orphan backstop. A live holder is
+the `PROOF_OR_STOP_USAGE_LEDGER_LOCK_STALE_MS` orphan backstop. A live holder is
 never reclaimed no matter how long it holds the lock (slow filesystem, GC
 pause, suspension); release removes the lock only while `owner.json` still
 carries the releaser's own token.
 
 There is **no queuing** in this story: over the cap means refuse, not wait.
 
-Set `LATTICE_USAGE_LEDGER=0` to disable ledger writes entirely; the host run is
+Set `PROOF_OR_STOP_USAGE_LEDGER=0` to disable ledger writes entirely; the host run is
 then byte-identical to a raw launch (no preflight, no final, no slot files).
 
 ## `usage_sweep` (read-only retro-attribution)
@@ -314,16 +314,16 @@ particular) at least visible.
   - Because `--out` writes a file into the material tree, a **non-empty `--out`
     is dynamically classified `storyScopedMutating`** by the ownership gate
     (F-014), so it is refused in read-only reviewer mode
-    (`LATTICE_REVIEWER_READONLY=1`) and on a retired root; without `--out`,
+    (`PROOF_OR_STOP_REVIEWER_READONLY=1`) and on a retired root; without `--out`,
     `usage_sweep` stays read-only and runnable by any session.
   - The **same `--out` boundary governs the CLI activity / hook layer** (F-028):
     a plain (no-`--out`) `usage_sweep` is read-only there too, so it runs **no
     pre/post command hooks** and writes **no activity-log entry by default** (the
-    `LATTICE_ACTIVITY_RECORD_READONLY=1` read-only heartbeat override documented
+    `PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1` read-only heartbeat override documented
     in docs/CLI.md still applies); a non-empty `--out` is treated as a write and
     runs the hooks + records activity like any other mutating command.
   - The same boundary also governs the **codex process-event surface** (F-032):
-    under `LATTICE_ACTIVITY_SOURCE=codex` cli-engine appends a `codex_cli` event
+    under `PROOF_OR_STOP_ACTIVITY_SOURCE=codex` cli-engine appends a `codex_cli` event
     to the active story's `process-events.jsonl` after a command. That append is
     STORY metadata, so it obeys the identical read-only contract — a plain
     (no-`--out`) `usage_sweep` appends **no process event** (even with an

@@ -93,7 +93,10 @@ proof-or-stop session_brief   # recover project state
 proof-or-stop validate        # run the gates
 ```
 
-> `proof-or-stop` is the CLI command name. `lattice` is retained as a deprecated alias for existing scripts and in-flight work, and resolves to the same binary — `lattice --version` and `proof-or-stop --version` print identical output. Some internal identifiers (the `.lattice/` state directory, `LATTICE_*` environment variables, signature salts and agent role IDs) intentionally keep the older name so that already-persisted state and signatures stay valid.
+> `proof-or-stop` is the only supported CLI command name. Active packages, state paths,
+> environment variables, and Agent role IDs use the Proof-or-Stop identity. Historical
+> signature salts and immutable evidence retain their original bytes so persisted proof
+> remains verifiable; they are not active aliases.
 
 ## Paper
 
@@ -110,13 +113,13 @@ The tag [`paper-arxiv-v1`](https://github.com/Proof-or-Stop/Prooforstop/tree/pap
 | Paper | Repository |
 |---|---|
 | §3 Evidence-gating principle — admissibility predicate & gates | `packages/main/src/core/proof-admissibility-*.ts`, `packages/main/src/core/evidence/admissibility/` |
-| §3 Offline receipt-bundle contract (18 tamper classes) | `.lattice/story/actives/B-4c65/` |
-| §3 Gate-strength self-red-team contract | `.lattice/story/actives/B-7b6e/` |
+| §3 Offline receipt-bundle contract (18 tamper classes) | `.proof-or-stop/story/actives/B-4c65/` |
+| §3 Gate-strength self-red-team contract | `.proof-or-stop/story/actives/B-7b6e/` |
 | §3 Evidence-instrument characterization (replay campaign M0–M4) | `experiments/pos-instrument-replay/` |
 | §5 Unattended loop — powered control-policy ablation cells | `experiments/multi-model-ablation/` |
 | §6 Recovery under injected failure | `experiments/recovery-runner/` |
 | §7 Host-neutral transfer — git-native handoff & Tier-C receipts | `experiments/handoff-demo/`, `experiments/tier-c-proof/` |
-| §8 Self-application corpus (565 stories / 1,007 findings) | `.lattice/story/actives/` |
+| §8 Self-application corpus (565 stories / 1,007 findings) | `.proof-or-stop/story/actives/` |
 | §9 Experience reuse | `experiments/experience-ablation/` |
 
 ### Citation

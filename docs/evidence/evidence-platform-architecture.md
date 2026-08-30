@@ -35,7 +35,7 @@ The contract is implemented in
 invocation, receipt normalization, identity binding, and deterministic digests.
 It does not own artifact storage, truth, Proof Admissibility policy, or lifecycle
 completion. EEA results therefore reuse existing Evidence Platform/proof-surface
-owners; no `.lattice/evidence` sibling store or adapter-owned Done state exists.
+owners; no `.proof-or-stop/evidence` sibling store or adapter-owned Done state exists.
 
 Current bounded reference projections are:
 
@@ -100,7 +100,7 @@ Evidence Platform owns the evidence data layer:
 - artifact objects and refs;
 - canonical digest and strict shape;
 - shared artifact / proof-surface definitions;
-- transaction and observed-event storage under `.lattice/evidence`;
+- transaction and observed-event storage under `.proof-or-stop/evidence`;
 - public EvidenceRuntime APIs used by higher layers.
 
 Evidence Platform does not own:
@@ -113,7 +113,7 @@ Evidence Platform does not own:
 - `productionDone` eligibility.
 
 Higher layers must consume Evidence Platform through public runtime APIs. They
-must not directly write proof-looking files under `.lattice/evidence` or create
+must not directly write proof-looking files under `.proof-or-stop/evidence` or create
 parallel artifact registries.
 
 ## Evidence Model v1
@@ -206,7 +206,7 @@ Ref integrity invariants:
 ## Storage Layout
 
 ```text
-.lattice/evidence/
+.proof-or-stop/evidence/
   objects/sha256/<artifactDigest>.json
   refs/by-id/<artifactId>.json
   ledger/observed.jsonl
@@ -451,12 +451,12 @@ interface EvidenceRuntime {
 
 Boundary constraints:
 
-- handlers do not write `.lattice/evidence` directly
+- handlers do not write `.proof-or-stop/evidence` directly
 - handlers call case-based APIs, e.g. `repro.recordProbe()`
 - `evidenceScope` / `producerBoundary` are not caller-settable for runtime-owned
   artifacts
 - no direct creation of `story-evidence-binding` and `red-green-relation-evaluation`
-- handlers and adapters must not write `.lattice/evidence/objects` / `refs` / `ledger`
+- handlers and adapters must not write `.proof-or-stop/evidence/objects` / `refs` / `ledger`
   directly. All writes go through `EvidenceArtifactService`.
 - source paths for APIs: `packages/main/src/core/evidence/*`; handler entrypoints:
   `packages/main/src/handlers/*`.
@@ -506,7 +506,7 @@ Compatibility pathing strategy:
 
 Repro-First and admissibility documents must align on this baseline:
 
-- Repro-First uses `.lattice/evidence` and `red-green-relation` +
+- Repro-First uses `.proof-or-stop/evidence` and `red-green-relation` +
   `red-green-relation-evaluation` contract above
 - Proof-admissibility uses the native artifact registry projection and the
   `local-gate-evidence` scope definition in this document
