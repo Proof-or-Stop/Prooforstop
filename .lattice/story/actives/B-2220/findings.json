@@ -143,6 +143,25 @@
       "_hash": "e9ceb752c31c2e90e0bc7c8eccfc11f87cb22705870d63f51e5bae4619283213",
       "signatureTag": "missing|unknown|quality-coherence-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-2220:F-008",
+      "desc": "doc-code-drift: packages/main/src/tasks/validation-evidence-buffer-smoke.ts:562 and :588-590 [medium] still promise that a later serialization cannot disagree and that the returned record has no toJSON left to consult. docs/requirements/decisions/validation-evidence-artifact-growth.md:72-82 and :124 explicitly retain the opposite Object.prototype.toJSON limitation. Independent isolated Node probe on a JSON.parse snapshot produced before=23 after=25 diverged=true after installing inherited Object.prototype.toJSON. The F-006 repair narrowed the top-level helper comments but left this section heading/explanation stale; narrow these lines to own/live input toJSON removal and acknowledge later inherited prototype mutation.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-30T23:54:15.833Z",
+      "reviewRound": "2026-08-30T23:51:06.818Z",
+      "reviewRunId": "B-2220:RR-019",
+      "_hash": "31dbaf4c1ff250caca741fbd6ed38811337f202c394e589ba87bb315412b073d",
+      "files": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+        "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+      ],
+      "signatureTag": "missing|ts|code-drift-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
