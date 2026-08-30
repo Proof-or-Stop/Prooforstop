@@ -1,0 +1,53 @@
+{
+  "storyId": "B-2220",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/**",
+    "packages/main/dist/**",
+    ".lattice/story/actives/B-3434/**"
+  ],
+  "explicitExcludes": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    "packages/main/tests/fixtures/**"
+  ],
+  "scopeChangeReason": "User authorized one decision-document update only; B-3434 history and runtime code are explicitly excluded.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-30T22:57:42.914Z",
+  "updatedAt": "2026-08-30T22:57:42.914Z",
+  "fileRules": [
+    {
+      "path": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1"
+      ]
+    }
+  ],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "docs/requirements/decisions/validation-evidence-artifact-growth.md": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+    "packages/main/src/**": "packages/main/src/**",
+    "packages/main/dist/**": "packages/main/dist/**",
+    ".lattice/story/actives/B-3434/**": ".lattice/story/actives/B-3434/**",
+    "docs/story/**": "docs/story/**",
+    "tests/fixtures/**": "tests/fixtures/**",
+    "packages/main/tests/fixtures/**": "packages/main/tests/fixtures/**"
+  },
+  "anchorParserVersion": "typescript-5.9-ast-v1",
+  "anchorArtifactVersion": "lattice.scope-anchor.v1",
+  "astAnchorMode": "enforce"
+}
