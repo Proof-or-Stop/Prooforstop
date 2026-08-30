@@ -22996,6 +22996,21 @@
       "resolvedAt": "2026-08-30T06:44:28.528Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-417",
+      "desc": "runtime-tracer-misses-exec-and-fork: packages/main/src/core/validation-runtime-tracer.cjs:119 only instruments spawn, spawnSync, execFile, and execFileSync, leaving child_process.exec, execSync, and fork unobserved. packages/main/src/core/story-aware-validation.ts:420-427 treats absent spawned paths as no unknown inputs and can sign a complete closure, so a validation command using one of those APIs can access or execute an undeclared input without invalidating DYN-2/DYN-3 reuse. Instrument the remaining child-process APIs or fail closed, with mutation coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-30T06:57:42.276Z",
+      "reviewRound": "2026-08-30T06:18:36.371Z",
+      "reviewRunId": "B-45a0:RR-977",
+      "_hash": "ebfeeb3d3cb42bff13dfead341e1069a9011d109269fddf1de6f0fbdc1fad235",
+      "signatureTag": "missing|unknown|runtime-tracer-misses",
+      "signatureTagSource": "auto"
     }
   ]
 }
