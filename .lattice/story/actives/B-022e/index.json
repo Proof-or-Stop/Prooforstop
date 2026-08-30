@@ -1,0 +1,37 @@
+{
+  "storyId": "B-022e",
+  "name": "finish-proof-or-stop-identity-cutover",
+  "title": "Complete the Proof-or-Stop identity cutover across packages, CLI, and active runtime surfaces",
+  "description": "Complete a clean, intentionally incompatible cutover from active Lattice identities: every current command starts with proof-or-stop; @lattice/lab and @lattice/utils become @proof-or-stop/*; active source, config, verifiers, prompts, and documentation expose no Lattice identity. Preserve historical stories, legacy migration inputs, compatibility fixtures, changelog records, and provenance/hash-bound bytes through an explicit historical allowlist.",
+  "type": "refactor",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-08-30T21:29:11.585Z",
+  "startedAt": "2026-08-30T21:29:11.585Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-30T21:29:12.156Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-fd646705fec2825769bd7690d3d62f0f",
+      "agent": "main"
+    }
+  ]
+}

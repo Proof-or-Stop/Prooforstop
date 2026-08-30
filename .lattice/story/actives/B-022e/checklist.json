@@ -1,0 +1,101 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Inventory active Lattice identities and frozen historical evidence boundaries",
+      "context": "Scan packages, CLI, runtime paths, environment variables, agent roles, scripts, and current docs. Never mechanically rewrite historical stories, legacy migration fixtures, compatibility fixtures, changelog entries, signature salts, or provenance-bound bytes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Commit RED regression tests that prove active legacy identity still leaks",
+      "context": "Before production edits, add failing tests covering @lattice/lab, @lattice/utils, the root package, CLI bins and command guidance, plus active-file residue. Frozen historical evidence admitted by a narrow allowlist must not fail.",
+      "relatedDocs": [
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Migrate Lab, Utils, and root package identities to Proof-or-Stop",
+      "context": "Synchronize manifests, every tracked lockfile, dependency resolution, the global Lab verifier, and packed tarballs. Do not leak unpublished file: dependencies into distributable manifests.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Remove every active lattice command entrypoint and standardize proof-or-stop CLI invocation",
+      "context": "Bins, spawned commands, help, hints, errors, hooks, scripts, agent prompts, and examples must invoke proof-or-stop only. Keep no lattice alias or deprecated command fallback.",
+      "relatedDocs": [
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "docs/CLI.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Migrate active runtime identities while preserving historical signatures and evidence",
+      "context": "Move active constants, env/path/role/config identifiers to Proof-or-Stop. Signature salts, schemas, historical stories, and provenance/hash-bound content remain byte-stable; any necessary residue requires a bounded allowlist entry.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Update current source prose, verifiers, adapters, and product documentation",
+      "context": "Update README, CLI docs, templates, adapters, and verification scripts. Preserve original historical decision statements and add a superseding decision instead of rewriting the past.",
+      "relatedDocs": [
+        "README.md",
+        "docs/CLI.md",
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Reach GREEN with builds, package tarballs, clean installs, CLI smoke tests, and residue checks",
+      "context": "Verify main/lab/utils builds; npm pack and clean tarball installs; proof-or-stop --version/help/lab help/lab run; doctor; entrypoint and contract verifiers. Active residue is zero and allowlisted residue is frozen evidence only.",
+      "relatedDocs": [
+        "docs/dev/test-coverage.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Synchronize the patch version and complete REVIEW, TEST, and DONE convergence",
+      "context": "This changes runtime behavior and requires a patch bump. Commit code and evidence, complete review lanes, routine validation, any DONE-required policy, done_prepare, and the local merge to main.",
+      "relatedDocs": [
+        "AGENTS.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
