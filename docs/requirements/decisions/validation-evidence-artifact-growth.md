@@ -40,7 +40,7 @@ The bounding is real code on the executed path, not a proposal.
 
 **The refusal is wired.** All three evidence write sites in `packages/main/src/handlers/verifier.ts` - the reuse path (`reusedBound`), the non-git FAIL fallback (`fallbackBound`), and the git path (`persistedBound`) - refuse the write when `withinBound` is false or the record is null, and return a structured failure naming the measured size and the bound. `packages/main/src/tasks/validation-evidence-buffer-smoke.ts` reads that source and asserts that every record written comes from a bound whose own `withinBound` was gated, so an edit that gates one computation and writes another is caught by name.
 
-**The mutation catches are genuine.** The test-coverage lane reproduced all four of the mutation-catches this story's regression suite claims, in a disposable worktree, and got back the exact quoted failure messages in each case. That is worth stating plainly next to the sections below: what the suite claims to catch, it catches. The gap is in what it was never looking at, and that is described under "What does not ship" and in the deferred list.
+**The mutation catches are genuine.** The test-coverage lane reproduced all four of the mutation-catches this story's regression suite claims, in a disposable worktree, and got back the exact quoted failure messages in each case. That is worth stating plainly next to the sections below: what the suite claims to catch, it catches. The gap is in what it was never looking at, and that is described under "Known limitations retained from B-3434" and in the "Known limitations" table.
 
 **The measured numbers**, from `node packages/main/dist/tasks/validation-evidence-buffer-smoke.js`:
 
