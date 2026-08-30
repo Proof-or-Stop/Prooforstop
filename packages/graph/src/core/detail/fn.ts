@@ -18,6 +18,28 @@ const BULKY_ROW_FIELDS = ['readManifest', 'readLog', 'readDiagnostics', 'assembl
 const TRIMMABLE = new Set(['review-passes.json', 'review-inventory-epochs.json',
   'acceptance-rollout-report.json']);
 
+/**
+ * Whole-file provenance blobs: a single top-level field holding raw captured
+ * stdout, kept for audit, never rendered. `test-evidence.json` embeds the full
+ * validate transcript in `output` -- 6.9MB of the 7.0MB file on B-45a0, which
+ * alone pushed that story's detail to 10.8MB and tripped the 8MB audit cap in
+ * src/tasks/audit.ts, failing `npm run check` for EVERY story in the repo. The
+ * web shell reads only `command`, `result`, and `verificationCoverage` from
+ * this file (shells/web/app.js:86,119), so the transcript costs bytes on every
+ * detail fetch and buys nothing. Dropped unless the file is fetched raw.
+ */
+const BULKY_FILE_FIELDS: Record<string, readonly string[]> = {
+  'test-evidence.json': ['output'],
+  'done-required-evidence.json': ['output'],
+};
+
+function dropBulkyFields(value: unknown, fields: readonly string[]): unknown {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return value;
+  const obj = { ...(value as Record<string, unknown>) };
+  for (const f of fields) if (f in obj) delete obj[f];
+  return obj;
+}
+
 function trimRows(value: unknown): unknown {
   if (!value || typeof value !== 'object') return value;
   const obj = value as Record<string, unknown>;
@@ -149,8 +171,12 @@ export function storyDetail(root: string, sid: string, opts: DetailOptions = {})
       }
       else if (f.endsWith('.json')) {
         const trim = TRIMMABLE.has(f) && opts.raw !== f && st.size > 100_000;
+        const bulky = BULKY_FILE_FIELDS[f];
         const data = readJson(p);
-        files[f] = { kind: 'json', bytes: st.size, data: trim ? trimRows(data) : data };
+        const shaped = trim ? trimRows(data)
+          : (bulky && opts.raw !== f) ? dropBulkyFields(data, bulky)
+          : data;
+        files[f] = { kind: 'json', bytes: st.size, data: shaped };
       }
       else files[f] = { kind: 'text', bytes: st.size, text: readText(p) };
     }
