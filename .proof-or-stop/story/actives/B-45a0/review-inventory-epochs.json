@@ -9942,9 +9942,9 @@
       "epochId": "B-45a0:RIE-122",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-30T15:57:31.479Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-30T17:06:03.944Z",
-      "updatedAt": "2026-08-30T17:06:03.944Z",
+      "updatedAt": "2026-08-30T17:08:24.025Z",
       "cutoff": {
         "headHash": "0a25c602df24c7def7f37a834d57e9b0146dd685",
         "materialHash": "7d844f63c8b5e92caf825ae6da761b6b1de4b95c51753dcda24bbac28f04de53",
@@ -9955,7 +9955,10 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-45a0:RIE-122:RCP-001",
-      "_hash": "4c9dc15bd797ec62b8ee2019d92b8436fd441b95fa4129434ec9081790b42a45"
+      "cancelledAt": "2026-08-30T17:08:24.025Z",
+      "cancelReason": "Circular deadlock between review_inventory_begin and story_advance DEV. Receipt B-45a0:RIE-122:RCP-001 is FINALIZED-unconsumed with scopeDigest dbf8417be2ff30417e26efd902ede7c2eab6dcba9c77694a5bb34de3d2a60eed, but reviewInventoryAcceptanceSubjectDigestForStore now deterministically computes 46d67cfc10aeb1e1f0aaf91759fb3329a0e538ebdf3fc875a8bbb36d48aaf6bf (verified stable across repeated calls and fresh store instances), so consumeReviewInventoryReceipt rejects it with REVIEW_INVENTORY_REMEDIATION_BLOCKED while review_inventory_begin refuses with REVIEW_INVENTORY_RECEIPT_UNCONSUMED and points back at DEV. The four digest inputs (scope contract, checklist, ProofStory contract, shrinkage decision) have no commits since before finalize, so the mismatch originates at finalize time rather than from a subsequent subject edit. Invalidating the unconsumed receipt to break the cycle and allow a fresh epoch bound to the current subject digest.",
+      "terminalRunSequenceBoundary": 1050,
+      "_hash": "2225ebddaa2ba1b5634d4b7f55f265816ded2c0890fe94c6e0ae535affe723da"
     }
   ],
   "receipts": [
@@ -11437,7 +11440,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-30T17:06:03.944Z",
-      "_hash": "e6fd9da76cbb542304e2ec20976f34c56af7b30c4f935c2062f8830d99554168"
+      "invalidatedAt": "2026-08-30T17:08:24.025Z",
+      "invalidationReason": "Circular deadlock between review_inventory_begin and story_advance DEV. Receipt B-45a0:RIE-122:RCP-001 is FINALIZED-unconsumed with scopeDigest dbf8417be2ff30417e26efd902ede7c2eab6dcba9c77694a5bb34de3d2a60eed, but reviewInventoryAcceptanceSubjectDigestForStore now deterministically computes 46d67cfc10aeb1e1f0aaf91759fb3329a0e538ebdf3fc875a8bbb36d48aaf6bf (verified stable across repeated calls and fresh store instances), so consumeReviewInventoryReceipt rejects it with REVIEW_INVENTORY_REMEDIATION_BLOCKED while review_inventory_begin refuses with REVIEW_INVENTORY_RECEIPT_UNCONSUMED and points back at DEV. The four digest inputs (scope contract, checklist, ProofStory contract, shrinkage decision) have no commits since before finalize, so the mismatch originates at finalize time rather than from a subsequent subject edit. Invalidating the unconsumed receipt to break the cycle and allow a fresh epoch bound to the current subject digest.",
+      "_hash": "7c6a2d2cb0c4da16d71229b15948516f7619c00df82d586ffc2983c9d68d85e4"
     }
   ],
   "criticReceipts": [
