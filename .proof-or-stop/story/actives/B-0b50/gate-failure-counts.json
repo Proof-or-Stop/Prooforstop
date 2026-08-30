@@ -1,14 +1,1 @@
-{
-  "story_advance/970bd961aef2": {
-    "count": 1,
-    "command": "story_advance",
-    "lastReason": "Cannot enter TEST: proof-or-stop validate did not pass（3 项命令失败）（verification coverage 缺 6 项）\n✗ configured validate.commands[39]: node packages/main/dist/tasks/quorum-submit-smoke.js\n✗ configured validate.commands[78]: node packages/main/tests/red/red-1734-content-binding.mjs\n✗ configured validate.commands[112]: npm --prefix packages/graph run check\nVerification coverage 不足: 0/6 covered, 6 required missing\n  - CHK-001:happy:0 [stale] When DONE-required validation is refused because no PRE_CERT in",
-    "lastAt": "2026-08-30T17:20:14.597Z"
-  },
-  "story_advance/13e532f4998c": {
-    "count": 1,
-    "command": "story_advance",
-    "lastReason": "Cannot enter TEST: proof-or-stop validate did not pass（verification coverage 缺 6 项）\nVerification coverage 不足: 0/6 covered, 6 required missing\n  - CHK-001:happy:0 [stale] When DONE-required validation is refused because no PRE_CERT inventory receipt exists, done_prepare exposes the exact review_inventory_finalize command.\n  - CHK-001:edge:0 [stale] When the same parser sees a non-inventory blocker or no authoritative Next line, done_prepare retains its existing caller-specific retry command.\n  - ",
-    "lastAt": "2026-08-30T17:35:21.317Z"
-  }
-}
+{}
