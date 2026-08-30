@@ -23205,6 +23205,50 @@
       ],
       "signatureTag": "missing|ts|verified-closeout-retention",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-421",
+      "desc": "closeout-retention-rejects-canonical-evidence-refresh: packages/main/src/handlers/checklist.ts:1163-1168 rewrites checklist.json and auto-commits it for verification_evidence_refresh_stale, but packages/main/src/core/closeout-trust.ts:31-44 excludes checklist.json from CLOSEOUT_ARTIFACT_POLICIES. The retention path in packages/main/src/core/review-run.ts:1204-1224 therefore classifies that canonical evidence refresh as untrusted. Current reproduction: lifecycle_check --storyId=B-45a0 --target=TEST --format=json reports pass B-45a0:RP-429 failed closeout metadata retention: untrusted closeout artifact path: checklist.json; invalid closeout artifact: checklist.json, even though intent coverage is pass and refreshed receipts retain matching materialHash/storyFilesHash. This makes a required evidence refresh invalidate the current review pass and prevents REVIEW to TEST. Register checklist.json with the correct canonical verification-evidence writers and receipt validation, then cover the allowed and non-canonical-writer rejection cases.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-30T12:17:16.766Z",
+      "reviewRound": "2026-08-30T11:33:19.289Z",
+      "reviewRunId": "B-45a0:RR-996",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": "Focused RI-100 coverage review of the signed current-review retention path. The lifecycle diagnostic and source readers establish the defect; no decision-document corpus expansion was needed."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "64b1e21348738de098499654a81d8f2ca602e3689bd1a0555aac37c9cfb32080",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/auto-commit-metadata.ts"
+      ],
+      "signatureTag": "missing-closeout-retention-canonical-evidence",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
