@@ -10,6 +10,7 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'admissibility_waterline',
   'queue_governance_status',
   'status',
+  'graph',
   'story_get',
   'story_list',
   'checklist_get',

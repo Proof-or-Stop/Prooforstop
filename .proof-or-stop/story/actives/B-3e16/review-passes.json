@@ -1,0 +1,1077 @@
+{
+  "passes": [
+    {
+      "id": "B-3e16:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independent re-audit confirms coverage sound: all 18 verificationIntent entries across 6 done checklist items have valid non-waiver tool-executed evidence with real discriminating power (negative controls, real HTTP round-trips, real git-status diffing, section-scoped doc checks, stash/restore asset checks). Deleted dead file packages/graph/src/shells/cli/main.ts is referenced by no intent/evidence/check script, so no coverage gap. Evidence hash staleness is an observation, not a coverage gap.",
+      "createdAt": "2026-08-28T10:12:02.669Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-006",
+      "envelopeId": "cb3003be8589064ced117f70aaf8d4bfca70dace193dda6ca8234e2e0ef59a35",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/story/actives/B-3e16/checklist.json",
+          "packages/graph/package.json",
+          "packages/graph/scripts/ok.mjs",
+          "packages/graph/scripts/verify-assets-ignored.mjs",
+          "packages/graph/scripts/verify-clean-tree.mjs",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/scripts/verify-engines-floor.mjs",
+          "packages/graph/scripts/verify-json-no-listener.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/graph/scripts/verify-serves.mjs",
+          "packages/graph/src/tasks/anchor-check.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/src/shells/cli/main.ts (deleted, confirmed via git show 235a98f8a8)",
+          "packages/graph/src/tasks/audit.ts",
+          "packages/graph/src/tasks/bench.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "744659549079b4bd95021d77423a7c0ad6af888e9447cf151a1cfe1ff5db9d5c"
+    },
+    {
+      "id": "B-3e16:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "README architecture tree, package.json, CLAUDE.md graph section, and verify-docs.mjs cross-checked against disk/code for commit 2a2d2de82a (F-004 fix). All 16 tree-listed paths under packages/graph/src exist; no stale src/shells/cli/main.ts reference remains. Reproduced all 4 negative controls claimed in the commit message (stale-path reinject, emptied tree, standalone-binary reintro, npm start reintro) by temporarily mutating and byte-identically restoring README.md; each correctly fails verify-docs.mjs. No blocking drift found.",
+      "createdAt": "2026-08-28T10:18:26.975Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-009",
+      "envelopeId": "13f52079f8839093aa8bd2cc9101198427c1427162d05f0b9454d5d97343bef7",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c10b4572f02f6473c5deab5aa27ba940a65a9868d69622f473f4df6faa52592a"
+    },
+    {
+      "id": "B-3e16:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified at head 2d82650 (materialHash unchanged from RR-012, only metadata moved). Prior rounds on this dispatch: at head 423a35d I filed F-006, the same defect independently found as F-005 (lattice-review-concept) -- the verify-docs.mjs .cache exemption was line-wide not match-local, letting a real proof-or-stop-graph reintroduction pass DOCS_OK if it shared a line with any .cache substring (demonstrated with a crafted README line). Commit 108d4cc287 fixed F-005 with a match-local regex before I finished reporting; I re-verified that fix directly: my original mixed-line adversarial input now correctly fails DOCS_INCOMPLETE, a bare cache-path-only line still passes, a plain standalone-binary invocation is still caught, and additional cases (substring-of-longer-token before/after the match, no-trailing-slash cache reference) resolve in the safe direction. F-006 is now resolved as a duplicate of F-005 per the finding_resolve metadata in this commit. Also re-confirmed the original dispatch target, F-004: the stale src/shells/cli/main.ts line is gone from the README tree, the 16-entry indent-stack parser resolves every current architecture-tree path against disk with all existing, and the ten-path fail-closed floor (checked=16, floor=10) is a sound margin, not brittle. All four negative controls from the F-004 commit (stale path reinjection, emptied tree, standalone-binary reintroduction, npm start reintroduction) reproduce DOCS_INCOMPLETE as claimed. Working tree confirmed clean after every adversarial README mutation was reverted in testing. No remaining blocking issues found in the reviewed scope (packages/graph/README.md, packages/graph/scripts/verify-docs.mjs).",
+      "createdAt": "2026-08-28T10:21:22.934Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-013",
+      "envelopeId": "a4b9769f2438aa9e463fcde647f3993793fdcb37424bc948c87253a192c3bc8f",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "84d0fb780e7eaf463218dc5600cf62889eb22879a1c62b04bd977c9d2d4306b8"
+    },
+    {
+      "id": "B-3e16:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality lane round 2 (incremental, prior pass RP-003): verified F-006 match-local fix, verify-docs.mjs indent-stack parser + 10-floor, process-fact-levels.ts L0 classification via mechanical registry-contract check, and spot-checked handlers/graph.ts seams. No blocking issues found.",
+      "createdAt": "2026-08-28T10:25:46.254Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-015",
+      "envelopeId": "7d2d932252ee353e5dc5f342f4b311d7a921217d5df6d06ea437a9fe23f4b7f5",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/src/core/search/worker.ts",
+          "packages/graph/src/index.ts",
+          "packages/graph/src/io/find-root.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/src/core/store/fn.ts",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/io/open-browser.ts",
+          "packages/graph/src/tasks/anchor-check.mjs",
+          "packages/graph/src/tasks/audit.ts",
+          "packages/graph/src/tasks/bench.ts",
+          "packages/graph/tsconfig.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/registry.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "463df6a494c9f7c3dc961827bc7218c5e689e8d8ba49835a202c441ea3d0609b"
+    },
+    {
+      "id": "B-3e16:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Re-confirmed prior pass at new epoch RI-001. Step 1 symbol extraction on git diff main...HEAD yielded no new/changed exported TS symbols requiring doc cross-reference beyond what the prior pass already verified; fell back to full-text scan of CLAUDE.md graph section + graph-command-migration.md + packages/graph/README.md per Fallback 1, comparing 3 documents/sections against current code and disk state. (1) verify-docs.mjs .cache exemption re-verified match-local after F-005/F-006 fix: ran verify-docs.mjs on the frozen tree (exit 0, DOCS_OK) plus 4 mutation controls in an isolated /private/tmp scratch copy (never touching the frozen worktree, restored+confirmed clean each time): real invocation proof-or-stop-graph --help correctly FAILS; the exact F-005/F-006 regression shape (one line mixing the legitimate ~/.cache/proof-or-stop-graph/ path with a real invocation, both orderings) correctly FAILS in both cases; two legitimate path-like cache mentions on one line correctly PASSES. Guard genuinely discriminates the target defect. (2) Ninth registration surface (process-fact-levels.ts) independently investigated: confirmed via git diff it is a real, mechanically-enforced fail-closed surface (lifecycle-registry-contract.ts checkProcessFactLifecycle reverse-direction check, wired into validate.commands; ran the compiled task directly - PASS, 0 divergences) that story metadata (description/plan.md) undercounted at eight. Grepped CLAUDE.md, graph-command-migration.md, and packages/graph/README.md and confirmed none of these three committed docs assert any numeric surface count or claim the registration set is closed - the eight-count lives only in story metadata (index.json description, plan.md CHK-003), out of this lane's doc-truth scope. No committed doc under-describes reality; no doc-code-drift finding warranted. Advisory only, not a finding: the decisions doc could optionally note the surface set is discovered-by-gate rather than fixed, to preempt a future reader treating the story-metadata eight as authoritative - a nice-to-have addition to a doc that never made the false claim, not a correction. Zero doc-code-drift or doc-promise-undelivered findings identified.",
+      "createdAt": "2026-08-28T10:25:49.871Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-017",
+      "envelopeId": "4958404957e8e6e91bf6162ae31e88d3b6b224818447c3d9d8a8456985392cfa",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/index.json",
+          ".proof-or-stop/story/actives/B-3e16/plan.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e9f7af49f5dcce67c24627f99a1c683b4b0269e07bb9074ae162015494cace59"
+    },
+    {
+      "id": "B-3e16:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 18 verificationIntent entries across CHK-001..006 have valid tool-executed verificationEvidence, concretely tied to specific behavior, no coverage gap found.",
+      "createdAt": "2026-08-28T10:26:00.555Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-016",
+      "envelopeId": "1efb6e04ae2b3bc7179295308511f1697b8717255c90600a9a705d74a71e3c9e",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-assets-ignored.mjs",
+          "packages/graph/scripts/verify-clean-tree.mjs",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/scripts/verify-engines-floor.mjs",
+          "packages/graph/scripts/verify-json-no-listener.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/graph/scripts/verify-serves.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/background.md",
+          ".proof-or-stop/story/actives/B-3e16/plan.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7242f7ecde4b0571b1a31d2ba4dafb0ff5913ebba5114d7f1ed761e81133966e"
+    },
+    {
+      "id": "B-3e16:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review: re-confirmed RP-006 findings, no new coverage gap. All 6 items done, 18 must intents, all 18 have tool-executed manual_transcript evidence with matching receipts (exitCode 0, selectorMatched true) recorded at commit b30679d. Verified all 18 share that single headHash, so validate --story reporting 18/18 stale is a uniform binding-staleness fact, safe for the main agent to refresh mechanically -- not a coverage gap. Checked every non-story-metadata file changed between b30679d and current HEAD (1012f1f) for impact on the 18 checked properties: graph.ts doc-comment fix (no behavior change), dead main.ts removal (unreferenced at evidence time, confirmed via git grep plus package.json bin field absent both then and now), gitignore dead-entry removal (F-007, unrelated), verify-serves.mjs poll-delay (cosmetic), verify-docs.mjs additive README checks (CHK-006 evidence properties are a strict subset of what the script now asserts; re-ran it live, still DOCS_OK including the original three lines). None of the 18 point at a check that was weakened, removed, or now proves a different or lesser property -- all 18 are stale bindings over intact checks, none are stale because the underlying check regressed or vanished. Second question: CHK-004 verify-missing-assets-fail currently proves guard-fires-before-listener because assertGraphRuntimeSupported runs before the dynamic import call; I independently confirmed packages/graph/src/index.ts statically re-exports core/search/fn.ts which top-level imports node:sqlite (fn.ts line 10), and resolveGraphPackage() (graph.ts lines 90-138) derives both the dynamic-import entry path and assetDir/vendorDir from one resolution. Converting the runtime import() to a static import would not just require re-verifying verify-missing-assets-fail's guard-ordering property under a new import shape (assetDir/vendorDir derivation must survive independently of resolveGraphPackage, as F-008 already flags) -- it would relocate the node:sqlite load to packages/main module-evaluation time, making CHK-002 verify-engines-floor a false-passing check for the post-fix world since the guard could no longer run before the failure point for any CLI command, not just graph. That graver risk is already filed and open as F-010 (quality lane) with F-008 (concept lane) on the narrower assetDir/vendorDir angle; both are verified against current source and correctly scoped outside my lane, so I am not duplicating them. Recorded for the record: CHK-002 and CHK-004 evidence will both need fresh runs (not just hash refresh) after the static-import fix lands, since the fix changes the code path each check exercises, not just its content hash. No coverage gap found in the current inventory; 18 of 18 must intents covered by valid mechanical evidence with concrete, intent-matching assertions, no broad validate-passed evidence seen.",
+      "createdAt": "2026-08-28T11:01:35.798Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-021",
+      "envelopeId": "b0123f8f03457957b57d883f05d85536c86c60ea599f8e54e98561a5a9c379aa",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          "packages/graph/.gitignore",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/scripts/verify-serves.mjs",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/index.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/background.md",
+          ".proof-or-stop/story/actives/B-3e16/plan.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8fded6ea54d3c79bde83e23af5e870f59c5403c8b6b2008011e72f971404964a"
+    },
+    {
+      "id": "B-3e16:RP-008",
+      "agent": "lattice-review-topology-critic",
+      "note": "Independent completeness critic pass for review-inventory epoch RI-002 wave 1. Reproduced F-011's process-fact-contract count claim from scratch in an isolated tmp copy with positive/negative/restore controls (confirmed 9 complaints, not 8). Independently re-derived F-008/F-009/F-010's technical claims against current source (resolveGraphPackage coupling, workspaces/lockfile absence, build order and node:sqlite static re-export chain). Confirmed F-012's wiring gap and F-013's doc citations against current files. Ran my own additional adversarial probes of the verify-docs.mjs match-local .cache exemption for a third instance of the guard-passes-on-its-own-defect pattern already seen twice in this story (F-004/F-005 resolutions); found none. Checked verification evidence: all 18 intents carry mechanical:true receipts, no narrative-only evidence found. No completeness gap or unfound defect surfaced beyond what the four lanes already filed; all six open findings are independently verified as legitimate on their technical merits.",
+      "createdAt": "2026-08-28T13:26:57.138Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-023",
+      "envelopeId": "08f20a97bb087beadc96ea5f7e54cd5b36ab16803b53f958909bcc6a445ceb0e",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          ".proof-or-stop/story/actives/B-3e16/review-inventory-epochs.json",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/graph/package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/index.ts",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/utils/package.json",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4be6d87939871bcdb071f396a9b07d96f9e336ca49f7f49ae12272df169bfb03"
+    },
+    {
+      "id": "B-3e16:RP-009",
+      "agent": "lattice-review-topology-critic",
+      "note": "Independent completeness critic pass for review-inventory epoch RI-002 wave 1, resubmitted on a fresh run with mechanical read events for the decisions-doc entries. Reproduced F-011's process-fact-contract count claim from scratch in an isolated tmp copy with positive/negative/restore controls (confirmed 9 complaints, not 8). Independently re-derived F-008/F-009/F-010's technical claims against current source. Confirmed F-012's wiring gap and F-013's doc citations. Ran additional adversarial probes of verify-docs.mjs for a third instance of the guard-passes-on-its-own-defect pattern already seen twice (F-004/F-005); found none. Checked verification evidence: all 18 intents carry mechanical:true receipts. No unfound completeness gap surfaced; all six open findings independently verified as legitimate.",
+      "createdAt": "2026-08-28T13:27:43.601Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-024",
+      "envelopeId": "3284ecdd2b8f2ada758f6f8e1a04110d4421ab2075d2775a536e8beeea4bab21",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          ".proof-or-stop/story/actives/B-3e16/review-inventory-epochs.json",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "package-lock.json",
+          "package.json",
+          "packages/graph/package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/index.ts",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/utils/package.json",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "cfc2faa4b8a8bf588b33e61c48efbe664a0e948d8ccd0e6af7011297f415fc86"
+      },
+      "readDiagnostics": [],
+      "_hash": "9314a26937e4f34a73b3055c51b1880ea7be075325b23365e950a1c825a09a3b"
+    },
+    {
+      "id": "B-3e16:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Wave 3 story-level docs verdict on current tree with the settled remediation plan. Confirmed pre-remediation state for all three of this lane's findings still matches their described fixes: (1) graph-command-migration.md still states the surface count as a flat digit with no per-phase derivation (F-011 premise live). (2) Decision 3 (Node engines floor) names node:sqlite/22.5.0 but gives no rationale for the version choice (F-015 premise live). (3) validate.commands wires npm --prefix packages/graph run check plus command-catalog-smoke/lifecycle-registry-contract already, but NOT cli-surface-smoke/verify-orphan-surface/command-ownership-contract yet (F-012/F-014 premise live). (4) retired-authority-vocabulary-guard-smoke.ts confirmed: handlers/graph.ts absent from both knownBenignNonLiteralLoaderCalls and DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS -- the 6 violations are real, matching the plan's stated remaining blocker. (5) CLAUDE.md's graph section already matches current handler code and command-catalog.ts help text exactly (flags, default port 8731, cwd-upward root discovery, read-only framing) -- no drift there, nothing to fix. CONCLUSION: no doc-vs-code inconsistency remains on the current tree that the described remediation (F-011 derivation wording, F-015 rationale, F-012/F-014 validate.commands wiring, F-016/F-017 approval comment) would fail to fix. F-013 correctly reclassified moot in wave 2; concur it should stay untouched. Judgement call (not filed, noted only): post-remediation, 3 of the 6 named contract tasks in the 'registration surface set' section move to validate.commands while command-catalog-smoke/lifecycle-registry-contract are already there and test:process-fact-contract stays wired only in test:serial-reference (a separately-maintained list per the doc's own earlier point). The section's 'run them all' phrasing never claims a specific wiring mechanism so it stays true post-fix -- not a doc-vs-code inconsistency, so not filed as a finding; flagging as an optional wording nit for the implementer.",
+      "createdAt": "2026-08-28T14:05:37.133Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-033",
+      "envelopeId": "57c5d00d0425cce2433dcef5d6ef07f11e913d892e053e50c4a17e398ad102fa",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/src/io/find-root.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "83e6c0166ec8173f86645ada3453cdc429e05df163321913a0136bef7bfc9b7d"
+    },
+    {
+      "id": "B-3e16:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Wave-3 test-coverage lane verdict: PASS. Answers to the two questions below.\n\nQ1 (CHK-003 evidence double-counting once orphan-surface/command-ownership-contract land in validate.commands):\nNo double-counting concern, and it is not mere belt-and-braces either -- it closes a real gap.\nChecked lattice.config.json's validate.commands (113 entries) directly: `test:orphan-surface`,\n`test:command-ownership-contract`, and `test:cli-surface-smoke` are ALL ABSENT from it today.\nOnly `command-catalog-smoke.js` (a different check) is wired in. So F-014 is not re-running\nsomething already covered by validate -- CHK-003's verificationEvidence today is the ONLY place\nthese two checks execute as gate evidence for this story. Once F-014 wires them into\nvalidate.commands, they become general regression coverage for every future story, which is a\ndifferent (broader) role than CHK-003's evidence (which pins them as this story's specific\nverification that graph's registration didn't leave anything orphaned/unowned).\nNo staleness risk either: verificationEvidence entries carry their own headHash/materialHash/\nstoryFilesHash/receipt independent of what runs inside validate.commands; adding the same\ncommands to validate.commands doesn't invalidate or shadow CHK-003's already-recorded receipts\n(from 2026-08-28T10:02:27), it just adds a second, ongoing execution path for regression purposes.\nNet effect: after F-014 lands, running `proof-or-stop validate` on any future story will also\nexercise these guards, but CHK-003's pinned evidence remains this story's own point-in-time\nverification and needs no changes. This is belt-and-braces in the sense that both will now pass/fail\ntogether, but it is not redundant -- CHK-003 evidence proves graph's own registration; the\nvalidate.commands wiring proves the guard keeps running for all commands going forward, closing\nexactly the coverage gap the remediation is meant to close.\n\nQ2 (shape of F-016's provenance assertion):\nRead the exact call site now sitting in packages/main/src/handlers/graph.ts:\n  const location = resolveGraphPackage(ctx.root);\n  assertGraphRuntimeSupported(location.packageRoot);\n  const lib = await import(`file://${location.entry}`) as GraphLibrary;\nAnd confirmed isKnownBenignNonLiteralLoaderCall (retired-authority-vocabulary-guard-smoke.ts:1536-1546)\nchecks exactly three things and nothing else: (1) canonicalAstFingerprint(file, source.text) equals a\npinned whole-file hash, (2) enclosingFunctionName(call) textually equals the allowlisted anchor string\n(here it would be the exported `graph` handler, or whatever function name encloses the call), (3)\ncall.arguments[0].getText(source) textually equals the allowlisted argument STRING\n(`` `file://${location.entry}` ``). None of these three checks inspect what `location.entry` or\n`location` itself IS, how it was produced, or what data flowed into it -- they are purely\nsyntactic/textual on the source of the pinned file. A mutation that keeps the literal argument text\n`file://${location.entry}` unchanged but rewires `location` to come from an attacker/caller-influenced\nsource elsewhere (e.g. reassigning `location` from an unvalidated `--root`-adjacent path, or widening\nresolveGraphPackage to accept a caller-supplied override) would pass all three checks unchanged. This\nis precisely the \"proves it ran vs proves it holds\" gap: the guard proves the STATIC SHAPE of the call\nis unchanged, not that the argument's DYNAMIC PROVENANCE is still confined to\n`resolveGraphPackage()`'s own resolution logic.\n\nConcrete assertion to make this load-bearing rather than decorative:\n\n  A dedicated AST check -- call it `assertLoaderArgumentProvenance` (or fold into\n  isKnownBenignNonLiteralLoaderCall as a second guard) -- that, for each allowlisted call site,\n  additionally walks the data-flow of the pinned argument expression's ROOT IDENTIFIER back to its\n  binding and asserts the binding is:\n    (a) a `const` (never `let`/`var` -- rules out later reassignment before the call), AND\n    (b) initialized by a call expression whose callee text is exactly the allowlisted producer\n        function name (`resolveGraphPackage` for packages/main/src/handlers/graph.ts), AND\n    (c) that producer function itself is defined in this same file (or another pinned file) and its\n        return type/shape is not itself widened to accept an unvalidated caller-supplied override for\n        the `entry` field -- concretely, assert `resolveGraphPackage`'s parameter list is unchanged\n        (single `projectRoot: string` parameter, no second \"entry override\" parameter) as part of the\n        SAME whole-file AST fingerprint that already gates admission into the allowlist map lookup.\n\n  What it inspects: the identifier chain from `call.arguments[0]` (here `location.entry`) back through\n  its member-access base (`location`) to the `const location = resolveGraphPackage(ctx.root)`\n  declaration in the same function scope, verifying the initializer's callee name against a pinned\n  \"trusted producer\" string per allowlist entry (not just the anchor function name, which only says\n  WHERE the call sits, not WHERE THE ARGUMENT CAME FROM).\n\n  What mutation it must reject: any edit that keeps the anchor name (`graph`) and the argument text\n  (`` `file://${location.entry}` ``) identical, and keeps the whole-file structural fingerprint's\n  OTHER 99% unchanged, but swaps the binding of `location` to originate from something other than a\n  same-scope `resolveGraphPackage(...)` call -- e.g. `const location = { ...resolveGraphPackage(ctx.root), entry: args.entry ?? resolveGraphPackage(ctx.root).entry }`,\n  or hoisting `location` to a parameter, or a widened `resolveGraphPackage(root, entryOverride?)`\n  signature that lets a caller redirect `entry` to an arbitrary path. All of these preserve anchor +\n  argument text (so the CURRENT guard passes them silently) but change what gets loaded. The\n  provenance check must fail on all of them because none of them terminate the identifier's\n  data-flow trace at an unparameterized, single-argument `resolveGraphPackage(ctx.root)` call in the\n  same scope.\n\n  This is exactly the class of gap F-016 originally flagged (guard proves textual/structural stability,\n  not argument provenance), and the critic's confirmation that the dropped extraction \"would not have\n  fixed it\" is consistent with this: extraction only shrinks the file that can freely mutate around the\n  call, it does not add any check on what value flows into the call. The provenance assertion above is\n  the actual fix; it belongs inside the guard task itself (retired-authority-vocabulary-guard-smoke.ts),\n  gated on the same allowlist entries, not in graph.ts.\n\nNo other new findings for this lane. All 18 evidence entries remain mechanically refreshable per prior\nwave confirmation (handlers/graph.ts logic path unchanged by this remediation plan). Recording PASS.",
+      "createdAt": "2026-08-28T14:05:53.308Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-035",
+      "envelopeId": "e7abb5bcb049e2579b97cd44b46b86ed46d7b80cacd7db99927e8fdbdd3fbd6b",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "29fb162b42826bf89f6ca5c27370232684eae52f5577042f3e87ea2b799185e6"
+    },
+    {
+      "id": "B-3e16:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Wave-3 verdict on the settled whole-file-pin remediation (graph.ts registered in knownBenignNonLiteralLoaderCalls + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS for the import(), plus DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS for the 5 lib.X() calls, approval comment naming --root influence and the serve.ts precedent, plus F-016 mechanical provenance assertion): PASS, no new code-quality or type-safety gap. Verified live: on current tree graph.ts is NOT yet in either map (grep zero hits) and the compiled guard smoke throws exactly the 6 violations the plan describes (line 292 import(), lines 298/312/336/345/365 the 5 lib.X() calls) -- matches the reported 112/113 state exactly, so the remediation is pending-but-correctly-scoped, not already-applied-and-broken. Read canonicalAstFingerprint (ts.createPrinter comment-stripped, sha256 of the WHOLE file) confirms the pin is genuinely whole-file, matching the F-017/F-018 characterization; isKnownBenignNonLiteralLoaderCall additionally requires an exact (enclosingFunctionName, argument-text) match per call for the import() map, so that half of the remediation is call-site-scoped even though the fingerprint gating it is whole-file. One nuance for the record, not a new blocker: DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS (scanDynamicCodeGeneration line ~3744) is a single early-return keyed only on the whole-file fingerprint match -- once graph.ts pin matches, ALL dynamic-code-generation findings in the file are suppressed, not just the 5 named lib.X() call sites, so any future edit that adds a 6th dynamic-execution pattern to this file inherits the exemption silently until the next unrelated edit forces a re-pin. This is the same class of risk already accepted for every other whole-file exemption in this guard (bootstrap-runner.js, proof-or-stop-codex.js) and is the documented cost of choosing whole-file-pin over the dropped graph-runtime.ts extraction (F-016/F-018) -- worth naming explicitly in the approval comment alongside the --root/serve.ts trust-model note, but not something that changes my verdict. type-safety/dead-code/I-O-isolation pass on graph.ts itself: no as any, HandlerContext return type Record<string,(...args:any[])=>any> matches the createXHandlers convention used by every other handler factory in this repo (not graph.ts-specific), resolveGraphPackage throws a fully-specified error naming both attempted resolution paths and the fix command, no dead code or unused imports.",
+      "createdAt": "2026-08-28T14:06:20.456Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-034",
+      "envelopeId": "6061f1cbbc744efbd2d0268fa7ef6518f66cefccbb539facb156c017d210d683",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "41077dea4fa7a0dd0215d9757d4ca6817b59ba3f578c20d3e17d4383b8e76407"
+    },
+    {
+      "id": "B-3e16:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "Wave 3: re-verified with plan settled (dynamic import stays, no graph-runtime.ts extraction). Confirmed no code commits landed since 00a2592925; abandoned static-import/extraction exploration leaves zero residue on current tree (graph-runtime hits are only historical review-artifact JSON text, no such file exists); resolveGraphPackage remains one seam, F-008 moot as stated; guard maps not yet updated and validate.commands not yet wired, consistent with F-014/F-016/F-017/F-018 correctly still open pending DEV remediation. No new or residual concept-completeness issue found. PASS.",
+      "createdAt": "2026-08-28T14:07:17.103Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-032",
+      "envelopeId": "7dd369145e32c6ccd5d262e23a890e5eb1fcac19ed535973f539a94ff8bd408e",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          ".proof-or-stop/story/actives/B-3e16/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1ed622ecc00b210aae32b89239deb6596669a1d76a736342ba32f719ed791cd6"
+    },
+    {
+      "id": "B-3e16:RP-014",
+      "agent": "lattice-review-topology-critic",
+      "note": "Wave 3/3 final completeness critique: all 4 lanes (concept RP-013, quality RP-012, test-coverage RP-011, docs RP-010) passed with zero new findings this wave. Mapped all 10 verified findings (F-008..F-017) to the settled 7-item remediation plan: items 1-3 cover F-008/F-016/F-017, item 4 covers F-012/F-014, item 5 covers F-013/F-015, item 6 covers F-011. F-009/F-010 have no remediation line item because their triggering plan (file-dependency + static-import conversion) was itself abandoned in favor of the whole-file-pin approach that keeps the runtime import() -- confirmed by reading packages/graph/src/index.ts (still eagerly re-exports search from core/search/fn.js, the node:sqlite hoist trigger) and package.json/package-lock.json (no workspaces field, no file:../graph dependency declared), so F-009/F-010's regression conditions cannot occur under the settled plan. F-018 is likewise moot since the graph-runtime.ts extraction it targeted was dropped. Verified review-inventory-epochs.json CRIT-01/CRIT-02 receipts show F-013 disposition is verified_family (not not_verified as stated in my dispatch brief); flagging this narrative/mechanical-record mismatch as advisory only, since the mechanical record (which governs) already required and received a remediation item (item 5) for F-013. Checked item 3's assertLoaderArgumentProvenance for F-018-style scope-contract risk: it targets an existing file (retired-authority-vocabulary-guard-smoke.ts) already in allowedModify, not a new file, so no repeat of the F-018 pattern. No unexamined modality found across the 3 waves that would need a new finding; this is the final wave and no genuine gap blocks finalization.",
+      "createdAt": "2026-08-28T14:11:18.030Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-037",
+      "envelopeId": "d5f4617577bb689725cf1d93cb8f7ce510f65cff0d527f1d6f1200a757c95d2c",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          ".proof-or-stop/story/actives/B-3e16/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-3e16/scope-check.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/src/index.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package-lock.json",
+          "packages/graph/package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f0b014dbc26797adeb19cacfefa0fcf3f8d5a96477eed02955cc17355230ddb2"
+    },
+    {
+      "id": "B-3e16:RP-015",
+      "agent": "lattice-review-topology-critic",
+      "note": "Wave 3/3 final completeness critique: all 4 lanes (concept RP-013, quality RP-012, test-coverage RP-011, docs RP-010) passed with zero new findings this wave. Mapped all 10 verified findings (F-008..F-017) to the settled 7-item remediation plan: items 1-3 cover F-008/F-016/F-017, item 4 covers F-012/F-014, item 5 covers F-013/F-015, item 6 covers F-011. F-009/F-010 have no remediation line item because their triggering plan (file-dependency + static-import conversion) was itself abandoned in favor of the whole-file-pin approach that keeps the runtime import() -- confirmed by reading packages/graph/src/index.ts (still eagerly re-exports search from core/search/fn.js, the node:sqlite hoist trigger) and package.json (no workspaces field, no file:../graph dependency declared), so F-009/F-010's regression conditions cannot occur under the settled plan. F-018 is likewise moot since the graph-runtime.ts extraction it targeted was dropped. Verified review-inventory-epochs.json CRIT-01/CRIT-02 receipts show F-013 disposition is verified_family (not not_verified as stated in dispatch brief); flagging this narrative/mechanical-record mismatch as advisory only, since the mechanical record already required and received a remediation item (item 5) for F-013. Checked item 3's assertLoaderArgumentProvenance for F-018-style scope-contract risk: it targets an existing file (retired-authority-vocabulary-guard-smoke.ts) already in allowedModify, not a new file, so no repeat of the F-018 pattern. No unexamined modality found across the 3 waves that would need a new finding; this is the final wave and no genuine gap blocks finalization.",
+      "createdAt": "2026-08-28T14:12:01.079Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-038",
+      "envelopeId": "88b83759c8ba1aa1c65d61faff7d0d14d010b71436fd49e253beb8dcc7756b8b",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          ".proof-or-stop/story/actives/B-3e16/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-3e16/scope-check.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/src/index.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package-lock.json",
+          "packages/graph/package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fba854e969a2af35cf5d5d3bf08268b470c7da197ca50563e6577d48dfcadadb"
+    },
+    {
+      "id": "B-3e16:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "Targeted post-remediation verification per lane brief (not a full symbol re-scan, since prior 18 findings are resolved and this round is scoped to F-015/F-011/F-012 follow-through). (1) Decision 5 in docs/requirements/decisions/graph-command-migration.md verified against code: packages/main/src/handlers/graph.ts:292 uses await import(...) not static import; its header (lines 20-26) states the no-npm-workspaces reason exactly as Decision 5 characterizes it as removable-but-not-binding; packages/graph/src/core/app.ts:15 statically imports ./search/fn.js which at fn.ts:10 top-level imports DatabaseSync from node:sqlite; index.ts re-exports createApp from app.js confirming the handler cannot avoid the chain. Probe table: ran all four probes for real on Node v20.19.6 via nvm (import(dist/index.js) and import(dist/core/app.js) both threw ERR_UNKNOWN_BUILTIN_MODULE; proof-or-stop --version and status both worked) -- all four rows match the doc exactly. startCircuitServe/verifier/serve.ts precedent citation verified real in retired-authority-vocabulary-guard-smoke.ts. (2) No hand-typed measured value in the Decision 5 probe table: all four cells are either literal commands, an error-code string, or qualitative works/fails -- no digit/count that could drift like F-011's stale number. (3) Checked whether the seven-to-nine guard exemption-count coupling from commit 2aeb29a508 (DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size === 9, and its verbatim-pinned twin in scripts/verify-process-fact-contract.mjs:2032) is described anywhere in docs: grepped graph-command-migration.md and CLAUDE.md for nine/seven/the two exemption map symbol names -- zero hits. The doc genuinely does not describe that count (a separate, unrelated eight-to-nine registration-surface count exists in the docs registration-surface section but is clearly disambiguated by subject and not conflated), so there is no third stale-number-in-docs hazard to fix; nothing to derive because nothing is asserted there. Also independently verified the ALL_PHASES.length + 2 = 9 derivation is structurally accurate against scripts/verify-process-fact-contract.mjs (assertProcessFactCommandInventory: missingCliEntries check + findUninventoriedProcessFactCommands check = the fixed +2, plus assertCommandPolicyPhaseAlignment looping ALL_PHASES = the per-phase term), and reran packages/graph/scripts/verify-docs.mjs both at baseline (DOCS_OK) and via negative control in an isolated /tmp copy for both the Decision-5-rationale string and the ALL_PHASES.length + 2 string (each independently made the check fail with DOCS_INCOMPLETE, then restored to DOCS_OK). Also spot-checked F-012: cli-surface-smoke, command-ownership-contract, and verify-orphan-surface are all present in proof-or-stop.config.json validate.commands. Worktree left clean (only review-run bookkeeping files touched).",
+      "createdAt": "2026-08-28T16:12:22.781Z",
+      "reviewRound": "2026-08-28T16:04:35.811Z",
+      "reviewRunId": "B-3e16:RR-041",
+      "envelopeId": "9621a88b7f24e656a84fb13b7dc100e7b5b6de1b642dd854a8d6ef6797c8241f",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/src/core/app.ts",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/index.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/background.md",
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          ".proof-or-stop/story/actives/B-3e16/plan.md",
+          "CLAUDE.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b55b3fa850bb2cbba5a73c8079162a4795471e5ebeec0bd4253712740f4fd4d0"
+    },
+    {
+      "id": "B-3e16:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Post-remediation concept-residue re-verification of the two abandoned designs (static import + graph-runtime.ts extraction), the guard remediation's assertLoaderArgumentProvenance wiring, and verify-docs.mjs Decision 5 growth. All three areas clean, no residue or duplication found; see readManifest for files checked.",
+      "createdAt": "2026-08-28T16:13:42.878Z",
+      "reviewRound": "2026-08-28T16:04:35.811Z",
+      "reviewRunId": "B-3e16:RR-045",
+      "envelopeId": "111ee0e43c15b1b1a492ea64c2b05a93256e9ae33230b1adb526e94a1f3f871c",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/package.json",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-lattice-residue.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "47b780ec6b078458fdadb0b9f20e028fb988f1b558a5ef0960984deede6b945b"
+    },
+    {
+      "id": "B-3e16:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Verified 9906b0072d (assertLoaderArgumentProvenance) and 2aeb29a508 (contract-string sync) by direct code read + independent execution, not just trusting the commit messages. (1) assertLoaderArgumentProvenance is correct: root identifier resolved via checker.getSymbolAtLocation (not name matching), requires a same-scope const (NodeFlags.Const checked), requires a direct call to resolveGraphPackage as initializer, and validates the producer parameter list is unwidened; every unresolved path returns a violation string (fail-closed). Confirmed graph.ts:288 (const location = resolveGraphPackage(ctx.root);) and graph.ts:94 (resolveGraphPackage(projectRoot: string)) match the pin exactly. The four self-test mutants (rebind/indirect-alias/signature-widen/hoist-out-of-scope) are real distinct code mutations and are each scanned with fingerprintOverride set to the mutant's own fingerprint; confirmed fingerprintOverride only substitutes the whole-file pin check, leaving the provenance check unaffected, so the controls do prove provenance independent of fingerprint drift. Re-ran the guard twice after a clean rebuild and it passes: 'retired authority vocabulary guard PASS builds=809 cacheHits=2 fullAnalysis=1284 astCandidates=499 reachability=34'. One transient failure racing with a concurrent lane's build in this shared worktree self-resolved on rebuild with zero source changes -- not a defect in the reviewed commits. (2) Coarse anchor accepted: confirmed enclosingFunctionName only matches ts.isFunctionDeclaration (line 1594-1601), and graph.ts's graph method is inside an object literal, not a FunctionDeclaration, so the walk lands on createGraphHandlers. Confirmed createGraphHandlers's returned object literal has exactly one method (graph itself), so there is no anchor-collision risk today; the whole-file structural fingerprint is the actual backstop against future edits smuggling a second same-anchor location binding. Acceptable, not materially weakening. (3) All three required facts appear verbatim and are well-substantiated in the approval comment (lines 1525-1547): --root influenceability traced through named line numbers in cli-engine.ts and runtime-root.ts (independently confirmed the story_discard-only-exception claim against runtime-root.ts:51-53); the startCircuitServe precedent citation is accurate (same map, same trust pattern, verified at line 1491); the whole-file early-return / silent sixth-pattern-inheritance risk is explicitly named. (4) 2aeb29a508: ran verify-process-fact-contract.mjs directly (exit 0, Process fact contract verified) confirming the sync fix is functionally correct. Design note (non-blocking, advisory): unlike this story's F-011 fix (which replaced a hand-typed docs digit with a live derivation, ALL_PHASES.length + 2), this hazard is structurally different -- the count in the guard's own assert.equal is already computed via .size + .size; what is hand-duplicated is the English message STRING, pinned as a required verbatim substring in a separate contract script. verify-process-fact-contract.mjs already imports typescript and does AST parsing elsewhere, so a more robust design (asserting the guard's computed count structurally instead of pinning prose) is architecturally available and would remove this recurring hand-sync hazard for future exemption-map entries. Not blocking: both files pass, the fix is correct, and the limitation is already documented in the commit message. No code-quality findings: no dead code, no unnecessary as any, no swallowed errors introduced by either commit; npx tsc --noEmit -p packages/main exits 0.",
+      "createdAt": "2026-08-28T16:14:22.228Z",
+      "reviewRound": "2026-08-28T16:04:35.811Z",
+      "reviewRunId": "B-3e16:RR-039",
+      "envelopeId": "0d260fdcd66e4b28d66e95b22079c3aec8dda9cc048c54eda3f3d620bfff4eff",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/runtime-root.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (commit 9906b0072d diff)",
+          "scripts/verify-process-fact-contract.mjs (commit 2aeb29a508 diff + assertCloseoutTrustBoundary context)"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a7d9f875ccefd4a3b999cca277c701bb8460b71710de8706dd7d8edd72d5b3c"
+    },
+    {
+      "id": "B-3e16:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final post-remediation test-coverage pass. All 18 checklist verificationIntent entries have valid verificationEvidence (0 failing, 0 waivers). F-016 remediation independently confirmed load-bearing: I built two of my own mutant constructions (caller-influenced rebinding via an indirection helper, and a resolveGraphPackage signature widened with an override param) not among the implementers four canned self-test fixtures, and called scanConcealedCompatibilityLoads directly with NO fingerprint override -- both were caught under the approved loader argument provenance drift label naming the exact violation, while an unrelated benign comment edit produced zero false positives, confirming the check proves provenance rather than just an allowlist entry existing. Verified CHK-003 evidence wiring: test:orphan-surface and test:command-ownership-contract both still pass standalone and both now also appear in validate.commands (confirmed via proof-or-stop.config.json), same underlying scripts on both paths so this is belt-and-braces not double counting; cli-surface-smoke likewise passes standalone and is newly wired into validate.commands per the F-014/F-012 remediation commit. Read the property-proving scripts behind CHK-001/002/004/005 evidence (verify-assets-ignored, verify-engines-floor, verify-clean-tree, verify-no-project-writes, verify-missing-assets-fail) and confirmed each asserts a real, falsifiable property (git check-ignore/ls-files, negative control on real Node v20.19.6, git status delta before/after a real scan, static write-call enumeration against an explicit allowlist, real asset-removal + spawn + exit-code/message check) rather than merely confirming the check ran. No evidence found that only proves execution without proving the property. F-011 nine-count and seven-to-nine wording fix verified consistent between the guard source (DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size derivation) and scripts/verify-process-fact-contract.mjs pinned string. No blocking finding.",
+      "createdAt": "2026-08-28T16:20:35.849Z",
+      "reviewRound": "2026-08-28T16:04:35.811Z",
+      "reviewRunId": "B-3e16:RR-040",
+      "envelopeId": "6ad6373914c33a78bfbd0d26317e818e58a989545701e80ca5535a6d847ebfef",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/graph/scripts/verify-assets-ignored.mjs",
+          "packages/graph/scripts/verify-clean-tree.mjs",
+          "packages/graph/scripts/verify-engines-floor.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/package.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6c8af5f808f970489c4a9122ae34853630a987a24537ed9dc70421365a3e1801"
+    },
+    {
+      "id": "B-3e16:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Refresh at head f1db620. Verified both named concept-deletion concerns leave zero residue: no @proof-or-stop/graph dependency in packages/main/package.json, no static import (only a runtime await-import via GRAPH_PACKAGE_NAME constant), no graph-runtime file anywhere (only historical mentions in this stories own process artifacts), and graphRuntimeUnsupportedMessage confirmed unrelated legitimate CHK-002 diagnostic. No blocker.",
+      "createdAt": "2026-08-29T05:17:34.333Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-050",
+      "envelopeId": "491f18a6ab747723d0028d30b51809c55f3c2ecd702e680cb40ab2fb3d447280",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/package.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          ".proof-or-stop/story/actives/B-3e16/prompt-envelopes.json",
+          ".proof-or-stop/story/actives/B-3e16/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-3e16/review-passes.json",
+          ".proof-or-stop/story/actives/B-3e16/scope-freeze-check.json",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "484afb3ff2d110e3ef458616a7a508fe30c8162bb7baad44d802a38aef0a4e1a"
+    },
+    {
+      "id": "B-3e16:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Refresh pass at current material (prior RP-016..RP-019 stale per prompt-envelope eligibility recompute). Scoped via review_incremental_context: 8 changed files since RP-016. Verified new B-3e16-RESUME.md (commit 8de1065ea7, isolated 62-line add) against actual state: story_resume text verbatim matches command-policy.ts:155; checklist 6/6 and findings 18/18 resolved confirmed via CLI; delivery-check.json confirms 13/13 docsPromises verified; three dev-memory lessons cited exist verbatim in experience.jsonl with matching B-3e16 sourceStoryId and category names (guard-bypass, anti-pattern, workflow); verify-no-project-writes.mjs and verify-clean-tree.mjs diffs match the guard-evolution narrative and CLAUDE.md's existing prose about subprocess+content-digest measurement and default-cache-path assertion. One minor inaccuracy: RESUME.md states 169 commits ahead of main; actual was 170 at commit time (off-by-one) -- non-blocking, does not misstate any promised CLI/command behavior or code signature, not filed as doc-code-drift per pass-only-normalization policy. On placement: root-level story handoff .md is not novel here -- RESUME-B-cc10.md and B-3f3d-HANDOFF.md/B-3f3d-FOLLOWUP-STORIES.md already persist on main from prior stories uncleaned post-DONE, so this follows established repo convention; no gate references this file as authoritative evidence. No doc-code drift, no doc-promise-undelivered found.",
+      "createdAt": "2026-08-29T05:21:23.264Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-049",
+      "envelopeId": "f0420669d15380ddf9304ed0edad95616f1e1091f7c86d82f593476bb2f59a42",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/dev-memory/experience.jsonl",
+          "B-3e16-RESUME.md",
+          "CLAUDE.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/scripts/verify-clean-tree.mjs",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4abcf5e4bd2bdf30859c87fe9df059877bd83af587badd3450924958a00a27d6"
+    },
+    {
+      "id": "B-3e16:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Refresh at current material (round 2 binding refresh, all 18 prior findings resolved including my own F-010 Node-floor and F-017 root code-execution). Re-verified mechanically: rebuilt and ran retired-authority-vocabulary-guard-smoke.js -- PASS, exercising all 14 assertLoaderArgumentProvenance mutants plus the whole-file fingerprint pin for handlers/graph.ts. Ran verify-clean-tree.mjs and verify-no-project-writes.mjs live -- both OK, git status byte-identical before/after. Exercised graph --json, graph --help, and graph --root=<nonexistent> -- all behave as documented. Read handlers/graph.ts end to end: no dead code, no problematic any usage beyond repo-wide handler-factory convention, catch blocks all intentional, watchdog heartbeat and shutdown correct. No regression found.",
+      "createdAt": "2026-08-29T05:21:55.382Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-047",
+      "envelopeId": "40735d2603219180d3f18696ef00071b596a898246bb5ddfe5a03aecf7ccc40f",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/graph/scripts/verify-clean-tree.mjs",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/runtime-root.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "04ec5430a39f75b587229c9c56295f7bd268aa048fc30565891b996e4498d9b4"
+    },
+    {
+      "id": "B-3e16:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "Refresh at current material (head ec08664). Re-verified all 18/18 verificationIntents against their verificationEvidence by direct field inspection of checklist.json (not prompt claims): every intentRef (CHK-001..CHK-006 x happy/edge/adversarial) has a matching manual_transcript evidence record with mechanical=true, receipt.selectorMatched=true, receipt.exitCode=0, result=pass, evidence.command matching the pinned verification.command, and the pinned selector string genuinely present in receipt.outputTail (programmatic cross-check, zero gaps, re-run at two successive heads during this session as the story churned). Specifically re-checked CHK-005 (the lane previously silently demoted to non-mechanical): all three intents carry real receipts from verify-clean-tree and verify-no-project-writes with selectorMatched=true and exitCode=0 -- no non-mechanical attestation or waiver present; the prior demotion is not reproduced at this material. Evidence is bound to an older headHash (bb8fa9f) than current, but git diff bb8fa9f..HEAD -- packages/graph packages/main/src is empty at every head observed this session: all drift since evidence was recorded is story-metadata churn (checklist.json, index.json, delivery-check.json, acceptance-rollout-report.json, review-pass records from other lanes) and a resume-notes doc, not product-code drift invalidating the receipts. No coverage gap found; no regression found in the interval.",
+      "createdAt": "2026-08-29T05:29:31.672Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-051",
+      "envelopeId": "151ea4b9a1882d6c206e263d771723f88c2af26ea0b979a8bb0f964ac9d62483",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/background.md",
+          ".proof-or-stop/story/actives/B-3e16/plan.md",
+          ".proof-or-stop/story/actives/B-3e16/process-events.jsonl",
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "57f4558c3d7d52462cacdf2018edac91739c3fb2f912f11f1004c079ae1a67e3"
+    },
+    {
+      "id": "B-3e16:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified at frozen cutoff (head 0d555e2) after two doc-only commits (stale metric removed from handoff table; dev-memory capture), no product code changed. Re-confirmed all 3 prior findings from RP-020: (1) no @proof-or-stop/graph dependency in any package.json repo-wide; (2) no static import/require of packages/graph anywhere -- handlers/graph.ts loads it only via runtime dynamic import; (3) no graph-runtime residue in any code/test/doc/config file. No new concept deletion/replacement introduced. No blocker.",
+      "createdAt": "2026-08-29T05:33:43.615Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-055",
+      "envelopeId": "5cd8342ceda57d05727b4d8295a102027e3c810cd07d2851f87a87735ced1804",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/graph/package.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bf9dfde6ed7b1344e956f12d3046c4b18330fd1e467a401dd249b9d60cb223bc"
+    },
+    {
+      "id": "B-3e16:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified at frozen cutoff (head 0d555e2, epoch RI-003) after two doc-only commits that invalidated the prior pass; neither touches any story-owned material file, confirmed via git show --name-only against scope.allowedCreate/allowedModify. Re-ran field-by-field mechanical check across all 6 checklist items: 18/18 verificationIntent entries have matching verificationEvidence, mechanical=true, result=pass, selectorMatched=true, exitCode=0, zero must-priority gaps. CHK-005 demotion concern not reproduced. finding_list confirms all 18 findings resolved, zero open. Test coverage review passed, no blocker.",
+      "createdAt": "2026-08-29T05:33:50.557Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-054",
+      "envelopeId": "7205c78adbfbbaed4c34723c15aeed027afe38fccd71ca72927899bc46a993a8",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/background.md",
+          ".proof-or-stop/story/actives/B-3e16/plan.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1d6d155e0a324ef9b95e54de010a33fb10fdf37daf35fd4cb49be9798e28b883"
+    },
+    {
+      "id": "B-3e16:RP-026",
+      "agent": "lattice-review-docs",
+      "note": "Frozen-cutoff re-verification (epoch RI-003, head 0d555e2). Verified ec08664 and 0d555e2 diffs match their commit messages; re-checked retained CLAUDE.md graph section against current code; no new doc-vs-code drift in scanned scope; no new findings.",
+      "createdAt": "2026-08-29T05:34:26.750Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-053",
+      "envelopeId": "20256e0fe03f425ee5132a36bcd27c3c58a72b8e14b113f28b75b84b8c971065",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "B-3e16-RESUME.md",
+          "CLAUDE.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/dev-memory/experience.jsonl",
+          "packages/graph/src/core/app.ts",
+          "packages/graph/src/core/machine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/transition-effects.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c5454b366d16d778e10b20978692316fbd7d08eb78771dd011d93964034072a3"
+    },
+    {
+      "id": "B-3e16:RP-027",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified at frozen epoch RI-003 cutoff (headHash 0d555e2, materialHash unchanged from RP-022 binding). Confirmed no product code changed since RP-022: git log main..HEAD for packages/main/src/handlers/graph.ts, packages/graph/src/io/find-root.ts, packages/graph/src/index.ts shows the last touching commit is f26f92536a (the --root validation fix); the two commits since then are doc-only (drop stale metric from handoff doc, dev-memory capture). Re-checked the two items load-bearing to my role: (1) explicit --root is validated via lib.findRoot(explicit) and rejected with a clear message when not a Proof-or-Stop repo (graph.ts:308-324) -- F-017 fix intact; (2) assertGraphRuntimeSupported(location.packageRoot) at graph.ts:292 still precedes the dynamic import at graph.ts:297 -- F-010 ordering intact, with comment explaining why order is load-bearing. Ran npx tsc --noEmit on both packages/main and packages/graph: both exit 0. git status clean outside .proof-or-stop/ story metadata. Quality checks on this diff: no new as-any beyond one pre-existing-pattern occurrence in the wholesale-imported packages/graph/src/core/search/fn.ts:100 (reading untyped story JSON, already covered by 12 prior review rounds/18 resolved findings, not a fresh regression); all catch{} blocks in graph.ts are documented fallback probes with clear next-step behavior, not silent swallows; web shell (packages/graph/src/shells/web/app.js) does not import fn.ts, consistent with the unrewritten-web-shell migration decision. CLAUDE.md graph section (flags, defaults, cache-dir isolation, missing-asset error) cross-checked against command-catalog.ts longHelp and handler code -- no doc-promise-undelivered gap. Could not locate an artifact literally named assertLoaderArgumentProvenance or a 14-mutant guard test anywhere in packages/graph or packages/main/src/handlers/graph.ts at this cutoff; that phrase does not correspond to any function/file in the current diff, though it does not affect the substance of what I verified (the --root and runtime-guard fixes I actually reviewed line-by-line, past and present, are intact and covered by real checks including verify-no-project-writes.mjs and verify-clean-tree.mjs). No blocking findings.",
+      "createdAt": "2026-08-29T05:34:52.638Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-052",
+      "envelopeId": "92bff0b3fdf003315a492a7743111e0d298f32a7e5062484b93f61194a6ccda9",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/src/io/find-root.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/graph/package.json",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/shells/web/app.js"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "966916ceb34c2d62df2980d2cb3457ddf087b6bc9b748ca4f438f0fc1b8f1e1d"
+    },
+    {
+      "id": "B-3e16:RP-028",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified at frozen cutoff (head 1594b47) for epoch RI-004. (1) No package.json anywhere declares @proof-or-stop/graph as a dependency -- only packages/graph/package.json own name field. (2) Zero static/bare imports of @proof-or-stop/graph anywhere in *.ts/*.js/*.mjs/*.cjs outside node_modules/dist. (3) handlers/graph.ts loads the sibling package via pathToFileURL dynamic import of a resolved filesystem dist/index.js path, not a bare module specifier. (4) All 4 graph-runtime grep hits are inside story process-evidence JSON discussing a prior REJECTED extraction proposal; find -name graph-runtime* returns zero files, confirming no such module was ever created. All three re-verification targets remain clean, consistent with prior passes RP-017/RP-020/RP-024. No new findings.",
+      "createdAt": "2026-08-29T05:45:14.514Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-056",
+      "envelopeId": "c8e7c4a84b74553d092eed201fa7ac92189ab88cc82a039ccba8df0966e0908a",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/graph/package.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/graph.ts",
+          "packages/utils/package.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          ".proof-or-stop/story/actives/B-3e16/prompt-envelopes.json",
+          ".proof-or-stop/story/actives/B-3e16/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-3e16/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "531af46712e0009b7336d848f56b0976bef9b93f0c502126e184b2ce9629e4da"
+    },
+    {
+      "id": "B-3e16:RP-029",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified at RI-004 frozen cutoff (run RR-058, head 1594b47). Direct inspection of checklist.json: all 18 must-priority verificationIntent entries across 6 checklist items have matching verificationEvidence via intentRef, all mechanical:true, receipt.exitCode 0, receipt.selectorMatched true, result pass, zero waivers, zero gaps. CHK-005 (previously demoted) re-checked specifically: verify-clean-tree and verify-no-project-writes evidence intact with matching selectors -- demotion not reproduced. Working tree dirty files limited to review-inventory/prompt-envelope/review-run bookkeeping only, no product code delta. No blocker found.",
+      "createdAt": "2026-08-29T05:45:40.287Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-058",
+      "envelopeId": "40e738d039e783ddf2de3b7171ef6c5ed7048147a69d6cceecf8b61238455bd7",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/background.md",
+          ".proof-or-stop/story/actives/B-3e16/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e8a2bd89776f676e05ff16af78640e07438059565143d9342df38a9638ea90a"
+    },
+    {
+      "id": "B-3e16:RP-030",
+      "agent": "lattice-review-docs",
+      "note": "Binding refresh at RI-004 frozen cutoff (head 1594b47). Verified the 3 commits since last pass (0d555e2, 050baab, 1594b47) touch only dev-memory/experience.jsonl and review-inventory-epochs.json, no docs/code. CLAUDE.md graph section matches command-catalog.ts + handlers/graph.ts exactly. Live re-ran graph --json: 369 stories/426 edges match B-3e16-RESUME.md. 0 inconsistencies, 0 findings.",
+      "createdAt": "2026-08-29T05:47:06.111Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-059",
+      "envelopeId": "ae55263c73edeacb2db8b9b8844aff59b8faf8ad17e25d0e167092731604c75d",
+      "writerSessionId": "sess-79e08ae730ab38eff29a6fa36ee9d235",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "B-3e16-RESUME.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/package.json",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1987ed309c66efe8d9cc6d3d18104d2a6d9b917776b9bb15ac0aea79b89092fc"
+    },
+    {
+      "id": "B-3e16:RP-031",
+      "agent": "lattice-review-quality",
+      "note": "RI-004 binding refresh at frozen cutoff (head 1594b47). Independently re-verified prior RP-027 self-correction on assertLoaderArgumentProvenance (guard-smoke.ts:5162 def, :5653 invocation, 14 tuple mutants lines 5172-5278) -- confirmed first-hand, RP-027 error was search-scope not the fact itself. Re-checked F-017 (--root validated via findRoot match) and F-010 (assertGraphRuntimeSupported precedes dynamic import) intact in graph.ts. Rebuilt packages/main and re-ran test:retired-authority-vocabulary-guard against fresh dist: PASS. Swept quality-relevant diff (33 files) for dead code/as-any/empty-catch/shell-fn-import: no new issues, unchanged since RP-027. finding_list confirms all 18 findings resolved/verified, 0 open, my 5 findings (F-004/F-006/F-009/F-010/F-017) intact. Confirmed the two post-RI-003 commits touch only dev-memory/epoch metadata, zero product code. No blocker.",
+      "createdAt": "2026-08-29T05:48:01.270Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-057",
+      "envelopeId": "88d4a2469c2d38c2600381b2c8d1a84dcd7964a0155909607258bb5f1d62cb55",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/src/core/app.ts",
+          "packages/graph/src/core/data.ts",
+          "packages/graph/src/core/detail/fn.ts",
+          "packages/graph/src/core/graph/fn.ts",
+          "packages/graph/src/core/machine.ts",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/core/search/worker.ts",
+          "packages/graph/src/core/store/fn.ts",
+          "packages/graph/src/index.ts",
+          "packages/graph/src/io/find-root.ts",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/io/open-browser.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.head.html",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/gif-encoder.worker.js",
+          "packages/graph/src/shells/web/gif-palette.js",
+          "packages/graph/src/shells/web/graph2d.js",
+          "packages/graph/src/shells/web/playback.js",
+          "packages/graph/src/tasks/anchor-check.mjs",
+          "packages/graph/src/tasks/audit.ts",
+          "packages/graph/src/tasks/bench.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "94252be9dfd5df39af5ee678f41281ae855555861fa258313e9183e4216981a0"
+    },
+    {
+      "id": "B-3e16:RP-032",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified at head 4a0441c after DEV->REVIEW re-mint of acceptance-basis/rollout artifacts. Confirmed zero product-code change since prior pass RP-028: no @proof-or-stop/graph dependency in any package.json (only packages/graph/package.json self-declares its own name), no static import/require of @proof-or-stop/graph anywhere (handler uses dynamic file-path import via pathToFileURL, unchanged decision from prior rounds), and zero graph-runtime residue in packages/ or scripts/ (only historical findings.json audit text describing an abandoned extraction that was never created). No blocker.",
+      "createdAt": "2026-08-29T08:26:48.353Z",
+      "reviewRound": "2026-08-29T08:18:34.466Z",
+      "reviewRunId": "B-3e16:RR-062",
+      "envelopeId": "1d5e2a126be679a29d1d837b257db2d000ac67339a905e22ee680c7a365c82b3",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/graph/package.json",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e2f373ee7f96c9a0423940ddac423e82ea66d746f10c831ac75d8c8970073be5"
+    },
+    {
+      "id": "B-3e16:RP-033",
+      "agent": "lattice-review-docs",
+      "note": "Incremental re-verification (binding refresh): storyFilesHash unchanged since prior pass RR-059/RP-030 (both 7ea223d5...). Diff between the two heads touches only .proof-or-stop/story/actives/B-3e16/* process/evidence files, zero README/CLAUDE.md/docs/packages files. Re-checked CLAUDE.md Story graph section vs proof-or-stop graph --help: flags/defaults/behavior claims still match. Checked new live-smoke-transcript.json evidence for contradiction with docs: none found (internally consistent, matches packages/graph build-artifact description). No doc-code drift found.",
+      "createdAt": "2026-08-29T08:26:54.603Z",
+      "reviewRound": "2026-08-29T08:18:34.466Z",
+      "reviewRunId": "B-3e16:RR-064",
+      "envelopeId": "3a1acccf3ac556accadafd078702e1062f80ebc326ef43882fa4aedc2223fc66",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/evidence/live-smoke-transcript.json",
+          "CLAUDE.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "04f3f57e3f1729e31ab0324fed316498d7dccba6c8c7a863ff3754d953ad7148"
+    },
+    {
+      "id": "B-3e16:RP-034",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified at head 4a0441c / storyFilesHash 7ea223d (post re-mint of acceptance-basis and rollout-report). All 6 checklist items done with all 18 must-priority verificationIntent entries (happy/edge/adversarial x6) each backed by concrete manual_transcript evidence result=pass naming a specific npm script per item, not a generic passed claim. Confirmed every referenced npm script exists in packages/graph/package.json and test:command-ownership-contract / test:orphan-surface exist in packages/main and root package.json. No checklist verificationEvidence claims coverage of acceptance-basis/topology/rollout machinery, so no false-pass risk there. Checked open high findings F-019/020/021 (topology-critic + main): live acceptance_rollout_check now shows receipt=current quorum=full-3x2 status=pass (rollout report genuinely re-minted). acceptance_topology_check and pre_review_check_read still fail live at current head, a genuine unresolved condition, but it concerns Proof-or-Stop framework acceptance/topology self-verification machinery, not the packages/graph product code this story delivers (git diff main...HEAD touches no acceptance/topology/rollout source, only story-metadata artifacts). Already tracked as open F-019/020/021 owned by lattice-review-topology-critic/main; not duplicated here. Test-coverage mandate (verificationIntent/verificationEvidence mapping for this checklist) is satisfied: no blocker in this lane.",
+      "createdAt": "2026-08-29T08:28:44.154Z",
+      "reviewRound": "2026-08-29T08:18:34.466Z",
+      "reviewRunId": "B-3e16:RR-065",
+      "envelopeId": "05e3b6e278677989c09d4f9f941c02c29fa0587f22e49fce95cbb359d3ab9ca0",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          "packages/graph/package.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-3e16/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-3e16/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-3e16/topology-critic-receipt.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6c96a7eb710cf5bfbca5b5c974549716f84129530e97b4fbf4cc2af0628aa07d"
+    },
+    {
+      "id": "B-3e16:RP-035",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified prior finding B-3e16:F-022 against author-provided counter-evidence and resolved it as refuted/superseded (see finding_resolve). sourceProvenance() hashes via digestCanonicalJson(text), not raw bytes; 15/16 provenanceRefs including graph.ts match exactly under the correct algorithm, refuting the fabrication claim. Non-refuted residual (proof-or-stop.config.json provenance anomaly) lacks an established mechanism, too narrow to re-file. executableProof-empty half reconfirmed real but non-blocking (pre_review_check observe/non-blocking, gates already-passed DEV->REVIEW) and already covered by open F-019/F-020/F-021 topology-critic findings; re-filing would duplicate. No independent quality-lane blocker this round; diff unchanged since prior pass RP-031.",
+      "createdAt": "2026-08-29T08:36:04.046Z",
+      "reviewRound": "2026-08-29T08:18:34.466Z",
+      "reviewRunId": "B-3e16:RR-066",
+      "envelopeId": "60db3e46208b60a2af64c34c2659dcccf35aef42a559dc5fa875fa368e777ced",
+      "writerSessionId": "sess-5abaf63423b1278f",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-3e16/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-3e16/pre-review-check.json",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/digest.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "fd0279f90b75457fd21b4bbf0345cd825856b757875fda0a1089e7e536a6b740"
+    }
+  ]
+}
