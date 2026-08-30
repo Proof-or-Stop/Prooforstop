@@ -138,14 +138,14 @@
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "docs_check",
-          "command": "if rg -n \"carry it into the follow-up|thing to revisit in the follow-up|whoever picks up the follow-up\" docs/requirements/decisions/validation-evidence-artifact-growth.md; then exit 1; else echo \"no active mandatory follow-up language\"; fi",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const must=[\\\"## Historical proposal: writer-owned canonical boundary\\\",\\\"This historical scope explanation remains valid\\\",\\\"That historical candidate does not reserve scope or create an obligation now.\\\",\\\"This history is retained as evidence, not as an instruction to continue.\\\"];const bad=[/carry it into the follow-up/i,/thing to revisit in the follow-up/i,/whoever picks up the follow-up/i,/implement this proposal in a new story/i,/proposal must now be implemented/i];if(!must.every(x=>s.includes(x))||bad.some(r=>r.test(s)))process.exit(1);console.log(\\\"B-2220 adversarial-1 PASS\\\");\"",
           "result": "pass",
-          "note": "Executed the pinned document verifier against commit 0221f6270a; confirms the user-approved decision text and preservation boundary.",
+          "note": "Re-executed the strengthened pinned verifier after B-2220 review findings; deletion and active-mandate mutation probes were also shown to fail.",
           "mechanical": false,
-          "headHash": "adaceeadaf7ce36558936099a31d5184e4c20d43",
-          "materialHash": "7eb23b12327a2b23a5c40936d7ccd6aec089ecf7097ff54eeae1fece412fc323",
-          "storyFilesHash": "2b46ef95d456e0fe31fb10c562982734b302c639a18709a590a5b69590a47cc0",
-          "timestamp": "2026-08-30T23:01:35.632Z"
+          "headHash": "03434029132af354b6da3e1104d9bf2ee00a5db6",
+          "materialHash": "a5c6ccc1da20de04007d478e273de214ac0f969aa2a9f7007c02636bb3f47d7a",
+          "storyFilesHash": "46f24c6ef45f6b6d11dcb548a3d90d951fba1cb6c2bc6b7b16fc2ee74ec993a2",
+          "timestamp": "2026-08-30T23:13:43.589Z"
         }
       ],
       "userSeesSnapshot": {
