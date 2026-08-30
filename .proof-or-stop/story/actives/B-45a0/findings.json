@@ -23516,7 +23516,7 @@
       "desc": "packages/main/src/core/historical-replay-artifact.ts:171-172 the paired-performance-inventory-stale and paired-performance-catalog-stale rejection branches (inside checkPairedPerformance, reached only when value.head equals expected.head or expected.admittedHistoricalHead) have zero test coverage: grep for these exact strings across packages/main/src finds only their own definition site, never a test assertion. historical-replay-artifact-smoke.ts:199-207 (F-423/F-425 resolution cited producer-drift regression) only exercises isPermittedReplayHeadDriftPath allowlist rejection, which short-circuits before the digest comparisons at 171-172 -- it never causes inventoryDigest or catalogDigest to actually diverge while head/admittedHistoricalHead still match. Since inventoryDigest/catalogDigest are recomputed from live working-tree filesystem state, the scenario these two branches exist to catch (catalog/inventory-affecting source mutated while HEAD is unchanged or only drifted through admitted consumer paths) is untested and the branches remain dead code from a test-coverage perspective. F-423 resolution's general claim of producer/config/catalog/runner drift rejection holds for path-allowlist-detectable drift but not for this specific digest-mismatch mechanism. Recommend a test case that holds head/admittedHistoricalHead constant while mutating a real catalog/inventory-affecting source file so inventoryDigest or catalogDigest actually differs, asserting the corresponding reason fires.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-30T16:20:01.233Z",
@@ -23528,7 +23528,11 @@
         "packages/main/src/core/historical-replay-artifact.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f2e648606d. Confirmed the finding first: grep for paired-performance-inventory-stale and paired-performance-catalog-stale across packages/main/src and scripts returned only their own definition sites at historical-replay-artifact.ts:171-172, with no test assertion, and the existing producer-drift case asserts paired-performance-head-stale, which returns at the head check (line 168) before either digest comparison is reached. Added coverage in historical-replay-artifact-smoke.ts driving each digest to diverge while HEAD is held constant (no commit), so the live-recomputed inventory/catalog digest disagrees with the one signed into the report. Reaching those branches requires a VALID signature over a divergent digest, so buildReport gained a digestOverrides parameter that signs the override in; an initial attempt that mutated the digest after signing was rejected at paired-performance-signature-invalid instead, and the debug output of that failure is what identified the correct construction. Each case additionally asserts the reason is NOT paired-performance-signature-invalid and NOT paired-performance-head-stale, pinning that the intended branch fired rather than an earlier one. Verified by mutation testing rather than by the test merely passing: deleting the inventory branch fails the smoke test (exit 1), deleting the catalog branch fails it (exit 1), and restoring both returns historical replay artifact smoke PASS with git diff --stat showing zero change to the production file. No production code was modified.",
+      "resolvedAt": "2026-08-30T16:26:45.180Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
