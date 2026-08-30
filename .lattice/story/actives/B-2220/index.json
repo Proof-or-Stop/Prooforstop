@@ -4,15 +4,14 @@
   "title": "Retire the unassigned B-3434 writer-owned-boundary follow-up",
   "description": "Update the B-3434 artifact-growth decision record to reflect the human decision not to pursue a writer-owned canonical boundary now. Preserve the historical findings, explain that the proposal only guarantees measured bytes equal written bytes rather than input consistency, and define evidence-based conditions for reconsideration.",
   "type": "chore",
-  "phase": "INIT",
-  "priority": "high",
+  "phase": "INIT_CHECK",
+  "priority": "low",
   "riskSignals": [
     {
       "category": "Production/Emergency",
       "matched": "production"
     }
   ],
-  "priorityElevatedFrom": "low",
   "createdAt": "2026-08-30T22:44:21.236Z",
   "startedAt": "2026-08-30T22:44:21.236Z",
   "endedAt": null,
@@ -25,6 +24,27 @@
       "user": "Harmony",
       "sessionId": "sess-b945b1ec56e9cf6f19f535e49b445684",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-30T22:47:38.989Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-b945b1ec56e9cf6f19f535e49b445684",
+      "agent": "main"
     }
-  ]
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "False positive: the word production only describes the existing plain-JSON code path. This story edits one decision document and performs no production operation, deployment, incident response, or runtime change.",
+      "at": "2026-08-30T22:44:39.618Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-2220",
+    "branch": "story/B-2220",
+    "createdAt": "2026-08-30T22:47:36.501Z"
+  }
 }
