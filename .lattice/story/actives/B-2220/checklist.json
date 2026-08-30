@@ -29,10 +29,10 @@
             }
           },
           {
-            "desc": "The executable validation-evidence smoke accepts the current declined/no-active-follow-up decision and no longer requires the removed heading or an actionable work list; WHY: the repository contract must agree with the decision document.",
+            "desc": "The executable validation-evidence smoke accepts the current declined/no-active-follow-up decision, and a build-binding check proves the executed dist matches the edited source; WHY: the repository contract must agree with the decision document.",
             "type": "logic",
             "verification": {
-              "command": "node scripts/build-main-with-binding.mjs && node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
+              "command": "node --input-type=module -e \"import { verifyBuildBinding } from './scripts/full-suite-build-binding.mjs'; verifyBuildBinding(process.cwd()); await import('./packages/main/dist/tasks/validation-evidence-buffer-smoke.js');\"",
               "selector": "validation-evidence-buffer-smoke: PASS"
             }
           }
