@@ -21420,6 +21420,27 @@
       },
       "readDiagnostics": [],
       "_hash": "2e69be71e0120727deb2b4eaa29e58f3faedff4650f78a90bdc37dcb25ac9dbb"
+    },
+    {
+      "id": "B-45a0:RP-430",
+      "agent": "lattice-review-topology-critic",
+      "note": "Topology review confirms one narrow, receipt-bound lifecycle defect; no additional independent blocker.",
+      "createdAt": "2026-08-30T12:26:37.871Z",
+      "reviewRound": "2026-08-30T11:33:19.289Z",
+      "reviewRunId": "B-45a0:RR-999",
+      "envelopeId": "a53b6b6881e70e3f43dfc1fcad9352c5ed7a2388851c5beb2842aa56fecb0a0d",
+      "writerSessionId": "sess-0bde48f175a669bcbafa696b3683e99f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e2c43930f2d680132c3b3ecdb2db33d516423e7540f8803383a9ec4d183ee301"
     }
   ]
 }
