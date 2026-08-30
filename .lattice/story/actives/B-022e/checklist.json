@@ -361,6 +361,26 @@
           "scripts/verify-entrypoints.mjs",
           "scripts/verify-global-lab-entrypoint.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run main/Lab/Utils builds, identity-cutover, entrypoint, global-Lab, process-fact, runtime-fact, prompt-baseline, and Codex adapter verifiers, then pack and clean-install all artifacts -> proof-or-stop --version/help/lab help/lab run and doctor succeed and the active-residue report is zero. WHY: establishes the complete GREEN product boundary.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "With only clean tarball contents available, resolve proof-or-stop and @proof-or-stop/core/lab/utils and execute representative CLI/Lab behavior -> all canonical positives succeed; lattice and @lattice/core/lab/utils fail to resolve, with no workspace source or unpublished file: fallback. WHY: proves installed behavior rather than monorepo behavior.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutation-test the residue gate by injecting a legacy token into an active file, deleting an exact frozen occurrence, changing an allowlisted token/path, adding a stale allowlist row, and broadening an entry to a glob/directory -> each mutation fails closed with a precise diagnostic while the unmodified tree passes. WHY: demonstrates the zero-residue/allowlist claim is sensitive and non-vacuous.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
