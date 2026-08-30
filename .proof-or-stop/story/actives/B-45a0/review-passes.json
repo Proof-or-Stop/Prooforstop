@@ -22552,6 +22552,31 @@
         "scanEscalationReason": null
       },
       "_hash": "03cfac1f070c7bda88dc1edf0c5dddc3470e6f9cb2c4c9100f78e5ad84c804c3"
+    },
+    {
+      "id": "B-45a0:RP-464",
+      "agent": "lattice-review-docs",
+      "note": "WAVE 2/3 re-pass of RP-463. Focused scope: commits e3a6186f7f and f2e648606d. f2e648606d touches only historical-replay-artifact-smoke.ts (test-only). e3a6186f7f changes MINIMUM_HISTORICAL_STORIES 50->30 and adds MAXIMUM_HISTORICAL_STORIES=50 plus 6 new REPLAY_ADMISSION_NONEXECUTING_PATHS entries; new doc section Bounded post-replay consumer exception accurately describes the mechanism without duplicating the path list. Re-grepped 50 Stories/exactly 50/minimum of 50/50-Story across docs/requirements README.md CLAUDE.md at current HEAD: zero hits, same as wave 1. smoke.ts:204 50-Story label is accurate per-assertion text for that call default (storyCount=50), not stale. No doc-code drift found. Known metadata drift and F-429/F-430 excluded per dispatch, DEV-phase out of scope.",
+      "createdAt": "2026-08-30T17:26:51.663Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1058",
+      "envelopeId": "bcb788ddcc0d3ee67ae87dfbb20e8f2c55147a2d35ab5ad52c02af9ff2c21781",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a02fc105daf5ae71f79b7594811242df7c965ab2dc1d20519179ce512e230f81"
     }
   ]
 }
