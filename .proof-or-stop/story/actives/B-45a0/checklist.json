@@ -1596,12 +1596,12 @@
           "command": "node scripts/run-dynamic-validation-replay.mjs --verify-threshold",
           "result": "pass",
           "note": "Current signed historical replay threshold verification passed against the newly completed paired execution receipt; the replay itself completed once at current head.",
-          "headHash": "deb955f8fb72bb08ca0d94344194ccd0393b65c4",
+          "headHash": "60dccf06383ebbe694bc70b3f76ecfbd2075f51b",
           "materialHash": "f0c872feff468149741f4aaf1f15e7d22cd42047f37f1ad9f1b2368722762217",
           "storyFilesHash": "b6f724f72b956568e414bff212980252cc4fc7eba06b3141e00a762381695f86",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-30T14:06:05.260Z"
+          "timestamp": "2026-08-30T14:07:09.565Z"
         },
         {
           "intentRef": "CHK-011:edge:0",
@@ -2049,12 +2049,12 @@
           "command": "node bin/proof-or-stop.js acceptance_topology_check --storyId=B-45a0 --json",
           "result": "pass",
           "note": "Re-earn the current-head mechanical receipt for the verifier-owned acceptance topology check after regenerating the current basis.",
-          "headHash": "deb955f8fb72bb08ca0d94344194ccd0393b65c4",
+          "headHash": "60dccf06383ebbe694bc70b3f76ecfbd2075f51b",
           "materialHash": "f0c872feff468149741f4aaf1f15e7d22cd42047f37f1ad9f1b2368722762217",
           "storyFilesHash": "b6f724f72b956568e414bff212980252cc4fc7eba06b3141e00a762381695f86",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-30T14:06:05.260Z"
+          "timestamp": "2026-08-30T14:07:09.565Z"
         },
         {
           "intentRef": "CHK-014:happy:2",
