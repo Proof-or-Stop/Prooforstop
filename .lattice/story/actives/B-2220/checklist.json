@@ -122,6 +122,18 @@
           "materialHash": "7eb23b12327a2b23a5c40936d7ccd6aec089ecf7097ff54eeae1fece412fc323",
           "storyFilesHash": "2b46ef95d456e0fe31fb10c562982734b302c639a18709a590a5b69590a47cc0",
           "timestamp": "2026-08-30T23:01:34.083Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "if rg -n \"Owner of the follow-up: unassigned|This document is the work order|A follow-up story should be scoped\" docs/requirements/decisions/validation-evidence-artifact-growth.md; then exit 1; else echo \"stale follow-up mandate absent\"; fi",
+          "result": "pass",
+          "note": "Executed the pinned document verifier against commit 0221f6270a; confirms the user-approved decision text and preservation boundary.",
+          "mechanical": false,
+          "headHash": "95d6ae9055aeb416eb036e846a5fb3abf6859db8",
+          "materialHash": "7eb23b12327a2b23a5c40936d7ccd6aec089ecf7097ff54eeae1fece412fc323",
+          "storyFilesHash": "2b46ef95d456e0fe31fb10c562982734b302c639a18709a590a5b69590a47cc0",
+          "timestamp": "2026-08-30T23:01:34.841Z"
         }
       ]
     }
