@@ -23363,6 +23363,52 @@
       ],
       "signatureTag": "historical-replay-admission-closeout-retention",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-424",
+      "desc": "replay-admission-range-mismatch: packages/main/src/core/historical-replay-artifact.ts:13 and :257 admit a signed executed paired report only when records.length is at least 50, while the replay producer accepts any population with at least 30 DONE Stories and selects up to 50 (packages/main/src/tasks/story-aware-validation-historical-replay.ts:174-198). The normative plan and enforcement gate require 30–50 replays (story-aware-dynamic-validation-execution-plan.md:1397 and dynamic-validation-enforcement-evidence.md:19). Thus a complete signed, execute=true, paired, otherwise-admissible 30–49 Story campaign is rejected as historical-replay-record-count-invalid despite meeting policy; the verifier also does not express the 50-story upper bound. This blocks the permitted minimum campaign from supporting DYN-3. Enforce the policy range and add boundary regressions for 29 rejected, 30 accepted, and 51 rejected.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-30T14:21:50.638Z",
+      "reviewRound": "2026-08-30T13:07:40.639Z",
+      "reviewRunId": "B-45a0:RR-1012",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2358ecd5eadbe092d870a323f3facc2a2066a0af1ac2caa0d7686c6b755798a6"
+      },
+      "readDiagnostics": [],
+      "_hash": "8ede0d90df3c1fd905da03f2fef4f49182454f8090d732909fffe19a4b8945c7",
+      "files": [
+        "packages/main/src/core/historical-replay-artifact.ts",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+      ],
+      "signatureTag": "historical-replay-admission-range",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
