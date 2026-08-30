@@ -64,9 +64,9 @@
         "docs/requirements/decisions/brand-rename-mapping.md",
         "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-30T22:03:20.701Z",
-      "endTime": null,
+      "endTime": "2026-08-30T22:20:23.778Z",
       "userSees": "At RED it prints `FAIL identity-cutover: active legacy identities remain` with class diagnostics; at descendant GREEN the same command prints `PASS identity-cutover` while named historical digest/signature checks print `PASS unchanged`.",
       "excludes": [
         "Fixture-only RED proof",
@@ -110,6 +110,13 @@
             "type": "cli"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "ba2a8fbc6070f928de80e3c76bf478aa80fed908c43566ac8e1d5155fa6398ab",
+        "storyFilesHash": "6048135b7066820827e6bdddf3eb70cce3a100c894a9decae24304aa2b6fe90f",
+        "headHash": "cb1499d4b77ea6a41ca597df150f7c0705d66b23",
+        "attestedAt": "2026-08-30T22:20:23.942Z",
+        "materialHash": "493030c7946dab4ab87da6118d09d283417caa55d794a2b59345a7a54250662e"
       }
     },
     {
