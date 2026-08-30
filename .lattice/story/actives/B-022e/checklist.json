@@ -133,6 +133,26 @@
           "scripts/verify-proof-or-stop-identity-cutover.mjs",
           "scripts/verify-global-lab-entrypoint.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Build and npm pack the root, main/core, Lab, and Utils workspaces, then inspect every packed package.json and tracked lockfile -> public names/dependencies are proof-or-stop, @proof-or-stop/core, @proof-or-stop/lab, and @proof-or-stop/utils only, versions/resolutions agree, and no distributable manifest contains an unpublished file: dependency. WHY: verifies registry-facing package identity, not only source manifests.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Install only the produced tarballs into a newly created empty temporary project with registry/network fallback disabled -> require/import resolution for each @proof-or-stop package succeeds from packed contents and the global Lab verifier targets the canonical package. WHY: catches workspace-link leakage hidden by the monorepo.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "From that clean tarball install, resolve @lattice/core, @lattice/lab, and @lattice/utils and inspect dependency trees for @lattice or file: edges -> every legacy resolution fails and no alias/transitive/file dependency reintroduces it; mutating one packed manifest back to @lattice makes the verifier fail. WHY: proves a clean break at the consumer boundary.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
