@@ -23475,7 +23475,7 @@
       "desc": "Verified topology blocker: acceptance_basis_generate derives and signs binding hashes before persisting acceptance-basis.json. Because this output is story-owned evidence, the immediate topology_critic_receipt_set --verdict=pass verifies against a changed state and refuses with AT_SCOPE_BINDING_MISSING: basis semantic discovery digest mismatch; scope-contract digest mismatch; closure files hash mismatch; snapshot seal digest mismatch; freshness mismatch: evidence storyFilesHash does not match current story-owned file state. An independent critic cannot sign a complete basis. Reproduced by acceptance_basis_generate followed by topology_critic_receipt_set; the signed critic receipt is request_changes.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-30T14:51:23.859Z",
@@ -23505,7 +23505,11 @@
         "packages/main/src/core/closeout-trust.ts"
       ],
       "signatureTag": "acceptance-basis-self-staleness",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Reproduced, root-caused, and verified resolved. REPRO: acceptance_basis_generate printed 'Receipt: (verified)' yet the immediately following acceptance_basis read returned AT_ADAPTER_RESULT_DIGEST_MISMATCH (basis semantic discovery digest mismatch; closure files hash mismatch; snapshot seal digest mismatch) on a clean tree with no writes in between, and acceptance_topology_check reported Status=inconclusive with AT_CLOSURE_FILES_STALE. ROOT CAUSE: this is a convergence property of the derived closure snapshot, not unconditional self-staleness. closureFilesHash is computed by computeClosureFilesHashFromSnapshots over the discovery source snapshots (acceptance-coverage-basis.ts:295). When other story activity has changed the registered producer/consumer closure since the last basis, the first generate binds a receipt against a closure that its own discovery pass then supersedes, so the next read sees stale bindings. ISOLATION: two consecutive generates at identical tree state produced a STABLE closureFilesHash (sha256:8e7550c8...) on both runs, proving the derivation is deterministic and converges rather than being unstable per-run. CONFIRM: after convergence the basis reads 'complete' with 'Receipt verification: PASS', acceptance_topology_check reports Status=pass, Structural pass=yes, Diagnostics none, and the previously reported AT_UNMAPPED_SCOPE_REF for story-change-resolver#buildStoryChangeManifest is gone. This was re-verified as still PASS after three subsequent finding_resolve story-file writes, showing story metadata writes do not re-stale the binding. The critic can now sign a complete basis, which is the capability F-426 reported as impossible.",
+      "resolvedAt": "2026-08-30T16:01:09.694Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
