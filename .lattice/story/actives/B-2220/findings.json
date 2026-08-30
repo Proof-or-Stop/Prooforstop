@@ -110,7 +110,7 @@
       "desc": "doc-code-drift: packages/main/src/tasks/validation-evidence-buffer-smoke.ts:79-87,115-118,564-591 still claims that returned plain objects cannot answer a later serialization differently and that the returned value has no toJSON left to consult. That contradicts docs/requirements/decisions/validation-evidence-artifact-growth.md:64-97 and packages/main/src/core/validation-executor.ts:748-763, which correctly preserve the live Object.prototype.toJSON route. Read-only built-code probe after bound return: install Object.prototype.toJSON, then remeasure; observed reported=124 before=124 after=20 diverged=true. The smoke PASS therefore overstates the property its assertions establish. Narrow the smoke comments/assertion messages to own toJSON/getter/Proxy removal (or add inherited-prototype mutation coverage) so executable diagnostics and the decision record agree.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-30T23:48:03.366Z",
@@ -123,7 +123,11 @@
         "packages/main/src/core/validation-executor.ts"
       ],
       "signatureTag": "missing|md|code-drift-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 94fc61328d by rewriting the plain-data and postcondition comments to claim only check-time facts, explicitly noting that later Object.prototype.toJSON mutation can alter writer serialization, and narrowing the assertion message accordingly. Build binding and complete compiled smoke passed; fresh receipt 8dfbd55 recorded.",
+      "resolvedAt": "2026-08-30T23:51:16.842Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
