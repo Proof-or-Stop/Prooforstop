@@ -1,42 +1,45 @@
 {
   "storyId": "B-0b50",
-  "checkedAt": "2026-08-26T10:18:57.027Z",
-  "headHash": "4808c970d5d796ffd3cf678c8de404827624ba9d",
-  "materialHash": "aa63ff3246043363ce28d0a5afa1fa2c23882f3a13ccc1d6037d67fe2c3ab61d",
-  "storyFilesHash": "de5ab0bf3aa0c1d7a9e831abb7e5f92194d69123eec34f059c1548af18fef7c5",
-  "reviewRound": "2026-08-26T07:07:48.610Z",
-  "agentId": "lattice-review-delivery",
+  "checkedAt": "2026-08-30T18:31:15.026Z",
+  "headHash": "a382b14d3e22867ae20d0fc9884f7055d473c06c",
+  "materialHash": "34ee3601db523a0b41af537106ba182ca1f20fb181781ac9846b0fe6b971d378",
+  "storyFilesHash": "40bf61711adc33af14182c7dd623f635891ca61112d5e601d179bc25397b9400",
+  "reviewRound": "2026-08-30T17:05:18.175Z",
+  "agentId": "",
   "docsPromises": [
     {
-      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docPath": "docs/story/actives/B-0b50/checklist.json#CHK-001.userSees + docs/requirements/decisions/done-prepare-automation-execution-plan.md",
       "promise": "User sees \"Next: proof-or-stop review_inventory_finalize --storyId=B-xxxx\" after done_prepare reports missing PRE_CERT inventory, instead of being sent back to done_required_validate.",
-      "status": "verified",
-      "verifiedBy": "lattice-review-delivery",
-      "evidence": "The current certification-window-smoke exit-0 transcript exercises the missing PRE_CERT path and asserts done_prepare propagates review_inventory_finalize; this matches the conservative done_prepare contract and does not weaken gate semantics."
+      "verifiedBy": "diff/grep + live smoke",
+      "evidence": "packages/main/src/handlers/done-prepare.ts adds safeDoneRequiredRecoveryCommand(), an exact-match allowlist that propagates the authoritative Next: line from the refusal message (including review_inventory_finalize) instead of always falling back to the generic done_required_validate retry command; it rejects shell metacharacters and unrelated storyIds. Wired into both blocked() call sites in runDonePrepare. node packages/main/dist/tasks/certification-window-smoke.js (current HEAD 8e3159f4711a304c8bb7de0f2483f5ae6a061657) exercised safeDoneRequiredRecoveryCommand directly with 5 assertions covering the review_inventory_finalize propagation, wrong-storyId rejection, malformed-line rejection, shell-metacharacter rejection, and non-inventory command passthrough; exit 0, printed certification-window-smoke: PASS."
     },
     {
-      "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+      "docPath": "docs/story/actives/B-0b50/checklist.json#CHK-002.userSees + docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
       "promise": "User sees the blocked certification output point directly to \"Next: proof-or-stop review_inventory_finalize --storyId=B-xxxx\" while the story remains in TEST and no DEV or REVIEW transition is requested.",
-      "status": "verified",
-      "verifiedBy": "lattice-review-delivery",
-      "evidence": "The current certification-window-smoke exit-0 transcript shows the blocked TEST-safe output, keeps inventory completeness distinct from PRE_CERT authority, and covers missing, alternate-blocker, malformed, and probe-failure recovery."
+      "verifiedBy": "diff/grep + live smoke",
+      "evidence": "packages/main/src/core/certification-window.ts adds PRE_CERT_INVENTORY_PROBE_FAILED + probeFinalizedUnconsumedReviewInventory(); refuseHeavyCertificationUnlessAdmitted() now probes the review-inventory admit API when no window exists and, on a clean empty/absent probe, sets nextCommand to review_inventory_finalize (via nextCommandForBlocker(PRE_CERT_INVENTORY_NOT_FINALIZED)) instead of the removed generic heavyCertificationStatusNext() helper (deleted in this diff); a genuine probe exception is instead surfaced distinctly as PRE_CERT_INVENTORY_PROBE_FAILED routed to certification_window_status, so a real infra failure is never mislabeled as a routine missing-inventory case. No DEV/REVIEW transition is requested anywhere in this path. This story's own DONE run exercised exactly this: its own certification window reported pre_cert_inventory_not_finalized, and the CLI routed to review_inventory_finalize --storyId=B-0b50 (epoch B-0b50:RIE-007), which succeeded from TEST with no DEV/REVIEW bounce. node packages/main/dist/tasks/certification-window-smoke.js re-run at current HEAD covers admitted/missing/probe-failed distinct next commands; exit 0, PASS."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "live_smoke_transcript captured node packages/main/dist/tasks/certification-window-smoke.js on 2026-08-26; exitCode=0; output included the review_inventory_finalize next command and certification-window-smoke: PASS."
+      "transcript": "Re-ran node packages/main/dist/tasks/certification-window-smoke.js at current HEAD 8e3159f4711a304c8bb7de0f2483f5ae6a061657 (working tree clean, dist matches committed source): exitCode=0, output contains certification-window-smoke: PASS. Covers safeDoneRequiredRecoveryCommand happy path (propagates review_inventory_finalize), edge (retains caller-specific command when Next absent or non-inventory), and adversarial (rejects wrong-storyId, malformed line, shell metacharacters)."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "live_smoke_transcript captured node packages/main/dist/tasks/certification-window-smoke.js on 2026-08-26; exitCode=0; output covered blocked TEST recovery, admitted validation, alternate blockers, and probe failure."
+      "transcript": "Re-ran node packages/main/dist/tasks/certification-window-smoke.js at current HEAD 8e3159f4711a304c8bb7de0f2483f5ae6a061657: exitCode=0, output contains certification-window-smoke: PASS. Covers the choke-path assertions for missing inventory -> review_inventory_finalize, ADMITTED window -> done_required_validate unchanged, INVALIDATED window -> story_advance REVIEW unchanged, and the new failed-probe case -> PRE_CERT_INVENTORY_PROBE_FAILED with certification_window_status next command (distinct from the missing-inventory case, so a real probe exception is never silently treated as ordinary missing-inventory)."
+    },
+    {
+      "featureId": "scope-acknowledged-host-launcher-env-strip",
+      "transcript": "Not a checklist item; recorded via scope_contract_acknowledge (scope-contract.json acknowledgements[0], headHash f11a1da0..., materialHash 32633da4...) rather than a CHK id, so there is no featureId to bind evidence to under the current schema. Re-ran node packages/main/dist/tasks/done-required-validation-smoke.js at current HEAD 8e3159f4711a304c8bb7de0f2483f5ae6a061657: exitCode=0, printed 'done-required-validation smoke passed'. This smoke iterates HOST_LAUNCHER_SESSION_ENV_KEYS and asserts each key is digest-neutral (owner-session vs other-session effectiveEnvironmentDigest identical), and iterates VALIDATION_TRANSPORT_ENV_KEY_LIST unchanged to confirm the digest-pinned list stays byte-stable.",
+      "waiverReason": "Acknowledged scope expansion (validation-command-environment.ts / done-required-validation-smoke.ts) has no corresponding checklist item id -- it was added via scope_contract_acknowledge, not a PLAN checklist entry, so featureId cannot bind to a CHK-xxx per the delivery-check schema; evidence is reported above as a live re-run instead."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery review found both user-visible promises verified, focused smoke evidence fresh and passing, edge/adversarial recovery covered, and no unresolved story TODOs."
+    "summary": "Both CHK-001 and CHK-002 user-visible promises are implemented exactly as described and independently re-verified by re-running the pinned certification-window-smoke at current HEAD (exit 0, PASS, working tree clean); the acknowledged out-of-checklist host-launcher-env-digest-strip is real code with its own passing regression (done-required-validation-smoke) and a proper scope_contract_acknowledge audit trail, and no TODO/FIXME/HACK were introduced in the diff."
   },
-  "_hash": "0522fc9ea037cc9ebc81bb4ee672c529a6b91e91ce2562716286aed1dd404fc1"
+  "_hash": "f64ee988523909f1e9531d28e6861f48642bbf8fc7ee144b63745086a5ce982f"
 }
