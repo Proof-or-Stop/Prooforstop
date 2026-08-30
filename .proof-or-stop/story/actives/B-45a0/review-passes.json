@@ -21022,6 +21022,27 @@
         "scanEscalationReason": null
       },
       "_hash": "c35f70b5f99d55e886ceaf2da042b7e48e24c8ce34072805f8108dadc98ea7b3"
+    },
+    {
+      "id": "B-45a0:RP-420",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed 1001 changed symbols; the bounded documentation comparison covered two Section 27.6 evidence paragraphs and the coupled verifier constants. F-415 is fixed: c26f is current and 67b is historical only. F-416 has current rebound evidence. Normal and tamper verification pass; no doc-code blocker found.",
+      "createdAt": "2026-08-30T06:54:15.834Z",
+      "reviewRound": "2026-08-30T06:18:36.371Z",
+      "reviewRunId": "B-45a0:RR-981",
+      "envelopeId": "b71a6fef947c302d306488ff686952ef9935e1e994e455a1a27ae04710ced886",
+      "writerSessionId": "sess-201dd1e9803f0d1ac73de40a8c274ec0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-story-aware-validation-plan.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cfb3527f66f5bd3b28ecc6ad02d8e8f223f5a239f1cd2d68d42766ee7a7a734e"
     }
   ]
 }
