@@ -46,7 +46,7 @@
       "desc": "concept-cleanup: packages/main/src/tasks/validation-evidence-buffer-smoke.ts:227 and :710-717 still encode the retired active follow-up posture after docs/requirements/decisions/validation-evidence-artifact-growth.md:9,15 explicitly declines it. The comments call the writer-owned boundary \"the repair\" and say \"a follow-up needs\" the boundary/work list; the guard also requires the deleted heading \"## What does not ship\". Therefore the repository still presents the declined proposal as required work, and the smoke required-string loop will reject the updated document because that heading was replaced with \"## Known limitations retained from B-3434\". Remove or historicalise the active follow-up wording and align the guard with the new decision without weakening preservation of B-3434 evidence.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-30T23:17:01.548Z",
@@ -58,7 +58,11 @@
         "docs/requirements/decisions/validation-evidence-artifact-growth.md"
       ],
       "signatureTag": "missing|ts|concept-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b674f70d2b: validation-evidence-buffer-smoke.ts now treats the writer-owned boundary as a historical byte-identity option, requires the declined/no-follow-up decision and current headings, rejects the three superseded mandates, and no longer calls the proposal the repair or an actionable work list. Direct Node build succeeded; build-binding plus full compiled smoke receipt b9664f9 exited 0 with selector validation-evidence-buffer-smoke: PASS.",
+      "resolvedAt": "2026-08-30T23:37:30.765Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-2220:F-004",
