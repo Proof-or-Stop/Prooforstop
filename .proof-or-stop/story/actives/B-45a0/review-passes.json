@@ -22405,6 +22405,35 @@
         "scanEscalationReason": null
       },
       "_hash": "947121250aa5ceaab9c424735f8041d00d1c8940458915bbeed6031c0ba2e9aa"
+    },
+    {
+      "id": "B-45a0:RP-458",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed e3a6186f7f (bound historical replay admission: MINIMUM_HISTORICAL_STORIES 50->30, new MAXIMUM=50, matches pre-existing 30-50 spec range in story-aware-dynamic-validation-execution-plan.md L1397/1477; expanded REPLAY_ADMISSION_NONEXECUTING_PATHS verified genuinely non-executing by grep -- none of the 6 newly added paths call discoverValidationInventory/compileValidationCatalog/select or execute replay runners, only scripts/verify-process-fact-contract.mjs does a static text read of story-aware-validation.ts which is inert; boundary smoke tests 29/30/50/51 all pass) and f2e648606d (F-427 fix: adds digestOverrides param to buildReport so a signed report with a divergent inventory/catalog digest can reach checkPairedPerformance branches at historical-replay-artifact.ts:171-172, confirmed exact line match and branch order signature->schema->head->inventory->catalog against source; confirmed override is applied before signPayload so signature validates over the divergent digest, avoiding the signature-invalid short-circuit). Independently re-verified both branches via manual mutation: deleting the inventoryDigest check line or the catalogDigest check line each makes the smoke test fail with AssertionError (exit 1); restoring returns to PASS. Ran npx tsc --noEmit clean. No concept-deletion residue found (grep for MINIMUM/MAXIMUM_HISTORICAL_STORIES, stale unqualified no-stale-receipt wording, stale 50-only claims -- none found outside expected code/docs/review-metadata locations). Noted a transient cross-session dirty file (verify-process-fact-contract.mjs, a B-5a15 fingerprint pin) unrelated to my two-commit scope; coordinator confirmed and stashed it. No blocker.",
+      "createdAt": "2026-08-30T16:38:51.787Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1049",
+      "envelopeId": "eb56e9706c7064feed2db24a5a87627c1183e0187466c5ec30d6b003e243bb7f",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "706edce4590ec97fca5db4639e159117cc9f37e78e808cd51afc59de1edb60a7"
     }
   ]
 }
