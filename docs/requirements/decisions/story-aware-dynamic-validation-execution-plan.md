@@ -1764,7 +1764,7 @@ node -e "const fs=require('fs'),c=require('crypto');const p='docs/requirements/d
 
 | Evidence field | Verdict | Authority |
 |---|---|---|
-| Audited payload SHA-256 | `sha256:67b2466c324242615edd75b811150a0965100a74130f30d729ad7735a780c466` | Recomputed independently by both auditors |
+| Audited payload SHA-256 | `sha256:c26f2da7cb9167dad8339e6d83727f20d5a0895880beaff92a510588d4f30806` | Recomputed from the current exact UTF-8 prefix with the command above |
 | DYN-1 observe-only disposition | PASS | APPROVE |
 
 | Auditor | Version | Executed UTC | DYN-1 verdict | Repository import | Response digest |
@@ -1772,7 +1772,7 @@ node -e "const fs=require('fs'),c=require('crypto');const p='docs/requirements/d
 | Agy CLI | 1.1.14 | 2026-08-19T01:35:09Z | PASS | APPROVE | `sha256:397df03f0e9b5242377b8b1b30f7b26fefa8ad2136987f1b5639aa318e80a6c9` |
 | Claude CLI | 2.1.220 | 2026-08-19T00:34:33Z | PASS | APPROVE | `sha256:06eeaa1960ce42dedaca6bf4729840cdffcf88358395d0ca946de456a96a61cd` |
 
-The raw response digests above cover the complete JSON envelopes emitted by each CLI. The repository-relative transcripts below preserve each structured verdict; the raw envelopes additionally contained transport/session/usage metadata but no different verdict. A PASS is inadmissible if either response names a different payload digest, reports an open critical/high soundness finding, or declines DYN-1 observe-only/repository import approval.
+The raw response digests above cover the complete JSON envelopes emitted by each CLI. The repository-relative transcripts below preserve each structured verdict; the raw envelopes additionally contained transport/session/usage metadata but no different verdict. Their recorded `sha256:67b246...` payload value is historical provenance for the 2026-08-19 audit and is not the current payload authority; the current recomputed prefix digest in the evidence table above is authoritative. A PASS is inadmissible if either response names a different payload digest, reports an open critical/high soundness finding, or declines DYN-1 observe-only/repository import approval.
 
 #### 27.6.1 Shared audit prompt
 
