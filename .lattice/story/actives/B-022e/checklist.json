@@ -184,9 +184,9 @@
         "docs/requirements/decisions/brand-rename-mapping.md",
         "docs/CLI.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-30T22:28:53.710Z",
-      "endTime": null,
+      "endTime": "2026-08-30T22:47:41.726Z",
       "userSees": "The isolated install prints `Proof-or-Stop 0.3.268` for `proof-or-stop --version`; `proof-or-stop help` and `proof-or-stop lab help` succeed; invoking `lattice` prints command-not-found or equivalent non-zero resolution failure.",
       "excludes": [
         "Deprecated lattice command aliases",
@@ -227,6 +227,13 @@
             "type": "cli"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "9983a0c51b9f8ffe1ab2fdbbc943d254aa0b8522385a9519ed8733188d5fbda3",
+        "storyFilesHash": "c66e747e917b35ce4a73c919762dc1b4dc265db562c518af3c7d1afe815fdc0a",
+        "headHash": "e6414867505b54463957064b4576f9502f72e9f3",
+        "attestedAt": "2026-08-30T22:47:41.921Z",
+        "materialHash": "817fbd29e055d372deee0e90d2271d6ba9036f69add7149a7ca0c4115fc3079a"
       }
     },
     {
