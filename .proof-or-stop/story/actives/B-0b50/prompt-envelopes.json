@@ -3062,6 +3062,187 @@
       "incrementalContextBytes": 8269,
       "escalatedToFull": true,
       "escalationReason": "SAFETY_REQUIRES_FULL"
+    },
+    {
+      "schemaVersion": "proofbound.prompt-envelope.v1",
+      "roleId": "lattice-review-topology-critic",
+      "storyId": "B-0b50",
+      "dispatchKind": "story-dispatch",
+      "dispatchPromptDigest": "f56dce27fea38472d1ce94a339a01816ecb231363c5c3c8e47451c61ed4cf5ea",
+      "createdAt": "2026-08-30T16:40:13.219Z",
+      "headHash": "3b629087c16be28dc2235f34b11c7e5139851dd6",
+      "runtimeContractVersion": "proofbound.agent-runtime.v1",
+      "runtimeSemanticDigest": "b62d11379b513f77a921a18a93c00e1a620e636c978441a0d1301ff875f5063a",
+      "runtimeRenderDigest": "2ed90580d07e50b86852b451625a813960d49ba33bab0a5ad90e504d75c59b1b",
+      "roleContractVersion": "proofbound.role-contract.v1",
+      "roleSemanticDigest": "38bfd5f5a08208a07cf9562fc295ab636e89b0ddff331f9b30f341fac4c1aa8e",
+      "roleRenderDigest": "2d4411f90d969398d14016d72a6f394c50467050ba0f3cdd3840a51410039260",
+      "contextMode": "full",
+      "contextDigest": "58fdbb9d11da37333a80290bee6f6fe22a7106d3e90dc370149ec52bcb04a585",
+      "materialHash": "18267efa56708d7e267c82e8770f61c1eee970800fc9a2b9b78a4cefed509061",
+      "storyFilesHash": "a2bf495d791e0749e4727d2ed0012ad6cd5d0ec082e078a912e615d4722260e0",
+      "policyHash": "0e09c27cc41fe72570029bbbf58c103d1e11dac7d2cbb299fe7f3a7a6429212c",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "00b52474ddf090604c357893e35c53c2f50a6b786544b083dcb38513f90f88ca",
+      "knownExecutionEnvironmentDigest": "b1e32cccc89b448e83a89f6cc6fde8bc23960f036837a9f06078e16ca389bcdd",
+      "assemblerVersion": "proofbound.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proofbound.prompt-dispatch.v1",
+      "launcherSpecDigest": "b5a5d366f23b29f3e3d42053e075fa2f32551cddcc237cd3f6ccad6fbfe71630",
+      "commandPolicyDigest": "722b924abcff385e3f5dc79d2826fc75661c348e98569212653d9d985fc13242",
+      "assembledPromptDigest": "7acb69da214ad2ac1138c372da0347cbd96ea3fd580c9bbbc5304548acdbd7cd",
+      "bytes": 10325,
+      "lines": 73,
+      "estimatedTokens": 2582,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "674a19fe8d0c06ba2d583e8fee8edc2cbdcffde53d63649b3cf052a7a8c8d6d0"
+    },
+    {
+      "schemaVersion": "proofbound.prompt-envelope.v1",
+      "roleId": "lattice-review-topology-critic",
+      "storyId": "B-0b50",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-0b50:RR-027",
+      "reviewRound": "2026-08-30T16:26:56.469Z",
+      "lane": "lattice-review-topology-critic",
+      "dispatchPromptDigest": "f56dce27fea38472d1ce94a339a01816ecb231363c5c3c8e47451c61ed4cf5ea",
+      "hostRenderIdentityDigest": "8ccee6e075273f57b34ec6f64997ff53b9655bab063ec8d45444f0400aa4e852",
+      "createdAt": "2026-08-30T16:43:26.341Z",
+      "headHash": "3b629087c16be28dc2235f34b11c7e5139851dd6",
+      "runtimeContractVersion": "proofbound.agent-runtime.v1",
+      "runtimeSemanticDigest": "b62d11379b513f77a921a18a93c00e1a620e636c978441a0d1301ff875f5063a",
+      "runtimeRenderDigest": "2ed90580d07e50b86852b451625a813960d49ba33bab0a5ad90e504d75c59b1b",
+      "roleContractVersion": "proofbound.role-contract.v1",
+      "roleSemanticDigest": "38bfd5f5a08208a07cf9562fc295ab636e89b0ddff331f9b30f341fac4c1aa8e",
+      "roleRenderDigest": "2d4411f90d969398d14016d72a6f394c50467050ba0f3cdd3840a51410039260",
+      "contextMode": "full",
+      "contextDigest": "58fdbb9d11da37333a80290bee6f6fe22a7106d3e90dc370149ec52bcb04a585",
+      "materialHash": "18267efa56708d7e267c82e8770f61c1eee970800fc9a2b9b78a4cefed509061",
+      "storyFilesHash": "a2bf495d791e0749e4727d2ed0012ad6cd5d0ec082e078a912e615d4722260e0",
+      "policyHash": "0e09c27cc41fe72570029bbbf58c103d1e11dac7d2cbb299fe7f3a7a6429212c",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "3f805b07806bd68e58fe552a7655883eb55fda65b4819cdbbe3c18c62c6141e3",
+      "knownExecutionEnvironmentDigest": "b1e32cccc89b448e83a89f6cc6fde8bc23960f036837a9f06078e16ca389bcdd",
+      "assemblerVersion": "proofbound.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proofbound.prompt-dispatch.v1",
+      "launcherSpecDigest": "31bb210285b87ed2fe7e53c24c6eaa6a56bb1d1a85185dc4e9bc935e9802e551",
+      "commandPolicyDigest": "722b924abcff385e3f5dc79d2826fc75661c348e98569212653d9d985fc13242",
+      "assembledPromptDigest": "7acb69da214ad2ac1138c372da0347cbd96ea3fd580c9bbbc5304548acdbd7cd",
+      "bytes": 10325,
+      "lines": 73,
+      "estimatedTokens": 2582,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "0dbd93af1a691f4efecd39c92cc869e8b38dc84d29658f251d86b48ec0af63de",
+      "freshnessClassification": "NOT_EVALUATED",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_MISSING_TRUSTED_PRIOR_PASS",
+        "FULL_PRIVATE_IMPLEMENTATION_V1"
+      ],
+      "changedFilesDigest": "616c73f5df9a479462e7499b7d9e5d53a5db2fbfd3b2a40fad022aaa0a531303",
+      "impactedFilesDigest": "dd8237af6fbf606d43204c3a2cb625875d4e9f3b5850c388135aed37a84d1524",
+      "taskSemanticDigest": "f7f09090f3c52088eeed1ada472d9c2c582a00575b449a68ddc1e425eda35b32",
+      "findingProjection": [
+        {
+          "id": "B-0b50:F-001",
+          "createdAt": "2026-08-25T20:14:15.160Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/certification-window.ts:878 quality: finalizedUnconsumedReviewInventory exceptions are silently converted to hasUnconsumedInventory=false, so an inventory read/health failure is indistinguishable from genuinely missing inventory and the operator is incorrectly routed to review_inventory_finalize. This new catch needs explicit probe/error classification or propagation/health reporting under the repository fail-fast policy; otherwise data/API failures are hidden."
+        },
+        {
+          "id": "B-0b50:F-002",
+          "createdAt": "2026-08-25T20:14:16.311Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-817 only tests rejection of a Next line for another Story ID; it never feeds safeDoneRequiredRecoveryCommand malformed or shell-metacharacter input, so CHK-001:adversarial:0 lacks concrete evidence for its command-injection resistance requirement."
+        },
+        {
+          "id": "B-0b50:F-003",
+          "createdAt": "2026-08-25T20:14:35.659Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-817 never calls safeDoneRequiredRecoveryCommand with a non-inventory blocker or with no authoritative Next line, so CHK-001:edge:0 lacks concrete evidence that the existing caller-specific fallback is retained."
+        },
+        {
+          "id": "B-0b50:F-004",
+          "createdAt": "2026-08-25T20:14:40.372Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/core/certification-window.ts:801 quality: heavyCertificationStatusNext is no longer referenced after refuseHeavyCertificationUnlessAdmitted switched to nextCommandForBlocker; the now-dead exported helper should be removed or have a documented remaining caller to avoid stale recovery behavior."
+        },
+        {
+          "id": "B-0b50:F-005",
+          "createdAt": "2026-08-25T20:21:51.749Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/certification-window.ts:878 quality: finalizedUnconsumedReviewInventory exceptions are silently converted to hasUnconsumedInventory=false, so an inventory read/health failure is indistinguishable from genuinely missing inventory and the operator is incorrectly routed to review_inventory_finalize. This new catch needs explicit probe/error classification or propagation/health reporting under the repository fail-fast policy; otherwise data/API failures are hidden."
+        },
+        {
+          "id": "B-0b50:F-006",
+          "createdAt": "2026-08-25T20:22:13.605Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/core/certification-window.ts:801 quality: heavyCertificationStatusNext is no longer referenced after refuseHeavyCertificationUnlessAdmitted switched to nextCommandForBlocker; the now-dead exported helper should be removed or have a documented remaining caller to avoid stale recovery behavior."
+        },
+        {
+          "id": "B-0b50:F-007",
+          "createdAt": "2026-08-25T20:27:33.126Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-818 — CHK-001:adversarial requires proving malformed or unrelated refusal text cannot inject an arbitrary shell command, but the regression only checks a wrong Story ID; it does not exercise a metacharacter-bearing or malformed Next line against safeDoneRequiredRecoveryCommand, so this must-priority intent lacks concrete executable coverage."
+        },
+        {
+          "id": "B-0b50:F-008",
+          "createdAt": "2026-08-26T06:21:22.771Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, and CHK-002:adversarial:0 lack current valid verificationEvidence: .proof-or-stop/story/actives/B-0b50/checklist.json:59-249 contains only receipts bound to head fe2d6d1, materialHash c0bd5e6, and storyFilesHash a5eefa4, while the current RI-002 cutoff is c485a74, materialHash 79e35e, and storyFilesHash 7e3d7. The current certification-window smoke passes, but its result must be re-recorded at the RI-002 cutoff before coverage is admissible."
+        },
+        {
+          "id": "B-0b50:F-009",
+          "createdAt": "2026-08-26T06:21:50.411Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/certification-window.ts:369 — when finalizedUnconsumedReviewInventory throws, refuseHeavyCertificationUnlessAdmitted reports pre_cert_inventory_probe_failed but points to certification_window_begin. That command writes a new blocked CertificationWindow and collectAdmitFacts swallows the same probe error before falling back to review_inventory_finalize, so the prescribed recovery cannot repair or faithfully surface the failed inventory read and causes avoidable metadata churn; keep this path fail-closed with an explicit diagnostic/read-only retry instead."
+        },
+        {
+          "id": "B-0b50:F-010",
+          "createdAt": "2026-08-26T06:57:39.988Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "The current acceptance evidence is inadmissible for topology review: acceptance_basis reports status=invalid and basisStatus=partial with AT_ADAPTER_RESULT_DIGEST_MISMATCH, closure/storyFiles freshness mismatches, and unmapped process-fact paths; acceptance_topology_check reports inconclusive legacy_missing with AT_MISSING_TOPOLOGY; pre_review_check_read reports authority=inadmissible; and acceptance_rollout_check fails AR_REPORT_STALE. The verifier-owned basis/topology and dependent pre-review evidence must be regenerated before a topology pass can be admitted."
+        },
+        {
+          "id": "B-0b50:F-011",
+          "createdAt": "2026-08-26T07:17:06.187Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Wave 4 coverage gap: the only current-HEAD evidence for CHK-001/CHK-002 is node packages/main/dist/tasks/certification-window-smoke.js (12/12 must intents). packages/main/src/tasks/certification-window-smoke.ts:1044-1056 only checks the certification-window/done-prepare smoke and final PASS; it executes none of acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check. Therefore the required verifier-owned coverage of full 3 rounds x 2 hosts, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history is not mechanically evidenced. Current acceptance_topology_check is inconclusive with AT_COVERAGE_BASIS_PARTIAL and AT_MISSING_TOPOLOGY; pre_review_check_read is inconclusive with missing executable evidence and inadmissible authority."
+        },
+        {
+          "id": "B-0b50:F-012",
+          "createdAt": "2026-08-30T16:31:16.730Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/done-required-validation-smoke.ts:361-368 duplicates the literal 6-key HOST_LAUNCHER_SESSION_ENV_KEYS list from packages/main/src/core/validation-command-environment.ts:102-109 by hand instead of importing it (the source constant is not exported). If a key is later added/removed/renamed on the source list, this regression silently stops covering the drift instead of failing, defeating its own purpose as a digest-neutrality guard."
+        }
+      ],
+      "findingProjectionDigest": "4a92a298a445560dafcd9c8f9ef299c218a2e8319a16476079814f630e73277d",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 10325,
+      "escalatedToFull": false
     }
   ]
 }
