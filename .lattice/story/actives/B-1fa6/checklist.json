@@ -232,7 +232,99 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:rollout-contract",
+            "desc": "The canonical Markdown plan defines observe, warn, and enforce as three explicit rollout states with entry criteria, permitted writes, gate authority, operator-visible output, rollback or kill-switch behavior, and exit criteria. Observe is read-only and non-gating; warn may emit advisory triage and reviewer overrides but cannot change lifecycle outcomes; enforce is allowed only after the prerequisite implementation Stories and process-fact contracts are proven.",
+            "type": "docs",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:happy:metrics-scorecard",
+            "desc": "The plan defines a reproducible rollout scorecard with numerator, denominator, collection command or checked-in read-only procedure, measurement window, and promotion or rollback threshold for safety, classification quality, review-effort reduction, and runtime cost. At minimum it measures false non-blocking high or critical verdicts, stale or tampered assessment rejection, unknown high or critical fail-closed behavior, candidate-to-verified conversion, duplicate or routed disposition accuracy, manual Finding operations, review cycles or elapsed review time, and p50 and p95 triage latency; point-in-time values are dated and are not durable constants.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:happy:lab-scope-transition",
+            "desc": "The plan gives a stepwise @lattice/lab to @proof-or-stop/lab example that cites the historical B-cc10 decision which explicitly kept sibling package names out of scope, records the new operator request as a scope-changing fact, preserves the historical verdict, invalidates or remints the current assessment against the new scope, and produces verified plus applicable for the new rename Story without treating history alone as gate evidence.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:happy:legacy-compatibility",
+            "desc": "The migration section states that the historical Finding corpus remains readable and append-only, receives no bulk rewrite, and is assessed lazily for a target Story. It defines behavior for legacy Findings with missing assessment, legacy evidenceState normalization, superseded canonical lookup, feature-state downgrade from enforce to warn, and recovery after rollback without losing Findings, assessments, routes, or audit lineage.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:enforcement-dependencies",
+            "desc": "The plan distinguishes displayed Story numbering from safe execution order and prevents enforce until atomic and idempotent ledger persistence, unique IDs, runtime-artifact receipts, canonical identity and supersession lookup, signed current-material applicability assessments, shared gate predicate registration, and compatibility behavior have passed their acceptance tests. Observe or warn may start earlier only while remaining non-authoritative and non-gating.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:edge:metric-semantics",
+            "desc": "Every claimed time saving separates classifier compute cost, reviewer triage cost, genuine defect repair cost, and review convergence cost; it does not promise that Dynamic Finding reduces the number or repair time of genuinely applicable defects. Metrics disclose exclusions, sampled Story classes, lane-versus-round semantics, retries, and corpus or HEAD freshness.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:edge:lab-package-resolution",
+            "desc": "The lab example separately identifies brand scope and package-resolution policy: renaming the package key does not prove that a clean install can resolve it. Future implementation acceptance must choose and verify a publish or local workspace/file-link contract and cover the lab package manifest, main dependency, lockfiles, exact-name verifier, and clean temporary install, while noting that local bootstrap may load by filesystem path and therefore is not proof of npm-name resolution.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:edge:scope-boundary",
+            "desc": "The example explicitly does not implement or claim completion of the lab rename, does not retroactively edit B-cc10, and does not silently expand the request to @lattice/utils, the root package, signature salts, archived evidence, or other frozen identities. Any future expansion requires a new scope decision and a fresh applicability assessment.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:no-historical-authority",
+            "desc": "A historical Finding, DONE outcome, source-lineage match, signatureTag, playbook, package-name grep hit, or prior out-of-scope decision alone can neither block nor unblock the new Story. The lab transition and rollout rules require current scope evidence plus a signed fresh assessment; source lineage remains non-authoritative and proves provenance or dedup identity, not semantic defect equivalence.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:adversarial:safety-floor",
+            "desc": "Reject any enforce proposal that permits a verified high or critical Finding to become non-blocking from file disjointness, model confidence, historical similarity, or an unowned out-of-scope verdict. The plan requires zero false non-blocking high or critical decisions in the reviewed adversarial qualification set, routes every non-blocking real issue to a valid owner, and fails closed on unknown, stale, unsigned, mismatched, or tampered assessments.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:adversarial:rollback-proof",
+            "desc": "The rollout contains negative tests proving that disabling or rolling back enforcement restores the prior authoritative gate predicate rather than treating advisory records as evidence; repeated apply is idempotent; stale scope, story-owned material, and runtime artifact changes invalidate the right assessments; unrelated whole-tree drift is not silently self-classified; and no rollback deletes or rewrites historical records.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:adversarial:reproducible-lab-example",
+            "desc": "An independent reviewer can verify the lab example from cited decision documents and current package and verifier surfaces and can demonstrate both transitions: old scope yields historical out-of-scope without rewriting that record, while explicit current scope containing @proof-or-stop/lab yields applicable. The item fails if the document calls the old exclusion an accidental missed rename, claims package installation succeeds without a clean-install witness, or changes repository package names as part of this specification Story.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
