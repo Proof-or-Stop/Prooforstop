@@ -110,6 +110,18 @@
           "materialHash": "7eb23b12327a2b23a5c40936d7ccd6aec089ecf7097ff54eeae1fece412fc323",
           "storyFilesHash": "2b46ef95d456e0fe31fb10c562982734b302c639a18709a590a5b69590a47cc0",
           "timestamp": "2026-08-30T23:01:33.303Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "command": "rg -n \"Reconsider only if|reopen\" docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "Executed the pinned document verifier against commit 0221f6270a; confirms the user-approved decision text and preservation boundary.",
+          "mechanical": false,
+          "headHash": "1a26c9acc4d27ae6e4b20a7036a5ad5b4d5962fe",
+          "materialHash": "7eb23b12327a2b23a5c40936d7ccd6aec089ecf7097ff54eeae1fece412fc323",
+          "storyFilesHash": "2b46ef95d456e0fe31fb10c562982734b302c639a18709a590a5b69590a47cc0",
+          "timestamp": "2026-08-30T23:01:34.083Z"
         }
       ]
     }
