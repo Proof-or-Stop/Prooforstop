@@ -1,14 +1,1 @@
-{
-  "story_advance/e6f3b48d61bc": {
-    "count": 1,
-    "command": "story_advance",
-    "lastReason": "Cannot enter REVIEW: acceptance rollout enforcement blocked DEV admission.\nAcceptance rollout enforcement:\n  mode=enforce; status=fail; blocking=true\n  receipt=stale; quorum=full-3x2\n  codes=AR_REPORT_STALE\n\n-> Run proof-or-stop acceptance_rollout_report, then acceptance_rollout_check. Roll back by setting proofStory.acceptanceRolloutGateMode to warn or observe; prior reports remain immutable.",
-    "lastAt": "2026-08-30T18:55:52.561Z"
-  },
-  "story_advance/f51ca56ac83a": {
-    "count": 1,
-    "command": "story_advance",
-    "lastReason": "Cannot enter REVIEW: Scope gate: fail (1 unacknowledged violation(s), mode=enforce)\n\nScope gate: fail (1 unacknowledged violation(s), mode=enforce)\nChanged files (38):\n  .proof-or-stop/dev-memory/experience.jsonl\n  .proof-or-stop/dev-memory/finish-decisions/B-0b50.json\n  .proof-or-stop/story/actives/B-0b50/acceptance-basis.json\n  .proof-or-stop/story/actives/B-0b50/acceptance-rollout-report.json\n  .proof-or-stop/story/actives/B-0b50/certification-window.json\n  .proof-or-stop/story/actives/B-0b50",
-    "lastAt": "2026-08-30T18:58:15.921Z"
-  }
-}
+{}
