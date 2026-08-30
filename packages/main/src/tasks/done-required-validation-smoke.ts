@@ -350,6 +350,35 @@ function assertDoneRequiredBlocked(
       consumer.commands.map(command => command.effectiveEnvironmentDigest),
       'owner and independent delivery-review sessions share DONE-required command identity',
     );
+    // Host-launcher session identity is stripped at the filter rather than added
+    // to the digest-pinned list, so iterating VALIDATION_TRANSPORT_ENV_KEY_LIST
+    // below would not cover it. These keys change every session (CLAUDE_PID is a
+    // pid; the socket path embeds it), and leaving them ambient made a receipt
+    // written in one session unverifiable in the next -- surfacing as
+    // effective-environment-digest-mismatch on a story that had actually passed.
+    for (const key of [
+      'CLAUDE_CODE_CHILD_SESSION',
+      'CLAUDE_CODE_MESSAGING_SOCKET',
+      'CLAUDE_CODE_MESSAGING_TOKEN',
+      'CLAUDE_PID',
+      'CODEX_COMPANION_SESSION_ID',
+      'CODEX_COMPANION_TRANSCRIPT_PATH',
+    ]) {
+      const ownerSession = buildDoneRequiredExecutionIdentity({
+        projectRoot: root, policy,
+        processEnvironment: { ...common, [key]: 'session-one' }, platform: 'linux',
+      });
+      const otherSession = buildDoneRequiredExecutionIdentity({
+        projectRoot: root, policy,
+        processEnvironment: { ...common, [key]: 'session-two' }, platform: 'linux',
+      });
+      assert.deepEqual(
+        ownerSession.commands.map(command => command.effectiveEnvironmentDigest),
+        otherSession.commands.map(command => command.effectiveEnvironmentDigest),
+        `host-launcher session key is digest-neutral: ${key}`,
+      );
+    }
+
     for (const key of VALIDATION_TRANSPORT_ENV_KEY_LIST) {
       const owner = { ...common, [key]: 'owner-identity' };
       const reviewer = { ...common, [key]: 'reviewer-identity' };
