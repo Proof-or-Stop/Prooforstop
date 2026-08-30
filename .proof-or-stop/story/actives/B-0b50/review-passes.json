@@ -725,6 +725,34 @@
         "scanEscalationReason": null
       },
       "_hash": "0722664d8b10d3557ff5cd38c19f24dca27c3212018ee7d96ad4878070f46007"
+    },
+    {
+      "id": "B-0b50:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified at current HEAD e8f31eb (closeout round). CHK-001/CHK-002 verificationEvidence bound to source commit 383c9c2d35, confirmed ancestor of HEAD; zero source commits since (only .proof-or-stop lifecycle metadata). The one intervening source commit is purely additive to HOST_LAUNCHER_SESSION_ENV_KEYS, auto-covered by the existing per-key digest-neutrality loop (confirmed done-required-validation-smoke.ts imports the array, not re-lists it). Re-ran node packages/main/dist/tasks/certification-window-smoke.js against fresh build of current HEAD: exit 0, selector certification-window-smoke: PASS present. Spot-checked concrete assertions for all 6 intents (Next: command routing per blocker type, injection-payload rejection, inventory-completeness-only fail-closed). No coverage gap found.",
+      "createdAt": "2026-08-30T19:02:04.733Z",
+      "reviewRound": "2026-08-30T18:58:39.043Z",
+      "reviewRunId": "B-0b50:RR-040",
+      "envelopeId": "5cab6f2d2f3854b8abef36cf5ee3b75987afe8fcc93aa96adeeda6fa04dbc8b7",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c73f037689854a8b414c5e6f60c3ba6a8865ad249722130614115f1e036f2f34"
     }
   ]
 }
