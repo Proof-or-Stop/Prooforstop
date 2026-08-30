@@ -112,7 +112,7 @@ function seedDoneEvidence(root: string, storyId: string, store: StoryStore): voi
     materialHash,
     ...(storyFilesHash ? { storyFilesHash } : {}),
     reviewRound: NOW,
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
@@ -122,13 +122,13 @@ function seedDoneEvidence(root: string, storyId: string, store: StoryStore): voi
 }
 
 function setupFixture(): string {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-review-assurance-surfacing-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-assurance-surfacing-'));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: '.',
     rootDir: '.',
     testsDir: 'tests',
     fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'light' },
     staleThresholds: {
@@ -139,9 +139,9 @@ function setupFixture(): string {
     },
   }, null, 2) + '\n');
   write(root, '.gitignore', [
-    '.lattice/activity.jsonl',
-    '.lattice/learning/runtime-memory-pack-cache/',
-    '.lattice/locks/',
+    '.proof-or-stop/activity.jsonl',
+    '.proof-or-stop/learning/runtime-memory-pack-cache/',
+    '.proof-or-stop/locks/',
     '',
   ].join('\n'));
   write(root, 'README.md', '# review assurance surfacing fixture\n');
@@ -197,20 +197,20 @@ function setupFixture(): string {
 }
 
 function setupEscalationOnlyFixture(): string {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-review-escalation-only-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-escalation-only-'));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: '.',
     rootDir: '.',
     testsDir: 'tests',
     fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'light' },
   }, null, 2) + '\n');
   write(root, '.gitignore', [
-    '.lattice/activity.jsonl',
-    '.lattice/learning/runtime-memory-pack-cache/',
-    '.lattice/locks/',
+    '.proof-or-stop/activity.jsonl',
+    '.proof-or-stop/learning/runtime-memory-pack-cache/',
+    '.proof-or-stop/locks/',
     '',
   ].join('\n'));
   write(root, 'README.md', '# review escalation only fixture\n');
@@ -266,7 +266,7 @@ function setupEscalationOnlyFixture(): string {
       category: 'missing',
       status: 'open',
       evidenceState: 'verified',
-      agent: 'lattice-review-concept',
+      agent: 'proof-or-stop-review-concept',
       createdAt: NOW,
       reviewRound: FIRST_REVIEW_ROUND,
     },
@@ -277,7 +277,7 @@ function setupEscalationOnlyFixture(): string {
       category: 'missing',
       status: 'open',
       evidenceState: 'verified',
-      agent: 'lattice-review-quality',
+      agent: 'proof-or-stop-review-quality',
       createdAt: NOW,
       reviewRound: FIRST_REVIEW_ROUND,
     },
@@ -293,7 +293,7 @@ function renderedCommands(text: string): string[] {
   return text
     .split('\n')
     .map((line) => line.trim().replace(/^- /, '').split(' # ')[0].trim())
-    .filter((line) => line.startsWith('lattice '));
+    .filter((line) => line.startsWith('proofOrStop '));
 }
 
 function assertShellSafeCommandTemplates(text: string): void {

@@ -168,7 +168,7 @@
  *   (default)   repro-first: exit 1 while either gate is RED or any D row is
  *               not REFUSED, 0 when both gates are GREEN and every D row is
  *               REFUSED, 2 when a control/premise is BROKEN. This is the mode
- *               registered in `lattice.config.json`.
+ *               registered in `proof-or-stop.config.json`.
  *   --attest    identical measurement, identical rows, but exit 0 whenever the
  *               measurement RAN CLEANLY (all controls/premises OK), so it can be
  *               pinned as a tool-executed `verification_evidence_add` command,

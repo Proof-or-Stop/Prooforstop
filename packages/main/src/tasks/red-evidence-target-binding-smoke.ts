@@ -146,7 +146,7 @@ try {
     git(['init', '-q']);
     git(['config', 'user.email', 'red@w2b.local']);
     git(['config', 'user.name', 'red-w2b']);
-    const relPath = `.lattice/story/actives/B-smoke/${RED_TARGET_BINDINGS_FILENAME}`;
+    const relPath = `.proof-or-stop/story/actives/B-smoke/${RED_TARGET_BINDINGS_FILENAME}`;
     const abs = join(repo, relPath);
     mkdirSync(dirname(abs), { recursive: true });
     const committedFile = appendTargetBinding(emptyRedTargetBindingsFile('B-smoke', '2026-07-25T00:00:00.000Z'),
@@ -163,7 +163,7 @@ try {
     const got = readCommittedTargetBindings({ gitCwd: repo, ref, relPath });
     assert.ok(got);
     assert.equal(got!.bindings[0].adapterId, 'runner-A', 'reader returns the COMMITTED binding, not the live swap (anti-swap)');
-    assert.equal(readCommittedTargetBindings({ gitCwd: repo, ref, relPath: `.lattice/story/actives/B-none/${RED_TARGET_BINDINGS_FILENAME}` }), null,
+    assert.equal(readCommittedTargetBindings({ gitCwd: repo, ref, relPath: `.proof-or-stop/story/actives/B-none/${RED_TARGET_BINDINGS_FILENAME}` }), null,
       'a missing file at a valid ref returns null (no live fallback)');
     assert.throws(
       () => readCommittedTargetBindings({ gitCwd: repo, ref: 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef', relPath }),
@@ -176,7 +176,7 @@ try {
     'red_evidence_binding_set flows through the owner-lease choke point as storyScopedMutating');
   // Mutation-authority is independent of the lease: an owner role is accepted,
   // a role lacking the mutation is rejected.
-  assert.doesNotThrow(() => resolveAgentMutationAuthority({ command: 'red_evidence_binding_set', envActor: 'lattice-implementer' }));
+  assert.doesNotThrow(() => resolveAgentMutationAuthority({ command: 'red_evidence_binding_set', envActor: 'proof-or-stop-implementer' }));
   assert.throws(() => resolveAgentMutationAuthority({ command: 'red_evidence_binding_set', envActor: 'verification-intent' }),
     'a role without red_evidence_binding_set authority is rejected');
   {
@@ -185,15 +185,15 @@ try {
     const storyId = 'B-lease';
     const storyDir = store.storyDirPath(storyId);
     mkdirSync(storyDir, { recursive: true });
-    const savedSession = process.env.LATTICE_SESSION_ID;
+    const savedSession = process.env.PROOF_OR_STOP_SESSION_ID;
     try {
       // A FOREIGN session holds the active lease.
-      process.env.LATTICE_SESSION_ID = 'sess-owner';
+      process.env.PROOF_OR_STOP_SESSION_ID = 'sess-owner';
       resetSessionIdForTest();
       acquireOwnerLease(storyDir, { command: 'checklist_update', cwd: '/tmp/owner-wt' });
       const leaseBefore = readFileSync(ownerLeasePath(storyDir), 'utf-8');
       // Act as a different session.
-      process.env.LATTICE_SESSION_ID = 'sess-intruder';
+      process.env.PROOF_OR_STOP_SESSION_ID = 'sess-intruder';
       resetSessionIdForTest();
       assert.throws(
         () => enforceStoryOwnerLeaseGate('red_evidence_binding_set', { storyId }, store, null, leaseRoot),
@@ -207,8 +207,8 @@ try {
       assert.doesNotThrow(() => enforceStoryOwnerLeaseGate('red_evidence_binding_set', { storyId: ownStory }, store, null, leaseRoot),
         'the owning session runs red_evidence_binding_set and acquires the lease');
     } finally {
-      if (savedSession === undefined) delete process.env.LATTICE_SESSION_ID;
-      else process.env.LATTICE_SESSION_ID = savedSession;
+      if (savedSession === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID;
+      else process.env.PROOF_OR_STOP_SESSION_ID = savedSession;
       resetSessionIdForTest();
     }
   }
@@ -254,12 +254,12 @@ try {
       'M1 is an expected RED target for the stale-lease story');
 
     const storyDir = store.storyDirPath(storyId);
-    const savedSession = process.env.LATTICE_SESSION_ID;
+    const savedSession = process.env.PROOF_OR_STOP_SESSION_ID;
     try {
       // A FOREIGN session "sess-owner" holds a STALE lease: heartbeat 40 minutes
       // ago (> STALE_LEASE_THRESHOLD_MS of 30 min).
       const staleStamp = new Date(Date.now() - 40 * 60 * 1000).toISOString();
-      process.env.LATTICE_SESSION_ID = 'sess-owner';
+      process.env.PROOF_OR_STOP_SESSION_ID = 'sess-owner';
       resetSessionIdForTest();
       acquireOwnerLease(storyDir, { command: 'checklist_update', cwd: '/tmp/owner-wt', now: () => staleStamp });
       const staleLease = JSON.parse(readFileSync(ownerLeasePath(storyDir), 'utf-8'));
@@ -268,7 +268,7 @@ try {
       const leaseBefore = readFileSync(ownerLeasePath(storyDir), 'utf-8');
 
       // Act as a DIFFERENT session "sess-intruder".
-      process.env.LATTICE_SESSION_ID = 'sess-intruder';
+      process.env.PROOF_OR_STOP_SESSION_ID = 'sess-intruder';
       resetSessionIdForTest();
 
       // (a) WITHOUT --takeover: a stale foreign lease still REJECTS the
@@ -299,14 +299,14 @@ try {
 
       // (c) With the lease recovered, the REGISTERED handler binds M1 — the
       // full post-gate dispatch path a real CLI invocation follows.
-      const msg: string = bindingSet!({ storyId, acceptanceTargetRef: 'M1', adapterId: 'node-test-runner', testCaseRef: 'test/red/m1.test.ts', agent: 'lattice-implementer' });
+      const msg: string = bindingSet!({ storyId, acceptanceTargetRef: 'M1', adapterId: 'node-test-runner', testCaseRef: 'test/red/m1.test.ts', agent: 'proof-or-stop-implementer' });
       assert.match(msg, /targetBindingDigest sha256:/, 'the registered handler bound M1 after stale-lease recovery');
       const persisted = store.readRedTargetBindings(storyId);
       assert.ok(persisted && persisted.bindings.length === 1 && persisted.bindings[0].acceptanceTargetRef === 'M1',
         'the binding written through the recovered lease persisted exactly once');
     } finally {
-      if (savedSession === undefined) delete process.env.LATTICE_SESSION_ID;
-      else process.env.LATTICE_SESSION_ID = savedSession;
+      if (savedSession === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID;
+      else process.env.PROOF_OR_STOP_SESSION_ID = savedSession;
       resetSessionIdForTest();
     }
   }
@@ -351,13 +351,13 @@ try {
 
     // Out-of-set ref REJECTS (§3.3 membership).
     assert.throws(
-      () => bindingSet!({ storyId, acceptanceTargetRef: 'NOT-A-TARGET', adapterId: 'a', testCaseRef: 't', agent: 'lattice-implementer' }),
+      () => bindingSet!({ storyId, acceptanceTargetRef: 'NOT-A-TARGET', adapterId: 'a', testCaseRef: 't', agent: 'proof-or-stop-implementer' }),
       (e: Error) => /not in expectedRedTargets/.test(e.message),
       'an out-of-expectedRedTargets ref is rejected at write time (§3.3)',
     );
 
     // In-set ref SUCCEEDS.
-    const msg: string = bindingSet!({ storyId, acceptanceTargetRef: 'M1', adapterId: 'node-test-runner', testCaseRef: 'test/red/m1.test.ts', agent: 'lattice-implementer' });
+    const msg: string = bindingSet!({ storyId, acceptanceTargetRef: 'M1', adapterId: 'node-test-runner', testCaseRef: 'test/red/m1.test.ts', agent: 'proof-or-stop-implementer' });
     assert.match(msg, /targetBindingDigest sha256:/);
     const persisted = store.readRedTargetBindings(storyId);
     assert.ok(persisted && persisted.bindings.length === 1 && persisted.bindings[0].acceptanceTargetRef === 'M1');
@@ -367,7 +367,7 @@ try {
 
     // Duplicate target REJECTS.
     assert.throws(
-      () => bindingSet!({ storyId, acceptanceTargetRef: 'M1', adapterId: 'other', testCaseRef: 'test/red/other.test.ts', agent: 'lattice-implementer' }),
+      () => bindingSet!({ storyId, acceptanceTargetRef: 'M1', adapterId: 'other', testCaseRef: 'test/red/other.test.ts', agent: 'proof-or-stop-implementer' }),
       (e: Error) => e instanceof RedTargetBindingDuplicateError || /duplicate target binding/.test(e.message),
       'a second binding for the same acceptanceTargetRef is rejected (§1.1.3)',
     );

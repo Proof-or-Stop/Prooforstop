@@ -22,7 +22,7 @@ import {
   type MkdirLockHolderInfo,
   readMkdirLockHolder,
 } from './mkdir-lock.js';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 
 export const VALIDATION_EXECUTION_LOCKS_REL = `${PROOF_OR_STOP_DIR}/locks/validation`;
 export const VALIDATION_EXECUTION_LOCK_STALE_MS = 120000;
@@ -54,8 +54,8 @@ export function sanitizeLockSegment(value: string): string {
 
 /**
  * B-d877 R3 FIX B: resolve a per-story RUNTIME lock dir under the DURABLE shared
- * root's gitignored `.lattice/locks/<category>/`, NEVER under the git-tracked
- * story metadata dir (`.lattice/story/actives/<id>/`).
+ * root's gitignored `.proof-or-stop/locks/<category>/`, NEVER under the git-tracked
+ * story metadata dir (`.proof-or-stop/story/actives/<id>/`).
  *
  * The universal-lockId change (R2 FIX D) writes a `holder.json` inside EVERY
  * acquired lock dir. When such a lock lived inside the story dir (e.g.
@@ -66,7 +66,7 @@ export function sanitizeLockSegment(value: string): string {
  *
  * Anchoring at `resolveSharedLockRoot(root)` (git-common-dir based) — exactly
  * like the validation execution lock and the per-story transition lock — makes
- * the lock (a) live under the ALREADY-gitignored `.lattice/locks/` prefix, (b)
+ * the lock (a) live under the ALREADY-gitignored `.proof-or-stop/locks/` prefix, (b)
  * survive story-worktree removal, and (c) resolve IDENTICALLY from every
  * worktree/main root so cross-worktree callers contend on ONE mutex. The lock
  * file name embeds BOTH the sanitized story id and the logical `<name>` so

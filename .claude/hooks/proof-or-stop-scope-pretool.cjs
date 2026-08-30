@@ -83,7 +83,7 @@ function findRepoRoot(start) {
   for (let i = 0; i < 20; i++) {
     if (
       fs.existsSync(path.join(dir, '.koala')) ||
-      fs.existsSync(path.join(dir, 'lattice.config.json')) ||
+      fs.existsSync(path.join(dir, 'proof-or-stop.config.json')) ||
       fs.existsSync(path.join(dir, '.git'))
     ) return dir;
     const parent = path.dirname(dir);
@@ -96,7 +96,7 @@ function findRepoRoot(start) {
 function resolveCliPath(root) {
   const candidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
-    path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
+    path.join(root, 'node_modules', '@proofOrStop', 'core', 'dist', 'cli.js'),
   ];
   for (const candidate of candidates) {
     if (fs.existsSync(candidate)) return candidate;

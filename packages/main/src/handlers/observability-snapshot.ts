@@ -32,10 +32,10 @@ import type { HandlerContext } from './context.js';
  * Snapshot payload augmented with the resolved shared learning-store root.
  * Additive, read-only field: consumers (M4 runner/scorer) assert that every
  * arm-run resolves to the isolated experiment root instead of the shared
- * main-repo `.lattice/learning`. Resolution itself is untouched — the value
+ * main-repo `.proof-or-stop/learning`. Resolution itself is untouched — the value
  * is computed by the existing `resolveLearningDir` leaf.
  */
-type LatticeObservabilitySnapshotWithLearningRoot = ProofOrStopObservabilitySnapshot & {
+type ProofOrStopObservabilitySnapshotWithLearningRoot = ProofOrStopObservabilitySnapshot & {
   readonly resolvedLearningRoot: string;
 };
 
@@ -45,7 +45,7 @@ function writeJsonNoOverwrite(file: string, value: unknown): void {
   writeFileSync(file, JSON.stringify(value, null, 2) + '\n', 'utf8');
 }
 
-function renderText(snapshot: LatticeObservabilitySnapshotWithLearningRoot): string {
+function renderText(snapshot: ProofOrStopObservabilitySnapshotWithLearningRoot): string {
   const ladder = snapshot.sections.authorityLadder;
   return [
     `Proof-or-Stop observability snapshot (${snapshot.schemaVersion})`,
@@ -81,7 +81,7 @@ export function createObservabilitySnapshotHandlers(ctx: HandlerContext): Record
       });
       // Read-only isolation assertion hook (B-ab8d CHK-004): surface where the
       // shared learning store actually resolves from this context's root.
-      const snapshot: LatticeObservabilitySnapshotWithLearningRoot = {
+      const snapshot: ProofOrStopObservabilitySnapshotWithLearningRoot = {
         ...base,
         resolvedLearningRoot: resolveLearningDir(ctx.root),
       };

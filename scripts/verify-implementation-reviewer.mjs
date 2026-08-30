@@ -5,7 +5,7 @@ import { join } from 'path';
 // B-cc10 F-055: resolve whichever adapter dir exists. Hardcoding the renamed one made this
 // read a path that no longer exists (ENOENT) or scan zero files.
 function adapterDirName(base) {
-  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.lattice-codex';
+  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.proof-or-stop-codex';
 }
 
 

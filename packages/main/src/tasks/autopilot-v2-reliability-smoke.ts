@@ -26,7 +26,7 @@ import {
   createAutopilotThrottleState,
   recordThrottleWindow,
 } from '../core/autopilot-reliability.js';
-import { HOST_RUNTIME_BASELINE } from '../core/lattice-dispatch.js';
+import { HOST_RUNTIME_BASELINE } from '../core/proof-or-stop-dispatch.js';
 
 function assertM2(): void {
   const rate = classifyAutopilotProviderFailure('HTTP 429 too many requests');

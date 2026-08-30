@@ -29,7 +29,7 @@ function runCli(args: string[], cwd = repoRoot): string {
     cwd,
     env: {
       ...process.env,
-      LATTICE_NO_HOOKS: '1',
+      PROOF_OR_STOP_NO_HOOKS: '1',
     },
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -77,7 +77,7 @@ assert.deepEqual(parseFlagsTest(['--names=a', '--names=b', '--enabled'], { names
 });
 
 assert.deepEqual(
-  normalizeNestedSpaceAlias(['lattice', 'host', 'runtime', 'list', '--json']),
+  normalizeNestedSpaceAlias(['proof-or-stop', 'host', 'runtime', 'list', '--json']),
   {
     matched: true,
     argv: ['host_runtime_list', '--json'],
@@ -94,7 +94,7 @@ assert.deepEqual(
 );
 
 // B-cdf6 CHK-005: the product name asserted below is now 'Proof-or-Stop'
-// (LATTICE_PRODUCT_NAME, approved RENAMED row in brand-rename-mapping.md; `Proof-or-Stop` is a legacy
+// (PROOF_OR_STOP_PRODUCT_NAME, approved RENAMED row in brand-rename-mapping.md; `Proof-or-Stop` is a legacy
 // spelling on the normalize list). Same repin CHK-002 applied to command-catalog-smoke; the
 // branding assertions themselves are kept, not dropped.
 const storyAdvanceHelp = runCli(['story_advance', '--help']);
@@ -127,10 +127,10 @@ assert.match(globalHelpFull.toLowerCase(), /\bagy\b/, 'full help keeps antigravi
 assert.doesNotMatch(globalHelpFull.toLowerCase(), /current[^\n.]*gemini|gemini[^\n.]*current/, 'Gemini is not described as current');
 assert.ok(globalHelpFull.length > globalHelp.length, 'full help is larger than the brief catalog');
 
-const versionThroughLatticeNamespace = runCli(['lattice', 'version']);
-assert.match(versionThroughLatticeNamespace, /Proof-or-Stop/, 'proof-or-stop version special path remains in runCli');
+const versionThroughProofOrStopNamespace = runCli(['proof-or-stop', 'version']);
+assert.match(versionThroughProofOrStopNamespace, /Proof-or-Stop/, 'proof-or-stop version special path remains in runCli');
 
-const hostRuntimeList = runJson<{ schemaVersion: string }>(['lattice', 'host', 'runtime', 'list', '--json']);
+const hostRuntimeList = runJson<{ schemaVersion: string }>(['proof-or-stop', 'host', 'runtime', 'list', '--json']);
 assert.equal(hostRuntimeList.schemaVersion, 'lattice.host_runtime_list.v1');
 
 const hostRuntimeProbe = runJson<{ schemaVersion: string; host: string; requestedHost: string }>([
@@ -144,7 +144,7 @@ assert.equal(hostRuntimeProbe.host, 'antigravity');
 assert.equal(hostRuntimeProbe.requestedHost, 'agy');
 
 const configDoctor = runJson<{ schemaVersion: string; migration: { cliFirst: boolean } }>([
-  'lattice',
+  'proof-or-stop',
   'config',
   'doctor',
   '--json',
@@ -153,7 +153,7 @@ assert.equal(configDoctor.schemaVersion, 'lattice.config_doctor.v1');
 assert.equal(configDoctor.migration.cliFirst, true);
 
 const conduitExplain = runJson<{ schemaVersion: string; authorityChanged: boolean }>([
-  'lattice',
+  'proof-or-stop',
   'conduit',
   'explain',
   '--json',
@@ -161,7 +161,7 @@ const conduitExplain = runJson<{ schemaVersion: string; authorityChanged: boolea
 assert.equal(conduitExplain.schemaVersion, 'lattice.conduit_explain.v1');
 assert.equal(conduitExplain.authorityChanged, false);
 
-const invalidRoot = mkdtempSync(join(tmpdir(), 'lattice-cli-surface-root-'));
+const invalidRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-cli-surface-root-'));
 try {
   const invalid = spawnSync(process.execPath, [
     cliBin(),
@@ -177,7 +177,7 @@ try {
     }),
   ], {
     cwd: invalidRoot,
-    env: { ...process.env, LATTICE_NO_HOOKS: '1' },
+    env: { ...process.env, PROOF_OR_STOP_NO_HOOKS: '1' },
     encoding: 'utf8',
   });
   assert.notEqual(invalid.status, 0, 'invalid JSON body should fail validation');

@@ -28,11 +28,11 @@ function parseCliJson(text) {
 }
 
 function createProject(filePath, content, id, profile) {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-lab-flow-profile-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-lab-flow-profile-'));
   mkdirSync(join(root, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(root, 'docs', 'requirements'), { recursive: true });
   mkdirSync(join(root, filePath, '..'), { recursive: true });
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -46,8 +46,8 @@ function createProject(filePath, content, id, profile) {
   writeFileSync(join(root, 'README.md'), '# temp\n');
   writeFileSync(join(root, filePath), content);
   execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.name', 'Lattice Lab Test'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['config', 'user.email', 'lattice-lab@example.com'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.name', 'ProofOrStop Lab Test'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['config', 'user.email', 'proof-or-stop-lab@example.com'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['add', '.'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'init'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
   run(root, ['lab', 'create', JSON.stringify({ id, target: id, profile, editableFiles: [filePath] })]);

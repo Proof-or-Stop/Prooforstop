@@ -16,10 +16,10 @@ export const COMPLEX_ROLE_PROMPT_BUDGETS = Object.freeze({
 });
 
 export const BUDGETED_COMPLEX_ROLE_IDS = Object.freeze([
-  'lattice-review-story-init',
-  'lattice-review-scope-plan',
-  'lattice-implementer',
-  'lattice-review-delivery',
+  'proof-or-stop-review-story-init',
+  'proof-or-stop-review-scope-plan',
+  'proof-or-stop-implementer',
+  'proof-or-stop-review-delivery',
 ] as const);
 export type BudgetedComplexRoleId = typeof BUDGETED_COMPLEX_ROLE_IDS[number];
 export type PromptBudgetMode = 'observe';

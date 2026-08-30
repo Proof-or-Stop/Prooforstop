@@ -408,7 +408,7 @@ export const STALL_HARD_CEILING_ROUNDS = 3 * STALL_MIN_ROUNDS; // 12
 /**
  * Env override for the hard ceiling (mirrors convergence-breaker's env pattern).
  * Canonical spelling; `resolveStallHardCeiling` reads it via `readBrandEnv`, so the
- * deprecated `LATTICE_STALL_HARD_CEILING_ROUNDS` export is still honoured.
+ * deprecated `PROOF_OR_STOP_STALL_HARD_CEILING_ROUNDS` export is still honoured.
  */
 export const STALL_HARD_CEILING_ENV = 'PROOF_OR_STOP_STALL_HARD_CEILING_ROUNDS';
 

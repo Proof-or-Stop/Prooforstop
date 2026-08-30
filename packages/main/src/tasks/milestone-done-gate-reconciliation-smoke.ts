@@ -403,7 +403,7 @@ function makeStore(
 // pins that default against the REAL resolver — configuredProofStoryMode in
 // packages/main/src/handlers/phase-gates.ts — NOT a re-implemented `?? 'observe'`
 // in this test. It exercises the config-key-ABSENT path: a fresh temp root with
-// NO lattice.config.json, so loadConfig(root).proofStory is undefined and only the
+// NO proof-or-stop.config.json, so loadConfig(root).proofStory is undefined and only the
 // `?? 'observe'` fallback can produce the result.
 //
 // UN-GAMEABLE GUARANTEE: if a future edit flips that fallback in phase-gates.ts to

@@ -1,9 +1,9 @@
 /**
  * audit-scan-bin-token-smoke — B-cdf6 CHK-005 regression guard against the docs-drift extractor
- * going VACUOUSLY BLIND after the `lattice` -> `proof-or-stop` bin rename.
+ * going VACUOUSLY BLIND after the `proof-or-stop` -> `proof-or-stop` bin rename.
  *
  * The bug this pins: `scanCommandDrift` / `scanFlagDrift` used to extract documented commands with
- * a single hardcoded literal (`/\blattice\s+(...)/g`). Once the active docs were rewritten to read
+ * a single hardcoded literal (`/\bproofOrStop\s+(...)/g`). Once the active docs were rewritten to read
  * `proof-or-stop <cmd>`, that regex matched NOTHING — the loop body never executed, the scan
  * returned zero drifts, and the gate reported a PASS. A doc could then reference a nonexistent
  * command forever undetected, defeating the exact drift class the scanner exists to catch. A
@@ -33,7 +33,7 @@ import {
   scanCommandDrift,
   scanFlagDrift,
 } from '../core/audit-scan.js';
-import { PROOF_OR_STOP_PRIMARY_BIN } from '../core/lattice-brand.js';
+import { PROOF_OR_STOP_PRIMARY_BIN } from '../core/proof-or-stop-brand.js';
 
 /** Stub help runner: `validate` is the only registered command; everything else exits non-zero. */
 const runHelp = (cmd: string) => (cmd === 'validate'

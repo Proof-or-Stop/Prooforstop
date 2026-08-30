@@ -116,7 +116,7 @@ const MIN_NODE_MAJOR = 20;
 // B-022e CHK-003: the root package identity is part of the clean-break cutover.
 const CANONICAL_ROOT_PACKAGE_NAME = 'proof-or-stop';
 const CANONICAL_CORE_PACKAGE_NAME = '@proof-or-stop/core';
-const DEPRECATED_CORE_PACKAGE_NAME = '@lattice/core';
+const DEPRECATED_CORE_PACKAGE_NAME = '@proof-or-stop/core';
 // Self-project detection must accept EITHER core spelling: a miss makes runtimeScope flip
 // self -> external, which downgrades drift checks to advisory (the B-cdf6 regression class).
 const SELF_CORE_PACKAGE_NAMES: ReadonlySet<string> = new Set([
@@ -345,12 +345,12 @@ export function classifyRuntimeEntrypointAuthority(
 
   const recoveryCommand = renderLocalEntrypointRecoveryCommand(worktreeRoot!, input.command, input.commandArgs);
   // B-cdf6:F-020 — read BOTH brand spellings, same as line ~1129 does for this exact
-  // semantic check. A raw `input.env?.LATTICE_CODEX_ENTRYPOINT` access here would miss the
+  // semantic check. A raw `input.env?.PROOF_OR_STOP_CODEX_ENTRYPOINT` access here would miss the
   // canonical PROOF_OR_STOP_CODEX_ENTRYPOINT spelling, which is equally valid under the
   // additive compat contract. Since classifyRuntimeEntrypointAuthority runs on EVERY command
   // in a self-host worktree (cli-engine.ts passes env: process.env), missing it would
   // misclassify a legitimate global-fallback session_brief heartbeat as a runtime-authority
-  // violation. Same bug class as F-016 (idleLattice), which is why this was swept for.
+  // violation. Same bug class as F-016 (idleProofOrStop), which is why this was swept for.
   const isExplicitSessionBriefFallback = input.command === 'session_brief'
     && readBrandEnv('CODEX_ENTRYPOINT', input.env) === 'global-fallback';
   if (isExplicitSessionBriefFallback) {
@@ -442,7 +442,7 @@ export function renderLocalEntrypointRecoveryCommand(
   args: readonly string[],
 ): string {
   const tokens = [command, ...args].map(shellQuote);
-  // B-cc10 CHK-006: was `bin/lattice.js`. A recovery command must name a wrapper that
+  // B-cc10 CHK-006: was `bin/proofOrStop.js`. A recovery command must name a wrapper that
   // still exists, or the operator's retry fails for a second, unrelated reason.
   return `cd -- ${shellQuote(worktreeRoot)} && node bin/proof-or-stop.js ${tokens.join(' ')}`;
 }
@@ -1011,11 +1011,11 @@ function resolveGlobalNpmRoot(projectRoot: string): string | null {
 
 function resolveActiveCliEntrypoint(projectRoot: string, corePackageRoot: string, fallbackEntrypoint: string | null): string | null {
   const invoked = process.argv[1] ? resolve(process.argv[1]) : null;
-  if (invoked && looksLikeLatticeEntrypoint(invoked, projectRoot, corePackageRoot)) return invoked;
+  if (invoked && looksLikeProofOrStopEntrypoint(invoked, projectRoot, corePackageRoot)) return invoked;
   return fallbackEntrypoint;
 }
 
-function looksLikeLatticeEntrypoint(path: string, projectRoot: string, corePackageRoot: string): boolean {
+function looksLikeProofOrStopEntrypoint(path: string, projectRoot: string, corePackageRoot: string): boolean {
   const real = safeRealpath(path) ?? path;
   const name = basename(path);
   if (
@@ -1057,7 +1057,7 @@ function resolveCorePackageCandidate(root: string): CorePackageCandidate {
     return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, exists: true };
   }
   // B-cc10 CHK-005: fall back to the deprecated scope so an already-installed global
-  // @lattice/core is still FOUND (and reported) instead of looking absent.
+  // @proof-or-stop/core is still FOUND (and reported) instead of looking absent.
   const deprecatedPath = packagePathFromName(root, DEPRECATED_CORE_PACKAGE_NAME);
   if (existsSync(deprecatedPath)) {
     return { path: deprecatedPath, packageName: DEPRECATED_CORE_PACKAGE_NAME, exists: true };

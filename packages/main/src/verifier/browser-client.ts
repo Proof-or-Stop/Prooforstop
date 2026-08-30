@@ -4,7 +4,7 @@
  * Receives commands -> executes -> returns results.
  */
 
-const WS_PORT = (window as any).__LATTICE_WS_PORT || 9876;
+const WS_PORT = (window as any).__PROOF_OR_STOP_WS_PORT || 9876;
 const WS_URL = `ws://${location.hostname}:${WS_PORT}`;
 
 let ws: WebSocket | null = null;
@@ -14,7 +14,7 @@ function connect() {
   ws = new WebSocket(WS_URL);
 
   ws.onopen = () => {
-    console.log('[lattice-verifier] connected to test server');
+    console.log('[proof-or-stop-verifier] connected to test server');
     if (reconnectTimer) {
       clearInterval(reconnectTimer);
       reconnectTimer = null;
@@ -47,7 +47,7 @@ function connect() {
           response = handleType(msg);
           break;
         case 'close':
-          (window as any).__lattice_kicked = true;
+          (window as any).__proof_or_stop_kicked = true;
           if (reconnectTimer) { clearInterval(reconnectTimer); reconnectTimer = null; }
           ws?.close();
           ws = null;
@@ -64,8 +64,8 @@ function connect() {
   };
 
   ws.onclose = () => {
-    if ((window as any).__lattice_kicked) return;
-    console.log('[lattice-verifier] disconnected, reconnecting...');
+    if ((window as any).__proof_or_stop_kicked) return;
+    console.log('[proof-or-stop-verifier] disconnected, reconnecting...');
     ws = null;
     if (!reconnectTimer) {
       reconnectTimer = window.setInterval(() => {
@@ -152,15 +152,15 @@ const _errors: string[] = [];
 window.addEventListener('error', (e) => {
   const msg = `[error] ${e.message} at ${e.filename}:${e.lineno}:${e.colno}`;
   _errors.push(msg);
-  console.error('[lattice-verifier]', msg);
+  console.error('[proof-or-stop-verifier]', msg);
 });
 
 window.addEventListener('unhandledrejection', (e) => {
   const msg = `[unhandledrejection] ${e.reason}`;
   _errors.push(msg);
-  console.error('[lattice-verifier]', msg);
+  console.error('[proof-or-stop-verifier]', msg);
 });
 
-(window as any).__lattice_errors = _errors;
+(window as any).__proof_or_stop_errors = _errors;
 
 connect();

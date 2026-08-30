@@ -125,7 +125,7 @@ export const RUNTIME_FACT_REGISTRY = [
     outputKey: 'validateSource',
     rationale: 'Validation evidence depends on whether Proof-or-Stop uses explicit validate files, configured commands, or advisory fallback discovery.',
     driftMessage: 'No explicit validation source is configured, or Proof-or-Stop is relying on fallback discovery.',
-    repairHint: 'Add validate.ts/js/mts or configure validate.command(s) in lattice.config.json.',
+    repairHint: 'Add validate.ts/js/mts or configure validate.command(s) in proof-or-stop.config.json.',
   },
   {
     id: 'external-reference-policy',

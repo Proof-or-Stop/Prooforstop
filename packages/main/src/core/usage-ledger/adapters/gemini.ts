@@ -3,7 +3,7 @@
  *
  * Maps a Gemini generateContent usageMetadata object into a B-253e `LedgerUsage`,
  * implementing the Gemini row of "Multi-Provider Normalization" in
- * docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md.
+ * docs/requirements/decisions/proof-or-stop-llm-usage-ledger-execution-plan.md.
  *
  * Mapping:
  *   usageMetadata.promptTokenCount        -> canonical.input

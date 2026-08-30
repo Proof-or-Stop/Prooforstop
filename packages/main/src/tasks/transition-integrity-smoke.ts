@@ -77,23 +77,23 @@ interface Fixture {
  */
 function makeFixture(storyId: string, phase: string, opts: { withWorktree?: boolean } = {}): Fixture {
   const withWorktree = opts.withWorktree !== false;
-  const root = mkdtempSync(join(tmpdir(), 'lattice-tis-'));
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
-    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives',
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-tis-'));
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements', storyPrefix: 'B',
   }, null, 2));
   git(root, ['init']);
   git(root, ['config', 'user.email', 'tis@test']);
   git(root, ['config', 'user.name', 'TIS']);
   writeFileSync(join(root, 'README.md'), '# fixture\n');
-  writeFileSync(join(root, '.gitignore'), '.worktrees/\nnode_modules/\n.lattice/locks/\n');
+  writeFileSync(join(root, '.gitignore'), '.worktrees/\nnode_modules/\n.proof-or-stop/locks/\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'init']);
 
   const wtRel = join('.worktrees', storyId);
   const wtAbs = join(root, wtRel);
   git(root, ['worktree', 'add', '-b', `story/${storyId}`, wtAbs, 'HEAD']);
-  mkdirSync(join(wtAbs, '.lattice/story/actives', storyId), { recursive: true });
+  mkdirSync(join(wtAbs, '.proof-or-stop/story/actives', storyId), { recursive: true });
   git(wtAbs, ['add', '-A']);
   git(wtAbs, ['commit', '-m', 'wt seed', '--allow-empty']);
 
@@ -190,7 +190,7 @@ async function runConcurrencyWorker(): Promise<void> {
  * Spawn TWO genuinely-concurrent OS processes that both drive the SAME story
  * through the REAL `runStoryTransition`, released together by a barrier so they
  * race the persist boundary. `extraEnv` is merged into BOTH children (e.g.
- * LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1 to bypass the advisory lock and
+ * PROOF_OR_STOP_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1 to bypass the advisory lock and
  * prove the atomic persist claim alone serializes them; TIS_PHASE to pick the
  * target phase). `perWorkerEnv` supplies env that DIFFERS per worker (e.g. a
  * distinct TIS_CHECKLIST payload each) — worker 1 gets [0], worker 2 gets [1].
@@ -407,9 +407,9 @@ async function main(): Promise<void> {
     try {
       const lock = acquireStoryTransitionLock(fx.root, fx.storyId);
       // The lock lives OUTSIDE the story metadata dir (under gitignored
-      // .lattice/locks/transition/), never inside .lattice/story/actives/<id>/.
-      check('transition lock is rooted under .lattice/locks/, not the story dir',
-        lock.lockDir.includes(`${'.lattice'}/locks/transition/`) && !lock.lockDir.includes('/story/actives/'),
+      // .proof-or-stop/locks/transition/), never inside .proof-or-stop/story/actives/<id>/.
+      check('transition lock is rooted under .proof-or-stop/locks/, not the story dir',
+        lock.lockDir.includes(`${'.proof-or-stop'}/locks/transition/`) && !lock.lockDir.includes('/story/actives/'),
         lock.lockDir);
       try {
         throw new Error('simulated mid-critical-section failure');
@@ -516,8 +516,8 @@ async function main(): Promise<void> {
     const fromWorktree = storyTransitionLockPath(fx.wtAbs, fx.storyId);
     check('lock path resolved from the worktree root === from the main root (git-common-dir anchored)',
       fromMain === fromWorktree, `main=${fromMain} worktree=${fromWorktree}`);
-    check('the canonical lock path lives under .lattice/locks/transition/, not any worktree/story dir',
-      fromMain.includes(`${'.lattice'}/locks/transition/`) &&
+    check('the canonical lock path lives under .proof-or-stop/locks/transition/, not any worktree/story dir',
+      fromMain.includes(`${'.proof-or-stop'}/locks/transition/`) &&
       !fromMain.includes('/.worktrees/') && !fromMain.includes('/story/actives/'),
       fromMain);
   }
@@ -625,7 +625,7 @@ async function main(): Promise<void> {
   console.log('\nCHK-002c5: a caller passing NO holderInfo still gets a lockId + ownership-checked release (FIX D — universal release)');
   {
     const fx = makeFixture('B-tisnoinfo', 'DEV', { withWorktree: false });
-    const lockDir = join(fx.root, '.lattice', 'locks', 'transition', 'noinfo.lock');
+    const lockDir = join(fx.root, '.proof-or-stop', 'locks', 'transition', 'noinfo.lock');
 
     // Acquire with NO holderInfo — pre-fix this wrote no holder.json and released
     // unconditionally; post-fix it mints a lockId and writes a minimal holder.json.
@@ -651,14 +651,14 @@ async function main(): Promise<void> {
   // Round-3 reviewers flagged that the CHK-002c4 CAS proof was a single-process
   // Proxy mock. This is the load-bearing correctness proof: TWO REAL node
   // processes race the SAME DEV→REVIEW persist with the advisory transition lock
-  // BYPASSED (LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1). Nothing serializes
+  // BYPASSED (PROOF_OR_STOP_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1). Nothing serializes
   // them EXCEPT the atomic mkdir persist claim — so if that claim were not atomic,
   // both would persist (double review round / double phase_transition). Exactly
   // one must commit; the other must abort with the concurrent-transition error.
   console.log('\nCHK-002c6: two REAL concurrent processes, advisory lock BYPASSED → the atomic persist claim alone yields exactly one commit (FIX A)');
   {
     const fx = makeFixture('B-tisatomic', 'DEV', { withWorktree: false });
-    const { r1, r2 } = await raceTwoTransitionWorkers(fx, { LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK: '1' });
+    const { r1, r2 } = await raceTwoTransitionWorkers(fx, { PROOF_OR_STOP_TEST_DISABLE_TRANSITION_ADVISORY_LOCK: '1' });
     const results = [r1, r2];
     const successes = results.filter((r) => r.ok).length;
     check('with the advisory lock bypassed, exactly one concurrent transition committed (atomic claim serialized the persist)',
@@ -707,7 +707,7 @@ async function main(): Promise<void> {
     const checklistB = [{ id: 'CHK-WINB', title: 'plan payload B' }];
     const { r1, r2 } = await raceTwoTransitionWorkers(
       fx,
-      { TIS_PHASE: 'PLAN', LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK: '1' },
+      { TIS_PHASE: 'PLAN', PROOF_OR_STOP_TEST_DISABLE_TRANSITION_ADVISORY_LOCK: '1' },
       [{ TIS_CHECKLIST: JSON.stringify(checklistA) }, { TIS_CHECKLIST: JSON.stringify(checklistB) }],
     );
     const results = [r1, r2];
@@ -730,14 +730,14 @@ async function main(): Promise<void> {
       `persisted=${JSON.stringify(persistedIds)} loser=${loser?.checklistId}`);
   }
 
-  // ── CHK-002c7: relocated per-story runtime locks live under .lattice/locks/ ──
+  // ── CHK-002c7: relocated per-story runtime locks live under .proof-or-stop/locks/ ──
   // B-d877 R3 FIX B: the checklist / finding / review-run / init-check /
   // prompt-envelope / process-event locks moved OUT of the git-tracked story dir
-  // (`.lattice/story/actives/<id>/…lock`, whose transient holder.json failed
+  // (`.proof-or-stop/story/actives/<id>/…lock`, whose transient holder.json failed
   // quorum-submit-smoke's clean-tree gate) INTO the gitignored shared
-  // `.lattice/locks/<category>/` prefix. Assert every relocated lock resolves
-  // under `.lattice/locks/` and NEVER under `.lattice/story/actives/`.
-  console.log('\nCHK-002c7: relocated runtime locks resolve under .lattice/locks/, not under .lattice/story/actives/<id>/ (FIX B)');
+  // `.proof-or-stop/locks/<category>/` prefix. Assert every relocated lock resolves
+  // under `.proof-or-stop/locks/` and NEVER under `.proof-or-stop/story/actives/`.
+  console.log('\nCHK-002c7: relocated runtime locks resolve under .proof-or-stop/locks/, not under .proof-or-stop/story/actives/<id>/ (FIX B)');
   {
     const fx = makeFixture('B-tisreloc', 'DEV');
     const relocations: Array<[string, string]> = [
@@ -750,8 +750,8 @@ async function main(): Promise<void> {
     ];
     for (const [category, name] of relocations) {
       const p = fx.store.runtimeLockDirPath(fx.storyId, category, name);
-      check(`${category}/${name} lock is under .lattice/locks/, not the story dir`,
-        p.includes(`${'.lattice'}/locks/${category}/`) &&
+      check(`${category}/${name} lock is under .proof-or-stop/locks/, not the story dir`,
+        p.includes(`${'.proof-or-stop'}/locks/${category}/`) &&
         p.endsWith(`.lock`) &&
         !p.includes('/story/actives/'),
         p);
@@ -782,7 +782,7 @@ async function main(): Promise<void> {
   console.log('\nCHK-002d: ownership-checked release does not delete a successor\'s lock after a stale-reclaim (Finding 1a)');
   {
     const fx = makeFixture('B-tisown', 'DEV', { withWorktree: false });
-    const lockDir = join(fx.root, '.lattice', 'locks', 'transition', 'ownership.lock');
+    const lockDir = join(fx.root, '.proof-or-stop', 'locks', 'transition', 'ownership.lock');
 
     // Holder A acquires (mints unique lockId_A in holder.json).
     const a = acquireMkdirLock(lockDir, {
@@ -822,8 +822,8 @@ async function main(): Promise<void> {
   console.log('\nCHK-002d2 (F-016): a lock acquired with ownedAuxFiles + a holder-written aux file inside → clean release leaves NO leftover dir');
   {
     const fx = makeFixture('B-tisaux', 'DEV', { withWorktree: false });
-    const lockDir = join(fx.root, '.lattice', 'locks', 'validation', 'aux.lock');
-    const parent = join(fx.root, '.lattice', 'locks', 'validation');
+    const lockDir = join(fx.root, '.proof-or-stop', 'locks', 'validation', 'aux.lock');
+    const parent = join(fx.root, '.proof-or-stop', 'locks', 'validation');
     const auxName = 'heartbeat.json';
     const lock = acquireMkdirLock(lockDir, {
       holderInfo: { pid: process.pid, hostname: hostname(), command: 'aux holder', acquiredAt: NOW },
@@ -851,8 +851,8 @@ async function main(): Promise<void> {
   console.log('\nCHK-002d3 (codex R5 HIGH): A stale-reclaimed, B re-acquires a FRESH dir → A\'s release no-ops via the rename-mismatch restore (B\'s dir + holder.json survive byte-identical)');
   {
     const fx = makeFixture('B-tisiso', 'DEV', { withWorktree: false });
-    const lockDir = join(fx.root, '.lattice', 'locks', 'transition', 'isolation.lock');
-    const parent = join(fx.root, '.lattice', 'locks', 'transition');
+    const lockDir = join(fx.root, '.proof-or-stop', 'locks', 'transition', 'isolation.lock');
+    const parent = join(fx.root, '.proof-or-stop', 'locks', 'transition');
 
     const a = acquireMkdirLock(lockDir, {
       holderInfo: { pid: 111111, hostname: 'hostA', command: 'holder A', acquiredAt: NOW },
@@ -901,8 +901,8 @@ async function main(): Promise<void> {
   console.log('\nCHK-002d4 (F-017): mismatch-restore leak is BOUNDED — the orphaned dir is stale-reclaimable (self-healing), no correctness loss');
   {
     const fx = makeFixture('B-tisf017', 'DEV', { withWorktree: false });
-    const lockDir = join(fx.root, '.lattice', 'locks', 'transition', 'f017.lock');
-    const parent = join(fx.root, '.lattice', 'locks', 'transition');
+    const lockDir = join(fx.root, '.proof-or-stop', 'locks', 'transition', 'f017.lock');
+    const parent = join(fx.root, '.proof-or-stop', 'locks', 'transition');
 
     // A acquires, is stale-reclaimed, then LIVE successor B re-acquires a fresh dir.
     acquireMkdirLock(lockDir, {

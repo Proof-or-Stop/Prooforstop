@@ -75,7 +75,7 @@ const STOP_WORDS: ReadonlySet<string> = new Set([
   'the', 'and', 'for', 'with', 'from', 'into', 'that', 'this', 'over', 'when',
   'while', 'should', 'must', 'will', 'does', 'used', 'using', 'than', 'then',
   'there', 'their', 'have', 'been', 'were', 'where', 'which', 'what', 'before',
-  'after', 'story', 'stories', 'lattice',
+  'after', 'story', 'stories', 'proof-or-stop',
 ]);
 
 /** Lower-cased, deduped, sorted token list (drops blanks). Stable + idempotent. */

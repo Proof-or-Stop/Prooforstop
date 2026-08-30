@@ -36,7 +36,7 @@
  *                  alone), each of which it must flag.
  *   4.             VALIDATE_REGISTRATION_COMPLETE — EVERY `red-b2aa7-*.mjs` in
  *                  this directory is accounted for: either registered in
- *                  `lattice.config.json` `validate.commands`, or carrying a
+ *                  `proof-or-stop.config.json` `validate.commands`, or carrying a
  *                  stated exclusion reason below. The population is ENUMERATED
  *                  FROM DISK, so a receipt added without a decision fails this
  *                  check. Proven non-vacuous per entry and against a newcomer.
@@ -100,7 +100,7 @@ const HARNESS_ABS = join(repoRoot, HARNESS_REL);
 const BASELINE_RECEIPT = join(here, 'red-b2aa7-baseline-receipt.mjs');
 // B-cc10: resolve whichever config filename exists. The canonical name is now
 // proof-or-stop.config.json, so a hardcoded deprecated name threw ENOENT here.
-const CONFIG_PATH = join(repoRoot, ['proof-or-stop.config.json', 'lattice.config.json'].find((n) => existsSync(join(repoRoot, n))) ?? 'proof-or-stop.config.json');
+const CONFIG_PATH = join(repoRoot, ['proof-or-stop.config.json', 'proof-or-stop.config.json'].find((n) => existsSync(join(repoRoot, n))) ?? 'proof-or-stop.config.json');
 
 const failures = [];
 const fail = (check, why) => failures.push(`${check}: ${why}`);
@@ -373,7 +373,7 @@ const RECEIPT_NAME_RE = /^red-b2aa7-.*\.mjs$/;
 
 /**
  * THE RULE, stated once: every `red-b2aa7-*.mjs` on disk must be EITHER
- * registered in `lattice.config.json` `validate.commands` OR listed here with a
+ * registered in `proof-or-stop.config.json` `validate.commands` OR listed here with a
  * reason. Nothing may be silently neither.
  *
  * The registered side is not enumerated in this file at all — it is whatever the
@@ -445,7 +445,7 @@ const real = classifyReceipts(population, realTokens, REGISTRATION_EXCLUSIONS);
 //     coverage nobody decided on — the F-007 defect, now fatal instead of silent.
 if (real.undecided.length > 0) {
   fail('registration',
-    `these red-b2aa7 receipts are NEITHER registered in lattice.config.json validate.commands NOR listed in `
+    `these red-b2aa7 receipts are NEITHER registered in proof-or-stop.config.json validate.commands NOR listed in `
     + `REGISTRATION_EXCLUSIONS with a reason, so \`proof-or-stop validate\` never runs them and nobody decided that it should not: `
     + `${real.undecided.join(', ')}. Register the receipt, or exclude it here and say why.`);
 }
@@ -498,7 +498,7 @@ const registrationDecided =
 if (registrationDecided) {
   console.log(
     `VALIDATE_REGISTRATION_COMPLETE (all ${population.length} red-b2aa7-*.mjs receipts found ON DISK are accounted for: `
-    + `${real.registered.length} registered in lattice.config.json validate.commands — including this file, the D-7 migration scan `
+    + `${real.registered.length} registered in proof-or-stop.config.json validate.commands — including this file, the D-7 migration scan `
     + `that must be re-run at merge time, and the F-005 decoupling receipt — and ${real.excluded.length} excluded with a stated reason. `
     + 'The expectation is DERIVED from the directory, not a hardcoded list, so a receipt added without a registration decision FAILS '
     + 'this check; proven non-vacuous per registered entry and against a synthetic newcomer)',

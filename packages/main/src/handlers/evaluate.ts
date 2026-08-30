@@ -5,7 +5,7 @@
  * 按功能完整性和可用性两个维度打分。
  *
  * 前置条件：
- * - 项目 lattice.config.json
+ * - 项目 proof-or-stop.config.json
  *   配了 browser.devCommand（否则跳过）
  * - proof-or-stop serve --dev 已经在运行（或由本命令启动）
  *
@@ -29,10 +29,10 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
      * proof-or-stop evaluate --story=B-xxx [--port=3456]
      *
      * 检查项目 shells 配置，按声明决定 spawn 哪个 evaluator：
-     * - 有 browser.devCommand → spawn lattice-evaluator（browser）
-     * - 有 cli.command → spawn lattice-evaluator-cli（bridge API + CLI spawn）
+     * - 有 browser.devCommand → spawn proof-or-stop-evaluator（browser）
+     * - 有 cli.command → spawn proof-or-stop-evaluator-cli（bridge API + CLI spawn）
      * - 都有 → 都跑
-     * - 都没有 → 尝试读 .lattice-serve.json 判断是否有活跃 serve 进程，有则跑 CLI evaluator
+     * - 都没有 → 尝试读 .proof-or-stop-serve.json 判断是否有活跃 serve 进程，有则跑 CLI evaluator
      *
      * evaluator agent 的输出（JSON）由主 agent 解析后调 proof-or-stop evaluate_save 写入 evidence。
      */
@@ -46,7 +46,7 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
       if (!hasBrowser && !hasCli) {
         return JSON.stringify({
           skipped: true,
-          reason: 'No browser.devCommand or cli.command in lattice.config.json — no evaluator target',
+          reason: 'No browser.devCommand or cli.command in proof-or-stop.config.json — no evaluator target',
         });
       }
 
@@ -65,25 +65,25 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
       }
 
       const evaluators: string[] = [];
-      if (hasBrowser) evaluators.push('lattice-evaluator');
-      if (hasCli) evaluators.push('lattice-evaluator-cli');
+      if (hasBrowser) evaluators.push('proof-or-stop-evaluator');
+      if (hasCli) evaluators.push('proof-or-stop-evaluator-cli');
 
       const instructions: string[] = [];
       if (hasBrowser) {
         instructions.push(`1. 确保 proof-or-stop serve --dev="${config.browser!.devCommand}" 正在运行（端口 ${port}）`);
-        instructions.push(`2. 用 Agent tool 调 lattice-evaluator agent，传入 serveUrl="${serveUrl}" 和 checklist`);
+        instructions.push(`2. 用 Agent tool 调 proof-or-stop-evaluator agent，传入 serveUrl="${serveUrl}" 和 checklist`);
       }
       if (hasCli) {
         const step = hasBrowser ? 3 : 1;
         instructions.push(`${step}. 确保 proof-or-stop serve 正在运行（端口 ${port}）`);
-        instructions.push(`${step + 1}. 用 Agent tool 调 lattice-evaluator-cli agent，传入 serveUrl="${serveUrl}", checklist, hasCliShell=true`);
+        instructions.push(`${step + 1}. 用 Agent tool 调 proof-or-stop-evaluator-cli agent，传入 serveUrl="${serveUrl}", checklist, hasCliShell=true`);
       }
       const lastStep = instructions.length + 1;
       instructions.push(`${lastStep}. 解析 evaluator 返回的 JSON`);
       instructions.push(`${lastStep + 1}. 调 proof-or-stop evaluate_save 写入结果`);
 
       let promptEnvelope: Record<string, unknown> | undefined;
-      if (resolvePromptEnvelopeRolloutMode('lattice-evaluator', config.promptEnvelope) === 'full-envelope') {
+      if (resolvePromptEnvelopeRolloutMode('proof-or-stop-evaluator', config.promptEnvelope) === 'full-envelope') {
         const story = ctx.store.readStory(args.storyId);
         const snapshot = captureReviewRunSnapshot(ctx.root, { storyId: args.storyId, storyPhase: story.phase }, ctx.root);
         const taskContext = buildFullTaskContext({
@@ -93,16 +93,16 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
           scopeContract: ctx.store.readScopeContract(args.storyId),
         });
         const assembly = assembleFullPromptEnvelope({
-          roleContract: promptRoleContract('lattice-evaluator'),
+          roleContract: promptRoleContract('proof-or-stop-evaluator'),
           runtimeContract: BASELINE_RUNTIME_CONTRACT,
-          rolePrompt: resolvePromptRoleBody('lattice-evaluator', config.promptEnvelope).body,
+          rolePrompt: resolvePromptRoleBody('proof-or-stop-evaluator', config.promptEnvelope).body,
           taskContext,
           dispatchKind: 'story-dispatch',
           dispatchPrompt: instructions.join('\n'),
           createdAt: new Date().toISOString(),
         });
         const lockDir = ctx.store.runtimeLockDirPath(args.storyId, 'review-run', 'review-runs');
-        withReviewMetadataTicketLock(lockDir, `evaluate for ${args.storyId}/lattice-evaluator`, () => {
+        withReviewMetadataTicketLock(lockDir, `evaluate for ${args.storyId}/proof-or-stop-evaluator`, () => {
           const data = ctx.store.readPromptEnvelopes(args.storyId);
           const existing = data.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
           if (existing && !verifyPromptEnvelopeIntegrity(existing)) {

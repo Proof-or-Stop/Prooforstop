@@ -16,7 +16,7 @@ import { getCommandPolicy, type CommandPolicy } from '../core/command-policy.js'
 import {
   detectProofOrStopBrand,
   formatProofOrStopProductLine,
-} from '../core/lattice-brand.js';
+} from '../core/proof-or-stop-brand.js';
 import { sessionBriefFooter } from '../cli-prompts.js';
 import type { ToolDef } from './main-tools.js';
 
@@ -125,7 +125,7 @@ export function normalizeHelpText(text: string | undefined): string {
  *   operator-safety prose. Help derives the surfaced contract from those live
  *   inputs so we do not create a second supportsDryRun registry.
  * @changes
- *   - [CHK-002] Summarize supportsDryRun-equivalent behavior in lattice <command> --help
+ *   - [CHK-002] Summarize supportsDryRun-equivalent behavior in proofOrStop <command> --help
  *   - [CHK-002] Keep dry-run truth derived from schema/policy instead of speculative metadata
  * @test dangerous-command-guardrails
  */
@@ -262,7 +262,7 @@ export function printHelp(options: GlobalHelpOptions) {
     check: 'Check',
     release: 'Release',
     host: 'Host',
-    lattice: 'Proof-or-Stop',
+    proofOrStop: 'Proof-or-Stop',
     rollout: 'Proof-or-Stop',
     authority: 'Authority',
     conduit: 'Conduit',

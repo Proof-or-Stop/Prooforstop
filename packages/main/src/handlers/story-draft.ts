@@ -14,7 +14,7 @@ import { join } from 'path';
 const NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-]{1,58}[a-zA-Z0-9]$/;
 
 function getDraftsDir(ctx: HandlerContext): string {
-  // ctx.root points to <projectRoot> (where lattice.config lives).
+  // ctx.root points to <projectRoot> (where proofOrStop.config lives).
   // Drafts go to <projectRoot>/docs/story/drafts/
   return join(ctx.root, 'docs', 'story', 'drafts');
 }

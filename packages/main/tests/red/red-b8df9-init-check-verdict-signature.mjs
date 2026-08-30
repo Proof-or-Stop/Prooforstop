@@ -103,7 +103,7 @@
  *
  * That waiver is exactly the kind of temporary prose that outlives its reason,
  * so nothing here relies on someone remembering: once every row goes GREEN this
- * file re-reads its own entry in `lattice.config.json` and FAILS while the
+ * file re-reads its own entry in `proof-or-stop.config.json` and FAILS while the
  * `optional` declaration is still there. The waiver cannot survive the fix, and
  * after the fix a regression fails `validate` for real.
  *
@@ -206,7 +206,7 @@ function makeStory(root, name, title) {
   return sid;
 }
 
-const dirOf = (root, sid) => join(root, '.lattice/story/actives', sid);
+const dirOf = (root, sid) => join(root, '.proof-or-stop/story/actives', sid);
 const icPath = (root, sid) => join(dirOf(root, sid), 'init-check.json');
 const readJ = (p) => JSON.parse(readFileSync(p, 'utf8'));
 const writeJ = (p, d) => writeFileSync(p, JSON.stringify(d, null, 2));
@@ -287,9 +287,9 @@ try {
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'red@example.test']);
     git(root, ['config', 'user.name', 'B-8df9 Red']);
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main', rootDir: 'src',
-      storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B',
+      storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B',
     }, null, 2));
     write(root, 'README.md', 'red\n');
     git(root, ['add', '.']);
@@ -580,7 +580,7 @@ const SELF_REL = relative(REPO, fileURLToPath(import.meta.url)).split(sep).join(
 function registrationState() {
   let config;
   try {
-    config = JSON.parse(readFileSync(join(REPO, 'lattice.config.json'), 'utf8'));
+    config = JSON.parse(readFileSync(join(REPO, 'proof-or-stop.config.json'), 'utf8'));
   } catch {
     return { readable: false, found: false, optional: false };
   }
@@ -608,7 +608,7 @@ for (const { id, claim, verdict, observed } of rows) {
 }
 console.log(`\n  ${redCount} RED / ${brokenCount} BROKEN / ${rows.length} rows`);
 console.log(
-  `  registration in lattice.config.json: readable=${registration.readable} found=${registration.found} `
+  `  registration in proof-or-stop.config.json: readable=${registration.readable} found=${registration.found} `
   + `optional=${registration.optional} → waiverWithdrawn=${waiverWithdrawn} `
   + '(a surviving waiver is reported while the defect stands and becomes FATAL once every row is GREEN)',
 );
@@ -653,9 +653,9 @@ if (!waiverWithdrawn) {
     '',
     '  Every row is GREEN, so the defect this artifact was written for is fixed —',
     '  but its registration is still in its pre-fix shape:',
-    `    lattice.config.json readable=${registration.readable} entry found=${registration.found} optional=${registration.optional}`,
+    `    proof-or-stop.config.json readable=${registration.readable} entry found=${registration.found} optional=${registration.optional}`,
     '',
-    '  Withdraw the waiver: register this file in lattice.config.json validate.commands',
+    '  Withdraw the waiver: register this file in proof-or-stop.config.json validate.commands',
     '  WITHOUT `optional`, so that a regression of the signature domain fails validate',
     '  instead of printing a warning nobody reads. Until then this exits non-zero.',
     '',

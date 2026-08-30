@@ -4,7 +4,7 @@
  *
  * A gate that only ever reports PASS is indistinguishable from a gate that cannot see
  * anything. This asserts the detector actually bites, in BOTH directions:
- *   1. inject an un-renamed `lattice <cmd>` invocation into a REAL active doc
+ *   1. inject an un-renamed `proofOrStop <cmd>` invocation into a REAL active doc
  *      -> the gate MUST fail (non-zero exit)
  *   2. revert the injection
  *      -> the gate MUST pass (zero exit)

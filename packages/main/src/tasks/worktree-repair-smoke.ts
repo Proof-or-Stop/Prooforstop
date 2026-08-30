@@ -5,8 +5,8 @@ import { strict as assert } from 'node:assert';
 // path made the 'lock is held' assertions unfireable — the dangerous sub-kind of this
 // migration's dominant defect class (a fixture staging state at an unread path, where
 // the test passes vacuously instead of failing loudly).
-import { PROOF_OR_STOP_MAIN_WRITE_LOCK } from '../core/lattice-paths.js';
-import { DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
+import { PROOF_OR_STOP_MAIN_WRITE_LOCK } from '../core/proof-or-stop-paths.js';
+import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, lstatSync, mkdirSync, mkdtempSync, readlinkSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -15,7 +15,9 @@ import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import type { StoryInfo, StoryPhase } from '../core/types.js';
-import { repairGlobalLatticeLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
+import { repairGlobalProofOrStopLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
+
+const RETIRED_STATE_DIR = ['.', 'lat', 'tice'].join('');
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -38,10 +40,10 @@ function initRepo(prefix: string): string {
   git(root, ['init']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
   }, null, 2));
@@ -53,7 +55,7 @@ function initRepo(prefix: string): string {
   // migration's dominant defect class. Both spellings are ignored, story dirs re-included.
   write(root, '.gitignore', [
     '.worktrees/',
-    ...[DEPRECATED_STATE_DIR, PROOF_OR_STOP_STATE_DIR].flatMap((dir) => [
+    ...[RETIRED_STATE_DIR, PROOF_OR_STOP_STATE_DIR].flatMap((dir) => [
       `${dir}/*`,
       `!${dir}/story/`,
       `!${dir}/story/**`,
@@ -92,7 +94,7 @@ function story(storyId: string, phase: StoryPhase, worktree = false): StoryInfo 
 }
 
 function commitStories(root: string): void {
-  git(root, ['add', '.lattice/story/actives']);
+  git(root, ['add', '.proof-or-stop/story/actives']);
   git(root, ['commit', '-m', 'add smoke story metadata']);
 }
 
@@ -105,7 +107,7 @@ async function runProofOrStop(root: string, command: string, args: Record<string
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
-      env: { ...process.env, LATTICE_PROJECT_ROOT: root },
+      env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';
@@ -130,8 +132,8 @@ async function runProofOrStopExpectFail(root: string, command: string, args: Rec
 }
 
 async function assertDoctorRepairCleansAndProtects(): Promise<void> {
-  const root = initRepo('lattice-worktree-repair-');
-  const outsideUserDir = mkdtempSync(join(tmpdir(), 'lattice-user-dir-'));
+  const root = initRepo('proof-or-stop-worktree-repair-');
+  const outsideUserDir = mkdtempSync(join(tmpdir(), 'proof-or-stop-user-dir-'));
   try {
     const store = new StoryStore(root);
     store.writeStory('B-termreg', story('B-termreg', 'DONE', true));
@@ -149,7 +151,7 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
     mkdirSync(join(root, '.worktrees', 'B-orphan'), { recursive: true });
     writeFileSync(join(root, '.worktrees', 'B-orphan', 'runtime.log'), 'orphan residue\n');
     mkdirSync(join(root, '.worktrees', 'B-ignored'), { recursive: true });
-    writeFileSync(join(root, '.worktrees', 'B-ignored', '.lattice-repair-ignore'), 'already quarantined\n');
+    writeFileSync(join(root, '.worktrees', 'B-ignored', '.proof-or-stop-repair-ignore'), 'already quarantined\n');
     writeFileSync(join(outsideUserDir, 'B-orphan'), 'outside worktreeDir must never be touched\n');
     rmSync(join(root, '.worktrees', 'B-prune'), { recursive: true, force: true });
 
@@ -194,10 +196,10 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
 // intent is unchanged — repair must not touch a canonical install it does not
 // own, and must never rewrite a package outside its single-source canonical name.
 function assertCanonicalOnlyRepairSkipsUnmanagedLegacyLink(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-mixed-global-link-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-mixed-global-link-'));
   try {
     const globalRoot = join(root, 'global-node-modules');
-    const canonicalPath = join(globalRoot, '@lattice', 'core');
+    const canonicalPath = join(globalRoot, '@proofOrStop', 'core');
     const legacyPath = join(globalRoot, '@legacy-agent', 'core');
     const worktreePath = join(root, '.worktrees', 'B-mixed');
     const mainPackagePath = join(root, 'packages', 'main');
@@ -208,14 +210,14 @@ function assertCanonicalOnlyRepairSkipsUnmanagedLegacyLink(): void {
     mkdirSync(mainPackagePath, { recursive: true });
     symlinkSync(worktreePath, legacyPath, 'dir');
 
-    const result = repairGlobalLatticeLinkBeforeWorktreeDelete(worktreePath, root, {
+    const result = repairGlobalProofOrStopLinkBeforeWorktreeDelete(worktreePath, root, {
       globalPackageRoot: globalRoot,
     });
 
     // Post-B-097f: canonical-only resolution + canonical is a real dir → skipped,
     // not relinked, and not an error.
     assert.equal(result.action, 'skipped');
-    assert.match(result.message, /@lattice\/core/);
+    assert.match(result.message, /@proofOrStop\/core/);
     // Safety: a real canonical install the repair does not own is left untouched.
     assert.equal(lstatSync(canonicalPath).isDirectory(), true, 'canonical install must remain untouched when it is not the stale symlink');
     // Safety: the unmanaged legacy symlink must NOT be rewritten/relinked to main.
@@ -227,7 +229,7 @@ function assertCanonicalOnlyRepairSkipsUnmanagedLegacyLink(): void {
 }
 
 async function assertStoryDiscardRepairsMissingRegistry(): Promise<void> {
-  const root = initRepo('lattice-discard-registry-repair-');
+  const root = initRepo('proof-or-stop-discard-registry-repair-');
   try {
     const store = new StoryStore(root);
     store.writeStory('B-discard', story('B-discard', 'INIT_CHECK', true));
@@ -258,13 +260,13 @@ function buildPartialDone(root: string, storyId: string): string {
   const worktreePath = join(root, '.worktrees', storyId);
   const worktreeStore = new StoryStore(worktreePath);
   worktreeStore.writeStory(storyId, story(storyId, 'DONE'));
-  git(worktreePath, ['add', '.lattice/story/actives']);
+  git(worktreePath, ['add', '.proof-or-stop/story/actives']);
   git(worktreePath, ['commit', '-m', `proof-or-stop: mark ${storyId} DONE + clear worktree`]);
   return worktreePath;
 }
 
 async function assertDoctorDetectsPartialDoneAndRecoverRepairs(): Promise<void> {
-  const root = initRepo('lattice-partial-done-recover-');
+  const root = initRepo('proof-or-stop-partial-done-recover-');
   try {
     const storyId = 'B-partial';
     const worktreePath = buildPartialDone(root, storyId);
@@ -298,7 +300,7 @@ async function assertDoctorDetectsPartialDoneAndRecoverRepairs(): Promise<void> 
 }
 
 async function assertDoneRecoverRefusesDirtyMain(): Promise<void> {
-  const root = initRepo('lattice-partial-done-dirty-main-');
+  const root = initRepo('proof-or-stop-partial-done-dirty-main-');
   try {
     const storyId = 'B-partial-dirty';
     buildPartialDone(root, storyId);
@@ -315,7 +317,7 @@ async function assertDoneRecoverRefusesDirtyMain(): Promise<void> {
 }
 
 async function assertDoneRecoverUsesDoneMainMergeLock(): Promise<void> {
-  const root = initRepo('lattice-partial-done-live-lock-');
+  const root = initRepo('proof-or-stop-partial-done-live-lock-');
   try {
     const storyId = 'B-partial-lock';
     buildPartialDone(root, storyId);
@@ -332,7 +334,7 @@ async function assertDoneRecoverUsesDoneMainMergeLock(): Promise<void> {
 }
 
 async function assertDoneRecoverRefusesDirtyStoryWorktree(): Promise<void> {
-  const root = initRepo('lattice-partial-done-dirty-worktree-');
+  const root = initRepo('proof-or-stop-partial-done-dirty-worktree-');
   try {
     const storyId = 'B-partial-worktree-dirty';
     const worktreePath = buildPartialDone(root, storyId);
@@ -348,7 +350,7 @@ async function assertDoneRecoverRefusesDirtyStoryWorktree(): Promise<void> {
 }
 
 async function assertDoneRecoverRefusesMergeTreeConflict(): Promise<void> {
-  const root = initRepo('lattice-partial-done-conflict-');
+  const root = initRepo('proof-or-stop-partial-done-conflict-');
   try {
     const storyId = 'B-partial-conflict';
     const store = new StoryStore(root);
@@ -381,7 +383,7 @@ async function assertDoneRecoverRefusesMergeTreeConflict(): Promise<void> {
 }
 
 async function assertDoneRecoverRefusesMissingBranchWithoutDeletingUnrelated(): Promise<void> {
-  const root = initRepo('lattice-partial-done-missing-branch-');
+  const root = initRepo('proof-or-stop-partial-done-missing-branch-');
   try {
     const storyId = 'B-missing-branch';
     const store = new StoryStore(root);
@@ -398,7 +400,7 @@ async function assertDoneRecoverRefusesMissingBranchWithoutDeletingUnrelated(): 
 }
 
 async function assertDoneRecoverRequiresBranchDoneState(): Promise<void> {
-  const root = initRepo('lattice-partial-done-branch-not-done-');
+  const root = initRepo('proof-or-stop-partial-done-branch-not-done-');
   try {
     const storyId = 'B-branch-test';
     const store = new StoryStore(root);

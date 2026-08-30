@@ -175,7 +175,7 @@ const reviewerReadEventSchema = z.object({
   tokens: reviewerReadTokenCountSchema.optional().describe('Alias for tokenCount.'),
 }).passthrough().describe('Mechanical reviewer read event captured from tool usage.');
 const reviewerReadEventsSchema = z.array(reviewerReadEventSchema)
-  .describe('Mechanical reviewer read events. Runtime keeps only lattice-review-* decisions-doc reads, derives the signed readLog digest/summary, and scopes mismatch diagnostics to decisions docs.');
+  .describe('Mechanical reviewer read events. Runtime keeps only proof-or-stop-review-* decisions-doc reads, derives the signed readLog digest/summary, and scopes mismatch diagnostics to decisions docs.');
 const reviewerReadLogInputSchema = z.union([
   reviewerReadEventsSchema,
   z.object({ events: reviewerReadEventsSchema }).passthrough(),
@@ -336,6 +336,10 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'story_reconcile', description: 'Detect and repair zombie Stories or terminal worktree residue (default dry run)', schema: {
     dryRun: z.boolean().optional().describe('true=report only; false=perform repair (default true).'),
+  }},
+  { name: 'identity_state_migrate', description: 'One-shot, digest-verified migration of one exact story from retired state storage to canonical Proof-or-Stop storage', schema: {
+    id: z.string().describe('Exact story id to migrate.'),
+    confirm: z.boolean().optional().describe('Required true to perform the migration; omitted is dry-run.'),
   }},
   { name: 'story_discard', description: 'Discard a Story: clean up its worktree and branch, then mark it DISCARDED', schema: {
     storyId: z.string().describe('Story ID'),
@@ -650,21 +654,21 @@ Behavior:
   }},
   { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round; write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
+    agent: z.string().optional().describe('Reviewer agent ID, for example proof-or-stop-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
     lane: z.enum([
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
-      'lattice-review-behavior',
-      'lattice-review-docs',
-      'lattice-review-channel',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-test-coverage',
+      'proof-or-stop-review-behavior',
+      'proof-or-stop-review-docs',
+      'proof-or-stop-review-channel',
     ]).optional().describe('Explicit reviewer lane; synonym for agent, provide only one.'),
     reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.'),
     reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
   }},
   { name: 'review_pass_set', description: 'Record a reviewer pass credential (reviewer checked, found no blocking findings)', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
+    agent: z.string().optional().describe('Reviewer agent ID, for example proof-or-stop-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
     reviewRunId: z.string().describe('Current reviewer run ID; call review_run_start first.'),
     note: z.string().describe('Review scope and reason there is no blocker (at least 10 characters).'),
     readManifest: reviewerReadManifestSchema.describe('Required signed reviewer read coverage for this pass.'),
@@ -1172,7 +1176,7 @@ Behavior:
   }},
   { name: 'live_smoke_transcript', description: 'Explicit live-smoke transcript producer: default is read-only status (expected userSees output, current transcript artifact status, V1 live-smoke readiness row). --capture="<command>" runs ONLY that one provided command (runCommands) and records the actual transcript; --write persists the expected-vs-actual artifact (writeEvidence, ownership/scope gated). --capture and --write are independent. Never advances phase, launches reviewers, widens local assurance, writes verificationEvidence/delivery checks, or accepts a metadata-only waiver.', schema: {
     storyId: z.string().describe('Story ID'),
-    capture: z.string().optional().describe('Opt-in command capture: run ONLY this one explicitly-provided command in an isolated process group with a bounded timeout and record stdout/stderr/exit as the actual transcript. Direct DONE-required/done_prepare captures derive their legal configured budget only when the proof-or-stop executable resolves to the exact active CLI realpath and the optional inline environment is limited to PROOF_OR_STOP_SESSION_ID (the deprecated LATTICE_SESSION_ID spelling is also accepted); project paths never self-authorize. Every inherited or default/config/phase-derived nested max remains the business bound while capture/outer wrappers add bounded cleanup grace; a Node-timer-saturated bound is reduced to reserve both grace layers and preserve strict ordering. Timeout cleanup remains referenced until a structured terminal is emitted. Arbitrary, shell-composed, or executable-injected commands retain the fixed safety ceiling. Never derives or appends a command. Capture alone persists nothing.'),
+    capture: z.string().optional().describe('Opt-in command capture: run ONLY this one explicitly-provided command in an isolated process group with a bounded timeout and record stdout/stderr/exit as the actual transcript. Direct DONE-required/done_prepare captures derive their legal configured budget only when the proof-or-stop executable resolves to the exact active CLI realpath and the optional inline environment is limited to PROOF_OR_STOP_SESSION_ID (the deprecated PROOF_OR_STOP_SESSION_ID spelling is also accepted); project paths never self-authorize. Every inherited or default/config/phase-derived nested max remains the business bound while capture/outer wrappers add bounded cleanup grace; a Node-timer-saturated bound is reduced to reserve both grace layers and preserve strict ordering. Timeout cleanup remains referenced until a structured terminal is emitted. Arbitrary, shell-composed, or executable-injected commands retain the fixed safety ceiling. Never derives or appends a command. Capture alone persists nothing.'),
     write: z.boolean().optional().describe('Opt-in artifact writer: persist the expected-vs-actual transcript to <storyDir>/evidence/live-smoke-transcript.json. Ownership/scope gated. Write alone runs no command. Independent of --capture.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
@@ -1215,7 +1219,7 @@ Behavior:
     mergeMain: z.boolean().optional().describe('Attempt git merge main before closure checks (default true).'),
     refreshStale: z.boolean().optional().describe('Refresh stale evidence only when the dry-run classification says it is safe (default true).'),
     validate: z.boolean().optional().describe('Run proof-or-stop validate --story=<storyId> --json before DONE closure projection (default true).'),
-    build: z.boolean().optional().describe('Optional worktree-local npm build + CLI version execution check; does not check global lattice.'),
+    build: z.boolean().optional().describe('Optional worktree-local npm build + CLI version execution check; does not check global proofOrStop.'),
     dryRun: z.boolean().optional().describe('Inspect and report planned steps without mutating git, evidence, build outputs, or version files.'),
     json: z.boolean().optional().describe('Return a JSON object; progress still uses the CLI liveness side channel.'),
     autoCloseGeneratedMetadata: z.boolean().optional().describe('Opt-in: commit only current-run generated DONE/test lifecycle metadata after manifest safety checks (default false).'),
@@ -1331,7 +1335,7 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
   { name: 'agent_prompt', description: 'Print the canonical package-registry host render: a body-free review_run_start bootstrap for migrated reviewers, or the role body for ordinary roles', schema: {
-    role: z.string().min(1).describe('Proof-or-Stop agent role name, e.g. lattice-implementer, lattice-review-concept (the template basename without .md)'),
+    role: z.string().min(1).describe('Proof-or-Stop agent role name, e.g. proof-or-stop-implementer, proof-or-stop-review-concept (the template basename without .md)'),
     storyId: z.string().min(1).optional().describe('Optional Story ID for trusted full-context assembly when this role rollout flag is enabled.'),
     format: z.enum(['text', 'json']).optional().describe('Story-aware full-context output format (default text); role-only output equals the canonical registry host render.'),
   }},
@@ -1344,7 +1348,7 @@ Behavior:
     claimId: z.string().optional().describe('Claim id, for example CLAIM-PRODUCTION-SAFETY'),
     requestedClaim: z.string().optional().describe('Human requested claim wording to evaluate'),
     runId: z.string().optional().describe('Optional report run id when writing a claim report'),
-    artifactsRoot: z.string().optional().describe('Optional baseline artifacts root (default .lattice/artifacts/baseline)'),
+    artifactsRoot: z.string().optional().describe('Optional baseline artifacts root (default .proof-or-stop/artifacts/baseline)'),
     output: z.string().optional().describe('Optional JSON output path; also writes a sibling .md report'),
     outputDir: z.string().optional().describe('Optional directory for claim-report.json/md'),
     writeReport: z.boolean().optional().describe('Write the canonical claim-report.json/md under the baseline artifacts root'),
@@ -1356,7 +1360,7 @@ Behavior:
     claimId: z.string().optional().describe('Claim id; CLAIM-ENGINEERING-DEV or CLAIM-LOOP-ENGINEERING can unlock here'),
     requestedClaim: z.string().optional().describe('Human requested claim wording to evaluate'),
     runId: z.string().optional().describe('Optional report run id when writing a claim report'),
-    artifactsRoot: z.string().optional().describe('Optional baseline artifacts root (default .lattice/artifacts/baseline)'),
+    artifactsRoot: z.string().optional().describe('Optional baseline artifacts root (default .proof-or-stop/artifacts/baseline)'),
     output: z.string().optional().describe('Optional JSON output path; also writes a sibling .md report'),
     outputDir: z.string().optional().describe('Optional directory for claim-report.json/md'),
     writeReport: z.boolean().optional().describe('Write the canonical claim-report.json/md under the baseline artifacts root'),
@@ -1436,11 +1440,11 @@ Behavior:
     host: z.string().describe('Host profile id to show guidance for'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
-  { name: 'lattice_config_doctor', description: 'Report Proof-or-Stop 0.3.8 migration readiness, Mac App demotion status, and wrapper-root gitRoot diagnostics (text/json). Alias: proof-or-stop config doctor', schema: {
+  { name: 'proof_or_stop_config_doctor', description: 'Report Proof-or-Stop 0.3.8 migration readiness, Mac App demotion status, and wrapper-root gitRoot diagnostics (text/json). Alias: proof-or-stop config doctor', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'lattice_config_repair', description: 'Explicit operator-confirmed wrapper-root repair: validates --set-git-root stays under the metadata root and is a git repository root, then writes only the gitRoot field of the existing project config when --confirm is given; without --confirm it is a non-mutating preview. Alias: proof-or-stop config repair', schema: {
+  { name: 'proof_or_stop_config_repair', description: 'Explicit operator-confirmed wrapper-root repair: validates --set-git-root stays under the metadata root and is a git repository root, then writes only the gitRoot field of the existing project config when --confirm is given; without --confirm it is a non-mutating preview. Alias: proof-or-stop config repair', schema: {
     setGitRoot: z.string().optional().describe('Relative directory under the metadata root that is the git repository root (use --set-git-root=<dir>); required, never guessed'),
     confirm: z.boolean().optional().describe('Required to write; without --confirm the command previews the change and prints the exact confirm command'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
@@ -1455,7 +1459,7 @@ Behavior:
   { name: 'baseline_run', description: 'Run one executable Proof-or-Stop baseline scenario and write required final-report artifacts. Alias: proof-or-stop baseline run', schema: {
     baselineId: z.string().describe('Baseline scenario id (NL-*/RED-* baseline suite, or legacy ENG-/AUTH-/CLAIM-* Baseline 2-5 id)'),
     runId: z.string().optional().describe('Optional run id'),
-    artifactsRoot: z.string().optional().describe('Baseline artifacts root (default .lattice/artifacts/baseline)'),
+    artifactsRoot: z.string().optional().describe('Baseline artifacts root (default .proof-or-stop/artifacts/baseline)'),
     formal: z.boolean().optional().describe('Produce a formal Engineering or Loop Engineering final report after proof refs validate'),
     suiteRunId: z.string().optional().describe('Formal suite run id binding'),
     claimTarget: z.string().optional().describe('Formal claim target binding; must be engineering or loop-engineering'),
@@ -1500,7 +1504,7 @@ Behavior:
   }},
   { name: 'baseline_suite', description: 'Aggregate baseline_run final-report artifacts into rates and false-DONE checks. Alias: proof-or-stop baseline suite', schema: {
     layer: z.enum(['development', 'engineering', 'loop-engineering', 'production-safety', 'capability-claim']).optional().describe('Legacy Baseline 2-5 layer to aggregate'),
-    artifactsRoot: z.string().optional().describe('Baseline artifacts root (default .lattice/artifacts/baseline)'),
+    artifactsRoot: z.string().optional().describe('Baseline artifacts root (default .proof-or-stop/artifacts/baseline)'),
     reportsRoot: z.string().optional().describe('Root directory to scan for final-report.json files'),
     reportFiles: z.union([z.array(z.string()), z.string()]).optional().describe('Explicit final-report.json files, array or comma-separated'),
     outputDir: z.string().optional().describe('Directory for baseline-suite-report artifacts'),
@@ -1509,7 +1513,7 @@ Behavior:
   }},
   { name: 'baseline_suite_report', description: 'Aggregate Proof-or-Stop baseline final-report.json files and write baseline-suite-report.json/md. Alias: proof-or-stop baseline suite report', schema: {
     layer: z.enum(['development', 'engineering', 'loop-engineering', 'production-safety', 'capability-claim']).optional().describe('Legacy Baseline 2-5 layer to aggregate'),
-    artifactsRoot: z.string().optional().describe('Baseline artifacts root (default .lattice/artifacts/baseline)'),
+    artifactsRoot: z.string().optional().describe('Baseline artifacts root (default .proof-or-stop/artifacts/baseline)'),
     reports: z.union([z.string(), z.array(z.string())]).optional().describe('Comma-separated final-report.json files or directories; defaults to the command report root'),
     outputDir: z.string().optional().describe('Directory for baseline-suite-report.json and baseline-suite-report.md (default command report root)'),
     suiteId: z.string().optional().describe('Suite id to include in the report (default minimum-baseline-suite)'),
@@ -2005,7 +2009,7 @@ Behavior:
     upgrade: z.boolean().optional().describe('Sync MISSING/STALE_SAFE managed assets to current Proof-or-Stop templates; equivalent to --apply.'),
     reviewLocalEdits: z.boolean().optional().describe('Output structured manual review summary for STALE_LOCAL_EDIT.'),
     profile: z.enum(['codex', 'claude', 'all', 'core']).optional().describe('Override auto-detected init profile.'),
-    assetMode: z.enum(['full', 'thin']).optional().describe('Override Codex prompt asset mode; full=generate .lattice-codex/agents, thin=use prompt registry.'),
+    assetMode: z.enum(['full', 'thin']).optional().describe('Override Codex prompt asset mode; full=generate .proof-or-stop-codex/agents, thin=use prompt registry.'),
   }},
 
   // Audit (framework self-audit: scan CLAUDE.md promises across stories versus actual CLI behavior drift).
@@ -2082,7 +2086,7 @@ Behavior:
       'spec-boundary',
     ]).describe('Category (legacy category is normalized to missing).'),
     agent: z.string().optional().describe('Caller identity (optional, defaults from PROOF_OR_STOP_AGENT environment variable).'),
-    reviewRunId: z.string().optional().describe('Current lattice-review-* reviewer run ID (call review_run_start first; main finding may omit this).'),
+    reviewRunId: z.string().optional().describe('Current proof-or-stop-review-* reviewer run ID (call review_run_start first; main finding may omit this).'),
     files: z.array(z.string()).optional().describe('Related file paths (for reviewer finding clustering and traceability).'),
     // B-3fad CHK-001: evidence state axis. Omitted value defaults to verified for REVIEW-stage reviewer findings, preserving current gate behavior.
     // suspected requires uncertaintyReason; disproven requires disprovenEvidence.summary (runtime applies the same standard validation).
@@ -2099,8 +2103,8 @@ Behavior:
     signatureTag: z.string().optional()
       .describe('Audit-only signature tag grouping this finding into a recurring pattern family (auto-proposed to the signature-registry if new). Never read by any gate.'),
     readManifest: reviewerReadManifestSchema.optional().describe('Required when pass-only finding_add text is converted into review_pass_set evidence; also required for reviewer finding_add when readEvents/readLog is supplied.'),
-    readEvents: reviewerReadEventsSchema.optional().describe('Optional mechanical read events for reviewer finding_add. Requires readManifest for lattice-review-* agents; non-reviewer usage is ignored by the read-evidence capture path, and mismatch diagnostics are decisions-doc scoped.'),
-    readLog: reviewerReadLogInputSchema.optional().describe('Optional mechanical read-log input for reviewer finding_add: event array or {events:[...]}. Requires readManifest for lattice-review-* agents; mismatch diagnostics are decisions-doc scoped.'),
+    readEvents: reviewerReadEventsSchema.optional().describe('Optional mechanical read events for reviewer finding_add. Requires readManifest for proof-or-stop-review-* agents; non-reviewer usage is ignored by the read-evidence capture path, and mismatch diagnostics are decisions-doc scoped.'),
+    readLog: reviewerReadLogInputSchema.optional().describe('Optional mechanical read-log input for reviewer finding_add: event array or {events:[...]}. Requires readManifest for proof-or-stop-review-* agents; mismatch diagnostics are decisions-doc scoped.'),
   }},
   { name: 'finding_list', description: 'View story findings', schema: {
     storyId: z.string().describe('Story ID'),
@@ -2130,7 +2134,7 @@ Behavior:
   }},
 
   // B-4f46 CHK-003: signature-registry (Experience Layer Phase 1b). AUDIT-ONLY catalog
-  // of finding signatureTags under .lattice/learning/. No gate reads it.
+  // of finding signatureTags under .proof-or-stop/learning/. No gate reads it.
   { name: 'signature_registry_list', description: 'List signature-registry tags + statuses (audit-only)', schema: {
     storyId: z.string().optional().describe('Optional story ID (audit context only; the registry is not story-scoped).'),
   }},
@@ -2155,7 +2159,7 @@ Behavior:
 
   // B-8387 (Experience Layer Phase 2): staged Process Playbook lifecycle. Distil a
   // resolved finding into a human-approved candidate playbook. NEVER files findings
-  // or touches gates; writes only under .lattice/learning/. Approve fails closed on
+  // or touches gates; writes only under .proof-or-stop/learning/. Approve fails closed on
   // a stale --expectedProposalDigest (decision-doc pattern); status is candidate,
   // NOT active. Activate is the explicit active-runtime boundary and fails closed
   // on --expectedPlaybookDigest.
@@ -2322,10 +2326,10 @@ Behavior:
     top: z.coerce.number().int().optional().describe('Max number of ranked matches to return (default 5; <=0 returns none).'),
   }},
   // B-4eb6 (Experience Layer ③.1): learning_scan derives + PERSISTS the advisory
-  // finding-signals cache (.lattice/learning/finding-signals.json) the Phase 1.5
+  // finding-signals cache (.proof-or-stop/learning/finding-signals.json) the Phase 1.5
   // hint loader reads. It WRITES the cache (not read-only — NOT in READ_ONLY_COMMANDS)
   // but reads findings via the store read ports only and touches no gate.
-  { name: 'learning_scan', description: 'Derive and persist the advisory finding-signals cache (.lattice/learning/finding-signals.json) that powers review experience hints; writes the cache, reads findings via store ports, touches no gate', schema: {
+  { name: 'learning_scan', description: 'Derive and persist the advisory finding-signals cache (.proof-or-stop/learning/finding-signals.json) that powers review experience hints; writes the cache, reads findings via store ports, touches no gate', schema: {
     json: z.boolean().optional().describe('Emit a machine-readable summary { written, path, signals, schemaVersion, updatedAt } as JSON.'),
     story: z.string().optional().describe('Restrict derivation to a single story id.'),
   }},
@@ -2367,7 +2371,7 @@ Behavior:
       desc: z.string().min(1, 'desc is required and must be at least 1 character').describe('Issue details (reviewer subjective judgment must be specific).'),
     })).describe('List of issues raised by Reviewer; critical/high block INIT_CHECK; empty array allowed.'),
     agent: z.string().optional().describe('Reviewer self-reported agent name; product-reviewer must pass product-reviewer.'),
-    agentId: z.string().optional().describe('Reviewer self-reported agent ID; product-reviewer must pass product-reviewer and must not pass lattice-review-story-init.'),
+    agentId: z.string().optional().describe('Reviewer self-reported agent ID; product-reviewer must pass product-reviewer and must not pass proof-or-stop-review-story-init.'),
   }},
 
   // Init Check fallback/repair (B-95d8 CHK-001: explicit, auditable INIT_CHECK exit
@@ -2388,9 +2392,9 @@ Behavior:
     actor: z.string().optional().describe('Optional actor identifier; defaults to git user.name.'),
   }},
 
-  // Delivery Check (B-35ed: lattice-review-delivery reviewer writes signed delivery-check.json)
+  // Delivery Check (B-35ed: proof-or-stop-review-delivery reviewer writes signed delivery-check.json)
   // TEST to DONE hard-gate artifact. Signature domain: storyId + docsPromises + realMachineTests + closingSelfCheck + reviewRound.
-  { name: 'delivery_check_set', description: 'Save delivery check results (called by lattice-review-delivery reviewer)', schema: {
+  { name: 'delivery_check_set', description: 'Save delivery check results (called by proof-or-stop-review-delivery reviewer)', schema: {
     storyId: z.string().describe('Story ID'),
     docsPromises: z.array(deliveryPromiseSchema).describe('Documentation promise list.'),
     realMachineTests: z.array(z.object({
@@ -2415,7 +2419,7 @@ Behavior:
   }},
 
   // Scope Check (B-d4d1: scope agent writes signed scope-check.json)
-  { name: 'scope_check_save', description: 'Save reviewer-written PLAN scope evidence (scope-check.json) consumed by story_review; intended for lattice-review-scope-plan/scope-plan reviewers.', schema: {
+  { name: 'scope_check_save', description: 'Save reviewer-written PLAN scope evidence (scope-check.json) consumed by story_review; intended for proof-or-stop-review-scope-plan/scope-plan reviewers.', schema: {
     storyId: z.string().describe('Story ID'),
     features: z.array(z.object({
       feature: z.string(),
@@ -2477,7 +2481,7 @@ Behavior:
     itemId: z.string().optional().describe('Checklist item ID (CHK-xxx). Supply only when the registered agent type requires an item target; story-only roles must omit all identifiers.'),
     findingId: z.string().optional().describe('Finding ID (F-xxx or B-xxx:F-xxx). Supply only for a registered finding-target role; mutually exclusive with itemId/clusterId.'),
     clusterId: z.string().optional().describe('Cluster ID (CL-xxx). Supply only for a registered cluster-target role; mutually exclusive with itemId/findingId.'),
-    agentType: z.enum(AGENT_DISPATCH_ACCEPTED_TYPES as [string, ...string[]]).optional().describe('Registered subagent type or compatibility alias. Omit only for the deliberate lattice-implementer default; runtime enforces phase and target cardinality from the same registry.'),
+    agentType: z.enum(AGENT_DISPATCH_ACCEPTED_TYPES as [string, ...string[]]).optional().describe('Registered subagent type or compatibility alias. Omit only for the deliberate proof-or-stop-implementer default; runtime enforces phase and target cardinality from the same registry.'),
   }},
 
   // Background CLI trio (B-45ed CHK-007: background.md set/append/get).
@@ -3113,13 +3117,13 @@ Behavior:
   }},
   { name: 'host_run', description: 'Launch a canonical reviewer/quorum host (codex/claude/agy) through the B-70e9 usage choke point: builds the B-d8ef canonical launcher argv, streams host stdout, and writes preflight+final LLM usage-ledger rows bound to storyId/agentType/phase/provider (plus reviewRunId->threadId, lane->subagentId). Enforces the per-dispatch hard-budget cap and the host-run concurrency cap before spawn. Usage rows are gateEvidence=false diagnostics. Alias: proof-or-stop host run', schema: {
     host: z.string().describe('Canonical host: codex, claude, or agy (aliases: claude-code->claude, antigravity->agy)'),
-    agentType: z.string().describe('Attribution agentType recorded on the usage rows, e.g. reviewer / lattice-review-quality / autopilot-repair'),
+    agentType: z.string().describe('Attribution agentType recorded on the usage rows, e.g. reviewer / proof-or-stop-review-quality / autopilot-repair'),
     storyId: z.string().optional().describe('Canonical Story id; when set the story index resolves the phase (omit for an adhoc run)'),
     phase: z.string().optional().describe('Explicit attribution phase; when omitted and storyId is set, resolves from the story index'),
     prompt: z.string().optional().describe('Inline prompt text (mutually exclusive with --promptFile)'),
     promptFile: z.string().optional().describe('Path to a prompt file (mutually exclusive with --prompt)'),
     reviewRunId: z.string().optional().describe('Review run id (e.g. B-70e9:RR-001) recorded as threadId; must start with "<storyId>:" when storyId is given'),
-    lane: z.string().optional().describe('Reviewer lane (e.g. lattice-review-quality) recorded as subagentId'),
+    lane: z.string().optional().describe('Reviewer lane (e.g. proof-or-stop-review-quality) recorded as subagentId'),
     timeoutMs: z.number().int().positive().optional().describe('Host subprocess timeout in milliseconds'),
     agyPrintTimeout: z.string().optional().describe('agy --print-timeout override (e.g. 30m); must match \\d+[smh]'),
     json: z.boolean().optional().describe('Output the structured host_run result as JSON (exitCode is a field)'),
@@ -3177,7 +3181,7 @@ Behavior:
     lesson: z.string().describe('Reusable lesson (at least 10 characters).'),
     reusePrompt: z.string().describe('How to retrieve this lesson in a later session (at least 5 characters).'),
     tags: z.union([z.array(z.string()), z.string()]).optional().describe('Keyword tags, as a comma-separated string or array.'),
-    sourceAgent: z.string().optional().describe('Source agent (default: lattice-implementer).'),
+    sourceAgent: z.string().optional().describe('Source agent (default: proof-or-stop-implementer).'),
     sourceStoryId: z.string().optional().describe('Source story ID.'),
     evidenceRefs: z.array(z.string()).optional().describe('Evidence references (file paths or commit SHAs).'),
   }},
@@ -3207,11 +3211,11 @@ Behavior:
     maxEntries: z.number().optional().describe('Maximum number of entries to include (default: 5).'),
     maxLines: z.number().optional().describe('Line budget (default: 60).'),
     reason: z.string().optional().describe('Reasoned-downgrade explanation (>=5 chars), required only when the preflight pack build itself throws.'),
-    actor: z.string().optional().describe('Acknowledging actor (default: LATTICE_AGENT/USER env or "main-agent").'),
+    actor: z.string().optional().describe('Acknowledging actor (default: PROOF_OR_STOP_AGENT/USER env or "main-agent").'),
   }},
   { name: 'dev_memory_finish', description: 'Finish the dev-memory session', schema: {
     storyId: z.string().optional().describe('Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Proof-or-Stop sessions.'),
-    storyDir: z.string().optional().describe('Story directory root path (default <root>/.lattice/story/actives).'),
+    storyDir: z.string().optional().describe('Story directory root path (default <root>/.proof-or-stop/story/actives).'),
     query: z.string().optional().describe('Optional relevance filter query.'),
     scope: z.enum(['global']).optional().describe('When storyId is omitted: global=promote project lessons to global dev-memory; even inside an active story, do not write story candidates.'),
   }},

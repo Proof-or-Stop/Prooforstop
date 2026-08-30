@@ -40,7 +40,7 @@ const { createPlaybookRuntimeMemoryHandlers } = await import(join(distRoot, 'han
 
 /**
  * B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
- * record. `.lattice/dev-memory/` is git-tracked (unlike `.lattice/story/`, which
+ * record. `.proof-or-stop/dev-memory/` is git-tracked (unlike `.proof-or-stop/story/`, which
  * is materialHash-EXCLUDED), so this write must be committed BEFORE a fixture
  * computes/signs its `preEvidenceMaterialHash` — never after — so it cannot
  * retroactively invalidate a delivery-check/test-evidence materialHash binding
@@ -49,8 +49,8 @@ const { createPlaybookRuntimeMemoryHandlers } = await import(join(distRoot, 'han
 function satisfyDevMemoryFinishDecisionAndCommit(root, store, storyId, git) {
   createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: root })
     .dev_memory_finish_decision({ storyId, decision: 'no-reusable-lesson', reason: 'milestone-status.test.mjs fixture; no lesson to capture' });
-  if (git(['status', '--porcelain', '--', '.lattice/dev-memory'])) {
-    git(['add', '.lattice/dev-memory']);
+  if (git(['status', '--porcelain', '--', '.proof-or-stop/dev-memory'])) {
+    git(['add', '.proof-or-stop/dev-memory']);
     git(['commit', '-m', 'dev-memory finish decision']);
   }
 }
@@ -115,11 +115,11 @@ function ledger(milestones, storyId = 'B-7ba7') {
 }
 
 function writeTestConfig(root) {
-  writeJson(join(root, 'lattice.config.json'), {
+  writeJson(join(root, 'proof-or-stop.config.json'), {
     scanRoot: '.',
     testsDir: 'tests',
     fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
     flows: { defaults: {}, patterns: [] },
@@ -164,7 +164,7 @@ function runTextCommand(root, command, payload) {
 }
 
 function storyDirs(root) {
-  const dir = join(root, '.lattice', 'story', 'actives');
+  const dir = join(root, '.proof-or-stop', 'story', 'actives');
   return existsSync(dir) ? readdirSync(dir).filter((entry) => entry.startsWith('B-')).sort() : [];
 }
 
@@ -302,9 +302,9 @@ function storyDirs(root) {
   assert.match(emptyDerived, /\(no checklist items\)/);
 
   const cliMarkerStoryId = 'B-cli-marker-icons';
-  const root = mkdtempSync(join(tmpdir(), 'lattice-milestone-status-icons-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-milestone-status-icons-'));
   try {
-    const storyDir = join(root, '.lattice', 'story', 'actives', cliMarkerStoryId);
+    const storyDir = join(root, '.proof-or-stop', 'story', 'actives', cliMarkerStoryId);
     mkdirSync(storyDir, { recursive: true });
     writeTestConfig(root);
     writeJson(join(storyDir, 'index.json'), story(cliMarkerStoryId));
@@ -338,7 +338,7 @@ function storyDirs(root) {
 
     // B-7c05: the post-mutation milestone suffix is BRIEF by default; per-call
     // flags do not flow through checklist_update's schema, so restore the full
-    // table via the LATTICE_BRIEF_OUTPUT=0 env hatch for these table assertions.
+    // table via the PROOF_OR_STOP_BRIEF_OUTPUT=0 env hatch for these table assertions.
     const autoAppendText = execFileSync(process.execPath, [
       cliPath,
       'checklist_update',
@@ -350,7 +350,7 @@ function storyDirs(root) {
       'CHK-MARKER-CURRENT',
       '--status',
       'pending',
-    ], { cwd: root, encoding: 'utf8', env: { ...process.env, LATTICE_BRIEF_OUTPUT: '0' } });
+    ], { cwd: root, encoding: 'utf8', env: { ...process.env, PROOF_OR_STOP_BRIEF_OUTPUT: '0' } });
     assert.match(autoAppendText, /Milestone Status - B-cli-marker-icons/);
     assert.match(autoAppendText, /\| M-marker-done \| Marker completed milestone \| ✅ Done \(ledger=done;/);
     assert.match(autoAppendText, /\| M-marker-review \| Marker pending review milestone \| 🟡 Pending Review \(ledger=covered;/);
@@ -390,7 +390,7 @@ function storyDirs(root) {
     );
 
     const noLedgerStoryId = 'B-cli-marker-no-ledger';
-    const noLedgerStoryDir = join(root, '.lattice', 'story', 'actives', noLedgerStoryId);
+    const noLedgerStoryDir = join(root, '.proof-or-stop', 'story', 'actives', noLedgerStoryId);
     mkdirSync(noLedgerStoryDir, { recursive: true });
     writeJson(join(noLedgerStoryDir, 'index.json'), story(noLedgerStoryId));
     writeJson(join(noLedgerStoryDir, 'checklist.json'), {
@@ -431,7 +431,7 @@ function storyDirs(root) {
     // milestone-ledger.json makes readMilestoneLedger throw; the error must reach the
     // visible ⚠ block, and the exit code must stay 0 (the mutation already committed).
     const corruptStoryId = 'B-cli-marker-corrupt';
-    const corruptStoryDir = join(root, '.lattice', 'story', 'actives', corruptStoryId);
+    const corruptStoryDir = join(root, '.proof-or-stop', 'story', 'actives', corruptStoryId);
     mkdirSync(corruptStoryDir, { recursive: true });
     writeJson(join(corruptStoryDir, 'index.json'), story(corruptStoryId));
     writeJson(join(corruptStoryDir, 'checklist.json'), {
@@ -463,7 +463,7 @@ function storyDirs(root) {
     );
 
     const jsonStoryId = 'B-cli-marker-json';
-    const jsonStoryDir = join(root, '.lattice', 'story', 'actives', jsonStoryId);
+    const jsonStoryDir = join(root, '.proof-or-stop', 'story', 'actives', jsonStoryId);
     mkdirSync(jsonStoryDir, { recursive: true });
     writeJson(join(jsonStoryDir, 'index.json'), story(jsonStoryId));
     const jsonStdout = execFileSync(process.execPath, [
@@ -516,12 +516,12 @@ function writeJson(path, value) {
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-milestone-ledger-planning-writes-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-milestone-ledger-planning-writes-'));
   const readLedger = (storyId) => JSON.parse(readFileSync(
-    join(root, '.lattice', 'story', 'actives', storyId, 'milestone-ledger.json'),
+    join(root, '.proof-or-stop', 'story', 'actives', storyId, 'milestone-ledger.json'),
     'utf8',
   ));
-  const ledgerExists = (storyId) => existsSync(join(root, '.lattice', 'story', 'actives', storyId, 'milestone-ledger.json'));
+  const ledgerExists = (storyId) => existsSync(join(root, '.proof-or-stop', 'story', 'actives', storyId, 'milestone-ledger.json'));
   const parseStoryId = (text) => {
     const match = text.match(/\bB-[0-9a-f]{4,6}\b/i);
     assert.ok(match, `expected story id in output: ${text}`);
@@ -628,7 +628,7 @@ function writeJson(path, value) {
     assert.equal(ledgerExists(proseOnlyCreated.storyId), false, 'planner_create_story does not infer ledgers from draft prose');
 
     const previewStoryId = 'B-planpreview';
-    const previewStoryDir = join(root, '.lattice', 'story', 'actives', previewStoryId);
+    const previewStoryDir = join(root, '.proof-or-stop', 'story', 'actives', previewStoryId);
     mkdirSync(previewStoryDir, { recursive: true });
     writeJson(join(previewStoryDir, 'index.json'), {
       ...story(previewStoryId),
@@ -644,7 +644,7 @@ function writeJson(path, value) {
     assert.equal(ledgerExists(previewStoryId), false, 'plan_skeleton preview never writes a ledger even when rows are supplied');
 
     const writeStoryId = 'B-planwrite';
-    const writeStoryDir = join(root, '.lattice', 'story', 'actives', writeStoryId);
+    const writeStoryDir = join(root, '.proof-or-stop', 'story', 'actives', writeStoryId);
     mkdirSync(writeStoryDir, { recursive: true });
     writeJson(join(writeStoryDir, 'index.json'), {
       ...story(writeStoryId),
@@ -663,7 +663,7 @@ function writeJson(path, value) {
     assert.equal(planSkeletonLedger.milestones[0].id, 'M-auto');
 
     const noMilestoneWriteStoryId = 'B-planwrite-no-rows';
-    const noMilestoneWriteStoryDir = join(root, '.lattice', 'story', 'actives', noMilestoneWriteStoryId);
+    const noMilestoneWriteStoryDir = join(root, '.proof-or-stop', 'story', 'actives', noMilestoneWriteStoryId);
     mkdirSync(noMilestoneWriteStoryDir, { recursive: true });
     writeJson(join(noMilestoneWriteStoryDir, 'index.json'), {
       ...story(noMilestoneWriteStoryId),
@@ -1749,8 +1749,8 @@ function assertEvidenceRefShape(evidenceRef) {
 {
   let readCount = 0;
   const handlers = createMilestoneStatusHandlers({
-    root: '/tmp/lattice-milestone-status',
-    scanRoot: '/tmp/lattice-milestone-status',
+    root: '/tmp/proof-or-stop-milestone-status',
+    scanRoot: '/tmp/proof-or-stop-milestone-status',
     store: {
       readStory() {
         readCount += 1;
@@ -1787,8 +1787,8 @@ function assertEvidenceRefShape(evidenceRef) {
 {
   const reads = [];
   const handlers = createMilestoneStatusHandlers({
-    root: '/tmp/lattice-milestone-status',
-    scanRoot: '/tmp/lattice-milestone-status',
+    root: '/tmp/proof-or-stop-milestone-status',
+    scanRoot: '/tmp/proof-or-stop-milestone-status',
     store: {
       readStory() {
         reads.push('story');
@@ -1822,8 +1822,8 @@ function assertEvidenceRefShape(evidenceRef) {
 {
   const reads = [];
   const handlers = createMilestoneStatusHandlers({
-    root: '/tmp/lattice-milestone-status',
-    scanRoot: '/tmp/lattice-milestone-status',
+    root: '/tmp/proof-or-stop-milestone-status',
+    scanRoot: '/tmp/proof-or-stop-milestone-status',
     store: {
       readStory() {
         reads.push('story');
@@ -1946,7 +1946,7 @@ function assertEvidenceRefShape(evidenceRef) {
 
 {
   const storyId = 'B-done-closeout';
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-closeout-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-closeout-'));
   const originalCwd = process.cwd();
   const originalSettlementEnabled = process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED;
   const originalCandidateIngestEnabled = process.env.PLAYBOOK_DONE_CANDIDATE_INGEST_ENABLED;
@@ -1963,18 +1963,18 @@ function assertEvidenceRefShape(evidenceRef) {
     git(['init', '-b', 'main']);
     git(['config', 'user.name', 'Milestone Status Test']);
     git(['config', 'user.email', 'milestone-status@example.com']);
-    writeJson(join(root, 'lattice.config.json'), {
+    writeJson(join(root, 'proof-or-stop.config.json'), {
       scanRoot: '.',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
       workflow: { profile: 'light' },
       proofStory: { doneGateMode: 'observe', reviewGateMode: 'observe' },
       flows: { defaults: {}, patterns: [] },
     });
-    git(['add', 'lattice.config.json']);
+    git(['add', 'proof-or-stop.config.json']);
     git(['commit', '-m', 'init']);
 
     const store = new StoryStore(root);
@@ -2041,7 +2041,7 @@ function assertEvidenceRefShape(evidenceRef) {
       headHash: preEvidenceHead,
       materialHash: preEvidenceMaterialHash,
       reviewRound,
-      agentId: 'lattice-review-delivery',
+      agentId: 'proof-or-stop-review-delivery',
       docsPromises,
       realMachineTests,
       closingSelfCheck,
@@ -2105,7 +2105,7 @@ function assertEvidenceRefShape(evidenceRef) {
 
 {
   const storyId = 'B-done-closeout-worktree';
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-closeout-worktree-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-closeout-worktree-'));
   const mainRoot = join(root, 'main');
   const worktreeRoot = join(root, 'story-worktree');
   const originalCwd = process.cwd();
@@ -2129,18 +2129,18 @@ function assertEvidenceRefShape(evidenceRef) {
     gitMain(['init', '-b', 'main']);
     gitMain(['config', 'user.name', 'Milestone Status Test']);
     gitMain(['config', 'user.email', 'milestone-status@example.com']);
-    writeJson(join(mainRoot, 'lattice.config.json'), {
+    writeJson(join(mainRoot, 'proof-or-stop.config.json'), {
       scanRoot: '.',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
       workflow: { profile: 'light' },
       proofStory: { doneGateMode: 'observe', reviewGateMode: 'observe' },
       flows: { defaults: {}, patterns: [] },
     });
-    gitMain(['add', 'lattice.config.json']);
+    gitMain(['add', 'proof-or-stop.config.json']);
     gitMain(['commit', '-m', 'init']);
     gitMain(['worktree', 'add', '-b', `story/${storyId}`, worktreeRoot]);
 
@@ -2209,7 +2209,7 @@ function assertEvidenceRefShape(evidenceRef) {
       headHash: preEvidenceHead,
       materialHash: preEvidenceMaterialHash,
       reviewRound,
-      agentId: 'lattice-review-delivery',
+      agentId: 'proof-or-stop-review-delivery',
       docsPromises,
       realMachineTests,
       closingSelfCheck,
@@ -2834,7 +2834,7 @@ function assertEvidenceRefShape(evidenceRef) {
 
 {
   const storyId = 'B-done-cli-append';
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-cli-append-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-cli-append-'));
   const mainRoot = join(root, 'main');
   const worktreeRoot = join(root, 'story-worktree');
   const originalSettlementEnabled = process.env.PLAYBOOK_DONE_SETTLEMENT_ENABLED;
@@ -2857,11 +2857,11 @@ function assertEvidenceRefShape(evidenceRef) {
     gitMain(['init', '-b', 'main']);
     gitMain(['config', 'user.name', 'Milestone Status Test']);
     gitMain(['config', 'user.email', 'milestone-status@example.com']);
-    writeJson(join(mainRoot, 'lattice.config.json'), {
+    writeJson(join(mainRoot, 'proof-or-stop.config.json'), {
       scanRoot: '.',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
       workflow: { profile: 'light' },
@@ -2869,7 +2869,7 @@ function assertEvidenceRefShape(evidenceRef) {
       flows: { defaults: {}, patterns: [] },
     });
     writeFileSync(join(mainRoot, '.gitignore'), '**/owner-lease.json\n', 'utf8');
-    gitMain(['add', 'lattice.config.json', '.gitignore']);
+    gitMain(['add', 'proof-or-stop.config.json', '.gitignore']);
     gitMain(['commit', '-m', 'init']);
     gitMain(['worktree', 'add', '-b', `story/${storyId}`, worktreeRoot]);
 
@@ -2942,7 +2942,7 @@ function assertEvidenceRefShape(evidenceRef) {
       headHash: preEvidenceHead,
       materialHash: preEvidenceMaterialHash,
       reviewRound,
-      agentId: 'lattice-review-delivery',
+      agentId: 'proof-or-stop-review-delivery',
       docsPromises,
       realMachineTests,
       closingSelfCheck,
@@ -2972,7 +2972,7 @@ function assertEvidenceRefShape(evidenceRef) {
       storyId,
       '--phase',
       'DONE',
-    ], { cwd: worktreeRoot, encoding: 'utf8', env: { ...process.env, LATTICE_BRIEF_OUTPUT: '0' } });
+    ], { cwd: worktreeRoot, encoding: 'utf8', env: { ...process.env, PROOF_OR_STOP_BRIEF_OUTPUT: '0' } });
 
     assert.equal(result.status, 0, `story_advance DONE should succeed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`);
     assert.ok(
@@ -3000,15 +3000,15 @@ function assertEvidenceRefShape(evidenceRef) {
 
 {
   const storyId = 'B-cli-ms';
-  const root = mkdtempSync(join(tmpdir(), 'lattice-milestone-status-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-milestone-status-'));
   try {
-    const storyDir = join(root, '.lattice', 'story', 'actives', storyId);
+    const storyDir = join(root, '.proof-or-stop', 'story', 'actives', storyId);
     mkdirSync(storyDir, { recursive: true });
-    writeJson(join(root, 'lattice.config.json'), {
+    writeJson(join(root, 'proof-or-stop.config.json'), {
       scanRoot: '.',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
       flows: { defaults: {}, patterns: [] },
@@ -3146,15 +3146,15 @@ function assertEvidenceRefShape(evidenceRef) {
 
     {
       const activeStoryId = 'B-preflight';
-      const activeRoot = mkdtempSync(join(tmpdir(), 'lattice-milestone-status-preflight-'));
+      const activeRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-milestone-status-preflight-'));
       try {
-        const activeStoryDir = join(activeRoot, '.lattice', 'story', 'actives', activeStoryId);
+        const activeStoryDir = join(activeRoot, '.proof-or-stop', 'story', 'actives', activeStoryId);
         mkdirSync(activeStoryDir, { recursive: true });
-        writeJson(join(activeRoot, 'lattice.config.json'), {
+        writeJson(join(activeRoot, 'proof-or-stop.config.json'), {
           scanRoot: '.',
           testsDir: 'tests',
           fixturesDir: 'tests/fixtures',
-          storyDir: '.lattice/story/actives',
+          storyDir: '.proof-or-stop/story/actives',
           requirementsDir: 'docs/requirements',
           storyPrefix: 'B',
           flows: { defaults: {}, patterns: [] },
@@ -3162,7 +3162,7 @@ function assertEvidenceRefShape(evidenceRef) {
         execFileSync('git', ['init', '-b', 'main'], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
         execFileSync('git', ['config', 'user.name', 'Milestone Status Test'], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
         execFileSync('git', ['config', 'user.email', 'milestone-status@example.com'], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
-        execFileSync('git', ['add', 'lattice.config.json'], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
+        execFileSync('git', ['add', 'proof-or-stop.config.json'], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
         execFileSync('git', ['commit', '-m', 'init'], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
         execFileSync('git', ['checkout', '-b', `story/${activeStoryId}`], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
         execFileSync('mkfifo', [join(activeStoryDir, 'index.json')], { cwd: activeRoot, stdio: ['pipe', 'pipe', 'pipe'] });
@@ -3232,7 +3232,7 @@ function assertEvidenceRefShape(evidenceRef) {
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-milestone-status-done-snapshot-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-milestone-status-done-snapshot-'));
   const git = (args) => execFileSync('git', args, {
     cwd: root,
     encoding: 'utf8',
@@ -3244,7 +3244,7 @@ function assertEvidenceRefShape(evidenceRef) {
     git(['init', '-b', 'main']);
     git(['config', 'user.name', 'Milestone Status Test']);
     git(['config', 'user.email', 'milestone-status@example.com']);
-    git(['add', 'lattice.config.json']);
+    git(['add', 'proof-or-stop.config.json']);
     git(['commit', '-m', 'init']);
 
     const frozenBinding = {
@@ -3277,7 +3277,7 @@ function assertEvidenceRefShape(evidenceRef) {
     });
 
     const doneStoryId = 'B-cli-done-snapshot-status';
-    const doneStoryDir = join(root, '.lattice', 'story', 'actives', doneStoryId);
+    const doneStoryDir = join(root, '.proof-or-stop', 'story', 'actives', doneStoryId);
     const doneItemId = 'CHK-DONE-SNAPSHOT';
     const doneLedger = ledger([
       doneMilestone(
@@ -3317,7 +3317,7 @@ function assertEvidenceRefShape(evidenceRef) {
     assert.match(liveStaleReport.milestones[0].statusDetail, /evidence=stale/);
 
     const activeStoryId = 'B-cli-active-live-status';
-    const activeStoryDir = join(root, '.lattice', 'story', 'actives', activeStoryId);
+    const activeStoryDir = join(root, '.proof-or-stop', 'story', 'actives', activeStoryId);
     const activeItemId = 'CHK-ACTIVE-SNAPSHOT';
     const activeLedger = ledger([
       doneMilestone(
@@ -3344,7 +3344,7 @@ function assertEvidenceRefShape(evidenceRef) {
     writeJson(join(activeStoryDir, 'milestone-closeout.json'), activeSnapshot);
 
     const missingCloseoutStoryId = 'B-cli-done-missing-closeout-status';
-    const missingCloseoutStoryDir = join(root, '.lattice', 'story', 'actives', missingCloseoutStoryId);
+    const missingCloseoutStoryDir = join(root, '.proof-or-stop', 'story', 'actives', missingCloseoutStoryId);
     const missingItemId = 'CHK-MISSING-CLOSEOUT';
     const missingLedger = ledger([
       doneMilestone(

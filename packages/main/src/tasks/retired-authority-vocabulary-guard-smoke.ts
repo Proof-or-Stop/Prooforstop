@@ -43,7 +43,7 @@ const bannedActiveRules: PatternRule[] = [
   { label: 'Authority completion', pattern: /\bAuthority\s+completion\b/i },
   { label: 'production completion', pattern: /\bproduction\s+completion\b/i },
   { label: 'production DONE', pattern: /\bproduction\s+DONE\b/i },
-  { label: 'LATTICE_AUTHORITY_*', pattern: /\bLATTICE_AUTHORITY_[A-Z0-9_]*\b/ },
+  { label: 'PROOF_OR_STOP_AUTHORITY_*', pattern: /\bPROOF_OR_STOP_AUTHORITY_[A-Z0-9_]*\b/ },
   { label: 'active authority_* command', pattern: /\bauthority_[a-z][a-z0-9_]*\b/ },
   { label: 'retired story resolver command', pattern: /\bstory_authority_resolve\b/ },
 ];
@@ -51,7 +51,7 @@ const bannedActiveRules: PatternRule[] = [
 const activeTextFiles = [
   'README.md',
   'docs/guide.md',
-  'lattice.config.json',
+  'proof-or-stop.config.json',
   'packages/main/package.json',
   'packages/main/src/registry.ts',
   'packages/main/src/core/config.ts',
@@ -65,7 +65,7 @@ const activeTextDirs = [
   // B-cc10 F-055: canonical first. listFilesFromRoot returns [] for a nonexistent root,
   // so listing only the renamed dir contributed ZERO files and the guard passed on nothing.
   '.proof-or-stop-codex',
-  '.lattice-codex',
+  '.proof-or-stop-codex',
   '.claude/agents',
   'packages/main/templates/agents',
 ] as const;
@@ -79,7 +79,7 @@ const SHIPPED_EXECUTABLE_SOURCE_DIRS = [
   'packages/utils/src',
 ] as const;
 const SHIPPED_EXECUTABLE_ENTRYPOINTS = [
-  // B-cc10 CHK-007: `bin/lattice.js` was REMOVED by CHK-006 (deprecated bin alias
+  // B-cc10 CHK-007: `bin/proofOrStop.js` was REMOVED by CHK-006 (deprecated bin alias
   // deletion), but this pin still required it to exist, so the guard failed closed on
   // its own repo. Replaced with the canonical wrapper that actually ships.
   'bin/proof-or-stop.js',
@@ -272,11 +272,11 @@ const explicitLegacyTaskQuarantineFiles = new Set([
   'packages/main/src/tasks/flow-stability-smoke.ts',
   'packages/main/src/tasks/host-overflow-smoke.ts',
   'packages/main/src/tasks/init-preflight-smoke.ts',
-  'packages/main/src/tasks/lattice-baseline-smoke.ts',
-  'packages/main/src/tasks/lattice-cli-migration-smoke.ts',
-  'packages/main/src/tasks/lattice-evidence-smoke.ts',
-  'packages/main/src/tasks/lattice-handoff-smoke.ts',
-  'packages/main/src/tasks/lattice-parallel-wave-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-baseline-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-cli-migration-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-evidence-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-handoff-smoke.ts',
+  'packages/main/src/tasks/proof-or-stop-parallel-wave-smoke.ts',
   'packages/main/src/tasks/lifecycle-check-smoke.ts',
   'packages/main/src/tasks/lifecycle-orchestrate-smoke.ts',
   'packages/main/src/tasks/live-smoke-transcript-smoke.ts',
@@ -308,7 +308,7 @@ const legacyQuarantineFiles = new Set([
   'packages/main/src/core/baseline-contracts.ts',
   'packages/main/src/core/legacy-delivery-claims-compat.ts',
   'packages/main/src/core/baseline-suite-report.ts',
-  'packages/main/src/core/lattice-baseline.ts',
+  'packages/main/src/core/proof-or-stop-baseline.ts',
   'packages/main/src/core/verdicts.ts',
   'packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts',
   'packages/main/src/tasks/retired-authority-server-semantics-smoke.ts',
@@ -384,7 +384,7 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-cdf6:F-057 — REPINNED, and the guard was right to fail. This fingerprint covers
   // the WHOLE file by design, so any edit invalidates the approved non-literal loader
   // call site until a human re-approves it. Commit 8f42f1113e (F-047) changed one
-  // string in this file (`lattice: from-draft metadata` -> canonical) and the pin was
+  // string in this file (`proofOrStop: from-draft metadata` -> canonical) and the pin was
   // not refreshed, so the smoke went red on this branch while passing on main.
   //
   // Re-approval basis, checked before repinning rather than after: `git diff main...HEAD`
@@ -493,12 +493,12 @@ const structuralLegacyFieldQuarantineFiles = new Set([
   'packages/main/src/core/command-policy.ts',
   'packages/main/src/core/dispatch-policy.ts',
   'packages/main/src/core/dispatch-runner.ts',
-  'packages/main/src/core/lattice-autopilot.ts',
-  'packages/main/src/core/lattice-dispatch.ts',
-  'packages/main/src/core/lattice-evidence.ts',
-  'packages/main/src/core/lattice-handoff.ts',
-  'packages/main/src/core/lattice-hosts.ts',
-  'packages/main/src/core/lattice-parallel-wave.ts',
+  'packages/main/src/core/proof-or-stop-autopilot.ts',
+  'packages/main/src/core/proof-or-stop-dispatch.ts',
+  'packages/main/src/core/proof-or-stop-evidence.ts',
+  'packages/main/src/core/proof-or-stop-handoff.ts',
+  'packages/main/src/core/proof-or-stop-hosts.ts',
+  'packages/main/src/core/proof-or-stop-parallel-wave.ts',
   'packages/main/src/core/lifecycle-readiness.ts',
   'packages/main/src/core/planned-steps-executor.ts',
   'packages/main/src/core/proof-admissibility.ts',
@@ -519,8 +519,8 @@ const structuralLegacyFieldQuarantineFiles = new Set([
   'packages/main/src/handlers/evidence-plan.ts',
   'packages/main/src/handlers/evidence-refresh.ts',
   'packages/main/src/handlers/init-preflight.ts',
-  'packages/main/src/handlers/lattice-autopilot.ts',
-  'packages/main/src/handlers/lattice-cli.ts',
+  'packages/main/src/handlers/proof-or-stop-autopilot.ts',
+  'packages/main/src/handlers/proof-or-stop-cli.ts',
   'packages/main/src/handlers/lifecycle-control.ts',
   'packages/main/src/handlers/lifecycle-orchestrate.ts',
   'packages/main/src/handlers/live-smoke-transcript.ts',
@@ -1488,8 +1488,8 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
   // B-cdf6: the canonical Codex entrypoint moved to bin/proof-or-stop-codex.js, and it now
   // probes a LIST of sibling bootstrap wrappers (canonical first, deprecated alias as
   // fallback) instead of a single hardcoded one — so the loader argument changed from
-  // `localLattice` to the loop variable `candidate`. Same benign class: resolving a sibling
-  // dist path at runtime is inherent to a bootstrap wrapper. bin/lattice-codex.js is now a
+  // `localProofOrStop` to the loop variable `candidate`. Same benign class: resolving a sibling
+  // dist path at runtime is inherent to a bootstrap wrapper. bin/proof-or-stop-codex.js is now a
   // thin delegating alias with no loader of its own, so only the canonical file is listed.
   ['bin/proof-or-stop-codex.js', {
     calls: [{ anchor: 'main', argument: 'pathToFileURL(candidate).href' }],
@@ -1502,7 +1502,7 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH
   // bin names (canonical proof-or-stop + the retained proof-or-stop alias), and because the
   // canonical Codex entrypoint moved to bin/proof-or-stop-codex.js. The deprecated
-  // bin/lattice-codex.js delegates to it and holds no loader of its own, so the canonical
+  // bin/proof-or-stop-codex.js delegates to it and holds no loader of its own, so the canonical
   // file is what must be pinned here.
   // B-1734 (merged in): repinned again after the build-aware importDistModules() wait loop
   // was added to bin/bootstrap-runner.js (F-003/C4). The four approved non-literal dist
@@ -1515,7 +1515,7 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // BOTH sides (theirs' importDistModules() wait loop + our three brand strings), so its
   // digest matched neither parent's pin. Re-approval basis, checked before repinning:
   // `diff` of the merged file against the MERGE_HEAD copy is exactly three lines, all of
-  // them console.error/comment brand text (Lattice -> Proof-or-Stop, `lattice
+  // them console.error/comment brand text (ProofOrStop -> Proof-or-Stop, `proofOrStop
   // session_brief` -> `proof-or-stop session_brief`). The four approved non-literal dist
   // loader call sites (MAIN_DIST/UTILS_DIST inside importDistModules, LAB_DIST/zod in
   // runLocalBootstrap) are byte-identical to that copy, including their path producers —
@@ -3988,13 +3988,13 @@ function assertPositiveControls(): void {
     'Authority completion',
     'production completion',
     'production DONE',
-    'LATTICE_AUTHORITY_URL',
+    'PROOF_OR_STOP_AUTHORITY_URL',
     'authority_status',
   ];
   const violations = scanText('<positive-control>', controls.join('\n'));
   for (const control of controls) {
     assert.ok(
-      violations.some(v => v.text.includes(control) || (control === 'LATTICE_AUTHORITY_URL' && v.label === 'LATTICE_AUTHORITY_*')),
+      violations.some(v => v.text.includes(control) || (control === 'PROOF_OR_STOP_AUTHORITY_URL' && v.label === 'PROOF_OR_STOP_AUTHORITY_*')),
       `positive control must catch ${control}`,
     );
   }
@@ -4113,7 +4113,7 @@ function assertShippedExecutableRootPositiveControls(): void {
     assert.equal(existsSync(join(repoRoot, entrypoint)), true, `pinned shipped executable entrypoint must exist: ${entrypoint}`);
     assert.equal(isExecutableSourceFile(entrypoint), true, `pinned shipped executable entrypoint must use a scanned extension: ${entrypoint}`);
   }
-  // B-cc10 CHK-007: `bin/lattice.js` was removed by CHK-006. This loop scans a
+  // B-cc10 CHK-007: `bin/proofOrStop.js` was removed by CHK-006. This loop scans a
   // SYNTHETIC source string (no filesystem read), so it did not fail — but naming a
   // deleted file would let the case rot into testing nothing meaningful.
   for (const binEntrypoint of ['bin/proof-or-stop.js', 'bin/bootstrap-runner.js']) {
@@ -5047,7 +5047,7 @@ function assertContract(): void {
     'authorityDone',
     'fullAuthorityDone',
     'productionDone',
-    'LATTICE_AUTHORITY_*',
+    'PROOF_OR_STOP_AUTHORITY_*',
     'active `authority_*` command surfaces',
     'local assurance',
     'admissibilityStatus',
@@ -5118,7 +5118,7 @@ function runCli(args: string[]): string {
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      LATTICE_NO_HOOKS: '1',
+      PROOF_OR_STOP_NO_HOOKS: '1',
     },
   });
 }
@@ -5139,7 +5139,7 @@ function assertGeneratedHelp(): Violation[] {
     ['conduit_status', '--help'],
     ['story_export', '--help'],
   ];
-  return outputs.flatMap(args => scanText(`lattice ${args.join(' ')}`, runCli(args)));
+  return outputs.flatMap(args => scanText(`proofOrStop ${args.join(' ')}`, runCli(args)));
 }
 
 const violations: Violation[] = [];

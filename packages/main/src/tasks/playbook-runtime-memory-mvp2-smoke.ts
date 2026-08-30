@@ -18,7 +18,7 @@ import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { createDoneClosureHandlers } from '../handlers/done-closure.js';
 import { createDonePrepareHandlers } from '../handlers/done-prepare.js';
 import type { HandlerContext } from '../handlers/context.js';
-import { createLatticeHandoffHandlers } from '../handlers/lattice-handoff.js';
+import { createProofOrStopHandoffHandlers } from '../handlers/proof-or-stop-handoff.js';
 import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
 import { createStoryCreateHandlers } from '../handlers/story-create.js';
 import { renderTransitionResult } from '../handlers/transition-orchestrator.js';
@@ -65,10 +65,10 @@ function git(cwd: string, args: string[]): string {
 
 function mkRoot(): { root: string; store: StoryStore; ctx: HandlerContext } {
   const root = mkdtempSync(join(tmpdir(), 'pb-memory-mvp2-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   write(root, 'packages/main/src/index.ts', 'export const smoke = true;\n');
@@ -161,7 +161,7 @@ async function run(): Promise<void> {
     const { root, ctx } = mkRoot();
     roots.push(root);
     process.chdir(root);
-    const handoff = createLatticeHandoffHandlers(ctx);
+    const handoff = createProofOrStopHandoffHandlers(ctx);
     const runtime = createPlaybookRuntimeMemoryHandlers(ctx);
     const done = createDoneClosureHandlers(ctx);
     const prepare = createDonePrepareHandlers(ctx);

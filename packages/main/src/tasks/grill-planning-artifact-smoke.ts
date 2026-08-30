@@ -20,11 +20,11 @@ function write(root: string, path: string, content: string): void {
 }
 
 function initStore(phase: StoryInfo['phase'] = 'PLAN'): { root: string; store: StoryStore; storyId: string } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-grill-smoke-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-grill-smoke-'));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'light' },
   }, null, 2));
@@ -168,7 +168,7 @@ function assertTestPhaseRejectsMutators(): void {
 
   const existing = initStore('TEST');
   try {
-    const artifactPath = join(existing.root, '.lattice/story/actives/B-grill/grill.json');
+    const artifactPath = join(existing.root, '.proof-or-stop/story/actives/B-grill/grill.json');
     const original = {
       storyId: existing.storyId,
       updatedAt: '2026-05-15T10:01:00.000Z',
@@ -199,7 +199,7 @@ function assertMalformedArtifactFailsClosed(): void {
   const { root, store, storyId } = initStore();
   try {
     const malformed = '{ "storyId": "B-grill", "sessions": [';
-    write(root, '.lattice/story/actives/B-grill/grill.json', malformed);
+    write(root, '.proof-or-stop/story/actives/B-grill/grill.json', malformed);
     assert.throws(
       () => store.readGrill(storyId),
       SyntaxError,
@@ -213,7 +213,7 @@ function assertMalformedArtifactFailsClosed(): void {
       'PLAN mutations must surface malformed existing grill.json before writing',
     );
     assert.equal(
-      readFileSync(join(root, '.lattice/story/actives/B-grill/grill.json'), 'utf-8'),
+      readFileSync(join(root, '.proof-or-stop/story/actives/B-grill/grill.json'), 'utf-8'),
       malformed,
       'malformed grill.json should remain untouched after a failed mutation',
     );

@@ -54,22 +54,22 @@ try {
   execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: gitCwd, stdio: 'ignore' });
   // B-cc10 F-067: the parent-dir creation that used to live here hardcoded the DEPRECATED
   // spelling, so once the targets below became resolver-derived it created a stray
-  // `.lattice/runtime` + `.lattice/locks` pair on every run while the real work happened
+  // `.proof-or-stop/runtime` + `.proof-or-stop/locks` pair on every run while the real work happened
   // under the canonical dir. acquireOwnedDirectory()/publishReady() each create their own
   // parent from the resolved path, so no replacement is needed here.
-  const ownershipToken = process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN ?? String(process.pid);
+  const ownershipToken = process.env.PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN ?? String(process.pid);
   for (const path of [runtimeLock, mainWriteLock, fixedPath]) acquireOwnedDirectory(path, ownershipToken);
-  const markerMutation = process.env.LATTICE_FULL_SUITE_SENTINEL_MARKER_MUTATION;
+  const markerMutation = process.env.PROOF_OR_STOP_FULL_SUITE_SENTINEL_MARKER_MUTATION;
   if (markerMutation === 'missing-runtime') unlinkSync(join(runtimeLock, OWNERSHIP_MARKER_FILENAME));
   else if (markerMutation === 'tampered-main') writeFileSync(join(mainWriteLock, OWNERSHIP_MARKER_FILENAME), 'foreign-token\n');
-  const readyFile = process.env.LATTICE_FULL_SUITE_SENTINEL_READY_FILE;
+  const readyFile = process.env.PROOF_OR_STOP_FULL_SUITE_SENTINEL_READY_FILE;
   if (readyFile) publishReady(resolve(readyFile), ownershipToken);
-  if (process.env.LATTICE_FULL_SUITE_SENTINEL_PAUSE_AFTER_MARKERS === '1') process.kill(process.pid, 'SIGSTOP');
+  if (process.env.PROOF_OR_STOP_FULL_SUITE_SENTINEL_PAUSE_AFTER_MARKERS === '1') process.kill(process.pid, 'SIGSTOP');
   const fixedPortCapability = await probeFixedPort();
   const assertions = ['git-common-dir-read', 'fixed-path-owned', 'runtime-lock-owned', 'main-write-lock-owned'];
   if (fixedPortCapability === 'bound') assertions.push('fixed-port-os-bind:43127');
   process.stdout.write(`FULL_SUITE_FIXED_PORT_OS=${fixedPortCapability}\n`);
-  process.stdout.write(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions, mutations: [] })}\n`);
+  process.stdout.write(`PROOF_OR_STOP_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions, mutations: [] })}\n`);
   process.stdout.write('full-suite-resource-sentinel: PASS\n');
 } finally {
   for (const path of acquired.reverse()) rmSync(path, { recursive: true, force: true });

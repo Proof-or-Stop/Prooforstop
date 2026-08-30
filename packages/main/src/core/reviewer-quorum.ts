@@ -21,9 +21,9 @@ export interface ProducerVerifierMetadata {
 }
 
 export interface ReviewerEvidenceEntry {
-  /** lane, e.g. "lattice-review-concept" */
+  /** lane, e.g. "proof-or-stop-review-concept" */
   lane: string;
-  /** agent string, e.g. "lattice-review-concept" or bare "concept" */
+  /** agent string, e.g. "proof-or-stop-review-concept" or bare "concept" */
   agent?: string;
   /** evidence kind */
   kind: 'finding' | 'pass';
@@ -66,8 +66,8 @@ export interface ReviewerQuorumResult {
 
 /** Map reviewer short name to canonical lane string */
 function toLane(name: string): string {
-  if (name.startsWith('lattice-review-')) return name;
-  return `lattice-review-${name}`;
+  if (name.startsWith('proof-or-stop-review-')) return name;
+  return `proof-or-stop-review-${name}`;
 }
 
 /** Check if an evidence entry covers the given lane */

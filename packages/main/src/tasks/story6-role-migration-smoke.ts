@@ -19,7 +19,7 @@ import { createAgentPromptHandlers } from '../handlers/agent-prompt.js';
 // B-cc10 F-055: resolve whichever adapter dir exists. Hardcoding the renamed one made this
 // read a path that no longer exists (ENOENT) or scan zero files.
 function adapterDirName(base: string): string {
-  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.lattice-codex';
+  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.proof-or-stop-codex';
 }
 
 import {
@@ -29,7 +29,7 @@ import {
 } from '../core/prompt-registry.js';
 
 const registry = readPromptRegistry();
-const projectConfig = JSON.parse(readFileSync(join(process.cwd(), 'lattice.config.json'), 'utf8')) as {
+const projectConfig = JSON.parse(readFileSync(join(process.cwd(), 'proof-or-stop.config.json'), 'utf8')) as {
   promptEnvelope?: { roles?: Record<string, string> };
 };
 const handlers = createAgentPromptHandlers({
@@ -88,10 +88,10 @@ for (const roleId of ACTIVE_MODULAR_COMPLEX_ROLE_IDS) {
   const modularClaude = renderPromptEntryForHost(entry, 'claude', 'full-envelope');
   const modularCodex = renderPromptEntryForHost(entry, 'codex', 'full-envelope');
   assert.equal(defaultClaude, legacy.body, `${roleId} rejected baseline selects legacy in the actual Claude host render`);
-  assert.equal(defaultCodex, legacy.body.replace(/Claude Code/g, 'Codex').replace(/\.claude\/agents\//g, '.lattice-codex/agents/'), `${roleId} rejected baseline selects legacy in the actual Codex host render`);
+  assert.equal(defaultCodex, legacy.body.replace(/Claude Code/g, 'Codex').replace(/\.claude\/agents\//g, '.proof-or-stop-codex/agents/'), `${roleId} rejected baseline selects legacy in the actual Codex host render`);
   assert.equal(handlers.agent_prompt({ role: roleId }), defaultClaude, `${roleId} agent_prompt matches the chosen Claude host render`);
   assert.equal(modularClaude, body, `${roleId} modular Claude render remains explicitly audit-selectable`);
-  assert.equal(modularCodex, body.replace(/Claude Code/g, 'Codex').replace(/\.claude\/agents\//g, '.lattice-codex/agents/'), `${roleId} modular Codex render remains explicitly audit-selectable`);
+  assert.equal(modularCodex, body.replace(/Claude Code/g, 'Codex').replace(/\.claude\/agents\//g, '.proof-or-stop-codex/agents/'), `${roleId} modular Codex render remains explicitly audit-selectable`);
   assert.notEqual(defaultClaude, modularClaude, `${roleId} rejected baseline cannot yield the modular host render`);
   // B-4043: the implementer prompt now carries the acceptance-rollout boundary
   // guidance (moved from the host shim into the canonical template), like its
@@ -125,12 +125,12 @@ for (const roleId of ACTIVE_MODULAR_COMPLEX_ROLE_IDS) {
     assert.equal(budget.mode, 'observe');
     assert.equal(budget.baselineAccepted, budget.withinBudget);
   } else {
-    assert.equal(roleId, 'lattice-evaluator', 'only evaluator is migrated without a Story 6 budget');
+    assert.equal(roleId, 'proof-or-stop-evaluator', 'only evaluator is migrated without a Story 6 budget');
   }
 }
 
 const overBudget = observeComplexRolePromptBudget({
-  roleId: 'lattice-implementer',
+  roleId: 'proof-or-stop-implementer',
   contextMode: 'full',
   bytes: 44_001,
   estimatedTokens: 10_000,

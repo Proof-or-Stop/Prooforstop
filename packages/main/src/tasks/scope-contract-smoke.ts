@@ -40,7 +40,7 @@ import type { HandlerContext } from '../handlers/context.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
-const sessionEnv = { ...process.env, LATTICE_SESSION_ID: 'scope-contract-smoke', LATTICE_AGENT: 'scope-contract-smoke' };
+const sessionEnv = { ...process.env, PROOF_OR_STOP_SESSION_ID: 'scope-contract-smoke', PROOF_OR_STOP_AGENT: 'scope-contract-smoke' };
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
@@ -115,15 +115,15 @@ function assertScopeRow(
   }
 }
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-scope-contract-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-scope-contract-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'scope@example.test']);
   git(root, ['config', 'user.name', 'Scope Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -154,7 +154,7 @@ try {
   };
   store.writeStory(storyId, story);
   store.writeChecklist(storyId, checklist);
-  git(root, ['add', '.lattice']);
+  git(root, ['add', '.proof-or-stop']);
   git(root, ['commit', '-m', 'story metadata']);
   git(root, ['checkout', '-b', `story/${storyId}`]);
 
@@ -246,7 +246,7 @@ try {
   );
   rmSync(join(root, 'shared'), { recursive: true, force: true });
   rmSync(join(root, 'packages/main/src/shared'), { recursive: true, force: true });
-  const outside = mkdtempSync(join(tmpdir(), 'lattice-scope-outside-'));
+  const outside = mkdtempSync(join(tmpdir(), 'proof-or-stop-scope-outside-'));
   try {
     symlinkSync(outside, join(root, 'escape'));
     assert.throws(
@@ -404,21 +404,21 @@ try {
     updatedAt: new Date().toISOString(),
   };
   const lifecycleRuntimePositive = checkScopeContract(waveContract, [
-    '.lattice/story/actives/B-scope/summary.json',
-    '.lattice/story/actives/B-scope/evidence/live-smoke-transcript.json',
-    '.lattice/activity.jsonl',
+    '.proof-or-stop/story/actives/B-scope/summary.json',
+    '.proof-or-stop/story/actives/B-scope/evidence/live-smoke-transcript.json',
+    '.proof-or-stop/activity.jsonl',
   ]);
   assert.equal(lifecycleRuntimePositive.status, 'pass', 'registered lifecycle/runtime artifacts should pass scope');
   assertScopeRow(lifecycleRuntimePositive, 'B-997b CHK-004 lifecycle row', {
     id: 'scope.lifecycle_artifact:B-scope:summary.json',
-    source: '.lattice/story/actives/B-scope/summary.json',
+    source: '.proof-or-stop/story/actives/B-scope/summary.json',
     status: 'pass',
     blocking: false,
     action: /provenance|artifact|not.*gate/i,
   });
   assertScopeRow(lifecycleRuntimePositive, 'B-d669 live-smoke transcript lifecycle row', {
     id: 'scope.lifecycle_artifact:B-scope:live-smoke-transcript.json',
-    source: '.lattice/story/actives/B-scope/evidence/live-smoke-transcript.json',
+    source: '.proof-or-stop/story/actives/B-scope/evidence/live-smoke-transcript.json',
     status: 'pass',
     blocking: false,
     action: /provenance|artifact|not.*gate/i,
@@ -428,7 +428,7 @@ try {
     'B-997b CHK-004 runtime row',
     row => typeof row.id === 'string'
       && row.id.startsWith('scope.runtime_artifact:')
-      && row.source === '.lattice/activity.jsonl'
+      && row.source === '.proof-or-stop/activity.jsonl'
       && row.status === 'pass'
       && row.blocking === false,
   );
@@ -451,14 +451,14 @@ try {
   ];
   const proofStoryPositive = checkScopeContract(
     waveContract,
-    proofStoryArtifacts.map(name => `.lattice/story/actives/B-scope/${name}`),
+    proofStoryArtifacts.map(name => `.proof-or-stop/story/actives/B-scope/${name}`),
   );
   // Per-row assertions run first so a regression names the exact artifact
   // (B-12a1:F-001); the overall-status check still guards warn-masking.
   for (const name of proofStoryArtifacts) {
     assertScopeRow(proofStoryPositive, `B-12a1 ProofStory lifecycle row ${name}`, {
       id: `scope.lifecycle_artifact:B-scope:${name}`,
-      source: `.lattice/story/actives/B-scope/${name}`,
+      source: `.proof-or-stop/story/actives/B-scope/${name}`,
       status: 'pass',
       blocking: false,
       action: /provenance|artifact|not.*gate/i,
@@ -477,12 +477,12 @@ try {
   ];
   const commandFamilyPositive = checkScopeContract(
     waveContract,
-    commandFamilyArtifacts.map(name => `.lattice/story/actives/B-scope/${name}`),
+    commandFamilyArtifacts.map(name => `.proof-or-stop/story/actives/B-scope/${name}`),
   );
   for (const name of commandFamilyArtifacts) {
     assertScopeRow(commandFamilyPositive, `B-3ed9 command-family lifecycle row ${name}`, {
       id: `scope.lifecycle_artifact:B-scope:${name}`,
-      source: `.lattice/story/actives/B-scope/${name}`,
+      source: `.proof-or-stop/story/actives/B-scope/${name}`,
       status: 'pass',
       blocking: false,
       action: /provenance|artifact|not.*gate/i,
@@ -493,27 +493,27 @@ try {
   // B-3ed9: the singular cluster.json registry entry was stale — no command
   // ever wrote that filename. Now unregistered, it fails closed.
   const staleClusterNegative = checkScopeContract(waveContract, [
-    '.lattice/story/actives/B-scope/cluster.json',
+    '.proof-or-stop/story/actives/B-scope/cluster.json',
   ]);
   assert.equal(staleClusterNegative.status, 'fail', 'unregistered singular cluster.json must fail closed as out_of_scope');
   assertScopeRow(staleClusterNegative, 'B-3ed9 stale cluster.json fail-closed row', {
-    id: 'scope.out_of_scope:.lattice/story/actives/B-scope/cluster.json',
-    source: '.lattice/story/actives/B-scope/cluster.json',
+    id: 'scope.out_of_scope:.proof-or-stop/story/actives/B-scope/cluster.json',
+    source: '.proof-or-stop/story/actives/B-scope/cluster.json',
     status: 'fail',
     blocking: true,
     action: /scope_contract_acknowledge|Declare the path/i,
   });
 
   const failClosedNegative = checkScopeContract(waveContract, [
-    '.lattice/story/actives/B-scope/evidence/notes.md',
-    '.lattice/story/actives/B-scope/unknown-metadata.json',
+    '.proof-or-stop/story/actives/B-scope/evidence/notes.md',
+    '.proof-or-stop/story/actives/B-scope/unknown-metadata.json',
     'packages/main/src/handlers/unowned-source.ts',
     'packages/main/tests/fixtures/direct-edit.json',
   ]);
   assert.equal(failClosedNegative.status, 'fail', 'unknown metadata/source/fixture paths should fail closed');
   for (const source of [
-    '.lattice/story/actives/B-scope/evidence/notes.md',
-    '.lattice/story/actives/B-scope/unknown-metadata.json',
+    '.proof-or-stop/story/actives/B-scope/evidence/notes.md',
+    '.proof-or-stop/story/actives/B-scope/unknown-metadata.json',
     'packages/main/src/handlers/unowned-source.ts',
     'packages/main/tests/fixtures/direct-edit.json',
   ]) {
@@ -622,16 +622,16 @@ try {
   // diffs from the authoritative story worktree, not unrelated metadataRoot
   // dirt. This fixture intentionally calls the handler with root=metadataRoot
   // while the story metadata points at a linked story worktree.
-  const authorityRoot = mkdtempSync(join(tmpdir(), 'lattice-scope-authority-'));
+  const authorityRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-scope-authority-'));
   try {
     git(authorityRoot, ['init', '-b', 'main']);
     git(authorityRoot, ['config', 'user.email', 'scope-authority@example.test']);
     git(authorityRoot, ['config', 'user.name', 'Scope Authority Smoke']);
     write(authorityRoot, '.gitignore', '.worktrees/\n');
-    write(authorityRoot, 'lattice.config.json', JSON.stringify({
+    write(authorityRoot, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
       worktreeDir: '.worktrees',
@@ -687,7 +687,7 @@ try {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
-    git(authorityRoot, ['add', '.lattice']);
+    git(authorityRoot, ['add', '.proof-or-stop']);
     git(authorityRoot, ['commit', '-m', 'story metadata']);
     git(authorityRoot, ['branch', `story/${authorityStoryId}`]);
     git(authorityRoot, ['worktree', 'add', authorityWorktreePath, `story/${authorityStoryId}`]);
@@ -716,7 +716,7 @@ try {
 
   // B-0784 F-022: name-status rename identity retains both old and new paths
   // so old-path deny rules and target boundary changes remain enforceable.
-  const renameRoot = mkdtempSync(join(tmpdir(), 'lattice-scope-rename-paths-'));
+  const renameRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-scope-rename-paths-'));
   try {
     write(renameRoot, 'src/old.ts', 'export function stable() { return 1; }\n');
     git(renameRoot, ['init', '-b', 'main']);
@@ -762,15 +762,15 @@ try {
 
   // B-0784 F-023/F-024/F-026: scope_diff_pack keeps wrapper config authority
   // separate from the story worktree Git authority.
-  const wrapperRoot = mkdtempSync(join(tmpdir(), 'lattice-scope-wrapper-pack-'));
+  const wrapperRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-scope-wrapper-pack-'));
   try {
     const innerRepo = join(wrapperRoot, 'repo');
     const storyWorktree = join(wrapperRoot, '.worktrees', 'B-wrap');
-    write(wrapperRoot, 'lattice.config.json', JSON.stringify({
+    write(wrapperRoot, 'proof-or-stop.config.json', JSON.stringify({
       gitRoot: 'repo',
       scanRoot: 'src',
       rootDir: '.',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       scopeProtection: { pathCanonicalization: 'off', astAnchors: 'off' },
     }));

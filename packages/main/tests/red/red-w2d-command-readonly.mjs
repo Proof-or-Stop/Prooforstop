@@ -20,7 +20,7 @@
  * B-9ff1 F-002/F-012/F-013 — three reviewers independently observed that the
  * directory snapshot was being credited with more than it proves):
  *
- *   1. A per-file SHA-256 snapshot of the `.lattice/` tree, taken ONCE before
+ *   1. A per-file SHA-256 snapshot of the `.proof-or-stop/` tree, taken ONCE before
  *      the batch of invocations below and compared ONCE after it. The snapshot
  *      is a MANIFEST of non-directory paths plus their content hashes, and
  *      nothing else. This is an AGGREGATE comparison, not a per-invocation one.
@@ -34,7 +34,7 @@
  *      IT ALSO CANNOT PROVE anything the manifest does not record: empty
  *      directories, file modes and symlink identity are outside it, so "the tree
  *      is unchanged" is a stronger claim than the one made here.
- *      IT ALSO CANNOT PROVE: anything about writes OUTSIDE `.lattice/`;
+ *      IT ALSO CANNOT PROVE: anything about writes OUTSIDE `.proof-or-stop/`;
  *      anything about CHILD PROCESSES (a directory hash cannot see a spawn);
  *      and anything the CLI WRAPPER does, because these are direct
  *      `registry.get(COMMAND)` calls that never enter `runCli` in
@@ -71,12 +71,12 @@
  *      WHAT THEY DO NOT PROVE, (b): that the CLI writes no activity row.
  *      Classification is necessary but not sufficient there, and two paths break
  *      it: `shouldWriteActivityLog` returns true for a read-only command when
- *      `LATTICE_ACTIVITY_RECORD_READONLY=1` (a real operating mode — it is baked
+ *      `PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1` (a real operating mode — it is baked
  *      into the global Codex fallback command and the generated Codex wrapper),
  *      and both `writeLog` call sites in `cli-engine.ts` read
  *      `shouldWriteActivityLog(...) || staleWarnings.length > 0`, so an uncooled
  *      stale warning appends one generic session row for ANY command, read-only
- *      included. That row lands in `.lattice/activity.jsonl`, which
+ *      included. That row lands in `.proof-or-stop/activity.jsonl`, which
  *      `core/runtime-artifact-registry.ts` registers as the
  *      `runtime-activity-log` artifact, and the CLI catch path passes
  *      `e.message` into `writeLog`, which stores it in the row's `error` field.
@@ -84,7 +84,7 @@
  *      set known when this was written rather than an exhaustive one: resolving
  *      session identity for the row can create or refresh the
  *      `owner-session-token-store` artifact under
- *      `.lattice/runtime/owner-session-tokens/`, and a persistence failure
+ *      `.proof-or-stop/runtime/owner-session-tokens/`, and a persistence failure
  *      appends a row to the health log via `reportHealthIssue` in
  *      `core/health.ts`.
  *      So an unqualified "no artifact", "runs no hook" or "the verdict is
@@ -196,7 +196,7 @@ assert.ok(READ_ONLY_COMMANDS.has(COMMAND), `${COMMAND} must be in the CLI READ_O
 assert.equal(isReadOnlyCommand(COMMAND, {}), true,
   'the CLI read-only predicate recognises the command, so its preCommand/postCommand hook and process-event '
   + 'writes are suppressed — the onError hook is NOT, its call site being unconditional; '
-  + 'the activity row is NOT settled by this predicate alone either (LATTICE_ACTIVITY_RECORD_READONLY=1 and the '
+  + 'the activity row is NOT settled by this predicate alone either (PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 and the '
   + 'stale-warning OR in cli-engine.ts each still append one generic session row)');
 
 // ── Fixture repo ─────────────────────────────────────────────────────────────
@@ -214,7 +214,7 @@ try {
   // A config carrying the MINIMAL red-evidence policy block: pinnedPath only,
   // so the resolved snapshot is the frozen default and its digest is the W2a
   // pinned literal.
-  writeFileSync(join(root, 'lattice.config.json'), `${JSON.stringify({ redEvidence: { pinnedPath: ['/usr/bin'] } }, null, 2)}\n`);
+  writeFileSync(join(root, 'proof-or-stop.config.json'), `${JSON.stringify({ redEvidence: { pinnedPath: ['/usr/bin'] } }, null, 2)}\n`);
 
   const storyId = 'B-w2d1';
   const store = new StoryStore(root);
@@ -267,8 +267,8 @@ try {
   };
 
   // ── 2. Read-only snapshot of the whole .proof-or-stop tree (CHK-012) ─────────────
-  function snapshotLattice() {
-    const base = join(root, '.lattice');
+  function snapshotProofOrStop() {
+    const base = join(root, '.proof-or-stop');
     const entries = [];
     const walk = (dir, rel) => {
       for (const item of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
@@ -281,7 +281,7 @@ try {
     walk(base, '');
     return entries.join('\n');
   }
-  const before = snapshotLattice();
+  const before = snapshotProofOrStop();
   assert.ok(before.length > 0, 'the fixture .proof-or-stop tree is non-empty, so the comparison is meaningful');
   // Open the child-process window: everything spawned from here until section 6
   // is attributable to the command under test, not to this file's git fixture.
@@ -345,12 +345,12 @@ try {
     'a missing assertionFile argument fails closed');
 
   // ── 6a. WHAT THE DIRECTORY SNAPSHOT PROVES ────────────────────────────────
-  // Exactly this: the `.lattice/` MANIFEST — non-directory paths plus their
-  // content hashes, which is all `snapshotLattice` records — is NET identical
+  // Exactly this: the `.proof-or-stop/` MANIFEST — non-directory paths plus their
+  // content hashes, which is all `snapshotProofOrStop` records — is NET identical
   // across the WHOLE batch of invocations above, ONE snapshot taken before the
   // batch, ONE comparison after it. No file survives as created, modified or
   // removed. The story record, the red-evidence chain, evidence artifacts and
-  // process-event logs all live under `.lattice/`, so this covers those writes —
+  // process-event logs all live under `.proof-or-stop/`, so this covers those writes —
   // and nothing else. It is a claim about paths and contents, NOT about the tree
   // in every respect: empty directories, file modes and symlink identity are not
   // in the manifest, so a change confined to those would not show up here. Being
@@ -380,18 +380,18 @@ try {
   //      `story/`. This fixture repo is a bare `git init` in a tmpdir, so
   //      `detectStaleState` short-circuits to `[]` and that OR term is false
   //      here. It does NOT exclude the other bypass: a CLI invocation with
-  //      `LATTICE_ACTIVITY_RECORD_READONLY=1` would still write a row on this
+  //      `PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1` would still write a row on this
   //      very fixture. So reason 2 is a note about which bypass cannot fire, not
   //      a second independent proof.
   // Observing the row would take a CLI-level test running with
-  // LATTICE_ACTIVITY_RECORD_READONLY=1, or on a `story/` branch with an uncooled
+  // PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1, or on a `story/` branch with an uncooled
   // warning; that belongs to the follow-up work on the shared entrypoint, not
-  // here. When such a row IS written it lands in `.lattice/activity.jsonl` —
+  // here. When such a row IS written it lands in `.proof-or-stop/activity.jsonl` —
   // registered by `core/runtime-artifact-registry.ts` as the
   // `runtime-activity-log` artifact — and the CLI catch path stores the thrown
   // rejection report in its `error` field, so the verdict is recorded there.
-  assert.equal(snapshotLattice(), before,
-    'red_evidence_envelope_check, invoked directly as a handler, left the .lattice/ manifest of file paths and '
+  assert.equal(snapshotProofOrStop(), before,
+    'red_evidence_envelope_check, invoked directly as a handler, left the .proof-or-stop/ manifest of file paths and '
     + 'content hashes NET identical across the whole batch of calls above (ONE before snapshot, ONE after: this '
     + 'proves no NET create/modify/remove of a file, not that no single call created and then restored one, and '
     + 'the manifest records no empty directories, file modes or symlink identity) — so no story record, chain '
@@ -464,7 +464,7 @@ try {
     assert.match(argv[4] ?? '', /\^\{commit\}$/, 'the ref check resolves a commit');
   }
   for (const argv of blobRead) {
-    assert.match(argv[2], /^[^:]+:\.lattice\/story\/actives\/.+\/red-target-bindings\.json$/,
+    assert.match(argv[2], /^[^:]+:\.proof-or-stop\/story\/actives\/.+\/red-target-bindings\.json$/,
       'the blob read targets the committed target-bindings file at a ref, and nothing else');
   }
 
@@ -486,7 +486,7 @@ try {
   const resolved = configuredValidationCommands(REPO_ROOT)
     .filter((entry) => [entry.command, ...(entry.args ?? [])].includes(SMOKE_ENTRY));
   assert.equal(resolved.length, 1,
-    `exactly one lattice.config.json validate.commands entry must resolve to ${SMOKE_ENTRY}; got ${resolved.length}`);
+    `exactly one proof-or-stop.config.json validate.commands entry must resolve to ${SMOKE_ENTRY}; got ${resolved.length}`);
   const [smokeCommand] = resolved;
   assert.equal(smokeCommand.command, 'node', 'the pipeline resolves the entry to a direct node invocation');
   assert.notEqual(smokeCommand.shell, true, 'the entry is argv-shaped, never shell-interpreted');

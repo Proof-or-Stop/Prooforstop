@@ -55,7 +55,7 @@ function commitAll(root: string, message: string): void {
 }
 
 function writeConfig(root: string): void {
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: `${PROOF_OR_STOP_STATE_DIR}/story/actives`,
@@ -156,7 +156,7 @@ function ctx(root: string): HandlerContext {
 }
 
 function createRepo(): string {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-main-sync-readiness-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-main-sync-readiness-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeConfig(root);
   // B-cc10: gitignore the RUNTIME OUTPUT under every state-dir spelling. The runtime

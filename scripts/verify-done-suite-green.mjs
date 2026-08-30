@@ -2,7 +2,7 @@
 /**
  * verify-done-suite-green.mjs — B-cdf6.
  *
- * Runs the root DONE-blocking suite (`npm test`, named by lattice.config.json
+ * Runs the root DONE-blocking suite (`npm test`, named by proof-or-stop.config.json
  * doneRequiredCommands) and reports a STDOUT-visible verdict, because the suite's
  * own confirmation lines go to stderr where a receipt matcher cannot see them.
  *

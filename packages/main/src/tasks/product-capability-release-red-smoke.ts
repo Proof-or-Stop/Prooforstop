@@ -50,7 +50,7 @@ const root = mkdtemp('capability-release-red-');
 // A B-785e-shaped artifact release row (fixture, not live).
 write(
   root,
-  '.lattice/artifact-releases.jsonl',
+  '.proof-or-stop/artifact-releases.jsonl',
   JSON.stringify({
     schemaVersion: 'proofbound.artifact-release.v1',
     id: 'AR-4e885ed0209e5a32330cdc33',

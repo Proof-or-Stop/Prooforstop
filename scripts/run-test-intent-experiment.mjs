@@ -17,17 +17,17 @@ function run(command, args, cwd = root) {
   return execFileSync(command, args, { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
 }
 function createProject(baseline) {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-test-intent-exp-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-test-intent-exp-'));
   ensureDir(join(dir, 'docs', 'story', 'actives'));
   ensureDir(join(dir, 'docs', 'requirements'));
   ensureDir(join(dir, 'samples'));
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({ scanRoot:'packages/main', rootDir:'src', outDir:'packages/main/dist', testsDir:'packages/main/tests', fixturesDir:'packages/main/tests/fixtures', storyDir:'docs/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));
+  writeFileSync(join(dir, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot:'packages/main', rootDir:'src', outDir:'packages/main/dist', testsDir:'packages/main/tests', fixturesDir:'packages/main/tests/fixtures', storyDir:'docs/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));
   writeFileSync(join(dir, '.gitignore'), '.worktrees/\n');
   writeFileSync(join(dir, 'README.md'), '# testIntent experiment\n');
   writeFileSync(join(dir, 'samples', 'test-intent.json'), baseline);
   run('git', ['init', '-b', 'main'], dir);
-  run('git', ['config', 'user.name', 'Lattice Lab'], dir);
-  run('git', ['config', 'user.email', 'lattice-lab@example.com'], dir);
+  run('git', ['config', 'user.name', 'ProofOrStop Lab'], dir);
+  run('git', ['config', 'user.email', 'proof-or-stop-lab@example.com'], dir);
   run('git', ['add', '.'], dir);
   run('git', ['commit', '-m', 'baseline'], dir);
   run('node', [cli, '--root', dir, 'lab', 'create', JSON.stringify({ id:'lab-test-intent-structured-v1', target:'test-intent-sample', profile:'test-intent-quality-v1', editableFiles:['samples/test-intent.json'] })]);

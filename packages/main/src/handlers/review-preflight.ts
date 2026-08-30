@@ -86,12 +86,12 @@ const ENGLISH_ARTIFACTS_GATE_LABEL =
 // canonical script delivered by B-40eb (`scripts/verify-proof-or-stop-residue.mjs`).
 // No standalone `validate --proof-or-stop-residue` flag; standalone re-run is the npm
 // script that wraps the same script (kept per user sub-decision a3).
-const LATTICE_RESIDUE_GATE_LABEL =
+const PROOF_OR_STOP_RESIDUE_GATE_LABEL =
   'proof-or-stop-residue (REVIEW→TEST preflight; standalone: npm run test:proof-or-stop-residue)';
 const PROOF_OR_STOP_RESIDUE_SCRIPT_REL = 'scripts/verify-proof-or-stop-residue.mjs';
-const LATTICE_RESIDUE_TIMEOUT_MS = 30_000;
+const PROOF_OR_STOP_RESIDUE_TIMEOUT_MS = 30_000;
 
-interface LatticeResidueGateResult {
+interface ProofOrStopResidueGateResult {
   ok: boolean;
   summary: string;
   details: string[];
@@ -106,11 +106,11 @@ interface LatticeResidueGateResult {
  *
  * Pre-mortem mitigations:
  *   - D1 (script changes exit semantics): only exit 0 is PASS.
- *   - D2 (subprocess hang): LATTICE_RESIDUE_TIMEOUT_MS bounds the call.
+ *   - D2 (subprocess hang): PROOF_OR_STOP_RESIDUE_TIMEOUT_MS bounds the call.
  *   - D3 (false-fail on benign rename): output prints hit lines verbatim so the
  *     operator can extend the script's allowlist via a follow-up story.
  */
-function runLatticeResidueGate(projectRoot: string): LatticeResidueGateResult {
+function runProofOrStopResidueGate(projectRoot: string): ProofOrStopResidueGateResult {
   const scriptAbs = join(projectRoot, PROOF_OR_STOP_RESIDUE_SCRIPT_REL);
   if (!existsSync(scriptAbs)) {
     return {
@@ -122,7 +122,7 @@ function runLatticeResidueGate(projectRoot: string): LatticeResidueGateResult {
   try {
     execFileSync('node', [scriptAbs], {
       cwd: projectRoot,
-      timeout: LATTICE_RESIDUE_TIMEOUT_MS,
+      timeout: PROOF_OR_STOP_RESIDUE_TIMEOUT_MS,
       stdio: ['ignore', 'pipe', 'pipe'],
       encoding: 'utf8',
     });
@@ -138,7 +138,7 @@ function runLatticeResidueGate(projectRoot: string): LatticeResidueGateResult {
     if (error.code === 'ETIMEDOUT' || error.signal === 'SIGTERM') {
       return {
         ok: false,
-        summary: `proof-or-stop-residue gate timed out after ${LATTICE_RESIDUE_TIMEOUT_MS}ms`,
+        summary: `proof-or-stop-residue gate timed out after ${PROOF_OR_STOP_RESIDUE_TIMEOUT_MS}ms`,
         details: stderr ? [stderr.trim()] : [],
       };
     }
@@ -246,7 +246,7 @@ function detectFastChannel(store: StoryStore, storyId: string): boolean {
  * by a reviewer.
  *
  * Rule (F-014 fix): "reviewer ran" = there exists at least one finding with
- * agent=lattice-review-concept scoped to the current review round — REGARDLESS
+ * agent=proof-or-stop-review-concept scoped to the current review round — REGARDLESS
  * of status (open / resolved / dismissed). This covers:
  *   - reviewer ran and found real issues (finding registered, any status)
  *   - reviewer ran and found zero real issues (registers 1 info/low-level
@@ -272,7 +272,7 @@ function conceptReviewerHandledResiduals(
     const evidenceState = collectReviewerEvidenceState(store, storyId, projectRoot);
     const conceptFindings = evidenceState.valid
       .map((entry) => entry.finding)
-      .filter((finding): finding is Finding => !!finding && finding.agent === 'lattice-review-concept');
+      .filter((finding): finding is Finding => !!finding && finding.agent === 'proof-or-stop-review-concept');
     const conceptPasses = evidenceState.valid
       .map((entry) => entry.pass)
       .filter((pass) => !!pass && findingAgentMatchesReviewer(pass.agent, 'concept'));
@@ -281,7 +281,7 @@ function conceptReviewerHandledResiduals(
       return {
         handled: false,
         reason: conceptIssues[0]?.message
-          ?? 'No finding/review pass from lattice-review-concept seen in the current REVIEW round (reviewer did not run or did not register any result)',
+          ?? 'No finding/review pass from proof-or-stop-review-concept seen in the current REVIEW round (reviewer did not run or did not register any result)',
       };
     }
     return {
@@ -362,7 +362,7 @@ export function runReviewCliGates(
       status: 'skipped',
       summary: 'Express channel does not check CLI gate',
       details: [],
-      commandLabel: LATTICE_RESIDUE_GATE_LABEL,
+      commandLabel: PROOF_OR_STOP_RESIDUE_GATE_LABEL,
     });
     if (storyRequiresCodexEvidence(deps.store, storyId)) {
       const codex = summarizeCodexEvidence(deps.store, storyId, deps.projectRoot);
@@ -585,14 +585,14 @@ export function runReviewCliGates(
   // ── proof-or-stop-residue (B-292d) ──
   // Run the canonical B-40eb script as a structured preflight gate.
   // Non-zero exit BLOCKs story_advance to TEST; stdout hit list is surfaced.
-  const latticeResidue = runLatticeResidueGate(deps.projectRoot);
+  const proofOrStopResidue = runProofOrStopResidueGate(deps.projectRoot);
   gates.push({
     name: 'proof-or-stop-residue',
-    ok: latticeResidue.ok,
-    status: latticeResidue.ok ? 'pass' : 'fail',
-    summary: latticeResidue.summary,
-    details: latticeResidue.details,
-    commandLabel: LATTICE_RESIDUE_GATE_LABEL,
+    ok: proofOrStopResidue.ok,
+    status: proofOrStopResidue.ok ? 'pass' : 'fail',
+    summary: proofOrStopResidue.summary,
+    details: proofOrStopResidue.details,
+    commandLabel: PROOF_OR_STOP_RESIDUE_GATE_LABEL,
   });
 
   if (storyRequiresCodexEvidence(deps.store, storyId)) {

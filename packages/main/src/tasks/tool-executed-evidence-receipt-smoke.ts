@@ -59,9 +59,9 @@ interface Env {
 
 /** Build an isolated temp git repo + story + checklist whose single item carries `intents`. */
 function makeEnv(intents: Array<{ ref: string; type: VerificationIntentType }>): Env {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-ec67-'));
-  write(root, 'lattice.config.json', JSON.stringify({
-    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-ec67-'));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
   }, null, 2));
   write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
   git(root, ['init', '-b', 'work']);

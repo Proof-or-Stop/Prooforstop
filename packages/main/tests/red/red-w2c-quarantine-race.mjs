@@ -82,7 +82,7 @@ try {
     `const quarantine = registry.get('red_evidence_quarantine');`,
     `if (!quarantine) { process.stderr.write('red_evidence_quarantine not registered'); process.exit(4); }`,
     `try {`,
-    `  quarantine({ storyId: ${JSON.stringify(storyId)}, recordId: ${JSON.stringify(redAssert.id)}, reason: process.argv[2], agent: 'lattice-implementer' });`,
+    `  quarantine({ storyId: ${JSON.stringify(storyId)}, recordId: ${JSON.stringify(redAssert.id)}, reason: process.argv[2], agent: 'proof-or-stop-implementer' });`,
     `  process.exit(0);`,
     `} catch (e) { process.stderr.write(String(e && e.message || e)); process.exit(3); }`,
     ``,

@@ -91,7 +91,7 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
       if (!existsSync(join(root, '.git'))) {
         throw new Error(
           `audit must run from repo root (got: ${root}). ` +
-          `Set LATTICE_PROJECT_ROOT or cd to the directory containing .git.`
+          `Set PROOF_OR_STOP_PROJECT_ROOT or cd to the directory containing .git.`
         );
       }
 

@@ -41,7 +41,7 @@ import {
   scanMainWriteLock,
 } from '../core/main-write-lock-doctor.js';
 
-const root = join(tmpdir(), `lattice-mwl-doctor-smoke-${process.pid}-${Date.now()}`);
+const root = join(tmpdir(), `proof-or-stop-mwl-doctor-smoke-${process.pid}-${Date.now()}`);
 mkdirSync(root, { recursive: true });
 
 try {

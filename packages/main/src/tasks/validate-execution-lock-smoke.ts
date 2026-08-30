@@ -56,7 +56,7 @@ import { MKDIR_LOCK_HOLDER_FILE } from '../core/mkdir-lock.js';
 // hardcoded brand literal. Hardcoding the NEW literal would just move the problem;
 // deriving means this fixture follows any future rename with the writers it exercises.
 import { CONFIG_FILENAMES, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/brand-paths.js';
-import { PROOF_OR_STOP_ACTIVITY_LOG, PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_ACTIVITY_LOG, PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR } from '../core/proof-or-stop-paths.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import { createVerdictHandlers } from '../handlers/verdict.js';
@@ -190,9 +190,9 @@ function spawnCommand(root: string, args: string[], label: string, extraEnv: Rec
     cwd: root,
     env: {
       ...process.env,
-      LATTICE_IDLE_TIMEOUT_MS: '300000',
-      LATTICE_PROJECT_ROOT: root,
-      LATTICE_VALIDATE_LOCK_SMOKE_LABEL: label,
+      PROOF_OR_STOP_IDLE_TIMEOUT_MS: '300000',
+      PROOF_OR_STOP_PROJECT_ROOT: root,
+      PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_LABEL: label,
       ...extraEnv,
     },
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -245,7 +245,7 @@ function reviewerReadManifest(agent: string): Record<string, unknown> {
 
 function setupFixture(options: FixtureOptions = {}): { root: string; storyId: string } {
   const storyId = options.storyId ?? DEFAULT_STORY_ID;
-  const root = mkdtempSync(join(tmpdir(), 'lattice-validate-lock-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-lock-'));
   write(root, '.gitignore', [
     'entered.log',
     'bare-entered.log',
@@ -271,7 +271,7 @@ function setupFixture(options: FixtureOptions = {}): { root: string; storyId: st
   }, null, 2) + '\n');
   write(root, 'validate-probe.mjs', `
 import { appendFileSync, existsSync } from 'node:fs';
-const label = process.env.LATTICE_VALIDATE_LOCK_SMOKE_LABEL || 'unlabeled';
+const label = process.env.PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_LABEL || 'unlabeled';
 appendFileSync('entered.log', label + ' ' + String(process.pid) + ' ' + Date.now() + '\\n');
 const deadline = Date.now() + 8000;
 while (!existsSync('release')) {
@@ -308,7 +308,7 @@ async function assertWorkspaceWaitAndRun(): Promise<void> {
   const originalCwd = process.cwd();
   try {
     process.chdir(root);
-    process.env.LATTICE_VALIDATE_LOCK_SMOKE_LABEL = 'first';
+    process.env.PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_LABEL = 'first';
     const firstLog: string[] = [];
     const firstHandlers = createVerifierHandlers({
       root, scanRoot: join(root, 'packages/main'), store,
@@ -325,7 +325,7 @@ async function assertWorkspaceWaitAndRun(): Promise<void> {
       ].join('\n'));
     }
 
-    process.env.LATTICE_VALIDATE_LOCK_SMOKE_LABEL = 'second';
+    process.env.PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_LABEL = 'second';
     const secondLog: string[] = [];
     const secondHandlers = createVerifierHandlers({
       root, scanRoot: join(root, 'packages/main'), store,
@@ -352,7 +352,7 @@ async function assertWorkspaceWaitAndRun(): Promise<void> {
     assert.equal(firstEvidence?.result, 'PASS', `first evidence=${JSON.stringify(firstEvidence)}`);
     assert.equal(secondEvidence?.result, 'PASS', `second evidence=${JSON.stringify(secondEvidence)}`);
   } finally {
-    delete process.env.LATTICE_VALIDATE_LOCK_SMOKE_LABEL;
+    delete process.env.PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_LABEL;
     process.chdir(originalCwd);
     rmSync(root, { recursive: true, force: true });
   }
@@ -405,9 +405,9 @@ async function assertPostCommandPersistenceHoldsLock(): Promise<void> {
 async function assertRetiredRaceSeamIsProductionUnreachable(): Promise<void> {
   const verifierSource = readFileSync(join(repoRoot(), 'packages/main/src/handlers/verifier.ts'), 'utf8');
   for (const retired of [
-    'LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_HOLD_FILE',
-    'LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE',
-    'LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_TIMEOUT_MS',
+    'PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_POST_COMMAND_HOLD_FILE',
+    'PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE',
+    'PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_POST_COMMAND_TIMEOUT_MS',
   ]) {
     assert.doesNotMatch(verifierSource, new RegExp(retired), `${retired} must be absent from production verifier`);
   }
@@ -424,7 +424,7 @@ async function assertRetiredRaceSeamIsProductionUnreachable(): Promise<void> {
       'validate',
       `--story=${storyId}`,
       '--json',
-      `--LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE=${trapReady}`,
+      `--PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE=${trapReady}`,
     ], 'unknown-race-flag');
     const rejected = await waitChild(unknownFlag, 5000);
     assert.notEqual(rejected.code, 0, 'unknown caller-selected race capability flag must be rejected');
@@ -432,9 +432,9 @@ async function assertRetiredRaceSeamIsProductionUnreachable(): Promise<void> {
 
     release(root);
     const inherited = spawnValidate(root, storyId, 'retired-env-control', {
-      LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_HOLD_FILE: trapHold,
-      LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE: trapReady,
-      LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_TIMEOUT_MS: '1',
+      PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_POST_COMMAND_HOLD_FILE: trapHold,
+      PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE: trapReady,
+      PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_POST_COMMAND_TIMEOUT_MS: '1',
     });
     const result = await waitChild(inherited, 12000);
     assert.equal(result.code, 0, result.output);
@@ -476,15 +476,15 @@ async function assertReviewerWritesAreNotBlocked(): Promise<void> {
 
     const reviewRunOutput = await runProofOrStop(root, 'review_run_start', {
       storyId,
-      agent: 'lattice-review-quality',
+      agent: 'proof-or-stop-review-quality',
     });
     const reviewRunId = extractReviewRunId(reviewRunOutput);
     await runProofOrStop(root, 'review_pass_set', {
       storyId,
-      agent: 'lattice-review-quality',
+      agent: 'proof-or-stop-review-quality',
       reviewRunId,
-      note: 'lattice-review-quality checked validate lock scope and found no blocker.',
-      readManifest: reviewerReadManifest('lattice-review-quality'),
+      note: 'proof-or-stop-review-quality checked validate lock scope and found no blocker.',
+      readManifest: reviewerReadManifest('proof-or-stop-review-quality'),
     });
 
     const passes = new StoryStore(root).readReviewPasses(storyId).passes;
@@ -505,7 +505,7 @@ async function assertDeliveryCheckSetIsNotBlocked(): Promise<void> {
 
     await runProofOrStop(root, 'delivery_check_set', {
       storyId,
-      agentId: 'lattice-review-delivery',
+      agentId: 'proof-or-stop-review-delivery',
       docsPromises: [{
         docPath: 'README.md',
         promise: 'Synthetic delivery promise is checked by this smoke.',
@@ -527,7 +527,7 @@ async function assertDeliveryCheckSetIsNotBlocked(): Promise<void> {
 
     const delivery = new StoryStore(root).readDeliveryCheck(storyId);
     assert.ok(delivery, 'delivery_check_set should persist while validate lock is held');
-    assert.equal(delivery?.agentId, 'lattice-review-delivery');
+    assert.equal(delivery?.agentId, 'proof-or-stop-review-delivery');
 
     release(root);
     const validateResult = await waitChild(validate, 12000);
@@ -638,7 +638,7 @@ async function assertDoneRequiredSharesValidateLock(): Promise<void> {
 }
 
 async function assertStaleLockReclaimed(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-validate-lock-stale-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-lock-stale-'));
   const storyId = 'B-stale';
   try {
     const lockDir = validationExecutionLockPath(root, storyId);
@@ -679,7 +679,7 @@ function writeLockOwner(root: string, storyId: string, holder: Record<string, un
 }
 
 async function assertVanishedOwnerReclaimed(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-validate-lock-vanished-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-lock-vanished-'));
   const storyId = 'B-vanished';
   try {
     const lockDir = writeLockOwner(root, storyId, {
@@ -708,7 +708,7 @@ async function assertVanishedOwnerReclaimed(): Promise<void> {
 }
 
 async function assertMismatchedOwnerReclaimed(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-validate-lock-mismatch-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-lock-mismatch-'));
   const storyId = 'B-mismatch';
   const startMs = processStartTimeMs();
   try {
@@ -744,7 +744,7 @@ async function assertMismatchedOwnerReclaimed(): Promise<void> {
 }
 
 async function assertReentrantButNotSiblingBypass(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-validate-lock-unit-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-lock-unit-'));
   const storyId = 'B-reentrant';
   const options = { root, storyId, workspaceRoot: root, command: 'validate', staleMs: 60000 };
   try {
@@ -821,7 +821,7 @@ async function waitForCapacityTicketCount(root: string, count: number, timeoutMs
 }
 
 async function assertCapacityStrictStaleClassifier(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-stale-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-capacity-stale-'));
   const base = { root, workspaceRoot: root, command: 'validate', pollMs: 15, progressIntervalMs: 15 };
   try {
     const unknown = writeCapacityOwner(root, null, undefined, 60_000);
@@ -882,7 +882,7 @@ async function assertCapacityStrictStaleClassifier(): Promise<void> {
 }
 
 async function assertCapacityAtomicStaleQuarantineStress(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-aba-stress-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-capacity-aba-stress-'));
   try {
     for (let round = 0; round < 20; round += 1) {
       writeCapacityOwner(root, {
@@ -1007,7 +1007,7 @@ await withWorkspaceValidationCapacity({
 }
 
 async function assertKilledCapacityOwnerReplacement(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-killed-owner-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-capacity-killed-owner-'));
   const ready = join(root, 'owner-ready');
   const helper = join(root, 'capacity-owner.mjs');
   try {
@@ -1046,7 +1046,7 @@ await withWorkspaceValidationCapacity({ root: ${JSON.stringify(root)}, workspace
 }
 
 async function assertKilledBeforeCapacityPublicationDoesNotBlock(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-killed-before-publish-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-capacity-killed-before-publish-'));
   const lockRoot = validationCapacityLockPath(root);
   const ready = join(root, 'preparing-ready');
   const helper = join(root, 'capacity-preparing-owner.mjs');
@@ -1084,7 +1084,7 @@ await new Promise(() => { setInterval(() => {}, 1000); });
 }
 
 async function assertCapacityAsyncWaitAbortReentrancyAndRelease(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-async-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-capacity-async-'));
   const options = {
     root, workspaceRoot: root, command: 'validate', storyId: 'B-owner',
     pollMs: 15, progressIntervalMs: 20, staleMs: 60_000,
@@ -1349,7 +1349,7 @@ async function assertDerivedVerdictCannotBypassCapacity(): Promise<void> {
 }
 
 async function assertNoStoryConfiguredGitRootFailureDoesNotMintWrapperCapacity(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-configured-gitroot-failure-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-capacity-configured-gitroot-failure-'));
   const marker = join(root, 'validate-callback-entered');
   try {
     mkdirSync(join(root, 'configured-repo'), { recursive: true });
@@ -1381,7 +1381,7 @@ async function assertNoStoryConfiguredGitRootFailureDoesNotMintWrapperCapacity()
 }
 
 async function assertCapacityReleaseFailureIsExplicitAndRecoverable(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-capacity-release-failure-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-capacity-release-failure-'));
   const lockRoot = validationCapacityLockPath(root);
   try {
     let callbackRan = false;
@@ -1454,7 +1454,7 @@ async function assertCapacityReleaseFailureIsExplicitAndRecoverable(): Promise<v
 
 async function assertQueuedWaitFailureCleanupIsRecoverable(): Promise<void> {
   for (const mode of ['abort', 'deadline'] as const) {
-    const root = mkdtempSync(join(tmpdir(), `lattice-capacity-waiter-${mode}-cleanup-`));
+    const root = mkdtempSync(join(tmpdir(), `proof-or-stop-capacity-waiter-${mode}-cleanup-`));
     const lockRoot = validationCapacityLockPath(root);
     let releaseOwner: () => void = () => {};
     let owner: Promise<void> | null = null;
@@ -1545,8 +1545,8 @@ async function assertQueuedWaitFailureCleanupIsRecoverable(): Promise<void> {
     await ready;
 
     const waiter = spawnValidate(cliFixture.root, cliFixture.storyId, 'cli-watchdog-waiter', {
-      LATTICE_MAX_TIMEOUT_MS: '250',
-      LATTICE_IDLE_TIMEOUT_MS: '5000',
+      PROOF_OR_STOP_MAX_TIMEOUT_MS: '250',
+      PROOF_OR_STOP_IDLE_TIMEOUT_MS: '5000',
     });
     assert.equal(await waitForCapacityTicketCount(cliFixture.root, 2), true,
       'real validate CLI must publish one queued ticket behind the active workspace owner');
@@ -1591,8 +1591,8 @@ async function assertQueuedWaitFailureCleanupIsRecoverable(): Promise<void> {
 async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
   const first = setupFixture({ storyId: 'B-cap-scope' });
   const second = setupFixture({ storyId: 'B-independent' });
-  const linked = join(tmpdir(), `lattice-capacity-linked-${process.pid}-${Date.now()}`);
-  const wrapper = mkdtempSync(join(tmpdir(), 'lattice-capacity-wrapper-'));
+  const linked = join(tmpdir(), `proof-or-stop-capacity-linked-${process.pid}-${Date.now()}`);
+  const wrapper = mkdtempSync(join(tmpdir(), 'proof-or-stop-capacity-wrapper-'));
   try {
     git(first.root, ['worktree', 'add', '-b', `capacity-linked-${Date.now()}`, linked]);
     assert.equal(validationCapacityLockPath(first.root), validationCapacityLockPath(linked),

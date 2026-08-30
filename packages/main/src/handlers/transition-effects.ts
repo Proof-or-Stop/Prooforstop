@@ -74,7 +74,7 @@ export function recomputeProcessMetrics(storyId: string, store: StoryStore, root
 /**
  * onPhaseChange hook — fires after the new phase is persisted, so the hook can
  * read the up-to-date story state. Failures are non-blocking. Uses the shared
- * buildHookEnv helper so LATTICE_ARGS_JSON / LATTICE_STORY_ID / LATTICE_PHASE stay
+ * buildHookEnv helper so PROOF_OR_STOP_ARGS_JSON / PROOF_OR_STOP_STORY_ID / PROOF_OR_STOP_PHASE stay
  * consistent with the cli-engine code path.
  */
 export async function runPhaseChangeHooks(
@@ -97,8 +97,8 @@ export async function runPhaseChangeHooks(
       storyId,
       phase: newState,
       extra: {
-        LATTICE_OLD_PHASE: oldPhase,
-        LATTICE_NEW_PHASE: newState,
+        PROOF_OR_STOP_OLD_PHASE: oldPhase,
+        PROOF_OR_STOP_NEW_PHASE: newState,
       },
     });
     await runHooks('onPhaseChange', `${oldPhase}->${newState}`, env, cfg, root);
@@ -237,8 +237,8 @@ export function buildNextSteps(
         return `→ Fast channel (${CHANNEL_LABELS.fast}, ≤5 items, single solution, no riskSignals): the main agent may write code itself, skipping decision + plan.md, keeping understanding.
 → After completion, story_advance(${storyId}, REVIEW) to enter code review`;
       }
-      return `→ Normal channel (${CHANNEL_LABELS.normal}): must launch the lattice-implementer subagent to write code; the main agent should not modify business code itself.
-→ Use Agent({ subagent_type: "lattice-implementer", prompt: "..." }) to assign tasks
+      return `→ Normal channel (${CHANNEL_LABELS.normal}): must launch the proof-or-stop-implementer subagent to write code; the main agent should not modify business code itself.
+→ Use Agent({ subagent_type: "proof-or-stop-implementer", prompt: "..." }) to assign tasks
 → After the subagent finishes and commits, the main agent accepts and merges, then story_advance(${storyId}, REVIEW)
 → sub agent should not use isolation:"worktree", run directly in the main agent's worktree
 ⚠ During the REVIEW phase, Proof-or-Stop reviewers will check the commit author — in the normal channel, if all code is written by the main agent itself, a critical finding will be raised`;
@@ -264,11 +264,11 @@ export function buildNextSteps(
         );
         activeLine = renderActiveReviewersText(active);
         agentLines = active.map(r =>
-          `  Agent({ subagent_type: "lattice-review-${r.name}", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"lattice-review-${r.name}\\"}' to get the standard story-level prompt, then follow it (${r.reason})" })`,
+          `  Agent({ subagent_type: "proof-or-stop-review-${r.name}", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-${r.name}\\"}' to get the standard story-level prompt, then follow it (${r.reason})" })`,
         ).join('\n');
       } catch {
-        agentLines = `  Agent({ subagent_type: "lattice-review-concept", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"lattice-review-concept\\"}' to get the standard story-level prompt, then follow it" })
-  Agent({ subagent_type: "lattice-review-quality", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"lattice-review-quality\\"}' to get the standard story-level prompt, then follow it" })`;
+        agentLines = `  Agent({ subagent_type: "proof-or-stop-review-concept", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-concept\\"}' to get the standard story-level prompt, then follow it" })
+  Agent({ subagent_type: "proof-or-stop-review-quality", prompt: "Run proof-or-stop dispatch '{\\"storyId\\":\\"${storyId}\\",\\"agentType\\":\\"proof-or-stop-review-quality\\"}' to get the standard story-level prompt, then follow it" })`;
       }
       let base = `→ ${activeLine}
 → launch the above reviewers in parallel to review code (issue all Agent calls in a single message):
@@ -278,7 +278,7 @@ ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
 → After all return, proof-or-stop finding_list to aggregate
 → Once critical/high are all resolved: story_advance(${storyId}, TEST)
 → Need code changes: story_advance(${storyId}, DEV) to return to DEV
-⚠ When reviewers call finding_add they must pass the agent parameter (e.g. "agent":"lattice-review-behavior"), otherwise the finding will be marked as main agent and the TEST gate will refuse to advance`;
+⚠ When reviewers call finding_add they must pass the agent parameter (e.g. "agent":"proof-or-stop-review-behavior"), otherwise the finding will be marked as main agent and the TEST gate will refuse to advance`;
       // B-cfdd CHK-003: SOFT, advisory-only convergence-stall signal. Assessed
       // over COMPLETED rounds only (assessReviewConvergenceAtEntry drops the
       // just-entered current round, whose reviewers have not run yet). This only
@@ -338,7 +338,7 @@ ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
       } catch { /* advisory-only: never block the transition */ }
       // B-5a48 CHK-002: surface the A/B-gated advisory Experience-Layer hints in
       // the REVIEW reviewer-launch guidance, right AFTER the Agent({
-      // subagent_type: "lattice-review-*" }) launch lines + the round-2 advisory,
+      // subagent_type: "proof-or-stop-review-*" }) launch lines + the round-2 advisory,
       // so the hints physically follow the reviewer-launch text the main agent
       // reads when it pastes lane prompts.
       //
@@ -391,7 +391,7 @@ ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
     TEST_CASE_REVIEW: `→ Legacy phase. Recommend directly story_advance(${storyId}, TEST) to enter verification`,
     TEST: `→ Must execute immediately: proof-or-stop validate to run verification, write bug/evidence. fail auto aux_diagnose + bug_report, pass auto marks bug fixed.
 ⚠ Engineering verification ≠ user acceptance: even if validate is fully pass, run it once on a real machine from the user's perspective (rhythm: treat PLAN outcome as expected → run → treat actual output as actual → diff). Persist that run through proof-or-stop live_smoke_transcript --storyId=${storyId} --capture='<explicit command>' --write so the canonical ${store.storyDirRel()}/${storyId}/evidence/live-smoke-transcript.json artifact records the actual transcript. The "user value acceptance" section in CLAUDE.md has the complete 5-question self-check list.
-⚠ delivery-check hard gate: before DONE you must spawn the lattice-review-delivery reviewer to write the delivery-check.json signature. The reviewer reverse-scans git diff to verify doc promises are delivered + real-machine test coverage. Fallback is compliant only with lattice-review-delivery provenance / agentId=lattice-review-delivery; the main agent must not self-sign. Unsigned → story_advance DONE will be blocked by [missing_delivery_check].${renderReviewAssuranceBeforeDoneAdvisory(store, root, storyId)}`,
+⚠ delivery-check hard gate: before DONE you must spawn the proof-or-stop-review-delivery reviewer to write the delivery-check.json signature. The reviewer reverse-scans git diff to verify doc promises are delivered + real-machine test coverage. Fallback is compliant only with proof-or-stop-review-delivery provenance / agentId=proof-or-stop-review-delivery; the main agent must not self-sign. Unsigned → story_advance DONE will be blocked by [missing_delivery_check].${renderReviewAssuranceBeforeDoneAdvisory(store, root, storyId)}`,
     DONE: `→ Must execute immediately: tell the user the Story summary paragraph below in your own words (what changed / how to use / real-machine coverage / limitations / pitfalls), then convergence_check to check project convergence state
 ⚠ DONE self-check 5 questions (CLAUDE.md "User value acceptance" section): (1) Is the PLAN outcome a concrete transcript or abstract? (2) During real-machine testing, did you read the user-perspective output or only look at the event log? (3) When the user sees the last line of the actual transcript, would they consider the work done or still wonder what comes next? (4) Are there any engineering logs that are noise/duplicates in the user's eyes? (5) Is there a plain-language summary of the task result? If any question is answered "not done", return to DEV and do not force-push DONE.`,
   };

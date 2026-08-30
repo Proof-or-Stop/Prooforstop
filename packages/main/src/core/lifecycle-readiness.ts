@@ -208,7 +208,7 @@ function activeReviewersForStory(store: StoryStore, storyId: string, projectRoot
 }
 
 function reviewerLane(name: string): string {
-  return name.startsWith('lattice-review-') ? name : `lattice-review-${name}`;
+  return name.startsWith('proof-or-stop-review-') ? name : `proof-or-stop-review-${name}`;
 }
 
 function reviewerRunStartCommand(storyId: string, lane: string): string {
@@ -398,7 +398,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
       category: 'missing',
       code: 'missing_review_evidence',
       reason: 'No reviewer finding or review pass is recorded',
-      nextCommand: `proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"lattice-review-<name>"}'`,
+      nextCommand: `proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"proof-or-stop-review-<name>"}'`,
     }));
     return rows;
   }
@@ -592,7 +592,7 @@ function doneRowNextCommand(storyId: string, row: DoneCheckRow): string | undefi
       return row.blocking ? row.hint : undefined;
     case 'delivery-check':
       return row.blocking
-        ? `proof-or-stop delivery_check_set --storyId=${storyId} --agentId=lattice-review-delivery ...`
+        ? `proof-or-stop delivery_check_set --storyId=${storyId} --agentId=proof-or-stop-review-delivery ...`
         : undefined;
     case 'review-escalation':
     case 'review-assurance-floor':

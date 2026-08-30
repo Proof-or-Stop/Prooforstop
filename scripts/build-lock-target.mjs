@@ -2,7 +2,7 @@
 //
 // This module imports ONLY Node built-ins (node:crypto, node:os, node:path), so it
 // can be loaded in a FRESH checkout WITHOUT node_modules. bin/bootstrap-runner.js —
-// the universal local wrapper entrypoint, imported on EVERY bin/lattice.js call —
+// the universal local wrapper entrypoint, imported on EVERY bin/proofOrStop.js call —
 // imports buildLockTarget / BUILD_LOCK_STALE_MS from HERE (not from build-lock.mjs)
 // so it never transitively pulls in the third-party lockfile library. If bootstrap
 // imported that library transitively, a fresh checkout would throw
@@ -25,5 +25,5 @@ export const BUILD_LOCK_STALE_MS = 30000;
 // sibling `<target>.lock`; we only need the target to exist so realpath resolves.
 export function buildLockTarget(repoKey) {
   const digest = createHash('sha256').update(String(repoKey)).digest('hex');
-  return join(tmpdir(), `lattice-build-lock-${digest}`);
+  return join(tmpdir(), `proof-or-stop-build-lock-${digest}`);
 }

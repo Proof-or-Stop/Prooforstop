@@ -711,7 +711,7 @@ export interface AuthorityRunEvent {
   eventId?: string;
   /** Event kind, e.g. "command" | "validation" | "repair" | "summary" | "completion". */
   kind?: string;
-  /** Python Authority run-event type, e.g. "response.completed" or "lattice.command". */
+  /** Python Authority run-event type, e.g. "response.completed" or "proofOrStop.command". */
   type?: string;
   /** ISO 8601 occurredAt timestamp. */
   occurredAt?: string;
@@ -770,7 +770,7 @@ export function buildAuthorityRunEventsEnvelope(
   if (!timestamp) {
     throw new Error('run-events envelope requires timestamp');
   }
-  const type = event.type ?? (event.kind ? `lattice.${event.kind}` : undefined);
+  const type = event.type ?? (event.kind ? `proofOrStop.${event.kind}` : undefined);
   if (!type) {
     throw new Error('run event requires type or kind');
   }

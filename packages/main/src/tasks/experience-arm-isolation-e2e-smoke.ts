@@ -51,9 +51,9 @@ function git(args: string[], cwd: string): void {
  */
 function cli(cwd: string, arm: string | null, cmd: string, argsJson: string): { code: number; out: string } {
   const env: NodeJS.ProcessEnv = { ...process.env };
-  delete env.LATTICE_EXPERIMENT_ARM;
-  delete env.LATTICE_EXPERIMENT_ID;
-  if (arm) { env.LATTICE_EXPERIMENT_ARM = arm; env.LATTICE_EXPERIMENT_ID = 'e2e'; }
+  delete env.PROOF_OR_STOP_EXPERIMENT_ARM;
+  delete env.PROOF_OR_STOP_EXPERIMENT_ID;
+  if (arm) { env.PROOF_OR_STOP_EXPERIMENT_ARM = arm; env.PROOF_OR_STOP_EXPERIMENT_ID = 'e2e'; }
   try {
     const out = execFileSync('node', [CLI, cmd, argsJson], { cwd, env, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
     return { code: 0, out };
@@ -78,7 +78,7 @@ try {
   git(['config', 'user.email', 'smoke@test.local'], base);
   git(['config', 'user.name', 'smoke'], base);
   git(['config', 'commit.gpgsign', 'false'], base);
-  writeFileSync(join(base, 'lattice.config.json'), JSON.stringify({ storyDir: '.lattice/story/actives' }, null, 2));
+  writeFileSync(join(base, 'proof-or-stop.config.json'), JSON.stringify({ storyDir: '.proof-or-stop/story/actives' }, null, 2));
   writeFileSync(join(base, 'seed.txt'), 'seed\n');
   git(['add', '-A'], base);
   git(['commit', '-m', 'init'], base);

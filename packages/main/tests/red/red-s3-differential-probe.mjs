@@ -65,7 +65,7 @@
  * The path rule is the one a differential comparison alone CANNOT catch, and that
  * is why BAR 3 exists below. Widen the rule back to main's slash-anywhere
  * `\/[^\s"']+` in an isolated copy of the built normalizer (a detached worktree's
- * dist, so nothing in the story worktree moves), point LATTICE_DIST at it and run
+ * dist, so nothing in the story worktree moves), point PROOF_OR_STOP_DIST at it and run
  * against a freshly built main. OBSERVED, and it is the reason BAR 3 is not
  * decoration:
  *
@@ -85,11 +85,11 @@
  *
  *   # full: differential lane against a comparison build
  *   node packages/main/tests/red/red-s3-differential-probe.mjs /path/to/main/packages/main/dist
- *   LATTICE_COMPARE_DIST=/path/to/main/packages/main/dist \
+ *   PROOF_OR_STOP_COMPARE_DIST=/path/to/main/packages/main/dist \
  *     node packages/main/tests/red/red-s3-differential-probe.mjs
  *
  *   # the branch build under test can be pointed elsewhere too
- *   LATTICE_DIST=/path/to/a/build/packages/main/dist node ... red-s3-differential-probe.mjs
+ *   PROOF_OR_STOP_DIST=/path/to/a/build/packages/main/dist node ... red-s3-differential-probe.mjs
  *
  * To produce a comparison build (a detached worktree keeps the story worktree
  * clean, and `--detach` means no branch is created or moved):
@@ -139,8 +139,8 @@ import { strict as assert } from 'node:assert';
 import { existsSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
 
-const BRANCH_DIST = process.env.LATTICE_DIST || new URL('../../dist', import.meta.url).pathname;
-const COMPARE_DIST = process.argv[2] || process.env.LATTICE_COMPARE_DIST || '';
+const BRANCH_DIST = process.env.PROOF_OR_STOP_DIST || new URL('../../dist', import.meta.url).pathname;
+const COMPARE_DIST = process.argv[2] || process.env.PROOF_OR_STOP_COMPARE_DIST || '';
 const CMD = 'story_advance';
 
 const branch = await import(`${BRANCH_DIST}/core/convergence-breaker.js`);
@@ -232,7 +232,7 @@ const PAIRS = [
   ['volatile ISO timestamp', 'volatile', 'gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 3)', 'gate BLOCKED for B-bbaf at 2026-07-14T09:59:59Z (attempt 3)'],
   ['volatile hex digest', 'volatile', 'material digest mismatch a1b2c3d4e5f6789', 'material digest mismatch f6e5d4c3b2a1987'],
   ['volatile story-id digits (B-cc54 contract)', 'volatile', 'gate blocked for b-1234', 'gate blocked for b-5678'],
-  ['volatile machine-absolute path', 'volatile', 'validation lock held at /Users/jek/Documents/Work/proofbound/.lattice/locks/validate', 'validation lock held at /private/var/folders/zz/T/lattice-abc/.lattice/locks/validate'],
+  ['volatile machine-absolute path', 'volatile', 'validation lock held at /Users/jek/Documents/Work/proofbound/.proof-or-stop/locks/validate', 'validation lock held at /private/var/folders/zz/T/proof-or-stop-abc/.proof-or-stop/locks/validate'],
   ['volatile heartbeat age', 'volatile', 'B-bf52 is owned by session s1, heartbeat 45s ago', 'B-bf52 is owned by session s1, heartbeat 52s ago'],
   ['volatile lane counts', 'volatile', 'review assurance floor is unmet: 0/4 reviewer lanes have a current-round pass', 'review assurance floor is unmet: 1/4 reviewer lanes have a current-round pass'],
 ];
@@ -324,7 +324,7 @@ if (!compare) {
   console.log(`SKIP differential lane — ${skipReason}.`);
   console.log('  The differential lane needs a SECOND build to compare against; it is skipped rather');
   console.log('  than failed so this file is runnable in a clean checkout. Pass one as argv[1] or in');
-  console.log('  LATTICE_COMPARE_DIST. To produce one (detached: no branch is created or moved):');
+  console.log('  PROOF_OR_STOP_COMPARE_DIST. To produce one (detached: no branch is created or moved):');
   console.log('    git worktree add --detach /tmp/probe-main main');
   console.log('    ln -s "$PWD/node_modules" /tmp/probe-main/node_modules');
   console.log('    node_modules/.bin/tsc -p /tmp/probe-main/packages/main/tsconfig.json');

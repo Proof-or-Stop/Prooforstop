@@ -1,5 +1,5 @@
 // Runtime content-redaction pass for unattended-development evidence (§B4a of
-// lattice-authority-live-integration.md). Before any stdout / stderr / provider
+// proof-or-stop-authority-live-integration.md). Before any stdout / stderr / provider
 // prompt / provider response / command output / note is uploaded as evidence,
 // it must pass through this redaction pipeline so that access tokens, private
 // keys, session cookies, Authorization headers, password values, and raw

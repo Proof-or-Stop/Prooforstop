@@ -7,7 +7,7 @@
  * Coverage (named `check:` lines; exits non-zero on any failure; prints
  * `learning-scan smoke passed` at the very end):
  *   - BEFORE scan (absent / empty cache) the hint loader returns NO hints.
- *   - Running the scan handler PERSISTS .lattice/learning/finding-signals.json as
+ *   - Running the scan handler PERSISTS .proof-or-stop/learning/finding-signals.json as
  *     a valid FindingSignalsCache (schemaVersion, signals[] with anchorFiles where
  *     the composing findings carried files).
  *   - AFTER scan the hint loader returns a NON-EMPTY hints section for a story
@@ -146,7 +146,7 @@ check('scan PERSISTS a valid FindingSignalsCache (schemaVersion, signals[], anch
   seedRecurringStory(store, 'B-rec2');
   runScan(root);
   const cachePath = resolveFindingSignalsPath(root);
-  assert.ok(existsSync(cachePath), '.lattice/learning/finding-signals.json written');
+  assert.ok(existsSync(cachePath), '.proof-or-stop/learning/finding-signals.json written');
   const parsed = JSON.parse(readFileSync(cachePath, 'utf8')) as FindingSignalsCache;
   assert.equal(parsed.schemaVersion, 1, 'schemaVersion present');
   assert.ok(Array.isArray(parsed.signals), 'signals is an array');

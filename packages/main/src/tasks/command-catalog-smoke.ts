@@ -48,7 +48,7 @@ function runCli(args: string[]): string {
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      LATTICE_NO_HOOKS: '1',
+      PROOF_OR_STOP_NO_HOOKS: '1',
     },
   });
 }
@@ -61,7 +61,7 @@ function runDistCli(args: string[]): string {
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      LATTICE_NO_HOOKS: '1',
+      PROOF_OR_STOP_NO_HOOKS: '1',
     },
   });
 }
@@ -74,7 +74,7 @@ function runDistCliProbe(args: string[]): { status: number | null; stdout: strin
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      LATTICE_NO_HOOKS: '1',
+      PROOF_OR_STOP_NO_HOOKS: '1',
     },
   });
   return {
@@ -156,7 +156,7 @@ for (const identifier of ['itemId', 'findingId', 'clusterId'] as const) {
 }
 // The dispatch agentType enum is derived from AGENT_DISPATCH_ACCEPTED_TYPES, which
 // deliberately omits agents that are retired from runtime dispatch (e.g.
-// lattice-review-channel, kept in the registry only for historical classification).
+// proof-or-stop-review-channel, kept in the registry only for historical classification).
 // Guard bidirectional consistency between the public schema and that registry so
 // neither a stale non-dispatchable agent leaks into the enum, nor a retired lane is
 // wrongly accepted.
@@ -292,7 +292,7 @@ assert.match(helpOutput, /Proof-or-Stop/, 'help should carry Proof-or-Stop brand
 // deliberately the pre-rename spelling and must NOT be normalized — normalizing it
 // would make this line assert the absence of the CURRENT brand, inverting the guard.
 assert.doesNotMatch(helpOutput, /Proofbound/, 'help must not print the legacy Proofbound product name anywhere');
-assert.doesNotMatch(helpOutput, /Usage: lattice /, 'help must not teach the deprecated bin as the usage form');
+assert.doesNotMatch(helpOutput, /Usage: proofOrStop /, 'help must not teach the deprecated bin as the usage form');
 assert.match(helpOutput, /host_runtime_probe/, 'proof-or-stop help should include host runtime commands');
 assert.match(runCli(['help', '--full']), /antigravity/, 'proof-or-stop help --full should include antigravity host text');
 

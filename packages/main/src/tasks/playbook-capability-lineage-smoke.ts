@@ -81,10 +81,10 @@ function write(root: string, rel: string, content: string): void {
 
 function mkProject(): { root: string; store: StoryStore } {
   const root = mkdtempSync(join(tmpdir(), 'b8128-cap-lineage-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   return { root, store: new StoryStore(root) };
@@ -133,14 +133,14 @@ function seedStory(root: string, store: StoryStore, storyId: string): void {
 }
 
 function withIsolatedGlobalMemory<T>(root: string, fn: () => T): T {
-  const prior = process.env.LATTICE_GLOBAL_MEMORY_DIR;
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = join(root, 'global-memory');
-  mkdirSync(process.env.LATTICE_GLOBAL_MEMORY_DIR, { recursive: true });
+  const prior = process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR;
+  process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = join(root, 'global-memory');
+  mkdirSync(process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR, { recursive: true });
   try {
     return fn();
   } finally {
-    if (prior === undefined) delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
-    else process.env.LATTICE_GLOBAL_MEMORY_DIR = prior;
+    if (prior === undefined) delete process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR;
+    else process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = prior;
   }
 }
 
@@ -311,7 +311,7 @@ try {
     const { root } = mkProject();
     roots.push(root);
     // Write a non-JSON / invalid ledger line so readCapabilityReleaseLedger throws.
-    write(root, '.lattice/capability-releases.jsonl', '{ this is not valid json\n');
+    write(root, '.proof-or-stop/capability-releases.jsonl', '{ this is not valid json\n');
     const seed: PlaybookSeedCandidate = {
       seedId: 'PBS-tamper',
       sourceArtifactKind: 'done_experience',

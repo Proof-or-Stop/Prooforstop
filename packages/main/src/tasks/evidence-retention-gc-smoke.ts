@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Acceptance smoke for the M8 runtime evidence redaction + retention/GC layer
-// (§B4a / §B4b of lattice-authority-live-integration.md). Unlike
+// (§B4a / §B4b of proof-or-stop-authority-live-integration.md). Unlike
 // planner-unattended-smoke (which pins POLICY EMISSION + the consistency gate
 // only), this smoke drives the actual runtime engines and proves:
 //   - content redaction removes every known secret class before upload while the

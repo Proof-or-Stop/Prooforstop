@@ -63,7 +63,7 @@ type ReviewLaneForEntry<Entry> = Entry extends {
 /** Includes the retired historical lane at the type boundary; runtime eligibility still rejects it. */
 export type ReviewRunLane =
   | ReviewLaneForEntry<(typeof AGENT_DISPATCH_REGISTRY)[number]>
-  | 'lattice-review-channel';
+  | 'proof-or-stop-review-channel';
 
 /** Stable registry-order projection; the dispatch registry is the sole lane authority. */
 export const REVIEW_RUN_LANES: readonly ReviewRunLane[] = Object.freeze(
@@ -165,8 +165,8 @@ export function isReviewRunLane(value: string): value is ReviewRunLane {
 }
 
 // A finding / review pass counts as reviewer evidence (subject to reviewRunId
-// binding) only when its agent is a lattice-review-* lane. main / main-agent /
-// lattice-implementer / other non-reviewer actors create findings during DEV or
+// binding) only when its agent is a proof-or-stop-review-* lane. main / main-agent /
+// proof-or-stop-implementer / other non-reviewer actors create findings during DEV or
 // for meta-process notes and must NOT be treated as reviewer evidence by the
 // REVIEW→TEST gate. Mirrors the predicate used at finding_add time
 // (handlers/finding.ts) and elsewhere in the codebase.
@@ -1532,8 +1532,8 @@ export function collectReviewerEvidenceState(
   const findings = store.readFindings(storyId).findings || [];
   const passes = store.readReviewPasses(storyId).passes || [];
 
-  // Only true reviewer lanes (lattice-review-*) require reviewRunId binding.
-  // main / main-agent / lattice-implementer / other non-reviewer actors create
+  // Only true reviewer lanes (proof-or-stop-review-*) require reviewRunId binding.
+  // main / main-agent / proof-or-stop-implementer / other non-reviewer actors create
   // findings during DEV or capture meta-process notes that must not be treated
   // as reviewer evidence by the REVIEW→TEST gate.
   const reviewerFindings = findings

@@ -450,7 +450,7 @@ function scanBalancedObjects(text: string): BalancedObject[] {
  * `env` here is the UNREDACTED ledger-gating env (the caller's process env), which is
  * DISTINCT from RunCodexReviewLeafOptions.env — that latter env is the redacted,
  * closed-allowlist environment the codex subprocess sees and MUST NOT be used for
- * ledger gating (it deliberately drops LATTICE_USAGE_LEDGER). Absent => no rows
+ * ledger gating (it deliberately drops PROOF_OR_STOP_USAGE_LEDGER). Absent => no rows
  * (byte-identical to callers that do not opt in).
  */
 export interface CodexReviewLeafUsageLedger {
@@ -509,7 +509,7 @@ function synthesizedBlocked(materialHash: string, reason: string, summary: strin
  *   - stdoutDigest is the honest digest of an EMPTY stream (no bytes were read).
  *   - exitCode is the host-run refusal sentinel (3) — the SAME sentinel a
  *     host_run / autopilot-repair cap refusal reports, so all three
- *     lattice-initiated spawn refusals surface identically. timedOut is false
+ *     proof-or-stop-initiated spawn refusals surface identically. timedOut is false
  *     (a refusal is not a timeout).
  */
 function blockedLeafResult(materialHash: string, reason: string, summary: string): CodexReviewLeafResult {
@@ -572,7 +572,7 @@ export async function runCodexReviewLeaf(
       ledgerHandle = null;
     }
 
-    // F-017: the codex review leaf is a lattice-initiated host spawn, so — AFTER
+    // F-017: the codex review leaf is a proof-or-stop-initiated host spawn, so — AFTER
     // the preflight and BEFORE the runner — it passes the SAME pre-spawn
     // admission as runHostRun / the autopilot repair (budget -> concurrency ->
     // spawn). A refusal records the appropriate blocked ledger row and returns a

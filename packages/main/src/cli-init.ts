@@ -7,8 +7,8 @@ import {
   AGENTS_MD_GLOBAL_THIN_TEMPLATE,
   AGENTS_MD_TEMPLATE,
   CLAUDE_MD_TEMPLATE,
-  LATTICE_DOT_DIR_MD_TEMPLATE,
-  LATTICE_MD_TEMPLATE,
+  PROOF_OR_STOP_DOT_DIR_MD_TEMPLATE,
+  PROOF_OR_STOP_MD_TEMPLATE,
   SUPPORTED_INIT_ASSET_MODES,
   SUPPORTED_INIT_PROFILES,
   listAgentPromptFiles,
@@ -17,7 +17,7 @@ import {
   renderProofOrStopBootstrapScript,
   renderProofOrStopCodexAdapterManifest,
   renderProofOrStopCodexWrapperScript,
-  renderLatticeProjectConfig,
+  renderProofOrStopProjectConfig,
   renderCodexHooksJson,
   renderCodexPretoolScopeHookScript,
   renderCodexEvidencePretoolHookScript,
@@ -48,11 +48,11 @@ import {
   renderPromptEntryForHost,
 } from './core/prompt-registry.js';
 import {
-  LATTICE_RUNTIME_IGNORE_BLOCK_END,
-  LATTICE_RUNTIME_IGNORE_BLOCK_START,
+  PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_END,
+  PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
 } from './core/runtime-artifact-registry.js';
-import { PROOF_OR_STOP_STORY_DIR, PROOF_OR_STOP_DIR } from './core/lattice-paths.js';
+import { PROOF_OR_STOP_STORY_DIR, PROOF_OR_STOP_DIR } from './core/proof-or-stop-paths.js';
 // B-cc10 CHK-002: `init` is a WRITER, so it uses the CANONICAL names only — the
 // read-both contract resolves deprecated spellings for reads but never writes
 // them, otherwise two on-disk copies of the same state would diverge.
@@ -71,9 +71,9 @@ const HOOK_FILES = ['log-tools.cjs', PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE, ENGL
 
 // 通过 proof-or-stop init 调用时 argv[2]='init'，跳过；直接运行 init entrypoint 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
-const INIT_DOC_SECTION_RE = /<!--\s*lattice:start\s*-->[\s\S]*?<!--\s*lattice:end\s*-->/;
+const INIT_DOC_SECTION_RE = /<!--\s*proofOrStop:start\s*-->[\s\S]*?<!--\s*proofOrStop:end\s*-->/;
 const GITIGNORE_RUNTIME_BLOCK_RE = new RegExp(
-  `${escapeRegExp(LATTICE_RUNTIME_IGNORE_BLOCK_START)}[\\s\\S]*?${escapeRegExp(LATTICE_RUNTIME_IGNORE_BLOCK_END)}`,
+  `${escapeRegExp(PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_START)}[\\s\\S]*?${escapeRegExp(PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_END)}`,
 );
 
 function isSupportedInitProfile(value: string): value is InitProfile {
@@ -94,13 +94,13 @@ function normalizeGitignoreLine(line: string): string {
 
 function renderManagedRuntimeIgnoreBlock(lines: string[]): string {
   return [
-    LATTICE_RUNTIME_IGNORE_BLOCK_START,
+    PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_START,
     ...lines,
-    LATTICE_RUNTIME_IGNORE_BLOCK_END,
+    PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_END,
   ].join('\n');
 }
 
-function mergeLatticeRuntimeIgnores(existingContent: string): { content: string; changed: boolean } {
+function mergeProofOrStopRuntimeIgnores(existingContent: string): { content: string; changed: boolean } {
   const required = listRuntimeArtifactIgnorePatterns();
   const blockMatch = existingContent.match(GITIGNORE_RUNTIME_BLOCK_RE);
   const blockText = blockMatch?.[0] ?? null;
@@ -260,7 +260,7 @@ proof-or-stop init — 初始化 Proof-or-Stop 开发框架
   proof-or-stop init --help                        显示帮助
 
 默认初始化（global-thin mode）:
-  ${PROOF_OR_STOP_DIR}/Lattice.md           canonical host-neutral Proof-or-Stop 指南（新目录）
+  ${PROOF_OR_STOP_DIR}/Proof-or-Stop.md           canonical host-neutral Proof-or-Stop 指南（新目录）
   ${PROOF_OR_STOP_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}   项目 Proof-or-Stop 配置（global-thin）
   AGENTS.md                     薄 Codex/AGENTS 指南（引用全局 Proof-or-Stop CLI）
   ${PROOF_OR_STOP_CONFIG_FILENAME}      项目配置（canonical）
@@ -268,7 +268,7 @@ proof-or-stop init — 初始化 Proof-or-Stop 开发框架
   docs/requirements/            真相源目录
 
 full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
-  LATTICE.md                    canonical host-neutral Proof-or-Stop 指南（旧位置）
+  PROOF_OR_STOP.md                    canonical host-neutral Proof-or-Stop 指南（旧位置）
   bin/proof-or-stop.js          本地 Proof-or-Stop bootstrap（仅 full/thin）
   ${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}   Codex adapter manifest（仅 full/thin + codex profile）
   ${PROOF_OR_STOP_ADAPTER_DIR}/agents                 agent prompt copies（仅 full mode + codex profile）
@@ -282,7 +282,7 @@ full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
   tests/                        测试目录
 
 初始化后（global-thin）:
-  1. 阅读 ${PROOF_OR_STOP_DIR}/Lattice.md
+  1. 阅读 ${PROOF_OR_STOP_DIR}/Proof-or-Stop.md
   2. 使用全局 Proof-or-Stop CLI：proof-or-stop session_brief、proof-or-stop codex verify、proof-or-stop codex doctor
   3. 可选: 编辑 ${PROOF_OR_STOP_CONFIG_FILENAME} 调整 scanRoot 等路径
   4. 可选: proof-or-stop validate 跑项目验证
@@ -579,7 +579,7 @@ if (!existsSync(giPath)) {
     // ignorePattern added after the template was last synced). Re-merge from the
     // registry so the copy path is registry-synced just like the existing-file
     // branch below — keeps the registry the single source of truth (B-4fd3).
-    const merged = mergeLatticeRuntimeIgnores(readFileSync(giPath, 'utf8'));
+    const merged = mergeProofOrStopRuntimeIgnores(readFileSync(giPath, 'utf8'));
     if (merged.changed) {
       writeFileSync(giPath, merged.content);
       console.log('  ✓ .gitignore (copied from Proof-or-Stop template, runtime ignores synced)');
@@ -604,7 +604,7 @@ if (!existsSync(giPath)) {
     console.log('  ✓ .gitignore (created minimal)');
   }
 } else {
-  const mergeResult = mergeLatticeRuntimeIgnores(readFileSync(giPath, 'utf8'));
+  const mergeResult = mergeProofOrStopRuntimeIgnores(readFileSync(giPath, 'utf8'));
   if (mergeResult.changed) {
     writeFileSync(giPath, mergeResult.content);
     console.log('  ✓ .gitignore (merged Proof-or-Stop runtime ignores)');
@@ -813,7 +813,7 @@ if (withStarter && !existsSync(debugPath)) {
   const dir = dirname(debugPath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
   writeFileSync(debugPath, `// debug.ts — 调试入口
-// 框架的 devHost() 负责：WS server + .lattice-serve.json + cleanup
+// 框架的 devHost() 负责：WS server + .proof-or-stop-serve.json + cleanup
 
 import { devHost } from '@proof-or-stop/core/dev-host';
 import { createApp } from './app.js';
@@ -832,7 +832,7 @@ import { readBrandEnv } from './core/brand-env.js';
 
 // 2. project config (canonical filename only)
 console.log(`\n[2/5] 生成 ${PROOF_OR_STOP_CONFIG_FILENAME}...`);
-const latticeConfig: Record<string, unknown> = {
+const proofOrStopConfig: Record<string, unknown> = {
   scanRoot: withStarter || hadSrcBeforeInit ? 'src' : '.',
   testsDir: 'tests',
   storyDir: PROOF_OR_STOP_STORY_DIR,
@@ -840,8 +840,8 @@ const latticeConfig: Record<string, unknown> = {
   storyPrefix: 'S',
 };
 if (isPython) {
-  latticeConfig.language = 'python';
-  latticeConfig.scanRoot = withStarter || hadSrcBeforeInit ? 'src' : '.';
+  proofOrStopConfig.language = 'python';
+  proofOrStopConfig.scanRoot = withStarter || hadSrcBeforeInit ? 'src' : '.';
   console.log('  ✓ 检测到 Python 项目');
 }
 
@@ -854,7 +854,7 @@ if (existsSync(pkgPath)) {
     const hasHtml = existsSync(join(targetDir, 'index.html')) || existsSync(join(targetDir, 'public', 'index.html'));
     if (hasHtml || deps?.vite || deps?.webpack || deps?.next) {
       const devCmd = deps?.vite ? 'npx vite' : deps?.next ? 'npx next dev' : deps?.webpack ? 'npx webpack serve' : 'npx serve';
-      latticeConfig.browser = { devCommand: devCmd };
+      proofOrStopConfig.browser = { devCommand: devCmd };
       console.log(`  ✓ 检测到浏览器项目，browser.devCommand = "${devCmd}"`);
     }
   } catch { /* ignore */ }
@@ -868,31 +868,31 @@ const existingConfigFilename = CONFIG_FILENAMES.find((name) => existsSync(join(t
 if (existingConfigFilename) {
   console.log(`  - ${existingConfigFilename} (exists, skip)`);
 } else {
-  write(PROOF_OR_STOP_CONFIG_FILENAME, JSON.stringify(latticeConfig, null, 2) + '\n');
+  write(PROOF_OR_STOP_CONFIG_FILENAME, JSON.stringify(proofOrStopConfig, null, 2) + '\n');
 }
 
 // 3. 文档入口
 console.log('\n[3/5] 配置 Proof-or-Stop / host 文档...');
 if (isGlobalThin) {
-  // B-cc10 CHK-007 (F-004): this was a hardcoded `.lattice/Lattice.md` while the
+  // B-cc10 CHK-007 (F-004): this was a hardcoded `.proof-or-stop/Proof-or-Stop.md` while the
   // manifest three lines below already went to PROOF_OR_STOP_DIR, so a single
   // `init` STRADDLED two state directories and created a stray legacy directory
   // on every fresh init. Derived now, so the guide lands beside the manifest.
-  const dotDirGuidePath = `${PROOF_OR_STOP_DIR}/Lattice.md`;
-  writeManagedMarkdown(dotDirGuidePath, LATTICE_DOT_DIR_MD_TEMPLATE, dotDirGuidePath);
-  const latticeConfigPath = join(targetDir, PROOF_OR_STOP_DIR, PROOF_OR_STOP_MANIFEST_FILENAME);
+  const dotDirGuidePath = `${PROOF_OR_STOP_DIR}/Proof-or-Stop.md`;
+  writeManagedMarkdown(dotDirGuidePath, PROOF_OR_STOP_DOT_DIR_MD_TEMPLATE, dotDirGuidePath);
+  const proofOrStopConfigPath = join(targetDir, PROOF_OR_STOP_DIR, PROOF_OR_STOP_MANIFEST_FILENAME);
   // B-cc10 CHK-004: report the path actually written rather than a hardcoded
   // spelling, so the console never claims a filename that is not on disk.
-  const latticeConfigLabel = `${PROOF_OR_STOP_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
-  if (!existsSync(latticeConfigPath)) {
-    writeFileSync(latticeConfigPath, renderLatticeProjectConfig());
-    console.log(`  ✓ ${latticeConfigLabel}`);
+  const proofOrStopConfigLabel = `${PROOF_OR_STOP_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
+  if (!existsSync(proofOrStopConfigPath)) {
+    writeFileSync(proofOrStopConfigPath, renderProofOrStopProjectConfig());
+    console.log(`  ✓ ${proofOrStopConfigLabel}`);
   } else {
-    console.log(`  - ${latticeConfigLabel} (exists, skip)`);
+    console.log(`  - ${proofOrStopConfigLabel} (exists, skip)`);
   }
-  console.log(`  - LATTICE.md (global-thin mode; canonical guide is ${dotDirGuidePath})`);
+  console.log(`  - PROOF_OR_STOP.md (global-thin mode; canonical guide is ${dotDirGuidePath})`);
 } else {
-  writeManagedMarkdown('LATTICE.md', LATTICE_MD_TEMPLATE, 'LATTICE.md');
+  writeManagedMarkdown('PROOF_OR_STOP.md', PROOF_OR_STOP_MD_TEMPLATE, 'PROOF_OR_STOP.md');
 }
 
 if (wantsClaude) {
@@ -910,7 +910,7 @@ if (isGlobalThin) {
 }
 
 // 4. agent 适配器 → 全局单一源 ~/.claude/agents thin-shim（B-097f）
-// Claude Code 只能从磁盘解析 subagent_type: lattice-*，但用户级全局
+// Claude Code 只能从磁盘解析 subagent_type: proof-or-stop-*，但用户级全局
 // ~/.claude/agents 对所有项目生效，project-level 会 shadow user-level。
 // prompt 正文绝不物化进宿主目录（symlink 也算暴露）；每个角色只放一个
 // thin-shim（frontmatter + tools + "从 CLI 取指令" body），正文由
@@ -959,7 +959,7 @@ if (wantsClaude && agentTemplateDir) {
 // B-cc10 CHK-007: the adapter-dir README/agents writers below were hardcoded to the
 // DEPRECATED adapter directory while the MANIFEST already used the resolver, so
 // full-mode `init` created BOTH directories — measured on a fresh init:
-// `.lattice-codex/{README.md,agents}` plus `.proof-or-stop-codex/proof-or-stop.json`.
+// `.proof-or-stop-codex/{README.md,agents}` plus `.proof-or-stop-codex/proof-or-stop.json`.
 // Same straddle class as the state-dir F-004 defect, on the adapter identity.
 const codexReadmeRel = `${PROOF_OR_STOP_ADAPTER_DIR}/README.md`;
 const codexAgentsRel = `${PROOF_OR_STOP_ADAPTER_DIR}/agents`;
@@ -1006,7 +1006,7 @@ if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
     // `renderPromptEntryForHost(entry, 'codex')`, which defaults complex roles to
     // 'legacy-full-context' (prompt-registry.ts:415-417). Reading the template
     // straight off disk emitted the modular body instead (marker
-    // proofbound:modular-role-body:v1 — for lattice-evaluator the modular template is
+    // proofbound:modular-role-body:v1 — for proof-or-stop-evaluator the modular template is
     // 3945 bytes / 3939 UTF-16 units against the expected 9008 bytes / 8998 UTF-16
     // units; both units are given because the template contains 3 non-ASCII
     // characters, so byte and string lengths differ and quoting one as the other
@@ -1170,10 +1170,10 @@ console.log(`
 ✓ 初始化完成
 
 Next steps:
-${isGlobalThin ? `  1. Read ${PROOF_OR_STOP_DIR}/Lattice.md
-  2. Use the global lattice CLI: proof-or-stop session_brief
+${isGlobalThin ? `  1. Read ${PROOF_OR_STOP_DIR}/Proof-or-Stop.md
+  2. Use the global proofOrStop CLI: proof-or-stop session_brief
   3. For Codex adapter: proof-or-stop codex verify / proof-or-stop codex doctor
-  4. Optional: proof-or-stop validate to verify project` : `  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
+  4. Optional: proof-or-stop validate to verify project` : `  1. Read PROOF_OR_STOP.md, then use the entrypoints generated for profile ${selectedProfile}
   2. Optional: edit ${PROOF_OR_STOP_CONFIG_FILENAME} to adjust scanRoot
   3. Optional: proof-or-stop validate to verify project`}
 `);

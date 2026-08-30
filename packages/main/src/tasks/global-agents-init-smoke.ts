@@ -44,7 +44,7 @@ const templateDir = resolveAgentTemplateDir();
 const managedBasenames = listManagedAgentBasenames(templateDir);
 
 function makeDir(name: string): string {
-  return mkdtempSync(join(tmpdir(), `lattice-${name}-`));
+  return mkdtempSync(join(tmpdir(), `proof-or-stop-${name}-`));
 }
 
 function runInit(home: string, root: string, extraArgs: string[]): string {
@@ -100,10 +100,10 @@ function listProjectAgentMd(root: string): string[] {
       // B-cdf6: these pinned the PRE-rename bin name, so they failed BECAUSE the
       // rename succeeded. Note line 2 of the old `else` branch already SAID
       // "must reference proof-or-stop agent_prompt" while its regex checked
-      // `lattice` — the message and the assertion disagreed, which is why the
+      // `proof-or-stop` — the message and the assertion disagreed, which is why the
       // mismatch survived earlier passes. Measured shim contents: 12x
       // `proof-or-stop agent_prompt --role=`, 5x `proof-or-stop review_run_start`,
-      // zero `lattice`. Each canonical check is paired with a doesNotMatch on the
+      // zero `proof-or-stop`. Each canonical check is paired with a doesNotMatch on the
       // deprecated form so the generated shims cannot regress to the old bin name.
       if (isModularReviewerRoleId(role)) {
         assert.match(content, /proof-or-stop review_run_start/, `${basename} must use the canonical reviewer bootstrap`);
@@ -115,7 +115,7 @@ function listProjectAgentMd(root: string): string[] {
         assert.match(content, /thin pointer/, `${basename} shim body must declare it is a thin pointer`);
       }
       // No role body content (load-bearing slice / role-specific prose) leaked
-      assert.doesNotMatch(content, /<!-- lattice:start -->/, `${basename} shim must NOT contain the role body slice`);
+      assert.doesNotMatch(content, /<!-- proofOrStop:start -->/, `${basename} shim must NOT contain the role body slice`);
     }
   } finally {
     rmSync(home, { recursive: true, force: true });

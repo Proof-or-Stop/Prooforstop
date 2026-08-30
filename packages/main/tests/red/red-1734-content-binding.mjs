@@ -82,9 +82,9 @@ function scaffold(root) {
   write(root, 'packages/main/dist/index.js', 'export const a = 1;\n');
   write(root, 'packages/main/dist/util.js', 'export const b = 2;\n');
   write(root, 'packages/main/dist/sub/deep.js', 'export const c = 3;\n');
-  write(root, 'packages/utils/src/index.ts', "import { a } from '@lattice/core';\nexport const u = a;\n");
+  write(root, 'packages/utils/src/index.ts', "import { a } from '@proof-or-stop/core';\nexport const u = a;\n");
   write(root, 'packages/utils/tsconfig.json', '{}\n');
-  write(root, 'packages/utils/package.json', '{"name":"@lattice/utils"}\n');
+  write(root, 'packages/utils/package.json', '{"name":"@proof-or-stop/utils"}\n');
   write(root, 'packages/utils/dist/index.js', 'export const u = 1;\n');
 }
 

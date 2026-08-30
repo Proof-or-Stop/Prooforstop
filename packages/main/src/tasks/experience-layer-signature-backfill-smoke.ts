@@ -53,10 +53,10 @@ function check(label: string, fn: () => void): void {
 
 function mkProject(): string {
   const root = mkdtempSync(join(tmpdir(), 'b17a9-sig-bf-'));
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2), 'utf-8');
   return root;
@@ -147,14 +147,14 @@ function writeMap(root: string): string {
 
 /** Absolute path of a story's findings.json for byte-comparison. */
 function findingsPath(root: string, storyId: string): string {
-  return join(root, '.lattice/story/actives', storyId, 'findings.json');
+  return join(root, '.proof-or-stop/story/actives', storyId, 'findings.json');
 }
 
 function run(): void {
   const savedEnv = { ...process.env };
   const savedCwd = process.cwd();
   const tmpRoots: string[] = [];
-  delete process.env.LATTICE_AGENT;
+  delete process.env.PROOF_OR_STOP_AGENT;
 
   try {
     // ── DRY-RUN: nothing written ─────────────────────────────────────────────

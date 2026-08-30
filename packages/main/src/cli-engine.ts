@@ -32,11 +32,11 @@ import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIME
 import { isGitRepository } from './core/git-probe.js';
 import { getGuardFailureReason } from './core/machine.js';
 import {
-  formatLatticeVersionLine,
+  formatProofOrStopVersionLine,
   detectProofOrStopBrand,
   PROOF_OR_STOP_BIN_NAMES,
-} from './core/lattice-brand.js';
-import { PROOF_OR_STOP_DIR } from './core/lattice-paths.js';
+} from './core/proof-or-stop-brand.js';
+import { PROOF_OR_STOP_DIR } from './core/proof-or-stop-paths.js';
 import { renderChecklistDerivedLedger, CHECKLIST_DERIVED_HEADER } from './core/milestone-status.js';
 import { wantsFullOutput } from './cli/output-verbosity.js';
 import type { ChecklistData } from './core/types.js';
@@ -319,8 +319,8 @@ export function enforceExperimentArmRetrievalGate(cmd: string, root: string): vo
  * name: 'host_status'
  * name: 'init_check_repair'
  * name: 'init_check_set'
- * name: 'lattice_config_doctor'
- * name: 'lattice_config_repair'
+ * name: 'proof_or_stop_config_doctor'
+ * name: 'proof_or_stop_config_repair'
  * name: 'learning_effectiveness'
  * name: 'learning_scan'
  * name: 'learning_validate'
@@ -750,7 +750,7 @@ export async function runCli(opts?: {
     cmd = normalizedAlias.canonicalAlias!;
     arg = argv[1];
     // B-cdf6 CHK-002: forgive a pasted redundant bin token under EITHER name,
-    // so `proof-or-stop proof-or-stop --version` behaves like `proof-or-stop lattice --version`.
+    // so `proof-or-stop proof-or-stop --version` behaves like `proof-or-stop proofOrStop --version`.
   } else if (PROOF_OR_STOP_BIN_NAMES.includes(cmd) && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
     argv.splice(0, argv.length, 'version');
     cmd = 'version';
@@ -804,7 +804,7 @@ export async function runCli(opts?: {
     return;
   }
   if (cmd === 'version' || cmd === '--version' || cmd === '-v') {
-    process.stdout.write(`${formatLatticeVersionLine()}\n`);
+    process.stdout.write(`${formatProofOrStopVersionLine()}\n`);
     return;
   }
 
@@ -1051,7 +1051,7 @@ export async function runCli(opts?: {
   } catch { /* never block */ }
 
   // Heartbeat: by default, 5 minutes without output means stuck; 15 minutes is the absolute safety limit.
-  // Can be overridden with LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS,
+  // Can be overridden with PROOF_OR_STOP_IDLE_TIMEOUT_MS / PROOF_OR_STOP_MAX_TIMEOUT_MS,
   // A single LLM call in real-machine smoke tests can occasionally exceed 2 minutes (non-deterministic cases such as text-adventure uninstall).
   const explicitIdle = Number(readBrandEnv('IDLE_TIMEOUT_MS'));
   const effectiveMaxBudget = effectiveCommandCliMaxBudget(root, cmd, parsed);
@@ -1137,7 +1137,7 @@ export async function runCli(opts?: {
       || value?.result === 'blocked';
   }
 
-  // Unified logging: write to .lattice/activity.jsonl (dual-source module, legacy path is read-compatible only).
+  // Unified logging: write to .proof-or-stop/activity.jsonl (dual-source module, legacy path is read-compatible only).
   // Write failure is a PERSIST issue (incomplete audit means it cannot be traced later), so reportHealthIssue is used instead.
   // staleWarnings are persisted too, making later trend analysis possible (how long agents go before forgetting an advance).
   function writeLog(entry: {
@@ -1375,7 +1375,7 @@ export async function runCli(opts?: {
     // usage_sweep runs no hooks (read-only diagnostic), while a --out sweep (a write)
     // runs them like any other mutating command.
     if (config0?.hooks?.preCommand && !isReadOnlyCommand(cmd, parsed)) {
-      process.stderr.write(`[lattice-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
+      process.stderr.write(`[proof-or-stop-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
     }
     if (!isReadOnlyCommand(cmd, parsed)) {
       await runHooks('preCommand', cmd, buildHookEnvLocal('preCommand'), config0, root);
@@ -1481,11 +1481,11 @@ export async function runCli(opts?: {
       const resultText = typeof result === 'string' ? result : JSON.stringify(result);
       // F-028: same arg-aware read-only gate as the preCommand hooks above.
       if (config0?.hooks?.postCommand && !isReadOnlyCommand(cmd, parsed)) {
-        process.stderr.write(`[lattice-hook] running postCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
+        process.stderr.write(`[proof-or-stop-hook] running postCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
       if (!isReadOnlyCommand(cmd, parsed)) {
         await runHooks('postCommand', cmd, buildHookEnvLocal('postCommand', {
-          LATTICE_RESULT_JSON: truncateForEnv(resultText),
+          PROOF_OR_STOP_RESULT_JSON: truncateForEnv(resultText),
         }), config0, root);
       }
       if (closesCanonicalTerminal) {
@@ -1547,10 +1547,10 @@ export async function runCli(opts?: {
       // onError hook — best-effort; always runs before exit(1).
       // Print a hint so the user knows why a failed command takes a few extra seconds.
       if (config0?.hooks?.onError) {
-        process.stderr.write(`[lattice-hook] running onError hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
+        process.stderr.write(`[proof-or-stop-hook] running onError hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
       await runHooks('onError', cmd, buildHookEnvLocal('onError', {
-        LATTICE_ERROR: String(e?.message || e),
+        PROOF_OR_STOP_ERROR: String(e?.message || e),
       }), config0, root);
       process.stderr.write(`Error: ${e.message}\n`);
       process.exitCode = 1;

@@ -9,7 +9,7 @@ import {
   takeOverOwnerLease,
 } from '../core/story-owner-lease.js';
 import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from '../core/command-policy.js';
-import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { ProofOrStopConfig } from '../core/config.js';
 import { readBrandEnv } from '../core/brand-env.js';
@@ -136,7 +136,7 @@ export function resolveEffectiveOwnershipClass(
     // JSON report file INSIDE the project root. Mirror the --write boundary rules
     // (plan_skeleton/evidence_refresh/live_smoke_transcript/delivery_context_pack):
     // a non-empty --out is dynamically treated as storyScopedMutating so a read-only
-    // reviewer session (LATTICE_REVIEWER_READONLY / retired root) can NOT create a
+    // reviewer session (PROOF_OR_STOP_REVIEWER_READONLY / retired root) can NOT create a
     // file in the material tree. Without --out it writes nothing and stays
     // readOnly/ungated (runnable by any session). The path is normalized the same
     // way the handler does (typeof string + trim) so a blank/whitespace --out is
@@ -203,9 +203,9 @@ export function enforceRetiredRootGuard(
     throw new Error(
       `Proof-or-Stop root is retired: ${projectRoot}\n` +
       `retiredRoot is true but canonicalRoot is not configured.\n` +
-      `Use canonicalRoot: <configure canonicalRoot in lattice.config.json>\n` +
+      `Use canonicalRoot: <configure canonicalRoot in proof-or-stop.config.json>\n` +
       `Fail-closed before mutating command "${cmd}" (${cls}). ` +
-      `Add "canonicalRoot": "/path/to/canonical/project" to lattice.config.json, or set retiredRoot=false only in the active canonical project.`,
+      `Add "canonicalRoot": "/path/to/canonical/project" to proof-or-stop.config.json, or set retiredRoot=false only in the active canonical project.`,
     );
   }
 
@@ -222,7 +222,7 @@ export function isDeliveryReviewerActor(args: Record<string, unknown>): boolean 
   const envAgent = readBrandEnv('AGENT');
   const env = typeof envAgent === 'string' ? envAgent.trim() : '';
   const actor = explicit || env;
-  return actor === 'lattice-review-delivery';
+  return actor === 'proof-or-stop-review-delivery';
 }
 
 export type TakeoverIntent = 'none' | 'takeover' | 'forceTakeover';
@@ -263,7 +263,7 @@ export function enforceStoryOwnerLeaseGate(
   // filesystem path (store.storyDirPath → acquireOrRefreshOwnerLease writes
   // owner-lease.json into it), BEFORE any handler-level guard runs. A crafted
   // id such as `../../outside` would otherwise make the gate write
-  // `.lattice/outside/owner-lease.json` OUTSIDE the story tree. Fail CLOSED on
+  // `.proof-or-stop/outside/owner-lease.json` OUTSIDE the story tree. Fail CLOSED on
   // any non-canonical id (the canonical shape is anchored + `[A-Za-z0-9_-]`
   // only, so it can never contain `/`, `\`, or `..`) so NO path is derived and
   // NO lease is written anywhere. Legitimate ids — the `--storyId` arg, an id

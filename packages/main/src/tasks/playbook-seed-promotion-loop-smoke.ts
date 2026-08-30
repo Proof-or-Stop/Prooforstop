@@ -84,10 +84,10 @@ function write(root: string, rel: string, content: string): void {
 
 function mkProject(prefix = 'b9958-playbook-seed-'): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   return root;
@@ -223,7 +223,7 @@ function doneDeliveryCheck(storyId: string): any {
     storyId,
     checkedAt: NOW,
     reviewRound: 'RR-done-experience',
-    agentId: 'lattice-review-delivery',
+    agentId: 'proof-or-stop-review-delivery',
     docsPromises: [{
       docPath: 'docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md',
       promise: 'DONE experience seeds create candidate playbooks only.',
@@ -309,7 +309,7 @@ function runCli(root: string, args: string[]): string {
     cwd: root,
     env: {
       ...process.env,
-      LATTICE_NO_HOOKS: '1',
+      PROOF_OR_STOP_NO_HOOKS: '1',
     },
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -633,18 +633,18 @@ function recordNeutralReviewerOutcome(
 
 function run(): void {
   const roots: string[] = [];
-  const priorGlobal = process.env.LATTICE_GLOBAL_MEMORY_DIR;
+  const priorGlobal = process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR;
   const globalRoot = mkdtempSync(join(tmpdir(), 'b9958-global-memory-'));
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = globalRoot;
+  process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = globalRoot;
   try {
     check('M2 observe prefers dev-memory, reports blockers, and does not mutate stores', () => {
       const root = mkProject();
       roots.push(root);
       const { ctx, store } = mkCtx(root);
       seedLearning(root, store);
-      const before = snapshotDir(root, '.lattice');
+      const before = snapshotDir(root, '.proof-or-stop');
       const report = parseJson<any>(createPlaybookHandlers(ctx).playbook_seed_observe({ json: true }));
-      const after = snapshotDir(root, '.lattice');
+      const after = snapshotDir(root, '.proof-or-stop');
       assert.equal(after, before, 'observe must not write');
       assert.equal(report.authority, 'non_authoritative');
       assert.equal(report.gateEvidence, false);
@@ -846,7 +846,7 @@ function run(): void {
       writeProposal(root, unrelatedSeedProposal());
       const handlers = createPlaybookHandlers(ctx);
 
-      const beforeDryRun = snapshotDir(root, '.lattice');
+      const beforeDryRun = snapshotDir(root, '.proof-or-stop');
       const dryRun = parseJson<any>(handlers.playbook_candidate_ingest({
         storyId: DONE_STORY_ID,
         json: true,
@@ -860,7 +860,7 @@ function run(): void {
       assert.match(dryRun.observeDigest, /^[a-f0-9]{64}$/);
       assert.match(dryRun.proposalManifestDigest, /^[a-f0-9]{64}$/);
       assert.match(dryRun.manifestDigest, /^[a-f0-9]{64}$/);
-      assert.equal(snapshotDir(root, '.lattice'), beforeDryRun, 'candidate ingest dry-run must not write');
+      assert.equal(snapshotDir(root, '.proof-or-stop'), beforeDryRun, 'candidate ingest dry-run must not write');
 
       const cliDryRun = runCliJson<any>(root, [
         'playbook_candidate_ingest',
@@ -961,7 +961,7 @@ function run(): void {
       store.writeStory(partialStoryId, story(partialStoryId, 'DONE'));
       store.writeChecklist(partialStoryId, { items: [] });
       store.writeFindings(partialStoryId, { findings: [] });
-      write(root, `.lattice/story/actives/${partialStoryId}/summary.json`, JSON.stringify({
+      write(root, `.proof-or-stop/story/actives/${partialStoryId}/summary.json`, JSON.stringify({
         storyId: partialStoryId,
         pitfalls: 'Partial DONE summary pitfall is enough to create a stable non-authoritative seed.',
       }, null, 2));
@@ -984,27 +984,27 @@ function run(): void {
       seedLearning(root, store);
       const handlers = createPlaybookHandlers(ctx);
 
-      const beforeProposeDryRun = snapshotDir(root, '.lattice');
+      const beforeProposeDryRun = snapshotDir(root, '.proof-or-stop');
       const proposeDryRun = parseJson<any>(handlers.playbook_seed_propose_batch({ json: true }));
       assert.equal(proposeDryRun.dryRun, true);
       assert.equal(proposeDryRun.applied, false);
-      assert.equal(snapshotDir(root, '.lattice'), beforeProposeDryRun, 'default propose dry-run must not write');
+      assert.equal(snapshotDir(root, '.proof-or-stop'), beforeProposeDryRun, 'default propose dry-run must not write');
 
       const observe = parseJson<any>(handlers.playbook_seed_observe({ json: true }));
       handlers.playbook_seed_propose_batch({ apply: true, observeDigest: observe.observeDigest, json: true });
-      const beforeApproveDryRun = snapshotDir(root, '.lattice');
+      const beforeApproveDryRun = snapshotDir(root, '.proof-or-stop');
       const approveDryRun = parseJson<any>(handlers.playbook_candidate_batch_approve({ json: true }));
       assert.equal(approveDryRun.dryRun, true);
       assert.equal(approveDryRun.applied, false);
-      assert.equal(snapshotDir(root, '.lattice'), beforeApproveDryRun, 'default approve dry-run must not write candidates or clear proposals');
+      assert.equal(snapshotDir(root, '.proof-or-stop'), beforeApproveDryRun, 'default approve dry-run must not write candidates or clear proposals');
 
       const manifest = parseJson<any>(handlers.playbook_candidate_batch_approve({ json: true }));
       handlers.playbook_candidate_batch_approve({ apply: true, manifestDigest: manifest.manifestDigest, json: true });
-      const beforeAutoDryRun = snapshotDir(root, '.lattice');
+      const beforeAutoDryRun = snapshotDir(root, '.proof-or-stop');
       const autoDryRun = parseJson<any>(handlers.playbook_auto_promotion_apply({ json: true }));
       assert.equal(autoDryRun.dryRun, true);
       assert.equal(autoDryRun.applied, false);
-      assert.equal(snapshotDir(root, '.lattice'), beforeAutoDryRun, 'default auto-promotion dry-run must not write');
+      assert.equal(snapshotDir(root, '.proof-or-stop'), beforeAutoDryRun, 'default auto-promotion dry-run must not write');
     });
 
     check('M3 observeDigest drift fails closed without proposal writes', () => {
@@ -1413,16 +1413,16 @@ function run(): void {
       const { store } = mkCtx(root);
       seedLearning(root, store);
 
-      const beforeObserveCli = snapshotDir(root, '.lattice');
+      const beforeObserveCli = snapshotDir(root, '.proof-or-stop');
       const observe = runCliJson<any>(root, ['playbook_seed_observe', '--json']);
       assert.match(observe.observeDigest, /^[a-f0-9]{64}$/);
-      assert.equal(snapshotDir(root, '.lattice'), beforeObserveCli, 'CLI playbook_seed_observe is read-only');
+      assert.equal(snapshotDir(root, '.proof-or-stop'), beforeObserveCli, 'CLI playbook_seed_observe is read-only');
 
-      const beforeRuntimeCli = snapshotDir(root, '.lattice');
+      const beforeRuntimeCli = snapshotDir(root, '.proof-or-stop');
       const runtime = runCliJson<any>(root, ['playbook_runtime_consumption_verify', '--json']);
       assert.equal(runtime.authority, 'non_authoritative');
       assert.equal(runtime.gateEvidence, false);
-      assert.equal(snapshotDir(root, '.lattice'), beforeRuntimeCli, 'CLI playbook_runtime_consumption_verify is read-only');
+      assert.equal(snapshotDir(root, '.proof-or-stop'), beforeRuntimeCli, 'CLI playbook_runtime_consumption_verify is read-only');
 
       const status = runCliJson<any>(root, ['playbook_promotion_status', '--json']);
       assert.equal(status.authority, 'non_authoritative');
@@ -1472,8 +1472,8 @@ function run(): void {
       assert.equal(PROCESS_FACT_LEVELS.find((entry) => entry.name === 'playbook_candidate_ingest')?.level, 'L2');
     });
   } finally {
-    if (priorGlobal === undefined) delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
-    else process.env.LATTICE_GLOBAL_MEMORY_DIR = priorGlobal;
+    if (priorGlobal === undefined) delete process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR;
+    else process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = priorGlobal;
     rmSync(globalRoot, { recursive: true, force: true });
     for (const root of roots) rmSync(root, { recursive: true, force: true });
   }

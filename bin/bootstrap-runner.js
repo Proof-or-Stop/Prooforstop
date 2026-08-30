@@ -45,9 +45,9 @@ function printBootstrapFailure(error) {
   console.error('');
   console.error('Fallbacks:');
   console.error('  - Core-only local CLI: node packages/main/dist/cli.js <command>');
-  console.error('    Use this for current-worktree gate/status/validate checks while developing Lattice.');
+  console.error('    Use this for current-worktree gate/status/validate checks while developing ProofOrStop.');
   console.error('  - Global CLI (heartbeat-only, not current-worktree gate/status evidence):');
-  console.error('    LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief');
+  console.error('    PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief');
   console.error('    The global-fallback exemption is only for session_brief heartbeat; it is never worktree gate/status evidence.');
 
   if (error) {
@@ -60,7 +60,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 // A build is "in progress" only when a LIVE holder is heartbeating `<target>.lock`. Gate on lock
 // FRESHNESS, not mere existence: a build interrupted by Ctrl-C/SIGKILL/crash skips its finally-release
 // and leaves the `.lock` dir ORPHANED. The atomic swap already left dist complete in that case, so the
-// orphan must NOT block readers — otherwise every bin/lattice.js call would wait then fail until the
+// orphan must NOT block readers — otherwise every bin/proofOrStop.js call would wait then fail until the
 // next build reclaims it. A live holder heartbeats the mtime every `update` (10s); proper-lockfile
 // treats it stale past `stale` (30s), so an orphan ages out within `stale` and we ignore it. The
 // threshold and lock target are imported from the dependency-free build-lock-target.mjs (single source
@@ -144,7 +144,7 @@ export async function runLocalBootstrap() {
         }
       } catch (error) {
         const err = error instanceof Error ? error : new Error(String(error));
-        process.env.LATTICE_LAB_IMPORT_ERROR = err.message;
+        process.env.PROOF_OR_STOP_LAB_IMPORT_ERROR = err.message;
       }
     }
 

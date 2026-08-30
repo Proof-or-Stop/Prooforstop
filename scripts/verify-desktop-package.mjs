@@ -6,19 +6,19 @@ import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const binary = process.env.LATTICE_DESKTOP_BINARY || process.argv[2] || defaultHostBinary();
+const binary = process.env.PROOF_OR_STOP_DESKTOP_BINARY || process.argv[2] || defaultHostBinary();
 
 function defaultHostBinary() {
   const platform = process.platform === 'darwin' ? 'macos' : process.platform;
   const arch = process.arch;
   if (platform === 'macos' && (arch === 'x64' || arch === 'arm64')) {
-    return join(repoRoot, 'dist', 'desktop', `lattice-macos-${arch}`);
+    return join(repoRoot, 'dist', 'desktop', `proof-or-stop-macos-${arch}`);
   }
   if (platform === 'linux' && (arch === 'x64' || arch === 'arm64')) {
-    return join(repoRoot, 'dist', 'desktop', `lattice-linux-${arch}`);
+    return join(repoRoot, 'dist', 'desktop', `proof-or-stop-linux-${arch}`);
   }
   if (platform === 'win32' && arch === 'x64') {
-    return join(repoRoot, 'dist', 'desktop', 'lattice-win-x64.exe');
+    return join(repoRoot, 'dist', 'desktop', 'proof-or-stop-win-x64.exe');
   }
   throw new Error(`Unsupported host binary for ${process.platform}/${process.arch}`);
 }
@@ -42,14 +42,14 @@ function isolatedBinaryEnv() {
       TEMP: temp,
       TMP: temp,
       PATH: `${join(systemRoot, 'System32')};${systemRoot}`,
-      LATTICE_ACTIVITY_RECORD_READONLY: '1',
+      PROOF_OR_STOP_ACTIVITY_RECORD_READONLY: '1',
     };
   }
   return {
     HOME: process.env.HOME || repoRoot,
     TMPDIR: process.env.TMPDIR || '/tmp',
     PATH: '/usr/bin:/bin',
-    LATTICE_ACTIVITY_RECORD_READONLY: '1',
+    PROOF_OR_STOP_ACTIVITY_RECORD_READONLY: '1',
   };
 }
 
@@ -69,7 +69,7 @@ function runBinary(args, label) {
 }
 
 if (!existsSync(binary)) {
-  throw new Error(`Desktop Lattice binary is missing: ${binary}\nRun npm run package:desktop:host first, or pass LATTICE_DESKTOP_BINARY=/path/to/lattice.`);
+  throw new Error(`Desktop ProofOrStop binary is missing: ${binary}\nRun npm run package:desktop:host first, or pass PROOF_OR_STOP_DESKTOP_BINARY=/path/to/proofOrStop.`);
 }
 
 const help = runBinary(['help'], 'core help');

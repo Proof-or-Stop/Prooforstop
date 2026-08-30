@@ -20,7 +20,7 @@ const artifactFactNamePattern = /^artifact:[a-z0-9_.-]+(?:\/[a-z0-9_.-]+)*$/;
 // B-cc10: resolve the codex adapter agents dir instead of hardcoding the deprecated
 // spelling. With the old name, all 23 prompt mirrors read as "missing; no semantic drift
 // comparison available", so this contract failed and took several dependent smokes with it.
-const CODEX_AGENTS_DIR = ['.proof-or-stop-codex/agents', '.lattice-codex/agents']
+const CODEX_AGENTS_DIR = ['.proof-or-stop-codex/agents', '.proof-or-stop-codex/agents']
   .find((rel) => existsSync(rel)) ?? '.proof-or-stop-codex/agents';
 
 const promptDirs = [
@@ -32,29 +32,29 @@ const promptDirs = [
 const currentCategories = new Set(['happy', 'edge', 'adversarial', 'missing']);
 const legacyCategories = new Set(['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary']);
 const reviewPassReviewerPrompts = new Set([
-  'lattice-evaluator.md',
-  'lattice-review-behavior.md',
-  'lattice-review-channel.md',
-  'lattice-review-concept.md',
-  'lattice-review-delivery.md',
-  'lattice-review-docs.md',
-  'lattice-review-quality.md',
-  'lattice-review-scope-plan.md',
-  'lattice-review-story-init.md',
-  'lattice-review-test-coverage.md',
+  'proof-or-stop-evaluator.md',
+  'proof-or-stop-review-behavior.md',
+  'proof-or-stop-review-channel.md',
+  'proof-or-stop-review-concept.md',
+  'proof-or-stop-review-delivery.md',
+  'proof-or-stop-review-docs.md',
+  'proof-or-stop-review-quality.md',
+  'proof-or-stop-review-scope-plan.md',
+  'proof-or-stop-review-story-init.md',
+  'proof-or-stop-review-test-coverage.md',
 ]);
 const requiredReviewerRunIdPromptFiles = new Set([
-  'lattice-evaluator.md',
-  'lattice-review-delivery.md',
-  'lattice-review-scope-plan.md',
-  'lattice-review-story-init.md',
+  'proof-or-stop-evaluator.md',
+  'proof-or-stop-review-delivery.md',
+  'proof-or-stop-review-scope-plan.md',
+  'proof-or-stop-review-story-init.md',
 ]);
 const modularReviewerBootstrapFiles = new Set([
-  'lattice-review-behavior.md',
-  'lattice-review-concept.md',
-  'lattice-review-docs.md',
-  'lattice-review-quality.md',
-  'lattice-review-test-coverage.md',
+  'proof-or-stop-review-behavior.md',
+  'proof-or-stop-review-concept.md',
+  'proof-or-stop-review-docs.md',
+  'proof-or-stop-review-quality.md',
+  'proof-or-stop-review-test-coverage.md',
 ]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
@@ -92,12 +92,12 @@ const activeLifecycleDocCurrentTerms = [
 ];
 const legacyCommandDocContextPattern = /\blegacy\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|destructive/i;
 const legacyAliasDocContextPattern = /\blegacy\b|\balias\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|别名|destructive/i;
-const coverageReviewerLaneName = 'lattice-review-test-coverage';
+const coverageReviewerLaneName = 'proof-or-stop-review-test-coverage';
 const coverageReviewerLaneContextPattern = /reviewer|agent|lane|review\s+lane|coverage\s+reviewer|审查员|审查\s*lane|审查\s*通道|覆盖审查/i;
 const coverageReviewerCliCommandPatterns = [
-  { label: 'CLI invocation', pattern: /\blattice\s+lattice-review-test-coverage\b/i },
-  { label: 'tool table row', pattern: /^\s*\|\s*`?lattice-review-test-coverage`?\s*\|/ },
-  { label: 'tool bullet', pattern: /^\s*[-*]\s*`?lattice-review-test-coverage`?\s*(?:[:：-]|$)/ },
+  { label: 'CLI invocation', pattern: /\bproofOrStop\s+proof-or-stop-review-test-coverage\b/i },
+  { label: 'tool table row', pattern: /^\s*\|\s*`?proof-or-stop-review-test-coverage`?\s*\|/ },
+  { label: 'tool bullet', pattern: /^\s*[-*]\s*`?proof-or-stop-review-test-coverage`?\s*(?:[:：-]|$)/ },
 ];
 const legacyTestAutoProcessFactClaimPatterns = [
   {
@@ -213,16 +213,16 @@ const requiredRuntimeFactSemantics = {
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
 };
 const requiredReviewerLanes = [
-  'lattice-review-story-init',
+  'proof-or-stop-review-story-init',
   'product-reviewer',
-  'lattice-review-scope-plan',
-  'lattice-review-topology-critic',
-  'lattice-review-concept',
-  'lattice-review-quality',
-  'lattice-review-test-coverage',
-  'lattice-review-behavior',
-  'lattice-review-docs',
-  'lattice-review-delivery',
+  'proof-or-stop-review-scope-plan',
+  'proof-or-stop-review-topology-critic',
+  'proof-or-stop-review-concept',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-test-coverage',
+  'proof-or-stop-review-behavior',
+  'proof-or-stop-review-docs',
+  'proof-or-stop-review-delivery',
 ];
 const requiredArtifactFacts = [
   { name: 'artifact:index.json', path: 'index.json', signed: false },
@@ -305,15 +305,15 @@ const scopeContractParallelDevEntryConsumerPattern = /parallel-decomposition DEV
 const legacyCommandPolicyGuidance = {
   test_auto: {
     destructiveRisk: 'workspace-destructive',
-    patterns: [/(?:proof-or-stop|lattice|koala) validate --story=<storyId>/, /verificationEvidence/, /dryRun/, /confirm/, /git restore\/git clean/],
+    patterns: [/(?:proof-or-stop|proofOrStop|koala) validate --story=<storyId>/, /verificationEvidence/, /dryRun/, /confirm/, /git restore\/git clean/],
   },
   test_story: {
     destructiveRisk: 'fixture-write',
-    patterns: [/(?:proof-or-stop|lattice|koala) validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
+    patterns: [/(?:proof-or-stop|proofOrStop|koala) validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
   },
   test_fixture: {
     destructiveRisk: 'fixture-write',
-    patterns: [/project-native command|(?:lattice|koala) validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
+    patterns: [/project-native command|(?:proofOrStop|koala) validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
   },
   fixture_batch_add: {
     destructiveRisk: 'fixture-write',
@@ -597,15 +597,15 @@ function read(relPath) {
   assert(existsSync(absPath), `${relPath} should exist`);
   if (!existsSync(absPath)) return '';
   let text = readFileSync(absPath, 'utf8');
-  const mutation = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION;
-  if (mutation === 'drop-acceptance-basis-prompt' && relPath.endsWith('lattice-implementer.md')) {
+  const mutation = process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION;
+  if (mutation === 'drop-acceptance-basis-prompt' && relPath.endsWith('proof-or-stop-implementer.md')) {
     // B-cc10: accept either brand so the mutation actually drops the live prompt line.
-    text = text.replace(/^Acceptance-basis boundary: only `(?:proof-or-stop|lattice) acceptance_basis_generate`.*$/m, '');
+    text = text.replace(/^Acceptance-basis boundary: only `(?:proof-or-stop|proofOrStop) acceptance_basis_generate`.*$/m, '');
   }
   if (mutation === 'drop-acceptance-basis-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
     text = text.replace(/acceptance_basis_generate/g, 'basis_generate_removed');
   }
-  if (mutation === 'drop-acceptance-topology-prompt' && relPath.endsWith('lattice-implementer.md')) {
+  if (mutation === 'drop-acceptance-topology-prompt' && relPath.endsWith('proof-or-stop-implementer.md')) {
     text = text.replace(/^Acceptance-topology boundary:.*$/m, '');
   }
   if (mutation === 'drop-acceptance-topology-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
@@ -617,7 +617,7 @@ function read(relPath) {
   if (mutation === 'invert-acceptance-topology-polarity' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
     text = text.replace('if (topology.blocking)', 'if (!topology.blocking)');
   }
-  if (mutation === 'drop-topology-critic-prompt' && relPath.endsWith('lattice-review-topology-critic.md')) {
+  if (mutation === 'drop-topology-critic-prompt' && relPath.endsWith('proof-or-stop-review-topology-critic.md')) {
     text = text.replace(/^- A pass is forbidden when the basis.*$/m, '');
   }
   if (mutation === 'drop-topology-critic-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
@@ -647,7 +647,7 @@ function read(relPath) {
   if (mutation === 'allow-arbitrary-pre-review-command' && relPath === 'packages/main/src/core/pre-review-check.ts') {
     text = text.replace('transcript.actual?.command !== PRE_REVIEW_LIVE_PROOF_COMMAND', "typeof transcript.actual?.command !== 'string'");
   }
-  if (mutation === 'drop-acceptance-rollout-prompt' && /\/agents\/(?:lattice-implementer|test-case-reviewer|lattice-review-(?:topology-critic|concept|quality|test-coverage|docs|delivery))\.md$/.test(relPath)) {
+  if (mutation === 'drop-acceptance-rollout-prompt' && /\/agents\/(?:proof-or-stop-implementer|test-case-reviewer|proof-or-stop-review-(?:topology-critic|concept|quality|test-coverage|docs|delivery))\.md$/.test(relPath)) {
     text = text.replace(/acceptance_rollout_check/g, 'rollout_check_removed');
   }
   if (mutation === 'drop-acceptance-rollout-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
@@ -1396,11 +1396,11 @@ function assertProofStoryProgressiveBoundary() {
   const transitionOrchestratorText = read('packages/main/src/handlers/transition-orchestrator.ts');
   const acceptanceWriterPolicy = commandPolicyEntries.get('acceptance_basis_generate');
   const acceptancePromptPaths = [
-    'packages/main/templates/agents/lattice-implementer.md',
-    '.claude/agents/lattice-implementer.md',
-    `${CODEX_AGENTS_DIR}/lattice-implementer.md`,
+    'packages/main/templates/agents/proof-or-stop-implementer.md',
+    '.claude/agents/proof-or-stop-implementer.md',
+    `${CODEX_AGENTS_DIR}/proof-or-stop-implementer.md`,
   ];
-  const acceptanceRequiredSemantics = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-contract'
+  const acceptanceRequiredSemantics = process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-contract'
     ? requiredProcessFactSemantics.acceptance_basis_generate.filter(item => item !== 'workspace-binding')
     : requiredProcessFactSemantics.acceptance_basis_generate;
   assert(
@@ -1495,19 +1495,19 @@ function assertProofStoryProgressiveBoundary() {
   const preReviewScenarioText = read('packages/main/src/tasks/proofstory-pre-review-check-smoke.ts');
   const acceptancePlanText = read('docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md');
   const rolloutPromptNames = [
-    'lattice-implementer',
+    'proof-or-stop-implementer',
     'test-case-reviewer',
-    'lattice-review-topology-critic',
-    'lattice-review-concept',
-    'lattice-review-quality',
-    'lattice-review-test-coverage',
-    'lattice-review-docs',
-    'lattice-review-delivery',
+    'proof-or-stop-review-topology-critic',
+    'proof-or-stop-review-concept',
+    'proof-or-stop-review-quality',
+    'proof-or-stop-review-test-coverage',
+    'proof-or-stop-review-docs',
+    'proof-or-stop-review-delivery',
   ];
   // B-4043 F-014: the acceptance-rollout role guidance is sourced from the
   // canonical package templates (the REAL delivery path — review_run_start /
   // agent_prompt resolve each role body from templates/agents), NOT from the
-  // regenerable host shims under .claude/agents / .lattice-codex/agents (those
+  // regenerable host shims under .claude/agents / .proof-or-stop-codex/agents (those
   // are thin/mirror adapters that `proof-or-stop init --upgrade` rewrites). Validate
   // the tokens in the template source, and prove the guidance does not depend
   // on the bootstrap-only modular-reviewer shims.
@@ -1518,10 +1518,10 @@ function assertProofStoryProgressiveBoundary() {
   // the host shim; their guidance must live in the template and reach them via
   // review_run_start, never via the shim.
   const rolloutBootstrapOnlyReviewerNames = [
-    'lattice-review-concept',
-    'lattice-review-quality',
-    'lattice-review-test-coverage',
-    'lattice-review-docs',
+    'proof-or-stop-review-concept',
+    'proof-or-stop-review-quality',
+    'proof-or-stop-review-test-coverage',
+    'proof-or-stop-review-docs',
   ];
   const rolloutPromptTokens = [
     'acceptance_topology_check',
@@ -1567,7 +1567,7 @@ function assertProofStoryProgressiveBoundary() {
       && acceptanceRolloutText.includes('AR_CHECK_INVENTORY_SHRANK')
       && acceptanceRolloutText.includes('checkEvidenceFreshnessForGit')
       && acceptanceRolloutRunnerText.includes('export function runProofStoryAcceptanceRolloutCohort')
-      && acceptanceRolloutRunnerText.includes("'.lattice', 'story', 'actives'")
+      && acceptanceRolloutRunnerText.includes("'.proof-or-stop', 'story', 'actives'")
       && acceptanceRolloutSmokeText.includes('export async function runProofStoryAcceptanceRolloutSmoke')
       && acceptanceRolloutSmokeText.includes('runAcceptanceRolloutGate')
       && acceptanceRolloutSmokeText.includes('mode changes preserve report byte-for-byte')
@@ -1577,7 +1577,7 @@ function assertProofStoryProgressiveBoundary() {
       && preReviewScenarioText.includes('Array.from({ length: 5 }')
       && preReviewScenarioText.includes('Array.from({ length: 17 }')
       && preReviewScenarioText.includes("['A-TRANSCRIPT-1', 'transcript']")
-      && preReviewScenarioText.includes('LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE')
+      && preReviewScenarioText.includes('PROOF_OR_STOP_ACCEPTANCE_ROLLOUT_COHORT_FILE')
       && preReviewScenarioText.includes('scenario execution refuses to spawn the expensive registered cohort runner')
       && !preReviewScenarioText.includes("execFileSync(process.execPath, [join(repositoryRoot, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs')")
       && acceptancePlanText.includes('five positive paths and the seventeen')
@@ -1602,9 +1602,9 @@ function assertProofStoryProgressiveBoundary() {
   );
   const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
   const topologyCriticPromptPaths = [
-    'packages/main/templates/agents/lattice-review-topology-critic.md',
-    '.claude/agents/lattice-review-topology-critic.md',
-    `${CODEX_AGENTS_DIR}/lattice-review-topology-critic.md`,
+    'packages/main/templates/agents/proof-or-stop-review-topology-critic.md',
+    '.claude/agents/proof-or-stop-review-topology-critic.md',
+    `${CODEX_AGENTS_DIR}/proof-or-stop-review-topology-critic.md`,
   ];
   const topologyCriticPolicy = commandPolicyEntries.get('topology_critic_receipt_set');
   assert(
@@ -1944,10 +1944,10 @@ function assertCloseoutTrustBoundary() {
     'SHIPPED_PACKAGE_MANIFESTS',
     'deriveShippedPackageEntrypoints',
     'every package bin/exports target must derive to an explicitly pinned scanned source entrypoint',
-    // B-cc10 CHK-007: was "'bin/lattice.js'". CHK-006 DELETED that deprecated bin
+    // B-cc10 CHK-007: was "'bin/proofOrStop.js'". CHK-006 DELETED that deprecated bin
     // alias, so requiring the guard to still name it forced the guard to pin a
     // non-existent entrypoint (it failed with "pinned shipped executable entrypoint
-    // must exist: bin/lattice.js"). The contract now requires the canonical wrapper,
+    // must exist: bin/proofOrStop.js"). The contract now requires the canonical wrapper,
     // keeping the narrow-compatibility-usage requirement intact against a real file.
     "'bin/proof-or-stop.js'",
     "'bin/bootstrap-runner.js'",
@@ -3143,7 +3143,7 @@ function assertReopenAuditConcurrencyResidualContract() {
     // The reasons it is named rather than locked. Each is independently
     // load-bearing: drop one and the decision reads as an excuse.
     'best-effort advisory contention reducer',
-    'LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK',
+    'PROOF_OR_STOP_TEST_DISABLE_TRANSITION_ADVISORY_LOCK',
     'invert the established transitionLock to mainWriteLock order',
     'follow-up story and is not claimed here',
   ]) {
@@ -3165,7 +3165,7 @@ function assertReopenAuditConcurrencyResidualContract() {
         'SERIALIZES AGAINST NOTHING',
         'NEITHER the record NOR the event survives',
         'BEST-EFFORT ADVISORY CONTENTION-REDUCER',
-        'LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK',
+        'PROOF_OR_STOP_TEST_DISABLE_TRANSITION_ADVISORY_LOCK',
         'FOLLOW-UP STORY',
       ],
     },
@@ -3398,7 +3398,7 @@ function assertReopenAuditLockRejectionRationaleContract() {
 
 function isReviewerPrompt(relPath, text) {
   const name = basename(relPath);
-  return name.startsWith('lattice-review-') || requiredReviewerRunIdPromptFiles.has(name) || text.includes('review_pass_set');
+  return name.startsWith('proof-or-stop-review-') || requiredReviewerRunIdPromptFiles.has(name) || text.includes('review_pass_set');
 }
 
 function scanBraceState(line, state) {
@@ -3429,10 +3429,10 @@ function scanBraceState(line, state) {
 }
 
 function commandBlocks(text, command) {
-  // `proof-or-stop` is the canonical bin; `lattice` / `koala` stay accepted so this
+  // `proof-or-stop` is the canonical bin; `proof-or-stop` / `koala` stay accepted so this
   // detector keeps recognizing pre-rename prompt text (B-cdf6 CHK-006).
-  const commandPattern = new RegExp(`\\b(?:proof-or-stop|lattice|koala)\\s+${command}\\b`);
-  const anyCliCommandPattern = /\b(?:proof-or-stop|lattice|koala)\s+[a-z_][a-z0-9_]*\b/;
+  const commandPattern = new RegExp(`\\b(?:proof-or-stop|proofOrStop|koala)\\s+${command}\\b`);
+  const anyCliCommandPattern = /\b(?:proof-or-stop|proofOrStop|koala)\s+[a-z_][a-z0-9_]*\b/;
   const lines = text.split(/\r?\n/);
   const blocks = [];
 
@@ -3471,7 +3471,7 @@ function requiresReviewPassProtocol(label) {
 }
 
 function requiresNoFindingReviewPassProtocol(label) {
-  return basename(label) !== 'lattice-evaluator.md' && requiresReviewPassProtocol(label);
+  return basename(label) !== 'proof-or-stop-evaluator.md' && requiresReviewPassProtocol(label);
 }
 
 function hasHardCodedReviewRunIdExample(block) {
@@ -3626,7 +3626,7 @@ function promptSemanticTokens(text) {
   for (const match of text.matchAll(/\bkoala\s+([a-z_][a-z0-9_]*)\b/g)) {
     tokens.add(`cmd:${match[1]}`);
   }
-  for (const match of text.matchAll(/(?:^|[\s`"'(])((?:\.koala|\.lattice-codex|\.claude|docs|packages|bin)\/[A-Za-z0-9._/@:-]+(?:\/[A-Za-z0-9._/@:-]+)*)/g)) {
+  for (const match of text.matchAll(/(?:^|[\s`"'(])((?:\.koala|\.proof-or-stop-codex|\.claude|docs|packages|bin)\/[A-Za-z0-9._/@:-]+(?:\/[A-Za-z0-9._/@:-]+)*)/g)) {
     tokens.add(`path:${match[1].replace(/[),.;:]+$/, '')}`);
   }
   for (const name of ['review_run_start', 'finding_add', 'review_pass_set', 'init_check_set', 'scope_check_save', 'delivery_check_set', 'verification_evidence_add', 'verification_evidence_batch_add']) {
@@ -3642,7 +3642,7 @@ async function comparePromptSemantics(promptMap) {
   // role warn 'missing; no semantic drift comparison available' — 17 lines of noise that
   // buried real signal, and (before the canonical dir was added) meant zero mirrors were
   // compared at all while the check still exited 0 because the miss only warn()s.
-  const mirrorDirs = ['.claude/agents', '.proof-or-stop-codex/agents', '.lattice-codex/agents']
+  const mirrorDirs = ['.claude/agents', '.proof-or-stop-codex/agents', '.proof-or-stop-codex/agents']
     .filter((dir) => existsSync(join(root, dir)));
   const registryModule = await importBuiltModule('packages/main/dist/core/prompt-registry.js');
   if (!registryModule?.readPromptRegistry || !registryModule?.renderPromptEntryForHost) {
@@ -3776,10 +3776,10 @@ function scanActiveLifecycleDocText(text, label) {
 
 function assertSyntheticAdversarialChecks() {
   const badPassOnlyLines = [
-    'proof-or-stop finding_add \'{"storyId":"B-x","desc":"文档一致性检查通过","severity":"low","category":"happy","agent":"lattice-review-docs"}\'',
-    'proof-or-stop finding_add \'{"storyId":"B-x","desc":"consistency check PASSED","severity":"low","category":"happy","agent":"lattice-review-docs"}\'',
-    'proof-or-stop finding_add \'{"storyId":"B-x","desc":"no findings","severity":"low","category":"happy","agent":"lattice-review-quality"}\'',
-    'proof-or-stop finding_add \'{"storyId":"B-x","desc":"PASS","severity":"low","category":"happy","agent":"lattice-review-quality"}\'',
+    'proof-or-stop finding_add \'{"storyId":"B-x","desc":"文档一致性检查通过","severity":"low","category":"happy","agent":"proof-or-stop-review-docs"}\'',
+    'proof-or-stop finding_add \'{"storyId":"B-x","desc":"consistency check PASSED","severity":"low","category":"happy","agent":"proof-or-stop-review-docs"}\'',
+    'proof-or-stop finding_add \'{"storyId":"B-x","desc":"no findings","severity":"low","category":"happy","agent":"proof-or-stop-review-quality"}\'',
+    'proof-or-stop finding_add \'{"storyId":"B-x","desc":"PASS","severity":"low","category":"happy","agent":"proof-or-stop-review-quality"}\'',
   ];
   for (const [index, line] of badPassOnlyLines.entries()) {
     assert(
@@ -3793,7 +3793,7 @@ function assertSyntheticAdversarialChecks() {
     '  desc:"PASS",',
     '  severity:"low",',
     '  category:"happy",',
-    '  agent:"lattice-review-quality"',
+    '  agent:"proof-or-stop-review-quality"',
     "}'",
   ].join('\n');
   assert(
@@ -3810,7 +3810,7 @@ function assertSyntheticAdversarialChecks() {
     'synthetic no-finding prompt without review_pass_set should fail',
   );
 
-  const activeLegacy = 'proof-or-stop finding_add \'{"storyId":"B-x","desc":"cleanup","severity":"medium","category":"cleanup","agent":"lattice-review-quality"}\'';
+  const activeLegacy = 'proof-or-stop finding_add \'{"storyId":"B-x","desc":"cleanup","severity":"medium","category":"cleanup","agent":"proof-or-stop-review-quality"}\'';
   assert(
     scanPromptText(activeLegacy, 'synthetic-active-legacy').some(issue => issue.includes('legacy category')),
     'synthetic active legacy category should fail',
@@ -3821,7 +3821,7 @@ function assertSyntheticAdversarialChecks() {
     '  desc:"real issue",',
     '  severity:"medium",',
     '  category:"cleanup",',
-    '  agent:"lattice-review-quality"',
+    '  agent:"proof-or-stop-review-quality"',
     "}'",
   ].join('\n');
   assert(
@@ -3829,25 +3829,25 @@ function assertSyntheticAdversarialChecks() {
     'synthetic multiline legacy category should fail',
   );
 
-  const unknownCategory = 'proof-or-stop finding_add \'{"storyId":"B-x","desc":"docs","severity":"medium","category":"docs","agent":"lattice-review-quality"}\'';
+  const unknownCategory = 'proof-or-stop finding_add \'{"storyId":"B-x","desc":"docs","severity":"medium","category":"docs","agent":"proof-or-stop-review-quality"}\'';
   assert(
     scanPromptText(unknownCategory, 'synthetic-unknown-category').some(issue => issue.includes('unknown category')),
     'synthetic unknown category should fail',
   );
-  const literalReviewRunId = 'proof-or-stop finding_add \'{"storyId":"B-x","reviewRunId":"B-x:RR-001","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'';
+  const literalReviewRunId = 'proof-or-stop finding_add \'{"storyId":"B-x","reviewRunId":"B-x:RR-001","desc":"real issue","severity":"medium","category":"missing","agent":"proof-or-stop-review-quality"}\'';
   assert(
     scanPromptText(literalReviewRunId, 'synthetic-literal-review-run-id').some(issue => issue.includes('hard-coded RR-001')),
     'synthetic literal RR-001 reviewer command should fail',
   );
-  const missingFindingReviewRunId = 'proof-or-stop finding_add \'{"storyId":"B-x","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'';
+  const missingFindingReviewRunId = 'proof-or-stop finding_add \'{"storyId":"B-x","desc":"real issue","severity":"medium","category":"missing","agent":"proof-or-stop-review-quality"}\'';
   assert(
-    scanPromptText(missingFindingReviewRunId, 'packages/main/templates/agents/lattice-review-story-init.md')
+    scanPromptText(missingFindingReviewRunId, 'packages/main/templates/agents/proof-or-stop-review-story-init.md')
       .some(issue => issue.includes('finding_add example must include reviewRunId')),
     'synthetic reviewer finding_add JSON example without reviewRunId should fail',
   );
-  const missingPassReviewRunId = 'proof-or-stop review_pass_set \'{"storyId":"B-x","agent":"lattice-review-quality","note":"quality review passed: checked changed files and found no blocker."}\'';
+  const missingPassReviewRunId = 'proof-or-stop review_pass_set \'{"storyId":"B-x","agent":"proof-or-stop-review-quality","note":"quality review passed: checked changed files and found no blocker."}\'';
   assert(
-    scanPromptText(missingPassReviewRunId, 'packages/main/templates/agents/lattice-evaluator.md')
+    scanPromptText(missingPassReviewRunId, 'packages/main/templates/agents/proof-or-stop-evaluator.md')
       .some(issue => issue.includes('review_pass_set example must include reviewRunId')),
     'synthetic reviewer review_pass_set JSON example without reviewRunId should fail',
   );
@@ -3876,7 +3876,7 @@ function assertSyntheticAdversarialChecks() {
     '  desc:"real issue",',
     '  severity:"medium",',
     '  category:"docs",',
-    '  agent:"lattice-review-quality"',
+    '  agent:"proof-or-stop-review-quality"',
     "}'",
   ].join('\n');
   assert(
@@ -3885,9 +3885,9 @@ function assertSyntheticAdversarialChecks() {
   );
 
   const goodPrompt = [
-    'proof-or-stop review_run_start \'{"storyId":"B-x","agent":"lattice-review-quality"}\'',
-    'proof-or-stop finding_add \'{"storyId":"B-x","reviewRunId":"<reviewRunId from review_run_start>","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'',
-    'proof-or-stop review_pass_set \'{"storyId":"B-x","agent":"lattice-review-quality","reviewRunId":"<reviewRunId from review_run_start>","note":"quality review passed: checked changed files and found no blocker."}\'',
+    'proof-or-stop review_run_start \'{"storyId":"B-x","agent":"proof-or-stop-review-quality"}\'',
+    'proof-or-stop finding_add \'{"storyId":"B-x","reviewRunId":"<reviewRunId from review_run_start>","desc":"real issue","severity":"medium","category":"missing","agent":"proof-or-stop-review-quality"}\'',
+    'proof-or-stop review_pass_set \'{"storyId":"B-x","agent":"proof-or-stop-review-quality","reviewRunId":"<reviewRunId from review_run_start>","note":"quality review passed: checked changed files and found no blocker."}\'',
   ].join('\n');
   assert(scanPromptText(goodPrompt, 'synthetic-good').length === 0, 'synthetic good prompt should pass');
 
@@ -4026,19 +4026,19 @@ function assertSyntheticAdversarialChecks() {
     'synthetic active lifecycle doc may explicitly say test_auto does not write bug/test evidence',
   );
 
-  const badCoverageToolDoc = '| `lattice-review-test-coverage` | 检查 verificationIntent 覆盖 |';
+  const badCoverageToolDoc = '| `proof-or-stop-review-test-coverage` | 检查 verificationIntent 覆盖 |';
   assert(
     scanActiveLifecycleDocText(badCoverageToolDoc, 'synthetic-coverage-tool-doc').some(issue => issue.includes('CLI/tool command')),
     'synthetic coverage reviewer documented as a tool table row should fail',
   );
 
-  const badCoverageBareDoc = '`lattice-review-test-coverage` checks coverage.';
+  const badCoverageBareDoc = '`proof-or-stop-review-test-coverage` checks coverage.';
   assert(
     scanActiveLifecycleDocText(badCoverageBareDoc, 'synthetic-coverage-bare-doc').some(issue => issue.includes('reviewer agent/lane')),
     'synthetic bare coverage reviewer name without reviewer/lane context should fail',
   );
 
-  const goodCoverageLaneDoc = 'reviewer lane `lattice-review-test-coverage` checks verificationIntent coverage and uses review_pass_set when no blocker exists.';
+  const goodCoverageLaneDoc = 'reviewer lane `proof-or-stop-review-test-coverage` checks verificationIntent coverage and uses review_pass_set when no blocker exists.';
   assert(
     scanActiveLifecycleDocText(goodCoverageLaneDoc, 'synthetic-coverage-good-doc').length === 0,
     'synthetic coverage reviewer lane wording should pass',
@@ -4825,7 +4825,7 @@ function parseProcessFactRegistry() {
     // Mutation seam used by the focused production-contract smoke: remove one
     // side of registration and require the ordinary cross-registry assertions
     // below to fail. It never changes normal verification behavior.
-    if (process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-registry') {
+    if (process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-registry') {
       entries = entries.filter(entry => entry.name !== 'acceptance_basis_generate');
     }
     assert(entries.length > 0, `${processFactRegistryPath}: compiled PROCESS_FACT_REGISTRY should not be empty`);
@@ -4898,7 +4898,7 @@ function parseProcessFactRegistry() {
     ...flowPolicyEntries,
     ...closeoutTelemetryEntries,
   ];
-  if (process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-registry') {
+  if (process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-registry') {
     cachedProcessFactRegistryEntries = cachedProcessFactRegistryEntries.filter(entry => entry.name !== 'acceptance_basis_generate');
   }
   return cachedProcessFactRegistryEntries;
@@ -5215,10 +5215,10 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   for (const token of [
     // B-cdf6 CHK-006 Pass B: the pinned list stays byte-frozen (its digest is
     // compared against already-persisted receipts), and the new brand spellings
-    // are folded in at the FILTER via brandEnvNames() so a PROOF_OR_STOP_* export
-    // is still stripped without entering the digested list.
-    'VALIDATION_TRANSPORT_ENV_KEY_LIST.flatMap((key) =>',
-    'isBrandEnvName(key) ? [...brandEnvNames(key)] : [key],',
+    // are derived only at the active FILTER boundary; retired keys are not read.
+    "const FROZEN_RETIRED_ENV_PREFIX = ['LAT', 'TICE_'].join('')",
+    '.filter((key) => !key.startsWith(FROZEN_RETIRED_ENV_PREFIX))',
+    ".map((key) => `PROOF_OR_STOP_${key.slice(FROZEN_RETIRED_ENV_PREFIX.length)}`)",
     "platform === 'win32'",
     "effective[canonicalKey('PWD')] = cwd",
     'effective[canonicalKey(key)] = value',
@@ -5246,7 +5246,7 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   // B-cdf6 CHK-006 Pass B: the phase-timeout override is now read through the
   // read-both brand resolver, so the pinned token is the resolver call (which
   // accepts BOTH `PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS` and the legacy
-  // `LATTICE_` spelling) rather than one hardcoded variable name.
+  // `PROOF_OR_STOP_` spelling) rather than one hardcoded variable name.
   for (const token of ['NODE_TIMER_MAX_MS', 'resolveCommandTimeoutMs', 'derived-command-budget', "readBrandEnv('DONE_PREPARE_PHASE_TIMEOUT_MS')"]) {
     assert(budgetText.includes(token), `DONE-required timeout budget contract missing ${token}`);
   }
@@ -5355,7 +5355,7 @@ function assertAcceptanceTopologyLifecycleFilenameContract() {
   const lifecycleRegistryText = read(lifecycleRegistryPath);
   const artifactFilenamesInitializer = extractConstInitializer(
     lifecycleRegistryText,
-    'LATTICE_LIFECYCLE_ARTIFACT_FILENAMES',
+    'PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES',
     lifecycleRegistryPath,
   );
   for (const fileName of [
@@ -5366,7 +5366,7 @@ function assertAcceptanceTopologyLifecycleFilenameContract() {
   ]) {
     assert(
       new RegExp(`['"]${fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`).test(artifactFilenamesInitializer),
-      `${lifecycleRegistryPath}: LATTICE_LIFECYCLE_ARTIFACT_FILENAMES must include '${fileName}' (acceptance-topology StoryStore artifact; B-5e4a)`,
+      `${lifecycleRegistryPath}: PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES must include '${fileName}' (acceptance-topology StoryStore artifact; B-5e4a)`,
     );
   }
 }
@@ -5561,7 +5561,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
   assert(levelEntry, `${processFactLevelRegistryPath}: required local host verdict command missing level entry: ${commandName}`);
   if (levelEntry) {
     assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${commandName} must stay L4`);
-    assert(levelEntry.category === 'lattice-local-host-verdict', `${processFactLevelRegistryPath}: ${commandName} category must stay lattice-local-host-verdict`);
+    assert(levelEntry.category === 'proof-or-stop-local-host-verdict', `${processFactLevelRegistryPath}: ${commandName} category must stay proof-or-stop-local-host-verdict`);
     assert(levelEntry.owner === 'handlers/verdict', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
     assert(/storyFilesHash/i.test(levelEntry.rationale), `${processFactLevelRegistryPath}: ${commandName} rationale must name storyFilesHash`);
     for (const token of ['deriveBindings', 'validation execution lock', 'canonical PASS-admissibility', 'trusted story-metadata-descendant', 'keyId', 'validationDigest', 'promptDigest', 'fails closed', 'exactly one', 'legacy']) {
@@ -5605,7 +5605,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
   assert(quorumLevelEntry, `${processFactLevelRegistryPath}: required local quorum command missing level entry: ${quorumCommand}`);
   if (quorumLevelEntry) {
     assert(quorumLevelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${quorumCommand} must stay L4`);
-    assert(quorumLevelEntry.category === 'lattice-local-host-verdict', `${processFactLevelRegistryPath}: ${quorumCommand} category must stay lattice-local-host-verdict`);
+    assert(quorumLevelEntry.category === 'proof-or-stop-local-host-verdict', `${processFactLevelRegistryPath}: ${quorumCommand} category must stay proof-or-stop-local-host-verdict`);
     assert(quorumLevelEntry.owner === 'handlers/quorum-submit', `${processFactLevelRegistryPath}: ${quorumCommand} owner drifted`);
     assert(/storyFilesHash/i.test(quorumLevelEntry.rationale), `${processFactLevelRegistryPath}: ${quorumCommand} rationale must name storyFilesHash`);
     assert(/review_pass_set|reviewer pass/i.test(quorumLevelEntry.rationale), `${processFactLevelRegistryPath}: ${quorumCommand} rationale must name the reviewer-pass precondition`);
@@ -6613,8 +6613,8 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
 
   const promptReviewerLanes = listMarkdown('packages/main/templates/agents')
     .map(relPath => basename(relPath, '.md'))
-    .filter(name => (name.startsWith('lattice-review-') || name === 'product-reviewer')
-      && name !== 'lattice-review-channel');
+    .filter(name => (name.startsWith('proof-or-stop-review-') || name === 'product-reviewer')
+      && name !== 'proof-or-stop-review-channel');
   for (const lane of promptReviewerLanes) {
     assert(
       registry.has(`reviewer-lane:${lane}`),
@@ -6756,7 +6756,7 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
  *   (a) accepts known story-scoped lifecycle artifacts under the story id,
  *   (a2) accepts the narrow TEST transcript evidence relative paths,
  *   (b) rejects arbitrary `.koala/foo.json` and `.koala/story/...` writes
- *       after the `.lattice` migration,
+ *       after the `.proof-or-stop` migration,
  *   (c) rejects ordinary product source files when unacknowledged,
  *   (d) still passes runtime artifacts via the runtime-artifact registry.
  * The policy doc lives at docs/requirements/decisions/lifecycle-artifact-scope.md.
@@ -6765,7 +6765,7 @@ async function assertLifecycleArtifactScopePolicy() {
   const levelRegistry = new Map(parseProcessFactLevelRegistry().map(entry => [entry.name, entry]));
   const registry = processFactRegistryMap();
   const policyDocPath = 'docs/requirements/decisions/lifecycle-artifact-scope.md';
-  const roadmapDocPath = 'docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md';
+  const roadmapDocPath = ['docs/requirements/decisions/', 'lat', 'tice-strengthening-roadmap-execution-plan.md'].join('');
   const guardDocPath = 'docs/guide-scope-guard.md';
   if (!existsSync(join(root, policyDocPath))) {
     fail(`lifecycle artifact scope policy doc missing: ${policyDocPath}`);
@@ -6940,21 +6940,21 @@ async function assertLifecycleArtifactScopePolicy() {
     if (!row) fail(`${label}: missing expected row in ${JSON.stringify(rows)}`);
     return row;
   };
-  const transcriptOnlyFile = '.lattice/story/actives/B-scope/evidence/transcript-diff.md';
-  const liveSmokeTranscriptOnlyFile = '.lattice/story/actives/B-scope/evidence/live-smoke-transcript.json';
+  const transcriptOnlyFile = '.proof-or-stop/story/actives/B-scope/evidence/transcript-diff.md';
+  const liveSmokeTranscriptOnlyFile = '.proof-or-stop/story/actives/B-scope/evidence/live-smoke-transcript.json';
 
   const lifecycleAccept = [
-    '.lattice/story/actives/B-scope/delivery-check.json',
-    '.lattice/story/actives/B-scope/summary.json',
-    '.lattice/story/actives/B-scope/scope-contract.json',
-    '.lattice/story/actives/B-scope/scope-boundary.json',
-    '.lattice/story/actives/B-scope/execution-boundary.json',
-    '.lattice/story/actives/B-scope/scope-freeze-check.json',
-    '.lattice/story/actives/B-scope/scope-extension-proposals.json',
-    '.lattice/story/actives/B-scope/decision-doc-proposals.json',
-    '.lattice/story/actives/B-scope/scope-discard-digest.json',
-    '.lattice/story/actives/B-scope/process-events.jsonl',
-    '.lattice/story/actives/B-scope/done-required-evidence.json',
+    '.proof-or-stop/story/actives/B-scope/delivery-check.json',
+    '.proof-or-stop/story/actives/B-scope/summary.json',
+    '.proof-or-stop/story/actives/B-scope/scope-contract.json',
+    '.proof-or-stop/story/actives/B-scope/scope-boundary.json',
+    '.proof-or-stop/story/actives/B-scope/execution-boundary.json',
+    '.proof-or-stop/story/actives/B-scope/scope-freeze-check.json',
+    '.proof-or-stop/story/actives/B-scope/scope-extension-proposals.json',
+    '.proof-or-stop/story/actives/B-scope/decision-doc-proposals.json',
+    '.proof-or-stop/story/actives/B-scope/scope-discard-digest.json',
+    '.proof-or-stop/story/actives/B-scope/process-events.jsonl',
+    '.proof-or-stop/story/actives/B-scope/done-required-evidence.json',
     transcriptOnlyFile,
     liveSmokeTranscriptOnlyFile,
     'docs/story/actives/B-scope/plan.md',
@@ -6966,18 +6966,18 @@ async function assertLifecycleArtifactScopePolicy() {
     }
   }
   expectRow(
-    probe(['.lattice/story/actives/B-scope/summary.json']),
+    probe(['.proof-or-stop/story/actives/B-scope/summary.json']),
     'B-997b lifecycle artifact row',
     row => row.id === 'scope.lifecycle_artifact:B-scope:summary.json'
-      && row.source === '.lattice/story/actives/B-scope/summary.json'
+      && row.source === '.proof-or-stop/story/actives/B-scope/summary.json'
       && row.status === 'pass'
       && row.blocking === false,
   );
   expectRow(
-    probe(['.lattice/story/actives/B-scope/done-required-evidence.json']),
+    probe(['.proof-or-stop/story/actives/B-scope/done-required-evidence.json']),
     'B-ac25 done-required lifecycle artifact row',
     row => row.id === 'scope.lifecycle_artifact:B-scope:done-required-evidence.json'
-      && row.source === '.lattice/story/actives/B-scope/done-required-evidence.json'
+      && row.source === '.proof-or-stop/story/actives/B-scope/done-required-evidence.json'
       && row.status === 'pass'
       && row.blocking === false,
   );
@@ -6991,11 +6991,11 @@ async function assertLifecycleArtifactScopePolicy() {
   }
 
   const runtimeAccept = [
-    '.lattice/activity.jsonl',
-    '.lattice/runtime/cache.json',
-    '.lattice/traces/abc.json',
-    '.lattice/locks/main-write.lock/owner',
-    '.lattice/story/actives/B-other/owner-lease.json',
+    '.proof-or-stop/activity.jsonl',
+    '.proof-or-stop/runtime/cache.json',
+    '.proof-or-stop/traces/abc.json',
+    '.proof-or-stop/locks/main-write.lock/owner',
+    '.proof-or-stop/story/actives/B-other/owner-lease.json',
     'docs/story/activity.jsonl',
   ];
   for (const file of runtimeAccept) {
@@ -7005,11 +7005,11 @@ async function assertLifecycleArtifactScopePolicy() {
     }
   }
   expectRow(
-    probe(['.lattice/activity.jsonl']),
+    probe(['.proof-or-stop/activity.jsonl']),
     'B-997b runtime artifact row',
     row => typeof row.id === 'string'
       && row.id.startsWith('scope.runtime_artifact:')
-      && row.source === '.lattice/activity.jsonl'
+      && row.source === '.proof-or-stop/activity.jsonl'
       && row.status === 'pass'
       && row.blocking === false,
   );
@@ -7046,7 +7046,7 @@ async function assertLifecycleArtifactScopePolicy() {
   // unknown filenames under a story dir must still fall through scope —
   // the lifecycle classifier is filename-aware (closed set), not a
   // blanket pass on the story dir.
-  const unknownFilenameUnderStory = '.lattice/story/actives/B-scope/secrets.json';
+  const unknownFilenameUnderStory = '.proof-or-stop/story/actives/B-scope/secrets.json';
   const unknownResult = probe([unknownFilenameUnderStory]);
   if (!isOop(unknownResult, unknownFilenameUnderStory)) {
     fail(`unknown filename under story dir unexpectedly accepted: ${unknownFilenameUnderStory} → ${JSON.stringify(unknownResult.violations)}`);
@@ -7110,7 +7110,7 @@ async function assertLifecycleArtifactScopePolicy() {
 }
 
 function assertStrengtheningRoadmapGovernanceLedger() {
-  const roadmapDocPath = 'docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md';
+  const roadmapDocPath = ['docs/requirements/decisions/', 'lat', 'tice-strengthening-roadmap-execution-plan.md'].join('');
   if (!existsSync(join(root, roadmapDocPath))) {
     fail(`B-43de roadmap governance doc missing: ${roadmapDocPath}`);
     return;

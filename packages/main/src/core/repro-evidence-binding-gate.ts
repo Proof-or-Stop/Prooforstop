@@ -27,7 +27,7 @@ export type StoryEvidenceBindingGateReasonCode =
   | 'repro_first_bypassed'
   | 'repro_first_preflight_engine_error'
   // B-956f FIX 5: the material-code policy/classification failed closed (malformed
-  // lattice.config.json, or unverifiable git-snapshot freshness) while evaluating
+  // proof-or-stop.config.json, or unverifiable git-snapshot freshness) while evaluating
   // repro-first requirements. Fails the gate regardless of reproFirst mode.
   | 'repro_first_material_policy_error';
 
@@ -163,7 +163,7 @@ function resultFor(
  * B-956f FIX 5: convert a MaterialCodePolicyError raised by the shared classifier
  * (config-resolve, snapshot build, or freshness re-check) into a STRUCTURED
  * failing gate result naming the file + remediation. Freshness failures point at
- * the workspace/git tree; config failures point at lattice.config.json. Anything
+ * the workspace/git tree; config failures point at proof-or-stop.config.json. Anything
  * that is NOT a MaterialCodePolicyError is re-thrown by the caller.
  */
 function materialPolicyErrorResult(
@@ -426,7 +426,7 @@ export function evaluateStoryEvidenceBindingGate(
   const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
 
   // B-956f FIX 5: the shared classifier fails CLOSED (throws MaterialCodePolicyError)
-  // on a malformed lattice.config.json or an unverifiable git-snapshot. Catch it
+  // on a malformed proof-or-stop.config.json or an unverifiable git-snapshot. Catch it
   // here — the SAME narrow catch as the review-assurance floor — so the raw error
   // never escapes uncaught through the PLAN/DEV guard boolean or getGuardFailureReason.
   let classification: ReproFirstRequirementClassification;

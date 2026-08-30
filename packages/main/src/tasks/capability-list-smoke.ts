@@ -174,9 +174,9 @@ assert.match(renderCapabilityProbeText(codexProbe), /authorityImpact: diagnostic
 assert.ok(MAIN_TOOLS.some(tool => tool.name === 'capability_list'), 'MAIN_TOOLS exposes capability_list');
 assert.ok(MAIN_TOOLS.some(tool => tool.name === 'capability_probe'), 'MAIN_TOOLS exposes capability_probe');
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-capability-list-registry-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-capability-list-registry-'));
   try {
-    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
     resetConfigCache();
     const store = new StoryStore(root);
     const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
@@ -194,9 +194,9 @@ assert.ok(MAIN_TOOLS.some(tool => tool.name === 'capability_probe'), 'MAIN_TOOLS
 
 // Real CLI JSON path: --format=json must produce parseable JSON on stdout.
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-capability-list-cli-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-capability-list-cli-'));
   try {
-    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
     const here = dirname(fileURLToPath(import.meta.url));
     const cliPath = join(here, '..', 'cli.js');
     const stdout = execFileSync(process.execPath, [cliPath, '--root', root, 'capability_list', '--format=json'], {

@@ -2,11 +2,11 @@
  * B-4f46 CHK-003: signature-registry CLI surface (Experience Layer Phase 1b).
  *
  * Minimal read/list + mutate commands over the audit-only signature-registry
- * (`.lattice/learning/signature-registry.json`). This catalog is AUDIT-ONLY: no
+ * (`.proof-or-stop/learning/signature-registry.json`). This catalog is AUDIT-ONLY: no
  * gate reads it; it only folds finding `signatureTag`s into canonical families so
  * the Phase-1a finding-signals become more meaningful over time.
  *
- * The registry file lives under `.lattice/learning/`, which is materialHash-
+ * The registry file lives under `.proof-or-stop/learning/`, which is materialHash-
  * EXCLUDED (the `experience-layer-learning-cache` runtime-artifact-registry
  * entry covers the prefix), so writes never make evidence stale.
  */

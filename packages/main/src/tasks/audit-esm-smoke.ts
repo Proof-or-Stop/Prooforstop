@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runMechanicalAudit } from '../core/audit-scan.js';
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-audit-esm-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-audit-esm-'));
 
 try {
   const mdPath = join(root, 'CLAUDE.md');

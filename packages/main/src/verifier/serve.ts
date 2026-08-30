@@ -92,9 +92,9 @@ function findBrowserServer(): string | null {
 const CONSOLE_HOOK_SCRIPT = `
 <script>
 (function() {
-  if (window.__lattice_console_hooked) return;
-  window.__lattice_console_hooked = true;
-  window.__lattice_console_logs = [];
+  if (window.__proof_or_stop_console_hooked) return;
+  window.__proof_or_stop_console_hooked = true;
+  window.__proof_or_stop_console_logs = [];
   var maxLogs = 1000;
   ['log', 'warn', 'error', 'info', 'debug'].forEach(function(level) {
     var orig = console[level];
@@ -103,19 +103,19 @@ const CONSOLE_HOOK_SCRIPT = `
         try { return typeof a === 'object' ? JSON.stringify(a) : String(a); }
         catch(e) { return '[unserializable]'; }
       });
-      window.__lattice_console_logs.push({
+      window.__proof_or_stop_console_logs.push({
         level: level,
         message: args.join(' '),
         time: Date.now()
       });
-      if (window.__lattice_console_logs.length > maxLogs) {
-        window.__lattice_console_logs = window.__lattice_console_logs.slice(-maxLogs);
+      if (window.__proof_or_stop_console_logs.length > maxLogs) {
+        window.__proof_or_stop_console_logs = window.__proof_or_stop_console_logs.slice(-maxLogs);
       }
       orig.apply(console, arguments);
     };
   });
   window.addEventListener('error', function(e) {
-    window.__lattice_console_logs.push({
+    window.__proof_or_stop_console_logs.push({
       level: 'error',
       message: 'Uncaught: ' + (e.message || e),
       time: Date.now()
@@ -153,13 +153,13 @@ function createValidateRunner(projectRoot: string) {
       const usingConfigured = configuredCommands.length > 0;
       if (commands.length === 0) {
         cache.result = JSON.stringify({
-          provider: 'lattice-serve-validator',
+          provider: 'proof-or-stop-serve-validator',
           status: 'warn',
           allPass: true,
           summary: 'No project validator configured; skipped project-specific validation',
           details: [
             'validate.ts/js/mts not found',
-            'lattice.config.json validate.command(s) not configured',
+            'proof-or-stop.config.json validate.command(s) not configured',
             'no standard language test command discovered (Swift/Mac Native is not in the automatic fallback set)',
           ],
           commands: [],
@@ -172,8 +172,8 @@ function createValidateRunner(projectRoot: string) {
 
       const result = await executeValidationPlan({
         provider: usingConfigured
-          ? 'lattice-serve-validator-configured-commands'
-          : 'lattice-serve-validator-fallback-commands',
+          ? 'proof-or-stop-serve-validator-configured-commands'
+          : 'proof-or-stop-serve-validator-fallback-commands',
         commands,
         warnings: [],
       }, projectRoot);
@@ -792,7 +792,7 @@ ${hasBrowser ? 'setInterval(refreshConsole, 3000);' : ''}
 
 /** Check whether an existing serve instance is still alive (double verification via pid + HTTP ping) */
 async function checkExistingServe(projectRoot: string): Promise<{ alive: boolean; info?: any }> {
-  const infoPath = join(projectRoot, '.lattice-serve.json');
+  const infoPath = join(projectRoot, '.proof-or-stop-serve.json');
   if (!existsSync(infoPath)) return { alive: false };
   try {
     const info = JSON.parse(readFileSync(infoPath, 'utf-8'));
@@ -827,20 +827,20 @@ export async function startServe(options: ServeOptions) {
   console.log(`  Project: ${projectRoot}`);
   console.log(`  API:  http://localhost:${port}`);
 
-  // Connect to the project's already-started logic core (read .lattice-serve.json to find the WS port)
-  const serveInfoPath = join(projectRoot, '.lattice-serve.json');
+  // Connect to the project's already-started logic core (read .proof-or-stop-serve.json to find the WS port)
+  const serveInfoPath = join(projectRoot, '.proof-or-stop-serve.json');
   let bridgeWsPort = 0;
   for (let i = 0; i < 30; i++) {
     try {
       const info = JSON.parse(readFileSync(serveInfoPath, 'utf-8'));
       if (info.wsPort) { bridgeWsPort = info.wsPort; break; }
     } catch {}
-    if (i === 0) console.log(`  Waiting for project core to start (.lattice-serve.json)...`);
+    if (i === 0) console.log(`  Waiting for project core to start (.proof-or-stop-serve.json)...`);
     await new Promise(r => setTimeout(r, 500));
   }
   if (!bridgeWsPort) {
     console.log(`  ⚠ Project core not found. Please start the project first:`);
-    console.log(`    LATTICE_SERVE_PORT=<port> npx tsx src/main.ts`);
+    console.log(`    PROOF_OR_STOP_SERVE_PORT=<port> npx tsx src/main.ts`);
     console.log(`    or proof-or-stop serve (will automatically start the core)`);
     return;
   }
@@ -950,7 +950,7 @@ export async function startServe(options: ServeOptions) {
 
             if (contentType.includes('text/html')) {
               let html = await resp.text();
-              const injection = `<script>window.__LATTICE_WS_PORT=${wsPort};${clientScript}</script>${CONSOLE_HOOK_SCRIPT}`;
+              const injection = `<script>window.__PROOF_OR_STOP_WS_PORT=${wsPort};${clientScript}</script>${CONSOLE_HOOK_SCRIPT}`;
               html = html.includes('</head>')
                 ? html.replace('</head>', `${injection}</head>`)
                 : injection + html;
@@ -1044,13 +1044,13 @@ export async function startServe(options: ServeOptions) {
       }
       else if (url === '/browser/console') {
         const r = await bridgeApi(browserHttpPort, '/eval', {
-          code: 'JSON.parse(JSON.stringify(window.__lattice_console_logs || []))',
+          code: 'JSON.parse(JSON.stringify(window.__proof_or_stop_console_logs || []))',
         });
         res.end(JSON.stringify(r?.result || []));
       }
       else if (url === '/browser/console/clear') {
         await bridgeApi(browserHttpPort, '/eval', {
-          code: 'window.__lattice_console_logs = []; void 0',
+          code: 'window.__proof_or_stop_console_logs = []; void 0',
         });
         res.end(JSON.stringify({ ok: true }));
       }
@@ -1120,7 +1120,7 @@ export async function startServe(options: ServeOptions) {
   server.on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
       console.log(`\n  ⚠ Port ${port} is already in use (another serve instance?)`);
-      console.log(`  Read .lattice-serve.json to get existing instance information.\n`);
+      console.log(`  Read .proof-or-stop-serve.json to get existing instance information.\n`);
       process.exit(0);
     }
     throw err;
@@ -1132,7 +1132,7 @@ export async function startServe(options: ServeOptions) {
 
     console.log(`\n  API ready: http://localhost:${port}`);
     console.log(`  Control panel: http://localhost:${port}/`);
-    console.log(`  Discovery file: .lattice-serve.json`);
+    console.log(`  Discovery file: .proof-or-stop-serve.json`);
     console.log(`  Endpoints:`);
     console.log(`    GET  /                    Unified debug control panel`);
     console.log(`    POST /bridge/event        Send event { event, input }`);
@@ -2147,7 +2147,7 @@ export async function startCircuitServe(options: ServeOptions) {
     }
   });
 
-  const serveInfoPath = join(projectRoot, '.lattice-serve.json');
+  const serveInfoPath = join(projectRoot, '.proof-or-stop-serve.json');
   server.on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
       console.log(`\n  ⚠ Port ${port} is already in use`);

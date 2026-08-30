@@ -8,7 +8,7 @@
  * `experience-layer-review-dispatch-hint smoke passed (N checks)` at the end):
  *   (a) ON-arm story (sha256 first byte EVEN) WITH finding-signals → buildNextSteps
  *       REVIEW guidance CONTAINS the rendered hints section (after the
- *       Agent({lattice-review-*}) lines) AND records exactly one
+ *       Agent({proof-or-stop-review-*}) lines) AND records exactly one
  *       experience_hint_surfaced event with hintMode:'on' + the full hintIds.
  *   (b) OFF-arm story (sha256 first byte ODD) → buildNextSteps REVIEW guidance is
  *       BYTE-IDENTICAL to the no-signals/no-hints baseline (no section) AND records
@@ -121,12 +121,12 @@ function seedSignals(root: string, signals: FindingSignal[]): void {
   writeFindingSignals(root, cacheOf(signals));
 }
 
-/** Minimal lattice.config.json so StoryStore + config resolve in the temp root. */
+/** Minimal proof-or-stop.config.json so StoryStore + config resolve in the temp root. */
 function writeProofOrStopConfig(root: string): void {
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
   }, null, 2));
@@ -232,7 +232,7 @@ function eventSansTimestamp(e: Record<string, unknown>): Record<string, unknown>
 
 // ─── (a) ON-arm: buildNextSteps REVIEW contains the section + one on-event ─────
 
-check('CHK-002 happy:0 — ON-arm REVIEW guidance contains the hints section after the Agent({lattice-review-*}) lines + one on-event', () => {
+check('CHK-002 happy:0 — ON-arm REVIEW guidance contains the hints section after the Agent({proof-or-stop-review-*}) lines + one on-event', () => {
   const onId = findStoryIdForArm('on');
   assert.equal(resolveHintMode(onId), 'on', 'precondition: onId is ON arm (sha256 first byte even)');
   const root = mkTempRoot();
@@ -243,8 +243,8 @@ check('CHK-002 happy:0 — ON-arm REVIEW guidance contains the hints section aft
   const text = reviewNextSteps(root, onId);
   assert.ok(text.includes(SECTION_LABEL), 'ON arm: REVIEW guidance contains the advisory section');
   assert.ok(text.includes('[recAB]'), 'ON arm: hint id rendered in REVIEW guidance');
-  // The section must follow the Agent({lattice-review-*}) launch lines.
-  const agentIdx = text.lastIndexOf('Agent({ subagent_type: "lattice-review-');
+  // The section must follow the Agent({proof-or-stop-review-*}) launch lines.
+  const agentIdx = text.lastIndexOf('Agent({ subagent_type: "proof-or-stop-review-');
   const sectionIdx = text.indexOf(SECTION_LABEL);
   assert.ok(agentIdx >= 0, 'ON arm: reviewer-launch Agent lines present');
   assert.ok(sectionIdx > agentIdx, 'ON arm: hints section physically follows the Agent launch lines');
@@ -454,7 +454,7 @@ check('CHK-001 happy:0 — surfaceExperienceHints leaf ON-arm returns rendered s
   assert.equal(resolveHintMode(onId), 'on', 'precondition: onId is ON arm (sha256 first byte even)');
   const root = mkTempRoot();
   writeProofOrStopConfig(root);
-  // NOTE: the leaf reads .lattice/learning/ at the canonical main-repo root when
+  // NOTE: the leaf reads .proof-or-stop/learning/ at the canonical main-repo root when
   // the temp root is a git worktree, but these temp roots are NON-git dirs, so
   // resolveLearningRoot falls back to the temp root itself and the seeded signals
   // are read back here. (Same assumption every check in this file already relies on.)
@@ -487,7 +487,7 @@ check('CHK-001 happy:0 — surfaceExperienceHints leaf ON-arm returns rendered s
 // no-hints path, NOT the catch path). To genuinely exercise the leaf's try/catch
 // we make the TRACK (appendActivityLog) path throw: seed VALID signals (so
 // hasExperienceHints is true and the leaf reaches the append), then occupy the
-// runtime activity-log path .lattice/activity.jsonl with a DIRECTORY. appendFileSync
+// runtime activity-log path .proof-or-stop/activity.jsonl with a DIRECTORY. appendFileSync
 // against a directory throws EISDIR INSIDE the try block; the catch must swallow it
 // and early-return renderedSection='' / fired=false with NO partial event.
 // (If the leaf's try/catch were removed, this EISDIR would propagate and the
@@ -501,7 +501,7 @@ check('CHK-001 adversarial:0 — a load/track failure inside surfaceExperienceHi
 
   // Occupy the runtime activity-log path with a DIRECTORY so appendActivityLog's
   // appendFileSync throws EISDIR from inside the leaf's try block.
-  mkdirSync(join(root, '.lattice', 'activity.jsonl'), { recursive: true });
+  mkdirSync(join(root, '.proof-or-stop', 'activity.jsonl'), { recursive: true });
 
   let threw = false;
   let result: ReturnType<typeof surfaceExperienceHints> | undefined;
@@ -555,14 +555,14 @@ check('CHK-002 adversarial:0 — a hint-surface failure never blocks/alters the 
 // This one exercises the TRANSITION-EFFECTS layer with the SAME failure injection
 // as CHK-001 adversarial:0 (the leaf-level direct check): seed VALID finding
 // signals on an ON-arm REVIEW story so the leaf REACHES the failing track step,
-// then occupy the runtime activity-log path .lattice/activity.jsonl with a
+// then occupy the runtime activity-log path .proof-or-stop/activity.jsonl with a
 // DIRECTORY so appendActivityLog's appendFileSync throws EISDIR INSIDE
 // surfaceExperienceHints. Crucially we drive it through buildNextSteps (the REVIEW
 // branch), NOT the leaf directly, to prove the transition guidance + reviewer-
 // launch lines survive a hint-path failure. The leaf's try/catch swallows the
 // EISDIR (renderedSection='') and the buildNextSteps hint block's own try/catch
 // appends nothing — so the REVIEW guidance keeps its Agent({ subagent_type:
-// "lattice-review-* }) launch lines (active-reviewer set unchanged, transition not
+// "proof-or-stop-review-* }) launch lines (active-reviewer set unchanged, transition not
 // blocked) and no rendered hints section is appended for that failed call.
 
 check('CHK-002 adversarial:0 — a hint-path failure inside buildNextSteps never blocks the REVIEW transition (guidance returned, reviewer-launch lines intact)', () => {
@@ -578,7 +578,7 @@ check('CHK-002 adversarial:0 — a hint-path failure inside buildNextSteps never
   // activity-log path with a DIRECTORY so appendActivityLog throws EISDIR from
   // inside surfaceExperienceHints. (readActivityLogTail's dedup scan swallows the
   // directory gracefully; it is the append that throws, INSIDE the leaf try.)
-  mkdirSync(join(root, '.lattice', 'activity.jsonl'), { recursive: true });
+  mkdirSync(join(root, '.proof-or-stop', 'activity.jsonl'), { recursive: true });
 
   // Drive the failure THROUGH buildNextSteps (the REVIEW branch), NOT the leaf.
   let threw = false;
@@ -595,8 +595,8 @@ check('CHK-002 adversarial:0 — a hint-path failure inside buildNextSteps never
   // transition not blocked or garbled by the hint failure.
   assert.ok(text!.includes('Active reviewers:'),
     'REVIEW guidance still renders the active-reviewer set after the hint-path failure');
-  assert.ok(text!.includes('Agent({ subagent_type: "lattice-review-'),
-    'REVIEW guidance still contains the reviewer-launch Agent({ subagent_type: "lattice-review-* }) lines');
+  assert.ok(text!.includes('Agent({ subagent_type: "proof-or-stop-review-'),
+    'REVIEW guidance still contains the reviewer-launch Agent({ subagent_type: "proof-or-stop-review-* }) lines');
 
   // Because the leaf swallowed the failure, no rendered hints section was appended
   // for that failed call (and the run did not crash).

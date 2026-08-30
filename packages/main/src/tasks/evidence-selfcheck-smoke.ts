@@ -32,8 +32,8 @@ function git(cwd: string, args: string[]): string {
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
-    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives',
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements', workflow: { profile: 'balanced' },
   }, null, 2) + '\n', 'utf8');
   resetConfigCache();
@@ -63,13 +63,13 @@ function seed(): ChecklistData {
 }
 
 function createFixture(): HandlerContext {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-evidence-selfcheck-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-evidence-selfcheck-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeConfig(root);
   writeFileSync(join(root, 'README.md'), '# smoke\n', 'utf8');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const value = 1;\n', 'utf8');
   git(root, ['init']); git(root, ['checkout', '-b', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
   const store = new StoryStore(root);
   store.writeStory(STORY_ID, baseStory());

@@ -144,7 +144,7 @@ function gitRefContainsMain(gitCwd: string, ref: string): boolean {
 // Plain repos pass projectRoot==gitCwd so behavior is byte-identical.
 //
 // B-6666 F-001 (REVIEW fix): metadataRoot is forwarded into currentMaterialHash
-// so its storyDir-aware metadata exclusion loads lattice.config.json from the
+// so its storyDir-aware metadata exclusion loads proof-or-stop.config.json from the
 // metadataRoot (where a custom storyDir is declared), NOT the gitCwd. On a
 // wrapper-root layout with a non-default storyDir, loading config from gitCwd
 // would miss the custom storyDir and wrongly include those paths in the hash.
@@ -198,7 +198,7 @@ function checkCompletedEvidenceSnapshotFreshness(
 // every git probe below; plain repos pass projectRoot==gitCwd (byte-identical).
 // B-6666 F-001 (REVIEW fix): metadataRoot (buildDoneChecklist's `root`) is
 // threaded into both freshness paths so their storyDir-aware metadata exclusion
-// loads lattice.config.json from the metadataRoot — where a custom storyDir is
+// loads proof-or-stop.config.json from the metadataRoot — where a custom storyDir is
 // declared — instead of the gitCwd. Defaults differ from gitCwd only on
 // wrapper-root layouts; plain repos pass metadataRoot==gitCwd (byte-identical).
 function checkEvidenceFreshness(store: StoryStore, storyId: string, gitCwd: string, metadataRoot: string, phase?: StoryPhase): { fresh: boolean; message: string } {
@@ -403,7 +403,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       hint: doneRequired.blocking
         ? donePrepareRecoveryHint(storyId, doneRequired.hint)
         : doneRequired.hint,
-      source: doneRequired.required ? 'done-required-evidence.json' : 'lattice.config.json.doneRequiredCommands',
+      source: doneRequired.required ? 'done-required-evidence.json' : 'proof-or-stop.config.json.doneRequiredCommands',
       blocking: doneRequired.blocking,
     }));
   }
@@ -468,7 +468,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
     ];
     if (!result.allPass) {
-      hintLines.push('If these files come from proof-or-stop validate / npm test report or snapshot side effects, change project verification to be side-effect-free by default, or use an env gate (e.g. LATTICE_WRITE_*_REPORT=1) to explicitly enable report writing.');
+      hintLines.push('If these files come from proof-or-stop validate / npm test report or snapshot side effects, change project verification to be side-effect-free by default, or use an env gate (e.g. PROOF_OR_STOP_WRITE_*_REPORT=1) to explicitly enable report writing.');
     }
     const hint = hintLines.join('\n');
     rows.push(doneCheckRow({
@@ -622,7 +622,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'delivery-check',
       detail: deliveryCheckFreshness.reason,
-      hint: 'Run the lattice-review-delivery reviewer and use delivery_check_set to write the signed artifact. Fallback is compliant only with lattice-review-delivery provenance / agentId=lattice-review-delivery; the main agent must not self-sign.',
+      hint: 'Run the proof-or-stop-review-delivery reviewer and use delivery_check_set to write the signed artifact. Fallback is compliant only with proof-or-stop-review-delivery provenance / agentId=proof-or-stop-review-delivery; the main agent must not self-sign.',
       source: 'delivery-check.json',
     }));
   } else {
@@ -632,7 +632,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         status: 'fail',
         label: 'delivery-check',
         detail: deliveryCheckFreshness.reason,
-        hint: 'Re-run the lattice-review-delivery reviewer to generate a new delivery-check.json',
+        hint: 'Re-run the proof-or-stop-review-delivery reviewer to generate a new delivery-check.json',
         source: 'delivery-check.json._hash',
       }));
     } else if (deliveryCheckFreshness.code === 'stale_delivery_check') {
@@ -641,7 +641,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         status: 'fail',
         label: 'delivery-check',
         detail: deliveryCheckFreshness.reason,
-        hint: 'Re-run the lattice-review-delivery reviewer to generate a new delivery-check.json bound to the current materialHash',
+        hint: 'Re-run the proof-or-stop-review-delivery reviewer to generate a new delivery-check.json bound to the current materialHash',
         source: 'delivery-check.json.materialHash',
       }));
     } else {
@@ -652,7 +652,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: 'fail',
           label: 'delivery-check',
           detail: `${unverified.length} docsPromise entries are unverified and not waived`,
-          hint: 'Use delivery_waiver_add to write a waiver, or re-run the lattice-review-delivery reviewer to add verification evidence',
+          hint: 'Use delivery_waiver_add to write a waiver, or re-run the proof-or-stop-review-delivery reviewer to add verification evidence',
           source: 'delivery-check.json.docsPromises',
         }));
       } else {

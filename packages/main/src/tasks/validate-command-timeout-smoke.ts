@@ -44,7 +44,7 @@
  * a temp dir, since H-002 is a claim ABOUT this repo's actual source, not a synthesized
  * fixture. Every other section's mkdtempSync tmp dir is removed via rmSync in a per-section
  * try/finally (B-16df F-001) so repeated `proof-or-stop validate` runs don't leak stray tmpdirs.
- * Registered in lattice.config.json validate.commands for ongoing regression protection.
+ * Registered in proof-or-stop.config.json validate.commands for ongoing regression protection.
  *
  * Run: node packages/main/dist/tasks/validate-command-timeout-smoke.js
  */
@@ -71,7 +71,7 @@ import type { ValidationCommand, ValidationPlan } from '../core/validation-types
  * (NOT process.cwd(), which a caller could invoke this smoke from anywhere) to locate the
  * repo-root marker file and read checklist.ts's own source text. Section 12 no longer runs
  * `git diff` (see BUG-B16DF-BYTEPIN in section 12); the only two reads through REPO_ROOT are
- * now existsSync on lattice.config.json (section 12) and readFileSync on
+ * now existsSync on proof-or-stop.config.json (section 12) and readFileSync on
  * packages/main/src/handlers/checklist.ts (section 13).
  */
 const REPO_ROOT = join(new URL(import.meta.url).pathname, '../../../../..');
@@ -165,13 +165,13 @@ void (async () => {
     // 6. B-16df: the receipt path used by verification_evidence_add / _batch_add /
     //    verification_run (checklist.ts's 4 runSingleAllowlistedCommand call sites) MUST
     //    honor a project's configured validate.commands[].timeoutMs override, exactly like
-    //    resolveCommandTimeoutMs does for the lattice-validate path exercised above. A temp
-    //    project root pins a ~1.5s command at a 700ms override via lattice.config.json.
+    //    resolveCommandTimeoutMs does for the proof-or-stop-validate path exercised above. A temp
+    //    project root pins a ~1.5s command at a 700ms override via proof-or-stop.config.json.
     const pinnedRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-'));
     try {
       const pinnedCommand = 'node -e "setTimeout(() => {}, 1500)"';
       writeFileSync(
-        join(pinnedRoot, 'lattice.config.json'),
+        join(pinnedRoot, 'proof-or-stop.config.json'),
         JSON.stringify({
           validate: {
             commands: [
@@ -213,7 +213,7 @@ void (async () => {
     const unmatchedRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-unmatched-'));
     try {
       writeFileSync(
-        join(unmatchedRoot, 'lattice.config.json'),
+        join(unmatchedRoot, 'proof-or-stop.config.json'),
         JSON.stringify({
           validate: {
             commands: [
@@ -236,7 +236,7 @@ void (async () => {
     const disambigRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-disambig-'));
     try {
       writeFileSync(
-        join(disambigRoot, 'lattice.config.json'),
+        join(disambigRoot, 'proof-or-stop.config.json'),
         JSON.stringify({
           validate: {
             commands: [
@@ -263,7 +263,7 @@ void (async () => {
     //    a bare STRING (not an object) can never carry a timeoutMs field -- configuredValidationCommands
     //    / commandFromString only ever build {label, command, args[, shell]} out of a raw string,
     //    so a timeoutMs field is structurally absent. Direct unit test of
-    //    resolvePinnedCommandTimeoutMs against a temp lattice.config.json whose only
+    //    resolvePinnedCommandTimeoutMs against a temp proof-or-stop.config.json whose only
     //    validate.commands[] entry is a bare string, plus a structural check on the parsed
     //    entry itself proving the absence of the field (not merely a missed match).
     //    B-16df F-008: the fixture MUST contain none of verifier.ts's SHELL_META_RE
@@ -275,7 +275,7 @@ void (async () => {
     try {
       const bareStringCommand = 'node --version';
       writeFileSync(
-        join(bareStringRoot, 'lattice.config.json'),
+        join(bareStringRoot, 'proof-or-stop.config.json'),
         JSON.stringify({
           validate: {
             commands: [bareStringCommand],
@@ -314,7 +314,7 @@ void (async () => {
     const shellStyleRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-shellstyle-'));
     try {
       writeFileSync(
-        join(shellStyleRoot, 'lattice.config.json'),
+        join(shellStyleRoot, 'proof-or-stop.config.json'),
         JSON.stringify({
           validate: {
             commands: [
@@ -349,7 +349,7 @@ void (async () => {
     const zeroTimeoutRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-zerotimeout-'));
     try {
       writeFileSync(
-        join(zeroTimeoutRoot, 'lattice.config.json'),
+        join(zeroTimeoutRoot, 'proof-or-stop.config.json'),
         JSON.stringify({
           validate: {
             commands: [
@@ -405,7 +405,7 @@ void (async () => {
     //     to that story's own scope contract (allowedModify / protectedFiles) and to its diff
     //     review, both of which are evaluated per story against that story's declared
     //     boundary -- not to a suite command every later story is forced to satisfy.
-    check('REPO_ROOT resolved to the actual repo root (lattice.config.json present there)', existsSync(join(REPO_ROOT, 'lattice.config.json')));
+    check('REPO_ROOT resolved to the actual repo root (proof-or-stop.config.json present there)', existsSync(join(REPO_ROOT, 'proof-or-stop.config.json')));
 
     // 13. B-16df F-004 (H-002): all 4 real runSingleAllowlistedCommand call sites in
     //     checklist.ts must route through the ONE shared resolvePinnedCommandTimeoutMs
@@ -438,7 +438,7 @@ void (async () => {
     );
 
     // 14. B-16df F-004 (A-003): a very large configured timeoutMs must be CLAMPED, not an
-    //     unbounded-timeout vector, end-to-end from a project's lattice.config.json through
+    //     unbounded-timeout vector, end-to-end from a project's proof-or-stop.config.json through
     //     to the value actually armed on setTimeout. resolvePinnedCommandTimeoutMs itself
     //     does NOT clamp (it returns match?.timeoutMs verbatim, mirrored by section 11's
     //     verbatim-0 check above) — the existing safety net lives downstream in
@@ -452,7 +452,7 @@ void (async () => {
     try {
       const HUGE_TIMEOUT_MS = 1e15;
       writeFileSync(
-        join(hugeTimeoutRoot, 'lattice.config.json'),
+        join(hugeTimeoutRoot, 'proof-or-stop.config.json'),
         JSON.stringify({
           validate: {
             commands: [
@@ -501,7 +501,7 @@ void (async () => {
       //      timeoutMs-less bare-string entry.
       const parityBareStringEntry = "node   -e  'hello world'";
       writeFileSync(
-        join(parityRoot, 'lattice.config.json'),
+        join(parityRoot, 'proof-or-stop.config.json'),
         JSON.stringify({
           validate: {
             commands: [
@@ -552,7 +552,7 @@ void (async () => {
     const argsLengthRoot = mkdtempSync(join(tmpdir(), 'validate-command-timeout-smoke-argslength-'));
     try {
       writeFileSync(
-        join(argsLengthRoot, 'lattice.config.json'),
+        join(argsLengthRoot, 'proof-or-stop.config.json'),
         JSON.stringify({
           validate: {
             commands: [

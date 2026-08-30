@@ -156,9 +156,9 @@ try {
   git(['init', '-q']);
   git(['config', 'user.email', 'red@w2b.local']);
   git(['config', 'user.name', 'red-w2b']);
-  const relPath = `.lattice/story/actives/B-e10d/${RED_TARGET_BINDINGS_FILENAME}`;
+  const relPath = `.proof-or-stop/story/actives/B-e10d/${RED_TARGET_BINDINGS_FILENAME}`;
   const abs = join(repoRoot, relPath);
-  mkdirSync(join(repoRoot, '.lattice/story/actives/B-e10d'), { recursive: true });
+  mkdirSync(join(repoRoot, '.proof-or-stop/story/actives/B-e10d'), { recursive: true });
 
   // Commit binding-A.
   const fileA = appendTargetBinding(emptyRedTargetBindingsFile('B-e10d', '2026-07-25T00:00:00.000Z'),
@@ -180,7 +180,7 @@ try {
   assert.equal(committed.bindings[0].testCaseRef, 'test/A.ts');
 
   // Missing file at a VALID ref -> null (no crash, no live fallback).
-  const missing = readCommittedTargetBindings({ gitCwd: repoRoot, ref: headRef, relPath: `.lattice/story/actives/B-NONE/${RED_TARGET_BINDINGS_FILENAME}` });
+  const missing = readCommittedTargetBindings({ gitCwd: repoRoot, ref: headRef, relPath: `.proof-or-stop/story/actives/B-NONE/${RED_TARGET_BINDINGS_FILENAME}` });
   assert.equal(missing, null, 'a missing file at a valid ref returns null (no live-directory fallback)');
 
   // Bad/nonexistent ref -> THROWS (fail-closed; never silently read the live dir).

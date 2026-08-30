@@ -172,7 +172,7 @@ function validationResult(
     if (output) details.push(...output.split('\n').filter(Boolean).map((line) => `  ${line}`));
   }
   return {
-    provider: 'lattice-verifier',
+    provider: 'proof-or-stop-verifier',
     status: 'pass',
     allPass: true,
     summary: 'all validation commands passed',

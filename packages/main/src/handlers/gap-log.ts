@@ -199,7 +199,7 @@ export function createGapLogHandlers(ctx: HandlerContext): Record<string, (...ar
           ...(ev.reproCommand ? { reproCommand: ev.reproCommand } : {}),
           ...(ev.observedOutput ? { observedOutput: ev.observedOutput } : {}),
           ...(ev.analysisNote ? { analysisNote: ev.analysisNote } : {}),
-          agent: args.agent || readBrandEnv('AGENT') || 'lattice-gap-log',
+          agent: args.agent || readBrandEnv('AGENT') || 'proof-or-stop-gap-log',
         }, META_STORY_ID, { projectRoot: ctx.root });
         return { created: ensured.created, result: appended };
       }, {

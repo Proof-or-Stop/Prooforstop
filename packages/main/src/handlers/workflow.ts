@@ -22,7 +22,7 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
       }
       const newProfile = args.profile as WorkflowProfile;
 
-      // Prefer an existing lattice.config.json. If none exists, create it.
+      // Prefer an existing proof-or-stop.config.json. If none exists, create it.
       const picked = pickProjectConfigPath(root);
       const configPath = picked?.path ?? join(root, PROOF_OR_STOP_CONFIG_FILENAME);
       const configFilename = picked?.filename ?? PROOF_OR_STOP_CONFIG_FILENAME;
@@ -38,7 +38,7 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
       const newPolicy = WORKFLOW_PRESETS[newProfile];
 
       // Atomic write: read raw config (or start from empty when creating
-      // lattice.config.json fresh), patch, write back.
+      // proof-or-stop.config.json fresh), patch, write back.
       const rawConfig = existsSync(configPath)
         ? JSON.parse(readFileSync(configPath, 'utf-8'))
         : {};

@@ -72,7 +72,7 @@ export const INIT_CHECK_FALLBACK_REASON_MIN = 30;
 
 function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): T {
   // B-d877 R3 FIX B: relocate out of the git-tracked story dir to the gitignored
-  // shared `.lattice/locks/init-check/<id>-init-check.lock`.
+  // shared `.proof-or-stop/locks/init-check/<id>-init-check.lock`.
   const lockDir = store.runtimeLockDirPath(storyId, 'init-check', 'init-check');
   return withMkdirLock(lockDir, fn, { label: 'init-check metadata' });
 }
@@ -80,8 +80,8 @@ function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): 
 /**
  * init_check_set handler factory.
  *
- * Called by the lattice-review-story-init subagent (CHK-002 template); writes init-check.json.
- * The registry validates mutation authority. A registered PROOF_OR_STOP_AGENT (deprecated alias LATTICE_AGENT) is the
+ * Called by the proof-or-stop-review-story-init subagent (CHK-002 template); writes init-check.json.
+ * The registry validates mutation authority. A registered PROOF_OR_STOP_AGENT (deprecated alias PROOF_OR_STOP_AGENT) is the
  * authoritative dispatched identity, so payload agent/agentId attribution
  * cannot impersonate a trusted host or a different reviewer lane.
  *
@@ -253,7 +253,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
     /**
      * init_check_repair — B-95d8 CHK-001 explicit, auditable INIT_CHECK fallback.
      *
-     * For environments that cannot spawn the lattice-review-story-init / product-reviewer
+     * For environments that cannot spawn the proof-or-stop-review-story-init / product-reviewer
      * subagents (no init reviewer available). Produces a SIGNED init-check.json that
      * `canEnterInitCheck` / `getGuardFailureReason` accept — WITHOUT weakening the gate:
      *
@@ -289,7 +289,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       if (args.acknowledge !== true) {
         throw new Error(
           'init_check_repair: refused — this fallback bypasses the independent INIT reviewer and is disabled by default. ' +
-          'Re-run with explicit acknowledgement: pass acknowledge=true to confirm you are deliberately attesting in lieu of lattice-review-story-init / product-reviewer.',
+          'Re-run with explicit acknowledgement: pass acknowledge=true to confirm you are deliberately attesting in lieu of proof-or-stop-review-story-init / product-reviewer.',
         );
       }
       const reason = (args.fallbackReason ?? '').trim();

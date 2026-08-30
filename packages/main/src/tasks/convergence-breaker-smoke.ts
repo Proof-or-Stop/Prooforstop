@@ -130,16 +130,16 @@ const HEALTHY: BreakerCounters = {
 // ── 4. Threshold resolver: defaults, override, typo fallback ──────────────────
 {
   assert.equal(resolveConvergenceThresholds({}).maxAdvance, 20, 'default maxAdvance');
-  assert.equal(resolveConvergenceThresholds({ LATTICE_CONVERGENCE_MAX_ADVANCE: '5' }).maxAdvance, 5, 'override');
+  assert.equal(resolveConvergenceThresholds({ PROOF_OR_STOP_CONVERGENCE_MAX_ADVANCE: '5' }).maxAdvance, 5, 'override');
   for (const bad of ['abc', '-1', '1e9', '', '  ']) {
     assert.equal(
-      resolveConvergenceThresholds({ LATTICE_CONVERGENCE_MAX_ADVANCE: bad }).maxAdvance,
+      resolveConvergenceThresholds({ PROOF_OR_STOP_CONVERGENCE_MAX_ADVANCE: bad }).maxAdvance,
       20,
       `garbage ${JSON.stringify(bad)} falls back to default`,
     );
   }
   // With MAX_ADVANCE=5 a story trips at 6 advances (delta 6>5) but not at 5.
-  const th = resolveConvergenceThresholds({ LATTICE_CONVERGENCE_MAX_ADVANCE: '5' });
+  const th = resolveConvergenceThresholds({ PROOF_OR_STOP_CONVERGENCE_MAX_ADVANCE: '5' });
   const at5: BreakerCounters = { advanceCount: 5, reviewRunCount: 0, reviewPassCount: 0, takeoverCount: 0, maxGateRepeat: 0 };
   const at6: BreakerCounters = { ...at5, advanceCount: 6 };
   assert.equal(assessBreaker(at5, th, null).tripped, false, '5 advances does not trip at MAX_ADVANCE=5');
@@ -516,7 +516,7 @@ let digestMatrixSummary = '';
   // handlers/review-loop.ts:141 mints the id as `${storyId}:RL-${NNN}`.
   const openReviewLoop = (loopOrdinal: string): string =>
     `Cannot enter TEST: active review loop(s): loopId=B-bf52:${loopOrdinal}, decision=revise, ` +
-    `nextAction={phase=DEV, owner=lattice-implementer} [open_review_loop]`;
+    `nextAction={phase=DEV, owner=proof-or-stop-implementer} [open_review_loop]`;
 
   // ── The real blocking-finding rejection, CITING A CHANGED PATH (F-033) ─────
   // core/machine.ts:753-756 renders every open blocking finding, joined by '; ',
@@ -726,8 +726,8 @@ let digestMatrixSummary = '';
     {
       name: 'machine-absolute-path',
       guardedBy: 'path-rule-collapse',
-      a: 'validation lock held at /Users/jek/Documents/Work/proofbound/.lattice/locks/validate',
-      b: 'validation lock held at /private/var/folders/zz/T/lattice-abc/.lattice/locks/validate',
+      a: 'validation lock held at /Users/jek/Documents/Work/proofbound/.proof-or-stop/locks/validate',
+      b: 'validation lock held at /private/var/folders/zz/T/proof-or-stop-abc/.proof-or-stop/locks/validate',
     },
     {
       // A machine-specific root that continues into repo-relative segments must
@@ -1233,17 +1233,17 @@ let digestMatrixSummary = '';
 {
   assert.equal(isInteractiveAckAllowed({}, true), true, 'interactive TTY, no autopilot => allowed');
   assert.equal(isInteractiveAckAllowed({}, false), false, 'no TTY => refused');
-  assert.equal(isInteractiveAckAllowed({ LATTICE_AUTOPILOT: '1' }, true), false, 'autopilot marker => refused even at a TTY');
+  assert.equal(isInteractiveAckAllowed({ PROOF_OR_STOP_AUTOPILOT: '1' }, true), false, 'autopilot marker => refused even at a TTY');
   assert.equal(isInteractiveAckAllowed({ CI: 'true' }, true), false, 'CI marker => refused');
-  assert.equal(isInteractiveAckAllowed({ LATTICE_AUTOPILOT: '0' }, true), true, 'falsey autopilot marker => allowed');
+  assert.equal(isInteractiveAckAllowed({ PROOF_OR_STOP_AUTOPILOT: '0' }, true), true, 'falsey autopilot marker => allowed');
 }
 
 // ── 10. Gitignored-artifact registration (F-008 DONE-merge safety) ────────────
 {
   for (const f of ['breaker-state.json', 'takeover-count.json', 'gate-failure-counts.json']) {
-    const entry = findRuntimeArtifactEntry(`.lattice/story/actives/B-bbaf/${f}`);
+    const entry = findRuntimeArtifactEntry(`.proof-or-stop/story/actives/B-bbaf/${f}`);
     assert.ok(entry, `${f} is registered as a runtime artifact`);
-    assert.equal(isMaterialExcludedRuntimeArtifactPath(`.lattice/story/actives/B-bbaf/${f}`), true, `${f} is material-hash excluded`);
+    assert.equal(isMaterialExcludedRuntimeArtifactPath(`.proof-or-stop/story/actives/B-bbaf/${f}`), true, `${f} is material-hash excluded`);
   }
   const patterns = listRuntimeArtifactIgnorePatterns();
   for (const glob of ['**/breaker-state.json', '**/takeover-count.json', '**/gate-failure-counts.json']) {

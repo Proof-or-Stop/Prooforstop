@@ -20,7 +20,7 @@
  * Non-default storyDir coverage (decision preMortem "locking the wrong directory creates false safety"):
  *  - Round set A uses the default storyDir.
  *  - Round set B uses a NON-default storyDir (`custom/stories/here`). If the
- *    lock path were hardcoded to docs/story or .lattice/story, the lock dir and
+ *    lock path were hardcoded to docs/story or .proof-or-stop/story, the lock dir and
  *    the actual write target would diverge and the race would reopen — this
  *    round would then produce duplicates and fail.
  *
@@ -120,16 +120,16 @@ function countStoryDirs(storyDirAbs: string): string[] {
 
 interface RoundConfig {
   label: string;
-  storyDir: string; // relative path stored in lattice.config.json
+  storyDir: string; // relative path stored in proof-or-stop.config.json
 }
 
 async function runScenario(cfg: RoundConfig): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-story-create-conc-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-story-create-conc-'));
   try {
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-    writeFile(root, 'lattice.config.json', JSON.stringify({
+    writeFile(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: cfg.storyDir,
@@ -260,15 +260,15 @@ function storyIdOf(output: string): string | undefined {
  * functional regressions on the dedup logic.
  */
 async function runDedupScenario(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-story-dedup-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-story-dedup-'));
   try {
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-    writeFile(root, 'lattice.config.json', JSON.stringify({
+    writeFile(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
     }, null, 2));
@@ -437,13 +437,13 @@ function backdateStory(storyDirAbs: string, storyId: string, minutesAgo: number)
  * `proof-or-stop story_create | tail` pipe never silently eats the warning.
  */
 async function runStderrChannelScenario(): Promise<void> {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-story-stderr-'));
-  const storyDir = '.lattice/story/actives';
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-story-stderr-'));
+  const storyDir = '.proof-or-stop/story/actives';
   try {
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-    writeFile(root, 'lattice.config.json', JSON.stringify({
+    writeFile(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir,
@@ -602,7 +602,7 @@ async function runStderrChannelScenario(): Promise<void> {
 
 (async () => {
   // Round set A: default storyDir.
-  await runScenario({ label: 'default-dir', storyDir: '.lattice/story/actives' });
+  await runScenario({ label: 'default-dir', storyDir: '.proof-or-stop/story/actives' });
   // Round set B: NON-default storyDir — proves the lock path is resolved from
   // store.storyDirRel() and not hardcoded.
   await runScenario({ label: 'custom-dir', storyDir: 'custom/stories/here' });

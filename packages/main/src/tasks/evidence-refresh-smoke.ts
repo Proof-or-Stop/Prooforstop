@@ -46,11 +46,11 @@ function gitStatus(root: string): string {
 
 function writeConfig(root: string): void {
   writeFileSync(
-    join(root, 'lattice.config.json'),
+    join(root, 'proof-or-stop.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
     }, null, 2) + '\n',
@@ -82,14 +82,14 @@ function baseStory(): StoryInfo {
 function createFixture(
   seedChecklist: (root: string, store: StoryStore) => ChecklistData,
 ): { root: string; store: StoryStore; ctx: HandlerContext } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-evidence-refresh-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-evidence-refresh-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeConfig(root);
   writeFileSync(join(root, 'README.md'), '# evidence refresh smoke\n', 'utf8');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const value = 1;\n', 'utf8');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
 
   const store = new StoryStore(root);
@@ -368,17 +368,17 @@ assert.equal(
 
 {
   const { root, store } = createFixture((r) => mixedChecklist(r));
-  const savedSession = process.env.LATTICE_SESSION_ID;
+  const savedSession = process.env.PROOF_OR_STOP_SESSION_ID;
   try {
     const storyDir = store.storyDirPath(STORY_ID);
-    process.env.LATTICE_SESSION_ID = 'sess-owner';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-owner';
     resetSessionIdForTest();
     acquireOwnerLease(storyDir, { command: 'checklist_add', cwd: '/tmp/owner-worktree' });
     const leaseBefore = readFileSync(ownerLeasePath(storyDir), 'utf8');
     const checklistBefore = store.readChecklist(STORY_ID);
     const statusBefore = gitStatus(root);
 
-    process.env.LATTICE_SESSION_ID = 'sess-intruder';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-intruder';
     resetSessionIdForTest();
 
     // Dry preview is ungated even on a foreign-owned story.
@@ -398,8 +398,8 @@ assert.equal(
     assert.equal(gitStatus(root), statusBefore, 'rejected owner gate leaves git status unchanged');
     assertNoAuthorityOrEvidenceArtifacts(store);
   } finally {
-    if (savedSession === undefined) delete process.env.LATTICE_SESSION_ID;
-    else process.env.LATTICE_SESSION_ID = savedSession;
+    if (savedSession === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID;
+    else process.env.PROOF_OR_STOP_SESSION_ID = savedSession;
     resetSessionIdForTest();
     rmSync(root, { recursive: true, force: true });
   }

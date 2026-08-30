@@ -45,7 +45,7 @@ function write(root: string, path: string, content: string): void {
 }
 
 function writeProofOrStopConfig(root: string, config: Record<string, unknown> = {}): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify(config, null, 2), 'utf-8');
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify(config, null, 2), 'utf-8');
 }
 
 function makeGitFixture(): string {
@@ -136,10 +136,10 @@ function writeVersionSyncFiles(root: string, version: string): void {
       '': { name: '@proof-or-stop/core', version },
     },
   }, null, 2) + '\n');
-  write(root, 'packages/main/src/core/lattice-brand.ts', [
+  write(root, 'packages/main/src/core/proof-or-stop-brand.ts', [
     "import { basename } from 'path';",
     '',
-    `export const LATTICE_CLI_VERSION = '${version}' as const;`,
+    `export const PROOF_OR_STOP_CLI_VERSION = '${version}' as const;`,
     "export const PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' as const;",
     'void basename;',
     '',

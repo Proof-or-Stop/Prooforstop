@@ -129,7 +129,7 @@ export function renderReproFirstStoryCreatePreflight(args: {
     events: [],
   } as StoryInfo;
   // B-956f FIX 5: the shared classifier fails CLOSED (throws MaterialCodePolicyError)
-  // on a malformed lattice.config.json or an unverifiable git snapshot. Catch it
+  // on a malformed proof-or-stop.config.json or an unverifiable git snapshot. Catch it
   // here — the SAME narrow catch as the floor/repro gate — so the raw error never
   // escapes uncaught out of story creation. Convert it to a structured message
   // naming the file + remediation (enforce → throw; warn → advisory).
@@ -612,7 +612,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         if (!existsSync(draftCheckPath)) {
           throw new Error(
             `Cannot create story from draft '${draftName}': draft-check.json not found. ` +
-            `Please spawn the lattice-review-story-init reviewer to review the draft and call draft_check_set first. [missing_draft_check]`
+            `Please spawn the proof-or-stop-review-story-init reviewer to review the draft and call draft_check_set first. [missing_draft_check]`
           );
         }
         const draftCheck = JSON.parse(readFileSync(draftCheckPath, 'utf-8'));
@@ -1173,11 +1173,11 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // init_check_set with a forged signature (anti-self-absolution). Only after review passes can story_advance INIT_CHECK proceed.
         const initReviewHint =
           `\n\n→ Now please spawn two INIT reviewers in parallel:\n` +
-          `  · Agent({ subagent_type: "lattice-review-story-init", prompt: \`Review the initial background + checklist of story ${storyId} (run proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}' to get the standard prompt)\` })\n` +
+          `  · Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: \`Review the initial background + checklist of story ${storyId} (run proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}' to get the standard prompt)\` })\n` +
           `  · Agent({ subagent_type: "product-reviewer", prompt: \`Run proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"product-reviewer"}' to get the standard prompt; whether pass/fail, must call init_check_set, agentId must be exactly product-reviewer\` })\n` +
           `  · Do not have the main agent self-invoke proof-or-stop init_check_set (the CLI does not mechanically validate agentId, but the reviewer template fresh-context fence + CLAUDE.md behavior rules require invocation by an independent subagent—main agent self-invocation effectively bypasses the reviewer, violating the anti-self-absolution convention)\n` +
           `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
-          `  · INIT_CHECK gate requires both lattice-review-story-init and product-reviewer to have persisted via init_check_set; critical/high issues will block advancement\n` +
+          `  · INIT_CHECK gate requires both proof-or-stop-review-story-init and product-reviewer to have persisted via init_check_set; critical/high issues will block advancement\n` +
           `  · Before story_advance, run proof-or-stop init_preflight --storyId=${storyId}; it is read-only, writes no evidence, and creates no worktree\n` +
           `  · After init_preflight reports READY, call proof-or-stop story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' to enter INIT_CHECK`;
         const nonGitHint = !isGitRepository(ctx.root)

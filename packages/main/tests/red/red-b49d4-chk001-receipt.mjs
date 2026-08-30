@@ -176,7 +176,7 @@ if (newcomerDrivesRealGuards) {
 // 3. adversarial — blindness could have been a broken experiment, so the control
 //    direction is asserted too: a de-registration against a COPY of the config
 //    DOES make the same guard fail. And the copy really was a copy: the sandbox
-//    is proven to redirect the read, and the real lattice.config.json is
+//    is proven to redirect the read, and the real proof-or-stop.config.json is
 //    byte-identical afterwards by sha256 and clean by git status.
 // ════════════════════════════════════════════════════════════════════════════
 const controlRow = observed('CONTROL_DEREGISTRATION_BITES');
@@ -200,17 +200,17 @@ const controlBitesOnACopy =
   // … while the real config was never written to, and no probe survived.
   && isGreen('REAL_CONFIG_BYTE_UNMODIFIED')
   && digests !== null && digests[1] === digests[2]
-  && /git status --porcelain -- lattice\.config\.json => ""/.test(configRow)
+  && /git status --porcelain -- proofOrStop\.config\.json => ""/.test(configRow)
   && isGreen('PROBES_CLEANED_UP')
   // the blindness run and the control run are the SAME guard, so the contrast is real
   && isGreen('GUARD_PASSES_ON_UNTOUCHED_TREE');
 
 if (controlBitesOnACopy) {
   console.log(
-    `CONTROL_BITES_ON_A_COPY_REAL_CONFIG_UNMODIFIED (de-registering ${victim[1]} from a COPY of lattice.config.json `
+    `CONTROL_BITES_ON_A_COPY_REAL_CONFIG_UNMODIFIED (de-registering ${victim[1]} from a COPY of proof-or-stop.config.json `
     + `(${victim[2]} → ${victim[3]} commands) made the SAME guard exit non-zero and name it, while an unmutated copy `
     + 'in the same sandbox still passed and an empty-commands copy still failed — so the sandbox provably redirected '
-    + `the read and blindness is not a broken experiment; the real lattice.config.json is byte-identical `
+    + `the read and blindness is not a broken experiment; the real proof-or-stop.config.json is byte-identical `
     + `(sha256 ${digests[1]}… before and after), git status reports it clean, and every planted probe was removed)`,
   );
 }

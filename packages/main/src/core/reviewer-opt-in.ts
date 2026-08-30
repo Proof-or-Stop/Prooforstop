@@ -95,7 +95,7 @@ export function resolveChannel(
 
 /**
  * Match by reviewer short name against the finding agent string.
- * An agent like "lattice-review-concept" matches name="concept".
+ * An agent like "proof-or-stop-review-concept" matches name="concept".
  * Supports the bare "concept" name and any form of <prefix>-concept / <prefix>:concept.
  */
 export function findingAgentMatchesReviewer(agent: string | undefined, reviewerName: string): boolean {
@@ -103,6 +103,6 @@ export function findingAgentMatchesReviewer(agent: string | undefined, reviewerN
   const a = agent.toLowerCase();
   const n = reviewerName.toLowerCase();
   if (a === n) return true;
-  // "lattice-review-concept" / "review-concept" / "some-concept" — use boundary matching
+  // "proof-or-stop-review-concept" / "review-concept" / "some-concept" — use boundary matching
   return a.endsWith(`-${n}`) || a.endsWith(`:${n}`) || a.includes(`-${n}-`) || a.includes(`-${n}:`);
 }

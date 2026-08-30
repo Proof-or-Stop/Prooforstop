@@ -54,10 +54,10 @@ function write(root: string, rel: string, content: string): void {
 
 function mkRoot(): string {
   const root = mkdtempSync(join(tmpdir(), 'pb-memory-index-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   resetConfigCache();
@@ -171,9 +171,9 @@ function packPair(root: string, query: string) {
 
 async function run(): Promise<void> {
   const roots: string[] = [];
-  const previousGlobal = process.env.LATTICE_GLOBAL_MEMORY_DIR;
+  const previousGlobal = process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR;
   const globalRoot = mkdtempSync(join(tmpdir(), 'pb-memory-index-global-'));
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = globalRoot;
+  process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = globalRoot;
   try {
     check('M0 profiling baseline remains non-authoritative report-only', () => {
       const root = mkRoot(); roots.push(root); seed(root);
@@ -606,9 +606,9 @@ async function run(): Promise<void> {
     console.log(`playbook-runtime-memory index smoke passed: TOTAL ${total} | PASS ${passed} | FAIL 0`);
   } finally {
     if (previousGlobal === undefined) {
-      delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
+      delete process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR;
     } else {
-      process.env.LATTICE_GLOBAL_MEMORY_DIR = previousGlobal;
+      process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = previousGlobal;
     }
     rmSync(globalRoot, { recursive: true, force: true });
     for (const root of roots) {

@@ -48,7 +48,7 @@ export function checkMetaStoryAdvanceGuard(storyId: string, _targetPhase: string
     return (
       `Cannot advance meta-story ${storyId}: META stories are containers; cannot advance via story_advance. ` +
       `meta-story only accumulates findings through audit rounds, it does not follow regular phase transitions. ` +
-      `To stop audit, change mode=off in .lattice/audit-config.json.`
+      `To stop audit, change mode=off in .proof-or-stop/audit-config.json.`
     );
   }
   return null;
@@ -143,7 +143,7 @@ export function recordRound(store: StoryStore, round: number, storyId: string = 
     phase: 'META',
     action: 'advance',
     timestamp: new Date().toISOString(),
-    agent: 'lattice-audit',
+    agent: 'proof-or-stop-audit',
     reason: `framework audit round ${round}`,
   };
   story.events.push(event);
@@ -191,7 +191,7 @@ export function upsertDrift(
     severity: drift.severity,
     category: 'missing', // audit drift is essentially "promise vs actual" missing, classified as missing
     status: 'open',
-    agent: 'lattice-audit',
+    agent: 'proof-or-stop-audit',
     createdAt: now,
     reviewRound: roundStr,
     _hash: signFinding(storyId, id, drift.desc, drift.severity, now, roundStr),
@@ -306,7 +306,7 @@ function gitCommonDir(gitCwd: string): string {
 }
 
 function provenanceKey(gitCwd: string): Buffer {
-  const path = join(gitCommonDir(gitCwd), 'lattice-gap-log-provenance.key');
+  const path = join(gitCommonDir(gitCwd), 'proof-or-stop-gap-log-provenance.key');
   if (!existsSync(path)) {
     mkdirSync(dirname(path), { recursive: true });
     try {
@@ -508,7 +508,7 @@ export function appendGapFinding(
     evidenceState: gap.evidenceState,
     ...(gap.uncertaintyReason ? { uncertaintyReason: gap.uncertaintyReason } : {}),
     ...(gap.disprovenEvidence ? { disprovenEvidence: gap.disprovenEvidence } : {}),
-    agent: gap.agent || 'lattice-gap-log',
+    agent: gap.agent || 'proof-or-stop-gap-log',
     createdAt: now,
     reviewRound: '',
     gapFingerprint: fingerprint,

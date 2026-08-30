@@ -364,8 +364,11 @@ const EXPERIMENT_PROVENANCE_PATHS = new Set(EXPERIMENT_PROVENANCE_ROWS.map((row)
 // Baseline of sorted `path NUL schema-token NUL count NUL contextSha256` rows.
 // The exact row list is derived from tracked active source, while this digest makes
 // additions, deletions, changed counts, moved paths, and context mutations fail closed.
+// B-022e CHK-005 repins only the paths of identity-bearing source modules that
+// moved from their retired filenames; all 374 tokens, counts, and context hashes
+// were compared row-for-row before this path-only baseline update.
 const PERSISTED_SCHEMA_ROW_COUNT = 374;
-const PERSISTED_SCHEMA_BASELINE_SHA256 = '4d40f26e2840e17d60a1473f75d108306f91df8c06dee84b9d969e60df39fcce';
+const PERSISTED_SCHEMA_BASELINE_SHA256 = '384049f14300eafc950e24d8e3d7d367e99f99a4ebd4e6145b2341000bb5a8f3';
 
 const ACTIVE_CLASSES = [
   'package',

@@ -102,7 +102,7 @@ const { loadConfig } = await import(`${DIST}/core/config.js`);
 // `redEvidenceRepairGuidance` is imported for the same reason: the repair command
 // it renders names the CLI bin, which is brand-dependent (B-cdf6 renamed it to
 // `proof-or-stop` per docs/requirements/decisions/brand-rename-mapping.md:121,
-// "Hardcoded `lattice <cmd>` hints and error strings ... RENAMED"). Hardcoding the
+// "Hardcoded `proofOrStop <cmd>` hints and error strings ... RENAMED"). Hardcoding the
 // bin name here made this receipt fail on a pure rename while every behaviour it
 // guards still held. Deriving it pins what production ACTUALLY emits — strictly
 // stronger, because a dropped or reworded guidance line still fails the check.
@@ -117,7 +117,7 @@ const root = join(process.env.TMPDIR || '/tmp', `red-b2aa7-chk006-${process.pid}
 
 mkdirSync(root, { recursive: true });
 writeFileSync(
-  join(root, 'lattice.config.json'),
+  join(root, 'proof-or-stop.config.json'),
   JSON.stringify({ proofStory: { devGateMode: 'enforce', reviewGateMode: 'enforce', doneGateMode: 'enforce' } }, null, 2),
   'utf8',
 );

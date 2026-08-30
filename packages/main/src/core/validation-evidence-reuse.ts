@@ -149,7 +149,7 @@ export function buildRoutineValidationIdentity(args: {
     };
   });
   const unsigned = {
-    schema: 'lattice.routine-validation-identity' as const,
+    schema: 'proofOrStop.routine-validation-identity' as const,
     version: 1 as const,
     source: {
       kind: args.sourceKind,
@@ -175,7 +175,7 @@ export function buildRoutineValidationIdentity(args: {
 export function isCompleteRoutineValidationIdentity(value: unknown): value is RoutineValidationIdentity {
   if (!value || typeof value !== 'object') return false;
   const identity = value as RoutineValidationIdentity;
-  if (identity.schema !== 'lattice.routine-validation-identity' || identity.version !== 1) return false;
+  if (identity.schema !== 'proofOrStop.routine-validation-identity' || identity.version !== 1) return false;
   if (!identity.source || !['configured', 'fallback', 'validate-file', 'no-validator'].includes(identity.source.kind)) return false;
   if (!Array.isArray(identity.commands) || !identity.invocation || !identity.runtime) return false;
   if (typeof identity.source.inputDigest !== 'string' || identity.source.inputDigest.length !== 64) return false;
@@ -228,7 +228,7 @@ export function summarizeRoutineCommandExecution(
     ? 'infra_failure'
     : requiredFailureCount > 0 || semanticFailure ? 'validation_failure' : undefined;
   return {
-    schema: 'lattice.routine-validation-command-execution',
+    schema: 'proofOrStop.routine-validation-command-execution',
     version: 1,
     status: requiredFailureCount === 0 && !semanticFailure ? 'PASS' : 'FAIL',
     complete: results.length === expectedCommandCount,
@@ -245,7 +245,7 @@ export function isReusableCommandPass(
 ): value is RoutineValidationCommandExecution {
   if (!value || typeof value !== 'object') return false;
   const execution = value as RoutineValidationCommandExecution;
-  return execution.schema === 'lattice.routine-validation-command-execution'
+  return execution.schema === 'proofOrStop.routine-validation-command-execution'
     && execution.version === 1
     && execution.status === 'PASS'
     && execution.complete === true

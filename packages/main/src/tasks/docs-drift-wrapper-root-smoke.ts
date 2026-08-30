@@ -23,9 +23,9 @@
  * in a configured subdir. The wrapper repo deliberately does NOT track the doc, so
  * `git grep` from it runs cleanly but finds nothing (the swallowed-fallback class):
  *   metadataRoot/                <- OUTER wrapper git repo (the wrapper root); tracks
- *                                   only lattice.config.json + .gitignore (NOT repo/)
+ *                                   only proof-or-stop.config.json + .gitignore (NOT repo/)
  *     .gitignore                 <- ignores `repo/` so the inner gitRoot stays separate
- *     lattice.config.json        <- { gitRoot: "repo" } so resolveGitCwd resolves to the
+ *     proof-or-stop.config.json        <- { gitRoot: "repo" } so resolveGitCwd resolves to the
  *                                   subdir gitRoot via the configured-git-root branch
  *                                   (which the resolver consults BEFORE metadata-git-root)
  *     repo/                      <- the REAL inner `git init` repo (the gitRoot), one commit
@@ -39,7 +39,7 @@
  *
  * Two proofs, so the regression is BOTH end-to-end and root-selection-faithful:
  *   (1) PRIMARY end-to-end: drive runReviewCliGates with a stub StoryStore + a real
- *       lattice.config.json whose `gitRoot` resolves to the subdir, inject the other
+ *       proof-or-stop.config.json whose `gitRoot` resolves to the subdir, inject the other
  *       gate readers so only docs-drift exercises real fs/git, and assert the
  *       docs-drift gate is `pass`. Reverting CHK-001 (`repoRoot: gitCwd` ->
  *       `repoRoot: deps.projectRoot`) flips this assertion RED — proving the exact
@@ -109,7 +109,7 @@ function buildFixture(): { metadataRoot: string; gitRoot: string } {
   // metadataRoot = the OUTER wrapper git repo (the wrapper root). realpathSync via
   // resolveStorySignedWorkspace canonicalizes /var -> /private/var on macOS, so use
   // the canonical path everywhere to keep the resolver's gitRoot prefix-match stable.
-  const metadataRoot = mkdtempSync(join(tmpdir(), 'lattice-wrapper-root-'));
+  const metadataRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-wrapper-root-'));
 
   // Outer wrapper repo: tracks only config + .gitignore (and NOT repo/), so a
   // `git grep` from the metadataRoot runs cleanly but never finds the doc — the
@@ -118,15 +118,15 @@ function buildFixture(): { metadataRoot: string; gitRoot: string } {
   git(metadataRoot, ['checkout', '-b', 'wrapper-main']);
   // Ignore the inner gitRoot subdir so the outer repo does not track its files.
   writeFileSync(join(metadataRoot, '.gitignore'), 'repo/\n', 'utf-8');
-  // lattice.config.json points gitRoot at the subdir. This is what makes
+  // proof-or-stop.config.json points gitRoot at the subdir. This is what makes
   // resolveGitCwd (via resolveStorySignedWorkspace's configured-git-root branch,
   // which is consulted BEFORE the metadata-git-root branch) resolve to the subdir.
   writeFileSync(
-    join(metadataRoot, 'lattice.config.json'),
+    join(metadataRoot, 'proof-or-stop.config.json'),
     JSON.stringify({ gitRoot: 'repo' }, null, 2),
     'utf-8',
   );
-  git(metadataRoot, ['add', '.gitignore', 'lattice.config.json']);
+  git(metadataRoot, ['add', '.gitignore', 'proof-or-stop.config.json']);
   git(metadataRoot, ['commit', '-m', 'wrapper root config']);
 
   // gitRoot = a real INNER git repo in a subdir of metadataRoot (inside the
@@ -177,7 +177,7 @@ function makeStubStore(metadataRoot: string): StoryStore {
     endedAt: null,
     riskSignals: [],
     // NO worktree binding -> resolveStorySignedWorkspace falls through to the
-    // configured-git-root branch (driven by lattice.config.json gitRoot).
+    // configured-git-root branch (driven by proof-or-stop.config.json gitRoot).
   };
   const stub = {
     readStory: () => story,
@@ -191,8 +191,8 @@ function makeStubStore(metadataRoot: string): StoryStore {
     readDecision: () => null,
     readProcessEvents: () => [],
     storyExists: () => true,
-    storyDirRel: () => '.lattice/story/actives',
-    storyDirPath: (id: string) => join(metadataRoot, '.lattice/story/actives', id),
+    storyDirRel: () => '.proof-or-stop/story/actives',
+    storyDirPath: (id: string) => join(metadataRoot, '.proof-or-stop/story/actives', id),
   };
   return stub as unknown as StoryStore;
 }

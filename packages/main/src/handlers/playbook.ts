@@ -24,7 +24,7 @@
  *
  * Imports stay minimal and stay inside the experience-layer / learning boundary:
  * the only outward imports are `node:` builtins, the leaf types, the learning-store
- * (which itself only touches `.lattice/learning/` and `./digest.js`), the main
+ * (which itself only touches `.proof-or-stop/learning/` and `./digest.js`), the main
  * write lock, the sibling learning helpers `source-lineage-audit` and `playbook-seed`
  * (both built on the learning-store; neither is a finding-writer, advisory, or gate),
  * and the HandlerContext for the store read port.

@@ -25,7 +25,7 @@
  * shapes on purpose:
  *
  *   - koala token         -> proves the zero-tolerance presence check (check 1)
- *   - `.startsWith('.lattice/')` -> proves the forbidden DECISION check (check 4)
+ *   - `.startsWith('.proof-or-stop/')` -> proves the forbidden DECISION check (check 4)
  *
  * The second inject is the exact defect class the row flip exists to catch: a
  * DEPRECATED brand literal used as a path comparison, which recognizes only the

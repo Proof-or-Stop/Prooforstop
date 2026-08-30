@@ -45,8 +45,8 @@ const storyId = 'B-ddp-smoke';
 const decisionTimestamp = '2026-06-14T00:00:00.000Z';
 const sessionEnv = {
   ...process.env,
-  LATTICE_SESSION_ID: 'decision-doc-promotion-smoke',
-  LATTICE_AGENT: 'decision-doc-promotion-smoke',
+  PROOF_OR_STOP_SESSION_ID: 'decision-doc-promotion-smoke',
+  PROOF_OR_STOP_AGENT: 'decision-doc-promotion-smoke',
 };
 
 function git(cwd: string, args: string[]): string {
@@ -173,13 +173,13 @@ function makeRepo(): { root: string; store: StoryStore } {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'decision-doc-promotion@example.test']);
   git(root, ['config', 'user.name', 'Decision Doc Promotion Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'src',
     rootDir: '.',
     outDir: 'dist',
     testsDir: 'tests',
     fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));

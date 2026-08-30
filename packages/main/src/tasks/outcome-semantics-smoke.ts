@@ -27,10 +27,10 @@ function git(root: string, args: string[]): void {
 }
 
 function configureRoot(root: string): void {
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   resetConfigCache();
@@ -82,7 +82,7 @@ function schemaFor(name: string) {
 }
 
 function assertOutcomeDashboard(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-outcome-dashboard-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-outcome-dashboard-'));
   try {
     configureRoot(root);
     const store = new StoryStore(root);
@@ -109,7 +109,7 @@ function assertOutcomeDashboard(): void {
 }
 
 function assertSessionDashboardAndAuthorityWording(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-outcome-session-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-outcome-session-'));
   try {
     configureRoot(root);
     const store = new StoryStore(root);
@@ -119,7 +119,7 @@ function assertSessionDashboardAndAuthorityWording(): void {
     store.writeSummary('B-corrupt', makePersistedCorruptSummary('B-corrupt'));
     write(root, 'packages/main/src/index.ts', 'export {};\n');
     git(root, ['init']);
-    git(root, ['config', 'user.email', 'lattice@example.test']);
+    git(root, ['config', 'user.email', 'proofOrStop@example.test']);
     git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -149,7 +149,7 @@ function assertSessionDashboardAndAuthorityWording(): void {
 }
 
 function assertSummaryOutcomeKind(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-outcome-summary-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-outcome-summary-'));
   try {
     configureRoot(root);
     const store = new StoryStore(root);

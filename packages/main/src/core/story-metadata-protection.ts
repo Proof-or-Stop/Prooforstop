@@ -18,7 +18,7 @@
  * the predicate trivially unit-testable without spawning git.
  *
  * The incident (ClawCreek, Proof-or-Stop 0.3.5): a project that broadly ignores
- * `.lattice/` keeps the volatile runtime safe from `git clean` but SILENTLY
+ * `.proof-or-stop/` keeps the volatile runtime safe from `git clean` but SILENTLY
  * untracks the persistent story metadata. The metadata is then never committed,
  * and the next `git clean -fdx` (ignored + untracked = exactly what clean
  * removes) or a wrong-branch checkout permanently deletes it. 19 stories were
@@ -28,7 +28,7 @@
  * predicate flagged ONLY the `ignored && !tracked` state, reasoning that a
  * negation-allowlisted (`!ignored`) leaf was inherently safe because it is
  * trackable. That blind spot was real: a leaf in the INIT window is
- * `!ignored && !tracked` — the `.gitignore` `!.lattice/story/actives/**`
+ * `!ignored && !tracked` — the `.gitignore` `!.proof-or-stop/story/actives/**`
  * allowlist re-includes it (so it is NOT ignored), but `story_create` had not
  * yet committed it (so it is UNTRACKED). An untracked + not-ignored path is
  * EXACTLY what a plain `git clean -fd` targets (untracked, not ignored), so the
@@ -52,8 +52,8 @@
  * gates `unsafe`.
  *
  * The guard MUST be evaluated on the actual metadata LEAF (the index.json that
- * is git-added), NOT the `.lattice` prefix: under a negation allowlist git
- * check-ignore on the `.lattice` parent reports "ignored" even though the leaf
+ * is git-added), NOT the `.proof-or-stop` prefix: under a negation allowlist git
+ * check-ignore on the `.proof-or-stop` parent reports "ignored" even though the leaf
  * is re-included, which would mis-report the leaf's true ignore state.
  */
 

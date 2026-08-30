@@ -44,7 +44,7 @@ export interface AutopilotReceiptProjection {
   provided: boolean;
   verified: boolean;
   native: boolean;
-  format?: 'legacy-subject' | 'lattice-authority';
+  format?: 'legacy-subject' | 'proof-or-stop-authority';
   receiptId?: string;
   kind?: string;
   projectId?: string;

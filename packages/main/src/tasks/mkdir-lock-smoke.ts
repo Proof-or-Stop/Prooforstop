@@ -21,7 +21,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 
-const root = join(tmpdir(), `lattice-mkdir-lock-smoke-${process.pid}-${Date.now()}`);
+const root = join(tmpdir(), `proof-or-stop-mkdir-lock-smoke-${process.pid}-${Date.now()}`);
 mkdirSync(root, { recursive: true });
 
 try {

@@ -134,9 +134,9 @@ console.log('  real artifact unchanged: true');
  */
 const { resolveSessionIdentity } = await import('../core/owner-session.js');
 const base = {
-  LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'claude-code',
-  LATTICE_OWNER_SESSION_ADAPTER_TASK: 'b49ed-edge',
-  LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'lattice-review-topology-critic',
+  PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'claude-code',
+  PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'b49ed-edge',
+  PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: 'proof-or-stop-review-topology-critic',
 } as Record<string, string>;
 // B-49ed F-025: use an isolated scratch root rather than process.cwd(). Nothing downstream
 // needs `root` to be a real project: detectProvider reads env only, the token store treats
@@ -153,26 +153,26 @@ assert.equal(asAdapter.sessionSource, 'host-adapter', 'provider+task+agent yield
 
 // Generation requested WITHOUT a boundary -> refused, falls back below host-adapter.
 const genNoBoundary = resolveSessionIdentity(
-  { ...base, LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true' } as never, inputs);
+  { ...base, PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED: 'true' } as never, inputs);
 assert.notEqual(genNoBoundary.sessionSource, 'generated-token',
   'generation without a boundary token does NOT yield generated-token');
 
 // Generation WITH a boundary -> generated-token.
 const genWithBoundary = resolveSessionIdentity(
-  { ...base, LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true', LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: 'b49ed' } as never, inputs);
+  { ...base, PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED: 'true', PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY: 'b49ed' } as never, inputs);
 assert.equal(genWithBoundary.sessionSource, 'generated-token',
   'generation with provider+task+agent+boundary yields generated-token');
 
 // Dropping an identity dimension breaks it entirely.
 const missingAgent = resolveSessionIdentity(
-  { LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'claude-code', LATTICE_OWNER_SESSION_ADAPTER_TASK: 'b49ed-edge',
-    LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true', LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: 'b49ed' } as never, inputs);
+  { PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'claude-code', PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'b49ed-edge',
+    PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED: 'true', PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY: 'b49ed' } as never, inputs);
 assert.notEqual(missingAgent.sessionSource, 'generated-token',
   'generated-token still requires the agent identity dimension');
 
 // B-49ed F-017/F-019/F-020/F-025: the resolveSessionIdentity probes above write an
-// owner-session-tokens store under a `.lattice/runtime` dir, and .gitignore's
-// `.lattice/runtime/` pattern is root-anchored so it does not cover packages/main/.lattice.
+// owner-session-tokens store under a `.proof-or-stop/runtime` dir, and .gitignore's
+// `.proof-or-stop/runtime/` pattern is root-anchored so it does not cover packages/main/.proof-or-stop.
 // This must run AFTER those probes -- an earlier version placed it before them and was
 // therefore inert. Since F-025 the probes write under an isolated scratch root instead of
 // cwd, so cleanup is a single scoped removal of that root -- nothing outside it is touched.

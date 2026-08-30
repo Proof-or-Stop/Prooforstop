@@ -402,7 +402,7 @@ export function verifyAcceptanceCoverageBasis(
   const diagnostics: AcceptanceBasisDiagnostic[] = [];
   // B-cdf6: the `generatedBy.command` comparisons below are DELIBERATELY exact-match on
   // the canonical bin name, and are the one place in the rename where read-both is the
-  // WRONG answer. Do not add a `|| === 'lattice ...'` shim here.
+  // WRONG answer. Do not add a `|| === 'proofOrStop ...'` shim here.
   //
   // Why: this string is an input to `basisDigest`. Accepting both spellings would mean
   // accepting two different digests for what claims to be the same basis, which defeats

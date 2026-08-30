@@ -9,7 +9,7 @@
  * these calls errored (`fatal: not a git repository`) and the operation either
  * hard-threw or silently no-opped:
  *
- *   1. core/lattice-dispatch.ts
+ *   1. core/proof-or-stop-dispatch.ts
  *        listedGitWorktreeRoots(root)              `git worktree list --porcelain`  HARD-THROW
  *        assertRegisteredDispatchWorktreeRoot(...) `git -C <wt> rev-parse --show-toplevel`  HARD-THROW
  *      → dispatch could NEVER register/validate an isolated worktree on a wrapper root.
@@ -75,7 +75,7 @@ const CONFIG = (gitRoot: string | undefined): string =>
     {
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
       ...(gitRoot ? { gitRoot } : {}),
@@ -86,7 +86,7 @@ const CONFIG = (gitRoot: string | undefined): string =>
   );
 
 /** A minimal TEST-phase story with NO worktree binding, so resolveGitCwd uses the
- *  configured-git-root branch driven by lattice.config.json gitRoot. */
+ *  configured-git-root branch driven by proof-or-stop.config.json gitRoot. */
 function writeStory(store: StoryStore, storyId: string): void {
   const now = '2026-06-17T00:00:00.000Z';
   const story: StoryInfo = {
@@ -121,11 +121,11 @@ function pass(msg: string): void {
 }
 
 /** Build a wrapper-root fixture: metadataRoot (NON-git) + gitRoot subdir (clean
- *  git repo, branch main, one commit) + lattice.config.json{gitRoot:"repo"}. */
+ *  git repo, branch main, one commit) + proof-or-stop.config.json{gitRoot:"repo"}. */
 function buildWrapperFixture(): { metadataRoot: string; gitRoot: string } {
-  const metadataRoot = mkdtempSync(join(tmpdir(), 'lattice-dcd-wrapper-'));
+  const metadataRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-dcd-wrapper-'));
   // metadataRoot is deliberately NOT a git repo: any git command from here errors.
-  writeFileSync(join(metadataRoot, 'lattice.config.json'), CONFIG('repo'), 'utf-8');
+  writeFileSync(join(metadataRoot, 'proof-or-stop.config.json'), CONFIG('repo'), 'utf-8');
 
   const gitRoot = join(metadataRoot, 'repo');
   mkdirSync(gitRoot, { recursive: true });
@@ -158,7 +158,7 @@ function gitThrows(cwd: string, args: string[]): boolean {
     const gitRootReal = realpathSync(gitRoot);
     const metaReal = realpathSync(metadataRoot);
 
-    // ── Site 1: lattice-dispatch (story-scoped resolveGitCwd) ──────────────────
+    // ── Site 1: proof-or-stop-dispatch (story-scoped resolveGitCwd) ──────────────────
     // The dispatch helpers resolve via resolveGitCwd({store, storyId, ...}); the
     // result MUST be the inner gitRoot, not the non-git metadataRoot.
     const dispatchGitCwd = resolveGitCwd({ store, storyId: STORY_ID, metadataRoot, projectRoot: metadataRoot });
@@ -280,9 +280,9 @@ function gitThrows(cwd: string, args: string[]): boolean {
 // ════════════════════════════════════════════════════════════════════════════
 {
   resetConfigCache();
-  const root = mkdtempSync(join(tmpdir(), 'lattice-dcd-plain-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-dcd-plain-'));
   try {
-    writeFileSync(join(root, 'lattice.config.json'), CONFIG(undefined), 'utf-8');
+    writeFileSync(join(root, 'proof-or-stop.config.json'), CONFIG(undefined), 'utf-8');
     writeFileSync(join(root, 'README.md'), '# plain repo\n', 'utf-8');
     git(root, ['init', '-b', 'main']);
     git(root, ['add', '.']);

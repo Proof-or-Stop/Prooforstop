@@ -45,7 +45,7 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   //      each of the two remaining conditions has a real operating mode that
   //      breaks it:
   //        1. shouldWriteActivityLog (below) returns true for a read-only command
-  //           when LATTICE_ACTIVITY_RECORD_READONLY === '1'. That is not a test
+  //           when PROOF_OR_STOP_ACTIVITY_RECORD_READONLY === '1'. That is not a test
   //           knob: it is baked into GLOBAL_CODEX_FALLBACK_COMMAND
   //           (core/codex-adapter-checks.ts) and into the generated Codex wrapper
   //           (src/init-assets.ts), so under the documented Codex heartbeat mode
@@ -57,7 +57,7 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   //           that OR appends one generic session row for ANY command, read-only
   //           included.
   //      That row is not outside this repository's own artifact taxonomy: it
-  //      lands in .lattice/activity.jsonl, which core/runtime-artifact-registry.ts
+  //      lands in .proof-or-stop/activity.jsonl, which core/runtime-artifact-registry.ts
   //      registers as the `runtime-activity-log` artifact. And on the throwing
   //      path the CLI catch block passes e.message into writeLog, which stores it
   //      in the row's `error` field — so under either bypass the full tagged
@@ -66,18 +66,18 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   //      resolves session identity through getSessionIdentity
   //      (core/owner-session.ts). Under the generated-token adapter mode that
   //      path reaches readOrCreateOwnerSessionToken, which creates or refreshes a
-  //      file under .lattice/runtime/owner-session-tokens/ — registered
+  //      file under .proof-or-stop/runtime/owner-session-tokens/ — registered
   //      SEPARATELY in core/runtime-artifact-registry.ts as the
   //      `owner-session-token-store` artifact, so it is a second .proof-or-stop write
   //      the activity path can cause.
   //   D. THE HEALTH LOG. When activity or hook persistence FAILS, reportHealthIssue
-  //      (core/health.ts) appends one JSONL row to the health log — ~/.lattice/health.jsonl
+  //      (core/health.ts) appends one JSONL row to the health log — ~/.proof-or-stop/health.jsonl
   //      by default, which is outside the project tree. THE DEFAULT IS THE ONLY
   //      THING THAT IS OUTSIDE IT: getHealthPath in core/health.ts returns
-  //      LATTICE_HEALTH_PATH VERBATIM when set, with no project-tree containment
+  //      PROOF_OR_STOP_HEALTH_PATH VERBATIM when set, with no project-tree containment
   //      check and no suffix or shape constraint, and reportHealthIssue then
   //      mkdirs the parent and appends there. So an override may name a path
-  //      INSIDE .lattice/story/actives/<id>/ — including an existing gate or
+  //      INSIDE .proof-or-stop/story/actives/<id>/ — including an existing gate or
   //      evidence artifact — and a matching onError hook that exits non-zero is
   //      one route that reaches reportHealthIssue. The remedy is not a claim
   //      here: describing this surface does not constrain it, and adding a
@@ -135,7 +135,7 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   // by runtime writers, the first two registered as RUNTIME artifacts in
   // core/runtime-artifact-registry.ts. The destination argument is what breaks,
   // and D is where it breaks: the health log is outside the project tree ONLY
-  // under its default path, LATTICE_HEALTH_PATH is unconstrained, and under
+  // under its default path, PROOF_OR_STOP_HEALTH_PATH is unconstrained, and under
   // such an override the built-in health writer can land a row on a story
   // artifact. That override does not make the health writer a story-evidence
   // writer, so the canonical sentence still holds as stated; it does mean the
@@ -166,7 +166,7 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'host_runtime_list',
   'host_runtime_probe',
   'host_install',
-  'lattice_config_doctor',
+  'proof_or_stop_config_doctor',
   'rollout_check',
   'baseline_suite_report',
   'conduit_status',

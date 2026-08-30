@@ -27,7 +27,7 @@ import {
 import { BRAND_ENV_PREFIX, readBrandEnv } from '../core/brand-env.js';
 
 const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
-  'lattice-review-story-init',
+  'proof-or-stop-review-story-init',
   'product-reviewer',
 ]);
 
@@ -128,8 +128,8 @@ export function renderSlimChecklist(storyId: string, cl: ChecklistData): Record<
  * B-6812 CHK-001: delegates to the shared `withMkdirLock` primitive.
  *
  * B-d877 R3 FIX B: the lock dir is relocated OUT of the git-tracked story dir to
- * the gitignored shared `.lattice/locks/checklist/<id>-checklist.lock` so the
- * universal holder.json can never be committed inside `.lattice/story/actives/`
+ * the gitignored shared `.proof-or-stop/locks/checklist/<id>-checklist.lock` so the
+ * universal holder.json can never be committed inside `.proof-or-stop/story/actives/`
  * and dirty the tree. External behavior (mutual exclusion) is unchanged.
  */
 function withChecklistLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
@@ -383,14 +383,14 @@ const MIN_NON_MECHANICAL_ESCAPE_REASON = 30;
 // 21-24 min, so the run was KILLED mid-flight, no verdict line was ever printed, and the
 // refusal named only [receipt_selector_absent] — a multi-attempt guessing game with no
 // hint that a ceiling existed. The framework already knows this command legitimately
-// needs longer: lattice.config.json gives the same `npm test` a 7200000ms budget as a
+// needs longer: proof-or-stop.config.json gives the same `npm test` a 7200000ms budget as a
 // DONE-required command. Only the evidence path disagreed.
 //
 // FIX (two parts): (1) a DISTINCT [receipt_command_timeout] refusal naming the elapsed
 // budget, so a killed run is diagnosable in one line; (2) this bounded override so a
 // legitimately long witness can earn a REAL receipt.
 //
-// The cap is exactly the value lattice.config.json already uses for the DONE-required
+// The cap is exactly the value proof-or-stop.config.json already uses for the DONE-required
 // root suite. Above the cap is REFUSED, never silently clamped — a caller who asked for
 // more than the framework's own longest sanctioned budget has a design problem the tool
 // must not paper over. The cap is imported from validation-executor.ts (the single source
@@ -436,7 +436,7 @@ function resolveEvidenceCommandTimeout(
   if (raw > MAX_EVIDENCE_COMMAND_TIMEOUT_MS) {
     throw new Error(
       `${label}: commandTimeoutMs ${raw}ms exceeds the ${MAX_EVIDENCE_COMMAND_TIMEOUT_MS}ms cap (the longest budget the ` +
-      `framework itself sanctions — lattice.config.json's DONE-required root suite). REFUSED rather than clamped: a ` +
+      `framework itself sanctions — proof-or-stop.config.json's DONE-required root suite). REFUSED rather than clamped: a ` +
       `witness that needs more than that is a design problem, not a budget problem. [command_timeout_above_cap]`,
     );
   }
@@ -1374,7 +1374,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
       // USER is retained below for human audit attribution, but it is not a
       // dispatched-agent identity. Only an explicit actor/agent or
-      // PROOF_OR_STOP_AGENT (deprecated alias LATTICE_AGENT) participates in registry authorization.
+      // PROOF_OR_STOP_AGENT (deprecated alias PROOF_OR_STOP_AGENT) participates in registry authorization.
       const authority = resolveAgentMutationAuthority({
         command: 'checklist_update',
         payloadActors: [args.agent, args.actor],

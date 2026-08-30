@@ -26,16 +26,16 @@ function write(root: string, path: string, content: string): void {
 
 function commit(root: string, message: string): string {
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=lattice-implementer', 'commit', '-m', message]);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=proof-or-stop-implementer', 'commit', '-m', message]);
   return git(root, ['rev-parse', 'HEAD']);
 }
 
 function initRoot(): { root: string; store: StoryStore; storyId: string } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-cluster-sync-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-cluster-sync-'));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   write(root, 'README.md', 'cluster sync smoke\n');
@@ -80,7 +80,7 @@ function initRoot(): { root: string; store: StoryStore; storyId: string } {
       severity: 'high',
       category: 'happy',
       status: 'open',
-      agent: 'lattice-review-quality',
+      agent: 'proof-or-stop-review-quality',
       createdAt: now,
       reviewRound: now,
       _hash: 'smoke',
@@ -90,7 +90,7 @@ function initRoot(): { root: string; store: StoryStore; storyId: string } {
       severity: 'medium',
       category: 'edge',
       status: 'open',
-      agent: 'lattice-review-concept',
+      agent: 'proof-or-stop-review-concept',
       createdAt: now,
       reviewRound: now,
       _hash: 'smoke',

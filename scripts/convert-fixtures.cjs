@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 将项目自定义 fixture 格式转换为 lattice 标准格式
+ * 将项目自定义 fixture 格式转换为 proofOrStop 标准格式
  *
  * 用法: node scripts/convert-fixtures.js <fixtures-dir>
  *   扫描目录下所有 .json fixture，检测并转换非标准格式
@@ -73,24 +73,24 @@ function convertCase(c) {
       delete cleanExpect.errorMessageContains;
 
       // 转换自定义断言
-      const latticeExpect = {};
+      const proofOrStopExpect = {};
       let hasCustom = false;
 
       for (const [key, val] of Object.entries(cleanExpect)) {
         if (key === 'resultLength' || key === 'resultTaskIds') {
           // 自定义断言 → 无法直接转换，标记为注释
           hasCustom = true;
-          latticeExpect[`_custom_${key}`] = val;
+          proofOrStopExpect[`_custom_${key}`] = val;
         } else if (key.endsWith('Null') && val === true) {
           // memoryNull: true → 无法验证，跳过
           hasCustom = true;
         } else {
-          latticeExpect[key] = val;
+          proofOrStopExpect[key] = val;
         }
       }
 
-      if (Object.keys(latticeExpect).length > 0) {
-        converted.expect = latticeExpect;
+      if (Object.keys(proofOrStopExpect).length > 0) {
+        converted.expect = proofOrStopExpect;
       }
       if (hasCustom) {
         converted._warning = '含自定义断言，需 wrapper 配合验证';

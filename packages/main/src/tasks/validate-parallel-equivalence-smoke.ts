@@ -259,7 +259,7 @@ async function runFixture(
     commands: specs.map((spec) => probeCommand(spec, runDir, keyOverrides.get(spec.label))),
   };
   const startedAt = Date.now();
-  // jobs is passed EXPLICITLY, never left to LATTICE_VALIDATE_JOBS: the whole point
+  // jobs is passed EXPLICITLY, never left to PROOF_OR_STOP_VALIDATE_JOBS: the whole point
   // is that the two runs differ in exactly one input, so an ambient env var must not
   // be able to make "serial" and "parallel" the same run.
   const result = await executeValidationPlan(plan, projectRoot, undefined, undefined, { jobs });

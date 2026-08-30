@@ -20,9 +20,9 @@
  * Fixture (real disk, cleaned up):
  *   metadataRoot/                <- NON-git directory (the wrapper metadata root);
  *                                   `git status` from here errors.
- *     lattice.config.json        <- { gitRoot: "repo" } so resolveGitCwd resolves
+ *     proof-or-stop.config.json        <- { gitRoot: "repo" } so resolveGitCwd resolves
  *                                   to the subdir via the configured-git-root branch
- *     .lattice/story/actives/... <- real StoryStore metadata (story + checklist)
+ *     .proof-or-stop/story/actives/... <- real StoryStore metadata (story + checklist)
  *     repo/                      <- the REAL inner `git init` repo (the gitRoot),
  *                                   branch main, one CLEAN commit
  *
@@ -52,7 +52,7 @@
  *
  * B-6666 F-001 (REVIEW fix) extends this with a wrapper-root + CUSTOM storyDir
  * fixture. CHK-002 passed gitCwd into isMaterialExcludedPath -> isStoryMetadataPath
- * -> loadConfig at two sites in evidence-freshness.ts. But the lattice.config.json
+ * -> loadConfig at two sites in evidence-freshness.ts. But the proof-or-stop.config.json
  * that declares a CUSTOM storyDir lives at the metadataRoot, NOT the gitCwd. On a
  * wrapper-root layout with a non-default storyDir, loadConfig(gitCwd) silently
  * misses the custom storyDir, falls back to default prefixes, and the custom
@@ -106,7 +106,7 @@ const CONFIG = (gitRoot: string | undefined) =>
     {
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
       ...(gitRoot ? { gitRoot } : {}),
@@ -117,7 +117,7 @@ const CONFIG = (gitRoot: string | undefined) =>
   );
 
 /** A minimal TEST-phase story with NO worktree binding (so resolveGitCwd uses
- * the configured-git-root branch driven by lattice.config.json gitRoot). */
+ * the configured-git-root branch driven by proof-or-stop.config.json gitRoot). */
 function writeStory(store: StoryStore, storyId: string): void {
   const now = '2026-06-17T00:00:00.000Z';
   const story: StoryInfo = {
@@ -157,9 +157,9 @@ function gitWorkingTreeRow(rows: DoneCheckRow[]): DoneCheckRow {
 // Wrapper-root fixture: metadataRoot (NON-git) + gitRoot subdir (clean git repo).
 // ════════════════════════════════════════════════════════════════════════════
 function buildWrapperFixture(): { metadataRoot: string; gitRoot: string } {
-  const metadataRoot = mkdtempSync(join(tmpdir(), 'lattice-done-oracle-wrapper-'));
+  const metadataRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-oracle-wrapper-'));
   // metadataRoot is deliberately NOT a git repo: `git status` from here errors.
-  writeFileSync(join(metadataRoot, 'lattice.config.json'), CONFIG('repo'), 'utf-8');
+  writeFileSync(join(metadataRoot, 'proof-or-stop.config.json'), CONFIG('repo'), 'utf-8');
 
   // gitRoot = a real INNER git repo in a subdir, branch main, one clean commit.
   const gitRoot = join(metadataRoot, 'repo');
@@ -297,9 +297,9 @@ function buildWrapperFixture(): { metadataRoot: string; gitRoot: string } {
 // ════════════════════════════════════════════════════════════════════════════
 {
   resetConfigCache();
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-oracle-plain-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-oracle-plain-'));
   try {
-    writeFileSync(join(root, 'lattice.config.json'), CONFIG(undefined), 'utf-8');
+    writeFileSync(join(root, 'proof-or-stop.config.json'), CONFIG(undefined), 'utf-8');
     writeFileSync(join(root, 'README.md'), '# plain repo\n', 'utf-8');
     git(root, ['init']);
     git(root, ['checkout', '-b', 'main']);
@@ -358,12 +358,12 @@ function buildWrapperFixture(): { metadataRoot: string; gitRoot: string } {
 
 // ════════════════════════════════════════════════════════════════════════════
 // B-6666 F-001: wrapper-root + CUSTOM storyDir. Proves currentMaterialHash's
-// metadata exclusion loads lattice.config.json from the metadataRoot (where the
+// metadata exclusion loads proof-or-stop.config.json from the metadataRoot (where the
 // custom storyDir is declared), NOT from the gitCwd.
 //
 // Layout:
 //   metadataRoot/                <- NON-git wrapper metadata root.
-//     lattice.config.json        <- { gitRoot: "repo", storyDir: "custom/story" }
+//     proof-or-stop.config.json        <- { gitRoot: "repo", storyDir: "custom/story" }
 //   metadataRoot/repo/           <- the REAL inner git repo (gitRoot), branch main.
 //     src/keep.ts                <- a MATERIAL (non-metadata) file: always hashed.
 //     custom/story/B-6666/index.json  <- a CUSTOM-storyDir metadata file. Only the
@@ -373,7 +373,7 @@ function buildWrapperFixture(): { metadataRoot: string; gitRoot: string } {
 // ════════════════════════════════════════════════════════════════════════════
 {
   resetConfigCache();
-  const metadataRoot = mkdtempSync(join(tmpdir(), 'lattice-done-oracle-customstory-'));
+  const metadataRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-oracle-customstory-'));
   try {
     const CUSTOM_STORY_DIR = 'custom/story';
     const customConfig = JSON.stringify(
@@ -391,7 +391,7 @@ function buildWrapperFixture(): { metadataRoot: string; gitRoot: string } {
     );
     // metadataRoot is deliberately NOT a git repo; the config (with the custom
     // storyDir) lives here, at the metadataRoot.
-    writeFileSync(join(metadataRoot, 'lattice.config.json'), customConfig, 'utf-8');
+    writeFileSync(join(metadataRoot, 'proof-or-stop.config.json'), customConfig, 'utf-8');
 
     // Inner gitRoot subdir: a real git repo with one material file + one
     // custom-storyDir metadata file, all committed (clean working tree).
@@ -413,7 +413,7 @@ function buildWrapperFixture(): { metadataRoot: string; gitRoot: string } {
     const gitCwd = gitRoot;
 
     // (7) RED (the OLD buggy behavior): pass gitCwd as the metadataRoot. The
-    // config load runs from the inner gitRoot, which has NO lattice.config.json,
+    // config load runs from the inner gitRoot, which has NO proof-or-stop.config.json,
     // so loadConfig falls back to the default storyDir prefixes — none of which
     // match "custom/story/" — and the custom-storyDir file is INCLUDED.
     const redHash = currentMaterialHash(gitCwd, 'HEAD', gitCwd);

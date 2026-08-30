@@ -34,7 +34,7 @@ If the main agent asks you to take on INIT review or to judge whether INIT can a
 proof-or-stop init_check_set '{"storyId":"<STORY_ID>","issues":[...],"agentId":"product-reviewer"}'
 ```
 
-`agentId` must be exactly `product-reviewer`. Do not pass `lattice-review-story-init` — that is a different INIT reviewer, and using it will cause the gate to continue thinking the product-reviewer record is missing.
+`agentId` must be exactly `product-reviewer`. Do not pass `proof-or-stop-review-story-init` — that is a different INIT reviewer, and using it will cause the gate to continue thinking the product-reviewer record is missing.
 
 When there are no issues, pass `issues: []`; when there are issues, write them into `issues`. Only printing "conclusion: fail/pass" without calling the CLI will cause `story_advance INIT_CHECK` to report `missing_init_check`. critical/high issues block INIT_CHECK; medium/low are advisory.
 

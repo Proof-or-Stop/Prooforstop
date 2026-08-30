@@ -52,7 +52,7 @@ export const utilsToolDefs: ToolDef[] = [
   { name: 'convergence_check', description: 'Run a project convergence check', schema: {}},
 
   // Tool usage statistics
-  { name: 'tool_status', description: 'Report tool usage from activity.jsonl across .lattice/ and docs/story/', schema: {
+  { name: 'tool_status', description: 'Report tool usage from activity.jsonl across .proof-or-stop/ and docs/story/', schema: {
     source: z.enum(['cli','claude','codex','all']).optional().describe('Data source; defaults to all'),
     role: z.string().optional().describe('Filter by activity role, such as reviewer / intent / main'),
     days: z.number().optional().describe('Time window in days; defaults to 30'),

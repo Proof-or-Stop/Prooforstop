@@ -37,12 +37,12 @@ const check = (name: string, cond: boolean): void => {
 // Explicit expected ground truth — declared independently of the module so a
 // contract drift fails hermetically.
 const EXPECTED_LENS_TO_LANE: Record<string, string> = {
-  'concept/scope': 'lattice-review-concept',
-  'code-quality': 'lattice-review-quality',
-  'behavior/correctness': 'lattice-review-behavior',
-  'test-coverage': 'lattice-review-test-coverage',
-  'crash-safety/edge': 'lattice-review-behavior',
-  'docs-consistency': 'lattice-review-docs',
+  'concept/scope': 'proof-or-stop-review-concept',
+  'code-quality': 'proof-or-stop-review-quality',
+  'behavior/correctness': 'proof-or-stop-review-behavior',
+  'test-coverage': 'proof-or-stop-review-test-coverage',
+  'crash-safety/edge': 'proof-or-stop-review-behavior',
+  'docs-consistency': 'proof-or-stop-review-docs',
 };
 const EXPECTED_LENS_IDS_IN_ORDER = [
   'concept/scope',
@@ -77,22 +77,22 @@ for (const [lensId, expectedLane] of Object.entries(EXPECTED_LENS_TO_LANE)) {
 check(
   'behavior/correctness and crash-safety/edge map to the SAME lane',
   LENS_TO_LANE['behavior/correctness'] === LENS_TO_LANE['crash-safety/edge'] &&
-    LENS_TO_LANE['behavior/correctness'] === 'lattice-review-behavior',
+    LENS_TO_LANE['behavior/correctness'] === 'proof-or-stop-review-behavior',
 );
 // CHK-001:adversarial:0 — the mapping is a SUBSET of, not a bijection with, the
 // real lanes: there EXISTS a real review_run lane that no lens maps to.
 check(
   'REVIEW_RUN_LANES has a real lane not mapped by any lens (subset, not bijection)',
   REVIEW_RUN_LANES.some((l) => !Object.values(LENS_TO_LANE).includes(l)) &&
-    REVIEW_RUN_LANES.includes('lattice-review-channel'),
+    REVIEW_RUN_LANES.includes('proof-or-stop-review-channel'),
 );
 // CHK-001:adversarial:1 — drift detection: SIMULATE removing a mapped lane and
 // prove the subset check would then FAIL (the section-1 loop above would catch it).
 const lanesMinusBehavior = (REVIEW_RUN_LANES as readonly string[]).filter(
-  (l) => l !== 'lattice-review-behavior',
+  (l) => l !== 'proof-or-stop-review-behavior',
 );
 check(
-  'removing lattice-review-behavior would break the subset check (drift detection)',
+  'removing proof-or-stop-review-behavior would break the subset check (drift detection)',
   !Object.values(LENS_TO_LANE).every((v) => lanesMinusBehavior.includes(v)),
 );
 
@@ -121,9 +121,9 @@ const subsetPlan = buildLensRunPlan(
 );
 check('subset plan yields exactly 2 requests', subsetPlan.length === 2);
 check('subset[0].lensId === code-quality', subsetPlan[0].lensId === 'code-quality');
-check('subset[0].lane === lattice-review-quality', subsetPlan[0].lane === 'lattice-review-quality');
+check('subset[0].lane === proof-or-stop-review-quality', subsetPlan[0].lane === 'proof-or-stop-review-quality');
 check('subset[1].lensId === docs-consistency', subsetPlan[1].lensId === 'docs-consistency');
-check('subset[1].lane === lattice-review-docs', subsetPlan[1].lane === 'lattice-review-docs');
+check('subset[1].lane === proof-or-stop-review-docs', subsetPlan[1].lane === 'proof-or-stop-review-docs');
 
 // ── 4. runLenses + injected seam + independence ──────────────────────────────
 const seen1: LensRunRequest[] = [];
@@ -167,8 +167,8 @@ if (!behaviorResult) process.exit(1);
 const crashResult = results2.find((r) => r.lensId === 'crash-safety/edge');
 check('runLenses output contains a crash-safety/edge result', crashResult !== undefined);
 if (!crashResult) process.exit(1);
-check('behavior result lane === lattice-review-behavior', behaviorResult.lane === 'lattice-review-behavior');
-check('crash result lane === lattice-review-behavior', crashResult.lane === 'lattice-review-behavior');
+check('behavior result lane === proof-or-stop-review-behavior', behaviorResult.lane === 'proof-or-stop-review-behavior');
+check('crash result lane === proof-or-stop-review-behavior', crashResult.lane === 'proof-or-stop-review-behavior');
 check('behavior result carries its OWN finding', behaviorResult.findings.length === 1 && behaviorResult.findings[0] === behaviorFinding);
 check('crash result carries its OWN finding', crashResult.findings.length === 1 && crashResult.findings[0] === crashFinding);
 check('the two behavior-mapped findings are NOT mis-attributed', behaviorResult.findings[0] !== crashResult.findings[0]);
@@ -217,8 +217,8 @@ check('collectRawFindings keeps both byte-identical objects distinctly', collect
 // (b) the SAME Finding object reference appearing in two LensRunResults.
 const sharedFinding = planted('shared reference');
 const resultsSharedRef: LensRunResult[] = [
-  { lensId: 'behavior/correctness', lane: 'lattice-review-behavior', findings: [sharedFinding] },
-  { lensId: 'crash-safety/edge', lane: 'lattice-review-behavior', findings: [sharedFinding] },
+  { lensId: 'behavior/correctness', lane: 'proof-or-stop-review-behavior', findings: [sharedFinding] },
+  { lensId: 'crash-safety/edge', lane: 'proof-or-stop-review-behavior', findings: [sharedFinding] },
 ];
 const collectedSharedRef = collectRawFindings(resultsSharedRef);
 check('collectRawFindings does NOT de-dup the SAME reference (length 2)', collectedSharedRef.length === 2);

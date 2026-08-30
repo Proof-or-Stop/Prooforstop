@@ -20,7 +20,7 @@ function findRepoRoot(start: string): string {
     // `.proof-or-stop-codex/agents`. A root probe must recognise both spellings for exactly
     // as long as read-both support exists, or it walks out of the tree it is meant to find.
     if (
-      (existsSync(join(dir, 'proof-or-stop.config.json')) || existsSync(join(dir, 'lattice.config.json')))
+      (existsSync(join(dir, 'proof-or-stop.config.json')) || existsSync(join(dir, 'proof-or-stop.config.json')))
       && existsSync(join(dir, 'packages', 'main', 'src'))
     ) {
       return dir;
@@ -58,7 +58,7 @@ const targetDocs = [
   ...agentFiles('.claude/agents'),
   // B-cc10 F-055: canonical first; a renamed root silently yields zero files.
   ...agentFiles('.proof-or-stop-codex/agents'),
-  ...agentFiles('.lattice-codex/agents'),
+  ...agentFiles('.proof-or-stop-codex/agents'),
 ];
 
 const staleFirstSessionPhrases = [
@@ -90,21 +90,21 @@ const projectVision = read('docs/requirements/decisions/project-vision.md');
 for (const [label, content] of [['README.md', readme], ['docs/guide.md', guide]] as const) {
   assert.match(content, /npm --prefix packages\/main run build/, `${label} documents local package build before refresh`);
   assert.match(content, /npm install -g \.\/packages\/main/, `${label} documents global package refresh`);
-  assert.match(content, /\blattice --version\b/, `${label} verifies proof-or-stop binary version`);
-  assert.match(content, /\blattice check\b/, `${label} documents proof-or-stop check`);
-  assert.match(content, /\blattice doctor --format=json\b/, `${label} documents proof-or-stop doctor json`);
-  assert.match(content, /\blattice rollout_check --projects "\$\(pwd\)" --json\b/, `${label} documents rollout_check refresh proof`);
+  assert.match(content, /\bproofOrStop --version\b/, `${label} verifies proof-or-stop binary version`);
+  assert.match(content, /\bproofOrStop check\b/, `${label} documents proof-or-stop check`);
+  assert.match(content, /\bproofOrStop doctor --format=json\b/, `${label} documents proof-or-stop doctor json`);
+  assert.match(content, /\bproofOrStop rollout_check --projects "\$\(pwd\)" --json\b/, `${label} documents rollout_check refresh proof`);
 }
 
-assert.match(readme, /`lattice`\s+[\s\S]{0,120}(?:only active|sole active|active product) command/i, 'README states proof-or-stop is the only active command');
-// B-cc10 CHK-006: these pinned `node bin/lattice.js`, the wrapper this story DELETED.
+assert.match(readme, /`proof-or-stop`\s+[\s\S]{0,120}(?:only active|sole active|active product) command/i, 'README states proof-or-stop is the only active command');
+// B-cc10 CHK-006: these pinned `node bin/proofOrStop.js`, the wrapper this story DELETED.
 // A doc assertion must not instruct a reader to run a file that no longer exists, so
 // they now pin the canonical `bin/proof-or-stop.js` invocations.
 assert.match(readme, /node bin\/proof-or-stop\.js tool_status/, 'README uses the canonical local wrapper for generic tool_status');
 assert.match(readme, /node bin\/proof-or-stop\.js verify_codex/, 'README uses the canonical local wrapper for generic verify_codex fallback');
 assert.match(readme, /node bin\/proof-or-stop\.js aux_doc_list/, 'README uses the canonical local wrapper for generic aux_doc_list');
-assert.match(guide, /`lattice` is the current command entry/i, 'guide states proof-or-stop as current command entry');
-assert.match(projectVision, /`lattice` is the 0\.3\.5 active product entry/, 'project vision states proof-or-stop as active product entry');
+assert.match(guide, /`proof-or-stop` is the current command entry/i, 'guide states proof-or-stop as current command entry');
+assert.match(projectVision, /`proof-or-stop` is the 0\.3\.5 active product entry/, 'project vision states proof-or-stop as active product entry');
 assert.match(projectVision, /`proof-or-stop rollout_check`[\s\S]{0,80}read-only scan/, 'project vision keeps rollout_check read-only constraint');
 
 for (const file of targetDocs) {
@@ -125,7 +125,7 @@ function runHook(root: string, input: string): { status: number | null; output: 
   const result = spawnSync(process.execPath, [hookPath], {
     input,
     encoding: 'utf8',
-    env: { ...process.env, LATTICE_SESSION_BRIEF_FRESH_MINUTES: '60' },
+    env: { ...process.env, PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES: '60' },
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   return {
@@ -139,10 +139,10 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('lattice-session-brief-stale-');
+  const root = tmpRoot('proof-or-stop-session-brief-stale-');
   try {
-    mkdirSync(join(root, '.lattice'), { recursive: true });
-    writeFileSync(join(root, '.lattice', 'activity.jsonl'), JSON.stringify({
+    mkdirSync(join(root, '.proof-or-stop'), { recursive: true });
+    writeFileSync(join(root, '.proof-or-stop', 'activity.jsonl'), JSON.stringify({
       tool: 'session_brief',
       endTime: new Date(Date.now() - 61 * 60 * 1000).toISOString(),
     }) + '\n');
@@ -155,10 +155,10 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('lattice-session-brief-fresh-');
+  const root = tmpRoot('proof-or-stop-session-brief-fresh-');
   try {
-    mkdirSync(join(root, '.lattice'), { recursive: true });
-    writeFileSync(join(root, '.lattice', 'activity.jsonl'), JSON.stringify({
+    mkdirSync(join(root, '.proof-or-stop'), { recursive: true });
+    writeFileSync(join(root, '.proof-or-stop', 'activity.jsonl'), JSON.stringify({
       tool: 'session_brief',
       endTime: new Date().toISOString(),
     }) + '\n');
@@ -171,7 +171,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('lattice-session-brief-legacy-bash-');
+  const root = tmpRoot('proof-or-stop-session-brief-legacy-bash-');
   try {
     mkdirSync(join(root, 'docs', 'story'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'activity.jsonl'), JSON.stringify({
@@ -189,7 +189,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('lattice-session-brief-bash-');
+  const root = tmpRoot('proof-or-stop-session-brief-bash-');
   try {
     mkdirSync(join(root, 'docs', 'story'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'activity.jsonl'), JSON.stringify({
@@ -207,7 +207,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('lattice-session-brief-story-bash-');
+  const root = tmpRoot('proof-or-stop-session-brief-story-bash-');
   try {
     mkdirSync(join(root, 'docs', 'story', 'actives', 'B-demo'), { recursive: true });
     writeFileSync(join(root, 'docs', 'story', 'actives', 'B-demo', 'activity.jsonl'), JSON.stringify({
@@ -225,7 +225,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('lattice-session-brief-malformed-');
+  const root = tmpRoot('proof-or-stop-session-brief-malformed-');
   try {
     const result = runHook(root, '{bad json');
     assert.equal(result.status, 0);
@@ -236,7 +236,7 @@ function tmpRoot(prefix: string): string {
 }
 
 {
-  const root = tmpRoot('lattice-session-brief-missing-');
+  const root = tmpRoot('proof-or-stop-session-brief-missing-');
   try {
     const result = runHook(root, JSON.stringify({ cwd: root }));
     assert.equal(result.status, 0);

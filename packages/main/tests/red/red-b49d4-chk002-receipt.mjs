@@ -22,7 +22,7 @@
  * self-exception. That is measured here by removing each guard's own
  * registration from a config COPY and requiring guard 2 to fail naming it.
  *
- * ── THE REAL lattice.config.json IS NEVER WRITTEN TO ────────────────────────
+ * ── THE REAL proof-or-stop.config.json IS NEVER WRITTEN TO ────────────────────────
  *
  * CHK-003 owns registration. Every config mutation here happens on a COPY inside
  * a symlink mirror of the repository root, executed through
@@ -50,7 +50,7 @@ const repoRoot = join(pkgRoot, '..', '..');
 
 // B-cc10: resolve whichever config filename exists. The canonical name is now
 // proof-or-stop.config.json, so a hardcoded deprecated name threw ENOENT here.
-const CONFIG_REL = (['proof-or-stop.config.json', 'lattice.config.json'].find((n) => existsSync(join(repoRoot, n))) ?? 'proof-or-stop.config.json');
+const CONFIG_REL = (['proof-or-stop.config.json', 'proof-or-stop.config.json'].find((n) => existsSync(join(repoRoot, n))) ?? 'proof-or-stop.config.json');
 const CONFIG_PATH = join(repoRoot, CONFIG_REL);
 const RED_DIR_REL = 'packages/main/tests/red';
 const DIST_TASKS_REL = 'packages/main/dist/tasks';
@@ -107,7 +107,7 @@ const parseGuard1 = (out) => {
   return m === null || x === null ? null : { population: Number(m[1]), registered: Number(m[2]), excluded: Number(x[1]) };
 };
 const parseGuard2 = (out) => {
-  const m = /all (\d+) entries of \S+ found ON DISK are accounted for: (\d+) registered in lattice\.config\.json validate\.commands and (\d+) excluded/.exec(out);
+  const m = /all (\d+) entries of \S+ found ON DISK are accounted for: (\d+) registered in proofOrStop\.config\.json validate\.commands and (\d+) excluded/.exec(out);
   return m === null ? null : { population: Number(m[1]), registered: Number(m[2]), excluded: Number(m[3]) };
 };
 

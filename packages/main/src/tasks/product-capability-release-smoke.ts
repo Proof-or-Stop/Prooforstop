@@ -59,7 +59,7 @@ function git(cwd: string, args: string[]): string {
 }
 
 function writeProofOrStopConfig(root: string): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({}, null, 2), 'utf-8');
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({}, null, 2), 'utf-8');
 }
 
 /**
@@ -314,7 +314,7 @@ check('M2 classifier (edge): packages/main/src runtime-only => NO capability rel
   assert.equal(classified, null);
 });
 
-check('M2 classifier (edge): .lattice / docs/story / root-manifest-only => NO capability release', () => {
+check('M2 classifier (edge): .proof-or-stop / docs/story / root-manifest-only => NO capability release', () => {
   const classified = classifyCapabilityRelease(
     [`${PROOF_OR_STOP_STATE_DIR}/story/actives/B-x/index.json`, 'docs/story/legacy.json', 'package.json', 'package-lock.json'],
     { isRuntimeBuildInput: isDoneMainRuntimeBuildInput },
@@ -403,7 +403,7 @@ check('M3 (happy): done_recover with experiment+doc changes records exactly one 
   assert.equal(git(root, ['status', '--short']), '');
 });
 
-check('M3 (edge): done_recover with .lattice-metadata-only material change records NO PCR', () => {
+check('M3 (edge): done_recover with .proof-or-stop-metadata-only material change records NO PCR', () => {
   // A story whose only non-lifecycle change is a runtime source file: no
   // capability-declaring docs/experiments path => classifier declines => no PCR.
   const { root, storyId } = makePartialDoneRecoveryFixture({

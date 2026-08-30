@@ -6,7 +6,7 @@
  *
  * Baseline (no root "pretest"): FAILS the structural assertion — nothing auto-builds packages/utils,
  * so a worktree without packages/utils/dist runs the full suite with utils absent and its
- * bin/lattice.js sub-tests die in bootstrap-runner.js ("Missing build artifacts: .../utils/dist/index.js").
+ * bin/proofOrStop.js sub-tests die in bootstrap-runner.js ("Missing build artifacts: .../utils/dist/index.js").
  *
  * Baseline (a pretest that always `rm -rf dist` + rebuilds): FAILS the idempotency assertion — a
  * repeated `npm test` re-destroys a current dist, which can race a concurrent invocation's suite.
@@ -25,10 +25,10 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 let repoRoot = here;
-while (!existsSync(join(repoRoot, 'proof-or-stop.config.json')) && !existsSync(join(repoRoot, 'lattice.config.json')) && repoRoot !== dirname(repoRoot)) {
+while (!existsSync(join(repoRoot, 'proof-or-stop.config.json')) && !existsSync(join(repoRoot, 'proof-or-stop.config.json')) && repoRoot !== dirname(repoRoot)) {
   repoRoot = dirname(repoRoot);
 }
-assert.ok(existsSync(join(repoRoot, 'proof-or-stop.config.json')) || existsSync(join(repoRoot, 'lattice.config.json')), 'could not locate repo root (lattice.config.json)');
+assert.ok(existsSync(join(repoRoot, 'proof-or-stop.config.json')) || existsSync(join(repoRoot, 'proof-or-stop.config.json')), 'could not locate repo root (proof-or-stop.config.json)');
 
 const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
 const scripts = pkg.scripts || {};
@@ -38,7 +38,7 @@ const pretest = scripts.pretest;
 assert.ok(
   typeof pretest === 'string' && pretest.trim().length > 0,
   'RED: root package.json has no "pretest" script — nothing auto-builds packages/utils before `npm test`, ' +
-    'so a worktree without packages/utils/dist runs the full suite with utils absent and bin/lattice.js sub-tests die at bootstrap-runner.',
+    'so a worktree without packages/utils/dist runs the full suite with utils absent and bin/proofOrStop.js sub-tests die at bootstrap-runner.',
 );
 assert.ok(/ensure-dist(?:\.mjs)?(?![\w:-])/.test(pretest), `RED: pretest must run the ensure-dist bootstrap: ${pretest}`);
 
@@ -64,7 +64,7 @@ assert.ok(
 );
 assert.ok(
   /full-suite-runner/.test(scripts.test || ''),
-  'invariant: root "test" must invoke the full-suite runner (which spawns bin/lattice.js needing utils/dist)',
+  'invariant: root "test" must invoke the full-suite runner (which spawns bin/proofOrStop.js needing utils/dist)',
 );
 
 const utilsIndex = join(repoRoot, 'packages', 'utils', 'dist', 'index.js');

@@ -83,7 +83,7 @@ export interface FindingSignal {
  */
 export type SignatureTagSource = 'auto' | 'confirmed' | 'backfill';
 
-/** The derived-cache envelope persisted to `.lattice/learning/finding-signals.json`. */
+/** The derived-cache envelope persisted to `.proof-or-stop/learning/finding-signals.json`. */
 export interface FindingSignalsCache {
   /** Schema version of this cache shape. */
   schemaVersion: number;
@@ -195,7 +195,7 @@ export interface PlaybookSeedReference {
 
 /**
  * A staged proposal: the pre-approval form of a Playbook, persisted to
- * `.lattice/learning/proposals/<id>.json`. `proposalDigest` binds the proposal
+ * `.proof-or-stop/learning/proposals/<id>.json`. `proposalDigest` binds the proposal
  * content (everything EXCEPT the digest field itself) so approve can fail closed
  * on a stale `--expectedProposalDigest` — exactly the decision-doc pattern.
  */
@@ -229,7 +229,7 @@ export interface PlaybookUsage {
 }
 
 /**
- * An approved Playbook, persisted in `.lattice/learning/playbooks.json`.
+ * An approved Playbook, persisted in `.proof-or-stop/learning/playbooks.json`.
  * `playbook_approve` creates status `candidate`; `playbook_activate` is the
  * only explicit boundary to status `active`. Carries the same core content as
  * the proposal plus a lifecycle status and usage counters.
@@ -327,7 +327,7 @@ export interface PlaybookTrialControlEvent {
 
 // ── B-6241: playbook promotion worker V1 metadata ───────────────────────────
 //
-// These rows are local learning metadata under `.lattice/learning/`. They are
+// These rows are local learning metadata under `.proof-or-stop/learning/`. They are
 // explicitly non-authoritative and must never be consumed as lifecycle evidence.
 
 export type PlaybookPromotionDecisionSchemaVersion = 'proofbound.playbook-promotion-decision.v1';

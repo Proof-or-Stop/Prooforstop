@@ -261,7 +261,7 @@ const rowResults = MALFORMED.map(([label, record]) => {
 // holds ZERO records and none of the injected ids ever reached it.
 // B-cc10: the runtime writes story artifacts under the CANONICAL state dir, so read back
 // from whichever spelling exists rather than pinning the deprecated one.
-const storyActivesRel = ['.proof-or-stop/story/actives', '.lattice/story/actives']
+const storyActivesRel = ['.proof-or-stop/story/actives', '.proof-or-stop/story/actives']
   .find((rel) => existsSync(join(root, rel, storyId, 'red-evidence.json'))) ?? '.proof-or-stop/story/actives';
 const onDisk = readFileSync(join(root, storyActivesRel, storyId, 'red-evidence.json'), 'utf8');
 const bypassedReadBoundary =

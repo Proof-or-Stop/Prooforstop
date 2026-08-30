@@ -9,7 +9,7 @@
  *
  * Implements "Multi-Provider Normalization", "Call and Attempt Correlation
  * Semantics", and "Privacy Constraints" from
- * docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md.
+ * docs/requirements/decisions/proof-or-stop-llm-usage-ledger-execution-plan.md.
  *
  * Boundary (Slice 2 scope):
  *   - PURE: no fs, no live dispatch, no Date.now(). `recordedAt` and

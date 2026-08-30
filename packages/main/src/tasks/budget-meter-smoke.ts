@@ -33,20 +33,20 @@ import {
 } from '../core/planner.js';
 import type { StoryInfo } from '../core/types.js';
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-budget-meter-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-budget-meter-'));
 
 function writeConfig(): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
   mkdirSync(join(root, 'docs/requirements/decisions'), { recursive: true });
-  writeFileSync(join(root, 'docs/requirements/decisions/lattice-authority-live-integration.md'), '# Requirements\n');
+  writeFileSync(join(root, 'docs/requirements/decisions/proof-or-stop-authority-live-integration.md'), '# Requirements\n');
   resetConfigCache();
 }
 

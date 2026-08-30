@@ -44,10 +44,10 @@ import { createObservabilitySnapshotHandlers } from '../handlers/observability-s
 const NOW = '2026-06-03T00:00:00.000Z';
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
   }, null, 2));
 }
 
@@ -193,7 +193,7 @@ function assertSectionsShape(snapshot: ProofOrStopObservabilitySnapshot): void {
   assert.equal(sections.parallel.length, sections.storyBoard.length, 'parallel aligns with storyBoard count');
 }
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-observability-snapshot-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-observability-snapshot-'));
 try {
   writeConfig(root);
   resetConfigCache();
@@ -284,7 +284,7 @@ try {
   assert.equal(activeParallel.worktreePath, '/tmp/observability-smoke-worktree/B-active');
 
   // Edge: when no projection result is injected, the adapter calls the real
-  // projection. With no stories in the seeded repo's `.lattice/story/actives`
+  // projection. With no stories in the seeded repo's `.proof-or-stop/story/actives`
   // matching active filter, the projection still returns the seeded stories
   // (DEV/DONE phases). Confirm the adapter resolves without crashing.
   const liveSnapshot = buildObservabilitySnapshot(store, root, {
@@ -314,7 +314,7 @@ try {
   assert.equal(handlerResult.sections.storyBoard.length, 2, 'handler with activeOnly:false surfaces both seeded stories');
 
   const textResult = handlers.observability_snapshot({}) as string;
-  assert.match(textResult, /Proof-or-Stop observability snapshot \(lattice\.observability_snapshot\.v1\)/);
+  assert.match(textResult, /Proof-or-Stop observability snapshot \(proofOrStop\.observability_snapshot\.v1\)/);
   assert.match(textResult, /admissibilityStatus: local-only/);
   assert.match(textResult, /assuranceLevel: local-observation/);
   assert.match(textResult, /evidenceScope: read-only-observability/);

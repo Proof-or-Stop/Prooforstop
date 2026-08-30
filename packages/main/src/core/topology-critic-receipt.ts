@@ -13,10 +13,10 @@ import type { SessionSource } from './owner-session.js';
 import { exportPublicKeyRaw, importPrivateKeyRaw, signCanonical, verifyCanonical } from './authority-signing.js';
 import { digestCanonicalJson } from './digest.js';
 
-export const TOPOLOGY_CRITIC_ROLE = 'lattice-review-topology-critic' as const;
-export const TOPOLOGY_EXCLUSION_APPROVER_ROLE = 'lattice-review-scope-plan' as const;
-const IMPLEMENTER_ROLE = 'lattice-implementer' as const;
-const IMPLEMENTER_AUTHOR = 'lattice-implementer <lattice-implementer@noreply.local>';
+export const TOPOLOGY_CRITIC_ROLE = 'proof-or-stop-review-topology-critic' as const;
+export const TOPOLOGY_EXCLUSION_APPROVER_ROLE = 'proof-or-stop-review-scope-plan' as const;
+const IMPLEMENTER_ROLE = 'proof-or-stop-implementer' as const;
+const IMPLEMENTER_AUTHOR = 'proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>';
 
 type ReceiptContext = {
   storyId: string;
@@ -121,7 +121,7 @@ export function deriveImplementationProvenance(gitCwd: string, events: readonly 
   const { businessCommit, businessCommitAuthor } = currentImplementationBusinessCommit(gitCwd);
   const event = [...events].reverse().find(candidate => candidate.type === 'dispatch' && candidate.agentType === IMPLEMENTER_ROLE);
   if (!event || typeof event.sessionId !== 'string' || !event.sessionId.trim()) {
-    throw new Error('implementation provenance is missing a session-bound lattice-implementer dispatch');
+    throw new Error('implementation provenance is missing a session-bound proof-or-stop-implementer dispatch');
   }
   return {
     agentId: IMPLEMENTER_ROLE,

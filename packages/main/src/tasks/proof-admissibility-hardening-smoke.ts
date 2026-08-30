@@ -35,7 +35,7 @@ import {
   type HandoffReceipt,
   type HandoffReceiptSubmission,
   type HandoffResumeProjection,
-} from '../core/lattice-handoff.js';
+} from '../core/proof-or-stop-handoff.js';
 import {
   assertNoReservedProofMetadata,
   sanitizeCallerProofMetadata,
@@ -84,10 +84,10 @@ function assertAppendOnlyLedgerRetired(): void {
   }
 
   const root = mkdtempSync(join(tmpdir(), 'proof-admissibility-ledger-retired-'));
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
     flows: { defaults: {}, patterns: [] },
@@ -235,11 +235,11 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
 
 {
   const root = mkdtempSync(join(tmpdir(), 'proof-admissibility-policy-'));
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
     flows: { defaults: {}, patterns: [] },
@@ -347,10 +347,10 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
 
 {
   const root = mkdtempSync(join(tmpdir(), 'proof-admissibility-handoff-command-'));
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
     flows: { defaults: {}, patterns: [] },
@@ -431,7 +431,7 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     authorityBoundary: pack.authorityBoundary,
     executionInstructions: pack.executionInstructions,
     headSha: 'missing-head',
-    changedFiles: ['packages/main/src/core/lattice-handoff.ts'],
+    changedFiles: ['packages/main/src/core/proof-or-stop-handoff.ts'],
     commands: ['npm --prefix packages/main run build'],
     verdict: 'warn',
     limitations: ['synthetic command-level smoke receipt'],

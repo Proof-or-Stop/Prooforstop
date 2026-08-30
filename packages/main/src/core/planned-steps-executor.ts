@@ -560,7 +560,7 @@ function priorSummaryByOp(priorSteps: PlannedStepExecution[], op: string): Recor
 }
 
 /**
- * Execute a source-aligned redevelopment `lattice.command` operation as a
+ * Execute a source-aligned redevelopment `proofOrStop.command` operation as a
  * deterministic evidence projection. Pair-agnostic, prose is never evidence, and
  * target parity is never asserted without target-runnable evidence (which the
  * projection cannot capture, so it records `not_run` + a parity gap).
@@ -801,7 +801,7 @@ function executeOneStep(
     });
   }
 
-  if (step.type === 'lattice.command') {
+  if (step.type === 'proofOrStop.command') {
     if (op === 'story.resolve') {
       if (!store.storyExists(jobPlan.storyId)) {
         return block('story_not_found', { storyId: jobPlan.storyId });
@@ -900,7 +900,7 @@ export function executePlannedSteps(options: ExecutePlannedStepsOptions): Planne
   const providerCtx: ProviderExecContext = {
     // Provider work runs in the authoritative story worktree when enforcement is on.
     // Only the provider exec reads providerCtx.root, so this never shifts read-only /
-    // redevelopment lattice.command steps (they use options.root directly).
+    // redevelopment proofOrStop.command steps (they use options.root directly).
     root: worktreeEnforced ? worktreeResolution.authoritativeCwd : options.root,
     policy: providerPolicy,
     env: options.env ?? process.env,

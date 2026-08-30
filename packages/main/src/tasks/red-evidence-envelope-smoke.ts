@@ -48,9 +48,9 @@
 //      written and is not a proof of exhaustiveness.
 //      What is NOT observed here: nothing in this
 //      file goes through cli-engine.ts, so the generic session row written by
-//      the shared entrypoint to .lattice/activity.jsonl (the runtime-activity-log
+//      the shared entrypoint to .proof-or-stop/activity.jsonl (the runtime-activity-log
 //      artifact per core/runtime-artifact-registry.ts, written under
-//      LATTICE_ACTIVITY_RECORD_READONLY=1 or while an uncooled stale warning is
+//      PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 or while an uncooled stale warning is
 //      present, and carrying the thrown rejection report in its error field) is
 //      structurally outside the reach of this smoke.
 //   9. The three pre-existing mechanical contracts still pass with the command
@@ -496,7 +496,7 @@ try {
     + 'predicate and the runHooks call itself is unconditional (config.hooks.onError guards only the stderr '
     + 'notice; the filtering is inside runHooks in core/hooks.ts), so a configured and matching hook runs, and '
     + 'this command throws by design. The activity row '
-    + 'additionally depends on LATTICE_ACTIVITY_RECORD_READONLY and the stale-warning path, so classification '
+    + 'additionally depends on PROOF_OR_STOP_ACTIVITY_RECORD_READONLY and the stale-warning path, so classification '
     + 'alone does not settle it either');
 
   {
@@ -509,7 +509,7 @@ try {
     git(['init', '-q']);
     git(['config', 'user.email', 'red@w2d.local']);
     git(['config', 'user.name', 'red-w2d']);
-    writeFileSync(join(root, 'lattice.config.json'), `${JSON.stringify({ redEvidence: { pinnedPath: ['/usr/bin'] } }, null, 2)}\n`);
+    writeFileSync(join(root, 'proof-or-stop.config.json'), `${JSON.stringify({ redEvidence: { pinnedPath: ['/usr/bin'] } }, null, 2)}\n`);
 
     const storyId = 'B-w2d';
     const store = new StoryStore(root);
@@ -536,7 +536,7 @@ try {
     const check = registry.get(COMMAND);
     assert.ok(check, `${COMMAND} has a registered handler`);
 
-    const snapshotLattice = (): string => {
+    const snapshotProofOrStop = (): string => {
       const entries: string[] = [];
       const walk = (dir: string, rel: string): void => {
         for (const item of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
@@ -546,10 +546,10 @@ try {
           else entries.push(`${next}:${createHash('sha256').update(readFileSync(abs)).digest('hex')}`);
         }
       };
-      walk(join(root, '.lattice'), '');
+      walk(join(root, '.proof-or-stop'), '');
       return entries.join('\n');
     };
-    const before = snapshotLattice();
+    const before = snapshotProofOrStop();
     assert.ok(before.length > 0, 'the fixture .proof-or-stop tree is non-empty, so the comparison is meaningful');
     const gateBefore = JSON.stringify(evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence);
 
@@ -584,7 +584,7 @@ try {
     assert.throws(() => check!({ storyId, assertionFile: join(root, 'missing.json') }), /missing\.json/);
     assert.throws(() => check!({ storyId }), /assertionFile/);
 
-    // READ-ONLY at the handler boundary: the .lattice MANIFEST — the snapshot
+    // READ-ONLY at the handler boundary: the .proof-or-stop MANIFEST — the snapshot
     // above, i.e. non-directory paths plus their content hashes, and nothing
     // else — is NET identical across the whole batch of DIRECT handler
     // invocations above (ONE snapshot before, ONE comparison after — aggregate,
@@ -592,10 +592,10 @@ try {
     // record it cannot compare: empty directories, file modes and symlink
     // identity are outside it, so this is a claim about paths and contents, not
     // about the tree in every respect. The CLI entrypoint is not exercised here,
-    // so its onError hook and its .lattice/activity.jsonl runtime-activity-log
+    // so its onError hook and its .proof-or-stop/activity.jsonl runtime-activity-log
     // row are out of view.
-    assert.equal(snapshotLattice(), before,
-      `${COMMAND}, invoked directly as a handler, left the .lattice/ manifest of file paths and content hashes NET `
+    assert.equal(snapshotProofOrStop(), before,
+      `${COMMAND}, invoked directly as a handler, left the .proof-or-stop/ manifest of file paths and content hashes NET `
       + 'identical across the batch of calls above (ONE before snapshot, ONE after: this proves no NET '
       + 'create/modify/remove of a file, not that no single call created and then restored one, and it says nothing '
       + 'about empty directories, file modes or symlink identity, which the manifest does not record) — so no '

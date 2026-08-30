@@ -3,7 +3,7 @@
  *
  * Maps an OpenAI Chat/Responses API usage object into a B-253e `LedgerUsage`,
  * implementing the OpenAI row of "Multi-Provider Normalization" in
- * docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md.
+ * docs/requirements/decisions/proof-or-stop-llm-usage-ledger-execution-plan.md.
  *
  * Mapping:
  *   usage.prompt_tokens                          -> canonical.input

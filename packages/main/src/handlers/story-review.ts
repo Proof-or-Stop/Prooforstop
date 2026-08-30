@@ -23,7 +23,7 @@ import { loadConfig } from '../core/config.js';
 import { computeChannel, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { evaluateDecompositionGate } from '../core/parallel-decomposition-gate.js';
 import { resolveAuditConfig } from '../core/audit-config.js';
-import { safeReadScopeContract } from '../core/lattice-parallel-wave.js';
+import { safeReadScopeContract } from '../core/proof-or-stop-parallel-wave.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { verifyScopeCheckSignature } from './scope-check.js';
 import { existsSync } from 'fs';
@@ -72,7 +72,7 @@ function projectStoryReviewBrief(result: {
       message: truncateOneLine(issue.message, issue.severity === 'blocker' ? 300 : 160),
     })),
     ...(info ? { info: info.map((entry) => ({ ...entry, message: truncateOneLine(entry.message, 160) })) } : {}),
-    _hint: `${_hint} — brief view: issue messages truncated and the PLAN review prompt omitted; use --full (or LATTICE_BRIEF_OUTPUT=0) for the complete output (explicit --json keeps the full machine shape).`,
+    _hint: `${_hint} — brief view: issue messages truncated and the PLAN review prompt omitted; use --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0) for the complete output (explicit --json keeps the full machine shape).`,
     _reviewPrompt: typeof _reviewPrompt === 'string'
       ? `Brief view: full PLAN review prompt (${_reviewPrompt.length} chars) omitted. Run story_review with --full for the complete prompt.`
       : _reviewPrompt,
@@ -571,7 +571,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         }
       }
 
-      // 2.6. Scope check: read scope-check.json (written by lattice-review-scope-plan agent)
+      // 2.6. Scope check: read scope-check.json (written by proof-or-stop-review-scope-plan agent)
       // Only check scope when understanding exists and checklist has items
       // (without these, scope check is meaningless and would block trivial stories)
       const scopeData = store.readScopeCheck(args.storyId);
@@ -579,7 +579,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         issues.push({
           type: 'missing_scope_check',
           severity: 'blocker',
-          message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with \`proof-or-stop dispatch --storyId=${args.storyId} --agentType=lattice-review-scope-plan\`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling \`proof-or-stop scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
+          message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with \`proof-or-stop dispatch --storyId=${args.storyId} --agentType=proof-or-stop-review-scope-plan\`; dispatch output is not gate evidence, and the proof-or-stop-review-scope-plan / scope-plan reviewer must finish by calling \`proof-or-stop scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
         });
       } else if (scopeData) {
         // Verify both legacy and read-manifest-bound signatures without relying on cwd.

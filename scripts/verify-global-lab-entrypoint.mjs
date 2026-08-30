@@ -36,10 +36,10 @@ function runAllowFailure(args) {
 }
 
 function createTempProject() {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-global-lab-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-global-lab-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',
@@ -70,9 +70,9 @@ const checks = {
     assert(core.dependencies?.['@proof-or-stop/lab'] === EXPECTED_EXTENSION_VERSION, `core should depend on @proof-or-stop/lab@${EXPECTED_EXTENSION_VERSION}`);
     assert(utils.dependencies?.['@proof-or-stop/core'] === EXPECTED_EXTENSION_VERSION, `utils should depend on @proof-or-stop/core@${EXPECTED_EXTENSION_VERSION}`);
     assert(lab.dependencies?.['@proof-or-stop/core'] === EXPECTED_EXTENSION_VERSION, `lab should depend on @proof-or-stop/core@${EXPECTED_EXTENSION_VERSION}`);
-    assert(!core.dependencies?.['@lattice-agent/lab'], 'core should not depend on retired @lattice-agent/lab');
-    assert(!utils.dependencies?.['@lattice-agent/core'], 'utils should not depend on retired @lattice-agent/core');
-    assert(!lab.dependencies?.['@lattice-agent/core'], 'lab should not depend on retired @lattice-agent/core');
+    assert(!core.dependencies?.['@proof-or-stop-agent/lab'], 'core should not depend on retired @proof-or-stop-agent/lab');
+    assert(!utils.dependencies?.['@proof-or-stop-agent/core'], 'utils should not depend on retired @proof-or-stop-agent/core');
+    assert(!lab.dependencies?.['@proof-or-stop-agent/core'], 'lab should not depend on retired @proof-or-stop-agent/core');
     assert(!core.dependencies?.['@koala-agent/lab'], 'core should not depend on legacy @koala-agent/lab');
     assert(!utils.dependencies?.['@koala-agent/core'], 'utils should not depend on legacy @koala-agent/core');
     assert(!lab.dependencies?.['@koala-agent/core'], 'lab should not depend on legacy @koala-agent/core');

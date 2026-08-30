@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * RED artifact (W2c / B-506e, CHK-011:adversarial:1) — de-registering a critical
- * smoke from `lattice.config.json` `validate.commands` is caught by a COMMITTED
+ * smoke from `proof-or-stop.config.json` `validate.commands` is caught by a COMMITTED
  * test.
  *
  * The intent's literal scenario: "Remove the chain-smoke from validate.commands
@@ -70,7 +70,7 @@
  * set and stay green. That failure is deliberate and noisy, but it is still a
  * failure — describe the artifact without naming it, exactly as this note does.
  * The same applies to ceasing to qualify: this guard is a target because it reads
- * `lattice.config.json` AND enumerates a directory, and dropping either would
+ * `proof-or-stop.config.json` AND enumerates a directory, and dropping either would
  * also fail there.
  *
  * Run from anywhere:
@@ -86,7 +86,7 @@ const pkgRoot = join(here, '..', '..'); // packages/main
 const repoRoot = join(pkgRoot, '..', '..');
 // B-cc10: resolve whichever config filename exists. The canonical name is now
 // proof-or-stop.config.json, so a hardcoded deprecated name threw ENOENT here.
-const CONFIG_PATH = join(repoRoot, ['proof-or-stop.config.json', 'lattice.config.json'].find((n) => existsSync(join(repoRoot, n))) ?? 'proof-or-stop.config.json');
+const CONFIG_PATH = join(repoRoot, ['proof-or-stop.config.json', 'proof-or-stop.config.json'].find((n) => existsSync(join(repoRoot, n))) ?? 'proof-or-stop.config.json');
 const SELF_REL = relative(repoRoot, SELF_ABS).split(sep).join('/');
 
 /** POPULATION 1 — governed by this file. */
@@ -175,7 +175,7 @@ function auditExclusions(population, exclusions) {
 const configRaw = readFileSync(CONFIG_PATH, 'utf8');
 const config = JSON.parse(configRaw);
 if (!Array.isArray(config?.validate?.commands) || config.validate.commands.length === 0) {
-  console.error('red-w2c-validate-registration: lattice.config.json must declare a non-empty validate.commands array');
+  console.error('red-w2c-validate-registration: proof-or-stop.config.json must declare a non-empty validate.commands array');
   process.exit(1);
 }
 
@@ -192,7 +192,7 @@ if (population.length === 0) {
 // ── 2. THE RULE: every member is registered or explicitly excluded. ──────────
 if (real.undecided.length > 0) {
   fail('registration',
-    `these ${POPULATION_DIR_REL}/${FAMILY_PREFIX}* members are NEITHER registered in lattice.config.json `
+    `these ${POPULATION_DIR_REL}/${FAMILY_PREFIX}* members are NEITHER registered in proof-or-stop.config.json `
     + `validate.commands NOR listed in REGISTRATION_EXCLUSIONS with a reason, so \`proof-or-stop validate\` never runs them `
     + `and nobody decided that it should not: ${real.undecided.join(', ')}. Register it, or exclude it here and say why.`);
 }
@@ -292,7 +292,7 @@ if (failures.length > 0) {
 
 console.log(
   `red-w2c-validate-registration: OK (all ${population.length} ${POPULATION_DIR_REL}/${FAMILY_PREFIX}* members found `
-  + `ON DISK are accounted for: ${real.registered.length} registered in lattice.config.json validate.commands — `
+  + `ON DISK are accounted for: ${real.registered.length} registered in proof-or-stop.config.json validate.commands — `
   + `including the ${FAMILY_PREFIX}chain-smoke.js convergence anchor — and ${real.excluded.length} excluded with a `
   + 'stated reason, with no stray family artifact outside the population. The expectation is DERIVED from the '
   + 'directory rather than hardcoded, so a member added without a registration decision FAILS this check; proven '

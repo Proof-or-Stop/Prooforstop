@@ -31,7 +31,7 @@ import { renderProofOrStopCodexAdapterManifest } from '../init-assets.js';
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 function makeRoot(name: string): string {
-  return mkdtempSync(join(tmpdir(), `lattice-${name}-`));
+  return mkdtempSync(join(tmpdir(), `proof-or-stop-${name}-`));
 }
 
 function writeText(root: string, relPath: string, content: string): void {
@@ -46,7 +46,7 @@ function seedMatchingPrompts(root: string): void {
     const claude = renderPromptEntryForHost(entry, 'claude');
     const codex = renderPromptEntryForHost(entry, 'codex');
     writeText(root, `.claude/agents/${entry.file}`, claude);
-    writeText(root, `.lattice-codex/agents/${entry.file}`, codex);
+    writeText(root, `.proof-or-stop-codex/agents/${entry.file}`, codex);
   }
 }
 
@@ -135,7 +135,7 @@ try {
 
 const explicitFullRoot = makeRoot('runtime-owned-explicit-full');
 try {
-  writeText(explicitFullRoot, '.lattice-codex/lattice.json', renderProofOrStopCodexAdapterManifest());
+  writeText(explicitFullRoot, '.proof-or-stop-codex/proof-or-stop.json', renderProofOrStopCodexAdapterManifest());
   seedMatchingPrompts(explicitFullRoot);
   const resolution = resolveAgentAssetResolution(explicitFullRoot);
   assert.equal(resolution.mode, 'full-asset');
@@ -147,7 +147,7 @@ try {
 
 const debugOverrideRoot = makeRoot('runtime-owned-debug-override');
 try {
-  writeText(debugOverrideRoot, '.lattice/lattice.json', JSON.stringify({ agentAssetMode: 'debug-override' }, null, 2));
+  writeText(debugOverrideRoot, '.proof-or-stop/proof-or-stop.json', JSON.stringify({ agentAssetMode: 'debug-override' }, null, 2));
   writeText(debugOverrideRoot, '.claude/agents/local.md', '# local debug prompt\n');
   const resolution = resolveAgentAssetResolution(debugOverrideRoot);
   assert.equal(resolution.mode, 'debug-override');

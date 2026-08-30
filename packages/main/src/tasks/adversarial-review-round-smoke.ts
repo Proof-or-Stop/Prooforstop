@@ -98,7 +98,7 @@ check('verified-set: critic saw the confirmed concept finding (same ref)', verif
 check('verified-set: critic did NOT see the refuted quality finding', !verifiedSeams_captured[0].confirmedFindings.includes(qualityFinding));
 check("verified-set: critic.input.change === 'CHG-verified'", verifiedSeams_captured[0].change === 'CHG-verified');
 check('verified-set: confirmedByLane has 1 group (concept lane)', verifiedRound.confirmedByLane.length === 1);
-check("verified-set: confirmedByLane[0].lane === 'lattice-review-concept'", verifiedRound.confirmedByLane[0].lane === 'lattice-review-concept');
+check("verified-set: confirmedByLane[0].lane === 'proof-or-stop-review-concept'", verifiedRound.confirmedByLane[0].lane === 'proof-or-stop-review-concept');
 check("verified-set: confirmedByLane[0].lensId === 'concept/scope'", verifiedRound.confirmedByLane[0].lensId === 'concept/scope');
 // The round itself reopens (confirmed lens findings present).
 check('verified-set: round reopens (confirmed lens findings)', verifiedRound.reopen === true && verifiedRound.converged === false);
@@ -174,8 +174,8 @@ check('ledger-round: 1 confirmed lens finding', ledgerRound.confirmedFindings.le
 check('ledger-round: 1 confirmed critic finding', ledgerRound.criticFindings.length === 1);
 
 const ops = deriveRoundLedgerOps(ledgerRound, {
-  reviewRunIdByLane: { 'lattice-review-concept': 'RR-L' },
-  criticLane: 'lattice-review-quality',
+  reviewRunIdByLane: { 'proof-or-stop-review-concept': 'RR-L' },
+  criticLane: 'proof-or-stop-review-quality',
   criticReviewRunId: 'RR-C',
 });
 const lensOps = ops.filter((o) => o.kind === 'finding_add' && o.source === 'lens');
@@ -188,9 +188,9 @@ check('ledger-ops: NO review_pass_set ops (round did NOT converge)', passOps.len
 
 // Lens op: real lane agent + ledger severity (not abstract).
 const lensOp = lensOps[0];
-check("ledger-ops: lens op.lane === 'lattice-review-concept'", lensOp.kind === 'finding_add' && lensOp.lane === 'lattice-review-concept');
+check("ledger-ops: lens op.lane === 'proof-or-stop-review-concept'", lensOp.kind === 'finding_add' && lensOp.lane === 'proof-or-stop-review-concept');
 if (lensOp.kind === 'finding_add') {
-  check("ledger-ops: lens op.args.agent === 'lattice-review-concept' (real lane)", lensOp.args.agent === 'lattice-review-concept');
+  check("ledger-ops: lens op.args.agent === 'proof-or-stop-review-concept' (real lane)", lensOp.args.agent === 'proof-or-stop-review-concept');
   check("ledger-ops: lens op.args.reviewRunId === 'RR-L'", lensOp.args.reviewRunId === 'RR-L');
   check("ledger-ops: lens op.args.severity === 'high' (MAJOR mapped)", lensOp.args.severity === 'high');
   check('ledger-ops: lens op.args.severity is a ledger kind', LEDGER_KINDS.includes(lensOp.args.severity));
@@ -201,7 +201,7 @@ if (lensOp.kind === 'finding_add') {
 // Critic op: real lane agent + desc-tagged + ledger severity.
 const criticOp = criticOps[0];
 if (criticOp.kind === 'finding_add') {
-  check("ledger-ops: critic op.args.agent === 'lattice-review-quality' (real lane)", criticOp.args.agent === 'lattice-review-quality');
+  check("ledger-ops: critic op.args.agent === 'proof-or-stop-review-quality' (real lane)", criticOp.args.agent === 'proof-or-stop-review-quality');
   check("ledger-ops: critic op.args.reviewRunId === 'RR-C'", criticOp.args.reviewRunId === 'RR-C');
   check("ledger-ops: critic op.args.desc starts with '[completeness-critic] '", criticOp.args.desc.startsWith('[completeness-critic] '));
   check("ledger-ops: critic op.args.severity === 'critical' (BLOCKER mapped)", criticOp.args.severity === 'critical');
@@ -211,17 +211,17 @@ if (criticOp.kind === 'finding_add') {
 
 // ── 8. deriveRoundLedgerOps on a CLEAN converged round → a PASS per ran lane ──
 // A clean converged round over CANONICAL_LENS_SET runs 5 UNIQUE lanes (two lenses
-// share lattice-review-behavior). The spec (§4.1/§5) requires a review_pass_set
+// share proof-or-stop-review-behavior). The spec (§4.1/§5) requires a review_pass_set
 // for EVERY participating lane, NOT just lanes that surfaced a confirmed finding.
 const cleanLedgerRound = runAdversarialRound('CHG-clean2', cleanSeams);
 check('clean-ledger: round converged', cleanLedgerRound.converged === true);
 
 const EXPECTED_RAN_LANES = [
-  'lattice-review-concept',
-  'lattice-review-quality',
-  'lattice-review-behavior',
-  'lattice-review-test-coverage',
-  'lattice-review-docs',
+  'proof-or-stop-review-concept',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-behavior',
+  'proof-or-stop-review-test-coverage',
+  'proof-or-stop-review-docs',
 ];
 check(
   'clean-ledger: ranLanes deep-equals [concept,quality,behavior,test-coverage,docs] (first-seen, deduped)',
@@ -230,17 +230,17 @@ check(
 );
 
 const cleanRunIdByLane = {
-  'lattice-review-concept': 'RR-c',
-  'lattice-review-quality': 'RR-q',
-  'lattice-review-behavior': 'RR-b',
-  'lattice-review-test-coverage': 'RR-t',
-  'lattice-review-docs': 'RR-d',
+  'proof-or-stop-review-concept': 'RR-c',
+  'proof-or-stop-review-quality': 'RR-q',
+  'proof-or-stop-review-behavior': 'RR-b',
+  'proof-or-stop-review-test-coverage': 'RR-t',
+  'proof-or-stop-review-docs': 'RR-d',
 } as const;
 const EXPECTED_PASS_RUN_IDS = ['RR-c', 'RR-q', 'RR-b', 'RR-t', 'RR-d'];
 
 const cleanOps = deriveRoundLedgerOps(cleanLedgerRound, {
   reviewRunIdByLane: { ...cleanRunIdByLane },
-  criticLane: 'lattice-review-docs',
+  criticLane: 'proof-or-stop-review-docs',
   criticReviewRunId: 'RR-d',
 });
 const cleanPassOps = cleanOps.filter((o) => o.kind === 'review_pass_set');
@@ -260,14 +260,14 @@ check(
 let missingRanThrew = false;
 try {
   deriveRoundLedgerOps(cleanLedgerRound, {
-    // omit lattice-review-docs run id
+    // omit proof-or-stop-review-docs run id
     reviewRunIdByLane: {
-      'lattice-review-concept': 'RR-c',
-      'lattice-review-quality': 'RR-q',
-      'lattice-review-behavior': 'RR-b',
-      'lattice-review-test-coverage': 'RR-t',
+      'proof-or-stop-review-concept': 'RR-c',
+      'proof-or-stop-review-quality': 'RR-q',
+      'proof-or-stop-review-behavior': 'RR-b',
+      'proof-or-stop-review-test-coverage': 'RR-t',
     },
-    criticLane: 'lattice-review-docs',
+    criticLane: 'proof-or-stop-review-docs',
     criticReviewRunId: 'RR-d',
   });
 } catch {
@@ -282,7 +282,7 @@ let missingConfirmedThrew = false;
 try {
   deriveRoundLedgerOps(confirmedNoRunIdRound, {
     reviewRunIdByLane: {}, // no run id for the confirmed concept lane
-    criticLane: 'lattice-review-quality',
+    criticLane: 'proof-or-stop-review-quality',
     criticReviewRunId: 'RR-C',
   });
 } catch {

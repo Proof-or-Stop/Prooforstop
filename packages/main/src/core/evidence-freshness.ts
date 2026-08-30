@@ -7,7 +7,7 @@ import {
   PROOF_OR_STOP_STORY_DIR,
   PROOF_OR_STOP_STORY_DIR_NAMES,
   LEGACY_DOCS_STORY_DIR,
-} from './lattice-paths.js';
+} from './proof-or-stop-paths.js';
 
 export const GIT_TREE_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024;
 
@@ -227,7 +227,7 @@ function readMaterialDirtyFiles(gitCwd: string, metadataRoot: string): { files: 
   try {
     // No full-output trim(): it would strip the first porcelain row's leading
     // status space (" M path" -> "M path"), shifting the fixed-width path
-    // offset and corrupting the first reported path (".lattice/x" -> "lattice/x").
+    // offset and corrupting the first reported path (".proof-or-stop/x" -> "proofOrStop/x").
     const raw = execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], {
       cwd: gitCwd,
       ...GIT_EXEC_OPTS,
@@ -495,7 +495,7 @@ export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot
 //
 // B-6666 F-001 (REVIEW fix): metadataRoot — NOT gitCwd — drives the
 // storyDir-aware metadata-path exclusion (isMaterialExcludedPath ->
-// isStoryMetadataPath -> loadConfig). The lattice.config.json that declares a
+// isStoryMetadataPath -> loadConfig). The proof-or-stop.config.json that declares a
 // CUSTOM storyDir lives at the metadataRoot, not the gitCwd; on a wrapper-root
 // layout (metadataRoot != gitRoot) with a non-default storyDir, loading config
 // from gitCwd silently misses the custom storyDir and WRONGLY includes the

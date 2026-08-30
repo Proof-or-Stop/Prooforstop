@@ -162,7 +162,7 @@ const ZH_EXT_A = cp(0x3400);
   // plus a sibling file holding legacy Chinese OUTSIDE the story dir. The gate
   // must ignore the sibling entirely (it only reads AUTHOR_METADATA_BASENAMES
   // inside storyDir).
-  const tmpRoot = mkdtempSync(join(tmpdir(), 'lattice-english-scope-'));
+  const tmpRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-english-scope-'));
   try {
     const storyDir = join(tmpRoot, 'story');
     // Legacy Chinese living OUTSIDE the story dir — must never be scanned.
@@ -198,7 +198,7 @@ const ZH_EXT_A = cp(0x3400);
 // ─── Test 4: gate block — CJK fixture flips ok=false naming source+line ───────
 
 {
-  const tmpRoot = mkdtempSync(join(tmpdir(), 'lattice-english-block-'));
+  const tmpRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-english-block-'));
   try {
     const storyDir = join(tmpRoot, 'story');
     mkdirSync(storyDir, { recursive: true });
@@ -254,10 +254,10 @@ const ZH_EXT_A = cp(0x3400);
 {
   // Only this worktree's own author metadata is in scope; the commit channel is
   // what we are asserting on. Use the real story dir if present, else a tmp dir.
-  const realStoryDir = join(repoRoot, '.lattice', 'story', 'actives', 'B-5f42');
+  const realStoryDir = join(repoRoot, '.proof-or-stop', 'story', 'actives', 'B-5f42');
   const storyDirForReal = existsSync(realStoryDir)
     ? realStoryDir
-    : mkdtempSync(join(tmpdir(), 'lattice-english-realgit-'));
+    : mkdtempSync(join(tmpdir(), 'proof-or-stop-english-realgit-'));
 
   // No gitLogReader override => defaultGitLogReader runs `git log main..HEAD`.
   const result = runEnglishArtifactGate({ storyDir: storyDirForReal, gitCwd: repoRoot });
@@ -308,10 +308,10 @@ function spawnHook(payload: string | undefined): { status: number | null; stderr
   assert.match(a.stderr, /warn english-only/i, 'hook 6a: CJK git commit must emit an English warning on stderr');
 
   // 6a') proof-or-stop story-metadata command carrying CJK -> warning, exit 0.
-  const cjkLattice = JSON.stringify({
+  const cjkProofOrStop = JSON.stringify({
     tool_input: { command: `proof-or-stop checklist_update '{"title":"${ZH_FIX}"}'` },
   });
-  const aa = spawnHook(cjkLattice);
+  const aa = spawnHook(cjkProofOrStop);
   assert.equal(aa.status, 0, "hook 6a': CJK proof-or-stop metadata command must exit 0");
   assert.match(aa.stderr, /warn english-only/i, "hook 6a': CJK proof-or-stop metadata command must warn");
 
@@ -349,9 +349,9 @@ function spawnHook(payload: string | undefined): { status: number | null; stderr
 // array, duplicating the scope guard).
 
 {
-  const tmpRoot = mkdtempSync(join(tmpdir(), 'lattice-english-initrerun-'));
+  const tmpRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-english-initrerun-'));
   // A temp HOME so global agent assets / user config never bleed into the run.
-  const tmpHome = mkdtempSync(join(tmpdir(), 'lattice-english-initrerun-home-'));
+  const tmpHome = mkdtempSync(join(tmpdir(), 'proof-or-stop-english-initrerun-home-'));
   try {
     // Seed a git repo (init resolves the project root via git).
     execFileSync('git', ['init', '-b', 'main'], { cwd: tmpRoot, stdio: ['pipe', 'pipe', 'pipe'] });

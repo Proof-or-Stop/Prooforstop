@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * B-cc10 CHK-005 — verify the npm package rename @lattice/core -> @proof-or-stop/core.
+ * B-cc10 CHK-005 — verify the npm package rename @proof-or-stop/core -> @proof-or-stop/core.
  *
  * Three independent assertions, matching the item's three `must` verification intents:
  *
@@ -13,7 +13,7 @@
  *               NEW name (packages/utils imports main's build output, so a stale reference
  *               would surface as a cross-package resolution break).
  *
- *   adversarial the OQ-2 scope boundary still holds: the ROOT package name stays `lattice`
+ *   adversarial the OQ-2 scope boundary still holds: the ROOT package name stays `proof-or-stop`
  *               while packages/main is `@proof-or-stop/core`. This is the assertion that
  *               would otherwise regress SILENTLY — a future sweep that "finishes the
  *               rename" by renaming the root would violate the recorded scope boundary
@@ -31,7 +31,7 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const CANONICAL_CORE = '@proof-or-stop/core';
-const FROZEN_ROOT = 'lattice';
+const FROZEN_ROOT = 'proof-or-stop';
 
 const failures = [];
 
@@ -72,7 +72,7 @@ for (const sibling of ['utils', 'lab']) {
   );
   check(
     `packages/${sibling} no longer references the deprecated core name`,
-    !Object.prototype.hasOwnProperty.call(deps, '@lattice/core'),
+    !Object.prototype.hasOwnProperty.call(deps, '@proof-or-stop/core'),
   );
 }
 
@@ -98,7 +98,7 @@ check(
 // before the single gate runs.
 
 // B-cc10 F-009: the CHK-005 adversarial intent asks for a repo-wide check that
-// @lattice/core no longer appears outside node_modules / dist / the state dirs. The
+// @proof-or-stop/core no longer appears outside node_modules / dist / the state dirs. The
 // checks above only covered dependency declarations plus the root name.
 //
 // IMPORTANT scoping, learned by getting it wrong first: a naive "any mention" grep
@@ -117,7 +117,7 @@ check(
     .trim().split('\n').filter(Boolean);
   const skip = (f) =>
     f.includes('node_modules/') || f.includes('/dist/') || f.startsWith('dist/')
-    || f.startsWith('.proof-or-stop/') || f.startsWith('.lattice/')
+    || f.startsWith('.proof-or-stop/') || f.startsWith('.proof-or-stop/')
     || f === 'CHANGELOG.md'             // historical release record (FROZEN)
     // brand-rename-mapping.md is the FROZEN decision record that quotes the OLD name to
     // explain why each identity was or was not renamed; rewriting it would destroy the
@@ -128,7 +128,7 @@ check(
     if (skip(f)) continue;
     let body = '';
     try { body = readFileSync(f, 'utf8'); } catch { continue; }
-    if (!body.includes('@lattice/core')) continue;
+    if (!body.includes('@proof-or-stop/core')) continue;
     if (!body.includes('@proof-or-stop/core')) deprecatedOnly.push(f);
   }
   console.log(`deprecatedCoreNameWithoutCanonical=${deprecatedOnly.length}`);
@@ -136,7 +136,7 @@ check(
     console.log(`  stranded: ${deprecatedOnly.join(', ')}`);
   }
   check(
-    'every @lattice/core mention sits beside the canonical name (read-both), none stranded',
+    'every @proof-or-stop/core mention sits beside the canonical name (read-both), none stranded',
     deprecatedOnly.length === 0,
   );
 }

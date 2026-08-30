@@ -29,21 +29,21 @@ export type StoryPhase = 'IDEA' | 'INIT' | 'INIT_CHECK' | 'PLAN' | 'DEV' | 'REVI
 
 /** Canonical role names accepted by the typed dispatch contract. */
 export type AgentDispatchCanonicalType =
-  | 'lattice-implementer'
+  | 'proof-or-stop-implementer'
   | 'verification-intent'
-  | 'lattice-review-story-init'
+  | 'proof-or-stop-review-story-init'
   | 'product-reviewer'
-  | 'lattice-review-scope-plan'
-  | 'lattice-review-topology-critic'
-  | 'lattice-review-concept'
-  | 'lattice-review-quality'
-  | 'lattice-review-test-coverage'
-  | 'lattice-review-behavior'
-  | 'lattice-review-docs'
-  | 'lattice-review-channel'
-  | 'lattice-review-delivery'
-  | 'lattice-finding-repair'
-  | 'lattice-cluster-repair';
+  | 'proof-or-stop-review-scope-plan'
+  | 'proof-or-stop-review-topology-critic'
+  | 'proof-or-stop-review-concept'
+  | 'proof-or-stop-review-quality'
+  | 'proof-or-stop-review-test-coverage'
+  | 'proof-or-stop-review-behavior'
+  | 'proof-or-stop-review-docs'
+  | 'proof-or-stop-review-channel'
+  | 'proof-or-stop-review-delivery'
+  | 'proof-or-stop-finding-repair'
+  | 'proof-or-stop-cluster-repair';
 
 export type AgentDispatchRoleClass =
   | 'implementer'
@@ -92,17 +92,17 @@ export type AgentDispatchMutationCommand =
   | 'red_evidence_recover';
 
 export type AgentDispatchReviewerLane =
-  | 'lattice-review-story-init'
+  | 'proof-or-stop-review-story-init'
   | 'product-reviewer'
-  | 'lattice-review-scope-plan'
-  | 'lattice-review-topology-critic'
-  | 'lattice-review-concept'
-  | 'lattice-review-quality'
-  | 'lattice-review-test-coverage'
-  | 'lattice-review-behavior'
-  | 'lattice-review-docs'
-  | 'lattice-review-channel'
-  | 'lattice-review-delivery';
+  | 'proof-or-stop-review-scope-plan'
+  | 'proof-or-stop-review-topology-critic'
+  | 'proof-or-stop-review-concept'
+  | 'proof-or-stop-review-quality'
+  | 'proof-or-stop-review-test-coverage'
+  | 'proof-or-stop-review-behavior'
+  | 'proof-or-stop-review-docs'
+  | 'proof-or-stop-review-channel'
+  | 'proof-or-stop-review-delivery';
 
 export type AgentDispatchEvidenceOwnership =
   | 'checklist-status'
@@ -848,7 +848,7 @@ export interface TopologyExclusionApprovalV1 {
   exclusionRef: string;
   scopeRef: string;
   approverIdentity: string;
-  approverRole: 'lattice-review-scope-plan';
+  approverRole: 'proof-or-stop-review-scope-plan';
   approverProvenance: TopologyActorProvenanceV1;
   implementationProvenance: TopologyImplementationProvenanceV1;
   basisDigest: string;
@@ -872,7 +872,7 @@ export interface TopologyCriticReceiptV1 {
   schemaVersion: 'proofstory.topology_critic_receipt.v1';
   storyId: string;
   criticIdentity: string;
-  criticRole: 'lattice-review-topology-critic';
+  criticRole: 'proof-or-stop-review-topology-critic';
   criticProvenance: TopologyActorProvenanceV1;
   implementationProvenance: TopologyImplementationProvenanceV1;
   basisDigest: string;
@@ -1338,7 +1338,7 @@ export interface StorySummaryData {
   acceptanceVerdict?: 'accepted' | 'partial' | 'rejected';
   /** Terminal outcome classification for DONE stories; omitted legacy data defaults to success. */
   outcomeKind?: StoryOutcomeKind;
-  /** Real-machine verification coverage: auto-scaffolded by lattice, agent fills skipReasons only */
+  /** Real-machine verification coverage: auto-scaffolded by proofOrStop, agent fills skipReasons only */
   realMachineCoverage: {
     /** Cases that were actually run (auto-populated from test-evidence.json + evidence per fixture) */
     ran: Array<{ name: string; where: string }>;
@@ -2039,7 +2039,7 @@ export type ProcessEvent = {
   [key: string]: unknown;
 };
 
-// ── Scope Check (B-d4d1: signed scope-check.json written by lattice-review-scope-plan agent) ──
+// ── Scope Check (B-d4d1: signed scope-check.json written by proof-or-stop-review-scope-plan agent) ──
 // B-ed3e CHK-002: schema extended to 5 states + source field (backward compatible, missing fields in old data default to undefined / 0).
 // Signing domain (signScopeCheck parameters) unchanged: still only contains storyId / timestamp / gaps / covered / reviewRound,
 // newly added source / orphanSuspect / drift / openQuestions do not enter _hash (see decision preMortem 1).
@@ -2094,7 +2094,7 @@ export interface ScopeCheckData {
   _hash: string;
 }
 
-// ── Init Check (B-e71f: signed init-check.json written by lattice-review-story-init agent) ──
+// ── Init Check (B-e71f: signed init-check.json written by proof-or-stop-review-story-init agent) ──
 // INIT → INIT_CHECK hard gate artifact. Written by reviewer subagent after reviewing background.md + initial checklist.
 // The signed components are declared, once, by INIT_CHECK_SIGNATURE_DOMAIN in core/init-check-gate.ts —
 // consult that declaration rather than any restatement of it (B-8df9 CHK-002 widened the domain and every
@@ -2194,7 +2194,7 @@ export interface InitCheckData {
     evidenceRefs?: string[];
     /** Operator identifier (git user.name or explicitly passed in), audit traceability only. */
     actor?: string;
-    /** Session identifier (LATTICE_SESSION_ID / derived session id), audit traceability only. */
+    /** Session identifier (PROOF_OR_STOP_SESSION_ID / derived session id), audit traceability only. */
     session?: string;
     /** ISO 8601 attestation timestamp. */
     attestedAt: string;
@@ -2237,7 +2237,7 @@ export type StallResolutionActionName =
 
 /**
  * B-7813 CHK-002: the signed stall-adjudication record persisted at
- * .lattice/story/actives/<id>/stall-adjudication.json. It authorizes clearing
+ * .proof-or-stop/story/actives/<id>/stall-adjudication.json. It authorizes clearing
  * the convergence-stall mint block for EXACTLY the review round it is bound to
  * (reviewRound === story.currentReviewRound at record time). Consumed on read by
  * the CHK-001 seam (hasCurrentRoundStallResolution) which re-validates reason
@@ -2494,7 +2494,7 @@ export interface DeliveryCheckData {
   checkedAt: string;
   /** Git HEAD at delivery review time, retained for audit/debug only. */
   headHash?: string;
-  /** Material tree hash reviewed by lattice-review-delivery; signed and required for freshness. */
+  /** Material tree hash reviewed by proof-or-stop-review-delivery; signed and required for freshness. */
   materialHash?: string;
   /**
    * Story-owned file hash (storyFilesHash secondary-freshness signal). Signed.
@@ -2804,7 +2804,7 @@ export interface SemanticScopeGateResult {
 
 // ── Guard Session (B-6bfd CHK-004: Proof-or-Stop-managed guarded session projection) ──
 //
-// A guard session is a *projection* of scope protection for a Lattice-dispatched
+// A guard session is a *projection* of scope protection for a ProofOrStop-dispatched
 // agent. It is NOT a competing session truth source and NOT a write-ownership
 // authority — the story owner lease (core/story-owner-lease.ts) remains
 // authoritative for writes. The guard session only records which provider runs

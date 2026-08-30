@@ -26,7 +26,7 @@
  * scope (they are CHK-002 / CHK-003).
  *
  * F-008-CLASS DIRTY-WRITE PREVENTION: `owner-lease.json` is a runtime artifact.
- * It lives under the git-tracked `.lattice/story/actives/<id>/` subtree, so an
+ * It lives under the git-tracked `.proof-or-stop/story/actives/<id>/` subtree, so an
  * un-ignored lease file would show up as an uncommitted change and could block
  * the DONE `git merge story/<id>` (the same failure mode as B-f60c F-008). The
  * file is therefore registered in `core/runtime-artifact-registry.ts` (entry
@@ -79,7 +79,7 @@ export type {
 
 /**
  * Filename of the per-story owner lease, written under the story directory
- * (`.lattice/story/actives/<storyId>/owner-lease.json`).
+ * (`.proof-or-stop/story/actives/<storyId>/owner-lease.json`).
  *
  * Kept as an exported constant so the runtime-artifact registry, doctor checks,
  * and tests all reference the SAME literal instead of re-typing the string.
@@ -139,7 +139,7 @@ function trimToNull(value: string | undefined): string | null {
  * Resolve the absolute path of a story's `owner-lease.json`.
  *
  * `storyDir` MUST be the absolute story directory
- * (`.lattice/story/actives/<storyId>`). Runtime re-validation rejects an empty
+ * (`.proof-or-stop/story/actives/<storyId>`). Runtime re-validation rejects an empty
  * path rather than silently joining onto `''` — mirrors the "Handler Coding Conventions"
  * rule that load-bearing invariants are re-checked at every consumer instead of
  * trusting an upstream schema.
@@ -484,7 +484,7 @@ export interface TakeoverOptions extends OwnerLeaseWriteOptions {
   kind: TakeoverKind;
   /**
    * Project root used to locate the activity log the takeover event is
-   * appended to (`<projectRoot>/.lattice/activity.jsonl`). When omitted, the
+   * appended to (`<projectRoot>/.proof-or-stop/activity.jsonl`). When omitted, the
    * takeover still transfers the lease but skips the audit record — callers
    * that need the event MUST supply this.
    */

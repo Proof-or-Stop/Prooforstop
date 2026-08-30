@@ -24,7 +24,7 @@
  *     written + the estimate superseded, and is NOT counted as provider-reported
  *     in summarizeRecords.
  *   - CHK-005: usage-ledger imports ZERO other modules (static scan); the budget
- *     exports are imported only by lattice-dispatch + this smoke.
+ *     exports are imported only by proof-or-stop-dispatch + this smoke.
  *
  * Runs entirely in an OS temp dir; never pollutes the repo. Prints per-check
  * lines and a final summary; exits non-zero on any failure.
@@ -36,7 +36,7 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } 
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 
-import { buildClaudeSpawnArgs } from '../core/lattice-dispatch.js';
+import { buildClaudeSpawnArgs } from '../core/proof-or-stop-dispatch.js';
 import {
   buildBlockedBudgetRecord,
   HARD_BUDGET_REASON_CODE,
@@ -59,7 +59,7 @@ let passed = 0;
 const failures: string[] = [];
 
 // The legacy hard-budget alias env var (formerly the retired-brand-prefixed name)
-// was removed (B-b837). Only LATTICE_HARD_BUDGET_TOKENS is read now; any other env
+// was removed (B-b837). Only PROOF_OR_STOP_HARD_BUDGET_TOKENS is read now; any other env
 // var — including a user's stale legacy alias — must be silently ignored. We
 // exercise that with a representative stale legacy-shaped key built at runtime so
 // the test stays free of the retired brand token.
@@ -78,10 +78,10 @@ async function check(label: string, fn: () => void | Promise<void>): Promise<voi
   }
 }
 
-const ON = { LATTICE_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
+const ON = { PROOF_OR_STOP_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
 // Ledger is default-ON, so OFF must be the EXPLICIT escape hatch, not an empty
 // env (an empty/unset env now reads as ON).
-const OFF = { LATTICE_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
+const OFF = { PROOF_OR_STOP_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
 
 const root = mkdtempSync(join(tmpdir(), 'usage-ledger-budget-'));
 
@@ -96,7 +96,7 @@ function ctx(over: Partial<DispatchUsageContext> = {}): DispatchUsageContext {
   return {
     storyId: 'S-budget',
     phase: 'dispatch',
-    agentType: 'lattice-dispatch:claude-code',
+    agentType: 'proof-or-stop-dispatch:claude-code',
     model: 'claude-code',
     ...over,
   };
@@ -178,7 +178,7 @@ function attribution(over: Record<string, unknown> = {}) {
   return {
     storyId: 'S-budget',
     phase: 'dispatch',
-    agentType: 'lattice-dispatch:claude-code',
+    agentType: 'proof-or-stop-dispatch:claude-code',
     subagentId: null,
     threadId: null,
     ...over,
@@ -189,8 +189,8 @@ async function main(): Promise<void> {
   // ======================================================================
   // CHK-001: resolveHardBudget + isOverHardBudget (pure)
   // ======================================================================
-  await check('CHK-001 happy: LATTICE_ valid -> {hardBudgetTokens, budgetPolicyId}', () => {
-    const r = resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: '5000' });
+  await check('CHK-001 happy: PROOF_OR_STOP_ valid -> {hardBudgetTokens, budgetPolicyId}', () => {
+    const r = resolveHardBudget({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: '5000' });
     assert.ok(r);
     assert.equal(r?.hardBudgetTokens, 5000);
     assert.equal(r?.budgetPolicyId, 'hard-budget:5000');
@@ -214,16 +214,16 @@ async function main(): Promise<void> {
     assert.equal(resolveHardBudget({ [STALE_BUDGET_ALIAS]: '3000' }), null);
   });
 
-  await check('B-b837 adversarial: only LATTICE_ resolves; a stale alias alongside is ignored', () => {
-    const r = resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: '7000', [STALE_BUDGET_ALIAS]: '3000' });
+  await check('B-b837 adversarial: only PROOF_OR_STOP_ resolves; a stale alias alongside is ignored', () => {
+    const r = resolveHardBudget({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: '7000', [STALE_BUDGET_ALIAS]: '3000' });
     assert.equal(r?.hardBudgetTokens, 7000);
   });
 
   await check('CHK-001 edge: 0 / negative / non-numeric / float -> null', () => {
-    assert.equal(resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: '0' }), null);
-    assert.equal(resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: '-100' }), null);
-    assert.equal(resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: 'abc' }), null);
-    assert.equal(resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: '3.14' }), null);
+    assert.equal(resolveHardBudget({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: '0' }), null);
+    assert.equal(resolveHardBudget({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: '-100' }), null);
+    assert.equal(resolveHardBudget({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: 'abc' }), null);
+    assert.equal(resolveHardBudget({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: '3.14' }), null);
   });
 
   await check('CHK-001 edge: isOverHardBudget(5000,5000)===false (exact boundary)', () => {
@@ -231,15 +231,15 @@ async function main(): Promise<void> {
   });
 
   await check('CHK-001 edge: minimum valid (1) accepted; whitespace trimmed', () => {
-    assert.equal(resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: '1' })?.hardBudgetTokens, 1);
-    assert.equal(resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: '  5000  ' })?.hardBudgetTokens, 5000);
+    assert.equal(resolveHardBudget({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' })?.hardBudgetTokens, 1);
+    assert.equal(resolveHardBudget({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: '  5000  ' })?.hardBudgetTokens, 5000);
   });
 
   await check('CHK-001 adversarial: unsafe int / Infinity / NaN / empty -> null', () => {
-    assert.equal(resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: '9007199254740992' }), null);
-    assert.equal(resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: 'Infinity' }), null);
-    assert.equal(resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: 'NaN' }), null);
-    assert.equal(resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: '' }), null);
+    assert.equal(resolveHardBudget({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: '9007199254740992' }), null);
+    assert.equal(resolveHardBudget({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: 'Infinity' }), null);
+    assert.equal(resolveHardBudget({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: 'NaN' }), null);
+    assert.equal(resolveHardBudget({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: '' }), null);
   });
 
   await check('CHK-001 adversarial: isOverHardBudget(0,5000)===false; never throws', () => {
@@ -387,7 +387,7 @@ async function main(): Promise<void> {
   await check('CHK-004 QUADRANT A: ledger OFF -> spawn args stay canonical observable stream-json', () => {
     assert.deepEqual(buildClaudeSpawnArgs('<prompt-file>'), [...EXPECTED_CLAUDE_SPAWN_ARGS]);
     // shouldBlockDispatch with enabled=false never blocks and never reads a budget.
-    const d = shouldBlockDispatch(false, { LATTICE_HARD_BUDGET_TOKENS: '1' }, 999999);
+    const d = shouldBlockDispatch(false, { PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' }, 999999);
     assert.equal(d.block, false);
     assert.equal(d.budget, null);
   });
@@ -410,7 +410,7 @@ async function main(): Promise<void> {
 
   await check('CHK-004 QUADRANT C: ON + budget set + estimate OVER -> blocked record + skip', () => {
     const sub = freshRoot();
-    const env = { ...ON, LATTICE_HARD_BUDGET_TOKENS: '1' };
+    const env = { ...ON, PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' };
     // A non-empty prompt estimates >= 1 token, so budget=1 is strictly exceeded.
     const prompt = 'this prompt is definitely larger than one token of budget';
     const handle = recordDispatchPreflight(sub, ctx(), prompt, opts(env));
@@ -437,7 +437,7 @@ async function main(): Promise<void> {
 
   await check('CHK-004 QUADRANT D: ON + budget set + estimate UNDER -> proceeds, no record', () => {
     const sub = freshRoot();
-    const env = { ...ON, LATTICE_HARD_BUDGET_TOKENS: '100000' };
+    const env = { ...ON, PROOF_OR_STOP_HARD_BUDGET_TOKENS: '100000' };
     const prompt = 'tiny prompt';
     const handle = recordDispatchPreflight(sub, ctx(), prompt, opts(env));
     assert.ok(handle);
@@ -455,7 +455,7 @@ async function main(): Promise<void> {
     const handle = recordDispatchPreflight(sub, ctx(), prompt, opts(ON));
     assert.ok(handle);
     const exact = handle!.estimatedInputTokens;
-    const env = { ...ON, LATTICE_HARD_BUDGET_TOKENS: String(exact) };
+    const env = { ...ON, PROOF_OR_STOP_HARD_BUDGET_TOKENS: String(exact) };
     const decision = recordBudgetBlock(sub, ctx(), handle, prompt, opts(env));
     assert.equal(decision.blocked, false, 'estimate == budget must NOT block (strict-exceed only)');
   });
@@ -463,7 +463,7 @@ async function main(): Promise<void> {
   await check('CHK-004 fail-open: budget-check error -> proceeds (no block)', () => {
     // shouldBlockDispatch swallows a throwing estimate; a non-finite estimate is
     // fail-open (treated as not over budget) even with a configured budget.
-    const d = shouldBlockDispatch(true, { LATTICE_HARD_BUDGET_TOKENS: '1' }, Number.NaN);
+    const d = shouldBlockDispatch(true, { PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' }, Number.NaN);
     assert.equal(d.block, false, 'a non-finite estimate must not wrongly block');
   });
 
@@ -471,7 +471,7 @@ async function main(): Promise<void> {
     const sub = freshRoot();
     // Even with a budget env set, the EXPLICIT ledger OFF (=0) means the guard
     // never resolves or blocks. (The ledger is default-ON, so OFF must be set.)
-    const env = { LATTICE_USAGE_LEDGER: '0', LATTICE_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
+    const env = { PROOF_OR_STOP_USAGE_LEDGER: '0', PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' } as NodeJS.ProcessEnv;
     const decision = recordBudgetBlock(sub, ctx(), null, 'a prompt over one token', opts(env));
     assert.equal(decision.blocked, false);
     assert.equal(existsSync(resolveLedgerPath(sub)), false, 'OFF must write nothing');
@@ -479,7 +479,7 @@ async function main(): Promise<void> {
 
   await check('CHK-004 adversarial: preflight null (write failed) + over budget -> blocks, supersedes []', () => {
     const sub = freshRoot();
-    const env = { ...ON, LATTICE_HARD_BUDGET_TOKENS: '1' };
+    const env = { ...ON, PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' };
     const prompt = 'a prompt clearly larger than the one-token budget ceiling';
     // Simulate preflight returning null (e.g. corrupt ledger): pass handle=null.
     const decision = recordBudgetBlock(sub, ctx(), null, prompt, opts(env));
@@ -490,12 +490,12 @@ async function main(): Promise<void> {
   });
 
   await check('CHK-004 statelessness: rapid sequential resolves read live env each time', () => {
-    assert.equal(resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: '100' })?.hardBudgetTokens, 100);
-    assert.equal(resolveHardBudget({ LATTICE_HARD_BUDGET_TOKENS: '200' })?.hardBudgetTokens, 200);
+    assert.equal(resolveHardBudget({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: '100' })?.hardBudgetTokens, 100);
+    assert.equal(resolveHardBudget({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: '200' })?.hardBudgetTokens, 200);
     assert.equal(resolveHardBudget({}), null);
   });
 
-  await check('CHK-004 hermetic: ambient LATTICE_HARD_BUDGET_TOKENS does not leak into assertions', () => {
+  await check('CHK-004 hermetic: ambient PROOF_OR_STOP_HARD_BUDGET_TOKENS does not leak into assertions', () => {
     // The smoke passes env explicitly to every guard call, so an ambient value
     // in process.env never influences these results.
     const d = shouldBlockDispatch(true, {}, 999999);
@@ -509,18 +509,18 @@ async function main(): Promise<void> {
   // budget and silently never enforced. These checks lock the production path.
   // ======================================================================
   await check('F-001 unit: resolveHardBudget(undefined) reads process.env (not null)', () => {
-    withProcessEnv({ LATTICE_HARD_BUDGET_TOKENS: '1234' }, () => {
+    withProcessEnv({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1234' }, () => {
       const r = resolveHardBudget(undefined);
       assert.ok(r, 'resolveHardBudget(undefined) must read process.env, not default to {}');
       assert.equal(r?.hardBudgetTokens, 1234);
       assert.equal(r?.budgetPolicyId, 'hard-budget:1234');
     });
     // After restore, the ambient var is gone -> back to null (no enforcement).
-    assert.equal(process.env.LATTICE_HARD_BUDGET_TOKENS, undefined, 'env must be restored');
+    assert.equal(process.env.PROOF_OR_STOP_HARD_BUDGET_TOKENS, undefined, 'env must be restored');
   });
 
   await check('B-b837 adversarial: a stale legacy alias on the process.env path is ignored (no enforcement)', () => {
-    withProcessEnv({ LATTICE_HARD_BUDGET_TOKENS: undefined, [STALE_BUDGET_ALIAS]: '777' }, () => {
+    withProcessEnv({ PROOF_OR_STOP_HARD_BUDGET_TOKENS: undefined, [STALE_BUDGET_ALIAS]: '777' }, () => {
       const r = resolveHardBudget(undefined);
       assert.equal(r, null, 'a stale legacy env must NOT take effect on the production (process.env) path');
     });
@@ -529,7 +529,7 @@ async function main(): Promise<void> {
   await check('F-001 guard: PRODUCTION-shaped opts (no env key) + over budget -> ENFORCES (blocks)', () => {
     const sub = freshRoot();
     const prompt = 'this production prompt is clearly larger than a one-token budget ceiling';
-    withProcessEnv({ LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '1' }, () => {
+    withProcessEnv({ PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' }, () => {
       // Production seam shape: ledger ON + budget via process.env, opts has NO env.
       const handle = recordDispatchPreflight(sub, ctx(), prompt, prodOpts());
       assert.ok(handle, 'preflight must run on the production path (ledger ON via process.env)');
@@ -545,7 +545,7 @@ async function main(): Promise<void> {
   await check('F-001 guard: PRODUCTION-shaped opts + UNDER budget -> proceeds (no false block)', () => {
     const sub = freshRoot();
     const prompt = 'tiny';
-    withProcessEnv({ LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: '100000' }, () => {
+    withProcessEnv({ PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HARD_BUDGET_TOKENS: '100000' }, () => {
       const handle = recordDispatchPreflight(sub, ctx(), prompt, prodOpts());
       const decision = recordBudgetBlock(sub, ctx(), handle, prompt, prodOpts());
       assert.equal(decision.blocked, false, 'within-budget production path must proceed');
@@ -556,7 +556,7 @@ async function main(): Promise<void> {
   await check('F-001 guard: PRODUCTION-shaped opts + NO budget env -> proceeds (byte-identical)', () => {
     const sub = freshRoot();
     const prompt = 'a prompt with no budget configured at all';
-    withProcessEnv({ LATTICE_USAGE_LEDGER: '1', LATTICE_HARD_BUDGET_TOKENS: undefined }, () => {
+    withProcessEnv({ PROOF_OR_STOP_USAGE_LEDGER: '1', PROOF_OR_STOP_HARD_BUDGET_TOKENS: undefined }, () => {
       const handle = recordDispatchPreflight(sub, ctx(), prompt, prodOpts());
       const decision = recordBudgetBlock(sub, ctx(), handle, prompt, prodOpts());
       assert.equal(decision.blocked, false, 'no budget env -> guard is a no-op even on the production path');
@@ -569,7 +569,7 @@ async function main(): Promise<void> {
     const sub = freshRoot();
     const prompt = 'over one token but the ledger is OFF on the production path';
     // Ledger EXPLICITLY OFF (=0; default is now ON) but a budget IS set: must NOT block.
-    withProcessEnv({ LATTICE_USAGE_LEDGER: '0', LATTICE_HARD_BUDGET_TOKENS: '1' }, () => {
+    withProcessEnv({ PROOF_OR_STOP_USAGE_LEDGER: '0', PROOF_OR_STOP_HARD_BUDGET_TOKENS: '1' }, () => {
       const decision = recordBudgetBlock(sub, ctx(), null, prompt, prodOpts());
       assert.equal(decision.blocked, false, 'OFF must be byte-identical even with a budget set');
       assert.equal(existsSync(resolveLedgerPath(sub)), false, 'OFF writes nothing on the production path');
@@ -605,7 +605,7 @@ async function main(): Promise<void> {
     assert.deepEqual(offenders, [], `usage-ledger must import only in-module siblings + node:; offenders:\n${offenders.join('\n')}`);
   });
 
-  await check('CHK-005 STATIC budget exports imported ONLY by lattice-dispatch + this smoke', () => {
+  await check('CHK-005 STATIC budget exports imported ONLY by proof-or-stop-dispatch + this smoke', () => {
     const repoRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
     const srcRoot = join(repoRoot, 'packages', 'main', 'src');
     const tsFiles = walkTs(srcRoot);
@@ -621,19 +621,19 @@ async function main(): Promise<void> {
       }
     }
     const allowed = new Set([
-      join('core', 'lattice-dispatch.ts'),
+      join('core', 'proof-or-stop-dispatch.ts'),
       // B-70e9: the host-run choke point (host_run command) is the SECOND
       // authorized dispatch site. Its CHK-007 hard-budget cap reuses the same
       // recordBudgetBlock orchestrator (per the plan's "reuse
       // shouldBlockDispatch/recordBudgetBlock" instruction) BEFORE spawning a host,
       // so it is an expected importer of the budget primitives.
       join('core', 'host-run.ts'),
-      // B-70e9 F-016: the autopilot claude repair is a lattice-initiated host
+      // B-70e9 F-016: the autopilot claude repair is a proof-or-stop-initiated host
       // run, so it passes the SAME pre-spawn budget admission as host_run —
       // recordBudgetBlock before the claude runner is invoked (ledger-ON only;
       // OFF stays byte-identical). Third authorized dispatch site.
       join('core', 'autopilot-executor.ts'),
-      // B-70e9 F-017: the cross-host-review codex leaf is a lattice-initiated
+      // B-70e9 F-017: the cross-host-review codex leaf is a proof-or-stop-initiated
       // host spawn, so it passes the SAME pre-spawn budget admission as
       // host_run — recordBudgetBlock (provider openai) before the codex runner
       // is invoked (ledger-ON only; OFF stays byte-identical). Fourth
@@ -649,9 +649,9 @@ async function main(): Promise<void> {
     assert.deepEqual(unexpected, [], `budget exports must not leak to other modules; unexpected importers:\n${unexpected.join('\n')}`);
   });
 
-  await check('CHK-005 STATIC lattice-dispatch imports usage-ledger ONLY via dispatch-usage.js', () => {
+  await check('CHK-005 STATIC proof-or-stop-dispatch imports usage-ledger ONLY via dispatch-usage.js', () => {
     const repoRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
-    const src = readFileSync(join(repoRoot, 'packages', 'main', 'src', 'core', 'lattice-dispatch.ts'), 'utf8');
+    const src = readFileSync(join(repoRoot, 'packages', 'main', 'src', 'core', 'proof-or-stop-dispatch.ts'), 'utf8');
     const importRe = /from\s+['"]([^'"]+)['"]/g;
     const specs: string[] = [];
     let m: RegExpExecArray | null;

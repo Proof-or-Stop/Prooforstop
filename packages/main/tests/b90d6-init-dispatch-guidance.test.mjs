@@ -30,11 +30,11 @@ function write(root, path, content) {
 }
 
 function makeRoot() {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-b90d6-guidance-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-b90d6-guidance-'));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
     workflow: { profile: 'balanced' },
@@ -51,7 +51,7 @@ function initGitRoot(root) {
   execFileSync('git', ['init', '-b', 'main'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['config', 'user.name', 'B90d6 Test'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['config', 'user.email', 'b90d6@example.local'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
-  execFileSync('git', ['add', 'lattice.config.json'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+  execFileSync('git', ['add', 'proof-or-stop.config.json'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'init'], { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
 }
 
@@ -155,7 +155,7 @@ function assertInitCheckGuardGuidance() {
     createInitCheckHandlers(ctx(root, store)).init_check_set({
       storyId,
       issues: [],
-      agentId: 'lattice-review-story-init',
+      agentId: 'proof-or-stop-review-story-init',
     });
     const missingInitAgent = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
     assert.match(missingInitAgent ?? '', /missing_init_check_agent/);
@@ -247,7 +247,7 @@ function assertStoryCreateAndGlobalHelpInitGuidance() {
     const storyId = output.match(/Story (B-[a-f0-9]+) created/)?.[1];
     assert.ok(storyId, 'story_create output should include the created story id');
     assert.match(output, /spawn two INIT reviewers in parallel/);
-    assert.match(output, /lattice-review-story-init/);
+    assert.match(output, /proof-or-stop-review-story-init/);
     assert.match(output, /product-reviewer/);
     assert.match(output, new RegExp(`proof-or-stop init_preflight --storyId=${storyId}`));
     assert.match(output, /read-only, writes no evidence, and creates no worktree/);
@@ -289,7 +289,7 @@ function assertScopePlanDispatchAndReviewGuidance() {
     });
 
     const dispatch = createStoryDispatchHandlers(ctx(root, store));
-    const result = dispatch.dispatch({ storyId, agentType: 'lattice-review-scope-plan' });
+    const result = dispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-scope-plan' });
     assert.match(result.prompt, /Review PLAN scope coverage/);
     assert.match(result.prompt, /Must read story artifacts/);
     assert.match(result.prompt, /Dispatch output is not gate evidence/);
@@ -300,7 +300,7 @@ function assertScopePlanDispatchAndReviewGuidance() {
       .story_review({ storyId });
     const issue = storyReview.issues.find((entry) => entry.type === 'missing_scope_check');
     assert.ok(issue, 'story_review should report missing_scope_check');
-    assert.match(issue.message, new RegExp(`proof-or-stop dispatch --storyId=${storyId} --agentType=lattice-review-scope-plan`));
+    assert.match(issue.message, new RegExp(`proof-or-stop dispatch --storyId=${storyId} --agentType=proof-or-stop-review-scope-plan`));
     assert.match(issue.message, /dispatch output is not gate evidence/);
     assert.match(issue.message, /proof-or-stop scope_check_save/);
   } finally {
@@ -318,7 +318,7 @@ function assertScopePlanDispatchPhaseGate() {
       const dispatch = createStoryDispatchHandlers(ctx(root, store));
 
       assert.throws(
-        () => dispatch.dispatch({ storyId, agentType: 'lattice-review-scope-plan' }),
+        () => dispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-scope-plan' }),
         new RegExp(`scope_check_save is PLAN-only; current phase ${phase} is unsupported`),
       );
       assert.equal(

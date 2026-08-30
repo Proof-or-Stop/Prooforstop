@@ -41,15 +41,15 @@ function lineCount(filePath: string): number {
 }
 
 function seedRealLifecycleData(root: string, options: { storyDir?: string } = {}): string {
-  const storyDirRel = options.storyDir ?? '.lattice/story/actives';
-  writeJson(join(root, 'lattice.config.json'), {
+  const storyDirRel = options.storyDir ?? '.proof-or-stop/story/actives';
+  writeJson(join(root, 'proof-or-stop.config.json'), {
     scanRoot: 'packages/main',
     rootDir: 'src',
     fixturesDir: 'packages/main/tests/fixtures',
     storyDir: storyDirRel,
   });
 
-  const activityPath = join(root, '.lattice', 'activity.jsonl');
+  const activityPath = join(root, '.proof-or-stop', 'activity.jsonl');
   writeJsonl(activityPath, [
     {
       source: 'cli',
@@ -116,7 +116,7 @@ function seedRealLifecycleData(root: string, options: { storyDir?: string } = {}
           {
             intentRef: 'CHK-001:happy:0',
             kind: 'cli',
-            command: 'node bin/lattice.js memory_benchmark_real_data --outputDir=.tmp/real',
+            command: 'node bin/proofOrStop.js memory_benchmark_real_data --outputDir=.tmp/real',
             result: 'pass',
             note: 'Command produced real baseline files.',
           },
@@ -153,7 +153,7 @@ function seedRealLifecycleData(root: string, options: { storyDir?: string } = {}
   writeJson(join(storyDir, 'review-passes.json'), {
     passes: [
       {
-        lane: 'lattice-review-quality',
+        lane: 'proof-or-stop-review-quality',
         reviewRunId: 'B-real:RR-001',
         storyId: 'B-real',
         note: 'Reviewer pass evidence uses the current plural artifact filename.',
@@ -161,11 +161,11 @@ function seedRealLifecycleData(root: string, options: { storyDir?: string } = {}
       },
     ],
   });
-  writeJsonl(join(root, '.lattice', 'dev-memory', 'experience.jsonl'), [
+  writeJsonl(join(root, '.proof-or-stop', 'dev-memory', 'experience.jsonl'), [
     {
       id: 'devreal1',
       createdAt: '2026-06-09T00:05:00.000Z',
-      sourceAgent: 'lattice-implementer',
+      sourceAgent: 'proof-or-stop-implementer',
       category: 'workflow',
       scope: 'project',
       summary: 'Keep real-data benchmark advisory boundaries explicit.',
@@ -188,7 +188,7 @@ function assertTraceFields(row: { recordId?: unknown; layer?: unknown; sourcePat
 }
 
 function assertConfiguredStoryDirWorks(storyDir: string): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-memory-real-data-configured-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-memory-real-data-configured-'));
   try {
     seedRealLifecycleData(root, { storyDir });
     resetConfigCache();
@@ -220,7 +220,7 @@ function assertConfiguredStoryDirWorks(storyDir: string): void {
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-memory-real-data-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-memory-real-data-'));
   try {
     const activityPath = seedRealLifecycleData(root);
     resetConfigCache();
@@ -292,8 +292,8 @@ function assertConfiguredStoryDirWorks(storyDir: string): void {
       'outputDir writes refuse mixed-case fixture state paths',
     );
     assert.throws(
-      () => runMemoryBenchmarkRealData({ root, outputDir: join(root, '.lattice/story/actives/B-real/memory-real-baseline') }),
-      /refuses to write outputDir under \.lattice\/story/,
+      () => runMemoryBenchmarkRealData({ root, outputDir: join(root, '.proof-or-stop/story/actives/B-real/memory-real-baseline') }),
+      /refuses to write outputDir under \.proof-or-stop\/story/,
       'outputDir writes refuse to target Proof-or-Stop story state',
     );
 
@@ -353,22 +353,22 @@ function assertConfiguredStoryDirWorks(storyDir: string): void {
   }
 }
 
-assertConfiguredStoryDirWorks('.lattice/custom-actives');
+assertConfiguredStoryDirWorks('.proof-or-stop/custom-actives');
 assertConfiguredStoryDirWorks('docs/story/actives');
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-memory-real-data-empty-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-memory-real-data-empty-'));
   try {
-    writeJson(join(root, 'lattice.config.json'), {
+    writeJson(join(root, 'proof-or-stop.config.json'), {
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
     });
-    writeJsonl(join(root, '.lattice', 'dev-memory', 'experience.jsonl'), [
+    writeJsonl(join(root, '.proof-or-stop', 'dev-memory', 'experience.jsonl'), [
       {
         id: 'devonly1',
         createdAt: '2026-06-09T00:05:00.000Z',
-        sourceAgent: 'lattice-implementer',
+        sourceAgent: 'proof-or-stop-implementer',
         category: 'workflow',
         scope: 'project',
         summary: 'Advisory memory cannot make a benchmark pass.',

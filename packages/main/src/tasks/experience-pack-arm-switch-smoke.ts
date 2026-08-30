@@ -45,8 +45,8 @@
  *       pack + hostPolicy on control (render-only gating).
  *
  *   Runs entirely in OS temp dirs (mkdtemp), isolates global dev-memory via
- *   LATTICE_GLOBAL_MEMORY_DIR, saves/restores process.env + cwd, and never
- *   writes to the production .lattice/learning store — following the
+ *   PROOF_OR_STOP_GLOBAL_MEMORY_DIR, saves/restores process.env + cwd, and never
+ *   writes to the production .proof-or-stop/learning store — following the
  *   experience-layer-ab-shadow-gate-smoke conventions.
  * @changes
  *   - [CHK-005] Add the arm-switch integration smoke and register it in validate.commands.
@@ -77,13 +77,13 @@ import { resetConfigCache } from '../core/config.js';
 import { buildMemoryFreshnessPack, runtimeMemoryTopHits } from '../core/playbook-runtime-memory.js';
 import { writePlaybooks } from '../core/learning-store.js';
 import { resolveProjectMemoryPath, writeEntries, type DevMemoryEntry } from '../core/dev-memory.js';
-import { renderHostDispatchProjectionText } from '../core/lattice-handoff.js';
-import type { HostDispatchProjection } from '../core/lattice-handoff.js';
+import { renderHostDispatchProjectionText } from '../core/proof-or-stop-handoff.js';
+import type { HostDispatchProjection } from '../core/proof-or-stop-handoff.js';
 import { resolveReviewPromptHash } from '../core/review-run.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import type { Playbook } from '../core/experience-layer-types.js';
-import { createLatticeHandoffHandlers } from '../handlers/lattice-handoff.js';
+import { createProofOrStopHandoffHandlers } from '../handlers/proof-or-stop-handoff.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { createStoryCreateHandlers } from '../handlers/story-create.js';
 import { createDevMemoryHandlers } from '../handlers/dev-memory.js';
@@ -209,10 +209,10 @@ function git(cwd: string, args: string[]): string {
 function mkRoot(prefix = 'b-ab8d-arm-'): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
   tmpRoots.push(root);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
   }, null, 2));
@@ -395,7 +395,7 @@ async function run(): Promise<void> {
     // Isolate global dev-memory: never read/write the operator's real store.
     const globalMemoryDir = mkdtempSync(join(tmpdir(), 'b-ab8d-arm-global-'));
     tmpRoots.push(globalMemoryDir);
-    process.env.LATTICE_GLOBAL_MEMORY_DIR = globalMemoryDir;
+    process.env.PROOF_OR_STOP_GLOBAL_MEMORY_DIR = globalMemoryDir;
     clearArm();
     resetExperimentArmWarnLatch();
 
@@ -854,7 +854,7 @@ async function run(): Promise<void> {
 
     check('(j) edge — handoff_resume text: control suppresses the whole memory advisory section; treatment byte-identical to no-env; JSON keeps pack + hostPolicy', () => {
       const fixture = mkGitStoryRoot('B-resume', 'DEV');
-      const handoff = createLatticeHandoffHandlers(fixture.ctx);
+      const handoff = createProofOrStopHandoffHandlers(fixture.ctx);
       const packPath = join(fixture.root, 'handoff-pack.json');
       clearArm();
       handoff.handoff_create({ storyId: 'B-resume', fromHost: 'codex-cli', toHost: 'claude-cli', json: true, output: packPath });

@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 
 export const RELEASE_PUSH_APPROVAL_SCHEMA = 'lattice.remote-push-approval.v1';
 // B-cc10 F-046: the approval is WRITTEN under the canonical state dir. This was a hardcoded
-// deprecated path, so every release_approve_push recreated `.lattice/tmp/` on a migrated repo.
+// deprecated path, so every release_approve_push recreated `.proof-or-stop/tmp/` on a migrated repo.
 // The `lattice.remote-push-approval.v1` SCHEMA literal is deliberately FROZEN and unchanged —
 // only the path moves. .githooks/pre-push is updated in the same commit to read BOTH spellings,
 // because a one-sided rename here silently breaks release approval. The hook keeps its own

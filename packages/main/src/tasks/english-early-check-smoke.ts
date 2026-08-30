@@ -37,7 +37,7 @@ import {
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
-const STORY_DIR = '.lattice/story/actives';
+const STORY_DIR = '.proof-or-stop/story/actives';
 
 function cp(...points: number[]): string {
   return String.fromCodePoint(...points);
@@ -61,11 +61,11 @@ function writeFile(root: string, relPath: string, content: string): void {
 }
 
 function makeRoot(label: string): string {
-  const root = mkdtempSync(join(tmpdir(), `lattice-english-early-${label}-`));
+  const root = mkdtempSync(join(tmpdir(), `proof-or-stop-english-early-${label}-`));
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-  writeFile(root, 'lattice.config.json', JSON.stringify({
+  writeFile(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: STORY_DIR,
@@ -235,7 +235,7 @@ function assertRefused(res: { status: number; output: string }, expected: string
   ];
 
   for (const candidate of candidates) {
-    const root = mkdtempSync(join(tmpdir(), `lattice-english-agree-${candidate.label}-`));
+    const root = mkdtempSync(join(tmpdir(), `proof-or-stop-english-agree-${candidate.label}-`));
     try {
       const storyDir = join(root, 'story');
       mkdirSync(storyDir, { recursive: true });

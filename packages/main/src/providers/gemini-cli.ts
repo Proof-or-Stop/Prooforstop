@@ -9,7 +9,7 @@ export const GEMINI_CLI_BINARY = 'gemini';
 /**
  * Bounded preflight: is the Gemini CLI binary resolvable on PATH?
  *
- * Used by the planned-steps executor / lattice-dispatch live-dispatch routing
+ * Used by the planned-steps executor / proof-or-stop-dispatch live-dispatch routing
  * to fail closed with `provider_unavailable` BEFORE a `provider.gemini` step
  * starts, instead of discovering a missing CLI mid-run. Probes via `command -v`
  * and never spawns an interactive session. Contract-parallel to

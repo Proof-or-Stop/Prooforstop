@@ -10,24 +10,24 @@ node bin/proof-or-stop-codex.js aux_doc_list --format=json
 原因：
 
 - `node bin/proof-or-stop-codex.js` 是仓库内 Codex 首选入口，会加载本地 bootstrap（main + utils）
-- wrapper 会写入 `.lattice/activity.jsonl`，并标记 `source=codex`
+- wrapper 会写入 `.proof-or-stop/activity.jsonl`，并标记 `source=codex`
 - wrapper 会为 `session_brief` 这类只读恢复命令启用 activity heartbeat
 
 只有当前项目没有本地 wrapper 时，才使用全局 fallback：
 
 ```bash
-LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief
+PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief
 ```
 
 fallback 说明：
 
-- `LATTICE_ACTIVITY_SOURCE=codex` 会把本次调用标记为 `source=codex`
-- `LATTICE_ACTIVITY_RECORD_READONLY=1` 会让 `session_brief` 这样的只读入口也记录 heartbeat
-- `LATTICE_CODEX_ENTRYPOINT=global-fallback` 会防止本地 wrapper 子进程把 global fallback 误记成 `local-wrapper`
-- 全局 `lattice` 可能是 core-only，`aux_*` 命令不一定可用
-- 全局 `lattice` 也可能滞后于当前 worktree；有本地 wrapper 或 `node packages/main/dist/cli.js` 时，不要把 fallback 的 `status` / `next` / `validate` 输出当作 gate 证据
-- `.lattice-codex/agents` 由 `.claude/agents` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 `.claude`
-- `.lattice-codex/lattice.json` 是 Proof-or-Stop 自己读取的 Codex adapter manifest，用来说明推荐入口、session 环境变量和不生成的 runtime 资产
+- `PROOF_OR_STOP_ACTIVITY_SOURCE=codex` 会把本次调用标记为 `source=codex`
+- `PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1` 会让 `session_brief` 这样的只读入口也记录 heartbeat
+- `PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback` 会防止本地 wrapper 子进程把 global fallback 误记成 `local-wrapper`
+- 全局 `proof-or-stop` 可能是 core-only，`aux_*` 命令不一定可用
+- 全局 `proof-or-stop` 也可能滞后于当前 worktree；有本地 wrapper 或 `node packages/main/dist/cli.js` 时，不要把 fallback 的 `status` / `next` / `validate` 输出当作 gate 证据
+- `.proof-or-stop-codex/agents` 由 `.claude/agents` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 `.claude`
+- `.proof-or-stop-codex/proof-or-stop.json` 是 Proof-or-Stop 自己读取的 Codex adapter manifest，用来说明推荐入口、session 环境变量和不生成的 runtime 资产
 
 建议：
 
@@ -38,10 +38,10 @@ fallback 说明：
 - 运行 `proof-or-stop check` 检查 Proof-or-Stop 管理资产/模板漂移；确认后用 `proof-or-stop check --apply` 或 `proof-or-stop check --upgrade` 同步安全项
 - 初始化脚本可用 `proof-or-stop init --verify-codex` 做同源资产校验
 - 诊断 Codex adapter 时运行 `node bin/proof-or-stop-codex.js doctor`，可同时查看共享检查、health 和 worktree 状态
-- 如果 `aux_*` 不可用，说明当前是 core-only lattice：优先找本地 bootstrap 入口；没有的话，用 AGENTS.md 规定的 shell 搜索兜底
+- 如果 `aux_*` 不可用，说明当前是 core-only proof-or-stop：优先找本地 bootstrap 入口；没有的话，用 AGENTS.md 规定的 shell 搜索兜底
 
 边界：
 
-- 不创建 `.lattice-codex/settings.json`，因为 Codex runtime 不会读取 Claude Code settings
-- Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json` 和 `.codex/hooks/proof-or-stop-scope-pretool.cjs`，由 Proof-or-Stop init/check 管理；大小写不敏感文件系统上可能显示为 `.lattice-codex/hooks` alias
-- 需要观测 Codex 活动时，使用 `.lattice-codex/lattice.json` 记录的 wrapper 或带 `LATTICE_ACTIVITY_RECORD_READONLY=1` 的 fallback
+- 不创建 `.proof-or-stop-codex/settings.json`，因为 Codex runtime 不会读取 Claude Code settings
+- Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json` 和 `.codex/hooks/proof-or-stop-scope-pretool.cjs`，由 Proof-or-Stop init/check 管理；大小写不敏感文件系统上可能显示为 `.proof-or-stop-codex/hooks` alias
+- 需要观测 Codex 活动时，使用 `.proof-or-stop-codex/proof-or-stop.json` 记录的 wrapper 或带 `PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1` 的 fallback

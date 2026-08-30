@@ -132,7 +132,7 @@ function mainWriteLockStatus(root: string, nowMs: number): RuntimeClosureRow['lo
 
 function validationLockPath(root: string, storyId: string): string {
   // Delegate to the canonical shared-root lock path (CHK-001 / F-007). Hand-rolling
-  // `<root>/.lattice/locks/validation/<id>.lock` keyed the status probe off each
+  // `<root>/.proof-or-stop/locks/validation/<id>.lock` keyed the status probe off each
   // worktree's OWN physical root, so a linked worktree reported a genuinely-held
   // lock as free — silently defeating the cross-worktree lock visibility this story
   // delivers. validationExecutionLockPath anchors at the shared git-common-dir root.

@@ -43,7 +43,7 @@ import { STATE_DIR_NAMES } from './brand-paths.js';
 // --- Policy view + defensive normalization -----------------------------------
 
 export interface WorktreePolicyView {
-  resolver: 'lattice.story.resolve';
+  resolver: 'proofOrStop.story.resolve';
   requiresAuthoritativeWorktree: boolean;
   allowWorktreeRepair: boolean;
   allowedPathRoots: string[];
@@ -60,7 +60,7 @@ export interface WorktreePolicyView {
  * story/fixture JSON globs forbidden.
  */
 export const DEFAULT_FAIL_CLOSED_WORKTREE_POLICY: WorktreePolicyView = {
-  resolver: 'lattice.story.resolve',
+  resolver: 'proofOrStop.story.resolve',
   requiresAuthoritativeWorktree: true,
   allowWorktreeRepair: false,
   allowedPathRoots: [],
@@ -91,7 +91,7 @@ export function resolveWorktreePolicy(jobPlan: JobPlan): WorktreePolicyView {
   const d = DEFAULT_FAIL_CLOSED_WORKTREE_POLICY;
   const forbidden = stringArray(raw.forbiddenPathGlobs);
   return {
-    resolver: 'lattice.story.resolve',
+    resolver: 'proofOrStop.story.resolve',
     requiresAuthoritativeWorktree: raw.requiresAuthoritativeWorktree !== false,
     allowWorktreeRepair: raw.allowWorktreeRepair === true,
     allowedPathRoots: stringArray(raw.allowedPathRoots),
@@ -360,7 +360,7 @@ export function evaluateWorktreePreflight(input: WorktreePreflightInput): Worktr
       reason: 'authoritative_worktree_unresolved',
       summary: {
         ...baseSummary,
-        resolverContract: 'lattice.story.resolve',
+        resolverContract: 'proofOrStop.story.resolve',
         resolved: resolution.resolved,
         note: resolution.resolved
           ? 'authority mode requires an authoritative story worktree; create it via proof-or-stop story_advance --phase=INIT_CHECK'

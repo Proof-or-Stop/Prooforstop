@@ -3,11 +3,11 @@
 // memory ISOLATION layer that sits on top of main's experiment-arm render gate.
 //
 // The RENDER gate (surfaceRuntimeMemoryPack / resolveExperimentArm, keyed on
-// LATTICE_EXPERIMENT_ARM / LATTICE_EXPERIMENT_ID) is main's (B-ab8d) and is
+// PROOF_OR_STOP_EXPERIMENT_ARM / PROOF_OR_STOP_EXPERIMENT_ID) is main's (B-ab8d) and is
 // covered by experiment-arm-smoke.ts + experience-pack-arm-switch-smoke.ts.
 // This smoke covers the two things layered on top, both keyed on the SAME
 // resolver:
-//   CHK-A  isControlArm — boolean probe of the resolved arm (LATTICE_* env).
+//   CHK-A  isControlArm — boolean probe of the resolved arm (PROOF_OR_STOP_* env).
 //   CHK-B  redactMemoryPackForControlArm — control empties results/items arrays,
 //          nulls sourceDigests fingerprints, collapses packDigest, and FAILS
 //          CLOSED on a throwing pack; treatment/normal are byte-identical.
@@ -17,7 +17,7 @@
 // No fs/network.
 
 import { isControlArm, packDigest, redactMemoryPackForControlArm } from '../core/runtime-memory-arm-gate.js';
-import { renderHostDispatchProjectionText } from '../core/lattice-handoff.js';
+import { renderHostDispatchProjectionText } from '../core/proof-or-stop-handoff.js';
 
 let failures = 0;
 function check(name: string, cond: boolean, detail = ''): void {
@@ -25,18 +25,18 @@ function check(name: string, cond: boolean, detail = ''): void {
   else { failures++; console.error(`FAIL ${name}${detail ? ` — ${detail}` : ''}`); }
 }
 
-// main's resolver reads LATTICE_EXPERIMENT_ARM / LATTICE_EXPERIMENT_ID.
-const CONTROL = { LATTICE_EXPERIMENT_ARM: 'control', LATTICE_EXPERIMENT_ID: 'exp1' };
-const TREATMENT = { LATTICE_EXPERIMENT_ARM: 'treatment', LATTICE_EXPERIMENT_ID: 'exp1' };
+// main's resolver reads PROOF_OR_STOP_EXPERIMENT_ARM / PROOF_OR_STOP_EXPERIMENT_ID.
+const CONTROL = { PROOF_OR_STOP_EXPERIMENT_ARM: 'control', PROOF_OR_STOP_EXPERIMENT_ID: 'exp1' };
+const TREATMENT = { PROOF_OR_STOP_EXPERIMENT_ARM: 'treatment', PROOF_OR_STOP_EXPERIMENT_ID: 'exp1' };
 
 // --- CHK-A: isControlArm ------------------------------------------------------
 check('CHK-A isControlArm true only for a control-arm env', isControlArm(CONTROL) === true);
 check('CHK-A isControlArm false on treatment', isControlArm(TREATMENT) === false);
 check('CHK-A isControlArm false with no experiment env', isControlArm({}) === false);
 check('CHK-A isControlArm false when only the arm is set (id missing)',
-  isControlArm({ LATTICE_EXPERIMENT_ARM: 'control' }) === false);
+  isControlArm({ PROOF_OR_STOP_EXPERIMENT_ARM: 'control' }) === false);
 check('CHK-A isControlArm false for an unknown arm value',
-  isControlArm({ LATTICE_EXPERIMENT_ARM: 'shadow', LATTICE_EXPERIMENT_ID: 'e' }) === false);
+  isControlArm({ PROOF_OR_STOP_EXPERIMENT_ARM: 'shadow', PROOF_OR_STOP_EXPERIMENT_ID: 'e' }) === false);
 
 // --- CHK-B: redactMemoryPackForControlArm ------------------------------------
 {
@@ -98,7 +98,7 @@ check('CHK-A isControlArm false for an unknown arm value',
     preflight: { memoryFreshnessPack: memPack },
   } as any;
   const underArm = (arm: string | null, fn: () => string): string => {
-    const A = 'LATTICE_EXPERIMENT_ARM', I = 'LATTICE_EXPERIMENT_ID';
+    const A = 'PROOF_OR_STOP_EXPERIMENT_ARM', I = 'PROOF_OR_STOP_EXPERIMENT_ID';
     const oa = process.env[A], oi = process.env[I];
     if (arm) { process.env[A] = arm; process.env[I] = 'e'; } else { delete process.env[A]; delete process.env[I]; }
     try { return fn(); } finally {

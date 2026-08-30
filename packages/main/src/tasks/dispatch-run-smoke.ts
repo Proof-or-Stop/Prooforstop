@@ -43,8 +43,8 @@ import type {
   DispatchWatchResult,
   HostRuntimeList,
   HostRuntimeProbe,
-} from '../core/lattice-dispatch.js';
-import { relativePathStaysWithinRoot, runDispatch } from '../core/lattice-dispatch.js';
+} from '../core/proof-or-stop-dispatch.js';
+import { relativePathStaysWithinRoot, runDispatch } from '../core/proof-or-stop-dispatch.js';
 import type {
   DispatchPolicy,
   DispatchPolicyCheckResult,
@@ -97,10 +97,10 @@ function git(root: string, args: string[]): string {
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
   }, null, 2) + '\n');
 }
 
@@ -112,7 +112,7 @@ function initRepo(root: string, externalDir: string): void {
   writeFileSync(join(root, 'README.md'), '# dispatch run smoke\n');
   writeConfig(root);
   git(root, ['init']);
-  git(root, ['config', 'user.email', 'lattice@example.com']);
+  git(root, ['config', 'user.email', 'proofOrStop@example.com']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'fixture']);
@@ -253,9 +253,9 @@ function writeFakeCodexBinary(binDir: string): void {
   writeFileSync(join(binDir, 'codex'), [
     '#!/usr/bin/env node',
     "const fs = require('node:fs');",
-    'const argvFile = process.env.LATTICE_FAKE_CODEX_ARGV_FILE;',
+    'const argvFile = process.env.PROOF_OR_STOP_FAKE_CODEX_ARGV_FILE;',
     'if (!argvFile) process.exit(64);',
-    'const stdinFile = process.env.LATTICE_FAKE_CODEX_STDIN_FILE;',
+    'const stdinFile = process.env.PROOF_OR_STOP_FAKE_CODEX_STDIN_FILE;',
     "let input = '';",
     "process.stdin.setEncoding('utf8');",
     "process.stdin.on('data', chunk => { input += chunk; });",
@@ -267,9 +267,9 @@ function writeFakeCodexBinary(binDir: string): void {
   ].join('\n') + '\n', { encoding: 'utf8', mode: 0o755 });
 }
 
-const sandboxRoot = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-suite-'));
+const sandboxRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-dispatch-run-suite-'));
 const root = join(sandboxRoot, 'repo', 'root');
-const externalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-external-'));
+const externalDir = mkdtempSync(join(tmpdir(), 'proof-or-stop-dispatch-run-external-'));
 const externalMarker = join(externalDir, 'blocked-by-symlink.txt');
 const fakeCodexBinDir = join(sandboxRoot, 'fake-codex-bin');
 const fakeCodexArgvFile = join(sandboxRoot, 'fake-codex-argv.json');
@@ -277,10 +277,10 @@ const fakeCodexStdinFile = join(sandboxRoot, 'fake-codex-stdin.txt');
 const escapedHostRuntimeListOutput = resolve(root, '../escape.json');
 const escapedDispatchPlanOutput = resolve(root, '../../escape.json');
 const outputSymlinkEscapeMarker = join(externalDir, 'nested/output-symlink-escape.json');
-const fakeProjectedRootExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-fake-root-'));
-const realProjectedRootExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-real-root-'));
-const fakeAncestorExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-fake-ancestor-'));
-const realAncestorExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-real-ancestor-'));
+const fakeProjectedRootExternalDir = mkdtempSync(join(tmpdir(), 'proof-or-stop-dispatch-run-fake-root-'));
+const realProjectedRootExternalDir = mkdtempSync(join(tmpdir(), 'proof-or-stop-dispatch-run-real-root-'));
+const fakeAncestorExternalDir = mkdtempSync(join(tmpdir(), 'proof-or-stop-dispatch-run-fake-ancestor-'));
+const realAncestorExternalDir = mkdtempSync(join(tmpdir(), 'proof-or-stop-dispatch-run-real-ancestor-'));
 try {
   initRepo(root, externalDir);
   writeFakeCodexBinary(fakeCodexBinDir);
@@ -310,7 +310,7 @@ try {
 
   for (const command of EXPECTED_COMMANDS) assertFiveWayRegistration(command, registry);
   assert.equal(PROCESS_FACT_LEVEL_BY_NAME.dispatch_reassign?.level, 'L1', 'dispatch_reassign must be L1 dispatch metadata');
-  assert.equal(PROCESS_FACT_LEVEL_BY_NAME.dispatch_reassign?.category, 'lattice-dispatch', 'dispatch_reassign must be lattice-dispatch category');
+  assert.equal(PROCESS_FACT_LEVEL_BY_NAME.dispatch_reassign?.category, 'proof-or-stop-dispatch', 'dispatch_reassign must be proof-or-stop-dispatch category');
 
   const runtimeList = run<HostRuntimeList>('host_runtime_list');
   assert.equal(runtimeList.schemaVersion, 'lattice.host_runtime_list.v1');
@@ -502,7 +502,7 @@ try {
   assert.equal(plan.selectedHost, 'fake');
   assert.equal(plan.parallel, 2);
   assert.equal(dispatchCount(root), beforePlanCount, 'dispatch_plan must not create dispatch records');
-  assert.equal(existsSync(join(root, `${PROOF_OR_STOP_STATE_DIR}/dispatches`)), false, 'dispatch_plan must not create .lattice/dispatches');
+  assert.equal(existsSync(join(root, `${PROOF_OR_STOP_STATE_DIR}/dispatches`)), false, 'dispatch_plan must not create .proof-or-stop/dispatches');
   assertAuthorityFalse(plan, 'plan');
 
   const prepared = run<DispatchRecord>('dispatch_prepare', {
@@ -803,7 +803,7 @@ try {
 
   const previousCancelPack = readPack(root, cancelRecord.dispatchId);
   const oldRecordBeforeReassign = JSON.stringify(readDispatch(root, cancelRecord.dispatchId));
-  const explicitWorkerRole = 'lattice-implementer';
+  const explicitWorkerRole = 'proof-or-stop-implementer';
   const reassigned = run<DispatchReassignResult>('dispatch_reassign', {
     dispatchId: cancelRecord.dispatchId,
     role: explicitWorkerRole,
@@ -1048,7 +1048,7 @@ try {
     allowedPaths: ['packages/main/src/generated/malicious-overflow-suggest.txt'],
   });
   assert.equal(maliciousOverflowSuggest.schemaVersion, 'lattice.dispatch_plan.v1');
-  assert.equal(existsSync(escapedDispatchMetadataDir), false, 'overflow_auto suggest-only malicious dispatchId must not write outside .lattice/dispatches');
+  assert.equal(existsSync(escapedDispatchMetadataDir), false, 'overflow_auto suggest-only malicious dispatchId must not write outside .proof-or-stop/dispatches');
   for (const [command, args] of [
     ['dispatch_prepare', {
       storyId: 'B-dispatch',
@@ -1085,7 +1085,7 @@ try {
       `${command} must reject malicious dispatchId`,
     );
   }
-  assert.equal(existsSync(escapedDispatchMetadataDir), false, 'malicious dispatchId must not write metadata outside .lattice/dispatches');
+  assert.equal(existsSync(escapedDispatchMetadataDir), false, 'malicious dispatchId must not write metadata outside .proof-or-stop/dispatches');
 
   const unknownValidDispatchId = 'D-valid-but-missing';
   for (const [command, args] of [
@@ -1138,12 +1138,12 @@ try {
     assert.match(realHostRun.nextAction, new RegExp(realHostReady.worktree.worktreePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 
     const savedPath = process.env.PATH;
-    const savedArgvFile = process.env.LATTICE_FAKE_CODEX_ARGV_FILE;
-    const savedStdinFile = process.env.LATTICE_FAKE_CODEX_STDIN_FILE;
+    const savedArgvFile = process.env.PROOF_OR_STOP_FAKE_CODEX_ARGV_FILE;
+    const savedStdinFile = process.env.PROOF_OR_STOP_FAKE_CODEX_STDIN_FILE;
     try {
       process.env.PATH = `${fakeCodexBinDir}${delimiter}${savedPath ?? ''}`;
-      process.env.LATTICE_FAKE_CODEX_ARGV_FILE = fakeCodexArgvFile;
-      process.env.LATTICE_FAKE_CODEX_STDIN_FILE = fakeCodexStdinFile;
+      process.env.PROOF_OR_STOP_FAKE_CODEX_ARGV_FILE = fakeCodexArgvFile;
+      process.env.PROOF_OR_STOP_FAKE_CODEX_STDIN_FILE = fakeCodexStdinFile;
       rmSync(fakeCodexArgvFile, { force: true });
       rmSync(fakeCodexStdinFile, { force: true });
       const codexPromptReady = run<DispatchRecord>('dispatch_prepare', {
@@ -1159,7 +1159,7 @@ try {
         dispatchId: codexPromptReady.dispatchId,
         allowRealHostSubprocess: true,
         executionPolicy: {
-          envAllowlist: ['LATTICE_FAKE_CODEX_ARGV_FILE', 'LATTICE_FAKE_CODEX_STDIN_FILE'],
+          envAllowlist: ['PROOF_OR_STOP_FAKE_CODEX_ARGV_FILE', 'PROOF_OR_STOP_FAKE_CODEX_STDIN_FILE'],
           envDenylist: [],
           commandAllowlist: [],
           maxRuntimeMs: 5000,
@@ -1179,10 +1179,10 @@ try {
     } finally {
       if (savedPath === undefined) delete process.env.PATH;
       else process.env.PATH = savedPath;
-      if (savedArgvFile === undefined) delete process.env.LATTICE_FAKE_CODEX_ARGV_FILE;
-      else process.env.LATTICE_FAKE_CODEX_ARGV_FILE = savedArgvFile;
-      if (savedStdinFile === undefined) delete process.env.LATTICE_FAKE_CODEX_STDIN_FILE;
-      else process.env.LATTICE_FAKE_CODEX_STDIN_FILE = savedStdinFile;
+      if (savedArgvFile === undefined) delete process.env.PROOF_OR_STOP_FAKE_CODEX_ARGV_FILE;
+      else process.env.PROOF_OR_STOP_FAKE_CODEX_ARGV_FILE = savedArgvFile;
+      if (savedStdinFile === undefined) delete process.env.PROOF_OR_STOP_FAKE_CODEX_STDIN_FILE;
+      else process.env.PROOF_OR_STOP_FAKE_CODEX_STDIN_FILE = savedStdinFile;
     }
 
     const realHostSymlinkEscape = run<DispatchRecord>('dispatch_prepare', {
@@ -1316,7 +1316,7 @@ try {
     cliPath,
     '--root',
     root,
-    'lattice',
+    'proof-or-stop',
     'host',
     'runtime',
     'probe',
@@ -1917,7 +1917,7 @@ try {
 
     // Text rendering
     const watchText = runText('dispatch_watch', { dispatchId: autoResult.dispatchId });
-    assert.match(watchText, /lattice\.dispatch_watch\.v1/, 'dispatch_watch text must include schema version');
+    assert.match(watchText, /proofOrStop\.dispatch_watch\.v1/, 'dispatch_watch text must include schema version');
     assert.match(watchText, /status: accepted_local/, 'dispatch_watch text must show status');
   }
 

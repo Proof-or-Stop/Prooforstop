@@ -35,9 +35,9 @@ const GLOBAL_DIR = '/home/tester/.claude/agents';
 // Realistic template fixtures: one with a multi-line YAML tools list, one with
 // inline `tools:` + a `model:` line (both frontmatter shapes Claude uses).
 const TEMPLATES: Record<string, string> = {
-  'lattice-implementer.md': [
+  'proof-or-stop-implementer.md': [
     '---',
-    'name: lattice-implementer',
+    'name: proof-or-stop-implementer',
     'description: Dedicated implementation role',
     'tools:',
     '  - Read',
@@ -47,9 +47,9 @@ const TEMPLATES: Record<string, string> = {
     'FULL ROLE BODY that must never leak into the shim.',
     'More body lines here.',
   ].join('\n'),
-  'lattice-review-concept.md': [
+  'proof-or-stop-review-concept.md': [
     '---',
-    'name: lattice-review-concept',
+    'name: proof-or-stop-review-concept',
     'description: REVIEW concept reviewer',
     'model: sonnet',
     'tools: Grep, Glob, Bash',
@@ -59,8 +59,8 @@ const TEMPLATES: Record<string, string> = {
 };
 const TEMPLATE_FILES = Object.keys(TEMPLATES).sort((a, b) => a.localeCompare(b));
 const ROLE_BY_FILE: Record<string, string> = {
-  'lattice-implementer.md': 'lattice-implementer',
-  'lattice-review-concept.md': 'lattice-review-concept',
+  'proof-or-stop-implementer.md': 'proof-or-stop-implementer',
+  'proof-or-stop-review-concept.md': 'proof-or-stop-review-concept',
 };
 
 type Node =
@@ -122,7 +122,7 @@ function makeMemFs(seed: Record<string, Node>, opts: { mkdirThrows?: boolean } =
 function expectedShim(file: string): string {
   const role = ROLE_BY_FILE[file];
   const { frontmatter } = extractTemplateFrontmatter(TEMPLATES[file], file);
-  return role === 'lattice-review-concept'
+  return role === 'proof-or-stop-review-concept'
     ? renderReviewerRunBootstrap(frontmatter, role)
     : renderAgentShim(frontmatter, role);
 }
@@ -141,11 +141,11 @@ assert.match(resolveAgentTemplateDir(), /templates[\\/]agents$/, 'template dir m
 
 // --- extractTemplateFrontmatter: keeps tools verbatim, parses name ---
 {
-  const multi = extractTemplateFrontmatter(TEMPLATES['lattice-implementer.md'], 'x');
-  assert.equal(multi.name, 'lattice-implementer');
+  const multi = extractTemplateFrontmatter(TEMPLATES['proof-or-stop-implementer.md'], 'x');
+  assert.equal(multi.name, 'proof-or-stop-implementer');
   assert.match(multi.frontmatter, /tools:\n {2}- Read\n {2}- Edit\n {2}- Bash/, 'multi-line tools list kept verbatim');
-  const inline = extractTemplateFrontmatter(TEMPLATES['lattice-review-concept.md'], 'y');
-  assert.equal(inline.name, 'lattice-review-concept');
+  const inline = extractTemplateFrontmatter(TEMPLATES['proof-or-stop-review-concept.md'], 'y');
+  assert.equal(inline.name, 'proof-or-stop-review-concept');
   assert.match(inline.frontmatter, /tools: Grep, Glob, Bash/, 'inline tools kept verbatim');
   assert.match(inline.frontmatter, /model: sonnet/, 'model line preserved when present');
   // missing frontmatter / name → throws
@@ -155,12 +155,12 @@ assert.match(resolveAgentTemplateDir(), /templates[\\/]agents$/, 'template dir m
 
 // --- buildShimBody: references the CLI fetch command + no role body ---
 {
-  const body = buildShimBody('lattice-implementer');
+  const body = buildShimBody('proof-or-stop-implementer');
   // B-cdf6:F-041/F-044 — pinned the PRE-rename bin name while production
   // (core/global-agents.ts:164) emits `proof-or-stop agent_prompt --role=...`, so this
   // failed BECAUSE the rename succeeded. Paired doesNotMatch keeps the shim body from
   // regressing to the deprecated bin.
-  assert.match(body, /proof-or-stop agent_prompt --role=lattice-implementer/);
+  assert.match(body, /proof-or-stop agent_prompt --role=proof-or-stop-implementer/);
   assert.doesNotMatch(body, /proof-or-stop agent_prompt --role=/);
   assert.match(body, /thin pointer/);
   assert.doesNotMatch(body, /FULL ROLE BODY/);
@@ -181,7 +181,7 @@ assert.match(resolveAgentTemplateDir(), /templates[\\/]agents$/, 'template dir m
     assert.equal(content, expectedShim(file), `${file} content should be the deterministic shim`);
     // tools sandbox preserved, role body absent, CLI fetch present.
     assert.match(content, /tools:/, 'shim keeps tools frontmatter');
-    if (role === 'lattice-review-concept') {
+    if (role === 'proof-or-stop-review-concept') {
       assert.match(content, /review_run_start/, 'migrated reviewer shim selects one runtime review prompt');
       assert.doesNotMatch(content, /agent_prompt --role/, 'migrated reviewer shim never preloads a role body');
     } else {

@@ -30,7 +30,7 @@
  *       recommendation (dry-run OR apply) leaves the on-disk status='candidate'
  *       (the sweep records recommendations only; it never flips status).
  *
- *   Fully hermetic: all fixtures live under mkdtemp; no live repo-root .lattice
+ *   Fully hermetic: all fixtures live under mkdtemp; no live repo-root .proof-or-stop
  *   state is read. This file adds NO new mechanism — it pins the existing M7 path.
  *
  * @changes
@@ -144,7 +144,7 @@ const priorFlag = process.env.PLAYBOOK_PROMOTION_SWEEP_ENABLED;
 try {
   const root = mkdtemp('capability-candidate-promotion-');
   cleanup.push(root);
-  write(root, 'lattice.config.json', '{}');
+  write(root, 'proof-or-stop.config.json', '{}');
   writePlaybooks(root, [capabilityCandidate()]);
 
   const handlers = createPlaybookHandlers({
@@ -263,7 +263,7 @@ try {
   check('ADVERSARIAL: with ZERO structured helped outcomes the sweep never recommends activation', () => {
     const barrenRoot = mkdtemp('capability-candidate-promotion-barren-');
     cleanup.push(barrenRoot);
-    write(barrenRoot, 'lattice.config.json', '{}');
+    write(barrenRoot, 'proof-or-stop.config.json', '{}');
     writePlaybooks(barrenRoot, [capabilityCandidate()]);
     const barren = createPlaybookHandlers({
       root: barrenRoot,

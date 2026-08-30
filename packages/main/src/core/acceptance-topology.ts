@@ -144,15 +144,15 @@ function basename(token: string): string {
 // compatibility. Both are accepted now, and the deprecated spellings are retained
 // deliberately so evidence recorded before the rename still resolves.
 //
-// B-cc10 CHK-006 deleted `bin/lattice.js` from the repository but INTENTIONALLY keeps
+// B-cc10 CHK-006 deleted `bin/proofOrStop.js` from the repository but INTENTIONALLY keeps
 // the token here: this function parses PREVIOUSLY RECORDED provenance strings, so the
 // old spelling must stay recognizable or historical acceptance evidence would silently
 // stop resolving. Recognizing a name we no longer ship is the whole point of a
 // read-both parser.
-const ACCEPTANCE_WRAPPER_BASENAMES = ['proof-or-stop', 'lattice'] as const;
-const ACCEPTANCE_WRAPPER_SCRIPTS = ['bin/proof-or-stop.js', 'bin/lattice.js'] as const;
+const ACCEPTANCE_WRAPPER_BASENAMES = ['proof-or-stop', 'proof-or-stop'] as const;
+const ACCEPTANCE_WRAPPER_SCRIPTS = ['bin/proof-or-stop.js', 'bin/proofOrStop.js'] as const;
 
-function isLatticeWrapper(token: string): boolean {
+function isProofOrStopWrapper(token: string): boolean {
   const normalized = token.replace(/\\/g, '/').replace(/^\.\//, '');
   const base = basename(normalized);
   return (ACCEPTANCE_WRAPPER_BASENAMES as readonly string[]).includes(base)
@@ -171,9 +171,9 @@ function invokesAcceptanceMatrix(command: string): boolean {
   const tokens = recordedCommandTokens(command);
   if (tokens.length < 2) return false;
   let subcommandIndex: number;
-  if (isLatticeWrapper(tokens[0])) {
+  if (isProofOrStopWrapper(tokens[0])) {
     subcommandIndex = 1;
-  } else if ((basename(tokens[0]) === 'node' || basename(tokens[0]) === 'nodejs') && isLatticeWrapper(tokens[1])) {
+  } else if ((basename(tokens[0]) === 'node' || basename(tokens[0]) === 'nodejs') && isProofOrStopWrapper(tokens[1])) {
     subcommandIndex = 2;
   } else {
     return false;

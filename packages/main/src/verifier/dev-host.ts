@@ -44,7 +44,7 @@ export async function devHost(
   machine: MachineInfo,
 ): Promise<DevHostOptions> {
   const wsPort = Number(readBrandEnv('SERVE_PORT') || stablePort(process.cwd(), 4));
-  const infoPath = '.lattice-serve.json';
+  const infoPath = '.proof-or-stop-serve.json';
 
   // Kill old core
   try {

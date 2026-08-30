@@ -40,7 +40,7 @@ import type { DevMemoryPreflightAckData } from '../core/types.js';
 function actorFrom(value: string | undefined): string {
   const explicit = value?.trim();
   if (explicit) return explicit;
-  return process.env.LATTICE_AGENT || process.env.USER || 'main-agent';
+  return process.env.PROOF_OR_STOP_AGENT || process.env.USER || 'main-agent';
 }
 
 // ---------------------------------------------------------------------------
@@ -83,7 +83,7 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       lesson: args.lesson,
       reusePrompt: args.reusePrompt,
       tags: parseTagsArg(args.tags),
-      sourceAgent: args.sourceAgent || 'lattice-implementer',
+      sourceAgent: args.sourceAgent || 'proof-or-stop-implementer',
       sourceStoryId: args.sourceStoryId,
       evidenceRefs: args.evidenceRefs,
     };

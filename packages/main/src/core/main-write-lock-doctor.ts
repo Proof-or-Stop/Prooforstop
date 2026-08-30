@@ -1,7 +1,7 @@
 /**
  * B-f60c CHK-004: doctor stuck-lock check for the unified main write lock.
  *
- * `proof-or-stop doctor` scans `.lattice/locks/main-write.lock/` and reports whether it is
+ * `proof-or-stop doctor` scans `.proof-or-stop/locks/main-write.lock/` and reports whether it is
  * currently held, and — critically — whether the held lock is STUCK (mtime
  * older than the lock primitive's own stale-reclaim window) versus a normal
  * ACTIVE holder still inside its critical section.

@@ -30,7 +30,7 @@ import {
 } from './evidence/environment-contract.js';
 
 export const DONE_REQUIRED_EVIDENCE_FILE = 'done-required-evidence.json';
-export const DONE_REQUIRED_EVIDENCE_SCHEMA = 'lattice.done-required-evidence' as const;
+export const DONE_REQUIRED_EVIDENCE_SCHEMA = 'proofOrStop.done-required-evidence' as const;
 export const DONE_REQUIRED_EVIDENCE_VERSION = 1 as const;
 // v2 digests a repo-root-RELATIVE logical cwd (worktree/host portable). v1
 // digested an ABSOLUTE cwd and is still accepted for pre-existing receipts.

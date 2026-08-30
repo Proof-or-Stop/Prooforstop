@@ -3,7 +3,7 @@
  * RED (repro-first) for B-1734 C3 — a FRESH checkout WITHOUT node_modules must still print the
  * recovery hint, NOT crash with ERR_MODULE_NOT_FOUND at module-init.
  *
- * bin/bootstrap-runner.js is the universal local wrapper entrypoint (imported by bin/lattice.js on
+ * bin/bootstrap-runner.js is the universal local wrapper entrypoint (imported by bin/proofOrStop.js on
  * EVERY call). Pre-fix it imported { BUILD_LOCK_OPTIONS, buildLockTarget } from ../scripts/build-lock.mjs,
  * and build-lock.mjs does `import lockfile from 'proper-lockfile'`. So a checkout without node_modules
  * threw ERR_MODULE_NOT_FOUND at ESM module-init, BEFORE runLocalBootstrap's try/catch / printBootstrapFailure
@@ -32,8 +32,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 let repoRoot = here;
-while (!existsSync(join(repoRoot, 'proof-or-stop.config.json')) && !existsSync(join(repoRoot, 'lattice.config.json')) && repoRoot !== dirname(repoRoot)) repoRoot = dirname(repoRoot);
-assert.ok(existsSync(join(repoRoot, 'proof-or-stop.config.json')) || existsSync(join(repoRoot, 'lattice.config.json')), 'could not locate repo root (lattice.config.json)');
+while (!existsSync(join(repoRoot, 'proof-or-stop.config.json')) && !existsSync(join(repoRoot, 'proof-or-stop.config.json')) && repoRoot !== dirname(repoRoot)) repoRoot = dirname(repoRoot);
+assert.ok(existsSync(join(repoRoot, 'proof-or-stop.config.json')) || existsSync(join(repoRoot, 'proof-or-stop.config.json')), 'could not locate repo root (proof-or-stop.config.json)');
 
 const read = rel => readFileSync(join(repoRoot, rel), 'utf8');
 const BOOTSTRAP_REL = 'bin/bootstrap-runner.js';
@@ -182,7 +182,7 @@ async function main() {
       assert.ok(
         // B-cc10: bin/bootstrap-runner.js prints 'proof-or-stop local bootstrap is not
         // ready'. Accept either brand so this assertion holds on pre- and post-rename trees.
-        /(?:proof-or-stop|lattice) local bootstrap is not ready/i.test(res.out) && /Recovery:/i.test(res.out),
+        /(?:proof-or-stop|proofOrStop) local bootstrap is not ready/i.test(res.out) && /Recovery:/i.test(res.out),
         `fresh-checkout bootstrap must print the recovery hint:\n${res.out.slice(0, 600)}`,
       );
       console.log('VI-OK C3:depfree:2');

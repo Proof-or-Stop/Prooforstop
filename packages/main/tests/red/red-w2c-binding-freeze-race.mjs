@@ -68,7 +68,7 @@ function control(op, storyId, target, seq, prior, supersedes, recoversRecordId, 
     id: deriveRecordId(op, operationKey, seq), schemaVersion: RED_EVIDENCE_V2_SCHEMA_VERSION, operation: op,
     seq, priorRecordDigest: prior, supersedes, storyId, acceptanceTargetRef: target,
     recoversRecordId, referencedRecordDigest, linkKind: op === 'quarantine' ? 'quarantines' : 'recovers',
-    reason, approvedBy: 'lattice-implementer@sess-test', operationKey, createdAt: NOW,
+    reason, approvedBy: 'proof-or-stop-implementer@sess-test', operationKey, createdAt: NOW,
   };
   return { ...draft, recordDigest: computeRecordDigest(draft) };
 }
@@ -156,7 +156,7 @@ try {
 
     let bindingError;
     try {
-      bindingSet({ storyId, acceptanceTargetRef: TARGET, adapterId: 'node-test@1', testCaseRef: 'node-test:a#b', agent: 'lattice-implementer' });
+      bindingSet({ storyId, acceptanceTargetRef: TARGET, adapterId: 'node-test@1', testCaseRef: 'node-test:a#b', agent: 'proof-or-stop-implementer' });
     } catch (e) {
       bindingError = e;
     }
@@ -203,9 +203,9 @@ try {
       return p;
     };
     const bindWorker = mkWorker('bind.mjs',
-      `registry.get('red_evidence_binding_set')({ storyId: ${JSON.stringify(storyId)}, acceptanceTargetRef: ${JSON.stringify(TARGET)}, adapterId: 'node-test@1', testCaseRef: 'node-test:a#b', agent: 'lattice-implementer' });`);
+      `registry.get('red_evidence_binding_set')({ storyId: ${JSON.stringify(storyId)}, acceptanceTargetRef: ${JSON.stringify(TARGET)}, adapterId: 'node-test@1', testCaseRef: 'node-test:a#b', agent: 'proof-or-stop-implementer' });`);
     const recoverWorker = mkWorker('rec.mjs',
-      `registry.get('red_evidence_recover')({ storyId: ${JSON.stringify(storyId)}, recordId: ${JSON.stringify(q.id)}, reason: 'undo', agent: 'lattice-implementer' });`);
+      `registry.get('red_evidence_recover')({ storyId: ${JSON.stringify(storyId)}, recordId: ${JSON.stringify(q.id)}, reason: 'undo', agent: 'proof-or-stop-implementer' });`);
 
     const run = (p) => new Promise((resolve) => {
       const c = spawn(process.execPath, [p], { stdio: ['ignore', 'ignore', 'pipe'] });

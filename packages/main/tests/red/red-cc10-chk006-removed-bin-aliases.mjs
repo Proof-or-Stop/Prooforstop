@@ -4,7 +4,7 @@
  *
  * WHY THIS EXISTS
  * ---------------
- * B-cdf6 kept `bin/lattice.js` / `bin/lattice-codex.js` as retained deprecated aliases and
+ * B-cdf6 kept `bin/proofOrStop.js` / `bin/proof-or-stop-codex.js` as retained deprecated aliases and
  * documented that they "keep working". B-cc10 CHK-006 deletes them on an explicit operator
  * instruction. Deleting a file is trivially reversible by accident (a stray `git checkout`,
  * a bad merge resolution, a downstream template that regenerates it), and the ANNOUNCEMENT
@@ -31,7 +31,7 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
 
-const REMOVED_ALIASES = ['bin/lattice.js', 'bin/lattice-codex.js'];
+const REMOVED_ALIASES = ['bin/proofOrStop.js', 'bin/proof-or-stop-codex.js'];
 const REPLACEMENTS = ['bin/proof-or-stop.js', 'bin/proof-or-stop-codex.js'];
 
 // ─── 1. Removed aliases are absent AND fail loudly when invoked ──────────────

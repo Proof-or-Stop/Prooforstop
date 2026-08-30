@@ -55,7 +55,7 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
       const policy = resolveDoneRequiredPolicy(ctx.root);
       if (!policy.required) {
         const result = {
-          provider: 'lattice-done-required-validation',
+          provider: 'proof-or-stop-done-required-validation',
           status: 'warn',
           allPass: true,
           storyId,
@@ -96,7 +96,7 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
       } catch (error) {
         const timeoutLayer = timeoutLayerFromReason(args.abortSignal?.reason) ?? timeoutLayerFromReason(error);
         const terminal = {
-          provider: 'lattice-done-required-validation',
+          provider: 'proof-or-stop-done-required-validation',
           status: 'fail',
           allPass: false,
           storyId,
@@ -146,7 +146,7 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
           /* Capacity errors remain reportable even when prior evidence is unreadable. */
         }
         const terminal = {
-          provider: 'lattice-done-required-validation',
+          provider: 'proof-or-stop-done-required-validation',
           status: 'fail',
           allPass: false,
           storyId,

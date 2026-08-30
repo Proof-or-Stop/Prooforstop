@@ -277,8 +277,8 @@ export async function runDashboard(args: DashboardArgs): Promise<void> {
   const rootsRaw = args.roots || process.cwd();
   const roots = rootsRaw.split(',').map(r => r.trim()).filter(Boolean).map(r => resolve(r));
 
-  // Validate roots — accept lattice.config.json (canonical) or
-  // lattice.config.json.
+  // Validate roots — accept proof-or-stop.config.json (canonical) or
+  // proof-or-stop.config.json.
   for (const r of roots) {
     if (!hasProjectConfigFile(r)) {
       console.error(`✗ No ${PROOF_OR_STOP_CONFIG_FILENAME} found in: ${r}`);

@@ -74,7 +74,7 @@ export function observedOutputSignatures(output: string): string[] {
     // Structured summary fields are parsed below. Hashing their raw JSON would
     // duplicate those facts and make formatting or timing-only metadata part of
     // the semantic output inventory.
-    .filter(line => !line.startsWith('LATTICE_FULL_SUITE_SUMMARY='))
+    .filter(line => !line.startsWith('PROOF_OR_STOP_FULL_SUITE_SUMMARY='))
     .map(line => normalizeStressReceipt(line)
     .replace(/^- B-[0-9a-f]{4}(?= \[[A-Z_]+\] )/, '- B-<fixture>')
     .replace(/\b(?:headHash|materialHash|storyFilesHash|digest)=?["']?[0-9a-f]{40,64}\b/gi, '<identity>')
@@ -376,8 +376,8 @@ export function validateJsonOutputPath(cwd: string, path: string, ownedOutputRoo
   if (lexicalInside || canonicalInside) throw new Error('--json-output must be outside the project root');
   if (ownedOutputRoot) {
     const canonicalOwned = canonicalFilesystemPath(cwd, ownedOutputRoot, true);
-    if (pathIsContained(projectRoot, canonicalOwned) || pathIsContained(canonicalOwned, projectRoot)) throw new Error('LATTICE_FULL_SUITE_OUTPUT_ROOT must be external to and disjoint from the project root');
-    if (!pathIsContained(canonicalOwned, canonicalTarget)) throw new Error('--json-output escapes LATTICE_FULL_SUITE_OUTPUT_ROOT');
+    if (pathIsContained(projectRoot, canonicalOwned) || pathIsContained(canonicalOwned, projectRoot)) throw new Error('PROOF_OR_STOP_FULL_SUITE_OUTPUT_ROOT must be external to and disjoint from the project root');
+    if (!pathIsContained(canonicalOwned, canonicalTarget)) throw new Error('--json-output escapes PROOF_OR_STOP_FULL_SUITE_OUTPUT_ROOT');
   }
   return canonicalTarget;
 }
@@ -425,7 +425,7 @@ export function resetInterruptForTest(): void { defaultRunState.interruptSignal 
 
 export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 'npm', onSpawn?: () => void, state: FullSuiteRunState = defaultRunState): Promise<FullSuiteResult> {
   const started = performance.now();
-  const tempRoot = mkdtempSync(join(tmpdir(), 'lattice-full-suite-member-'));
+  const tempRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-full-suite-member-'));
   const cleanupManifest = cleanupManifestForEntry(entry, cwd);
   const preexisting = cleanupManifest.filter(target => target.existedBefore);
   if (preexisting.length) {
@@ -440,7 +440,7 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
     const commandArgs = usePosixTime ? ['-p', '-o', timingPath, npmCommand, 'run', entry.name] : ['run', entry.name];
     const child = spawn(command, commandArgs, {
       cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, LATTICE_FULL_SUITE_TEMP_ROOT: tempRoot, LATTICE_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
+      env: { ...process.env, PROOF_OR_STOP_FULL_SUITE_TEMP_ROOT: tempRoot, PROOF_OR_STOP_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
     });
     onSpawn?.(); state.activeChildren.add(child);
     let output = '';
@@ -477,9 +477,9 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       }
       const timing = usePosixTime && existsSync(timingPath) ? readFileSync(timingPath, 'utf8') : '';
       const cpuMatch = timing.match(/^real\s+[0-9.]+\s*\nuser\s+([0-9.]+)\s*\nsys\s+([0-9.]+)\s*$/);
-      const markerLine = output.split(/\r?\n/).find(line => line.startsWith('LATTICE_FULL_SUITE_SUMMARY='));
+      const markerLine = output.split(/\r?\n/).find(line => line.startsWith('PROOF_OR_STOP_FULL_SUITE_SUMMARY='));
       let marker: { assertions?: string[]; mutations?: string[] } | undefined;
-      try { marker = markerLine ? JSON.parse(markerLine.slice('LATTICE_FULL_SUITE_SUMMARY='.length)) : undefined; } catch { marker = undefined; }
+      try { marker = markerLine ? JSON.parse(markerLine.slice('PROOF_OR_STOP_FULL_SUITE_SUMMARY='.length)) : undefined; } catch { marker = undefined; }
       const status = state.interruptError || completionCleanupError ? 'FAIL' : state.interruptSignal || state.cancellationReason ? 'INTERRUPTED' : code === 0 ? 'PASS' : 'FAIL';
       const reason = state.interruptError ? `interrupt cleanup failed: ${state.interruptError.message}`
         : completionCleanupError ? `completion cleanup failed: ${completionCleanupError.message}`
@@ -554,7 +554,7 @@ async function main(): Promise<void> {
   validateInventory(FULL_SUITE_ENTRIES, serialReference, pkg.scripts);
   const jobs = args.jobs ?? defaultJobs();
   const startIdentity = readIdentity(cwd);
-  const jsonOutput = args.jsonOutput ? validateJsonOutputPath(cwd, args.jsonOutput, process.env.LATTICE_FULL_SUITE_OUTPUT_ROOT) : undefined;
+  const jsonOutput = args.jsonOutput ? validateJsonOutputPath(cwd, args.jsonOutput, process.env.PROOF_OR_STOP_FULL_SUITE_OUTPUT_ROOT) : undefined;
   const wallStartedAt = new Date().toISOString();
   const started = performance.now();
   let processLaunchCount = 0;

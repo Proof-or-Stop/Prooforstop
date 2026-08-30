@@ -7,7 +7,7 @@ import { execFileSync } from 'child_process';
 // B-cc10 F-055: resolve whichever adapter dir exists. Hardcoding the renamed one made this
 // read a path that no longer exists (ENOENT) or scan zero files.
 function adapterDirName(base) {
-  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.lattice-codex';
+  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.proof-or-stop-codex';
 }
 
 
@@ -33,10 +33,10 @@ function extractJsonObject(text) {
 }
 
 function createTempProject() {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-product-reviewer-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-product-reviewer-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
-  writeFileSync(join(dir, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(dir, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
@@ -93,7 +93,7 @@ try {
   })]);
   assert(dispatchRaw.includes('你是 product-reviewer'), 'product-reviewer dispatch should identify the reviewer role');
   assert(dispatchRaw.includes('"agentId":"product-reviewer"') || dispatchRaw.includes('\\"agentId\\":\\"product-reviewer\\"'), 'product-reviewer dispatch should include exact agentId command');
-  assert(dispatchRaw.includes('不要传 "lattice-review-story-init"') || dispatchRaw.includes('不要传 \\"lattice-review-story-init\\"'), 'product-reviewer dispatch should warn against wrong init reviewer agentId');
+  assert(dispatchRaw.includes('不要传 "proof-or-stop-review-story-init"') || dispatchRaw.includes('不要传 \\"proof-or-stop-review-story-init\\"'), 'product-reviewer dispatch should warn against wrong init reviewer agentId');
 
   run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'understanding_set', JSON.stringify({
     storyId,

@@ -12,7 +12,7 @@
  *
  * Output structure:
  *   {
- *     provider: "lattice-lint",
+ *     provider: "proof-or-stop-lint",
  *     status: "pass" | "fail" | "skipped",
  *     summary: string,
  *     details: string[],
@@ -87,7 +87,7 @@ interface LintChecks {
 }
 
 export interface LintResult {
-  provider: 'lattice-lint';
+  provider: 'proof-or-stop-lint';
   status: LintSubStatus;
   summary: string;
   details: string[];
@@ -881,7 +881,7 @@ export function checkLint(deps: CheckLintDeps): LintResult {
   }
 
   return {
-    provider: 'lattice-lint',
+    provider: 'proof-or-stop-lint',
     status,
     summary,
     details,

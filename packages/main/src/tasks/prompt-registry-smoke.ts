@@ -17,7 +17,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  LOAD_BEARING_LATTICE_PROMPT_SLICE,
+  LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE,
   MODULAR_COMPLEX_ROLE_IDS,
   MODULAR_REVIEWER_ROLE_IDS,
   PROMPT_REGISTRY_SOURCE,
@@ -40,7 +40,7 @@ import { renderCodexAgentContent } from '../init-assets.js';
 // B-cc10 F-055: resolve whichever adapter dir exists. Hardcoding the renamed one made this
 // read a path that no longer exists (ENOENT) or scan zero files.
 function adapterDirName(base: string): string {
-  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.lattice-codex';
+  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.proof-or-stop-codex';
 }
 
 
@@ -48,7 +48,7 @@ const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
 const projectRoot = join(registry.root, '..', '..', '..', '..');
 const loadBearingPromptFiles = new Set([
-  'lattice-review-channel.md',
+  'proof-or-stop-review-channel.md',
 ]);
 const requiredSafetyPhrases = [
   'Fresh-Context Fence',
@@ -71,8 +71,8 @@ const qualityProofMetadataPhrases = [
   'not receipt-backed production proof',
 ];
 
-function extractLatticeBlock(content: string): string | null {
-  return content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/)?.[0] ?? null;
+function extractProofOrStopBlock(content: string): string | null {
+  return content.match(/<!-- proofOrStop:start -->[\s\S]*?<!-- proofOrStop:end -->/)?.[0] ?? null;
 }
 
 assert.equal(registry.schemaVersion, PROMPT_REGISTRY_VERSION);
@@ -109,12 +109,12 @@ for (const entry of registry.agents) {
     assert.equal(expectedCodex, renderCodexAgentContent(source), `${entry.file} Codex render matches legacy transform`);
   }
   if (loadBearingPromptFiles.has(entry.file)) {
-    assert.equal(extractLatticeBlock(source), LOAD_BEARING_LATTICE_PROMPT_SLICE, `${entry.file} uses canonical load-bearing prompt slice`);
+    assert.equal(extractProofOrStopBlock(source), LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE, `${entry.file} uses canonical load-bearing prompt slice`);
     for (const phrase of requiredSafetyPhrases) {
       assert.ok(source.includes(phrase), `${entry.file} keeps load-bearing prompt phrase: ${phrase}`);
     }
   }
-  if (entry.file === 'lattice-review-quality.md') {
+  if (entry.file === 'proof-or-stop-review-quality.md') {
     for (const phrase of qualityProofMetadataPhrases) {
       assert.ok(source.includes(phrase), `${entry.file} keeps proof metadata review phrase: ${phrase}`);
     }
@@ -125,7 +125,7 @@ for (const entry of registry.agents) {
   }
   const codexMirrorPath = join(projectRoot, adapterDirName(projectRoot), 'agents', entry.file);
   if (existsSync(codexMirrorPath)) {
-    assert.equal(readFileSync(codexMirrorPath, 'utf8'), expectedCodex, `${entry.file} .lattice-codex asset matches its canonical host input`);
+    assert.equal(readFileSync(codexMirrorPath, 'utf8'), expectedCodex, `${entry.file} .proof-or-stop-codex asset matches its canonical host input`);
   }
   material.update(`${entry.file}\0${entry.templateHash}\0${entry.bytes}\n`);
 }
@@ -152,7 +152,7 @@ for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
   assert.ok(Buffer.byteLength(modular.body) < Buffer.byteLength(legacy.body), `${roleId} modular body is smaller`);
   assert.notEqual(modular.bodyDigest, legacy.bodyDigest, `${roleId} bodies are independently content-addressed`);
   assert.equal(modular.body, readFileSync(entry.sourcePath, 'utf8'), `${roleId} package asset is the actual modular body`);
-  assert.equal(extractLatticeBlock(modular.body), null, `${roleId} modular body contains no legacy Runtime Guide`);
+  assert.equal(extractProofOrStopBlock(modular.body), null, `${roleId} modular body contains no legacy Runtime Guide`);
   assert.ok(modular.body.includes('proofbound:modular-role-body:v1'), `${roleId} keeps the legacy reconstruction anchor`);
   for (const host of ['claude', 'codex'] as const) {
     const identity = reviewerHostRenderIdentity(projectRoot, roleId, host, 'full-envelope');
@@ -184,14 +184,14 @@ for (let mask = 0; mask < 2 ** MODULAR_REVIEWER_ROLE_IDS.length; mask += 1) {
     assert.equal(resolvePromptEnvelopeRolloutMode(roleId, config), expected, `mixed rollout mask ${mask} keeps ${roleId}`);
   }
 }
-assert.equal(resolvePromptEnvelopeRolloutMode('lattice-review-concept', undefined), 'legacy-full-context');
+assert.equal(resolvePromptEnvelopeRolloutMode('proof-or-stop-review-concept', undefined), 'legacy-full-context');
 for (const roles of [
-  { 'lattice-review-channel': 'full-envelope' },
+  { 'proof-or-stop-review-channel': 'full-envelope' },
   { 'implementation-reviewer': 'full-envelope' },
   { 'unknown-reviewer': 'full-envelope' },
 ]) {
   assert.throws(
-    () => resolvePromptEnvelopeRolloutMode('lattice-review-concept', {
+    () => resolvePromptEnvelopeRolloutMode('proof-or-stop-review-concept', {
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
       roles,
     }),
@@ -200,27 +200,27 @@ for (const roles of [
 }
 for (const [source, expected] of [
   [
-    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{}},"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"lattice-review-quality":"full-envelope"}}}',
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{}},"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"proof-or-stop-review-quality":"full-envelope"}}}',
     /duplicate promptEnvelope key/,
   ],
   [
-    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{},"roles":{"lattice-review-quality":"full-envelope"}}}',
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{},"roles":{"proof-or-stop-review-quality":"full-envelope"}}}',
     /duplicate promptEnvelope\.roles key/,
   ],
   [
-    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"lattice-review-quality":"full-envelope","lattice-review-quality":"legacy-full-context"}}}',
-    /duplicate promptEnvelope\.roles\.lattice-review-quality key/,
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"proof-or-stop-review-quality":"full-envelope","proof-or-stop-review-quality":"legacy-full-context"}}}',
+    /duplicate promptEnvelope\.roles\.proof-or-stop-review-quality key/,
   ],
 ] as const) {
   assert.throws(() => assertNoDuplicatePromptEnvelopeRoleKeys(source), expected);
 }
 for (const malformed of [
   { version: 'proofbound.prompt-envelope-rollout.v0', roles: {} },
-  { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { 'lattice-review-quality': 'unknown-mode' } },
+  { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { 'proof-or-stop-review-quality': 'unknown-mode' } },
   { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: JSON.parse('{"__proto__":"full-envelope"}') },
 ]) {
   assert.throws(
-    () => resolvePromptEnvelopeRolloutMode('lattice-review-quality', malformed),
+    () => resolvePromptEnvelopeRolloutMode('proof-or-stop-review-quality', malformed),
     PromptRoleContractRegistryError,
   );
 }

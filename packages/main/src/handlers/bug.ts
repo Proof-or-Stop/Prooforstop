@@ -114,12 +114,12 @@ export function createBugHandlers(ctx: HandlerContext) {
       };
       // B-7c05 CHK-004: brief by default. `summary` covers ALL bugs by status
       // (non-silent), the list is trimmed to actionable OPEN bugs, and --full /
-      // --json / LATTICE_BRIEF_OUTPUT=0 restore every bug.
+      // --json / PROOF_OR_STOP_BRIEF_OUTPUT=0 restore every bug.
       if (wantsFullOutput(args)) return { bugs, summary };
       const openBugs = bugs.filter(b => b.status === 'open');
       return {
         _brief: true,
-        _hint: `Brief view: ${openBugs.length} open bug(s) listed; ${bugs.length - openBugs.length} non-open omitted (see summary for full status counts). Use --full (or LATTICE_BRIEF_OUTPUT=0) for every bug.`,
+        _hint: `Brief view: ${openBugs.length} open bug(s) listed; ${bugs.length - openBugs.length} non-open omitted (see summary for full status counts). Use --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0) for every bug.`,
         summary,
         bugs: openBugs.map(toBriefBug),
       };

@@ -45,12 +45,12 @@ for (const command of ['truth_scan', 'truth_nav', 'truth_analyze', 'truth_to_sto
   assert(help.includes(command), `proof-or-stop help missing ${command}`);
 }
 
-const temp = mkdtempSync(join(tmpdir(), 'lattice-truth-cli-'));
+const temp = mkdtempSync(join(tmpdir(), 'proof-or-stop-truth-cli-'));
 try {
   mkdirSync(join(temp, 'docs', 'requirements', 'decisions'), { recursive: true });
   mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(temp, 'packages', 'main', 'src'), { recursive: true });
-  writeFileSync(join(temp, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(temp, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',

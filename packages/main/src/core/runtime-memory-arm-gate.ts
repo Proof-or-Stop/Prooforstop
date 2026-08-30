@@ -3,8 +3,8 @@
 // The experiment-arm RENDER gate (compute the pack on both arms, fire the
 // `experience_pack_surfaced` event, and suppress the rendered section on the
 // control arm) is owned by core/experience-pack-surface.ts (surfaceRuntimeMemoryPack)
-// keyed on core/experiment-arm.ts (resolveExperimentArm, LATTICE_EXPERIMENT_ARM /
-// LATTICE_EXPERIMENT_ID). This module adds the two things that render-gate does
+// keyed on core/experiment-arm.ts (resolveExperimentArm, PROOF_OR_STOP_EXPERIMENT_ARM /
+// PROOF_OR_STOP_EXPERIMENT_ID). This module adds the two things that render-gate does
 // NOT cover, both keyed on the SAME resolver so the whole isolation is coherent:
 //
 //   1. isControlArm(env) — a boolean probe of the resolved experiment arm, used
@@ -38,8 +38,8 @@ import { resolveExperimentArm } from './experiment-arm.js';
 /**
  * True ONLY when the resolved experiment arm is 'control'. Never throws — a
  * resolver error defaults to false (normal work / treatment are unaffected;
- * the fail-open direction OUTSIDE control). Reads LATTICE_EXPERIMENT_ARM /
- * LATTICE_EXPERIMENT_ID via resolveExperimentArm.
+ * the fail-open direction OUTSIDE control). Reads PROOF_OR_STOP_EXPERIMENT_ARM /
+ * PROOF_OR_STOP_EXPERIMENT_ID via resolveExperimentArm.
  */
 export function isControlArm(env: NodeJS.ProcessEnv | Record<string, string | undefined> = process.env): boolean {
   try {

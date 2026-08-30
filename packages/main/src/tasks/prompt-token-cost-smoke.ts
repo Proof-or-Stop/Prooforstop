@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  LOAD_BEARING_LATTICE_PROMPT_SLICE,
+  LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE,
   isModularReviewerRoleId,
   readPromptRegistry,
   renderCodexPromptContent,
@@ -23,16 +23,16 @@ const templateDir = join(packageRoot, 'templates', 'agents');
 const auditDocPath = join(repoRoot, 'docs', 'requirements', 'decisions', 'slim-fields-token-savings-execution-plan.md');
 
 const baselineTemplateBytes: Record<string, number> = {
-  'lattice-evaluator.md': 57931,
-  'lattice-implementer.md': 63463,
-  'lattice-review-behavior.md': 63499,
-  'lattice-review-channel.md': 63587,
-  'lattice-review-concept.md': 61085,
-  'lattice-review-delivery.md': 64505,
-  'lattice-review-docs.md': 63591,
-  'lattice-review-quality.md': 60804,
-  'lattice-review-scope-plan.md': 63354,
-  'lattice-review-story-init.md': 70868,
+  'proof-or-stop-evaluator.md': 57931,
+  'proof-or-stop-implementer.md': 63463,
+  'proof-or-stop-review-behavior.md': 63499,
+  'proof-or-stop-review-channel.md': 63587,
+  'proof-or-stop-review-concept.md': 61085,
+  'proof-or-stop-review-delivery.md': 64505,
+  'proof-or-stop-review-docs.md': 63591,
+  'proof-or-stop-review-quality.md': 60804,
+  'proof-or-stop-review-scope-plan.md': 63354,
+  'proof-or-stop-review-story-init.md': 70868,
 };
 
 const requiredSourcePaths = [
@@ -41,7 +41,7 @@ const requiredSourcePaths = [
   '.claude/agents',
   // B-cc10 F-055: canonical first; a renamed root silently yields zero files.
   '.proof-or-stop-codex/agents',
-  '.lattice-codex/agents',
+  '.proof-or-stop-codex/agents',
   'packages/main/src/core/prompt-registry.ts',
   'packages/main/src/core/managed-assets.ts',
   'packages/main/src/handlers/story-query.ts',
@@ -93,8 +93,8 @@ function readRepo(path: string): string {
   return readFileSync(join(repoRoot, path), 'utf8');
 }
 
-function extractLatticeBlock(content: string): string {
-  const match = content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/);
+function extractProofOrStopBlock(content: string): string {
+  const match = content.match(/<!-- proofOrStop:start -->[\s\S]*?<!-- proofOrStop:end -->/);
   assert.ok(match, 'expected proof-or-stop managed block');
   return match[0];
 }
@@ -134,7 +134,7 @@ function assertPromptReductions(): void {
     const roleId = file.replace(/\.md$/, '');
     if (isModularReviewerRoleId(roleId)) {
       assert.equal(
-        content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/),
+        content.match(/<!-- proofOrStop:start -->[\s\S]*?<!-- proofOrStop:end -->/),
         null,
         `${file} does not rematerialize the legacy runtime guide`,
       );
@@ -143,8 +143,8 @@ function assertPromptReductions(): void {
       }
     } else {
       assert.equal(
-        extractLatticeBlock(content),
-        LOAD_BEARING_LATTICE_PROMPT_SLICE,
+        extractProofOrStopBlock(content),
+        LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE,
         `${file} uses canonical load-bearing prompt slice`,
       );
       for (const phrase of requiredPromptPhrases) {
@@ -179,7 +179,7 @@ function assertMirrorsMatch(): void {
   for (const file of Object.keys(baselineTemplateBytes)) {
     const packageContent = readRepo(`packages/main/templates/agents/${file}`);
     const claudeContent = readRepo(`.claude/agents/${file}`);
-    const codexContent = readRepo(`.lattice-codex/agents/${file}`);
+    const codexContent = readRepo(`.proof-or-stop-codex/agents/${file}`);
     const roleId = file.replace(/\.md$/, '');
     // B-cdf6:F-036 — this was a FOURTH hand-rolled copy of the complex-role render
     // rule, found by the concept lane after three others were consolidated. Like the
@@ -197,14 +197,14 @@ function assertMirrorsMatch(): void {
       ? renderPromptEntryForHost(registryEntry, 'codex')
       : renderCodexPromptContent(packageContent);
     assert.equal(claudeContent, expectedClaude, `.claude asset matches canonical host input for ${file}`);
-    assert.equal(codexContent, expectedCodex, `.lattice-codex asset matches canonical host input for ${file}`);
+    assert.equal(codexContent, expectedCodex, `.proof-or-stop-codex asset matches canonical host input for ${file}`);
     if (isModularReviewerRoleId(roleId)) {
       assert.match(claudeContent, /review_run_start/, `.claude bootstrap selects ${file} at runtime`);
-      assert.match(codexContent, /review_run_start/, `.lattice-codex bootstrap selects ${file} at runtime`);
+      assert.match(codexContent, /review_run_start/, `.proof-or-stop-codex bootstrap selects ${file} at runtime`);
     } else {
       assertCompactQueryGuidance(packageContent, `package template ${file}`);
       assertCompactQueryGuidance(claudeContent, `.claude mirror ${file}`);
-      assertCompactQueryGuidance(codexContent, `.lattice-codex mirror ${file}`);
+      assertCompactQueryGuidance(codexContent, `.proof-or-stop-codex mirror ${file}`);
     }
   }
 }
@@ -214,7 +214,7 @@ function jsonBytes(value: unknown): number {
 }
 
 function assertSlimOutputCompatibility(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-prompt-token-smoke-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-prompt-token-smoke-'));
   const store = new StoryStore(root);
   const storyId = 'B-smoke';
   const story: StoryInfo = {

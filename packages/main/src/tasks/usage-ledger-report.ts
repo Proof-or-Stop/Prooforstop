@@ -6,13 +6,13 @@
  * builds the read-only diagnostics report from the usage-ledger module, and
  * prints it human-readably or as JSON (`--json`).
  *
- * This is deliberately a TASK, not a registered `lattice` CLI command: it does
+ * This is deliberately a TASK, not a registered `proof-or-stop` CLI command: it does
  * not touch cli-engine / handlers / the command registry, honoring the
  * no-other-logic constraint. It only consumes the in-module diagnostics layer.
  *
  * Usage:
  *   node dist/tasks/usage-ledger-report.js <ledger.jsonl> [price-table.json] [--json]
- *   LATTICE_USAGE_LEDGER_PATH=... LATTICE_USAGE_PRICE_TABLE=... node ... [--json]
+ *   PROOF_OR_STOP_USAGE_LEDGER_PATH=... PROOF_OR_STOP_USAGE_PRICE_TABLE=... node ... [--json]
  *
  * Exit codes:
  *   0  report printed (including a valid empty report for a 0-record ledger)
@@ -44,8 +44,8 @@ export function parseArgs(argv: string[], env: NodeJS.ProcessEnv): CliArgs {
       positionals.push(arg);
     }
   }
-  const ledgerPath = positionals[0] ?? env.LATTICE_USAGE_LEDGER_PATH ?? null;
-  const priceTablePath = positionals[1] ?? env.LATTICE_USAGE_PRICE_TABLE ?? null;
+  const ledgerPath = positionals[0] ?? env.PROOF_OR_STOP_USAGE_LEDGER_PATH ?? null;
+  const priceTablePath = positionals[1] ?? env.PROOF_OR_STOP_USAGE_PRICE_TABLE ?? null;
   return { ledgerPath, priceTablePath, json };
 }
 
@@ -137,7 +137,7 @@ export function runReport(args: CliArgs): UsageReport {
   if (!args.ledgerPath) {
     throw new Error(
       'usage: usage-ledger-report <ledger.jsonl> [price-table.json] [--json] ' +
-        '(or set LATTICE_USAGE_LEDGER_PATH)',
+        '(or set PROOF_OR_STOP_USAGE_LEDGER_PATH)',
     );
   }
   if (!existsSync(args.ledgerPath)) {

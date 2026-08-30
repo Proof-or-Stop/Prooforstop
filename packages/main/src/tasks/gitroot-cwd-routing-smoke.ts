@@ -54,7 +54,7 @@ import {
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { createWorktreeHandlers } from '../handlers/worktree.js';
 
-const STORY_DIR_REL = '.lattice/story/actives';
+const STORY_DIR_REL = '.proof-or-stop/story/actives';
 const STORY_ID = 'B-2856t';
 
 function git(cmd: string, cwd: string): string {
@@ -69,11 +69,11 @@ function initGitRepo(dir: string): void {
   git('config commit.gpgsign false', dir);
 }
 
-/** lattice.config.json so StoryStore + resolution share storyDir / gitRoot. */
+/** proof-or-stop.config.json so StoryStore + resolution share storyDir / gitRoot. */
 function writeConfig(metadataRoot: string, gitRoot?: string): void {
   const cfg: Record<string, unknown> = { storyDir: STORY_DIR_REL };
   if (gitRoot !== undefined) cfg.gitRoot = gitRoot;
-  writeFileSync(join(metadataRoot, 'lattice.config.json'), JSON.stringify(cfg, null, 2));
+  writeFileSync(join(metadataRoot, 'proof-or-stop.config.json'), JSON.stringify(cfg, null, 2));
 }
 
 /**
@@ -214,7 +214,7 @@ try {
     const seenChangedCwd: string[] = [];
     const logReader: GitLogReader = ({ projectRoot }) => {
       seenLogCwd.push(projectRoot);
-      return 'abc1234|lattice-implementer|proof-or-stop: story init';
+      return 'abc1234|proof-or-stop-implementer|proof-or-stop: story init';
     };
     const changedReader: GitChangedFilesReader = ({ projectRoot }) => {
       seenChangedCwd.push(projectRoot);
@@ -234,7 +234,7 @@ try {
       'channel gitChangedFilesReader cwd == gitRoot',
     );
     assert.notEqual(realpathSync(seenLogCwd[0]), wrapperMeta, 'channel reader cwd must NOT be metadataRoot');
-    // Gate semantics unchanged: a lattice-implementer commit still passes.
+    // Gate semantics unchanged: a proof-or-stop-implementer commit still passes.
     assert.equal(result.status, 'pass', 'channel gate semantics unchanged after reroute (pass)');
 
     // plain-repo: default gitCwd (= projectRoot) → reader cwd == projectRoot.

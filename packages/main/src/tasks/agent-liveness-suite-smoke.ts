@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const tasksDir = dirname(fileURLToPath(import.meta.url));
 const suitePath = fileURLToPath(import.meta.url);
-const childMarker = 'LATTICE_AGENT_LIVENESS_SUITE_CHILD';
+const childMarker = 'PROOF_OR_STOP_AGENT_LIVENESS_SUITE_CHILD';
 const childSmokes = [
   'agent-dispatch-registry-smoke.js',
   'review-pass-discard-smoke.js',

@@ -216,7 +216,7 @@ export const LIFECYCLE_TRANSITIONS = [
     to: 'TEST',
     event: 'REVIEW_PASS',
     kind: 'forward',
-    gates: ['reviewer-pass', 'review-cli-preflight', 'lattice-validate'],
+    gates: ['reviewer-pass', 'review-cli-preflight', 'proof-or-stop-validate'],
     effects: ['test-evidence-write'],
     oracleRows: ['reviewer-evidence', 'validation-status'],
     rendererRow: 'REVIEW->TEST gate',
@@ -616,7 +616,7 @@ export function lifecycleArtifactsByTransition(): LifecycleTransitionArtifacts[]
 // `docs/story/.../<storyId>/...` still resolves for back-compat outside active
 // story prefixes (returns kind 'legacy-metadata').
 
-export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set([
+export const PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set([
   ...LIFECYCLE_ARTIFACTS.filter((artifact) => !artifact.includes('/')),
   'plan.md',
   'background.md',
@@ -718,7 +718,7 @@ export const REVIEW_RETENTION_PROTOCOL_METADATA_PATHS: ReadonlySet<string> = new
   'review-inventory-epochs.json',
 ]);
 
-export const LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new Set([
+export const PROOF_OR_STOP_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new Set([
   ...LIFECYCLE_ARTIFACTS.filter((artifact) => artifact.includes('/')),
 ]);
 
@@ -743,12 +743,12 @@ export function isCanonicalStoryId(value: string): boolean {
   return STORY_ID_RE.test(value);
 }
 
-// B-cc10: the CANONICAL prefix is derived and listed FIRST; the '.lattice/' and
+// B-cc10: the CANONICAL prefix is derived and listed FIRST; the '.proof-or-stop/' and
 // 'docs/' entries stay for read-both so a pre-migration checkout still resolves.
 // Before this, a story dir under the canonical path was not recognized at all.
 const DEFAULT_STORY_DIR_PREFIXES = [
   `${PROOF_OR_STOP_STATE_DIR}/story/actives/`,
-  '.lattice/story/actives/',
+  '.proof-or-stop/story/actives/',
   'docs/story/actives/',
 ] as const;
 
@@ -900,10 +900,10 @@ export function classifyLifecycleArtifact(
     const fileName = segments[segments.length - 1];
     const relativePath = segments.slice(1).join('/');
     const isTopLevelArtifact = segments.length === 2;
-    if (isTopLevelArtifact && !LATTICE_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)) {
+    if (isTopLevelArtifact && !PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)) {
       return null;
     }
-    if (!isTopLevelArtifact && !LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS.has(relativePath)) {
+    if (!isTopLevelArtifact && !PROOF_OR_STOP_LIFECYCLE_ARTIFACT_RELATIVE_PATHS.has(relativePath)) {
       return null;
     }
     return {
@@ -921,7 +921,7 @@ export function classifyLifecycleArtifact(
 
   const legacyPrefixes = [
     { prefix: LEGACY_STORY_DIR_PREFIX, storyDir: 'docs/story' },
-    { prefix: '.lattice/story/', storyDir: '.lattice/story' },
+    { prefix: '.proof-or-stop/story/', storyDir: '.proof-or-stop/story' },
   ];
   for (const { prefix, storyDir } of legacyPrefixes) {
     if (!normalized.startsWith(prefix)) continue;
@@ -974,6 +974,4 @@ import {
  * branch importing the old symbol must keep compiling when it merges. Never remove.
  */
 /** @deprecated Use `isAnyProofOrStopStoryMetadataPath`. */
-export const isAnyLatticeStoryMetadataPath = isAnyProofOrStopStoryMetadataPath;
 /** @deprecated Use `isProofOrStopLifecycleArtifactPath`. */
-export const isLatticeLifecycleArtifactPath = isProofOrStopLifecycleArtifactPath;

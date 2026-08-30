@@ -14,7 +14,7 @@ const taskTag = '@' + 'task';
 const testTag = '@' + 'test';
 
 try {
-  write(join(root, 'lattice.config.json'), JSON.stringify({
+  write(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     outDir: 'packages/main/dist',

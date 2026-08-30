@@ -17,7 +17,7 @@ import {
 } from '../core/planner.js';
 import { executePlannedSteps } from '../core/planned-steps-executor.js';
 import { canonicalDigest } from '../core/authority-signing.js';
-import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 
 /**
  * @task B-e3d9

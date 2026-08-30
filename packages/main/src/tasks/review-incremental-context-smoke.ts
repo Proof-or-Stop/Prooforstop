@@ -137,7 +137,7 @@ function write(root: string, path: string, content: string): void {
 
 /**
  * B-cc10: scratch fixtures must ignore BOTH state-dir spellings. CLI writes the
- * canonical dir; pinning only `.lattice/` leaves `?? .proof-or-stop/` dirty and
+ * canonical dir; pinning only `.proof-or-stop/` leaves `?? .proof-or-stop/` dirty and
  * breaks porcelain-preserving assertions (F-077).
  */
 function scratchRuntimeGitignore(): string {
@@ -350,7 +350,7 @@ function reviewStory(storyId: string, rounds: number, currentReviewRound?: strin
  * the earlier (main) headHash.
  */
 function buildIncrementalRepo(): { root: string; baseSha: string; headSha: string } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-ctx-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-incremental-ctx-'));
   write(root, '.gitignore', scratchRuntimeGitignore());
   write(root, 'src/feature.ts', 'export const feature = 1;\n');
   write(root, 'src/old-name.ts', 'export const renamed = true;\n');
@@ -412,7 +412,7 @@ function trustedReviewEvidence(storyId: string, role: string, runId: string, sta
 
 function runTemporalCutoffRegression(root: string): void {
   const storyId = 'B-f675';
-  const role = 'lattice-review-quality';
+  const role = 'proof-or-stop-review-quality';
   const story = reviewStory(storyId, 2, 'round-1');
   const boundHeadHash = currentGitHead(root)!;
   const a = trustedReviewEvidence(storyId, role, 'RR-A', ts(5), ts(6), boundHeadHash);
@@ -436,9 +436,9 @@ function runTemporalCutoffRegression(root: string): void {
 }
 
 function runProductionVerifierTemporalCutoffRegression(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-review-cutoff-verifier-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-cutoff-verifier-'));
   const storyId = 'B-cutoff-verifier';
-  const role = 'lattice-review-quality';
+  const role = 'proof-or-stop-review-quality';
   const round = '2026-07-20T00:00:00.000Z';
   const runCli = (command: string, payload: Record<string, unknown>, actor: string): void => {
     execFileSync(process.execPath, [
@@ -451,22 +451,22 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       cwd: root,
       env: {
         ...process.env,
-        LATTICE_PROJECT_ROOT: root,
-        LATTICE_ACTIVITY_SOURCE: 'codex',
-        LATTICE_AGENT: actor,
-        LATTICE_SESSION_ID: `cutoff-${actor}`,
+        PROOF_OR_STOP_PROJECT_ROOT: root,
+        PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+        PROOF_OR_STOP_AGENT: actor,
+        PROOF_OR_STOP_SESSION_ID: `cutoff-${actor}`,
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
   };
   try {
     write(root, '.gitignore', scratchRuntimeGitignore());
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
       flows: { defaults: {}, patterns: [] },
@@ -505,7 +505,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
         },
       }],
     });
-    git(root, ['add', '.lattice/story']);
+    git(root, ['add', '.proof-or-stop/story']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'seed cutoff verifier review metadata']);
 
     runCli('dispatch', { storyId, agentType: role }, 'main');
@@ -712,12 +712,12 @@ function runProductionVerifierTemporalCutoffRegression(): void {
 }
 
 function assertLargeDiffReviewMetadataStability(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-large-review-diff-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-large-review-diff-'));
   try {
-    write(root, 'lattice.config.json', `${JSON.stringify({
+    write(root, 'proof-or-stop.config.json', `${JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
       requirementsDir: 'docs/requirements',
@@ -741,10 +741,10 @@ function assertLargeDiffReviewMetadataStability(): void {
 
     write(
       root,
-      '.lattice/story/actives/B-large-diff/prompt-envelopes.json',
+      '.proof-or-stop/story/actives/B-large-diff/prompt-envelopes.json',
       `${JSON.stringify({ envelopes: [], padding: 'm'.repeat(350_000) })}\n`,
     );
-    git(root, ['add', '.lattice/story/actives/B-large-diff/prompt-envelopes.json']);
+    git(root, ['add', '.proof-or-stop/story/actives/B-large-diff/prompt-envelopes.json']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'review metadata write']);
 
     resetConfigCache();
@@ -770,15 +770,15 @@ function runIncrementalCases(): void {
     {
       const runId = 'RR-quality-1';
       const story = reviewStory(storyId, 1, ts(1));
-      const pass: ReviewPass = signedPass(storyId, 'RP-001', 'lattice-review-quality', ts(2), ts(1));
+      const pass: ReviewPass = signedPass(storyId, 'RP-001', 'proof-or-stop-review-quality', ts(2), ts(1));
       pass.reviewRunId = runId;
       // Re-sign now that reviewRunId is set (signature domain includes it).
       pass._hash = signReviewPass(storyId, pass.id, pass.agent, pass.note, pass.createdAt, pass.reviewRound || '', runId);
       const run: ReviewRun = {
         reviewRunId: runId,
         storyId,
-        agent: 'lattice-review-quality',
-        lane: 'lattice-review-quality',
+        agent: 'proof-or-stop-review-quality',
+        lane: 'proof-or-stop-review-quality',
         reviewRound: ts(1),
         startedAt: ts(2),
         headHash: baseSha,
@@ -821,14 +821,14 @@ function runIncrementalCases(): void {
     {
       const runId = 'RR-docs-1';
       const story = reviewStory(storyId, 1, ts(1));
-      const pass: ReviewPass = signedPass(storyId, 'RP-002', 'lattice-review-docs', ts(2), ts(1));
+      const pass: ReviewPass = signedPass(storyId, 'RP-002', 'proof-or-stop-review-docs', ts(2), ts(1));
       pass.reviewRunId = runId;
       pass._hash = signReviewPass(storyId, pass.id, pass.agent, pass.note, pass.createdAt, pass.reviewRound || '', runId);
       const run: ReviewRun = {
         reviewRunId: runId,
         storyId,
-        agent: 'lattice-review-docs',
-        lane: 'lattice-review-docs',
+        agent: 'proof-or-stop-review-docs',
+        lane: 'proof-or-stop-review-docs',
         reviewRound: ts(1),
         startedAt: ts(2),
         headHash: baseSha,
@@ -857,14 +857,14 @@ function runIncrementalCases(): void {
     {
       const runId = 'RR-behavior-unresolvable';
       const story = reviewStory(storyId, 1, ts(1));
-      const pass: ReviewPass = signedPass(storyId, 'RP-003', 'lattice-review-behavior', ts(2), ts(1));
+      const pass: ReviewPass = signedPass(storyId, 'RP-003', 'proof-or-stop-review-behavior', ts(2), ts(1));
       pass.reviewRunId = runId;
       pass._hash = signReviewPass(storyId, pass.id, pass.agent, pass.note, pass.createdAt, pass.reviewRound || '', runId);
       const run: ReviewRun = {
         reviewRunId: runId,
         storyId,
-        agent: 'lattice-review-behavior',
-        lane: 'lattice-review-behavior',
+        agent: 'proof-or-stop-review-behavior',
+        lane: 'proof-or-stop-review-behavior',
         reviewRound: ts(1),
         startedAt: ts(2),
         // Unresolvable bound headHash: headHashForRun returns null for a falsy hash.
@@ -942,12 +942,12 @@ function runBoundedPathsDegradationCase(): void {
   const cap = FULL_TASK_CONTEXT_LIMITS.pathsPerList;
   const bounded = 'FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS';
   const storyId = 'B-bounded-paths';
-  const role = 'lattice-review-quality';
+  const role = 'proof-or-stop-review-quality';
   const storyFile = 'src/story.ts';
   const bulkFile = (index: number) => `src/bulk/f${String(index).padStart(5, '0')}.ts`;
-  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-bounded-paths-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-incremental-bounded-paths-'));
   try {
-    write(root, '.gitignore', '.lattice/activity.jsonl\n');
+    write(root, '.gitignore', '.proof-or-stop/activity.jsonl\n');
     write(root, storyFile, 'export const story = 0;\n');
     for (let index = 0; index < cap; index += 1) write(root, bulkFile(index), `export const bulk${index} = 0;\n`);
     git(root, ['init']);
@@ -1203,7 +1203,7 @@ function runPolicyCases(): void {
   assert.equal(classifyEvidenceFreshness({
     fresh: true,
     reason: 'evidence followed by 1 metadata-only changes, not invalidated',
-    changedFiles: ['.lattice/x'],
+    changedFiles: ['.proof-or-stop/x'],
     materialFiles: [],
   }, 'a'.repeat(40)), 'KNOWN_METADATA_ONLY_HEAD_DRIFT');
   assert.equal(classifyEvidenceFreshness({
@@ -1216,7 +1216,7 @@ function runPolicyCases(): void {
 }
 
 function runFixtureDuplicateIdentityCases(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-fixture-duplicate-identity-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-fixture-duplicate-identity-'));
   const storyId = 'B-duplicate';
   const fixturePath = 'cases.json';
   const intentRef = `${storyId}:CHK-001:happy:0`;
@@ -1279,7 +1279,7 @@ function runFixtureDuplicateIdentityCases(): void {
 
 /**
  * A balanced-profile project root (requireReviewer + requireReviewerFinding =
- * true, blockingSeverities = critical+high). We materialize a lattice.json so
+ * true, blockingSeverities = critical+high). We materialize a proof-or-stop.json so
  * loadConfig resolves balanced deterministically regardless of the host repo.
  *
  * It is a real (single-commit) git repo on `main` so the incremental helper's
@@ -1289,8 +1289,8 @@ function runFixtureDuplicateIdentityCases(): void {
  * throwing while we prove it writes nothing and never changes the gate outcome.
  */
 function buildBalancedProjectRoot(): string {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-gate-'));
-  writeFileSync(join(root, 'lattice.json'), JSON.stringify({ workflow: { profile: 'balanced' } }));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-incremental-gate-'));
+  writeFileSync(join(root, 'proof-or-stop.json'), JSON.stringify({ workflow: { profile: 'balanced' } }));
   write(root, '.gitignore', scratchRuntimeGitignore());
   write(root, 'src/seed.ts', 'export const seed = 1;\n');
   git(root, ['init']);
@@ -1312,7 +1312,7 @@ function runGateUnchangedCase(): void {
     {
       const story = reviewStory(storyId, 1, undefined);
       const passes = BASELINE_REVIEWERS.map((short, i) =>
-        signedPass(storyId, `RP-${i + 1}`, `lattice-review-${short}`, ts(10 + i)),
+        signedPass(storyId, `RP-${i + 1}`, `proof-or-stop-review-${short}`, ts(10 + i)),
       );
       const store = buildFixtureStore({ story, passes });
       const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.1) round-1 full opt-in + quorum');
@@ -1324,7 +1324,7 @@ function runGateUnchangedCase(): void {
     {
       const story = reviewStory(storyId, 1, undefined);
       const passes = ['concept', 'quality'].map((short, i) =>
-        signedPass(storyId, `RP-${i + 1}`, `lattice-review-${short}`, ts(10 + i)),
+        signedPass(storyId, `RP-${i + 1}`, `proof-or-stop-review-${short}`, ts(10 + i)),
       );
       const store = buildFixtureStore({ story, passes });
       const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.2) round-1 missing opt-in reviewer');
@@ -1336,7 +1336,7 @@ function runGateUnchangedCase(): void {
     // currentReviewRound.
     {
       const story = reviewStory(storyId, 2, undefined);
-      const passes = [signedPass(storyId, 'RP-1', 'lattice-review-concept', ts(20))];
+      const passes = [signedPass(storyId, 'RP-1', 'proof-or-stop-review-concept', ts(20))];
       const store = buildFixtureStore({ story, passes });
       const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.3) round-2 single valid receipt');
       assert.equal(outcome, false, '(d.3) Round 2+ missing currentReviewRound must BLOCK the gate');
@@ -1352,9 +1352,9 @@ function runGateUnchangedCase(): void {
       const story = reviewStory(storyId, rounds, round);
       // One valid pass so the precondition (findings or passes non-empty) holds,
       // plus a finding bound to a missing run => the INVALID input that must block.
-      const passes = [signedPass(storyId, 'RP-1', 'lattice-review-concept', ts(30), round)];
+      const passes = [signedPass(storyId, 'RP-1', 'proof-or-stop-review-concept', ts(30), round)];
       const finding = signedFinding(
-        storyId, 'B-f675:F-1', 'lattice-review-quality', 'high', ts(31), 'open', round, 'RR-does-not-exist',
+        storyId, 'B-f675:F-1', 'proof-or-stop-review-quality', 'high', ts(31), 'open', round, 'RR-does-not-exist',
       );
       const store = buildFixtureStore({ story, passes, findings: [finding] });
       const outcome = assertGateUnchangedByHelper(
@@ -1372,10 +1372,10 @@ function runGateUnchangedCase(): void {
     {
       const story = reviewStory(storyId, 1, undefined);
       const passes = BASELINE_REVIEWERS.map((short, i) =>
-        signedPass(storyId, `RP-${i + 1}`, `lattice-review-${short}`, ts(40 + i)),
+        signedPass(storyId, `RP-${i + 1}`, `proof-or-stop-review-${short}`, ts(40 + i)),
       );
       const finding = signedFinding(
-        storyId, 'B-f675:F-2', 'lattice-review-concept', 'critical', ts(45), 'open',
+        storyId, 'B-f675:F-2', 'proof-or-stop-review-concept', 'critical', ts(45), 'open',
       );
       const store = buildFixtureStore({ story, passes, findings: [finding] });
       const outcome = assertGateUnchangedByHelper(store, projectRoot, storyId, '(d.5) verified open blocking finding');
@@ -1389,12 +1389,12 @@ function runGateUnchangedCase(): void {
 }
 
 function runConcurrentCliReadOnlyCase(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-cli-readonly-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-incremental-cli-readonly-'));
   const storyId = 'B-readonly';
   try {
     write(root, '.gitignore', scratchRuntimeGitignore());
-    write(root, 'lattice.config.json', JSON.stringify({
-      storyDir: '.lattice/story/actives',
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
+      storyDir: '.proof-or-stop/story/actives',
       workflow: { profile: 'balanced' },
     }, null, 2) + '\n');
     write(root, 'src/seed.ts', 'export const seed = true;\n');
@@ -1409,7 +1409,7 @@ function runConcurrentCliReadOnlyCase(): void {
     const store = new StoryStore(root);
     store.writeStory(storyId, reviewStory(storyId, 1, ts(1)));
     store.writeChecklist(storyId, { items: [] });
-    git(root, ['add', '.lattice/story']);
+    git(root, ['add', '.proof-or-stop/story']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'story metadata']);
 
     const storyDir = store.storyDirPath(storyId);
@@ -1434,9 +1434,9 @@ function runConcurrentCliReadOnlyCase(): void {
       cwd: root,
       env: {
         ...process.env,
-        LATTICE_PROJECT_ROOT: root,
-        LATTICE_ACTIVITY_SOURCE: 'codex',
-        LATTICE_SESSION_ID: 'incremental-readonly-concurrent',
+        PROOF_OR_STOP_PROJECT_ROOT: root,
+        PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+        PROOF_OR_STOP_SESSION_ID: 'incremental-readonly-concurrent',
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -1468,26 +1468,26 @@ function waitForPath(path: string, label: string, timeoutMs = 10_000): void {
 }
 
 function runDeterministicTicketReclaimAbaCase(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-review-lock-aba-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-lock-aba-'));
   const storyId = 'B-mixed-writer-aba';
   const round = '2026-07-19T00:00:00.000Z';
   const children: ReturnType<typeof spawn>[] = [];
   try {
     write(root, '.gitignore', scratchRuntimeGitignore());
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
       flows: { defaults: {}, patterns: [] },
       promptEnvelope: {
         version: 'proofbound.prompt-envelope-rollout.v1',
         roles: {
-          'lattice-review-quality': 'full-envelope',
-          'lattice-review-docs': 'full-envelope',
+          'proof-or-stop-review-quality': 'full-envelope',
+          'proof-or-stop-review-docs': 'full-envelope',
         },
       },
     }, null, 2) + '\n');
@@ -1520,24 +1520,24 @@ function runDeterministicTicketReclaimAbaCase(): void {
         },
       }],
     });
-    git(root, ['add', '.lattice/story']);
+    git(root, ['add', '.proof-or-stop/story']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'seed mixed writer review metadata']);
     // B-cc10 F-077: plant the dead ticket in the CANONICAL lock dir (store.runtimeLockDirPath),
-    // not the deprecated `.lattice/locks/...` spelling the runtime no longer writes.
+    // not the deprecated `.proof-or-stop/locks/...` spelling the runtime no longer writes.
     const lockDir = store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
     const barrierRoot = join(dirname(lockDir), '.review-metadata-test-barrier');
     const deadTicket = join(lockDir, '0000000000000000-dead-a.ticket');
     execFileSync(process.execPath, [
       DIST_CLI_PATH, '--root', root, 'dispatch',
-      JSON.stringify({ storyId, agentType: 'lattice-review-quality' }),
+      JSON.stringify({ storyId, agentType: 'proof-or-stop-review-quality' }),
     ], {
       cwd: root,
       env: {
         ...process.env,
-        LATTICE_PROJECT_ROOT: root,
-        LATTICE_ACTIVITY_SOURCE: 'codex',
-        LATTICE_AGENT: 'main',
-        LATTICE_SESSION_ID: 'mixed-owner',
+        PROOF_OR_STOP_PROJECT_ROOT: root,
+        PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+        PROOF_OR_STOP_AGENT: 'main',
+        PROOF_OR_STOP_SESSION_ID: 'mixed-owner',
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -1553,24 +1553,24 @@ function runDeterministicTicketReclaimAbaCase(): void {
     const childEnv = (agent: string, sessionId: string) => ({
       ...process.env,
       NODE_ENV: 'test',
-      LATTICE_PROJECT_ROOT: root,
-      LATTICE_ACTIVITY_SOURCE: 'codex',
-      LATTICE_AGENT: agent,
-      LATTICE_SESSION_ID: sessionId,
-      LATTICE_INTERNAL_REVIEW_METADATA_BARRIER: 'enabled',
+      PROOF_OR_STOP_PROJECT_ROOT: root,
+      PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+      PROOF_OR_STOP_AGENT: agent,
+      PROOF_OR_STOP_SESSION_ID: sessionId,
+      PROOF_OR_STOP_INTERNAL_REVIEW_METADATA_BARRIER: 'enabled',
     });
     children.push(spawn(process.execPath, [
       DIST_CLI_PATH, '--root', root, 'review_run_start',
-      JSON.stringify({ storyId, agent: 'lattice-review-quality' }),
+      JSON.stringify({ storyId, agent: 'proof-or-stop-review-quality' }),
     ], {
       cwd: root,
-      env: childEnv('lattice-review-quality', 'concurrent-lattice-review-quality'),
+      env: childEnv('proof-or-stop-review-quality', 'concurrent-proof-or-stop-review-quality'),
       stdio: 'ignore',
     }));
     waitForPath(join(barrierRoot, 'observed-w2'), 'W2 observing dead A');
     children.push(spawn(process.execPath, [
       DIST_CLI_PATH, '--root', root, 'agent_prompt',
-      JSON.stringify({ storyId, role: 'lattice-review-docs', format: 'json' }),
+      JSON.stringify({ storyId, role: 'proof-or-stop-review-docs', format: 'json' }),
     ], {
       cwd: root,
       env: childEnv('main', 'mixed-owner'),
@@ -1635,14 +1635,14 @@ type GuardObservation = Record<keyof typeof INCREMENTAL_GUARD_CLASS_MAP, boolean
 type GuardMutation = keyof typeof INCREMENTAL_GUARD_CLASS_MAP;
 
 function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: GuardMutation): GuardObservation {
-  const root = mkdtempSync(join(tmpdir(), `lattice-reviewer-rollout-mixed-${mask}-${iteration}-`));
+  const root = mkdtempSync(join(tmpdir(), `proof-or-stop-reviewer-rollout-mixed-${mask}-${iteration}-`));
   const storyId = 'B-concurrent-reviewers';
   const roles = [
-    'lattice-review-behavior',
-    'lattice-review-concept',
-    'lattice-review-docs',
-    'lattice-review-quality',
-    'lattice-review-test-coverage',
+    'proof-or-stop-review-behavior',
+    'proof-or-stop-review-concept',
+    'proof-or-stop-review-docs',
+    'proof-or-stop-review-quality',
+    'proof-or-stop-review-test-coverage',
   ];
   const rolloutModes = Object.fromEntries(roles.map((role, index) => [
     role,
@@ -1650,8 +1650,8 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
   ]));
   const round = '2026-07-19T00:00:00.000Z';
   const shellCommand = (command: string, payload: Record<string, unknown>, role: string) => [
-    `LATTICE_AGENT=${JSON.stringify(role)}`,
-    `LATTICE_SESSION_ID=${JSON.stringify(`concurrent-${role}`)}`,
+    `PROOF_OR_STOP_AGENT=${JSON.stringify(role)}`,
+    `PROOF_OR_STOP_SESSION_ID=${JSON.stringify(`concurrent-${role}`)}`,
     JSON.stringify(process.execPath),
     JSON.stringify(DIST_CLI_PATH),
     '--root',
@@ -1662,12 +1662,12 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
   ].join(' ');
   try {
     write(root, '.gitignore', scratchRuntimeGitignore());
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
       testsDir: 'tests',
       fixturesDir: 'tests/fixtures',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
       flows: { defaults: {}, patterns: [] },
@@ -1705,7 +1705,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
         },
       }],
     });
-    git(root, ['add', '.lattice/story']);
+    git(root, ['add', '.proof-or-stop/story']);
     git(root, [...COMMIT_ENV, 'commit', '-m', 'seed review metadata']);
 
     for (const role of roles) {
@@ -1715,10 +1715,10 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
         cwd: root,
         env: {
           ...process.env,
-          LATTICE_PROJECT_ROOT: root,
-          LATTICE_ACTIVITY_SOURCE: 'codex',
-          LATTICE_AGENT: 'main',
-          LATTICE_SESSION_ID: 'concurrent-owner',
+          PROOF_OR_STOP_PROJECT_ROOT: root,
+          PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+          PROOF_OR_STOP_AGENT: 'main',
+          PROOF_OR_STOP_SESSION_ID: 'concurrent-owner',
         },
         stdio: ['ignore', 'pipe', 'pipe'],
       });
@@ -1728,7 +1728,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     ), 'wait'].join('\n');
     execFileSync('/bin/sh', ['-c', startScript], {
       cwd: root,
-      env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_ACTIVITY_SOURCE: 'codex' },
+      env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root, PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex' },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     if (mutation === 'review-run-identity') {
@@ -1776,7 +1776,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     const executedEvidenceCommands = mutation === 'pass-finding-write-serialization' ? evidenceCommands.slice(0, -1) : evidenceCommands;
     execFileSync('/bin/sh', ['-c', ['set -eu', ...executedEvidenceCommands.map(command => `${command} &`), 'wait'].join('\n')], {
       cwd: root,
-      env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_ACTIVITY_SOURCE: 'codex' },
+      env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root, PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex' },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     const passFindingSerialization = store.readReviewPasses(storyId).passes.length === 3 && store.readFindings(storyId).findings.length === 2;
@@ -1921,7 +1921,7 @@ function run(): void {
   // The three fixed masks above are the deterministic race/mutation matrix.
   // Canonical full-suite runs add one 10101 burn-in; stress runs retain the
   // historical twenty identical repetitions for soak testing.
-  const burnInIterations = process.env.LATTICE_INCREMENTAL_STRESS === '1' ? 20 : 1;
+  const burnInIterations = process.env.PROOF_OR_STOP_INCREMENTAL_STRESS === '1' ? 20 : 1;
   const burnInObservations = [matrixObservations[2]!];
   for (let iteration = 2; iteration <= burnInIterations; iteration += 1) burnInObservations.push(runConcurrentReviewerWriteCase(0b10101, iteration));
   const replayObservation = runConcurrentReviewerWriteCase(0b10101, burnInIterations + 1);
@@ -1972,7 +1972,7 @@ function run(): void {
     restoration: { completedCases: burnInObservations.length, expectedCases: burnInIterations },
   };
   console.log(`INCREMENTAL_STRESS_RECEIPT=${JSON.stringify(stressReceipt)}`);
-  console.log(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: ['canonical-iteration', 'guard-class-equivalence', 'restoration'], mutations: burnInIterations === 20 ? Object.keys(INCREMENTAL_GUARD_CLASS_MAP) : [] })}`);
+  console.log(`PROOF_OR_STOP_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: ['canonical-iteration', 'guard-class-equivalence', 'restoration'], mutations: burnInIterations === 20 ? Object.keys(INCREMENTAL_GUARD_CLASS_MAP) : [] })}`);
   console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).`);
 }
 

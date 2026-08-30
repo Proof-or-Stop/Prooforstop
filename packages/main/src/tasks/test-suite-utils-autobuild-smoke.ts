@@ -28,14 +28,14 @@ import { fileURLToPath } from 'node:url';
 
 function findRepoRoot(start: string): string {
   let dir = start;
-  while (!existsSync(join(dir, 'proof-or-stop.config.json')) && !existsSync(join(dir, 'lattice.config.json')) && dir !== dirname(dir)) {
+  while (!existsSync(join(dir, 'proof-or-stop.config.json')) && !existsSync(join(dir, 'proof-or-stop.config.json')) && dir !== dirname(dir)) {
     dir = dirname(dir);
   }
   return dir;
 }
 
 const repoRoot = findRepoRoot(dirname(fileURLToPath(import.meta.url)));
-assert.ok(existsSync(join(repoRoot, 'proof-or-stop.config.json')) || existsSync(join(repoRoot, 'lattice.config.json')), 'could not locate repo root (lattice.config.json)');
+assert.ok(existsSync(join(repoRoot, 'proof-or-stop.config.json')) || existsSync(join(repoRoot, 'proof-or-stop.config.json')), 'could not locate repo root (proof-or-stop.config.json)');
 
 const read = (rel: string): string => {
   const abs = join(repoRoot, rel);
@@ -51,7 +51,7 @@ const pretest = scripts.pretest;
 assert.ok(
   typeof pretest === 'string' && pretest.trim().length > 0,
   'root package.json has no "pretest" script — nothing auto-builds packages/utils before `npm test`, ' +
-    'so a worktree without packages/utils/dist runs the full suite with utils absent and bin/lattice.js sub-tests die at bootstrap-runner',
+    'so a worktree without packages/utils/dist runs the full suite with utils absent and bin/proofOrStop.js sub-tests die at bootstrap-runner',
 );
 assert.ok(/ensure-dist(?:\.mjs)?(?![\w:-])/.test(pretest), `pretest must run the ensure-dist bootstrap: ${pretest}`);
 
@@ -113,11 +113,11 @@ assert.ok(
     `(the B-fb7b live-holder age-steal fix): got update=${update}, stale=${stale}`,
 );
 
-// 5) The consumer link: root "test" invokes the full-suite runner (which spawns bin/lattice.js), and
+// 5) The consumer link: root "test" invokes the full-suite runner (which spawns bin/proofOrStop.js), and
 //    bin/bootstrap-runner.js genuinely requires packages/utils/dist/index.js.
 assert.ok(
   /full-suite-runner/.test(scripts.test ?? ''),
-  'root "test" must invoke the full-suite runner (which spawns bin/lattice.js needing packages/utils/dist)',
+  'root "test" must invoke the full-suite runner (which spawns bin/proofOrStop.js needing packages/utils/dist)',
 );
 const bootstrap = read('bin/bootstrap-runner.js');
 assert.ok(

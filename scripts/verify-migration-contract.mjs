@@ -23,8 +23,8 @@ console.log(`storyFilesHashMentions=${sfh}`);
 sfh >= 1 ? ok('contract doc answers the storyFilesHash question') : fail('storyFilesHash unanswered');
 
 // CHK-001 edge: EVERY migrated identity carries a verdict. Absence of any row is the failure.
-const IDENTS = ['bin/lattice.js', '.lattice/', '.lattice-codex/', 'lattice.config.json',
-  'lattice.json', '@lattice/core'];  // deprecated spellings this story retires (canonical: '@proof-or-stop/core')
+const IDENTS = ['bin/proofOrStop.js', '.proof-or-stop/', '.proof-or-stop-codex/', 'proof-or-stop.config.json',
+  'proof-or-stop.json', '@proof-or-stop/core'];  // deprecated spellings this story retires (canonical: '@proof-or-stop/core')
 const missing = IDENTS.filter((id) => !doc.includes(id));
 console.log(`identitiesWithoutRow=${missing.length}`);
 missing.length === 0
@@ -68,17 +68,17 @@ readable ? ok('archives readable at canonical path after the move') : fail('arch
 // with main". After main is merged, the merge base IS the other session's commit,
 // where all 7589 pre-migration files existed — so it matches everything and has no
 // discriminating power at all.
-const trackedLegacy = execFileSync('git', ['ls-files', '.lattice'], { encoding: 'utf8' })
+const trackedLegacy = execFileSync('git', ['ls-files', '.proof-or-stop'], { encoding: 'utf8' })
   .trim().split('\n').filter(Boolean);
 const trackedCanonical = new Set(
   execFileSync('git', ['ls-files', '.proof-or-stop'], { encoding: 'utf8' })
     .trim().split('\n').filter(Boolean),
 );
 const duplicated = trackedLegacy.filter(
-  (f) => trackedCanonical.has(f.replace(/^\.lattice\//, '.proof-or-stop/')),
+  (f) => trackedCanonical.has(f.replace(/^\.proof-or-stop\//, '.proof-or-stop/')),
 );
 const legacyOnly = trackedLegacy.filter(
-  (f) => !trackedCanonical.has(f.replace(/^\.lattice\//, '.proof-or-stop/')),
+  (f) => !trackedCanonical.has(f.replace(/^\.proof-or-stop\//, '.proof-or-stop/')),
 );
 console.log(`deprecatedDirTrackedFiles=${trackedLegacy.length}`);
 // B-cc10: stable invariant line — the raw count legitimately became non-zero when a
@@ -90,7 +90,7 @@ console.log(`deprecatedDirLegacyOnly=${legacyOnly.length}`);
 if (legacyOnly.length > 0) {
   const stories = [...new Set(legacyOnly.map((f) => (f.split('/')[3] || f)))].join(', ');
   console.log(
-    `WARN ${legacyOnly.length} tracked file(s) exist only under .lattice (${stories}). ` +
+    `WARN ${legacyOnly.length} tracked file(s) exist only under .proof-or-stop (${stories}). ` +
     `Left in place on purpose: they are another session's in-flight story, and moving them ` +
     `would break it. Read-both discovery keeps them readable — verified by story_get on that id.`,
   );

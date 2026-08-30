@@ -39,8 +39,8 @@ const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
 const sessionEnv = {
   ...process.env,
-  LATTICE_SESSION_ID: 'parent-roadmap-totality-smoke',
-  LATTICE_AGENT: 'parent-roadmap-totality-smoke',
+  PROOF_OR_STOP_SESSION_ID: 'parent-roadmap-totality-smoke',
+  PROOF_OR_STOP_AGENT: 'parent-roadmap-totality-smoke',
 };
 const M4_M12_ROW_IDS = Array.from({ length: 9 }, (_, index) => `M${index + 4}`);
 const B43DE_EXPECTED_COMMANDS: Record<string, string[]> = {
@@ -60,11 +60,11 @@ const B43DE_EXPECTED_COMMANDS: Record<string, string[]> = {
     'node packages/main/dist/tasks/review-escalation-smoke.js',
   ],
   M9: ['node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js'],
-  M10: ['node packages/main/dist/tasks/lattice-parallel-wave-smoke.js'],
+  M10: ['node packages/main/dist/tasks/proof-or-stop-parallel-wave-smoke.js'],
   M11: ['node packages/main/dist/tasks/rollout-check-smoke.js'],
   M12: [
     'node packages/main/dist/tasks/parent-roadmap-totality-smoke.js',
-    'node packages/main/dist/tasks/lattice-handoff-smoke.js',
+    'node packages/main/dist/tasks/proof-or-stop-handoff-smoke.js',
   ],
 };
 function escapedPatternTerm(value: string): string {
@@ -126,14 +126,14 @@ function write(root: string, rel: string, content: string): void {
 }
 
 function initRoot(): string {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-parent-roadmap-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-parent-roadmap-'));
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'parent-roadmap@example.test']);
   git(root, ['config', 'user.name', 'Parent Roadmap Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -164,7 +164,7 @@ function baseLedger(overrides: Record<string, unknown> = {}): Record<string, unk
     ledgerId: 'PR-B-43de',
     parentStoryId: 'B-43de',
     originalIntentSnapshot: 'Deliver the full Proof-or-Stop strengthening roadmap, including rows M4-M12.',
-    sourceRefs: ['docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M4-M12'],
+    sourceRefs: ['docs/requirements/decisions/proof-or-stop-strengthening-roadmap-execution-plan.md#M4-M12'],
     createdByStoryId: 'B-43de',
     updatedByStoryIds: ['B-43de'],
     proofstoryContract: { storyId: 'B-43de', contractRef: 'proofstory.json' },

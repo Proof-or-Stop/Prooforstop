@@ -124,7 +124,7 @@ export function evaluateDeliveryCheckFreshness(
     return {
       ok: false,
       code: 'missing_delivery_check',
-      reason: 'Missing delivery-check.json (requires lattice-review-delivery reviewer signature)',
+      reason: 'Missing delivery-check.json (requires proof-or-stop-review-delivery reviewer signature)',
       deliveryCheck,
       expectedHash: null,
     };
@@ -192,7 +192,7 @@ export function evaluateDeliveryCheckFreshness(
           ok: true,
           code: 'delivery_check_drift_advisory',
           reason: `delivery-check storyFilesHash matches current story-owned files; whole-tree materialHash drift (recorded ${deliveryCheck.materialHash.slice(0, 12)}, current ${materialHash.slice(0, 12)}) requires re-attestation advisory`,
-          advisory: 'whole-tree materialHash drift detected while the signed delivery-check storyFilesHash matches; the story diff the reviewer attested is unchanged. Re-attestation advisory: re-run the lattice-review-delivery reviewer if the merged-in (non-story) code could affect the real-machine test claims.',
+          advisory: 'whole-tree materialHash drift detected while the signed delivery-check storyFilesHash matches; the story diff the reviewer attested is unchanged. Re-attestation advisory: re-run the proof-or-stop-review-delivery reviewer if the merged-in (non-story) code could affect the real-machine test claims.',
           deliveryCheck,
           expectedHash,
           currentMaterialHash: materialHash,

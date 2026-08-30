@@ -6,16 +6,16 @@
  *
  * - residuals.length == 0     → status=pass, recommendation="skip concept LLM reviewer"
  * - 1 ≤ residuals.length < 5  → status=warn, recommendation="skip concept LLM reviewer"
- * - residuals.length ≥ 5      → status=warn, recommendation="dispatch lattice-review-concept"
+ * - residuals.length ≥ 5      → status=warn, recommendation="dispatch proof-or-stop-review-concept"
  *
  * Output structure:
  *   {
- *     provider: "lattice-concept",
+ *     provider: "proof-or-stop-concept",
  *     status: "pass" | "warn",
  *     summary: string,
  *     deletedSymbols: string[],
  *     residuals: Array<{ symbol, file, line, snippet }>,
- *     recommendation: "skip concept LLM reviewer" | "dispatch lattice-review-concept"
+ *     recommendation: "skip concept LLM reviewer" | "dispatch proof-or-stop-review-concept"
  *   }
  *
  * See docs/reviewer-redesign.md §III S1 item 2.
@@ -41,7 +41,7 @@ export interface ConceptResidual {
 export interface ConceptCheckResult {
   // F-017 (B-9d95 Round 1 review): residuals ≥ 5 upgraded to fail (instead of warn),
   // aligned with the ok=false semantics returned by runConceptGateCli/CLI gate, rendering shows ✗ fail.
-  provider: 'lattice-concept';
+  provider: 'proof-or-stop-concept';
   status: 'pass' | 'warn' | 'fail';
   summary: string;
   deletedSymbols: string[];
@@ -54,7 +54,7 @@ export interface ConceptCheckResult {
    * pack semantic_analysis_unavailable events; never fails the gate.
    */
   skipDiagnostics?: string[];
-  recommendation: 'skip concept LLM reviewer' | 'dispatch lattice-review-concept';
+  recommendation: 'skip concept LLM reviewer' | 'dispatch proof-or-stop-review-concept';
 }
 
 /** Readers can be injected for tests. Default uses `git diff main...HEAD`. */
@@ -1047,7 +1047,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
     // but also don't fail outright (no diff → nothing to verify; e.g. orphan
     // branch case). recommendation=skip since we couldn't compute residuals.
     return {
-      provider: 'lattice-concept',
+      provider: 'proof-or-stop-concept',
       status: 'warn',
       summary: `git diff failed (${base}...HEAD): ${String(e?.message ?? e)}`,
       deletedSymbols: [],
@@ -1065,20 +1065,20 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
   const skip = analysis.skipDiagnostics.length > 0 ? { skipDiagnostics: analysis.skipDiagnostics } : {};
   if (analysis.diagnostics.length > 0) {
     return {
-      provider: 'lattice-concept',
+      provider: 'proof-or-stop-concept',
       status: 'fail',
       summary: `declaration diff parse failed closed: ${analysis.diagnostics[0]}`,
       deletedSymbols: analysis.symbols,
       residuals: [],
       diagnostics: analysis.diagnostics,
       ...skip,
-      recommendation: 'dispatch lattice-review-concept',
+      recommendation: 'dispatch proof-or-stop-review-concept',
     };
   }
   const symbols = analysis.symbols;
   if (symbols.length === 0) {
     return {
-      provider: 'lattice-concept',
+      provider: 'proof-or-stop-concept',
       status: 'pass',
       summary: `no deleted exports in ${base}...HEAD`,
       deletedSymbols: [],
@@ -1092,7 +1092,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
 
   if (residuals.length === 0) {
     return {
-      provider: 'lattice-concept',
+      provider: 'proof-or-stop-concept',
       status: 'pass',
       summary: `${symbols.length} symbol(s) deleted, no residual references`,
       deletedSymbols: symbols,
@@ -1103,14 +1103,14 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
   }
 
   const recommendation: ConceptCheckResult['recommendation'] =
-    residuals.length >= 5 ? 'dispatch lattice-review-concept' : 'skip concept LLM reviewer';
+    residuals.length >= 5 ? 'dispatch proof-or-stop-review-concept' : 'skip concept LLM reviewer';
 
   // F-017: residuals ≥ 5 → status=fail (blocks CLI gate and renders ✗ fail),
   // residuals 1..4 → status=warn (preserves original semantics, suggests skip reviewer, non-blocking)
   const status: ConceptCheckResult['status'] = residuals.length >= 5 ? 'fail' : 'warn';
 
   return {
-    provider: 'lattice-concept',
+    provider: 'proof-or-stop-concept',
     status,
     summary: `${symbols.length} symbol(s) deleted, ${residuals.length} residual reference(s) found`,
     deletedSymbols: symbols,
@@ -1175,7 +1175,7 @@ export function renderConceptResult(r: ConceptCheckResult): string {
   for (const diagnostic of r.diagnostics ?? []) lines.push(`  diagnostic: ${diagnostic}`);
   lines.push(`  recommendation: ${r.recommendation}`);
   if (r.status === 'fail') {
-    lines.push('  note: standalone validate --concept only reports raw residuals; REVIEW→TEST preflight may accept them after lattice-review-concept records a finding or review_pass_set in the current review round.');
+    lines.push('  note: standalone validate --concept only reports raw residuals; REVIEW→TEST preflight may accept them after proof-or-stop-review-concept records a finding or review_pass_set in the current review round.');
   }
   return lines.join('\n');
 }

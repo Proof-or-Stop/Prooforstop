@@ -15,7 +15,7 @@ import type { ProcessEventAppendIdentity } from '../core/process-events.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { deriveHostVerdictBindings } from '../core/host-verdict-bindings.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
-import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { withOfficialValidationExecution } from '../core/validation-execution-lock.js';
 import { assessStoredValidationPassAdmissibility } from './phase-gates.js';
 import { existsSync, readFileSync, rmSync } from 'node:fs';

@@ -91,7 +91,7 @@ const CONFIG = (gitRoot: string | undefined): string =>
     {
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
       ...(gitRoot ? { gitRoot } : {}),
@@ -102,7 +102,7 @@ const CONFIG = (gitRoot: string | undefined): string =>
   );
 
 /** Minimal TEST-phase story with NO worktree binding, so resolveGitCwd uses the
- *  configured-git-root branch driven by lattice.config.json gitRoot. */
+ *  configured-git-root branch driven by proof-or-stop.config.json gitRoot. */
 function writeStory(store: StoryStore, storyId: string): void {
   const now = '2026-06-17T00:00:00.000Z';
   const story: StoryInfo = {
@@ -138,12 +138,12 @@ function pass(msg: string): void {
 
 /** Build a wrapper-root fixture: metadataRoot (NON-git) + gitRoot subdir (git
  *  repo on main with a base commit + a docs/.md change on HEAD ahead of main) +
- *  lattice.config.json{gitRoot:"repo"}. The .md-ahead-of-main change makes
+ *  proof-or-stop.config.json{gitRoot:"repo"}. The .md-ahead-of-main change makes
  *  `git diff main...HEAD --name-only` report a real .md file. */
 function buildWrapperFixture(): { metadataRoot: string; gitRoot: string } {
-  const metadataRoot = mkdtempSync(join(tmpdir(), 'lattice-graceful-wrapper-'));
+  const metadataRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-graceful-wrapper-'));
   // metadataRoot is deliberately NOT a git repo: any git command from here errors.
-  writeFileSync(join(metadataRoot, 'lattice.config.json'), CONFIG('repo'), 'utf-8');
+  writeFileSync(join(metadataRoot, 'proof-or-stop.config.json'), CONFIG('repo'), 'utf-8');
 
   const gitRoot = join(metadataRoot, 'repo');
   mkdirSync(gitRoot, { recursive: true });
@@ -216,9 +216,9 @@ function buildWrapperFixture(): { metadataRoot: string; gitRoot: string } {
     );
     // GRACEFUL FALLBACK preserved: a bare non-git dir with no gitRoot config →
     // resolver yields no gitRoot → ?? projectRoot → git errors → undefined.
-    const bareNoGit = mkdtempSync(join(tmpdir(), 'lattice-graceful-baregit-'));
+    const bareNoGit = mkdtempSync(join(tmpdir(), 'proof-or-stop-graceful-baregit-'));
     try {
-      writeFileSync(join(bareNoGit, 'lattice.config.json'), CONFIG(undefined), 'utf-8');
+      writeFileSync(join(bareNoGit, 'proof-or-stop.config.json'), CONFIG(undefined), 'utf-8');
       assert.equal(
         detectMdTouchpointsFromGit(bareNoGit),
         undefined,
@@ -241,9 +241,9 @@ function buildWrapperFixture(): { metadataRoot: string; gitRoot: string } {
 // ════════════════════════════════════════════════════════════════════════════
 {
   resetConfigCache();
-  const root = mkdtempSync(join(tmpdir(), 'lattice-graceful-plain-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-graceful-plain-'));
   try {
-    writeFileSync(join(root, 'lattice.config.json'), CONFIG(undefined), 'utf-8');
+    writeFileSync(join(root, 'proof-or-stop.config.json'), CONFIG(undefined), 'utf-8');
     writeFileSync(join(root, 'README.md'), '# plain repo\n', 'utf-8');
     git(root, ['init', '-b', 'main']);
     git(root, ['add', '.']);

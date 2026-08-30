@@ -31,7 +31,7 @@ const path = require('path');
 // JS and cannot import the resolver, so hardcoding the names here would leave a
 // second copy that silently stops recognizing the repo root after the rename --
 // the hook would then resolve the WRONG root rather than reporting an error.
-const ROOT_MARKERS = [".proof-or-stop",".lattice",".proof-or-stop-codex",".lattice-codex","proof-or-stop.config.json","lattice.config.json"];
+const ROOT_MARKERS = [".proof-or-stop",".proof-or-stop",".proof-or-stop-codex",".proof-or-stop-codex","proof-or-stop.config.json","proof-or-stop.config.json"];
 
 const GUARD_TIMEOUT_MS = 8000;
 // Documented-candidate Codex shell tool tokens (pending real-token confirmation).
@@ -126,19 +126,19 @@ function findRepoRoot(start) {
 
 function resolveCli(root) {
   // Canonical entrypoints first, deprecated aliases as fallback (B-cdf6): a project
-  // generated before the rename only has bin/lattice.js, and a globally installed
-  // package built before the rename only exposes the `lattice` bin.
+  // generated before the rename only has bin/proofOrStop.js, and a globally installed
+  // package built before the rename only exposes the `proof-or-stop` bin.
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
-    path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
+    path.join(root, 'node_modules', '@proofOrStop', 'core', 'dist', 'cli.js'),
     path.join(root, 'bin', 'proof-or-stop.js'),
-    path.join(root, 'bin', 'lattice.js'),
+    path.join(root, 'bin', 'proofOrStop.js'),
   ];
   for (const candidate of jsCandidates) {
     if (fs.existsSync(candidate)) return { command: process.execPath, args: [candidate] };
   }
 
-  for (const bin of ['proof-or-stop', 'lattice']) {
+  for (const bin of ['proof-or-stop', 'proof-or-stop']) {
     const found = spawnSync('sh', ['-lc', 'command -v ' + bin], {
       cwd: root,
       encoding: 'utf8',
