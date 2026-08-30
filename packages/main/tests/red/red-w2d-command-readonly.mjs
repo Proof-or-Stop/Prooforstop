@@ -266,7 +266,7 @@ try {
     return registeredCheck(args);
   };
 
-  // ── 2. Read-only snapshot of the whole .lattice tree (CHK-012) ─────────────
+  // ── 2. Read-only snapshot of the whole .proof-or-stop tree (CHK-012) ─────────────
   function snapshotLattice() {
     const base = join(root, '.lattice');
     const entries = [];
@@ -282,7 +282,7 @@ try {
     return entries.join('\n');
   }
   const before = snapshotLattice();
-  assert.ok(before.length > 0, 'the fixture .lattice tree is non-empty, so the comparison is meaningful');
+  assert.ok(before.length > 0, 'the fixture .proof-or-stop tree is non-empty, so the comparison is meaningful');
   // Open the child-process window: everything spawned from here until section 6
   // is attributable to the command under test, not to this file's git fixture.
   const spawnsDuringCheck = spawnWindow();
@@ -477,9 +477,9 @@ try {
 
   // ── 8. THE VALIDATE-PIPELINE INVOCATION PATH (CHK-013) ────────────────────
   // Registration-in-config plus a hand-rolled `node <path>` run only APPROXIMATE
-  // "lattice validate runs it": neither exercises the pipeline's own resolution
+  // "proof-or-stop validate runs it": neither exercises the pipeline's own resolution
   // of the entry (argv, cwd, timeout) nor its executor. Both are exercised here,
-  // through the exact functions `lattice validate` calls, so a registration that
+  // through the exact functions `proof-or-stop validate` calls, so a registration that
   // is present but unrunnable — a typo'd arg, a bad cwd, a nonsense timeout —
   // fails this committed test instead of surfacing on somebody's next validate.
   const SMOKE_ENTRY = 'packages/main/dist/tasks/red-evidence-envelope-smoke.js';
@@ -502,7 +502,7 @@ try {
   console.log('red-w2d-command-readonly: PASS');
   console.log(`  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler`);
   console.log(`  success output: assertionDigest ${expectedDigest} / binding ${BINDING.acceptanceTargetRef} ${BINDING.adapterId} ${BINDING.testCaseRef} / policyDigest ${FROZEN_POLICY_DIGEST}`);
-  console.log(`  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of ${invocations} DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)`);
+  console.log(`  inadmissible: tagged R1-2 rejection, success output absent; .proof-or-stop manifest of file paths and content hashes NET identical across the batch of ${invocations} DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)`);
   console.log(`  spawn set observed across those invocations: ${shapes.join(' + ')} (${spawns.length} calls) — read-only git, no runner/harness/shell`);
   console.log(`  validate pipeline: ${SMOKE_ENTRY} resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in ${pipelineResult.durationMs}ms`);
 } finally {

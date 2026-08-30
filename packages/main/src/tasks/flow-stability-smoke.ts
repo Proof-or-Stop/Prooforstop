@@ -3820,7 +3820,7 @@ function assertDeclaredArtifactGateHotfix(): void {
       () => handlers.artifact_declare({
         storyId,
         path: '.lattice/story/actives/B-hotfix/index.json',
-        reason: 'attacker tries to declare lattice metadata',
+        reason: 'attacker tries to declare proof-or-stop metadata',
         relatedIntent: 'CHK-001:happy:0',
       }),
       /classifies as lattice_metadata_changes and cannot be declared/,

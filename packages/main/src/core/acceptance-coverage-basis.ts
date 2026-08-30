@@ -409,7 +409,7 @@ export function verifyAcceptanceCoverageBasis(
   // the point of digesting the issuer at all.
   //
   // Migration consequence, stated so it is not rediscovered as a bug: a basis artifact
-  // generated on pre-rename main records `lattice acceptance_basis_generate` and will
+  // generated on pre-rename main records `proof-or-stop acceptance_basis_generate` and will
   // fail here with AT_ADAPTER_RESULT_INVALID after that branch merges. That is expected —
   // the basis is a per-story, per-phase artifact that its handler regenerates, so the fix
   // is to re-run `proof-or-stop acceptance_basis_generate` (or `pre_review_check`), not to

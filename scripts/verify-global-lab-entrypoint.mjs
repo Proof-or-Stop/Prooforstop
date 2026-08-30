@@ -79,7 +79,7 @@ const checks = {
   },
   'lab-help': () => {
     const out = run(['lab_create', '--help']);
-    assert(out.includes('lattice lab_create'), 'global core bin should show lab_create help through the lattice bootstrap');
+    assert(out.includes('proof-or-stop lab_create'), 'global core bin should show lab_create help through the proof-or-stop bootstrap');
     assert(!out.includes('koala lab_create'), 'global core bin should not advertise retired koala lab_create alias help');
   },
   'lab-create-policy-gate': () => {

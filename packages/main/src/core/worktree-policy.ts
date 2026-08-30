@@ -125,7 +125,7 @@ export interface WorktreeResolution {
 
 /**
  * Resolve the authoritative story worktree cwd. This mirrors the read-only
- * `lattice story resolve` contract (story.worktree.path resolved against root,
+ * `proof-or-stop story resolve` contract (story.worktree.path resolved against root,
  * falling back to the project root) so the executor and the operator command agree
  * on where provider work runs.
  */
@@ -460,7 +460,7 @@ export interface WorktreeStopSummary {
 }
 
 const WORKTREE_NEXT_ACTION: Record<WorktreeStopReason, string> = {
-  authoritative_worktree_unresolved: 'Resolve the authoritative story worktree (lattice story resolve / proof-or-stop story_advance --phase=INIT_CHECK) before running provider work in authority mode.',
+  authoritative_worktree_unresolved: 'Resolve the authoritative story worktree (proof-or-stop story resolve / proof-or-stop story_advance --phase=INIT_CHECK) before running provider work in authority mode.',
   git_status_evidence_unavailable: 'Run the executor inside the story git worktree so git status evidence can be captured before mutating steps.',
   dirty_worktree: 'Commit, stash, or resolve the pending worktree changes (unrelated dirty changes are preserved, not discarded), then rerun.',
   forbidden_path_glob: 'Stop editing story/fixture JSON or other forbidden paths directly; route those changes through Proof-or-Stop commands.',

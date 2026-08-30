@@ -126,7 +126,7 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   ]),
   repoRead('test:main-write-lock-coverage'),
   repoRead('test:production-test-seam-guard', {}, [{ class: 'fixed-path', key: 'package.json', access: 'shared' }]),
-  repoRead('test:lattice-residue'),
+  repoRead('test:proof-or-stop-residue'),
   // B-cc10 identity-migration members of test:serial-reference. A serial-reference
   // name without a policy entry fails closed (unknownPolicy) before execution.
   repoRead('test:residue-inject-repro'), repoRead('test:retired-authority-vocabulary-guard'),

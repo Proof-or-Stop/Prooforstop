@@ -60,14 +60,14 @@ function runAndCompare(root, id) {
 }
 
 const sessionWeak = [
-  '# lattice session brief',
+  '# proof-or-stop session brief',
   '**Story**: B-test',
   '**Phase**: DEV',
   '## Checklist (1/3 done)',
 ].join('\n');
 
 const sessionStrong = [
-  '# lattice session brief',
+  '# proof-or-stop session brief',
   '**Story**: B-test',
   '**Phase**: TEST_CASE_REVIEW',
   '## Checklist (3/3 done)',
@@ -118,7 +118,7 @@ const cases = {
   'session-edge': () => {
     const root = createProject('samples/session-brief.txt', sessionWeak, 'lab-session-brief-quality-v1', 'session-brief-quality-v1');
     try {
-      writeFileSync(join(root, 'samples', 'session-brief.txt'), '# lattice session brief\n## → Next step\n  continue\n');
+      writeFileSync(join(root, 'samples', 'session-brief.txt'), '# proof-or-stop session brief\n## → Next step\n  continue\n');
       const compare = runAndCompare(root, 'lab-session-brief-quality-v1');
       assert(compare.best.contentSummary.some((item) => item === 'missing reviewerStatus'), 'missing reviewer status should be summarized');
     } finally {
@@ -196,7 +196,7 @@ const cases = {
   'compare-adversarial': () => {
     const root = createProject('samples/session-brief.txt', sessionWeak, 'lab-session-brief-quality-v1', 'session-brief-quality-v1');
     try {
-      writeFileSync(join(root, 'samples', 'session-brief.txt'), '# lattice session brief\n**Story**: B-test\n**Phase**: DEV\n');
+      writeFileSync(join(root, 'samples', 'session-brief.txt'), '# proof-or-stop session brief\n**Story**: B-test\n**Phase**: DEV\n');
       const compare = runAndCompare(root, 'lab-session-brief-quality-v1');
       assert(compare.best.contentSummary.some((item) => item === 'missing nextStep'), 'compare should reveal missing nextStep even if score changes');
     } finally {

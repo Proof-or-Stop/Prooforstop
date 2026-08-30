@@ -144,7 +144,7 @@ function makeSummary(storyId: string, overrides: Partial<StorySummaryData> = {})
   return {
     storyId,
     changes: 'Delivered the requested outcome.',
-    usage: 'Run the relevant lattice command.',
+    usage: 'Run the relevant proof-or-stop command.',
     expectedOutcome: 'The original request is satisfied.',
     actualTranscript: 'The requested outcome is present.',
     outcomeDiff: 'No difference.',

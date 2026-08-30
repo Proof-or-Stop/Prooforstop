@@ -770,7 +770,7 @@ async function main(): Promise<void> {
     );
     const doctorLines = renderHostBurnScan(ev, { disabled: false }).join('\n');
     assert.ok(doctorLines.includes('✗ BURN ALERT codex r1'), 'doctor block flags the session');
-    assert.ok(doctorLines.includes('lattice cannot stop sessions it did not launch'), 'advisory action line present');
+    assert.ok(doctorLines.includes('proof-or-stop cannot stop sessions it did not launch'), 'advisory action line present');
     const sweepLines = renderSweepAlertSection(ev).join('\n');
     assert.ok(sweepLines.includes('BURN ALERT: 1 session(s) over burn thresholds'), 'sweep trailer counts findings');
     const clean = evaluateBurnAlerts([], { nowMs: NOW, thresholds: T, fileSizeOf: () => 0 });

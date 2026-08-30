@@ -43,7 +43,7 @@
  * source state (REPO_ROOT, resolved from this file's own compiled location) rather than
  * a temp dir, since H-002 is a claim ABOUT this repo's actual source, not a synthesized
  * fixture. Every other section's mkdtempSync tmp dir is removed via rmSync in a per-section
- * try/finally (B-16df F-001) so repeated `lattice validate` runs don't leak stray tmpdirs.
+ * try/finally (B-16df F-001) so repeated `proof-or-stop validate` runs don't leak stray tmpdirs.
  * Registered in lattice.config.json validate.commands for ongoing regression protection.
  *
  * Run: node packages/main/dist/tasks/validate-command-timeout-smoke.js

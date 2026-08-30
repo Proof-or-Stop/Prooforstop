@@ -7,10 +7,10 @@
  * `validate.commands`) measures a SYNTHETIC 6-command fixture. That is deliberate — it is
  * itself part of the plan, so it must stay in seconds — but it means the numbers it prints
  * describe the fixture, not the workload the story's speedup claim is about. This file is
- * the missing half: a repeatable command that measures the SAME plan `lattice validate`
+ * the missing half: a repeatable command that measures the SAME plan `proof-or-stop validate`
  * actually runs, at jobs=1 and at jobs=N, on the tree it is invoked from.
  *
- * NOT PART OF `lattice validate`
+ * NOT PART OF `proof-or-stop validate`
  * ------------------------------
  * This is an ON-DEMAND benchmark. It is deliberately NOT registered in
  * `lattice.config.json` → `validate.commands`, and it must not be: it executes the whole
@@ -235,7 +235,7 @@ const barrierCount = entries.filter((entry) => entry.exclusiveByDefault).length;
 const declaredCount = entries.length - barrierCount;
 const classification = `commands=${entries.length} declared=${declaredCount} exclusiveByDefault=${barrierCount}`;
 
-console.log('validate-parallel-benchmark: ON-DEMAND benchmark. NOT part of `lattice validate`:');
+console.log('validate-parallel-benchmark: ON-DEMAND benchmark. NOT part of `proof-or-stop validate`:');
 console.log('  it is deliberately NOT registered in lattice.config.json validate.commands (it runs the');
 console.log('  whole plan twice, tens of minutes, and would make validate recursive), and it produces');
 console.log('  NO gate evidence and no receipt — it prints a measurement.');

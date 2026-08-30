@@ -10,7 +10,7 @@
  * Unlike its sibling receipts it FAILS CLOSED (exit 1, same shape as
  * `red-b2aa7-migration-scan.mjs`): a check that cannot be confirmed prints its
  * reason on stderr and the process exits non-zero, so this file stays meaningful
- * when `lattice validate` runs it, where only the exit code is read.
+ * when `proof-or-stop validate` runs it, where only the exit code is read.
  *
  * ── WHAT IT ASSERTS ─────────────────────────────────────────────────────────
  *
@@ -52,7 +52,7 @@
  * receipt (`red-b2aa7-f005-receipt.mjs`, added by CL-003) that nobody put in
  * either list. It was absent from the required array, so nothing was "missing";
  * it was absent from the exclusion array, so nothing was "wrongly registered".
- * `lattice validate` never ran it and this guard reported complete coverage.
+ * `proof-or-stop validate` never ran it and this guard reported complete coverage.
  *
  * That is the same defect class this story exists to remove — a check bound to
  * a fixed enumeration instead of the property it is meant to guarantee (compare
@@ -75,7 +75,7 @@
  * both print NOTHING and exit 0 — measured, not assumed: 0 bytes on stdout and on
  * stderr, exit 0.
  *
- * Registering them would add two `lattice validate` commands that pass forever
+ * Registering them would add two `proof-or-stop validate` commands that pass forever
  * while asserting nothing: a vacuous check masquerading as coverage, which is
  * the defect class this story exists to remove. They stay unregistered, and
  * check 5 below enforces that decision — and, because it also requires them to
@@ -385,7 +385,7 @@ const RECEIPT_NAME_RE = /^red-b2aa7-.*\.mjs$/;
  *
  * `red-b2aa7-artifact-validation.mjs` is the 20-row regression and
  * `red-b2aa7-migration-scan.mjs` is decision D-7, whose obligation is that the
- * scan is RE-RUN at merge time — `lattice validate` is what actually runs then,
+ * scan is RE-RUN at merge time — `proof-or-stop validate` is what actually runs then,
  * so leaving either to a remembered manual run is the "relies on someone
  * remembering" failure mode this story exists to remove.
  */
@@ -446,7 +446,7 @@ const real = classifyReceipts(population, realTokens, REGISTRATION_EXCLUSIONS);
 if (real.undecided.length > 0) {
   fail('registration',
     `these red-b2aa7 receipts are NEITHER registered in lattice.config.json validate.commands NOR listed in `
-    + `REGISTRATION_EXCLUSIONS with a reason, so \`lattice validate\` never runs them and nobody decided that it should not: `
+    + `REGISTRATION_EXCLUSIONS with a reason, so \`proof-or-stop validate\` never runs them and nobody decided that it should not: `
     + `${real.undecided.join(', ')}. Register the receipt, or exclude it here and say why.`);
 }
 

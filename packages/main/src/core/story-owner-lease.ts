@@ -118,7 +118,7 @@ export interface StoryOwnerLease {
   pid: number;
   /** Working directory of the owning session at acquire time. */
   cwd: string;
-  /** The lattice command that first acquired the lease (audit context). */
+  /** The proof-or-stop command that first acquired the lease (audit context). */
   command: string;
   /** ISO 8601 timestamp of the initial acquire. */
   acquiredAt: string;
@@ -245,7 +245,7 @@ function ownerCwdMatchesCurrent(ownerCwd: unknown, currentCwd: unknown): boolean
 
 /** Options shared by `acquireOwnerLease` / `refreshOwnerLease`. */
 export interface OwnerLeaseWriteOptions {
-  /** lattice command label recorded in the lease (audit context). */
+  /** proof-or-stop command label recorded in the lease (audit context). */
   command: string;
   /** Working directory of the owning session. Defaults to `process.cwd()`. */
   cwd?: string;
@@ -511,7 +511,7 @@ export interface TakeoverEvent {
   fromHeartbeatAt: string;
   /** Whether the taken-over lease was stale at transfer time. */
   fromWasStale: boolean;
-  /** The lattice command that triggered the takeover. */
+  /** The proof-or-stop command that triggered the takeover. */
   command: string;
 }
 
@@ -562,7 +562,7 @@ export interface TakeoverEvent {
 export interface NonOwnerErrorContext {
   /** The story whose lease is owned by another session. */
   storyId: string;
-  /** The lattice command that was rejected (audit / message context). */
+  /** The proof-or-stop command that was rejected (audit / message context). */
   command: string;
   /** The owner-gated ownership class of `command` (`storyScopedMutating` / `dangerousMutating`). */
   ownershipClass: string;

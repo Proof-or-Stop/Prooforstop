@@ -1112,7 +1112,7 @@ function scanStoryMetadataProtection(root: string, store: HandlerContext['store'
  * byte-for-byte (preMortem #2: no wholesale rewrite / reorder). Idempotent: an
  * already-neutralized line is left untouched.
  */
-const MANAGED_SUPERSEDE_MARKER = '# superseded by lattice managed allowlist (proof-or-stop doctor --repair)';
+const MANAGED_SUPERSEDE_MARKER = '# superseded by proof-or-stop managed allowlist (proof-or-stop doctor --repair)';
 
 function neutralizeConflictingLatticeDirIgnore(content: string): { content: string; changed: boolean } {
   const lines = content.split('\n');

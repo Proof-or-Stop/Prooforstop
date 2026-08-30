@@ -1155,7 +1155,7 @@ if (verdict === 'BROKEN') {
   lines.push('  one), and every unbacked withdrawal is still refused by both.');
 }
 console.log(lines.join('\n'));
-// NOT process.exit(): on a PIPE (which is how `lattice validate` and the
+// NOT process.exit(): on a PIPE (which is how `proof-or-stop validate` and the
 // verification_evidence_add receipt runner both capture this) console.log is an
 // ASYNC write, and process.exit() abandons whatever has not flushed yet. That
 // silently truncated the tail of this report once it passed ~9 KB — the D45 row

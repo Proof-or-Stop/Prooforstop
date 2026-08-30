@@ -13,7 +13,7 @@ try {
     '',
     '```bash',
     'proof-or-stop validate --json',
-    'lattice missing_cmd',
+    'proof-or-stop missing_cmd',
     '```',
     '',
   ].join('\n'), 'utf-8');
@@ -28,7 +28,7 @@ try {
   });
 
   assert.equal(
-    report.drifts.some(d => d.symbol === 'lattice missing_cmd' && d.driftType === 'missing-command'),
+    report.drifts.some(d => d.symbol === 'proof-or-stop missing_cmd' && d.driftType === 'missing-command'),
     true,
     'registry docs-drift branch should complete and preserve missing command drift',
   );

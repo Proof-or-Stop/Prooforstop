@@ -41,7 +41,7 @@ function createTempProject(serverPort) {
     '    ctx.fillRect(0, 0, 160, 120);',
     '    ctx.fillStyle = "#0f172a";',
     '    ctx.font = "16px sans-serif";',
-    '    ctx.fillText("lattice screenshot", 12, 62);',
+    '    ctx.fillText("proof-or-stop screenshot", 12, 62);',
     '  </script>',
     '</body>',
     '</html>',

@@ -88,7 +88,7 @@ The user noticed that a numeric story_review field could be mistaken for finding
     run(projectRoot, 'understanding_set', {
       storyId,
       task: 'verify structured story review',
-      outcome: '> lattice story_review\n{ "actionSummary": {...}, "reviewPromptSummary": {...} }',
+      outcome: '> proof-or-stop story_review\n{ "actionSummary": {...}, "reviewPromptSummary": {...} }',
       facts: ['review output has structured summary'],
       constraints: ['preserve _reviewPrompt'],
       unknowns: [],

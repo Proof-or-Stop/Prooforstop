@@ -307,13 +307,13 @@ function spawnHook(payload: string | undefined): { status: number | null; stderr
   assert.equal(a.status, 0, 'hook 6a: CJK git commit must still exit 0 (warn-only)');
   assert.match(a.stderr, /warn english-only/i, 'hook 6a: CJK git commit must emit an English warning on stderr');
 
-  // 6a') lattice story-metadata command carrying CJK -> warning, exit 0.
+  // 6a') proof-or-stop story-metadata command carrying CJK -> warning, exit 0.
   const cjkLattice = JSON.stringify({
     tool_input: { command: `proof-or-stop checklist_update '{"title":"${ZH_FIX}"}'` },
   });
   const aa = spawnHook(cjkLattice);
-  assert.equal(aa.status, 0, "hook 6a': CJK lattice metadata command must exit 0");
-  assert.match(aa.stderr, /warn english-only/i, "hook 6a': CJK lattice metadata command must warn");
+  assert.equal(aa.status, 0, "hook 6a': CJK proof-or-stop metadata command must exit 0");
+  assert.match(aa.stderr, /warn english-only/i, "hook 6a': CJK proof-or-stop metadata command must warn");
 
   // 6b) English-only git commit -> no output, exit 0.
   const englishCommit = JSON.stringify({
@@ -323,7 +323,7 @@ function spawnHook(payload: string | undefined): { status: number | null; stderr
   assert.equal(b.status, 0, 'hook 6b: English-only commit must exit 0');
   assert.equal(b.stderr.trim(), '', 'hook 6b: English-only commit must produce no stderr warning');
 
-  // 6b') Non-guarded command with CJK (not git commit / not lattice metadata) -> silent, exit 0.
+  // 6b') Non-guarded command with CJK (not git commit / not proof-or-stop metadata) -> silent, exit 0.
   const unguarded = JSON.stringify({
     tool_input: { command: `echo ${ZH_HELLO}` },
   });
@@ -400,7 +400,7 @@ function spawnHook(payload: string | undefined): { status: number | null; stderr
     );
 
     // The scope hook must appear EXACTLY ONCE (not duplicated by re-pushing).
-    const scopeHits = commands.filter((c: string) => c.includes('lattice-scope-pretool.cjs')).length;
+    const scopeHits = commands.filter((c: string) => c.includes('proof-or-stop-scope-pretool.cjs')).length;
     assert.equal(
       scopeHits,
       1,

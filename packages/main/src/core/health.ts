@@ -2,7 +2,7 @@
  * Health issue tracking — receiver for silent catch classification
  *
  * Design purpose:
- *   lattice previously had dozens of silent catches (try ... catch ignore). Following CC's fail-fast
+ *   proof-or-stop previously had dozens of silent catches (try ... catch ignore). Following CC's fail-fast
  *   principle, classify into four categories:
  *     - DEBUG  (logging/progress)         → keep silent
  *     - PROBE  (probes, e.g. file not found) → keep silent

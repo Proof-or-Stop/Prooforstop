@@ -21,24 +21,8 @@ export const PROOF_OR_STOP_CLI_VERSION = LATTICE_CLI_VERSION;
 export const PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' as const;
 export const PROOF_OR_STOP_PRIMARY_BIN = 'proof-or-stop' as const;
 
-/**
- * Deprecated bin alias, kept working so in-flight stories, git hooks and
- * operator muscle memory keep resolving. B-cdf6 made the rename additive at the
- * CLI boundary; B-cc10 CHK-006 then DELETED bin/lattice.js, so `lattice` no longer
- * runs as a bin — only `proof-or-stop` does. The identifiers this module owns
- * (env keys, salts, role IDs) are still read-both; the BIN alias is gone.
- */
-export const PROOF_OR_STOP_DEPRECATED_BIN = 'lattice' as const;
-
 /** Canonical local Codex entrypoint basename (`bin/proof-or-stop-codex.js`). */
 export const PROOF_OR_STOP_PRIMARY_CODEX_BIN = 'proof-or-stop-codex' as const;
-
-/**
- * Deprecated local Codex entrypoint basename (`bin/lattice-codex.js`), retained
- * as an alias for the same additive-compat reason as
- * {@link PROOF_OR_STOP_DEPRECATED_BIN}.
- */
-export const PROOF_OR_STOP_DEPRECATED_CODEX_BIN = 'lattice-codex' as const;
 
 /**
  * Every bin token the CLI answers to, canonical first.
@@ -50,9 +34,7 @@ export const PROOF_OR_STOP_DEPRECATED_CODEX_BIN = 'lattice-codex' as const;
  */
 export const PROOF_OR_STOP_BIN_NAMES: readonly string[] = [
   PROOF_OR_STOP_PRIMARY_BIN,
-  PROOF_OR_STOP_DEPRECATED_BIN,
   PROOF_OR_STOP_PRIMARY_CODEX_BIN,
-  PROOF_OR_STOP_DEPRECATED_CODEX_BIN,
 ];
 
 export interface ProofOrStopBrand {
@@ -64,7 +46,7 @@ export interface ProofOrStopBrand {
   /**
    * The bin token that usage/help lines should print. Equals `invokedAs` only
    * when the CLI was actually invoked through a recognized bin name
-   * (`proof-or-stop` or the deprecated `lattice`); otherwise it falls back to
+   * (`proof-or-stop` or `proof-or-stop-codex`); otherwise it falls back to
    * `primaryBin`. Without this normalization, running the compiled entry
    * directly (`node packages/main/dist/cli.js help`, argv[1] basename `cli`)
    * would print `Usage: cli <command>` — an instruction that does not resolve.
@@ -114,12 +96,8 @@ export const formatLatticeVersionLine = formatProofOrStopProductLine;
 export const LATTICE_PRODUCT_NAME = PROOF_OR_STOP_PRODUCT_NAME;
 /** @deprecated Use `PROOF_OR_STOP_PRIMARY_BIN`. */
 export const LATTICE_PRIMARY_BIN = PROOF_OR_STOP_PRIMARY_BIN;
-/** @deprecated Use `PROOF_OR_STOP_DEPRECATED_BIN`. */
-export const LATTICE_DEPRECATED_BIN = PROOF_OR_STOP_DEPRECATED_BIN;
 /** @deprecated Use `PROOF_OR_STOP_PRIMARY_CODEX_BIN`. */
 export const LATTICE_PRIMARY_CODEX_BIN = PROOF_OR_STOP_PRIMARY_CODEX_BIN;
-/** @deprecated Use `PROOF_OR_STOP_DEPRECATED_CODEX_BIN`. */
-export const LATTICE_DEPRECATED_CODEX_BIN = PROOF_OR_STOP_DEPRECATED_CODEX_BIN;
 /** @deprecated Use `PROOF_OR_STOP_BIN_NAMES`. */
 export const LATTICE_BIN_NAMES = PROOF_OR_STOP_BIN_NAMES;
 /** @deprecated Use `detectProofOrStopBrand`. */

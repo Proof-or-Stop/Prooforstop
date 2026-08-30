@@ -126,7 +126,7 @@ if (failedAsRed) {
     + `controls; the guard exited 0 with an unregistered, non-zero-exiting member of its own population on disk and `
     + `its success line still counted ${counts[1]} of ${counts[2]}; DERIVED population: ${popTotal} tests/red/*.mjs `
     + `enumerated unfiltered = ${registered} registered + ${unregistered} unregistered, of which ${reached} are `
-    + `spawned by a registered command (${reachedNames}) leaving ${unreached} that lattice validate NEVER runs)`,
+    + `spawned by a registered command (${reachedNames}) leaving ${unreached} that proof-or-stop validate NEVER runs)`,
   );
 }
 

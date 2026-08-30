@@ -107,11 +107,11 @@ function listProjectAgentMd(root: string): string[] {
       // deprecated form so the generated shims cannot regress to the old bin name.
       if (isModularReviewerRoleId(role)) {
         assert.match(content, /proof-or-stop review_run_start/, `${basename} must use the canonical reviewer bootstrap`);
-        assert.doesNotMatch(content, /lattice review_run_start/, `${basename} must not teach the deprecated bin`);
+        assert.doesNotMatch(content, /proof-or-stop review_run_start/, `${basename} must not teach the deprecated bin`);
         assert.doesNotMatch(content, /agent_prompt --role=/, `${basename} must not preload a role body through agent_prompt`);
       } else {
         assert.match(content, /proof-or-stop agent_prompt --role=/, `${basename} shim body must reference proof-or-stop agent_prompt`);
-        assert.doesNotMatch(content, /lattice agent_prompt --role=/, `${basename} shim body must not teach the deprecated bin`);
+        assert.doesNotMatch(content, /proof-or-stop agent_prompt --role=/, `${basename} shim body must not teach the deprecated bin`);
         assert.match(content, /thin pointer/, `${basename} shim body must declare it is a thin pointer`);
       }
       // No role body content (load-bearing slice / role-specific prose) leaked

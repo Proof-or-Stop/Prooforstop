@@ -32,7 +32,7 @@
  * running it here would make validate recursive and enormous. The fixture exercises
  * the same code path (`executeValidationPlan` → `canonicalizeEntries` → `runScheduled`)
  * with the same claim vocabulary in seconds. The real-plan makespan is measured by an
- * actual `lattice validate --json` run and recorded in the story's evidence, not here.
+ * actual `proof-or-stop validate --json` run and recorded in the story's evidence, not here.
  *
  * Hermetic: projectRoot is a fresh mkdtemp directory, so every probe's cwd, marker
  * file and resource key lives outside the repository and no run touches repo state.

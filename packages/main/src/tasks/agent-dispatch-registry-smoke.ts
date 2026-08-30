@@ -768,7 +768,7 @@ try {
           assertCanonicalLivenessGuidance(prompt, label);
           if (!entry.commitAllowed) assert.doesNotMatch(prompt, /git commit --author=/, `${label} must not receive commit instructions`);
           if (entry.roleClass === 'verification-intent') assert.doesNotMatch(prompt, /status["': ]+done/i, `${label} must not complete an item`);
-          if (entry.roleClass.endsWith('reviewer')) assert.doesNotMatch(prompt, /lattice checklist_update/, `${label} must not mutate checklist status`);
+          if (entry.roleClass.endsWith('reviewer')) assert.doesNotMatch(prompt, /proof-or-stop checklist_update/, `${label} must not mutate checklist status`);
           actualPromptCoverage.add(expectedPromptBuilder);
         }
       }

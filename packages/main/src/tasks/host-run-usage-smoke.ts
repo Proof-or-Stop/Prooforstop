@@ -818,7 +818,7 @@ async function main(): Promise<void> {
     assert.equal(result.exitCode, 2, 'exit propagates when OFF');
     assert.equal(result.usageSummary.recorded, 'disabled');
     assert.equal(existsSync(resolveLedgerPath(sub)), false, 'no ledger file');
-    assert.equal(existsSync(join(sub, '.lattice')), false, 'no .lattice dir created');
+    assert.equal(existsSync(join(sub, '.lattice')), false, 'no .proof-or-stop dir created');
     assert.equal(existsSync(hostRunSlotsDir(sub)), false, 'no slot dir created');
   });
 
@@ -2171,7 +2171,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
     assert.equal(offAttempt.command, 'claude -p <repair-prompt>', 'OFF command label byte-identical to today');
     assert.equal(offAttempt.stdoutExcerpt, plainStdout, 'OFF excerpt is the raw stdout (unchanged)');
     assert.equal(existsSync(resolveLedgerPath(sub)), false, 'no ledger file when OFF');
-    assert.equal(existsSync(join(sub, '.lattice')), false, 'no .lattice dir when OFF');
+    assert.equal(existsSync(join(sub, '.lattice')), false, 'no .proof-or-stop dir when OFF');
     assert.equal(existsSync(hostRunSlotsDir(sub)), false, 'no slot registry when OFF (admission never ran)');
   });
 
@@ -2327,7 +2327,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
       env: OFF, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot',
     });
     assert.equal(rows3.length, 0, 'OFF -> no rows returned');
-    assert.equal(existsSync(join(sub3, '.lattice')), false, 'OFF -> no .lattice dir');
+    assert.equal(existsSync(join(sub3, '.lattice')), false, 'OFF -> no .proof-or-stop dir');
   });
 
   // =========================================================================
@@ -2401,7 +2401,7 @@ writeFileSync(RESULT, JSON.stringify({ completed: out === '', leftover, reAcquir
       env: OFF, recordedAt: '2026-07-10T00:00:00.000Z', projectRootHash: 'sha256:testroot',
     });
     assert.equal(offRows.length, 0, 'OFF -> no rows even for a spawned host');
-    assert.equal(existsSync(join(subOff, '.lattice')), false, 'OFF -> no .lattice dir');
+    assert.equal(existsSync(join(subOff, '.lattice')), false, 'OFF -> no .proof-or-stop dir');
   });
 
   // =========================================================================

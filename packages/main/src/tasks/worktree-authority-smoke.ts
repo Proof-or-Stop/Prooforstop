@@ -230,7 +230,7 @@ function assertRecordedWorktreeRejectsMainCwd(): void {
     process.chdir(root);
     assert.throws(
       () => assertCwdInWorktree(store, storyId),
-      /must execute lattice commands inside the worktree/,
+      /must execute proof-or-stop commands inside the worktree/,
     );
     process.chdir(worktreePath);
     assert.doesNotThrow(() => assertCwdInWorktree(store, storyId));
@@ -274,7 +274,7 @@ function assertInitCheckChecklistMutationRejectsMainCwd(): void {
       title: 'Should not land in main',
       context: 'INIT_CHECK linked stories must still use the story worktree authority.',
     });
-    assert.match(output, /must execute lattice commands inside the worktree/);
+    assert.match(output, /must execute proof-or-stop commands inside the worktree/);
     assert.equal(new StoryStore(root).readChecklist(storyId).items.length, 1);
   } finally {
     process.chdir(previousCwd);
@@ -1177,7 +1177,7 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
     //    test is the discriminating B-da5b regression guard. Here we only add the
     //    finer-grained sub-path checks so a ghost recreation surfaces with B-da5b
     //    diagnostics rather than being masked by the older Step4 message.
-    assert.equal(existsSync(join(worktreePath, '.lattice')), false, 'post-DONE activity logging must not recreate a .lattice dir inside the removed worktree');
+    assert.equal(existsSync(join(worktreePath, '.lattice')), false, 'post-DONE activity logging must not recreate a .proof-or-stop dir inside the removed worktree');
     assert.equal(stateDirCandidates('activity.jsonl').some((rel) => existsSync(join(worktreePath, ...rel.split('/')))), false, 'post-DONE activity logging must not write activity.jsonl into the removed worktree');
     // 2) The main repo activity log holds the final successful story_advance DONE.
     const mainActivityLog = stateDirCandidates('activity.jsonl').map((rel) => join(root, ...rel.split('/'))).find(existsSync) ?? join(root, ...PROOF_OR_STOP_ACTIVITY_LOG.split('/'));
@@ -1270,7 +1270,7 @@ function assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval(): void {
     // The removed worktree must stay absent — activity logging must not recreate
     // it (no resurrected dir / .lattice / activity.jsonl under the ghost path).
     assert.equal(existsSync(worktreePath), false, 'post-DONE heartbeat must not recreate the removed worktree directory');
-    assert.equal(existsSync(join(worktreePath, '.lattice')), false, 'post-DONE heartbeat must not recreate a .lattice dir under the removed worktree');
+    assert.equal(existsSync(join(worktreePath, '.lattice')), false, 'post-DONE heartbeat must not recreate a .proof-or-stop dir under the removed worktree');
     assert.equal(stateDirCandidates('activity.jsonl').some((rel) => existsSync(join(worktreePath, ...rel.split('/')))), false, 'post-DONE heartbeat must not write activity.jsonl into the removed worktree');
 
     // The final successful story_advance DONE record must land in main's log.

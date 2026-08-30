@@ -224,14 +224,14 @@ try {
     assert.equal(isUsageLedgerEnabled(OFF), false);
   });
 
-  check('CHK-002 =0 => appendUsageRecord strict no-op (10x, no file, no .lattice dir)', () => {
+  check('CHK-002 =0 => appendUsageRecord strict no-op (10x, no file, no .proof-or-stop dir)', () => {
     const sub = freshRoot();
     for (let i = 0; i < 10; i += 1) {
       const res = appendUsageRecord(sub, validRecord(), { env: OFF });
       assert.equal(res.written, false);
     }
     assert.equal(existsSync(resolveLedgerPath(sub)), false, '=0 must create no ledger file');
-    assert.equal(existsSync(join(sub, '.lattice')), false, '=0 must create no .lattice directory');
+    assert.equal(existsSync(join(sub, '.lattice')), false, '=0 must create no .proof-or-stop directory');
   });
 
   check('CHK-002 =0 => appendUsageRecord with real data still writes nothing', () => {

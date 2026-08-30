@@ -1774,7 +1774,7 @@ function isStrictNegativeStorySegment(segment) {
 /**
  * The product name a CLI-mediation reminder may use.
  *
- * B-cdf6 CHK-005: these classifier regexes used to hardcode `lattice cli`. After the rename, a
+ * B-cdf6 CHK-005: these classifier regexes used to hardcode `proof-or-stop cli`. After the rename, a
  * prompt line reading "Story operations must use Proof-or-Stop CLI commands" stopped matching, so
  * a PROHIBITION REMINDER was misclassified as an unregistered `direct-write` instruction — a false
  * positive that blocked baseline collection while claiming a policy violation that did not exist.

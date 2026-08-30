@@ -33,7 +33,7 @@
  *     the story branch deleted. Proves the re-check does not regress the common
  *     DONE path.
  *
- * Isolated: temp git root + temp HOME + temp lattice locks, no global-lock
+ * Isolated: temp git root + temp HOME + temp proof-or-stop locks, no global-lock
  * contention, no repo pollution. Exits non-zero on any failed assertion with a
  * clear message. Prints a final `✓ ... smoke passed (N checks)` line.
  */

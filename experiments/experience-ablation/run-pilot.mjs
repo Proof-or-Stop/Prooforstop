@@ -75,7 +75,7 @@
 //      the M3 events land at <workspace>/.lattice/activity.jsonl because the
 //      CLI resolves its project root to the host cwd in a non-git isolated
 //      root; the isolated root itself is also checked in case the host ran
-//      lattice from the parent dir). Copy the post-run workspace verbatim,
+//      proof-or-stop from the parent dir). Copy the post-run workspace verbatim,
 //      plus host-prompt.md and prelude-transcript.log as audit artifacts.
 //   5. Write run.json LAST (atomic tmp+rename; it is the terminal marker)
 //      with every RUN-RECORD.md required field:
@@ -400,7 +400,7 @@ export function hashSnapshotFileSet(baseDir, relPaths) {
 }
 
 /**
- * Verify the materialized snapshot copy under <hostCwd>/.lattice still hashes
+ * Verify the materialized snapshot copy under <hostCwd>/.proof-or-stop still hashes
  * to the frozen protocol memorySnapshotHash. `when` names the phase for the
  * one-line abort message ('BEFORE host execution' / 'AFTER the run').
  */

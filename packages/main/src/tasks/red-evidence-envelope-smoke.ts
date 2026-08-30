@@ -30,7 +30,7 @@
 //      policyDigest — the operator's primary use case, not only rejections.
 //   8. The command is READ-ONLY at the HANDLER boundary, which is the boundary
 //      this file exercises: it calls the registered handler directly, takes ONE
-//      per-file hash snapshot of the .lattice tree before the batch of calls and
+//      per-file hash snapshot of the .proof-or-stop tree before the batch of calls and
 //      compares it ONCE after, and the gate verdict is unchanged. WHAT THAT
 //      PROVES is NET byte equality across the whole batch, NOT per-invocation
 //      purity — a single call that created a file and then restored it would be
@@ -550,7 +550,7 @@ try {
       return entries.join('\n');
     };
     const before = snapshotLattice();
-    assert.ok(before.length > 0, 'the fixture .lattice tree is non-empty, so the comparison is meaningful');
+    assert.ok(before.length > 0, 'the fixture .proof-or-stop tree is non-empty, so the comparison is meaningful');
     const gateBefore = JSON.stringify(evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence);
 
     // CHK-014 SUCCESS OUTPUT CONTRACT.
@@ -628,7 +628,7 @@ try {
     'matcher COUNT and §1.3 specificity independently reported, the count bound proven policy-resolved by a ' +
     'two-policy differential (8 vs 3), candidate policyDigest/assertionDigest optional-but-checked in all four cells, ' +
     'the ADMISSIBLE success transcript (assertionDigest + matched binding + policyDigest), ' +
-    'a byte-identical .lattice tree with no gate verdict change — byte-identical here meaning NET across the ' +
+    'a byte-identical .proof-or-stop tree with no gate verdict change — byte-identical here meaning NET across the ' +
     'batch of DIRECT handler invocations (one snapshot before the batch, one after, not per-invocation), over a ' +
     'manifest of file paths and content hashes only (empty directories, file modes and symlink identity are not ' +
     'recorded), and with the CLI entrypoint not exercised — and all three registry contracts pass.',

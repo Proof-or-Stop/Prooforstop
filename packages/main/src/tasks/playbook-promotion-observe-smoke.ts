@@ -191,7 +191,7 @@ try {
   check('empty store is read-only and supports relative since', () => {
     const root = mkProject(); roots.push(root);
     const ctx = mkCtx(root);
-    assert.equal(existsSync(join(root, '.lattice')), false, 'fresh project starts with no .lattice dir');
+    assert.equal(existsSync(join(root, '.lattice')), false, 'fresh project starts with no .proof-or-stop dir');
     const report = observe(ctx);
     assert.equal(report.candidateGenerated.currentCandidates, 0);
     assert.equal(report.candidateGenerated.count, 0);
@@ -201,7 +201,7 @@ try {
     assert.equal(report.recommendationHandling.actionableCount, 0);
     assert.equal(report.authority, 'non_authoritative');
     assert.equal(report.gateEvidence, false);
-    assert.equal(existsSync(join(root, '.lattice')), false, 'observe creates no .lattice dir on empty store');
+    assert.equal(existsSync(join(root, '.lattice')), false, 'observe creates no .proof-or-stop dir on empty store');
     const relative = observe(ctx, { since: '14d' });
     assert.equal(relative.since.mode, 'relative');
     assert.equal(relative.since.input, '14d');

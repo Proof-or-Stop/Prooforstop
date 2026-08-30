@@ -14,7 +14,7 @@
  *   5. extractPathsFromToolInput parses Edit/Write/MultiEdit/NotebookEdit/apply_patch correctly
  *   4. prewrite_guard_check CLI returns pass when no guard session
  *   5. prewrite_guard_check CLI blocks when guard session + enforce contract + out-of-scope path
- *   6. lattice-scope-pretool.cjs hook exits 0 (pass-through) when CLI produces no BLOCKED output
+ *   6. proof-or-stop-scope-pretool.cjs hook exits 0 (pass-through) when CLI produces no BLOCKED output
  * @changes
  *   - [CHK-005] Add PreToolUse scope hook integration smoke
  */
@@ -37,8 +37,8 @@ import type { ChecklistData, StoryInfo } from '../core/types.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
-const hookPath = resolve(packageRoot, '..', '..', '..', '.claude', 'hooks', 'lattice-scope-pretool.cjs');
-const codexHookPath = resolve(packageRoot, '..', '..', '..', '.codex', 'hooks', 'lattice-scope-pretool.cjs');
+const hookPath = resolve(packageRoot, '..', '..', '..', '.claude', 'hooks', 'proof-or-stop-scope-pretool.cjs');
+const codexHookPath = resolve(packageRoot, '..', '..', '..', '.codex', 'hooks', 'proof-or-stop-scope-pretool.cjs');
 const sessionEnv = { ...process.env, LATTICE_SESSION_ID: 'pretool-scope-smoke', LATTICE_AGENT: 'pretool-scope-smoke' };
 
 function normalizeToRelativePaths(root: string, paths: readonly string[]): string[] {
@@ -81,8 +81,8 @@ const preToolEntry = (hooks.PreToolUse as any[])[0];
 assert.equal(preToolEntry.matcher, PRETOOL_SCOPE_HOOK_MATCHER, 'PreToolUse matcher must match write tools');
 assert.match(
   preToolEntry.hooks[0].command,
-  /lattice-scope-pretool\.cjs/,
-  'PreToolUse hook must reference lattice-scope-pretool.cjs',
+  /proof-or-stop-scope-pretool\.cjs/,
+  'PreToolUse hook must reference proof-or-stop-scope-pretool.cjs',
 );
 assert.ok('UserPromptSubmit' in hooks, 'getClaudeHooks() must still include UserPromptSubmit');
 assert.ok('PostToolUse' in hooks, 'getClaudeHooks() must still include PostToolUse');
@@ -98,8 +98,8 @@ const codexPreToolEntry = (codexHooks.PreToolUse as any[])[0];
 assert.equal(codexPreToolEntry.matcher, CODEX_PRETOOL_SCOPE_HOOK_MATCHER, 'Codex PreToolUse matcher must match apply_patch/Edit/Write');
 assert.match(
   codexPreToolEntry.hooks[0].command,
-  /\.codex\/hooks\/lattice-scope-pretool\.cjs/,
-  'Codex PreToolUse hook must reference lowercase .codex/hooks/lattice-scope-pretool.cjs',
+  /\.codex\/hooks\/proof-or-stop-scope-pretool\.cjs/,
+  'Codex PreToolUse hook must reference lowercase .codex/hooks/proof-or-stop-scope-pretool.cjs',
 );
 assert.doesNotMatch(
   codexPreToolEntry.hooks[0].command,
@@ -131,7 +131,7 @@ try {
   const ptEntry = settings.hooks.PreToolUse[0];
   assert.ok(ptEntry, 'PreToolUse must have at least one entry');
   assert.equal(ptEntry.matcher, PRETOOL_SCOPE_HOOK_MATCHER, 'PreToolUse matcher must match write tools');
-  assert.match(ptEntry.hooks[0].command, /lattice-scope-pretool\.cjs/, 'PreToolUse command must reference lattice-scope-pretool.cjs');
+  assert.match(ptEntry.hooks[0].command, /proof-or-stop-scope-pretool\.cjs/, 'PreToolUse command must reference proof-or-stop-scope-pretool.cjs');
 
   // Existing hooks must still be present
   assert.ok(Array.isArray(settings.hooks.PostToolUse), 'PostToolUse must be present');
@@ -155,9 +155,9 @@ try {
   });
 
   const hooksJsonPath = join(codexInitRoot, '.codex', 'hooks.json');
-  const scopeHookPath = join(codexInitRoot, '.codex', 'hooks', 'lattice-scope-pretool.cjs');
+  const scopeHookPath = join(codexInitRoot, '.codex', 'hooks', 'proof-or-stop-scope-pretool.cjs');
   assert.ok(existsSync(hooksJsonPath), 'codex profile must generate lowercase .codex/hooks.json');
-  assert.ok(existsSync(scopeHookPath), 'codex profile must generate lowercase .codex/hooks/lattice-scope-pretool.cjs');
+  assert.ok(existsSync(scopeHookPath), 'codex profile must generate lowercase .codex/hooks/proof-or-stop-scope-pretool.cjs');
   const upperHooksPath = join(codexInitRoot, '.lattice-codex', 'hooks');
   if (existsSync(upperHooksPath)) {
     const lower = statSync(join(codexInitRoot, '.codex', 'hooks'));
@@ -189,13 +189,13 @@ try {
 
   const legacyClaudeHooks = JSON.parse(JSON.stringify(getClaudeHooks()));
   legacyClaudeHooks.PreToolUse[0].hooks[0].command = legacyClaudeHooks.PreToolUse[0].hooks[0].command
-    .replace('lattice-scope-pretool.cjs', 'scope-pretool.cjs');
+    .replace('proof-or-stop-scope-pretool.cjs', 'scope-pretool.cjs');
   write(migrationRoot, '.claude/settings.json', JSON.stringify({ hooks: legacyClaudeHooks }, null, 2) + '\n');
   write(migrationRoot, '.claude/hooks/scope-pretool.cjs', readFileSync(hookPath, 'utf8'));
 
   const legacyCodexHooks = JSON.parse(JSON.stringify(getCodexHooks()));
   legacyCodexHooks.PreToolUse[0].hooks[0].command = legacyCodexHooks.PreToolUse[0].hooks[0].command
-    .replace('lattice-scope-pretool.cjs', 'scope-pretool.cjs');
+    .replace('proof-or-stop-scope-pretool.cjs', 'scope-pretool.cjs');
   write(migrationRoot, '.codex/hooks.json', JSON.stringify({ hooks: legacyCodexHooks }, null, 2) + '\n');
   write(migrationRoot, '.codex/hooks/scope-pretool.cjs', readFileSync(codexHookPath, 'utf8'));
 
@@ -204,15 +204,15 @@ try {
   });
 
   const migratedSettings = readFileSync(join(migrationRoot, '.claude', 'settings.json'), 'utf8');
-  assert.match(migratedSettings, /lattice-scope-pretool\.cjs/, 'managed apply must migrate Claude settings to lattice-scope-pretool.cjs');
+  assert.match(migratedSettings, /proof-or-stop-scope-pretool\.cjs/, 'managed apply must migrate Claude settings to proof-or-stop-scope-pretool.cjs');
   assert.doesNotMatch(migratedSettings, /\/scope-pretool\.cjs/, 'managed apply must remove old Claude scope-pretool command');
-  assert.ok(existsSync(join(migrationRoot, '.claude', 'hooks', 'lattice-scope-pretool.cjs')), 'managed apply must create new Claude hook script');
+  assert.ok(existsSync(join(migrationRoot, '.claude', 'hooks', 'proof-or-stop-scope-pretool.cjs')), 'managed apply must create new Claude hook script');
   assert.ok(!existsSync(join(migrationRoot, '.claude', 'hooks', 'scope-pretool.cjs')), 'managed apply must remove generated old Claude hook script');
 
   const migratedCodexHooks = readFileSync(join(migrationRoot, '.codex', 'hooks.json'), 'utf8');
-  assert.match(migratedCodexHooks, /lattice-scope-pretool\.cjs/, 'managed apply must migrate Codex hooks.json to lattice-scope-pretool.cjs');
+  assert.match(migratedCodexHooks, /proof-or-stop-scope-pretool\.cjs/, 'managed apply must migrate Codex hooks.json to proof-or-stop-scope-pretool.cjs');
   assert.doesNotMatch(migratedCodexHooks, /\/scope-pretool\.cjs/, 'managed apply must remove old Codex scope-pretool command');
-  assert.ok(existsSync(join(migrationRoot, '.codex', 'hooks', 'lattice-scope-pretool.cjs')), 'managed apply must create new Codex hook script');
+  assert.ok(existsSync(join(migrationRoot, '.codex', 'hooks', 'proof-or-stop-scope-pretool.cjs')), 'managed apply must create new Codex hook script');
   assert.ok(!existsSync(join(migrationRoot, '.codex', 'hooks', 'scope-pretool.cjs')), 'managed apply must remove generated old Codex hook script');
 
   console.log('✓ Test 2c: managed asset apply migrates legacy scope-pretool hook names');
@@ -448,7 +448,7 @@ try {
   rmSync(enforceRoot, { recursive: true, force: true });
 }
 
-// ─── Test 7: lattice-scope-pretool.cjs hook — passes through when no BLOCKED output ───
+// ─── Test 7: proof-or-stop-scope-pretool.cjs hook — passes through when no BLOCKED output ───
 
 const hookTestRoot = mkdtempSync(join(tmpdir(), 'lattice-pretool-hook-'));
 try {
@@ -510,7 +510,7 @@ try {
   assert.equal(codexNoCliResult.status, 0, 'Codex hook: apply_patch without CLI should pass through gracefully (exit 0)');
   assert.notEqual(codexNoCliResult.status, 2, 'Codex hook: should not block when CLI is not available');
 
-  console.log('✓ Test 7: Claude/Codex lattice-scope-pretool hooks pass through gracefully when CLI unavailable');
+  console.log('✓ Test 7: Claude/Codex proof-or-stop-scope-pretool hooks pass through gracefully when CLI unavailable');
 } finally {
   rmSync(hookTestRoot, { recursive: true, force: true });
 }

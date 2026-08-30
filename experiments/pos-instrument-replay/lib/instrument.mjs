@@ -1,6 +1,6 @@
 // Shared helpers for the proof-or-stop instrument replay & tamper harness (M0).
 //
-// The instrument (packages/**, exposed via the `lattice memory_playbook_baseline_*`
+// The instrument (packages/**, exposed via the `proof-or-stop memory_playbook_baseline_*`
 // CLI) is READ / CALLED ONLY here. Nothing in this file mutates the instrument.
 //
 // These helpers are deterministic: sha256 + canonicalJson give byte-stable

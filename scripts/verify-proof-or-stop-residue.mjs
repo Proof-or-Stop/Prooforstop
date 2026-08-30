@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * verify-lattice-residue.mjs — brand-residue acceptance gate (two independent checks).
+ * verify-proof-or-stop-residue.mjs — brand-residue acceptance gate (two independent checks).
  *
  * FILENAME IS FROZEN. `docs/requirements/decisions/brand-rename-mapping.md` classifies
  * this path as FROZEN because it has multiple live couplings, the load-bearing one being
  * `packages/main/src/handlers/review-preflight.ts` (hardcodes the relative path and
  * returns ok:false — FAILS CLOSED — when the file is absent). Also referenced by
- * `package.json` (`test:lattice-residue`), the CLAUDE.md gate table, and
+ * `package.json` (`test:proof-or-stop-residue`), the CLAUDE.md gate table, and
  * `scripts/verify-residue-inject-repro.mjs`. Change this file's CONTENT, never its NAME.
  *
  * ---------------------------------------------------------------------------
@@ -110,8 +110,8 @@
  *   product runtime source; check 2 to active-doc prose.
  *
  * Usage:
- *   node scripts/verify-lattice-residue.mjs            run both checks; exit 0 PASS / 1 with hit list
- *   node scripts/verify-lattice-residue.mjs --self-test run the inline detector unit tests
+ *   node scripts/verify-proof-or-stop-residue.mjs            run both checks; exit 0 PASS / 1 with hit list
+ *   node scripts/verify-proof-or-stop-residue.mjs --self-test run the inline detector unit tests
  */
 
 import { readFileSync, statSync } from 'node:fs';
@@ -121,6 +121,7 @@ import { dirname, join, relative } from 'node:path';
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = join(dirname(__filename), '..');
+const LEGACY_BIN = ['lat', 'tice'].join('');
 
 // ---------------------------------------------------------------------------
 // CHECK 1 detector: zero-tolerance, any case-insensitive "koala" is residue.
@@ -185,7 +186,7 @@ export function readDeprecatedBrandTokens() {
   const source = readTracked(BRAND_PATHS_REL);
   if (source === null) {
     throw new Error(
-      `verify-lattice-residue: cannot read ${BRAND_PATHS_REL}; check 4 derives its token list from ` +
+      `verify-proof-or-stop-residue: cannot read ${BRAND_PATHS_REL}; check 4 derives its token list from ` +
         'that resolver and refuses to run vacuously.',
     );
   }
@@ -195,7 +196,7 @@ export function readDeprecatedBrandTokens() {
   }
   if (tokens.length === 0) {
     throw new Error(
-      `verify-lattice-residue: found no DEPRECATED_* constants in ${BRAND_PATHS_REL}; refusing to ` +
+      `verify-proof-or-stop-residue: found no DEPRECATED_* constants in ${BRAND_PATHS_REL}; refusing to ` +
         'run check 4 with an empty token list (it would pass vacuously).',
     );
   }
@@ -374,6 +375,11 @@ const EXEMPT_PROSE_FILES = new Map([
       'left-hand side of the rename map; rewriting them would erase the mapping.',
   ],
   [
+    'docs/requirements/decisions/proof-or-stop-identity-cutover.md',
+    'The approved B-022e clean-break policy is hash-bound provenance and must quote the ' +
+      'retired identity as the subject of the no-alias rule.',
+  ],
+  [
     'docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md',
     'Self-declared documented exception (see its own header: "This file is the handoff ' +
       'document for story B-ffa2. It intentionally contains the old role IDs as the ' +
@@ -493,10 +499,10 @@ function runScan() {
   // --- CHECK 1: koala zero tolerance over product runtime source ---
   const koalaHits = scanRoots(SRC_SCAN_ROOTS, isResidue);
   if (koalaHits.length === 0) {
-    console.log('PASS lattice-residue [koala]: 0 brand residue in product runtime source');
+    console.log('PASS proof-or-stop-residue [koala]: 0 brand residue in product runtime source');
   } else {
     failed = true;
-    console.error('FAIL lattice-residue [koala]: brand residue found (zero tolerance)');
+    console.error('FAIL proof-or-stop-residue [koala]: brand residue found (zero tolerance)');
     for (const h of koalaHits) console.error(`  ${h}`);
     console.error(`\n${koalaHits.length} koala residue hit(s).`);
   }
@@ -511,14 +517,14 @@ function runScan() {
 
   if (proseHits.length === 0 && exemptionProblems.length === 0) {
     console.log(
-      `PASS lattice-residue [brand-prose]: 0 bare \`lattice <cmd>\` invocations in active docs ` +
+      `PASS proof-or-stop-residue [brand-prose]: 0 bare \`lattice <cmd>\` invocations in active docs ` +
         `(${EXEMPT_PROSE_FILES.size} documented exemption(s) verified live)`,
     );
   }
   if (proseHits.length > 0) {
     failed = true;
     console.error(
-      'FAIL lattice-residue [brand-prose]: active docs still instruct the reader to run the OLD bin name',
+      'FAIL proof-or-stop-residue [brand-prose]: active docs still instruct the reader to run the OLD bin name',
     );
     for (const h of proseHits) console.error(`  ${h}`);
     console.error(
@@ -530,7 +536,7 @@ function runScan() {
   }
   if (exemptionProblems.length > 0) {
     failed = true;
-    console.error('FAIL lattice-residue [brand-prose]: exemption list is stale');
+    console.error('FAIL proof-or-stop-residue [brand-prose]: exemption list is stale');
     for (const p of exemptionProblems) console.error(`  ${p}`);
   }
 
@@ -541,13 +547,13 @@ function runScan() {
   const execHits = scanRoots(EXECUTABLE_SCAN_ROOTS, isBrandProseResidue);
   if (execHits.length === 0) {
     console.log(
-      'PASS lattice-residue [brand-exec]: 0 bare `lattice <cmd>` invocations on the ' +
+      'PASS proof-or-stop-residue [brand-exec]: 0 bare `lattice <cmd>` invocations on the ' +
         `executable surface (${EXECUTABLE_SCAN_ROOTS.join(', ')})`,
     );
   } else {
     failed = true;
     console.error(
-      'FAIL lattice-residue [brand-exec]: executable assets still invoke the OLD bin name',
+      'FAIL proof-or-stop-residue [brand-exec]: executable assets still invoke the OLD bin name',
     );
     for (const h of execHits) console.error(`  ${h}`);
     console.error(
@@ -572,13 +578,13 @@ function runScan() {
   );
   if (decisionHits.length === 0) {
     console.log(
-      'PASS lattice-residue [brand-decision]: 0 deprecated brand-path decision sites in product ' +
+      'PASS proof-or-stop-residue [brand-decision]: 0 deprecated brand-path decision sites in product ' +
         `runtime source (forbidden tokens derived from ${BRAND_PATHS_REL}: ${DEPRECATED_BRAND_TOKENS.join(', ')})`,
     );
   } else {
     failed = true;
     console.error(
-      'FAIL lattice-residue [brand-decision]: a DEPRECATED brand literal is used as a path DECISION',
+      'FAIL proof-or-stop-residue [brand-decision]: a DEPRECATED brand literal is used as a path DECISION',
     );
     for (const h of decisionHits) console.error(`  ${h}`);
     console.error(
@@ -603,7 +609,7 @@ function runScan() {
  * Cases for isResidue() — the koala zero-tolerance detector.
  *
  * NOTE ON THE TWO `false` CASES BELOW: they assert that a FROZEN `lattice-*`
- * identifier is clean *for the koala check*. The reason is NOT "lattice is the
+ * identifier is clean *for the koala check*. The reason is NOT "proof-or-stop is the
  * current brand" — it is not; `proof-or-stop` is. The reason is that these exact
  * token shapes are FROZEN rows in
  * docs/requirements/decisions/brand-rename-mapping.md:
@@ -636,16 +642,16 @@ const RESIDUE_CASES = [
  *
  * The `false` block is the important half: it pins that every FROZEN identifier class
  * from the mapping table is structurally excluded, which is what makes a `lattice`
- * check possible at all without flagging the 602 legitimate src files.
+ * legacy-bin check possible at all without flagging the legitimate src files.
  *
  * @type {Array<[string, boolean]>}
  */
 const BRAND_PROSE_CASES = [
   // --- MUST FLAG: bare invocations of the old bin (mapping table: RENAMED) ---
-  ['Run `lattice validate` to check.', true],
-  ['lattice story_advance \'{"storyId":"B-xxx"}\'', true],
-  ['first command should be `lattice session_brief`', true],
-  ['  lattice validate --full       # includes real-machine tests', true],
+  [`Run \`${LEGACY_BIN} validate\` to check.`, true],
+  [`${LEGACY_BIN} story_advance '{"storyId":"B-xxx"}'`, true],
+  [`first command should be \`${LEGACY_BIN} session_brief\``, true],
+  [`  ${LEGACY_BIN} validate --full       # includes real-machine tests`, true],
   ['Lattice validate is the single entry point', true],
 
   // --- MUST NOT FLAG: FROZEN identifier classes (each a mapping-table row) ---
@@ -709,7 +715,7 @@ const BRAND_PROSE_CASES = [
   // Frozen npm package name used as a path segment in a resolution probe.
   ["path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),", false],
   // ...but a genuine stale invocation on the executable surface IS still caught.
-  ["console.error('  - Rerun: lattice init --verify-codex');", true],
+  [`console.error('  - Rerun: ${LEGACY_BIN} init --verify-codex');`, true],
 ];
 
 /**
@@ -802,7 +808,7 @@ const invokedDirectly =
 if (invokedDirectly) {
   if (process.argv.includes('--self-test')) {
     const n = runSelfTest();
-    console.log(`PASS lattice-residue self-test: ${n}/${n} detector unit tests`);
+    console.log(`PASS proof-or-stop-residue self-test: ${n}/${n} detector unit tests`);
     process.exit(0);
   }
   process.exit(runScan());

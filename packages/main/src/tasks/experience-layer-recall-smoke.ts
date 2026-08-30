@@ -26,7 +26,7 @@
  *
  *   READ-ONLY HANDLER (over a seeded temp project's story_list scan):
  *     • recall --story <id> returns ranked results AND writes NOTHING: snapshot
- *       the entire .lattice tree before/after — byte-identical, no new file, no
+ *       the entire .proof-or-stop tree before/after — byte-identical, no new file, no
  *       derived-index/cache file anywhere.
  *     • recall --query returns keyword-matched stories.
  *     • recall with neither arg prints usage; unknown story id => informative,
@@ -509,7 +509,7 @@ function run(): void {
       assert.ok(idxSim >= 0, 'similar story present');
       assert.ok(idxDis === -1 || idxSim < idxDis, 'similar story outranks (precedes) the disjoint one');
 
-      // READ-ONLY: the entire .lattice tree is byte-identical before/after.
+      // READ-ONLY: the entire .proof-or-stop tree is byte-identical before/after.
       assert.equal(beforeTree, afterTree, 'recall wrote/modified NOTHING under .lattice');
       assert.deepEqual(beforeFiles, afterFiles, 'recall created no new file under .lattice');
     });

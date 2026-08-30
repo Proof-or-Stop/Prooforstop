@@ -1437,7 +1437,7 @@ export interface DisprovenEvidence {
   reproCommand?: string;
 }
 
-/** Finding: a finding raised by a lattice reviewer (replaces testIntent) */
+/** Finding: a finding raised by a proof-or-stop reviewer (replaces testIntent) */
 export interface Finding {
   id: string;            // format B-xxx:F-001
   desc: string;

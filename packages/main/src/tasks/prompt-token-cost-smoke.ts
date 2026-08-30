@@ -95,7 +95,7 @@ function readRepo(path: string): string {
 
 function extractLatticeBlock(content: string): string {
   const match = content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/);
-  assert.ok(match, 'expected lattice managed block');
+  assert.ok(match, 'expected proof-or-stop managed block');
   return match[0];
 }
 
@@ -186,7 +186,7 @@ function assertMirrorsMatch(): void {
     // rest it branched only on isModularReviewerRoleId, so it computed the wrong
     // expected content for the 5 MODULAR_COMPLEX_ROLE_IDS (10 mismatches: 5 roles x 2
     // hosts). It was latent only because a pre-existing assertion earlier in this file
-    // ('expected lattice managed block', which fails identically on main) aborts the
+    // ('expected proof-or-stop managed block', which fails identically on main) aborts the
     // run before this function executes. Delegating to renderPromptEntryForHost — the
     // single helper the other three sites now use — is what stops a fifth copy.
     const registryEntry = readPromptRegistry().agents.find(entry => entry.agentId === roleId);

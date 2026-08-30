@@ -38,7 +38,7 @@ import {
   codexHookCommand,
   hookCommand,
   LEGACY_SCOPE_PRETOOL_HOOK_FILE,
-  LATTICE_SCOPE_PRETOOL_HOOK_FILE,
+  PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE,
   listAgentPromptFiles,
   migrateHookCommandEntries,
   renderCodexAgentContent,
@@ -337,7 +337,7 @@ function removeLegacyScopePretoolHookIfGenerated(root: string, host: 'claude' | 
   }
 
   const hooks = hookTemplateDir();
-  const template = hooks ? join(hooks, LATTICE_SCOPE_PRETOOL_HOOK_FILE) : '';
+  const template = hooks ? join(hooks, PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE) : '';
   if (!template || !existsSync(template)) return;
   removeGeneratedFileIfExact(
     root,
@@ -543,12 +543,7 @@ export function detectManagedAssetProfile(root: string): InitProfile {
     (agents && hasManagedMarkers(agents))
       || adapterManifestCandidates().some(rel => existsSync(join(root, rel)))
       || adapterDirCandidates('agents').some(rel => existsSync(join(root, rel)))
-      // B-cc10 CHK-006: this probed ONLY the deprecated `bin/lattice-codex.js`. Now that
-      // the alias is deleted, a canonical-only project (this repository included) has no
-      // codex wrapper this check can see, so profile detection could silently fall back to
-      // 'core' and stop managing adapter assets. Read BOTH names, canonical first.
       || existsSync(join(root, 'bin', 'proof-or-stop-codex.js'))
-      || existsSync(join(root, 'bin', 'lattice-codex.js'))
   );
   const hasClaude = Boolean(
     (claude && hasManagedMarkers(claude))
@@ -582,12 +577,7 @@ export function detectManagedAssetMode(root: string): InitAssetMode {
   ) {
     return 'full';
   }
-  // B-cc10 CHK-006: read-both, canonical first. Probing only the deleted alias meant a
-  // canonical-only local-bootstrap project was not classified as 'full'.
-  if (
-    existsSync(join(root, 'bin', 'proof-or-stop.js'))
-    || existsSync(join(root, 'bin', 'lattice.js'))
-  ) {
+  if (existsSync(join(root, 'bin', 'proof-or-stop.js'))) {
     return 'full';
   }
   // Full-mode: LATTICE.md presence (any casing) implies non-global-thin project
@@ -733,11 +723,11 @@ export function listManagedAssetDefinitions(
         LATTICE_DOT_DIR_MD_TEMPLATE,
         actual => guideMentionsAnyStateDir(actual)
           // Read-both ownership recognition (B-cdf6 CHK-006): an ALREADY-INSTALLED
-          // guide doc still carries the pre-rename `lattice codex verify` literal.
+          // guide doc still carries the pre-rename `proof-or-stop codex verify` literal.
           // Recognizing only the canonical spelling would reclassify every existing
           // install as STALE_LOCAL_EDIT and refuse to sync it.
           || actual.includes('proof-or-stop codex verify')
-          || actual.includes('lattice codex verify'),
+          || actual.includes('proof-or-stop codex verify'),
       ),
       wholeFile(
         // B-cc10 CHK-004 + CHK-007: BOTH components now come from the resolver, so
@@ -770,11 +760,11 @@ export function listManagedAssetDefinitions(
           AGENTS_MD_GLOBAL_THIN_TEMPLATE,
           actual => guideMentionsAnyStateDir(actual)
           // Read-both ownership recognition (B-cdf6 CHK-006): an ALREADY-INSTALLED
-          // guide doc still carries the pre-rename `lattice codex verify` literal.
+          // guide doc still carries the pre-rename `proof-or-stop codex verify` literal.
           // Recognizing only the canonical spelling would reclassify every existing
           // install as STALE_LOCAL_EDIT and refuse to sync it.
           || actual.includes('proof-or-stop codex verify')
-          || actual.includes('lattice codex verify'),
+          || actual.includes('proof-or-stop codex verify'),
         ),
       );
     }
@@ -782,15 +772,15 @@ export function listManagedAssetDefinitions(
       defs.push(
         { id: '.codex:hooks.json', relPath: '.codex/hooks.json', kind: 'codex-hooks' },
         wholeFile(
-          '.codex/hooks:lattice-scope-pretool.cjs',
-          '.codex/hooks/lattice-scope-pretool.cjs',
+          '.codex/hooks:proof-or-stop-scope-pretool.cjs',
+          '.codex/hooks/proof-or-stop-scope-pretool.cjs',
           renderCodexPretoolScopeHookScript(),
           actual => actual.includes('Codex PreToolUse hook') && actual.includes('prewrite_guard_check'),
           true,
         ),
         wholeFile(
-          '.codex/hooks:lattice-evidence-pretool.cjs',
-          '.codex/hooks/lattice-evidence-pretool.cjs',
+          '.codex/hooks:proof-or-stop-evidence-pretool.cjs',
+          '.codex/hooks/proof-or-stop-evidence-pretool.cjs',
           renderCodexEvidencePretoolHookScript(),
           actual => actual.includes('evidence-pin seatbelt') && actual.includes('verification_pin_guard_check'),
           true,
@@ -831,32 +821,6 @@ export function listManagedAssetDefinitions(
       true,
       isLatticeSelfRepoBootstrap,
     ),
-    // The deprecated `bin/lattice.js` alias is registered ONLY WHEN IT EXISTS. It is a
-    // compatibility artifact, not a thing to create: init no longer generates it, so
-    // demanding it unconditionally would report a spurious MISSING on every freshly
-    // initialized project. Present-and-drifted is still worth reporting, so when the file
-    // IS there it gets the same drift checking as the canonical one.
-    //
-    // B-cc10 CHK-006: this repository's own alias was deleted, so this branch is now
-    // inert HERE (the presence probe simply fails) while still drift-checking a
-    // downstream project that legitimately still carries the old wrapper. The
-    // conditional shape is exactly why removing our own file needed no change here.
-    // B-cdf6: the presence probe must run against projectRoot, NOT root. `root`
-    // defaults to packageRoot() — where the CLI package is installed — so probing it
-    // asks "does the PACKAGE ship bin/lattice.js", which is never true. The alias
-    // therefore never registered for any project, and verify-entrypoints.mjs:698
-    // (which asserts the self-repo alias is recognized as an owned compatibility
-    // asset) failed even though bin/lattice.js is present and byte-correct here.
-    ...(managedAssetPathKind(projectRoot, 'bin/lattice.js') === 'file'
-      ? [wholeFile(
-          'bin:lattice.js',
-          'bin/lattice.js',
-          renderProofOrStopBootstrapScript(root),
-          actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
-          true,
-          isLatticeSelfRepoBootstrap,
-        )]
-      : []),
     { id: 'gitignore:runtime-artifacts', relPath: '.gitignore', kind: 'gitignore-runtime' },
   ];
 
@@ -887,21 +851,6 @@ export function listManagedAssetDefinitions(
         actual => actual.includes(`setEnv('ACTIVITY_SOURCE'`) && actual.includes('local-wrapper'),
         true,
       ),
-      // B-cdf6: same projectRoot-vs-root defect as the bin/lattice.js alias above.
-      ...(managedAssetPathKind(projectRoot, 'bin/lattice-codex.js') === 'file'
-        ? [wholeFile(
-            'bin:lattice-codex.js',
-            'bin/lattice-codex.js',
-            renderProofOrStopCodexWrapperScript(),
-            // The retained alias may be a thin delegating shim rather than a copy of the
-            // generated wrapper, so ownership is recognized by EITHER shape.
-            // B-cdf6:F-066 — same dead-literal fix as the canonical wrapper above.
-            actual => (actual.includes(`setEnv('ACTIVITY_SOURCE'`) && actual.includes('local-wrapper'))
-              || actual.includes("import './proof-or-stop-codex.js'"),
-            true,
-            actual => actual.includes("import './proof-or-stop-codex.js'"),
-          )]
-        : []),
       // B-cc10 CHK-007: adapter-dir components are resolver-derived, matching the
       // `init` writers. They were literal DEPRECATED spellings while the manifest
       // filename already came from the resolver, so `check` tracked a directory
@@ -921,15 +870,15 @@ export function listManagedAssetDefinitions(
       ),
       { id: '.codex:hooks.json', relPath: '.codex/hooks.json', kind: 'codex-hooks' },
       wholeFile(
-        '.codex/hooks:lattice-scope-pretool.cjs',
-        '.codex/hooks/lattice-scope-pretool.cjs',
+        '.codex/hooks:proof-or-stop-scope-pretool.cjs',
+        '.codex/hooks/proof-or-stop-scope-pretool.cjs',
         renderCodexPretoolScopeHookScript(),
         actual => actual.includes('Codex PreToolUse hook') && actual.includes('prewrite_guard_check'),
         true,
       ),
       wholeFile(
-        '.codex/hooks:lattice-evidence-pretool.cjs',
-        '.codex/hooks/lattice-evidence-pretool.cjs',
+        '.codex/hooks:proof-or-stop-evidence-pretool.cjs',
+        '.codex/hooks/proof-or-stop-evidence-pretool.cjs',
         renderCodexEvidencePretoolHookScript(),
         actual => actual.includes('evidence-pin seatbelt') && actual.includes('verification_pin_guard_check'),
         true,

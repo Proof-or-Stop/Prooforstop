@@ -335,7 +335,7 @@ function assertDispatch(dispatch: LatticeParallelDispatch, root: string, expecte
   assert.equal(independent.spawned, false);
   assert.equal(independent.requiresRunnerConfirmation, true);
   assert.deepEqual(independent.recommendedHostIds, ['codex']);
-  assert.match(independent.nextCommand, /lattice dispatch/);
+  assert.match(independent.nextCommand, /proof-or-stop dispatch/);
   assert.deepEqual(independent.blockers, []);
   assert.ok(independent.evidenceRefs.includes('B-independent:happy:0'));
   assertExperienceRefs(independent.experienceRefs, expectedExperienceRefs);
@@ -926,4 +926,4 @@ try {
   resetConfigCache();
 }
 
-console.log('✓ lattice parallel wave smoke passed');
+console.log('✓ proof-or-stop parallel wave smoke passed');

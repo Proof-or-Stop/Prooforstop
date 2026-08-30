@@ -46,12 +46,12 @@ function assert(cond, msg) {
 }
 
 try {
-  // ── Machine A: a lattice project with an in-flight story, committed to a branch ──────
+  // ── Machine A: a proof-or-stop project with an in-flight story, committed to a branch ──────
   const A = join(root, 'machineA');
   mkdirSync(A, { recursive: true });
   git(A, 'init', '-q', '-b', 'main');
   git(A, 'config', 'user.email', 'a@demo'); git(A, 'config', 'user.name', 'machineA');
-  // minimal lattice project config
+  // minimal proof-or-stop project config
   writeFileSync(join(A, 'lattice.config.json'), JSON.stringify({ scanRoot: '.', rootDir: 'src', storyDir: '.lattice/story/actives' }, null, 2));
   // seed an in-flight story payload (real-shaped story metadata + a code file under work)
   const SID = 'B-hn2demo';

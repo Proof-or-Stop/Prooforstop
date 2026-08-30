@@ -52,7 +52,7 @@ readable ? ok('archives readable at canonical path after the move') : fail('arch
 // first CHK-003 attempt conflated these and the confusion cost a full abort, so the
 // discriminator is tracked-file count, not directory existence.
 //
-// B-cc10 F-006 follow-up: a tracked file under .lattice is NOT automatically a
+// B-cc10 F-006 follow-up: a tracked file under .proof-or-stop is NOT automatically a
 // half-done move. This repo is multi-developer, and merging main can legitimately
 // bring in another session's story written at the deprecated path (B-49ed arrived
 // exactly this way). Those files belong to someone else's in-flight story; moving
@@ -98,7 +98,7 @@ if (legacyOnly.length > 0) {
 duplicated.length === 0
   ? ok(`no story is duplicated across both state-dir spellings (move is complete;`
       + ` ${legacyOnly.length} un-migrated file(s) from other sessions left in place by design)`)
-  : fail(`${duplicated.length} file(s) readable at BOTH .lattice and .proof-or-stop — half-done move, abort`);
+  : fail(`${duplicated.length} file(s) readable at BOTH .proof-or-stop and .proof-or-stop — half-done move, abort`);
 
 // CHK-008 adversarial (B-cc10 F-007): the ORIGINAL claim here was "git revert <sha>
 // alone restores the pre-move layout with no manual fixup", evidenced by the move

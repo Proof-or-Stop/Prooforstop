@@ -82,16 +82,16 @@ assertNotIncludes(CODEX_README_TEMPLATE, '.lattice-codex/koala.json', 'template 
 assertNotIncludes(CODEX_README_TEMPLATE, '`koala verify_codex`', 'template bare global verify guidance');
 assertNotIncludes(CODEX_README_TEMPLATE, '`koala init --verify-codex`', 'template bare global init guidance');
 assert(renderLatticeCodexAdapterManifest().includes('"activitySource": "codex"'), 'manifest template missing codex source');
-assert(renderLatticeCodexAdapterManifest().includes(LOCAL_CODEX_VERIFY_COMMAND), 'lattice manifest template missing local wrapper note');
-assertNotIncludes(renderLatticeCodexAdapterManifest(), 'koala-codex', 'lattice manifest legacy wrapper note');
-assertNotIncludes(renderLatticeCodexAdapterManifest(), '.lattice-codex/koala.json', 'lattice manifest legacy manifest note');
+assert(renderLatticeCodexAdapterManifest().includes(LOCAL_CODEX_VERIFY_COMMAND), 'proof-or-stop manifest template missing local wrapper note');
+assertNotIncludes(renderLatticeCodexAdapterManifest(), 'koala-codex', 'proof-or-stop manifest legacy wrapper note');
+assertNotIncludes(renderLatticeCodexAdapterManifest(), '.lattice-codex/koala.json', 'proof-or-stop manifest legacy manifest note');
 
 const codexReadme = readFileSync(join(root, '.lattice-codex', 'README.md'), 'utf8');
 const manifest = readFileSync(join(root, '.lattice-codex', 'lattice.json'), 'utf8');
 const rootReadme = readFileSync(join(root, 'README.md'), 'utf8');
 const agents = readFileSync(join(root, 'AGENTS.md'), 'utf8');
 
-assert(codexReadme === renderCodexReadmeTemplate('full', 'lattice'), '.lattice-codex/README.md drifted from lattice template');
+assert(codexReadme === renderCodexReadmeTemplate('full', 'lattice'), '.lattice-codex/README.md drifted from proof-or-stop template');
 assert(manifest === renderLatticeCodexAdapterManifest(), '.lattice-codex/lattice.json drifted from template');
 assertIncludes(codexReadme, LOCAL_CODEX_VERIFY_COMMAND, '.lattice-codex/README.md');
 assertIncludes(codexReadme, 'node bin/proof-or-stop-codex.js doctor', '.lattice-codex/README.md');
@@ -398,7 +398,7 @@ assertSessionBriefCommand(
   'deprecated lattice-codex wrapper no longer resolves to itself',
 );
 assertSessionBriefCommand(
-  (dir) => writeFileSync(join(dir, 'bin', 'lattice.js'), '// lattice bootstrap'),
+  (dir) => writeFileSync(join(dir, 'bin', 'lattice.js'), '// proof-or-stop bootstrap'),
   'node bin/proof-or-stop-codex.js session_brief',
   'deprecated lattice.js-only layout no longer resolves to itself',
 );
@@ -477,7 +477,7 @@ function assertGateStatus(setup, expectedStatus, label) {
     const gate = summarizeCodexEvidence(store, 'B-codex', dir);
     assert(gate.status === expectedStatus, `${label} expected ${expectedStatus}, got ${gate.status}: ${gate.detail}`);
     if (expectedStatus !== 'passing') {
-      assert(gate.command === LOCAL_CODEX_VERIFY_COMMAND, `${label} should remediate with resolved lattice wrapper command, got: ${gate.command}`);
+      assert(gate.command === LOCAL_CODEX_VERIFY_COMMAND, `${label} should remediate with resolved proof-or-stop wrapper command, got: ${gate.command}`);
     }
   } finally {
     rmSync(dir, { recursive: true, force: true });

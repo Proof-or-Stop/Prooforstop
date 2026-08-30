@@ -275,7 +275,7 @@ fallback 说明：
 边界：
 
 - 不创建 \`${PROOF_OR_STOP_ADAPTER_DIR}/settings.json\`，因为 Codex runtime 不会读取 Claude Code settings
-- Codex 官方 PreToolUse hook 使用小写 \`.codex/hooks.json\` 和 \`.codex/hooks/lattice-scope-pretool.cjs\`，由 Proof-or-Stop init/check 管理；大小写不敏感文件系统上可能显示为 \`${PROOF_OR_STOP_ADAPTER_DIR}/hooks\` alias
+- Codex 官方 PreToolUse hook 使用小写 \`.codex/hooks.json\` 和 \`.codex/hooks/proof-or-stop-scope-pretool.cjs\`，由 Proof-or-Stop init/check 管理；大小写不敏感文件系统上可能显示为 \`${PROOF_OR_STOP_ADAPTER_DIR}/hooks\` alias
 - 需要观测 Codex 活动时，使用 \`${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}\` 记录的 wrapper 或带 \`LATTICE_ACTIVITY_RECORD_READONLY=1\` 的 fallback
 `;
 
@@ -322,9 +322,6 @@ async function main() {
   const coreCliEngineCandidates = [
     join(projectRoot, 'packages', 'main', 'dist', 'cli-engine.js'),
     join(projectRoot, 'node_modules', '@proof-or-stop', 'core', 'dist', 'cli-engine.js'),
-    // Deprecated scope kept as a READ fallback: a project installed before the
-    // '@lattice/core' -> '@proof-or-stop/core' rename must keep booting.
-    join(projectRoot, 'node_modules', '@lattice', 'core', 'dist', 'cli-engine.js'),
     join(${jsString(packageRootAbs)}, 'dist', 'cli-engine.js'),
   ];
 
@@ -339,15 +336,9 @@ async function main() {
     process.exit(0);
   }
 
-  // Global bin names, canonical first. Read-both on purpose: a globally installed
-  // package built before the proof-or-stop rename exposes only \`lattice\`, so probing
-  // the canonical name alone would report "no global CLI" on a working machine.
-  //
   // Selection is by CAPABILITY, not merely by exit status: a core-only install exits 0
-  // from \`help\` but lacks aux_doc_list/verify_codex. Picking the first bin that merely
-  // ran would let a core-only \`proof-or-stop\` shadow a fully capable \`lattice\`, so the
-  // loop keeps looking and only falls back to the first probe for the error message.
-  const globalBinNames = ['proof-or-stop', 'lattice'];
+  // from \`help\` but lacks aux_doc_list/verify_codex.
+  const globalBinNames = ['proof-or-stop'];
   const isCapable = (out) => out.includes('aux_doc_list') && out.includes('verify_codex');
   let globalBin = globalBinNames[0];
   let probeOk = false;
@@ -449,9 +440,7 @@ async function main() {
     import('node:url'),
   ]);
   const binDir = dirname(process.argv[1] || '.');
-  // Sibling bootstrap names, canonical first. The deprecated \`lattice.js\` name is kept
-  // as a fallback so this wrapper also works in a project generated before the rename.
-  const bootstrapNames = ['proof-or-stop.js', 'lattice.js'];
+  const bootstrapNames = ['proof-or-stop.js'];
   const localBootstrap = bootstrapNames
     .map(name => join(binDir, name))
     .find(candidate => existsSync(candidate));
@@ -489,7 +478,7 @@ export function hookCommand(hookFile: string): string {
 export const PRETOOL_SCOPE_HOOK_MATCHER = 'Edit|Write|MultiEdit|NotebookEdit';
 export const CODEX_PRETOOL_SCOPE_HOOK_MATCHER = 'apply_patch|Edit|Write';
 export const LEGACY_SCOPE_PRETOOL_HOOK_FILE = 'scope-pretool.cjs';
-export const LATTICE_SCOPE_PRETOOL_HOOK_FILE = 'lattice-scope-pretool.cjs';
+export const PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE = 'proof-or-stop-scope-pretool.cjs';
 // B-5f42: warn-only english-only artifact guard for Bash git-commit / lattice
 // story-metadata commands. Layer 1 of the english-only policy (the hard stop is
 // the validate REVIEW->TEST gate). Matches Bash only; never blocks.
@@ -503,7 +492,7 @@ export const ENGLISH_ONLY_GUARD_HOOK_FILE = 'english-only-guard.cjs';
 // simply never fires (fail-open — never a false green). Claude ships fully.
 export const PRETOOL_EVIDENCE_HOOK_MATCHER = 'Bash';
 export const CODEX_PRETOOL_EVIDENCE_HOOK_MATCHER = 'shell|local_shell|exec_command';
-export const EVIDENCE_PRETOOL_HOOK_FILE = 'lattice-evidence-pretool.cjs';
+export const EVIDENCE_PRETOOL_HOOK_FILE = 'proof-or-stop-evidence-pretool.cjs';
 
 export function migrateHookCommandEntries(entries: unknown, oldCommand: string, newCommand: string): { entries: unknown; changed: boolean } {
   if (!Array.isArray(entries)) return { entries, changed: false };
@@ -533,7 +522,7 @@ export function getClaudeHooks() {
   return {
     UserPromptSubmit: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('session-brief-reminder.cjs') }] }],
     PreToolUse: [
-      { matcher: PRETOOL_SCOPE_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(LATTICE_SCOPE_PRETOOL_HOOK_FILE) }] },
+      { matcher: PRETOOL_SCOPE_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE) }] },
       { matcher: PRETOOL_ENGLISH_ONLY_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(ENGLISH_ONLY_GUARD_HOOK_FILE) }] },
       { matcher: PRETOOL_EVIDENCE_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(EVIDENCE_PRETOOL_HOOK_FILE) }] },
     ],
@@ -553,7 +542,7 @@ export function getCodexHooks() {
         matcher: CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
         hooks: [{
           type: 'command',
-          command: codexHookCommand(LATTICE_SCOPE_PRETOOL_HOOK_FILE),
+          command: codexHookCommand(PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE),
           timeout: 30,
           statusMessage: 'Checking Proof-or-Stop scope',
         }],
@@ -686,20 +675,15 @@ function findRepoRoot(start) {
 }
 
 function resolveCli(root) {
-  // Canonical entrypoints first, deprecated aliases as fallback (B-cdf6): a project
-  // generated before the rename only has bin/lattice.js, and a globally installed
-  // package built before the rename only exposes the \`lattice\` bin.
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
-    path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
     path.join(root, 'bin', 'proof-or-stop.js'),
-    path.join(root, 'bin', 'lattice.js'),
   ];
   for (const candidate of jsCandidates) {
     if (fs.existsSync(candidate)) return { command: process.execPath, args: [candidate] };
   }
 
-  for (const bin of ['proof-or-stop', 'lattice']) {
+  for (const bin of ['proof-or-stop']) {
     const found = spawnSync('sh', ['-lc', 'command -v ' + bin], {
       cwd: root,
       encoding: 'utf8',
@@ -842,20 +826,15 @@ function findRepoRoot(start) {
 }
 
 function resolveCli(root) {
-  // Canonical entrypoints first, deprecated aliases as fallback (B-cdf6): a project
-  // generated before the rename only has bin/lattice.js, and a globally installed
-  // package built before the rename only exposes the \`lattice\` bin.
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
-    path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
     path.join(root, 'bin', 'proof-or-stop.js'),
-    path.join(root, 'bin', 'lattice.js'),
   ];
   for (const candidate of jsCandidates) {
     if (fs.existsSync(candidate)) return { command: process.execPath, args: [candidate] };
   }
 
-  for (const bin of ['proof-or-stop', 'lattice']) {
+  for (const bin of ['proof-or-stop']) {
     const found = spawnSync('sh', ['-lc', 'command -v ' + bin], {
       cwd: root,
       encoding: 'utf8',

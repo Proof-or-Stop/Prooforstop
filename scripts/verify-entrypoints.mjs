@@ -434,8 +434,8 @@ checks.push(() => {
   const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-default-fallback-'));
   try {
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
-    assertIncludes(initOut, 'Selected init profile: core', 'lattice init default fallback profile selection');
-    assertIncludes(initOut, 'global-thin default', 'lattice init default fallback reason');
+    assertIncludes(initOut, 'Selected init profile: core', 'proof-or-stop init default fallback profile selection');
+    assertIncludes(initOut, 'global-thin default', 'proof-or-stop init default fallback reason');
     assertGlobalThinAssets(tempDir, 'core');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -450,17 +450,17 @@ checks.push(() => {
     writeFileSync(join(tempDir, AD, 'agents', 'reviewer.md'), 'old codex-only prompt\n');
 
     const initOut = run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
-    assertIncludes(initOut, 'Selected init profile: all', 'lattice init explicit all profile selection');
-    assertIncludes(initOut, 'explicit --profile=all', 'lattice init explicit all reason');
-    assertIncludes(initOut, 'no per-project files', 'lattice init should advertise global thin-shim agent mode');
-    assertIncludes(initOut, CODEX_README_REL, 'lattice init output');
+    assertIncludes(initOut, 'Selected init profile: all', 'proof-or-stop init explicit all profile selection');
+    assertIncludes(initOut, 'explicit --profile=all', 'proof-or-stop init explicit all reason');
+    assertIncludes(initOut, 'no per-project files', 'proof-or-stop init should advertise global thin-shim agent mode');
+    assertIncludes(initOut, CODEX_README_REL, 'proof-or-stop init output');
     assertProfileAssets(tempDir, 'all');
 
     const defaultConfig = readJson(tempDir, PROOF_OR_STOP_CONFIG_FILENAME);
-    assert(defaultConfig.scanRoot === '.', 'default lattice init without preexisting src should set scanRoot=.');
-    assertPathMissing(tempDir, 'src/core', 'default lattice init src/core');
-    assertPathMissing(tempDir, 'src/shells', 'default lattice init src/shells');
-    assertPathMissing(tempDir, 'tests', 'default lattice init tests');
+    assert(defaultConfig.scanRoot === '.', 'default proof-or-stop init without preexisting src should set scanRoot=.');
+    assertPathMissing(tempDir, 'src/core', 'default proof-or-stop init src/core');
+    assertPathMissing(tempDir, 'src/shells', 'default proof-or-stop init src/shells');
+    assertPathMissing(tempDir, 'tests', 'default proof-or-stop init tests');
     assertManagedMarkerSync(readFileSync(join(tempDir, 'LATTICE.md'), 'utf8'), 'host-neutral', null, 'LATTICE.md');
     const generatedClaude = readFileSync(join(tempDir, 'CLAUDE.md'), 'utf8');
     assertIncludes(generatedClaude, 'LATTICE.md', 'all profile CLAUDE.md should point to LATTICE.md');
@@ -505,13 +505,13 @@ checks.push(() => {
     assert(codexManifest.sessionEnv.recordReadOnly === 'LATTICE_ACTIVITY_RECORD_READONLY', 'adapter manifest should document read-only activity opt-in');
     assert(!codexManifest.excludedRuntimeAssets.includes(`${AD}/hooks`), 'adapter manifest should allow managed Codex native hooks');
     assert(codexManifest.excludedRuntimeAssets.includes(`${AD}/settings.json`), 'adapter manifest should exclude .lattice-codex/settings.json');
-    assertPathExists(tempDir, '.codex/hooks', 'lattice init .codex/hooks');
-    assertPathExists(tempDir, '.codex/hooks.json', 'lattice init .codex/hooks.json');
-    assertPathMissing(tempDir, `${AD}/settings.json`, 'lattice init .lattice-codex/settings.json');
+    assertPathExists(tempDir, '.codex/hooks', 'proof-or-stop init .codex/hooks');
+    assertPathExists(tempDir, '.codex/hooks.json', 'proof-or-stop init .codex/hooks.json');
+    assertPathMissing(tempDir, `${AD}/settings.json`, 'proof-or-stop init .lattice-codex/settings.json');
 
     const codexAgents = readdirSync(join(tempDir, AD, 'agents'));
-    assert(!codexAgents.includes('implementer.md'), 'lattice init should not keep stale Codex-only implementer.md');
-    assert(!codexAgents.includes('reviewer.md'), 'lattice init should not keep stale Codex-only reviewer.md');
+    assert(!codexAgents.includes('implementer.md'), 'proof-or-stop init should not keep stale Codex-only implementer.md');
+    assert(!codexAgents.includes('reviewer.md'), 'proof-or-stop init should not keep stale Codex-only reviewer.md');
 
     // B-cdf6: init generates the CANONICAL wrapper names; the deprecated ones are
     // accepted-if-present but never newly written.
@@ -520,15 +520,13 @@ checks.push(() => {
     assert(existsSync(join(tempDir, 'bin', 'proof-or-stop.js')), 'init should generate sibling bin/proof-or-stop.js');
     assertPathMissing(tempDir, 'bin/lattice-codex.js', 'init should not newly generate the deprecated Codex wrapper name');
     assertPathMissing(tempDir, 'bin/lattice.js', 'init should not newly generate the deprecated bootstrap name');
-    // The generated wrapper resolves its sibling bootstrap read-both (canonical first),
-    // so a project generated before the rename keeps working.
     assertIncludes(generatedWrapper, "'proof-or-stop.js'", 'generated Codex wrapper canonical bootstrap candidate');
-    assertIncludes(generatedWrapper, "'lattice.js'", 'generated Codex wrapper deprecated bootstrap fallback');
+    assertNotIncludes(generatedWrapper, "'lattice.js'", 'generated Codex wrapper has no deprecated bootstrap fallback');
     assertNotIncludes(generatedWrapper, "spawnSync('koala'", 'generated Codex wrapper should not delegate directly to global koala');
     assertIncludes(generatedWrapper, 'proof-or-stop init --verify-codex', 'generated Codex wrapper recovery hint');
     assertIncludes(generatedBootstrap, 'coreCliEngineCandidates', 'generated local bootstrap candidate list');
     assertIncludes(generatedBootstrap, "node_modules', '@proof-or-stop', 'core'", 'generated local bootstrap should search local @proof-or-stop/core first');
-    assertIncludes(generatedBootstrap, "node_modules', '@lattice', 'core'", 'generated local bootstrap should retain deprecated @lattice/core fallback');
+    assertNotIncludes(generatedBootstrap, "node_modules', '@lattice', 'core'", 'generated local bootstrap should not retain deprecated @lattice/core fallback');
     assertNotIncludes(generatedBootstrap, "@koala-agent", 'generated local bootstrap should not search @koala-agent/core fallback');
     assertNotIncludes(generatedBootstrap, 'bin/koala.js', 'generated local bootstrap should not mention bin/koala.js');
     assertNotIncludes(generatedBootstrap, "spawnSync('koala'", 'generated local bootstrap should not delegate to global koala');
@@ -545,7 +543,7 @@ checks.push(() => {
 
     const cleanupClaudeMirror = seedClaudeAgentMirror(tempDir);
     const verifyInitOut = run(process.execPath, [join(tempDir, 'bin', 'proof-or-stop.js'), 'verify_codex'], { cwd: tempDir });
-    assertIncludes(verifyInitOut, 'Codex adapter checks passed', `lattice verify_codex output (${verifyInitOut.trim()})`);
+    assertIncludes(verifyInitOut, 'Codex adapter checks passed', `proof-or-stop verify_codex output (${verifyInitOut.trim()})`);
     // B-cdf6: derive the expected count from the registry instead of hardcoding it.
     // The literal `16` had gone stale against a 17-role registry, so this assertion
     // would have failed even once the drift issue above was fixed. Deriving it means
@@ -554,16 +552,16 @@ checks.push(() => {
     assertIncludes(
       verifyInitOut,
       `Codex agents mirror: ${expectedMirrorCount} prompt(s) mirrored`,
-      'lattice verify_codex mirror check',
+      'proof-or-stop verify_codex mirror check',
     );
-    assertPathMissing(tempDir, 'src/core', 'lattice verify_codex src/core');
-    assertPathMissing(tempDir, 'src/shells', 'lattice verify_codex src/shells');
-    assertPathMissing(tempDir, 'tests', 'lattice verify_codex tests');
+    assertPathMissing(tempDir, 'src/core', 'proof-or-stop verify_codex src/core');
+    assertPathMissing(tempDir, 'src/shells', 'proof-or-stop verify_codex src/shells');
+    assertPathMissing(tempDir, 'tests', 'proof-or-stop verify_codex tests');
 
     const staleBin = join(tempDir, 'stale-bin');
     mkdirSync(staleBin);
     const staleLattice = join(staleBin, 'lattice');
-    writeFileSync(staleLattice, '#!/bin/sh\necho "stale lattice without Codex adapter commands"\nexit 0\n');
+    writeFileSync(staleLattice, '#!/bin/sh\necho "stale proof-or-stop without Codex adapter commands"\nexit 0\n');
     chmodSync(staleLattice, 0o755);
     const minimalEnv = {
       ...process.env,
@@ -572,24 +570,24 @@ checks.push(() => {
       LATTICE_ACTIVITY_SESSION: `fresh-init-wrapper-${Date.now()}`,
     };
     const freshWrapperOut = run(process.execPath, [join(tempDir, 'bin', 'proof-or-stop-codex.js'), 'session_brief'], { cwd: tempDir, env: minimalEnv });
-    assertIncludes(freshWrapperOut, '# proof-or-stop session brief', 'fresh generated wrapper should run with stale global lattice on PATH');
+    assertIncludes(freshWrapperOut, '# proof-or-stop session brief', 'fresh generated wrapper should ignore a retired global executable on PATH');
 
     const checkOk = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
-    assert(checkOk.ok === true, 'lattice check should pass immediately after init');
-    assert(checkOk.profile === 'all', 'lattice check should detect all profile after all init');
+    assert(checkOk.ok === true, 'proof-or-stop check should pass immediately after init');
+    assert(checkOk.profile === 'all', 'proof-or-stop check should detect all profile after all init');
 
     writeFileSync(join(tempDir, AD, PROOF_OR_STOP_MANIFEST_FILENAME), '{}\n');
     const checkDrift = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
-    assert(checkDrift.ok === false, 'lattice check should report drift after managed manifest edit');
+    assert(checkDrift.ok === false, 'proof-or-stop check should report drift after managed manifest edit');
     assert(
       checkDrift.items.some(item => item.relPath === CODEX_MANIFEST_REL && item.status === 'STALE_SAFE'),
-      'lattice check should classify generated Codex manifest drift as STALE_SAFE',
+      'proof-or-stop check should classify generated Codex manifest drift as STALE_SAFE',
     );
 
     const checkApply = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--apply', '--json'], { cwd: tempDir }));
-    assert(checkApply.ok === true, 'lattice check --apply should repair safe managed drift');
-    assert(checkApply.applied.includes(CODEX_MANIFEST_REL), 'lattice check --apply should report applied managed manifest');
-    assert(readJson(tempDir, CODEX_MANIFEST_REL).adapterOwner === 'lattice', 'lattice check --apply should restore Codex manifest');
+    assert(checkApply.ok === true, 'proof-or-stop check --apply should repair safe managed drift');
+    assert(checkApply.applied.includes(CODEX_MANIFEST_REL), 'proof-or-stop check --apply should report applied managed manifest');
+    assert(readJson(tempDir, CODEX_MANIFEST_REL).adapterOwner === 'lattice', 'proof-or-stop check --apply should restore Codex manifest');
     // B-cc10 F-044: MANIFEST_REL_PATH now writes only the canonical path, so asserting the
     // deprecated one could never pass — the assertion was checking for a file init stopped
     // creating.
@@ -599,12 +597,12 @@ checks.push(() => {
     writeFileSync(join(tempDir, 'lattice-user-note.txt'), 'uncommitted local work\n');
     writeFileSync(join(tempDir, AD, PROOF_OR_STOP_MANIFEST_FILENAME), '{}\n');
     const checkUpgrade = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--upgrade', '--json'], { cwd: tempDir }));
-    assert(checkUpgrade.ok === true, 'lattice check --upgrade should repair safe managed drift');
-    assert(checkUpgrade.mode === 'upgrade', 'lattice check --upgrade should report upgrade mode');
-    assert(checkUpgrade.applied.includes(CODEX_MANIFEST_REL), 'lattice check --upgrade should report applied managed manifest');
+    assert(checkUpgrade.ok === true, 'proof-or-stop check --upgrade should repair safe managed drift');
+    assert(checkUpgrade.mode === 'upgrade', 'proof-or-stop check --upgrade should report upgrade mode');
+    assert(checkUpgrade.applied.includes(CODEX_MANIFEST_REL), 'proof-or-stop check --upgrade should report applied managed manifest');
     assert(
       checkUpgrade.warnings.some(warning => warning.includes('working tree already has')),
-      'lattice check --upgrade should warn before syncing into a dirty worktree',
+      'proof-or-stop check --upgrade should warn before syncing into a dirty worktree',
     );
 
     const originalClaude = readFileSync(join(tempDir, 'CLAUDE.md'), 'utf8');
@@ -620,21 +618,21 @@ checks.push(() => {
     ].join('\n'));
     const checkLocalReview = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--review-local-edits', '--json'], { cwd: tempDir }));
     const claudeReview = checkLocalReview.localEditReviews.find(review => review.relPath === 'CLAUDE.md');
-    assert(checkLocalReview.ok === false, 'lattice check --review-local-edits should preserve STALE_LOCAL_EDIT status');
-    assert(claudeReview, 'lattice check --review-local-edits should report CLAUDE.md review data');
+    assert(checkLocalReview.ok === false, 'proof-or-stop check --review-local-edits should preserve STALE_LOCAL_EDIT status');
+    assert(claudeReview, 'proof-or-stop check --review-local-edits should report CLAUDE.md review data');
     assert(
       claudeReview.localOnlyHeadings.includes('Local Project Rule'),
-      'lattice check --review-local-edits should surface local-only headings',
+      'proof-or-stop check --review-local-edits should surface local-only headings',
     );
     writeFileSync(join(tempDir, 'CLAUDE.md'), originalClaude);
 
     mkdirSync(join(tempDir, AD, 'settings.json'), { recursive: true });
     const checkExcludedDirectory = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
     const excludedDirectoryItem = checkExcludedDirectory.items.find(item => item.relPath === `${AD}/settings.json`);
-    assert(checkExcludedDirectory.ok === false, 'lattice check should report excluded directory drift');
+    assert(checkExcludedDirectory.ok === false, 'proof-or-stop check should report excluded directory drift');
     assert(
       excludedDirectoryItem?.status === 'INCOMPATIBLE' && excludedDirectoryItem.reason.includes('directory'),
-      'lattice check should classify directory at excluded asset path without throwing EISDIR',
+      'proof-or-stop check should classify directory at excluded asset path without throwing EISDIR',
     );
     rmSync(join(tempDir, AD, 'settings.json'), { recursive: true, force: true });
 
@@ -644,7 +642,7 @@ checks.push(() => {
     const managedFileDirectoryItem = checkManagedFileDirectory.items.find(item => item.relPath === CODEX_README_REL);
     assert(
       managedFileDirectoryItem?.status === 'INCOMPATIBLE' && managedFileDirectoryItem.reason.includes('expected a file'),
-      'lattice check should classify directory at managed file path without throwing EISDIR',
+      'proof-or-stop check should classify directory at managed file path without throwing EISDIR',
     );
 
     cleanupClaudeMirror();
@@ -661,9 +659,9 @@ checks.push(() => {
     writeFileSync(join(tempDir, 'Lattice.md'), '# Lattice.md\n\nmixed-case Lattice guide\n');
     const result = runManagedAssetCheck(tempDir, { profile: 'all' });
     const item = result.items.find(asset => asset.relPath === 'LATTICE.md');
-    assert(item?.status === 'CASE_MISMATCH', 'lattice check should classify LATTICE.md casing drift as CASE_MISMATCH');
-    assert(item.actualRelPath === 'Lattice.md', 'lattice check should report the mixed-case actual path');
-    assert(item.reason.includes('different case'), 'lattice check should explain path casing drift');
+    assert(item?.status === 'CASE_MISMATCH', 'proof-or-stop check should classify LATTICE.md casing drift as CASE_MISMATCH');
+    assert(item.actualRelPath === 'Lattice.md', 'proof-or-stop check should report the mixed-case actual path');
+    assert(item.reason.includes('different case'), 'proof-or-stop check should explain path casing drift');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -675,13 +673,13 @@ checks.push(() => {
     DOT_DIR_GUIDE_REL,
     DOT_DIR_MANIFEST_REL,
     '.codex/hooks.json',
-    '.codex/hooks/lattice-scope-pretool.cjs',
+    '.codex/hooks/proof-or-stop-scope-pretool.cjs',
   ];
   const forbidden = [
     '.Lattice/Lattice.md',
     `.Lattice/${PROOF_OR_STOP_MANIFEST_FILENAME}`,
     `${AD}/hooks.json`,
-    `${AD}/hooks/lattice-scope-pretool.cjs`,
+    `${AD}/hooks/proof-or-stop-scope-pretool.cjs`,
   ];
 
   for (const rel of required) {
@@ -709,10 +707,10 @@ checks.push(() => {
       });
       const output = `${result.stdout || ''}${result.stderr || ''}`;
       assertIncludes(output, '🐨 proof-or-stop serve', `proof-or-stop serve ${flag} should still start the normal launcher`);
-      assertIncludes(output, 'Waiting for project core to start (.lattice-serve.json)...', `lattice serve ${flag} should still boot the normal serve path`);
-      assertNotIncludes(output, 'Unknown option', `lattice serve ${flag} should not be rejected as an unknown option`);
-      assertNotIncludes(output, '--web', `lattice serve ${flag} runtime output`);
-      assertNotIncludes(output, '--cli', `lattice serve ${flag} runtime output`);
+      assertIncludes(output, 'Waiting for project core to start (.lattice-serve.json)...', `proof-or-stop serve ${flag} should still boot the normal serve path`);
+      assertNotIncludes(output, 'Unknown option', `proof-or-stop serve ${flag} should not be rejected as an unknown option`);
+      assertNotIncludes(output, '--web', `proof-or-stop serve ${flag} runtime output`);
+      assertNotIncludes(output, '--cli', `proof-or-stop serve ${flag} runtime output`);
       if (result.error && result.error.code !== 'ETIMEDOUT') {
         throw result.error;
       }
@@ -746,11 +744,11 @@ checks.push(() => {
     assertGlobalThinAssets(tempDir, 'core');
 
     const config = readJson(tempDir, PROOF_OR_STOP_CONFIG_FILENAME);
-    assert(config.scanRoot === 'src', 'default lattice init with preexisting src should keep scanRoot=src');
+    assert(config.scanRoot === 'src', 'default proof-or-stop init with preexisting src should keep scanRoot=src');
     assertPathExists(tempDir, 'src/index.ts', 'preexisting src/index.ts');
-    assertPathMissing(tempDir, 'src/core/app.ts', 'default lattice init with preexisting src src/core/app.ts');
-    assertPathMissing(tempDir, 'src/shells/cli/main.ts', 'default lattice init with preexisting src cli shell');
-    assertPathMissing(tempDir, 'tests', 'default lattice init with preexisting src tests');
+    assertPathMissing(tempDir, 'src/core/app.ts', 'default proof-or-stop init with preexisting src src/core/app.ts');
+    assertPathMissing(tempDir, 'src/shells/cli/main.ts', 'default proof-or-stop init with preexisting src cli shell');
+    assertPathMissing(tempDir, 'tests', 'default proof-or-stop init with preexisting src tests');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -768,7 +766,7 @@ checks.push(() => {
     writeFileSync(join(tempDir, '.gitignore'), existingGitignoreLines.join('\n'));
 
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
-    assertIncludes(initOut, '.gitignore (merged Proof-or-Stop runtime ignores)', 'lattice init existing .gitignore merge output');
+    assertIncludes(initOut, '.gitignore (merged Proof-or-Stop runtime ignores)', 'proof-or-stop init existing .gitignore merge output');
 
     const gitignore = readFileSync(join(tempDir, '.gitignore'), 'utf8');
     assertIncludes(gitignore, 'custom-cache/', 'existing .gitignore merge should preserve user content');
@@ -785,9 +783,9 @@ checks.push(() => {
     writeFileSync(join(tempDir, '.gitignore'), gitignoreBefore);
 
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
-    assertIncludes(initOut, '.gitignore (runtime ignores already present)', 'lattice init existing .gitignore no-churn output');
+    assertIncludes(initOut, '.gitignore (runtime ignores already present)', 'proof-or-stop init existing .gitignore no-churn output');
     const gitignoreAfter = readFileSync(join(tempDir, '.gitignore'), 'utf8');
-    assert(gitignoreAfter === gitignoreBefore, 'lattice init should not churn .gitignore when runtime ignores are already present');
+    assert(gitignoreAfter === gitignoreBefore, 'proof-or-stop init should not churn .gitignore when runtime ignores are already present');
     assertNotIncludes(gitignoreAfter, MANAGED_GITIGNORE_BLOCK_START, 'no-churn .gitignore should not add a managed block');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -799,17 +797,17 @@ checks.push(() => {
     const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-starter-'));
     try {
       const initOut = run('node', [INIT_ENTRYPOINT, flag, tempDir]);
-      assertIncludes(initOut, 'src/core/app.ts', `lattice init ${flag} output`);
+      assertIncludes(initOut, 'src/core/app.ts', `proof-or-stop init ${flag} output`);
       assertGlobalThinAssets(tempDir, 'core');
 
       const config = readJson(tempDir, PROOF_OR_STOP_CONFIG_FILENAME);
-      assert(config.scanRoot === 'src', `lattice init ${flag} should set scanRoot=src`);
-      assertPathExists(tempDir, 'src/core/app.ts', `lattice init ${flag} src/core/app.ts`);
-      assertPathExists(tempDir, 'src/core/debug.ts', `lattice init ${flag} src/core/debug.ts`);
-      assertPathExists(tempDir, 'src/core/machines/game/bridge.ts', `lattice init ${flag} bridge.ts`);
-      assertPathExists(tempDir, 'src/shells/cli/main.ts', `lattice init ${flag} cli shell`);
-      assertPathExists(tempDir, 'src/shells/web', `lattice init ${flag} web shell dir`);
-      assertPathExists(tempDir, 'tests', `lattice init ${flag} tests dir`);
+      assert(config.scanRoot === 'src', `proof-or-stop init ${flag} should set scanRoot=src`);
+      assertPathExists(tempDir, 'src/core/app.ts', `proof-or-stop init ${flag} src/core/app.ts`);
+      assertPathExists(tempDir, 'src/core/debug.ts', `proof-or-stop init ${flag} src/core/debug.ts`);
+      assertPathExists(tempDir, 'src/core/machines/game/bridge.ts', `proof-or-stop init ${flag} bridge.ts`);
+      assertPathExists(tempDir, 'src/shells/cli/main.ts', `proof-or-stop init ${flag} cli shell`);
+      assertPathExists(tempDir, 'src/shells/web', `proof-or-stop init ${flag} web shell dir`);
+      assertPathExists(tempDir, 'tests', `proof-or-stop init ${flag} tests dir`);
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
@@ -943,7 +941,7 @@ checks.push(() => {
   try {
     writeFileSync(join(tempDir, 'AGENTS.md'), '# AGENTS.md\n\nbefore-agents\n<!-- lattice:start -->\nold agents section\n<!-- lattice:end -->\nafter-agents\n');
     writeFileSync(join(tempDir, 'CLAUDE.md'), '# CLAUDE.md\n\nbefore-claude\n<!-- lattice:start -->\nold claude section\n<!-- lattice:end -->\nafter-claude\n');
-    writeFileSync(join(tempDir, 'LATTICE.md'), '# LATTICE.md\n\nbefore-lattice\n<!-- lattice:start -->\nold lattice section\n<!-- lattice:end -->\nafter-lattice\n');
+    writeFileSync(join(tempDir, 'LATTICE.md'), '# LATTICE.md\n\nbefore-lattice\n<!-- lattice:start -->\nold proof-or-stop section\n<!-- lattice:end -->\nafter-lattice\n');
 
     run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
 
@@ -960,7 +958,7 @@ checks.push(() => {
     assertNotIncludes(claude, '正常通道：', 'CLAUDE.md managed sync should not copy root lifecycle table');
     assertIncludes(lattice, 'before-lattice', 'LATTICE.md prefix preservation');
     assertIncludes(lattice, 'after-lattice', 'LATTICE.md suffix preservation');
-    assertManagedMarkerSync(lattice, 'host-neutral', 'old lattice section', 'LATTICE.md managed sync');
+    assertManagedMarkerSync(lattice, 'host-neutral', 'old proof-or-stop section', 'LATTICE.md managed sync');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -971,7 +969,7 @@ checks.push(() => {
   try {
     const agentsOriginal = '# AGENTS.md\n\nuser-owned agents doc\n';
     const claudeOriginal = '# CLAUDE.md\n\nuser-owned claude doc\n';
-    const latticeOriginal = '# LATTICE.md\n\nuser-owned lattice doc\n';
+    const latticeOriginal = '# LATTICE.md\n\nuser-owned proof-or-stop doc\n';
     writeFileSync(join(tempDir, 'AGENTS.md'), agentsOriginal);
     writeFileSync(join(tempDir, 'CLAUDE.md'), claudeOriginal);
     writeFileSync(join(tempDir, 'LATTICE.md'), latticeOriginal);
@@ -993,14 +991,14 @@ checks.push(() => {
   try {
     writeFileSync(join(tempDir, 'pyproject.toml'), '[project]\nname = "lattice-smoke"\nversion = "0.0.0"\n');
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
-    assertIncludes(initOut, '检测到 Python 项目', 'python no-src lattice init output');
+    assertIncludes(initOut, '检测到 Python 项目', 'python no-src proof-or-stop init output');
     assertGlobalThinAssets(tempDir, 'core');
 
     const config = readJson(tempDir, PROOF_OR_STOP_CONFIG_FILENAME);
-    assert(config.language === 'python', 'python no-src lattice init should set language=python');
-    assert(config.scanRoot === '.', 'python no-src lattice init should set scanRoot=.');
-    assertPathMissing(tempDir, 'src', 'python no-src lattice init src');
-    assertPathMissing(tempDir, 'tests', 'python no-src lattice init tests');
+    assert(config.language === 'python', 'python no-src proof-or-stop init should set language=python');
+    assert(config.scanRoot === '.', 'python no-src proof-or-stop init should set scanRoot=.');
+    assertPathMissing(tempDir, 'src', 'python no-src proof-or-stop init src');
+    assertPathMissing(tempDir, 'tests', 'python no-src proof-or-stop init tests');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -1024,7 +1022,7 @@ checks.push(() => {
   try {
     mkdirSync(staleBin);
     const staleCli = join(staleBin, 'lattice');
-    writeFileSync(staleCli, '#!/bin/sh\necho "stale lattice without verify_codex"\nexit 0\n');
+    writeFileSync(staleCli, '#!/bin/sh\necho "stale proof-or-stop without verify_codex"\nexit 0\n');
     chmodSync(staleCli, 0o755);
     const initOut = run(process.execPath, [CORE_ENTRYPOINT, 'init', '--profile=all', '--asset-mode=full', tempDir], {
       env: {
@@ -1032,7 +1030,7 @@ checks.push(() => {
         PATH: `${staleBin}:/usr/bin:/bin`,
       },
     });
-    assertIncludes(initOut, 'Selected init profile: all', 'fresh lattice init minimal PATH profile selection');
+    assertIncludes(initOut, 'Selected init profile: all', 'fresh proof-or-stop init minimal PATH profile selection');
     const cleanupClaudeMirror = seedClaudeAgentMirror(tempDir);
     let verifyOut;
     try {
@@ -1042,8 +1040,8 @@ checks.push(() => {
     } finally {
       cleanupClaudeMirror();
     }
-    assertIncludes(verifyOut, 'Codex adapter checks passed', 'fresh lattice verify_codex minimal PATH output');
-    assertIncludes(verifyOut, 'Local wrapper heartbeat: source=codex', 'fresh lattice verify_codex should execute generated wrapper heartbeat');
+    assertIncludes(verifyOut, 'Codex adapter checks passed', 'fresh proof-or-stop verify_codex minimal PATH output');
+    assertIncludes(verifyOut, 'Local wrapper heartbeat: source=codex', 'fresh proof-or-stop verify_codex should execute generated wrapper heartbeat');
     // B-cdf6: same stale-literal defect already fixed above at the first mirror
     // assertion — this second site was missed. The registry has 17 roles, so the
     // pinned `16` fails regardless of whether the mirror itself is correct. Derive
@@ -1051,7 +1049,7 @@ checks.push(() => {
     assertIncludes(
       verifyOut,
       `Codex agents mirror: ${readPromptRegistry().agents.length} prompt(s) mirrored`,
-      'fresh lattice verify_codex should pass via generated local bootstrap',
+      'fresh proof-or-stop verify_codex should pass via generated local bootstrap',
     );
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

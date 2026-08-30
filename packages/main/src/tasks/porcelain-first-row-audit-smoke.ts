@@ -140,7 +140,7 @@ withFixture('cross-host-review: material row still refuses with the exact path',
       assert.doesNotMatch(
         err.message,
         /[^.]lattice\/activity\.jsonl/,
-        'refusal must not list a corrupted (dot-less) .lattice path as material',
+        'refusal must not list a corrupted (dot-less) .proof-or-stop path as material',
       );
       return true;
     },

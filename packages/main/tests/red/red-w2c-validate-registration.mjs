@@ -5,11 +5,11 @@
  * test.
  *
  * The intent's literal scenario: "Remove the chain-smoke from validate.commands
- * -> lattice validate no longer runs it; the regression must be caught by a
+ * -> proof-or-stop validate no longer runs it; the regression must be caught by a
  * committed test or the validate output audit." Before this test NOTHING in the
  * repo scanned `validate.commands` for completeness, so deleting the
  * `red-evidence-chain-smoke.js` registration line silently stopped the
- * convergence anchor from ever running under `lattice validate`.
+ * convergence anchor from ever running under `proof-or-stop validate`.
  *
  * ── WHY THIS FILE WAS REWRITTEN (B-49d4, CHK-002) ───────────────────────────
  *
@@ -21,7 +21,7 @@
  * code at 0 — a confident success line reporting complete coverage of a
  * population it never looked at. A check whose report cannot change when its
  * subject changes can never reveal a gap, which is precisely how fifteen red
- * harnesses ended up committed next to it without `lattice validate` ever
+ * harnesses ended up committed next to it without `proof-or-stop validate` ever
  * running them.
  *
  * So the expectation is now DERIVED FROM DISK. The registered side is never
@@ -193,7 +193,7 @@ if (population.length === 0) {
 if (real.undecided.length > 0) {
   fail('registration',
     `these ${POPULATION_DIR_REL}/${FAMILY_PREFIX}* members are NEITHER registered in lattice.config.json `
-    + `validate.commands NOR listed in REGISTRATION_EXCLUSIONS with a reason, so \`lattice validate\` never runs them `
+    + `validate.commands NOR listed in REGISTRATION_EXCLUSIONS with a reason, so \`proof-or-stop validate\` never runs them `
     + `and nobody decided that it should not: ${real.undecided.join(', ')}. Register it, or exclude it here and say why.`);
 }
 if (real.wronglyRegistered.length > 0) {

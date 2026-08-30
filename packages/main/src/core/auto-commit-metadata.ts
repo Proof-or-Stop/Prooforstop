@@ -73,7 +73,7 @@ export const AUTO_COMMIT_METADATA_PREFIX = '\n✓ proof-or-stop metadata auto-co
  * corrected governing rule in docs/requirements/decisions/brand-rename-mapping.md
  * puts them squarely in the RENAMED class: "any `lattice` that has no effect on the
  * past evidence chain must be refactored". The surface had zero rows in that
- * mapping table and is structurally invisible to verify-lattice-residue.mjs, whose
+ * mapping table and is structurally invisible to verify-proof-or-stop-residue.mjs, whose
  * detectors match `lattice <subcommand>` CLI-invocation syntax rather than a
  * `lattice: <verb>` commit-message prefix — so nothing caught it until a reviewer
  * read the story's own git log.

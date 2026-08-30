@@ -244,7 +244,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('browser-automation', 'conditional', 'verification-evidence-limited', 'Browser automation may be absent from a Codex session.', 'Mark browser verification unavailable or delegate to a browser-capable host.'),
       degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Evidence remains local until a Proof-or-Stop lifecycle command records it.', 'Keep evidence local and do not claim release readiness.'),
       degradation('receipt-verify', 'conditional', 'local-assurance-required', 'Local receipt-bundle verification depends on signed/offline bundle inputs.', 'Record local proof-admissibility, receipt-bundle verification, and review quorum evidence before integration.'),
-      degradation('prewrite-guard', 'conditional', 'none', 'Codex native-pretool guard requires a verified .codex/hooks.json PreToolUse hook; without it, direct Codex sessions fall back unless routed through Proof-or-Stop dispatch wrapped-preapply.', 'Install the .codex/hooks.json lattice-scope-pretool hook or route through Proof-or-Stop dispatch to enable a pre-write guard mode.'),
+      degradation('prewrite-guard', 'conditional', 'none', 'Codex native-pretool guard requires a verified .codex/hooks.json PreToolUse hook; without it, direct Codex sessions fall back unless routed through Proof-or-Stop dispatch wrapped-preapply.', 'Install the .codex/hooks.json proof-or-stop-scope-pretool hook or route through Proof-or-Stop dispatch to enable a pre-write guard mode.'),
     ],
   },
   {

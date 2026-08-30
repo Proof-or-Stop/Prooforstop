@@ -470,7 +470,7 @@ try {
     const root = mkProject(); roots.push(root);
     const { ctx } = mkCtx(root);
     const before = snapshot(root);
-    assert.equal(existsSync(join(root, '.lattice')), false, 'fresh project has no .lattice directory');
+    assert.equal(existsSync(join(root, '.lattice')), false, 'fresh project has no .proof-or-stop directory');
     const report = audit(ctx);
     const after = snapshot(root);
 

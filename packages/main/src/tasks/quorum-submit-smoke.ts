@@ -651,7 +651,7 @@ function quorumFloorRounds(fixture: ReturnType<typeof makeFixture>) {
 // evidence happens to require the LATER portion of this 70+-check suite. `--grep=<substring>`
 // is an opt-in, additive-only narrowing: every check still runs its real, unmodified body and
 // assertions when selected; only which checks execute (and print) changes. Default (unfiltered)
-// behavior — used by `npm run build`'s consumers, `lattice validate`, and CI — is untouched.
+// behavior — used by `npm run build`'s consumers, `proof-or-stop validate`, and CI — is untouched.
 const GREP_FILTER = (() => {
   const arg = process.argv.find(a => a.startsWith('--grep='));
   return arg ? arg.slice('--grep='.length) : null;

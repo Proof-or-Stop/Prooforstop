@@ -9,7 +9,7 @@
  * WHY THIS IS A CORRECTNESS FIX, NOT A COSMETIC ONE
  * -------------------------------------------------
  * `listRuntimeArtifactIgnorePatterns()` is what generates the managed
- * `# lattice runtime artifacts (managed)` block in `.gitignore`. While every
+ * `# proof-or-stop runtime artifacts (managed)` block in `.gitignore`. While every
  * entry here was pinned to the DEPRECATED spelling, the runtime wrote to the
  * CANONICAL directory that no pattern covered. Measured before this fix:
  *
@@ -77,8 +77,8 @@ export interface RuntimeArtifactRegistryEntry {
   repairableTrackedArtifact: boolean;
 }
 
-export const LATTICE_RUNTIME_IGNORE_BLOCK_START = '# lattice runtime artifacts (managed)';
-export const LATTICE_RUNTIME_IGNORE_BLOCK_END = '# /lattice runtime artifacts (managed)';
+export const LATTICE_RUNTIME_IGNORE_BLOCK_START = '# proof-or-stop runtime artifacts (managed)';
+export const LATTICE_RUNTIME_IGNORE_BLOCK_END = '# /proof-or-stop runtime artifacts (managed)';
 
 function rx(value: string): RegExp {
   return new RegExp(value);

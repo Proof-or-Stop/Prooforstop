@@ -18,7 +18,7 @@
  *   (a) uncommitted MATERIAL-SOURCE change  -> review_run_start REFUSES, no run recorded
  *   (b) uncommitted FIXTURE change          -> REFUSES (fixtures are blocking)
  *   (c) clean tree                          -> PROCEEDS + records the run
- *   (d) only .lattice metadata dirty        -> PROCEEDS (non-blocking category)
+ *   (d) only .proof-or-stop metadata dirty        -> PROCEEDS (non-blocking category)
  *   (e) refusal message names the offending material-source file
  *   (f) PARITY: isBlockingDirty(classifyGitStatusRows(...)) gives the SAME blocked
  *       verdict the DONE gate's evaluateDirtyGitStatus would for an identical git status
@@ -134,7 +134,7 @@ function writeReviewStory(store: StoryStore, storyId: string): void {
   store.writeChecklist(storyId, checklist);
 }
 
-/** Initialize a clean git repo + lattice project + a committed REVIEW story on a
+/** Initialize a clean git repo + proof-or-stop project + a committed REVIEW story on a
  * story/<id> branch. Returns the repo root. Working tree is CLEAN on return. */
 function initReviewRepo(prefix: string, storyId: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
@@ -316,7 +316,7 @@ async function assertCleanTreeProceeds(): Promise<void> {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// (d) only .lattice metadata dirty -> PROCEEDS (non-blocking category)
+// (d) only .proof-or-stop metadata dirty -> PROCEEDS (non-blocking category)
 // ════════════════════════════════════════════════════════════════════════════
 async function assertMetadataOnlyDirtyProceeds(): Promise<void> {
   const storyId = 'B-meta';

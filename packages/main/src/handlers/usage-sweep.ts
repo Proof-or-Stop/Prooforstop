@@ -81,7 +81,7 @@ export interface UsageSweepAlertResult {
 
 export const NON_AUTHORITATIVE_HEADER =
   'NON-AUTHORITATIVE ESTIMATE — attribution from host transcript stores; not billing truth; ' +
-  'sessions lattice did not launch are estimates.';
+  'sessions proof-or-stop did not launch are estimates.';
 
 function normalizeString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';

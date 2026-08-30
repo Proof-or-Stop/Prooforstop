@@ -27,9 +27,9 @@ function extractJsonObject(text) {
 }
 
 const help = run('help');
-assert(help.includes('gap_analyze'), 'lattice help missing gap_analyze');
-assert(help.includes('convergence_check'), 'lattice help missing convergence_check');
-assert(help.includes('Gap:'), 'lattice help missing Gap group');
+assert(help.includes('gap_analyze'), 'proof-or-stop help missing gap_analyze');
+assert(help.includes('convergence_check'), 'proof-or-stop help missing convergence_check');
+assert(help.includes('Gap:'), 'proof-or-stop help missing Gap group');
 
 const gap = extractJsonObject(run('gap_analyze'));
 assert(typeof gap.coveragePercent === 'number', 'gap_analyze missing coveragePercent');

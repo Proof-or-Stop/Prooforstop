@@ -245,7 +245,7 @@ async function proveIsolatedProductionEvidenceNoWrite() {
     })}\n`],
     ['validation-evidence.json', `${canonicalJson({
       status: 'pass',
-      command: 'lattice validate --story=B-sentinel',
+      command: 'proof-or-stop validate --story=B-sentinel',
       headHash: '1'.repeat(40),
       materialHash: '2'.repeat(64),
     })}\n`],

@@ -402,7 +402,7 @@ function renderedLatticeCommandFragments(text: string): string[] {
 
 function assertShellSafeLatticeCommandFragments(text: string): string[] {
   const commands = renderedLatticeCommandFragments(text);
-  assert.ok(commands.length > 0, 'expected at least one rendered lattice command fragment');
+  assert.ok(commands.length > 0, 'expected at least one rendered proof-or-stop command fragment');
   for (const command of commands) {
     assert.doesNotMatch(command, /<[^>\n]+>/, `angle placeholder in rendered command: ${command}`);
     execFileSync('zsh', ['-n', '-c', command], { stdio: ['ignore', 'pipe', 'pipe'] });
@@ -412,7 +412,7 @@ function assertShellSafeLatticeCommandFragments(text: string): string[] {
 
 function assertStaleRecoveryCommandsShellSafe(formatted: string): string[] {
   const commands = assertShellSafeLatticeCommandFragments(staleRecoveryBlock(formatted));
-  assert.equal(commands.length, 5, 'stale recovery must expose every inline lattice command fragment');
+  assert.equal(commands.length, 5, 'stale recovery must expose every inline proof-or-stop command fragment');
   assert.equal(commands.some((command) => command.startsWith('proof-or-stop validate ')), true);
   assert.equal(commands.some((command) => command.startsWith('proof-or-stop verification_evidence_refresh_stale ')), true);
   // B-cc10 F-077: the runtime emits the CANONICAL wrapper name; `bin/lattice.js` was deleted

@@ -10,7 +10,7 @@
  * @description
  * Proves active runtime, Codex adapter, and generated bootstrap surfaces no
  * longer accept or advertise legacy CLI alias compatibility. After the legacy
- * brand removal, the only active CLI surface is the lattice entrypoint and the
+ * brand removal, the only active CLI surface is the proof-or-stop entrypoint and the
  * only active project config is lattice.config.json.
  */
 
@@ -35,12 +35,12 @@ function writeText(root: string, relPath: string, content: string): void {
 
 assert.equal(formatLatticeVersionLine(), formatProofOrStopProductLine(), 'version output should be exactly the product line');
 
-// The generated bootstrap advertises only the canonical lattice entrypoint.
+// The generated bootstrap advertises only the canonical proof-or-stop entrypoint.
 const bootstrap = renderProofOrStopBootstrapScript(packageRoot);
 assert.match(bootstrap, /coreCliEngineCandidates/, 'generated bootstrap must resolve the core CLI engine');
 assert.match(bootstrap, /runCli/, 'generated bootstrap must invoke the lattice CLI runner');
 
-// Non-lattice project config is not an active fallback; only lattice.config.json
+// Non-proof-or-stop project config is not an active fallback; only lattice.config.json
 // is loaded. (No-compat: an arbitrarily-named legacy config is never read.)
 const legacyConfigRoot = mkdtempSync(join(tmpdir(), 'lattice-config-legacy-absent-'));
 try {
@@ -50,8 +50,8 @@ try {
   }, null, 2) + '\n');
   resetConfigCache();
   const legacyOnlyConfig = loadConfig(legacyConfigRoot);
-  assert.notEqual(legacyOnlyConfig.scanRoot, 'legacy-only-src', 'a non-lattice config file must not be loaded as active config');
-  assert.equal(legacyOnlyConfig.validate, undefined, 'a non-lattice config file validate commands must not be loaded');
+  assert.notEqual(legacyOnlyConfig.scanRoot, 'legacy-only-src', 'a non-proof-or-stop config file must not be loaded as active config');
+  assert.equal(legacyOnlyConfig.validate, undefined, 'a non-proof-or-stop config file validate commands must not be loaded');
 
   writeText(legacyConfigRoot, 'lattice.config.json', JSON.stringify({
     scanRoot: 'lattice-src',

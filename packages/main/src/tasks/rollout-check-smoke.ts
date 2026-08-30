@@ -112,15 +112,15 @@ assert.match(help, /rollout_check/, 'help exposes rollout_check');
 assert.match(help, /Entrypoint:\s+proof-or-stop/, 'help names proof-or-stop as entrypoint');
 assert.doesNotMatch(help, /Usage: lattice /, 'help never teaches the deprecated bin as the usage form');
 const storyCreateHelp = runCli(['story_create', '--help']);
-// B-cdf6 CHK-002: this asserted `lattice story_create` before the rename. The
+// B-cdf6 CHK-002: this asserted `proof-or-stop story_create` before the rename. The
 // help examples now render the canonical bin, so the old expectation inverted
 // into a guard that pinned the PRE-rename brand — it failed precisely because
 // the rename succeeded. Assert the canonical form, and assert the deprecated
 // form is absent so the example text cannot silently regress.
 assert.match(storyCreateHelp, /proof-or-stop story_create/, 'story_create help uses proof-or-stop examples');
-assert.doesNotMatch(storyCreateHelp, /lattice story_create/, 'story_create help no longer teaches the deprecated bin');
+assert.doesNotMatch(storyCreateHelp, /proof-or-stop story_create/, 'story_create help no longer teaches the deprecated bin');
 assert.match(storyCreateHelp, /proof-or-stop session_brief/, 'story_create help next step uses proof-or-stop');
-assert.doesNotMatch(storyCreateHelp, /lattice session_brief/, 'story_create help next-step hint no longer teaches the deprecated bin');
+assert.doesNotMatch(storyCreateHelp, /proof-or-stop session_brief/, 'story_create help next-step hint no longer teaches the deprecated bin');
 
 const flat = runJson(['rollout_check', `--projects=${repoRoot}`, '--format=json']);
 assertRolloutShape(flat, 'flat command');

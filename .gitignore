@@ -75,7 +75,7 @@ env/
 Thumbs.db
 packages/koala-observer-cli/
 
-# lattice runtime artifacts (managed)
+# proof-or-stop runtime artifacts (managed)
 **/owner-lease.json
 **/breaker-state.json
 **/takeover-count.json
@@ -98,7 +98,7 @@ packages/koala-observer-cli/
 .lattice/artifacts/baseline/
 .proof-or-stop/benchmarks/memory-playbook/
 .lattice/benchmarks/memory-playbook/
-# /lattice runtime artifacts (managed)
+# /proof-or-stop runtime artifacts (managed)
 
 # Lattice Authority internal key-management file (may hold local private key
 # material; never commit). See docs/requirements/decisions/lattice-authority-live-integration.md
@@ -132,4 +132,3 @@ output/
 experiments/recovery-runner/powered/
 experiments/recovery-runner/ablation-run-records.jsonl.exclusions.jsonl
 experiments/recovery-runner/analysis-out.*
-

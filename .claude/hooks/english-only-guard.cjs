@@ -11,7 +11,7 @@
  * Exit 0 always — warn-only, never exit 2.
  *
  * Graceful degradation: any error / malformed / empty stdin causes a silent
- * pass-through (exit 0), exactly like lattice-scope-pretool.cjs, so a hook bug
+ * pass-through (exit 0), exactly like proof-or-stop-scope-pretool.cjs, so a hook bug
  * can never trap the agent.
  *
  * SELF-CONTAINED: this hook does NOT require the compiled dist. Its CJK

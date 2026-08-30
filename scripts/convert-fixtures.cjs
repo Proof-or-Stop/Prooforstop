@@ -63,7 +63,7 @@ function convertCase(c) {
   // 3. 转换 expect
   if (c.expect) {
     if (c.expect.throws === true) {
-      // throws: true + errorMessageContains → lattice throws 字段
+      // throws: true + errorMessageContains → proof-or-stop throws 字段
       converted.throws = c.expect.errorMessageContains || c.expect.errorCode || 'Error';
     } else if (c.expect.throws === false) {
       // 非抛出场景，移除 throws 相关字段，保留其他
@@ -150,7 +150,7 @@ for (const file of files) {
   }
 }
 
-console.log(`\nDone: ${converted} converted, ${skipped} skipped (already lattice format)`);
+console.log(`\nDone: ${converted} converted, ${skipped} skipped (already proof-or-stop format)`);
 if (converted > 0) {
   console.log('原文件已备份为 .bak，检查无误后可删除');
   console.log('\n⚠ 含 _warning 的 case 需要手动检查 wrapper 是否支持');

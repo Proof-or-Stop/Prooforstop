@@ -6,11 +6,11 @@
  * @type feature
  * @priority high
  * @description
- * Verifies that verify_codex keeps lattice mirror mode strict while accepting
+ * Verifies that verify_codex keeps proof-or-stop mirror mode strict while accepting
  * registry-backed thin prompt assets without .lattice-codex/agents, and rejects
  * legacy-only adapter assets as an active runtime path.
  * @changes
- * - [CHK-003] Cover lattice mirror, registry thin, registry drift, tampered registry hash,
+ * - [CHK-003] Cover proof-or-stop mirror, registry thin, registry drift, tampered registry hash,
  *   and legacy-only adapter rejection.
  */
 
@@ -52,7 +52,7 @@ function makeRoot(name: string): string {
 }
 
 function seedCodexNativeHooks(root: string): void {
-  for (const relPath of ['.codex/hooks.json', '.codex/hooks/lattice-scope-pretool.cjs']) {
+  for (const relPath of ['.codex/hooks.json', '.codex/hooks/proof-or-stop-scope-pretool.cjs']) {
     writeText(root, relPath, readFileSync(join(repoRoot, relPath), 'utf8'));
   }
 }

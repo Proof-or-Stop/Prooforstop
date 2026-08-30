@@ -378,7 +378,7 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // pinned-source drift check, so it moves with any cli-engine.ts edit.
   // B-cdf6 CHK-002: repinned after the user-facing bin rename made the CLI's own
   // hint/error strings derive from the invoked bin token (proof-or-stop, with
-  // lattice kept as a deprecated alias). Only string interpolation and the
+  // proof-or-stop kept as a deprecated alias). Only string interpolation and the
   // redundant-bin-token tolerance changed; the approved non-literal loader call
   // site above is untouched, and no new dynamic load was introduced.
   // B-cdf6:F-057 — REPINNED, and the guard was right to fail. This fingerprint covers
@@ -1500,7 +1500,7 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-cdf6: both local bin wrappers must resolve a sibling dist path at runtime, so the
   // import specifier cannot be a literal — that is inherent to a bootstrap wrapper, not a
   // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH
-  // bin names (canonical proof-or-stop + the retained lattice alias), and because the
+  // bin names (canonical proof-or-stop + the retained proof-or-stop alias), and because the
   // canonical Codex entrypoint moved to bin/proof-or-stop-codex.js. The deprecated
   // bin/lattice-codex.js delegates to it and holds no loader of its own, so the canonical
   // file is what must be pinned here.

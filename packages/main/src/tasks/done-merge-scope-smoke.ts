@@ -24,7 +24,7 @@
  * that set blocks the merge.
  *
  * Function-level: calls `assertMainWorktreeReadyForMerge` directly against an
- * isolated temporary git repo. Does NOT shell out to the global lattice binary.
+ * isolated temporary git repo. Does NOT shell out to the global proof-or-stop binary.
  */
 
 import { strict as assert } from 'node:assert';

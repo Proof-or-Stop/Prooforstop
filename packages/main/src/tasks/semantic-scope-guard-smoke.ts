@@ -303,7 +303,7 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
   );
 }
 
-// ── 6. Disallowed changeKind is gated; story/lattice metadata is never gated ───
+// ── 6. Disallowed changeKind is gated; story/proof-or-stop metadata is never gated ───
 {
   const contract = makeContract({
     mode: 'enforce',

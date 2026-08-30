@@ -222,10 +222,10 @@ check('appendEntry + readEntries roundtrip', () => {
   const entry = dm.createEntry({
     category: 'debugging',
     scope: 'project',
-    summary: 'Use lattice doctor to check stuck locks',
-    trigger: 'lattice validate hanging',
-    lesson: 'lattice doctor reveals stuck-lock state and suggests resolution',
-    reusePrompt: 'Is there a stuck lock? Run lattice doctor first.',
+    summary: 'Use proof-or-stop doctor to check stuck locks',
+    trigger: 'proof-or-stop validate hanging',
+    lesson: 'proof-or-stop doctor reveals stuck-lock state and suggests resolution',
+    reusePrompt: 'Is there a stuck lock? Run proof-or-stop doctor first.',
     sourceAgent: 'verify-script',
   });
   dm.appendEntry(testFile, entry);
@@ -350,7 +350,7 @@ check('formatPreflightPack includes "Dev Memory Preflight" header', () => {
 
 console.log('\n--- Section 6: CLI smoke tests ---');
 
-// Use the compiled CLI directly — avoids local lattice bootstrap version skew.
+// Use the compiled CLI directly — avoids local proof-or-stop bootstrap version skew.
 const LATTICE_CLI = join(ROOT, 'packages', 'main', 'dist', 'cli.js');
 const cliEnv = {
   ...process.env,
@@ -474,10 +474,10 @@ check('dev_memory_finish writes candidate file', () => {
   runLattice([
     'dev_memory_capture',
     '--category=debugging',
-    '--summary=Use lattice doctor to diagnose stuck locks',
-    '--trigger=lattice validate hanging indefinitely',
-    '--lesson=lattice doctor reveals stuck-lock state and suggests fix path',
-    '--reusePrompt=Is there a stuck lock? Run lattice doctor',
+    '--summary=Use proof-or-stop doctor to diagnose stuck locks',
+    '--trigger=proof-or-stop validate hanging indefinitely',
+    '--lesson=proof-or-stop doctor reveals stuck-lock state and suggests fix path',
+    '--reusePrompt=Is there a stuck lock? Run proof-or-stop doctor',
   ]);
   // Now finish with a fake storyId (no story dir required in non-Lattice mode)
   const r = runLattice(['dev_memory_finish', '--storyId=B-test123']);
@@ -533,12 +533,12 @@ check('dev-memory.md explicitly states it cannot satisfy gate evidence', () => {
   }
 });
 
-check('dev-memory.md does NOT document lattice dev_start for this feature', () => {
+check('dev-memory.md does NOT document proof-or-stop dev_start for this feature', () => {
   const docPath = join(ROOT, 'docs', 'requirements', 'decisions', 'dev-memory.md');
   const content = readFileSync(docPath, 'utf-8');
-  // Must not use "lattice dev_start" (without "memory_") as a command for this feature
-  if (content.includes('lattice dev_start') || content.includes('### dev_start')) {
-    throw new Error('doc must not use "lattice dev_start" or "### dev_start" — use dev_memory_start instead');
+  // Must not use "proof-or-stop dev_start" (without "memory_") as a command for this feature
+  if (content.includes('proof-or-stop dev_start') || content.includes('### dev_start')) {
+    throw new Error('doc must not use "proof-or-stop dev_start" or "### dev_start" — use dev_memory_start instead');
   }
   // Must mention dev_memory_start
   if (!content.includes('dev_memory_start')) {
@@ -595,7 +595,7 @@ check('dev_memory_finish uses .lattice/story/actives path in CLI smoke test', ()
     '--category=pattern',
     '--summary=Finish path test entry for candidate dir',
     '--trigger=testing candidate dir path',
-    '--lesson=Test that finish uses dot lattice story actives path',
+    '--lesson=Test that finish uses dot proof-or-stop story actives path',
     '--reusePrompt=Check candidate dir path',
   ], finishEnv);
   const r = runLattice(['dev_memory_finish', '--storyId=B-pathtest'], finishEnv);

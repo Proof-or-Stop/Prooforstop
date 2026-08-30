@@ -6,7 +6,7 @@
  * @priority high
  * @description
  *   AGENTS requires aux_doc_list before related work, but the core-only
- *   global lattice binary previously did not include that command. Keep the
+ *   global proof-or-stop binary previously did not include that command. Keep the
  *   document-listing behavior in core so default installs can satisfy the
  *   workflow, while utils bootstrap remains compatible through duplicate
  *   registration guards.

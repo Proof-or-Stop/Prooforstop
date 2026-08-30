@@ -188,8 +188,8 @@ function scenarioEdgeCritical() {
 
 function scenarioMulti() {
   const p = createProject('lattice-risk-multi-');
-  // Two distinct categories: '状态机/门禁' (state machine) + '验证框架' (lattice validate).
-  const id = createStory(p, 'multi', 'low', 'Change the state machine guard logic and also the lattice validate fixture runner.');
+  // Two distinct categories: '状态机/门禁' (state machine) + '验证框架' (proof-or-stop validate).
+  const id = createStory(p, 'multi', 'low', 'Change the state machine guard logic and also the proof-or-stop validate fixture runner.');
   let story = readStory(p, id);
   const cats = (story.riskSignals || []).map(r => r.category);
   assert(cats.length >= 2, `multi: expected >=2 categories, got ${JSON.stringify(cats)}`);
@@ -222,7 +222,7 @@ function scenarioAdversarial() {
   // (b) user-set critical with a GARBAGE priorityElevatedFrom -> no downgrade.
   {
     const p = createProject('lattice-risk-adv-garbage-');
-    const id = createStory(p, 'adv-garbage', 'critical', 'Mentions the lattice validate fixture runner.');
+    const id = createStory(p, 'adv-garbage', 'critical', 'Mentions the proof-or-stop validate fixture runner.');
     const story = readStory(p, id);
     const cat = story.riskSignals[0].category;
     story.priorityElevatedFrom = 'not-a-priority'; // invalid value
@@ -247,7 +247,7 @@ function scenarioAdversarial() {
 
 // === B-30b2 CHK-002: mention-vs-modify guidance is discoverable + honest ===
 
-const STORY_CREATE_GUIDANCE = '若为误报（仅提及未修改），可 lattice story_review_dismiss 完整回退';
+const STORY_CREATE_GUIDANCE = '若为误报（仅提及未修改），可 proof-or-stop story_review_dismiss 完整回退';
 
 // CHK-002 happy: a story_create that HITS a riskSignal surfaces the dismiss
 // escape hatch on stderr (must contain the exact discoverable phrase + the
@@ -309,7 +309,7 @@ function scenarioGuidanceMiss() {
 function scenarioGuidanceHonest() {
   const p = createProject('lattice-guide-honest-');
   // Two distinct categories so we can test partial vs full dismiss.
-  const id = createStory(p, 'guide-honest', 'low', 'Change the state machine guard logic and also the lattice validate fixture runner.');
+  const id = createStory(p, 'guide-honest', 'low', 'Change the state machine guard logic and also the proof-or-stop validate fixture runner.');
   let story = readStory(p, id);
   const cats = (story.riskSignals || []).map(r => r.category);
   assert(cats.length >= 2, `guide-honest: expected >=2 categories, got ${JSON.stringify(cats)}`);

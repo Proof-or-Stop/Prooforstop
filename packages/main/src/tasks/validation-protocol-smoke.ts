@@ -389,14 +389,14 @@ try {
     writeFileSync(join(latticeCanonicalRoot, 'lattice.config.json'), JSON.stringify({
       validate: {
         commands: [
-          { label: 'canonical lattice gate', command: 'node', args: ['-e', 'process.stdout.write("lattice-canonical-ok")'] },
+          { label: 'canonical proof-or-stop gate', command: 'node', args: ['-e', 'process.stdout.write("lattice-canonical-ok")'] },
         ],
       },
     }));
     resetConfigCache();
     const canonicalDiscovered = configuredValidationCommands(latticeCanonicalRoot);
     assert.equal(canonicalDiscovered.length, 1, 'lattice.config.json validate.commands must load');
-    assert.equal(canonicalDiscovered[0].label, 'canonical lattice gate');
+    assert.equal(canonicalDiscovered[0].label, 'canonical proof-or-stop gate');
     const canonicalJson = await createVerifierHandlers({
       root: latticeCanonicalRoot,
       scanRoot: latticeCanonicalRoot,
@@ -436,7 +436,7 @@ try {
     writeFileSync(join(conflictConfigRoot, 'lattice.config.json'), JSON.stringify({
       validate: {
         commands: [
-          { label: 'lattice wins gate', command: 'node', args: ['-e', 'process.stdout.write("lattice-wins")'] },
+          { label: 'proof-or-stop wins gate', command: 'node', args: ['-e', 'process.stdout.write("lattice-wins")'] },
         ],
       },
     }));
@@ -450,7 +450,7 @@ try {
     resetConfigCache();
     const conflictDiscovered = configuredValidationCommands(conflictConfigRoot);
     assert.equal(conflictDiscovered.length, 1, 'only the canonical lattice.config.json entry must be loaded');
-    assert.equal(conflictDiscovered[0].label, 'lattice wins gate', 'lattice.config.json must win over a non-canonical config');
+    assert.equal(conflictDiscovered[0].label, 'proof-or-stop wins gate', 'lattice.config.json must win over a non-canonical config');
     const conflictJson = await createVerifierHandlers({
       root: conflictConfigRoot,
       scanRoot: conflictConfigRoot,
@@ -1059,13 +1059,13 @@ try {
     assert.equal(report.runtimeMode.mode, 'diagnostic-only');
     assert.equal(report.runtimeMode.source, 'unknown');
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
-    assert.equal((report.projectLocalBin.actual as any).path, localBin, 'project-local-bin must report the lattice bin that shadows the active CLI');
+    assert.equal((report.projectLocalBin.actual as any).path, localBin, 'project-local-bin must report the proof-or-stop bin that shadows the active CLI');
     assert.equal((report.projectLocalBin.actual as any).shadowsEntrypoint, true);
     assert.match(report.projectLocalBin.warnings?.join('\n') ?? '', /node_modules\/\.bin\/lattice/);
     const runtimeSummary = renderRuntimeFootprintSummary(report.runtimeMode);
     assert.match(
       runtimeSummary,
-      /Next action: project-local CLI bin .*node_modules\/\.bin\/lattice resolves to .* but the active CLI resolves to .*/,
+      /Next action: project-local CLI bin .*node_modules\/\.bin\/proof-or-stop resolves to .* but the active CLI resolves to .*/,
     );
   } finally {
     rmSync(latticeConflictRuntimeRoot, { recursive: true, force: true });

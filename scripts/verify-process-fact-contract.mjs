@@ -1508,7 +1508,7 @@ function assertProofStoryProgressiveBoundary() {
   // canonical package templates (the REAL delivery path — review_run_start /
   // agent_prompt resolve each role body from templates/agents), NOT from the
   // regenerable host shims under .claude/agents / .lattice-codex/agents (those
-  // are thin/mirror adapters that `lattice init --upgrade` rewrites). Validate
+  // are thin/mirror adapters that `proof-or-stop init --upgrade` rewrites). Validate
   // the tokens in the template source, and prove the guidance does not depend
   // on the bootstrap-only modular-reviewer shims.
   const rolloutPromptTemplates = rolloutPromptNames.map(
@@ -3750,7 +3750,7 @@ function scanActiveLifecycleDocText(text, label) {
         .slice(Math.max(0, index - 2), Math.min(lines.length, index + 3))
         .join('\n');
       if (!legacyAliasDocContextPattern.test(context)) {
-        issues.push(`${label}:${lineNo} active lifecycle docs must use lattice validate as current primary; koala validate may appear only as a legacy alias/compat reference`);
+        issues.push(`${label}:${lineNo} active lifecycle docs must use proof-or-stop validate as current primary; koala validate may appear only as a legacy alias/compat reference`);
       }
     }
 
@@ -3776,10 +3776,10 @@ function scanActiveLifecycleDocText(text, label) {
 
 function assertSyntheticAdversarialChecks() {
   const badPassOnlyLines = [
-    'lattice finding_add \'{"storyId":"B-x","desc":"文档一致性检查通过","severity":"low","category":"happy","agent":"lattice-review-docs"}\'',
-    'lattice finding_add \'{"storyId":"B-x","desc":"consistency check PASSED","severity":"low","category":"happy","agent":"lattice-review-docs"}\'',
-    'lattice finding_add \'{"storyId":"B-x","desc":"no findings","severity":"low","category":"happy","agent":"lattice-review-quality"}\'',
-    'lattice finding_add \'{"storyId":"B-x","desc":"PASS","severity":"low","category":"happy","agent":"lattice-review-quality"}\'',
+    'proof-or-stop finding_add \'{"storyId":"B-x","desc":"文档一致性检查通过","severity":"low","category":"happy","agent":"lattice-review-docs"}\'',
+    'proof-or-stop finding_add \'{"storyId":"B-x","desc":"consistency check PASSED","severity":"low","category":"happy","agent":"lattice-review-docs"}\'',
+    'proof-or-stop finding_add \'{"storyId":"B-x","desc":"no findings","severity":"low","category":"happy","agent":"lattice-review-quality"}\'',
+    'proof-or-stop finding_add \'{"storyId":"B-x","desc":"PASS","severity":"low","category":"happy","agent":"lattice-review-quality"}\'',
   ];
   for (const [index, line] of badPassOnlyLines.entries()) {
     assert(
@@ -3788,7 +3788,7 @@ function assertSyntheticAdversarialChecks() {
     );
   }
   const multilinePassOnly = [
-    "lattice finding_add '{",
+    "proof-or-stop finding_add '{",
     '  storyId:"B-x",',
     '  desc:"PASS",',
     '  severity:"low",',
@@ -3802,7 +3802,7 @@ function assertSyntheticAdversarialChecks() {
   );
 
   const noReviewPass = [
-    'Use lattice finding_add for every problem.',
+    'Use proof-or-stop finding_add for every problem.',
     'No findings. Review passed.',
   ].join('\n');
   assert(
@@ -3810,13 +3810,13 @@ function assertSyntheticAdversarialChecks() {
     'synthetic no-finding prompt without review_pass_set should fail',
   );
 
-  const activeLegacy = 'lattice finding_add \'{"storyId":"B-x","desc":"cleanup","severity":"medium","category":"cleanup","agent":"lattice-review-quality"}\'';
+  const activeLegacy = 'proof-or-stop finding_add \'{"storyId":"B-x","desc":"cleanup","severity":"medium","category":"cleanup","agent":"lattice-review-quality"}\'';
   assert(
     scanPromptText(activeLegacy, 'synthetic-active-legacy').some(issue => issue.includes('legacy category')),
     'synthetic active legacy category should fail',
   );
   const multilineLegacy = [
-    "lattice finding_add '{",
+    "proof-or-stop finding_add '{",
     '  storyId:"B-x",',
     '  desc:"real issue",',
     '  severity:"medium",',
@@ -3829,23 +3829,23 @@ function assertSyntheticAdversarialChecks() {
     'synthetic multiline legacy category should fail',
   );
 
-  const unknownCategory = 'lattice finding_add \'{"storyId":"B-x","desc":"docs","severity":"medium","category":"docs","agent":"lattice-review-quality"}\'';
+  const unknownCategory = 'proof-or-stop finding_add \'{"storyId":"B-x","desc":"docs","severity":"medium","category":"docs","agent":"lattice-review-quality"}\'';
   assert(
     scanPromptText(unknownCategory, 'synthetic-unknown-category').some(issue => issue.includes('unknown category')),
     'synthetic unknown category should fail',
   );
-  const literalReviewRunId = 'lattice finding_add \'{"storyId":"B-x","reviewRunId":"B-x:RR-001","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'';
+  const literalReviewRunId = 'proof-or-stop finding_add \'{"storyId":"B-x","reviewRunId":"B-x:RR-001","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'';
   assert(
     scanPromptText(literalReviewRunId, 'synthetic-literal-review-run-id').some(issue => issue.includes('hard-coded RR-001')),
     'synthetic literal RR-001 reviewer command should fail',
   );
-  const missingFindingReviewRunId = 'lattice finding_add \'{"storyId":"B-x","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'';
+  const missingFindingReviewRunId = 'proof-or-stop finding_add \'{"storyId":"B-x","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'';
   assert(
     scanPromptText(missingFindingReviewRunId, 'packages/main/templates/agents/lattice-review-story-init.md')
       .some(issue => issue.includes('finding_add example must include reviewRunId')),
     'synthetic reviewer finding_add JSON example without reviewRunId should fail',
   );
-  const missingPassReviewRunId = 'lattice review_pass_set \'{"storyId":"B-x","agent":"lattice-review-quality","note":"quality review passed: checked changed files and found no blocker."}\'';
+  const missingPassReviewRunId = 'proof-or-stop review_pass_set \'{"storyId":"B-x","agent":"lattice-review-quality","note":"quality review passed: checked changed files and found no blocker."}\'';
   assert(
     scanPromptText(missingPassReviewRunId, 'packages/main/templates/agents/lattice-evaluator.md')
       .some(issue => issue.includes('review_pass_set example must include reviewRunId')),
@@ -3871,7 +3871,7 @@ function assertSyntheticAdversarialChecks() {
     'synthetic story_review.planReviewRound numeric docs should pass',
   );
   const multilineUnknown = [
-    "lattice finding_add '{",
+    "proof-or-stop finding_add '{",
     '  storyId:"B-x",',
     '  desc:"real issue",',
     '  severity:"medium",',
@@ -3885,13 +3885,13 @@ function assertSyntheticAdversarialChecks() {
   );
 
   const goodPrompt = [
-    'lattice review_run_start \'{"storyId":"B-x","agent":"lattice-review-quality"}\'',
-    'lattice finding_add \'{"storyId":"B-x","reviewRunId":"<reviewRunId from review_run_start>","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'',
-    'lattice review_pass_set \'{"storyId":"B-x","agent":"lattice-review-quality","reviewRunId":"<reviewRunId from review_run_start>","note":"quality review passed: checked changed files and found no blocker."}\'',
+    'proof-or-stop review_run_start \'{"storyId":"B-x","agent":"lattice-review-quality"}\'',
+    'proof-or-stop finding_add \'{"storyId":"B-x","reviewRunId":"<reviewRunId from review_run_start>","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'',
+    'proof-or-stop review_pass_set \'{"storyId":"B-x","agent":"lattice-review-quality","reviewRunId":"<reviewRunId from review_run_start>","note":"quality review passed: checked changed files and found no blocker."}\'',
   ].join('\n');
   assert(scanPromptText(goodPrompt, 'synthetic-good').length === 0, 'synthetic good prompt should pass');
 
-  const localizedAgentPlaceholder = 'lattice review_run_start \'{"storyId":"B-x","agent":"<本 reviewer 名>"}\'';
+  const localizedAgentPlaceholder = 'proof-or-stop review_run_start \'{"storyId":"B-x","agent":"<本 reviewer 名>"}\'';
   assert(
     scanPromptText(localizedAgentPlaceholder, 'synthetic-localized-agent-placeholder')
       .some(issue => issue.includes('machine field "agent" uses non-code value')),
@@ -3932,7 +3932,7 @@ function assertSyntheticAdversarialChecks() {
     '    allowedPhases: ["PLAN", "REVIEW"],',
     '    destructiveRisk: "none",',
     '    reason: "Reviewer\\\'s plan artifact with \\"quotes\\" stays parseable.",',
-    '    replacement: `Use lattice validate --story=<storyId> and record verificationEvidence`,',
+    '    replacement: `Use proof-or-stop validate --story=<storyId> and record verificationEvidence`,',
     '  },',
     '} as const satisfies Record<string, CommandPolicy>;',
   ].join('\n');
@@ -4046,11 +4046,11 @@ function assertSyntheticAdversarialChecks() {
 
   const badKoalaValidatePrimaryDoc = 'TEST 阶段运行 `koala validate`，写 validation evidence。';
   assert(
-    scanActiveLifecycleDocText(badKoalaValidatePrimaryDoc, 'synthetic-koala-validate-primary-doc').some(issue => issue.includes('lattice validate as current primary')),
+    scanActiveLifecycleDocText(badKoalaValidatePrimaryDoc, 'synthetic-koala-validate-primary-doc').some(issue => issue.includes('proof-or-stop validate as current primary')),
     'synthetic active lifecycle doc that documents koala validate as current primary should fail',
   );
 
-  const goodKoalaValidateAliasDoc = 'TEST 阶段运行 `lattice validate`（legacy alias: `koala validate`），写 validation evidence。';
+  const goodKoalaValidateAliasDoc = 'TEST 阶段运行 `proof-or-stop validate`（legacy alias: `koala validate`），写 validation evidence。';
   assert(
     scanActiveLifecycleDocText(goodKoalaValidateAliasDoc, 'synthetic-koala-validate-alias-doc').length === 0,
     'synthetic active lifecycle doc may mention koala validate only as a legacy alias',

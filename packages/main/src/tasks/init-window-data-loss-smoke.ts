@@ -99,7 +99,7 @@ function initRepo(): string {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-  // Mirror the production `.gitignore` lattice rules verbatim: `.lattice/*` is
+  // Mirror the production `.gitignore` proof-or-stop rules verbatim: `.lattice/*` is
   // ignored, the story tree is re-allowlisted, but `activity.jsonl` is ignored
   // again. This is the precise rule shape from the repo root `.gitignore`.
   write(root, '.gitignore', [

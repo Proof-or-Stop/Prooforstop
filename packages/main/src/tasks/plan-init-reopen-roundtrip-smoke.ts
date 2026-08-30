@@ -13,7 +13,7 @@
  *     -> story_advance INIT_CHECK (dev_start REUSES the existing worktree)
  *     -> story_advance PLAN
  *
- * Every lattice command from INIT_CHECK onward runs FROM INSIDE the worktree with a
+ * Every proof-or-stop command from INIT_CHECK onward runs FROM INSIDE the worktree with a
  * stable LATTICE_SESSION_ID (one owner lease), so this is the first smoke exercising
  * the from-inside-the-worktree path the two defects hid behind:
  *   (1) the missing PLAN->INIT machine edge, and

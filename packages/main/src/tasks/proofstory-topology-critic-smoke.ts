@@ -570,8 +570,8 @@ smokeSuite: try {
   assert.equal(findRuntimeArtifactEntry('.lattice/activity.jsonl')?.id, 'runtime-activity-log', 'activity log is classified by the production runtime-artifact registry');
   assert.equal(git(root, ['ls-files', '.lattice/activity.jsonl']), '', 'runtime activity log is never tracked in the business baseline');
   execFileSync('git', ['check-ignore', '-q', '.lattice/activity.jsonl'], { cwd: root, stdio: 'ignore' });
-  assert.throws(() => execFileSync('git', ['check-ignore', '-q', `.lattice/story/actives/${storyId}/topology-critic-receipt.json`], { cwd: root, stdio: 'ignore' }), 'gate-consumed critic proof remains visible rather than hidden by a broad .lattice ignore');
-  assert.throws(() => execFileSync('git', ['check-ignore', '-q', `.lattice/story/actives/${storyId}/acceptance-basis.json`], { cwd: root, stdio: 'ignore' }), 'gate-consumed basis proof remains visible rather than hidden by a broad .lattice ignore');
+  assert.throws(() => execFileSync('git', ['check-ignore', '-q', `.lattice/story/actives/${storyId}/topology-critic-receipt.json`], { cwd: root, stdio: 'ignore' }), 'gate-consumed critic proof remains visible rather than hidden by a broad .proof-or-stop ignore');
+  assert.throws(() => execFileSync('git', ['check-ignore', '-q', `.lattice/story/actives/${storyId}/acceptance-basis.json`], { cwd: root, stdio: 'ignore' }), 'gate-consumed basis proof remains visible rather than hidden by a broad .proof-or-stop ignore');
   const persistedReceiptBytes = readFileSync(join(root, '.lattice/story/actives', storyId, 'topology-critic-receipt.json'), 'utf8');
   assert.doesNotMatch(persistedReceiptBytes, /forged|tampered|nonexistent/, 'no forged or mutated critic proof remains reusable');
   assert.equal(store.readTopologyExclusionApprovals(storyId).approvals.length, 0, 'no synthetic exclusion approval remains persisted');
@@ -579,7 +579,7 @@ smokeSuite: try {
   assert.ok(existsSync(join(sourceRoot, 'src/core/topology-critic-receipt.ts')));
   console.log('ProofStory topology critic smoke: PASS');
   console.log('  real PLAN to DEV structural gate transcript without critic receipt requirement: PASS');
-  console.log('  real bin/lattice dispatch + producer + read-only CLI verifier: PASS');
+  console.log('  real bin/proof-or-stop dispatch + producer + read-only CLI verifier: PASS');
   console.log('  alter/delete fields, signatures, provenance, freshness, replay, canonical refs: PASS');
   console.log('  zero/one/multiple exclusions + authority/freshness/one-to-one + restoration: PASS');
   console.log('  prompt/schema/handler/verifier/no-lifecycle-gate/incomplete-basis mutations: PASS');

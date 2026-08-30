@@ -28,7 +28,7 @@
  *    unchanged, and no 'helped' outcome is produced anywhere.
  *
  * Fully hermetic: every fixture lives in a mkdtemp dir; no live repo-root
- * .lattice state is read.
+ * .proof-or-stop state is read.
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';

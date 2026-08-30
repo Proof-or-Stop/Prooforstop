@@ -33,7 +33,7 @@
  *     exception escapes applyDoneMergeEffects) and the report carries the advisory
  *     "experience cache refresh skipped: <reason>" line — never blocking the merge.
  *
- * Isolated: temp git root + temp HOME + temp lattice locks; restores process.cwd +
+ * Isolated: temp git root + temp HOME + temp proof-or-stop locks; restores process.cwd +
  * env; no repo pollution. Exits non-zero on any failed assertion. Prints a final
  * "✓ ... smoke passed (N checks)" line.
  */

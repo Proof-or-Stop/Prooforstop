@@ -82,13 +82,13 @@ import {
 const ENGLISH_ARTIFACTS_GATE_LABEL =
   'english-artifacts (REVIEW→TEST preflight; standalone: npm run test:legacy -- english-only-guards)';
 
-// B-292d: lattice-residue gate — same shape as english-artifacts. Calls the
-// canonical script delivered by B-40eb (`scripts/verify-lattice-residue.mjs`).
-// No standalone `validate --lattice-residue` flag; standalone re-run is the npm
+// B-292d: proof-or-stop-residue gate — same shape as english-artifacts. Calls the
+// canonical script delivered by B-40eb (`scripts/verify-proof-or-stop-residue.mjs`).
+// No standalone `validate --proof-or-stop-residue` flag; standalone re-run is the npm
 // script that wraps the same script (kept per user sub-decision a3).
 const LATTICE_RESIDUE_GATE_LABEL =
-  'lattice-residue (REVIEW→TEST preflight; standalone: npm run test:lattice-residue)';
-const LATTICE_RESIDUE_SCRIPT_REL = 'scripts/verify-lattice-residue.mjs';
+  'proof-or-stop-residue (REVIEW→TEST preflight; standalone: npm run test:proof-or-stop-residue)';
+const PROOF_OR_STOP_RESIDUE_SCRIPT_REL = 'scripts/verify-proof-or-stop-residue.mjs';
 const LATTICE_RESIDUE_TIMEOUT_MS = 30_000;
 
 interface LatticeResidueGateResult {
@@ -98,7 +98,7 @@ interface LatticeResidueGateResult {
 }
 
 /**
- * B-292d: Run the canonical lattice-residue script as a preflight gate.
+ * B-292d: Run the canonical proof-or-stop-residue script as a preflight gate.
  *
  * Treats exit code 0 as PASS; any non-zero (including timeout / spawn failure)
  * as FAIL. The script's stdout hit list is surfaced verbatim in the gate's
@@ -111,11 +111,11 @@ interface LatticeResidueGateResult {
  *     operator can extend the script's allowlist via a follow-up story.
  */
 function runLatticeResidueGate(projectRoot: string): LatticeResidueGateResult {
-  const scriptAbs = join(projectRoot, LATTICE_RESIDUE_SCRIPT_REL);
+  const scriptAbs = join(projectRoot, PROOF_OR_STOP_RESIDUE_SCRIPT_REL);
   if (!existsSync(scriptAbs)) {
     return {
       ok: false,
-      summary: `lattice-residue gate script missing at ${LATTICE_RESIDUE_SCRIPT_REL}`,
+      summary: `proof-or-stop-residue gate script missing at ${PROOF_OR_STOP_RESIDUE_SCRIPT_REL}`,
       details: [`expected: ${scriptAbs}`],
     };
   }
@@ -138,13 +138,13 @@ function runLatticeResidueGate(projectRoot: string): LatticeResidueGateResult {
     if (error.code === 'ETIMEDOUT' || error.signal === 'SIGTERM') {
       return {
         ok: false,
-        summary: `lattice-residue gate timed out after ${LATTICE_RESIDUE_TIMEOUT_MS}ms`,
+        summary: `proof-or-stop-residue gate timed out after ${LATTICE_RESIDUE_TIMEOUT_MS}ms`,
         details: stderr ? [stderr.trim()] : [],
       };
     }
     return {
       ok: false,
-      summary: hits.length > 0 ? `brand residue: ${hits.length} hit(s)` : 'lattice-residue gate failed',
+      summary: hits.length > 0 ? `brand residue: ${hits.length} hit(s)` : 'proof-or-stop-residue gate failed',
       details: hits.length > 0 ? hits : stderr ? [stderr.trim()] : [],
     };
   }
@@ -180,7 +180,7 @@ export interface PreflightDeps {
 }
 
 export interface PreflightGateEntry {
-  name: 'channel' | 'concept' | 'lint' | 'docs-drift' | 'codex-adapter' | 'english-artifacts' | 'lattice-residue' | 'reviewer-evidence';
+  name: 'channel' | 'concept' | 'lint' | 'docs-drift' | 'codex-adapter' | 'english-artifacts' | 'proof-or-stop-residue' | 'reviewer-evidence';
   ok: boolean;
   status: string;
   summary: string;
@@ -357,7 +357,7 @@ export function runReviewCliGates(
       commandLabel: ENGLISH_ARTIFACTS_GATE_LABEL,
     });
     gates.push({
-      name: 'lattice-residue',
+      name: 'proof-or-stop-residue',
       ok: true,
       status: 'skipped',
       summary: 'Express channel does not check CLI gate',
@@ -582,12 +582,12 @@ export function runReviewCliGates(
     commandLabel: ENGLISH_ARTIFACTS_GATE_LABEL,
   });
 
-  // ── lattice-residue (B-292d) ──
+  // ── proof-or-stop-residue (B-292d) ──
   // Run the canonical B-40eb script as a structured preflight gate.
   // Non-zero exit BLOCKs story_advance to TEST; stdout hit list is surfaced.
   const latticeResidue = runLatticeResidueGate(deps.projectRoot);
   gates.push({
-    name: 'lattice-residue',
+    name: 'proof-or-stop-residue',
     ok: latticeResidue.ok,
     status: latticeResidue.ok ? 'pass' : 'fail',
     summary: latticeResidue.summary,

@@ -54,7 +54,7 @@ function runProofOrStop(root: string, command: string): string {
   });
 }
 
-/** Minimal lattice project: git repo + config. resetConfigCache so the run
+/** Minimal proof-or-stop project: git repo + config. resetConfigCache so the run
  *  picks up this temp root's storyDir instead of a cached prior project. */
 function setupProject(prefix: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));

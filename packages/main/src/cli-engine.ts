@@ -750,7 +750,7 @@ export async function runCli(opts?: {
     cmd = normalizedAlias.canonicalAlias!;
     arg = argv[1];
     // B-cdf6 CHK-002: forgive a pasted redundant bin token under EITHER name,
-    // so `proof-or-stop proof-or-stop --version` behaves like `lattice lattice --version`.
+    // so `proof-or-stop proof-or-stop --version` behaves like `proof-or-stop lattice --version`.
   } else if (PROOF_OR_STOP_BIN_NAMES.includes(cmd) && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
     argv.splice(0, argv.length, 'version');
     cmd = 'version';

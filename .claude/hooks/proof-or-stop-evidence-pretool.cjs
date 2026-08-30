@@ -3,7 +3,7 @@
  * Claude Code PreToolUse(Bash) hook: evidence-pin seatbelt
  *
  * B-1507 CHK-003. Intercepts Bash commands BEFORE they run. When the command is
- * a `lattice verification_evidence_add` (or `verification_run`) invocation whose
+ * a `proof-or-stop verification_evidence_add` (or `verification_run`) invocation whose
  * caller `--command`/`--selector` would NOT match the intent's immutable pinned
  * verification (B-ec67), it blocks the write early with a teaching message.
  *

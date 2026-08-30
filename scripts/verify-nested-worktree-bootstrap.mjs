@@ -5,7 +5,7 @@
 // project-root resolves to a LINKED WORKTREE never creates a nested
 // `<worktree>/.worktrees/B-new`.
 //
-// Faithful reproduction of the B-a4e3 incident: lattice was driven from inside
+// Faithful reproduction of the B-a4e3 incident: proof-or-stop was driven from inside
 // an existing story worktree, so cwd-upward project-root discovery made the
 // handler's `root` the linked worktree. The old resolver used
 // `git rev-parse --show-toplevel` (cwd=root) which, from a linked worktree,

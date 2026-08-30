@@ -16,7 +16,7 @@
  *   C. verification_pin_guard_check (handlers/evidence-pin-guard.ts + the pure
  *      core): DENIES a mismatched --command (JSON-blob form) and a mismatched
  *      --selector (--k=v form); ALLOWS a matching write / verification_run /
- *      unpinned intent / non-lattice command; FAIL-OPEN on a nonexistent story or
+ *      unpinned intent / non-proof-or-stop command; FAIL-OPEN on a nonexistent story or
  *      unparseable input. Adversarial: the enforceAndStampEvidence HANDLER still
  *      refuses the same mismatch when the guard/hook is bypassed (seatbelt is
  *      non-load-bearing).
@@ -60,8 +60,8 @@ import type {
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(HERE, '../../../..');
 const REAL_CLI = join(REPO_ROOT, 'packages', 'main', 'dist', 'cli.js');
-const CLAUDE_HOOK = join(REPO_ROOT, '.claude', 'hooks', 'lattice-evidence-pretool.cjs');
-const CODEX_HOOK = join(REPO_ROOT, '.codex', 'hooks', 'lattice-evidence-pretool.cjs');
+const CLAUDE_HOOK = join(REPO_ROOT, '.claude', 'hooks', 'proof-or-stop-evidence-pretool.cjs');
+const CODEX_HOOK = join(REPO_ROOT, '.codex', 'hooks', 'proof-or-stop-evidence-pretool.cjs');
 
 function sha256Hex(value: string): string {
   return createHash('sha256').update(value).digest('hex');
@@ -390,10 +390,10 @@ async function partC(): Promise<void> {
     });
     assert.equal(allowUnpinned.verdict, 'allow', 'C5: unpinned intent is ALLOWED');
 
-    // C6: ALLOW (no-decision) — not a lattice evidence-write command at all.
+    // C6: ALLOW (no-decision) — not a proof-or-stop evidence-write command at all.
     const allowNonLattice = guardVerdict(env, { commandString: 'git status -s' });
-    assert.equal(allowNonLattice.verdict, 'allow', 'C6: non-lattice command is ALLOWED (no-decision)');
-    assert.equal(allowNonLattice.matched, false, 'C6: non-lattice command is not matched as an evidence write');
+    assert.equal(allowNonLattice.verdict, 'allow', 'C6: non-proof-or-stop command is ALLOWED (no-decision)');
+    assert.equal(allowNonLattice.matched, false, 'C6: non-proof-or-stop command is not matched as an evidence write');
 
     // C7: FAIL-OPEN — a WOULD-BE-deny (mismatched command) against a NONEXISTENT story:
     //     the store read fails → the seatbelt allows rather than blocking legitimate work.

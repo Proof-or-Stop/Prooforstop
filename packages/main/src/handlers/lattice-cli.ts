@@ -208,9 +208,9 @@ function buildConfigDoctor(ctx: HandlerContext) {
     {
       id: 'package-bin-aliases',
       ok: packageBinHasLattice(mainPackagePath),
-      // B-cdf6:F-046 — this said 'only the lattice bin', which became FALSE when the
+      // B-cdf6:F-046 — this said 'only the proof-or-stop bin', which became FALSE when the
       // rename added proof-or-stop as the primary bin alongside the retained alias.
-      detail: 'packages/main package.json exposes the proof-or-stop bin (with the lattice alias retained for compatibility)',
+      detail: 'packages/main package.json exposes the proof-or-stop bin (with the proof-or-stop alias retained for compatibility)',
     },
   ];
   const ok = checks.every(check => check.ok);
@@ -538,7 +538,7 @@ export function createLatticeCliHandlers(ctx: HandlerContext) {
   return {
     // quorum_prune is the official B-bf52 recovery for poisoned host-verdict rounds. It is
     // registered here (a registry.registerBatch batch) exactly as createQuorumSubmitHandlers is
-    // batch-registered, so the CLI resolves `lattice quorum_prune` without a bespoke wiring path.
+    // batch-registered, so the CLI resolves `proof-or-stop quorum_prune` without a bespoke wiring path.
     ...createQuorumPruneHandlers(ctx),
     host_list(args: FormatArgs = {}) {
       const result = buildLatticeHostList();

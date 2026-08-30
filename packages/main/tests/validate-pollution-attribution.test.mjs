@@ -39,7 +39,7 @@
  *   7. The pure attributor itself, including a control proving it does not
  *      report ambiguity when there is none.
  *   8. HANDLER WIRING (B-7dff F-006) — the same scenario driven through the REAL
- *      `lattice validate --story=... --json` CLI, asserted on the PERSISTED
+ *      `proof-or-stop validate --story=... --json` CLI, asserted on the PERSISTED
  *      test-evidence.json. Section 6 proves the summariser honours the flag when
  *      it is handed one; it cannot prove anybody hands it one. It did not:
  *      `externalResult()` in handlers/verifier.ts is a field whitelist and
@@ -209,7 +209,7 @@ function handshakeCommand({ syncDir: dir, self, peers, writes = null, observes =
 /**
  * A complete Proofbound project fixture (git repo + config + REVIEW-phase story)
  * whose configured `validate.commands` are the two handshake probes above, then
- * ONE real `lattice validate --story=... --json` run against it. Returns the
+ * ONE real `proof-or-stop validate --story=... --json` run against it. Returns the
  * handler's own JSON result and the test-evidence.json the handler persisted.
  */
 function runStoryValidateFixture(name, { dirty }) {

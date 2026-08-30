@@ -271,7 +271,7 @@ function parseJsonLine(line: string): unknown | undefined {
   }
 }
 
-/** Dumb documented hint: does the cwd look like a lattice worktree/root? */
+/** Dumb documented hint: does the cwd look like a proof-or-stop worktree/root? */
 export function isLatticeCwdHint(cwd: string | null): boolean {
   if (!cwd) return false;
   return cwd.includes('/.worktrees/');

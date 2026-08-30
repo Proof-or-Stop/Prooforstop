@@ -55,7 +55,7 @@ export const ACTIVE_LIFECYCLE_PHASES = [
 ] as const satisfies readonly StoryPhase[];
 
 /**
- * The seven lifecycle phases in which lattice commands are gated. Mirrors
+ * The seven lifecycle phases in which proof-or-stop commands are gated. Mirrors
  * `CommandPhase` from command-policy.ts — these are the phases a command can
  * declare as `allowedPhases`. This is the single source of truth: the command
  * dimension (`lifecycleCommandsByPhase`) and the contract / smoke tasks all

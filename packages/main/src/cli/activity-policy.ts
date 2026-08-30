@@ -68,7 +68,7 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   //      path reaches readOrCreateOwnerSessionToken, which creates or refreshes a
   //      file under .lattice/runtime/owner-session-tokens/ — registered
   //      SEPARATELY in core/runtime-artifact-registry.ts as the
-  //      `owner-session-token-store` artifact, so it is a second .lattice write
+  //      `owner-session-token-store` artifact, so it is a second .proof-or-stop write
   //      the activity path can cause.
   //   D. THE HEALTH LOG. When activity or hook persistence FAILS, reportHealthIssue
   //      (core/health.ts) appends one JSONL row to the health log — ~/.lattice/health.jsonl
@@ -257,14 +257,7 @@ export function inferCodexEntrypoint(): string {
   const explicitEntrypoint = readBrandEnv('CODEX_ENTRYPOINT');
   if (explicitEntrypoint) return explicitEntrypoint;
   const invoked = process.argv[1] || '';
-  // B-cdf6:F-068 — recognize BOTH wrapper filenames. This tested only the
-  // deprecated `bin/lattice-codex.js` shape, so an invocation through the canonical
-  // `bin/proof-or-stop-codex.js` would fall through and be misclassified as
-  // `global-fallback`. Currently masked in the shipped flow because the generated
-  // wrapper sets CODEX_ENTRYPOINT explicitly above, but the asymmetry is exactly
-  // the class this rename must not leave behind: the new name unrecognized while
-  // the old one works.
-  if (invoked.includes('proof-or-stop-codex') || invoked.includes('lattice-codex')) return 'local-wrapper';
+  if (invoked.includes('proof-or-stop-codex')) return 'local-wrapper';
   if (readBrandEnv('ACTIVITY_SOURCE') === 'codex') return 'global-fallback';
   return 'cli';
 }

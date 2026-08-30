@@ -119,7 +119,7 @@ function headingFor(lineNo: number, headings: Array<{ line: number; heading: str
 }
 
 /**
- * Command name whitelist — not real lattice commands (keywords in docs); don't emit drift when these are scanned.
+ * Command name whitelist — not real proof-or-stop commands (keywords in docs); don't emit drift when these are scanned.
  * help/status/init are real commands but don't go through --help detection (have dedicated bin entry or would hang).
  */
 const COMMAND_SCAN_IGNORE = new Set<string>([

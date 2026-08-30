@@ -2,7 +2,7 @@
 /**
  * RED artifact (B-49d4, CHK-001) — the registration guard asserts a FIXED
  * allowlist instead of DERIVING its population, so it is structurally blind to
- * anything nobody put on the list, and `lattice validate` never runs 15 of the
+ * anything nobody put on the list, and `proof-or-stop validate` never runs 15 of the
  * red harnesses that are committed next to it.
  *
  * ── THE DEFECT'S UNUSUAL FAILURE MODE ───────────────────────────────────────
@@ -40,7 +40,7 @@
  *                  against the real members rather than asserted about the probe
  *                  this file just wrote (see `PLANTED_MEMBER_MATCHES_THE_SHAPE_OF
  *                  _REAL_MEMBERS`). It is registered NOWHERE and it exits
- *                  NON-ZERO, so `lattice validate` would fail if it ran. The
+ *                  NON-ZERO, so `proof-or-stop validate` would fail if it ran. The
  *                  REAL guard is then spawned. Two independent assertions:
  *                  (A1) it must not exit 0, and (A2) a confident success line
  *                  must never report fewer members than exist on disk. A1 is the
@@ -149,7 +149,7 @@
  *   - `finally` does not run through SIGKILL or a watchdog kill, so a killed run
  *     stranded `b49d4-newcomer-probe-unprefixed.mjs` in the red directory, and
  *     the guard then FAILED naming it — the artifact created the debris and the
- *     guard tripped on it, breaking `lattice validate` for a registration gap
+ *     guard tripped on it, breaking `proof-or-stop validate` for a registration gap
  *     that did not exist. The file was not gitignored either, so it could be
  *     committed by accident.
  *   - the startup sweep does not save it: it is itself racy. Two concurrent runs
@@ -462,7 +462,7 @@ try {
     `// ${PLANTED_BY_MARKER} (B-49d4 CHK-001).`,
     '// A genuine member of the packages/main/dist/tasks/red-evidence-*.js population that is',
     '// registered NOWHERE in lattice.config.json validate.commands. It exits NON-ZERO, so if',
-    '// `lattice validate` ran it, validate would fail. Nothing runs it, and nothing notices.',
+    '// `proof-or-stop validate` ran it, validate would fail. Nothing runs it, and nothing notices.',
     '// It lives in a private temporary mirror of the repository and is never written to the',
     '// repository, so a kill at any moment can strand nothing that any guard enumerates.',
     "process.stderr.write('red-evidence-b49d4-blindness-probe: FAIL (unregistered member, deliberately non-zero)\\n');",
@@ -741,7 +741,7 @@ try {
     + `by the audited exclusion record of ${basename(DECIDER_REL)} `
     + `(${derived.decided.join(', ') || 'none'}) and ${derived.unaccounted.length} are UNACCOUNTED: `
     + `${derived.unaccounted.join(', ') || 'none'}. EXECUTION IS A DIFFERENT PROPERTY AND IS NOT CLAIMED HERE: `
-    + `lattice validate does not run those ${derived.unregistered.length} directly, and whether anything else executes `
+    + `proof-or-stop validate does not run those ${derived.unregistered.length} directly, and whether anything else executes `
     + 'them is not measured by this block — a filename appearing in a registered file is a mention, not a spawn',
     'every member of packages/main/tests/red/*.mjs must be registered in validate.commands, or its non-registration '
     + 'must be a recorded decision the shipped guard audits; a member that is silently neither is coverage nobody has '

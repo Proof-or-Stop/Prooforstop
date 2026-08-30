@@ -190,7 +190,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
           }
           try {
             for (const c of group.cases) {
-              // DEBUG: 追踪项目配置文件（lattice canonical / legacy）被谁改了
+              // DEBUG: 追踪项目配置文件（proof-or-stop canonical / legacy）被谁改了
               const _cfgPicked = pickProjectConfigPath(root);
               const _cfgPath = _cfgPicked?.path ?? join(root, PROOF_OR_STOP_CONFIG_FILENAME);
               const _cfgLabel = _cfgPicked

@@ -51,7 +51,7 @@ const pkgRoot = join(here, '..', '..'); // packages/main
 const DIST = join(pkgRoot, 'dist');
 
 // ── Fail-closed marker ledger ───────────────────────────────────────────────
-// `lattice validate` grades by EXIT CODE alone, so a check that silently stopped
+// `proof-or-stop validate` grades by EXIT CODE alone, so a check that silently stopped
 // holding would otherwise still exit 0. Every marker below is REQUIRED and the
 // epilogue exits non-zero naming any that was withheld.
 const REQUIRED_MARKERS = new Map([

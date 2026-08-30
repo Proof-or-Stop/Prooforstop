@@ -46,7 +46,7 @@ export const MATERIAL_CLASSIFICATION_SNAPSHOT_SCHEMA_VERSION =
 
 /** Level-1 immutable runtime/build-config manifest basenames (exact, case-insensitive). */
 export const IMMUTABLE_MANIFEST_BASENAMES: readonly string[] = [
-  // JS/TS runtime + lockfiles + lattice config.
+  // JS/TS runtime + lockfiles + proof-or-stop config.
   'package.json',
   'package-lock.json',
   'pnpm-lock.yaml',
@@ -150,7 +150,7 @@ function isStructuralArtifactPath(path: string): boolean {
  * B-956f FIX 4: the shared step-0 "structurally non-material artifact" predicate
  * reused by the classifier and the exclusion preflight so precedence matches
  * exactly. A manifest under a generated/vendored artifact directory
- * (dist/package.json, node_modules/pkg/package.json) or a lattice runtime/build
+ * (dist/package.json, node_modules/pkg/package.json) or a proof-or-stop runtime/build
  * artifact is a build output's / dependency's file — NOT the project's own
  * level-1 runtime/build manifest — so a config excludePaths entry covering it is
  * never an immutable-manifest violation. Composes the same two structural checks
@@ -657,7 +657,7 @@ export function classifyMaterialCodePath(
 
   // Step 2: story-metadata exclusion via the resolved storyDir (config-aware).
   if (isStoryMetadataPath(path, opts.projectRoot)) {
-    return { path, materialCode: false, reason: 'lattice runtime/story metadata' };
+    return { path, materialCode: false, reason: 'proof-or-stop runtime/story metadata' };
   }
 
   // Step 3: project config excludePaths (segment-aware) → non-material.

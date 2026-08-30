@@ -325,21 +325,21 @@ try {
     // Each canonical assertion is paired with a doesNotMatch on the deprecated
     // form so the help text cannot silently regress to teaching the old bin.
     assert.match(proposalHelp, /proof-or-stop decision_doc_proposal/);
-    assert.doesNotMatch(proposalHelp, /lattice decision_doc_proposal/);
+    assert.doesNotMatch(proposalHelp, /proof-or-stop decision_doc_proposal/);
     assert.match(proposalHelp, /Alias: proof-or-stop decision doc proposal/);
-    assert.doesNotMatch(proposalHelp, /Alias: lattice decision doc proposal/);
+    assert.doesNotMatch(proposalHelp, /Alias: proof-or-stop decision doc proposal/);
     assert.match(proposalHelp, /--slug/);
     assert.match(proposalHelp, /--verificationRequirements/);
 
     const previewHelp = runHelp(root, 'decision_doc_preview');
     assert.match(previewHelp, /proof-or-stop decision_doc_preview/);
-    assert.doesNotMatch(previewHelp, /lattice decision_doc_preview/);
+    assert.doesNotMatch(previewHelp, /proof-or-stop decision_doc_preview/);
     assert.match(previewHelp, /Read-only render/);
     assert.match(previewHelp, /--proposalId/);
 
     const saveHelp = runHelp(root, 'decision_doc_save');
     assert.match(saveHelp, /proof-or-stop decision_doc_save/);
-    assert.doesNotMatch(saveHelp, /lattice decision_doc_save/);
+    assert.doesNotMatch(saveHelp, /proof-or-stop decision_doc_save/);
     assert.match(saveHelp, /create\|update/);
     assert.match(saveHelp, /--confirm/);
     assert.match(saveHelp, /--expectedProposalDigest/);

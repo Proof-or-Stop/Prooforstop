@@ -320,4 +320,4 @@ try {
   rmSync(root, { recursive: true, force: true });
 }
 
-console.log('✓ lattice evidence smoke passed');
+console.log('✓ proof-or-stop evidence smoke passed');

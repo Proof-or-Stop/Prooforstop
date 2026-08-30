@@ -73,7 +73,7 @@ function packOf(out: string): { ids: string[]; digest: string } {
 
 const base = mkdtempSync(join(tmpdir(), 'experience-arm-isolation-e2e-'));
 try {
-  // ── Bootstrap a minimal lattice project with a seeded dev-memory entry. ─────
+  // ── Bootstrap a minimal proof-or-stop project with a seeded dev-memory entry. ─────
   git(['init', '-b', 'main'], base);
   git(['config', 'user.email', 'smoke@test.local'], base);
   git(['config', 'user.name', 'smoke'], base);

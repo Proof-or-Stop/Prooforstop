@@ -488,8 +488,8 @@ function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactS
     return {
       status: statusForDrift(severity),
       actual: null,
-      expected: context.isSelfProject ? join(expectedSelfCoreRoot(context), 'dist', 'cli.js') : 'lattice executable on PATH',
-      warnings: ['PATH lookup for `lattice` did not resolve a CLI executable'],
+      expected: context.isSelfProject ? join(expectedSelfCoreRoot(context), 'dist', 'cli.js') : 'proof-or-stop executable on PATH',
+      warnings: ['PATH lookup for `proof-or-stop` did not resolve a CLI executable'],
     };
   }
   const commandRealpath = safeRealpath(commandPath);
@@ -549,7 +549,7 @@ function checkProjectLocalBin(context: RuntimeCheckContext, severity: RuntimeFac
       matchesEntrypoint,
       shadowsEntrypoint,
     },
-    expected: 'project-local lattice should be absent or resolve to the active CLI entrypoint',
+    expected: 'project-local proof-or-stop should be absent or resolve to the active CLI entrypoint',
     ...(shadowsEntrypoint ? { warnings: [localBinWarning(localBin, localRealpath, cliRealpath, context.activeCliEntrypoint ?? context.cliEntrypoint)] } : {}),
   };
 }
@@ -685,7 +685,7 @@ function compatibilityRuntimeMessage(source: RuntimeModeSource): string {
     case 'repo-local-dist':
       return 'compatibility launcher is using the repository-local Proof-or-Stop dist runtime; run npm --prefix packages/main run build after core edits';
     case 'project-node-modules':
-      return 'compatibility launcher is using the project node_modules Proof-or-Stop package without requiring node_modules/.bin/lattice as the active CLI';
+      return 'the launcher is using the project node_modules Proof-or-Stop package without requiring node_modules/.bin/proof-or-stop as the active CLI';
     case 'packaged-runtime':
       return 'compatibility launcher is using a packaged Proof-or-Stop runtime; project package.json/node_modules are not required';
     case 'external-development-engine':
@@ -964,10 +964,10 @@ function runAuthoritativeIdentityCommand(args: string[], cwd: string, budget: Id
 }
 
 function resolveCliCommandPath(projectRoot: string): string | null {
-  return resolveCommandOnPath('lattice', projectRoot);
+  return resolveCommandOnPath('proof-or-stop', projectRoot);
 }
 
-function resolveCommandOnPath(command: 'lattice', projectRoot: string): string | null {
+function resolveCommandOnPath(command: 'proof-or-stop', projectRoot: string): string | null {
   const pathEnv = process.platform === 'win32'
     ? process.env.Path ?? process.env.PATH ?? ''
     : process.env.PATH ?? '';
@@ -982,7 +982,7 @@ function resolveCommandOnPath(command: 'lattice', projectRoot: string): string |
   return null;
 }
 
-function commandPathNames(command: 'lattice'): string[] {
+function commandPathNames(command: 'proof-or-stop'): string[] {
   if (process.platform !== 'win32') return [command];
   const extensions = (process.env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD')
     .split(';')
@@ -1018,23 +1018,14 @@ function resolveActiveCliEntrypoint(projectRoot: string, corePackageRoot: string
 function looksLikeLatticeEntrypoint(path: string, projectRoot: string, corePackageRoot: string): boolean {
   const real = safeRealpath(path) ?? path;
   const name = basename(path);
-  // B-cc10 CHK-006: this recognized ONLY the deprecated spellings, so the CANONICAL
-  // wrapper/bin was not identified as a Lattice entrypoint at all. With the aliases
-  // deleted that gap became load-bearing: a legitimate `bin/proof-or-stop.js` invocation
-  // would not be recognized here. Both spellings are accepted, canonical first; the
-  // deprecated names stay so a pre-rename launcher on PATH still classifies.
   if (
     name === 'proof-or-stop'
     || name === 'proof-or-stop.cmd'
     || name === 'proof-or-stop.js'
     || name === 'proof-or-stop-codex.js'
-    || name === 'lattice'
-    || name === 'lattice.cmd'
-    || name === 'lattice.js'
-    || name === 'lattice-codex.js'
   ) return true;
   if ((name === 'cli.js' || name === 'cli-engine.js') && pathContains(corePackageRoot, real)) return true;
-  for (const rel of ['proof-or-stop.js', 'proof-or-stop-codex.js', 'lattice.js', 'lattice-codex.js']) {
+  for (const rel of ['proof-or-stop.js', 'proof-or-stop-codex.js']) {
     if (samePath(real, join(projectRoot, 'bin', rel))) return true;
   }
   return false;
@@ -1186,8 +1177,8 @@ function projectLocalBinPath(projectRoot: string): string {
 function projectLocalBinCandidates(projectRoot: string): string[] {
   const binDir = join(projectRoot, 'node_modules', '.bin');
   return process.platform === 'win32'
-    ? [join(binDir, 'lattice.cmd')]
-    : [join(binDir, 'lattice')];
+    ? [join(binDir, 'proof-or-stop.cmd')]
+    : [join(binDir, 'proof-or-stop')];
 }
 
 function isPackagedRuntime(): boolean {
@@ -1195,22 +1186,16 @@ function isPackagedRuntime(): boolean {
     || Boolean((process as typeof process & { pkg?: unknown }).pkg);
 }
 
-// B-cc10 CHK-006: the deprecated basenames below are INTENTIONAL and stay. This predicate
-// asks "was a retained COMPATIBILITY launcher used?", so recognizing the old names is the
-// whole point — adding the canonical spellings would make every ordinary canonical
-// invocation look like a compatibility launcher and invert the classification at line 626.
-// The `lattice` npm bin is still retained, so this signal remains reachable.
 function compatibilityLauncherSignal(activePath: string | null): boolean {
   if (readBrandEnv('ACTIVITY_SOURCE') === 'codex') return true;
   if (readBrandEnv('CODEX_ENTRYPOINT') === 'global-fallback' || readBrandEnv('CODEX_ENTRYPOINT') === 'local-wrapper') return true;
-  const name = activePath ? basename(activePath) : '';
-  return name === 'lattice.js' || name === 'lattice-codex.js';
+  return false;
 }
 
 function localBinWarning(localBin: string, localRealpath: string | null, cliRealpath: string | null, cliEntrypoint: string | null): string {
   if (!localRealpath) return `${localBin} exists but its realpath could not be resolved`;
   if (!cliRealpath) return `${localBin} exists but active Proof-or-Stop could not be resolved for comparison`;
-  return `${localBin} resolves to ${localRealpath}, active CLI ${cliEntrypoint ?? 'lattice'} resolves to ${cliRealpath}`;
+  return `${localBin} resolves to ${localRealpath}, active CLI ${cliEntrypoint ?? 'proof-or-stop'} resolves to ${cliRealpath}`;
 }
 
 function statusForDrift(severity: RuntimeFactSeverity): RuntimeFactStatus {

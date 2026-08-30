@@ -125,7 +125,7 @@ try {
   run(temp, 'understanding_set', {
     storyId: reviewId,
     task: 'Verify story_review parallel policy advisory behavior',
-    outcome: '>>> lattice session_brief\n## Primary lane\n  B-xxxx DEV Primary lane story [mainline/no]\n## Parallel candidates\n  B-yyyy PLAN [supporting/plan_only] keep this in PLAN only\n## Conflict warnings\n  - B-zzzz: shares hotspots with B-xxxx: packages/main/src/handlers/session.ts',
+    outcome: '>>> proof-or-stop session_brief\n## Primary lane\n  B-xxxx DEV Primary lane story [mainline/no]\n## Parallel candidates\n  B-yyyy PLAN [supporting/plan_only] keep this in PLAN only\n## Conflict warnings\n  - B-zzzz: shares hotspots with B-xxxx: packages/main/src/handlers/session.ts',
     facts: ['parallelSafe=yes should stay advisory even with depends'],
     constraints: ['first version is advisory-only'],
     unknowns: [],
@@ -175,7 +175,7 @@ try {
   run(temp, 'understanding_set', {
     storyId: missingMetaId,
     task: 'Verify missing parallel metadata advisories',
-    outcome: '> lattice story_review\nparallel_policy_missing_lane\nparallel_policy_missing_safety\nparallel_policy_missing_hotspots',
+    outcome: '> proof-or-stop story_review\nparallel_policy_missing_lane\nparallel_policy_missing_safety\nparallel_policy_missing_hotspots',
     facts: ['metadata is optional but should be nudged'],
     constraints: ['must remain advisory'],
     unknowns: [],

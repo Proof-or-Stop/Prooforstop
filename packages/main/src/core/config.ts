@@ -358,7 +358,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'verify_codex',  // Codex adapter 资产/heartbeat 硬证据验证（优先通过本地 wrapper 调用）
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
     'grill_get',     // 全局：读取 PLAN grill planning context；不会写证据
-    'summary_set',   // 全局：DONE 前强制落总结，lattice short-path story 也需要
+    'summary_set',   // 全局：DONE 前强制落总结，proof-or-stop short-path story 也需要
     'verification_evidence_add', 'verification_evidence_batch_add', 'verification_evidence_refresh_stale', 'verification_run', // verification evidence is metadata, allowed across phases for reviewer/test handoff (verification_run executes the pinned verifier + writes the receipt)
     'verification_context_pack_create', 'verification_context_pack_expand', // read-only verifier context packets
     'recover_evidence', // B-a2f1 CHK-003: single-shot stale-evidence recovery, safe in any phase (refuses on non-metadata dirt)

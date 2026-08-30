@@ -30,7 +30,7 @@ import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 
 function codexNativeHookInstalled(root: string): boolean {
   const hooksJson = join(root, '.codex', 'hooks.json');
-  const hookScript = join(root, '.codex', 'hooks', 'lattice-scope-pretool.cjs');
+  const hookScript = join(root, '.codex', 'hooks', 'proof-or-stop-scope-pretool.cjs');
   if (!existsSync(hooksJson) || !existsSync(hookScript)) return false;
 
   try {
@@ -41,7 +41,7 @@ function codexNativeHookInstalled(root: string): boolean {
       const matcher = String(entry?.matcher || '');
       const hooks = Array.isArray(entry?.hooks) ? entry.hooks : [];
       return /apply_patch/.test(matcher)
-        && hooks.some((hook: any) => hook?.type === 'command' && String(hook?.command || '').includes('.codex/hooks/lattice-scope-pretool.cjs'));
+        && hooks.some((hook: any) => hook?.type === 'command' && String(hook?.command || '').includes('.codex/hooks/proof-or-stop-scope-pretool.cjs'));
     });
     if (!wired) return false;
 
@@ -57,7 +57,7 @@ function assertNativeHookVerified(root: string, provider: string): void {
   const isCodex = normalized === 'codex' || normalized === 'openai-codex' || normalized === 'openai_codex';
   if (!isCodex) return;
   if (codexNativeHookInstalled(root)) return;
-  throw new Error('nativeHookVerified=true for provider=codex requires .codex/hooks.json and .codex/hooks/lattice-scope-pretool.cjs wired to prewrite_guard_check. Run proof-or-stop init --profile=codex or proof-or-stop check --apply, then trust hooks with /hooks.');
+  throw new Error('nativeHookVerified=true for provider=codex requires .codex/hooks.json and .codex/hooks/proof-or-stop-scope-pretool.cjs wired to prewrite_guard_check. Run proof-or-stop init --profile=codex or proof-or-stop check --apply, then trust hooks with /hooks.');
 }
 
 export function createGuardSessionHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {

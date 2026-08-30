@@ -6,7 +6,7 @@
  * - Normal channel: first require each checklist item with non-main-agent Owner to have dispatch or
  *   subagent_result process-event evidence. commit author is only a legacy fallback:
  *   only when process-event is missing and all implementation commits have author == "lattice-implementer"
- *   or are metadata-only lattice commits can it pass.
+ *   or are metadata-only proof-or-stop commits can it pass.
  *
  * Output structure:
  *   {

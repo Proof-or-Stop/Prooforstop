@@ -7,7 +7,7 @@
  * @priority high
  * @description
  * Exercises the real init CLI with global-thin defaults (the new default) and
- * verifies full/thin local lattice asset modes remain available as explicit opt-in.
+ * verifies full/thin local proof-or-stop asset modes remain available as explicit opt-in.
  * @changes
  * - [CHK-002] Assert fresh default init creates .lattice/ assets and not bin/lattice*.js or .lattice-codex/.
  * - [CHK-003] Assert global codex verify/doctor passes in a global-thin project.
@@ -233,9 +233,9 @@ try {
   // AGENTS.md should reference the global CLI, not a local bin wrapper.
   //
   // B-cc10 CHK-006 (B-cc10:F-002): the two `codex verify` assertions below matched
-  // /lattice codex verify/ while their own failure messages said "proof-or-stop codex
+  // /proof-or-stop codex verify/ while their own failure messages said "proof-or-stop codex
   // verify" — and the templates emit `proof-or-stop codex verify`, which does NOT
-  // contain the substring "lattice codex verify". The regex and its message disagreed,
+  // contain the substring "proof-or-stop codex verify". The regex and its message disagreed,
   // so these lines could only ever have passed for the wrong reason. Same class as
   // B-cdf6:F-047. They now pin the canonical command the template actually writes.
   const agentsMd = readFileSync(join(globalThinRoot, 'AGENTS.md'), 'utf8');
@@ -284,7 +284,7 @@ try {
   rmSync(globalThinCodexRoot, { recursive: true, force: true });
 }
 
-// ─── Test 3: Explicit full mode (opt-in local lattice assets) ────────────────
+// ─── Test 3: Explicit full mode (opt-in local proof-or-stop assets) ────────────────
 // --asset-mode=full should create LATTICE.md, the local bin wrappers and the adapter dir.
 // B-cc10 CHK-006: these lists asserted `bin/lattice.js` / `bin/lattice-codex.js`, but
 // B-cdf6 already made `init` generate ONLY the canonical names (it never writes the

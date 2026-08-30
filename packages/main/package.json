@@ -12,8 +12,7 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "proof-or-stop": "dist/cli.js",
-    "lattice": "dist/cli.js"
+    "proof-or-stop": "dist/cli.js"
   },
   "exports": {
     ".": "./dist/index.js",
@@ -115,7 +114,7 @@
     "test:config-filename-migration-smoke": "node dist/tasks/config-filename-migration-smoke.js",
     "test:core-package-rename": "node scripts/verify-core-package-rename.mjs",
     "test:state-dir-migration": "node scripts/verify-state-dir-migration.mjs",
-    "test:lattice-residue": "node ../../scripts/verify-lattice-residue.mjs",
+    "test:proof-or-stop-residue": "node ../../scripts/verify-proof-or-stop-residue.mjs",
     "test:retired-authority-vocabulary-guard": "node dist/tasks/retired-authority-vocabulary-guard-smoke.js",
     "test:residue-inject-repro": "node ../../scripts/verify-residue-inject-repro.mjs",
     "test:migration-contract": "node scripts/verify-migration-contract.mjs",

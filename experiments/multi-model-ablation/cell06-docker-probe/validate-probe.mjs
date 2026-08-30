@@ -370,7 +370,7 @@ function validateRow(row, manifest) {
   assert(row.contaminationScan?.status === "clean", "contamination scan must be clean");
   assert(row.runtime?.hostHomeMounted === false, "host home must not be mounted");
   assert(row.runtime?.repoMounted === false, "repo must not be mounted");
-  assert(row.runtime?.latticeMounted === false, "lattice must not be mounted");
+  assert(row.runtime?.latticeMounted === false, "proof-or-stop must not be mounted");
   assert(row.runtime?.paperMounted === false, "paper must not be mounted");
   assert(row.runtime?.foreignResultsMounted === false, "foreign results must not be mounted");
   assert(Array.isArray(row.runtime?.mounts) && row.runtime.mounts.length === 1, "row mounts mismatch");

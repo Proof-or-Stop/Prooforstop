@@ -5,7 +5,7 @@
  *
  * ── WHAT WENT WRONG, AND WHY THE ENUMERATION HAS NO NAME PATTERN ────────────
  *
- * Thirty-three red harnesses are committed in this directory. `lattice validate`
+ * Thirty-three red harnesses are committed in this directory. `proof-or-stop validate`
  * ran thirteen of them. The other twenty were never registered and nothing said
  * so, because the only two guards that looked at registration each looked at a
  * NARROWER population than the one they appeared to protect:
@@ -244,7 +244,7 @@ if (real.undecided.length > 0) {
   const describe = (rel) => (isDirectory(rel) ? `${rel} (a DIRECTORY — a flat enumeration cannot see harnesses inside it)` : rel);
   fail('registration',
     `these ${POPULATION_DIR_REL} members are NEITHER registered in lattice.config.json validate.commands NOR listed `
-    + `in REGISTRATION_EXCLUSIONS with a reason, so \`lattice validate\` never runs them and nobody decided that it `
+    + `in REGISTRATION_EXCLUSIONS with a reason, so \`proof-or-stop validate\` never runs them and nobody decided that it `
     + `should not: ${real.undecided.map(describe).join(', ')}. Register the harness, or exclude it here and say why.`);
 }
 if (real.wronglyRegistered.length > 0) {

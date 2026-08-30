@@ -1,9 +1,9 @@
 /**
- * Stale state detector — soft warning before each lattice command runs.
+ * Stale state detector — soft warning before each proof-or-stop command runs.
  *
  * Inspired by Claude Code's todo_reminder: inject system-reminder after periods of inactivity.
- * lattice takes activity.jsonl + checklist.startTime + story.events + bug.foundAt as inputs,
- * and emits a warning to stderr before each lattice command actually runs to remind the main agent and avoid stuck phases.
+ * proof-or-stop takes activity.jsonl + checklist.startTime + story.events + bug.foundAt as inputs,
+ * and emits a warning to stderr before each proof-or-stop command actually runs to remind the main agent and avoid stuck phases.
  *
  * Design principles:
  *   - Never throw (PROBE class). An error in any single rule only affects that rule; the overall fallback is return [].
@@ -22,7 +22,7 @@ export interface StaleThresholds {
   phaseStale: number;
   /** How long a checklist item can stay in_progress before it is treated as forgotten, in minutes. */
   itemStale: number;
-  /** How long since the last lattice command counts as idle, in minutes. */
+  /** How long since the last proof-or-stop command counts as idle, in minutes. */
   idleProofOrStop: number;
   /** How long an open bug can remain unfixed before it is overdue, in minutes. Default: 24h = 1440. */
   bugStale: number;
@@ -135,7 +135,7 @@ function checkItemStale(checklist: ChecklistData, thresholds: StaleThresholds, n
 }
 
 /**
- * Rule 3: more than the threshold since the last lattice command of any kind.
+ * Rule 3: more than the threshold since the last proof-or-stop command of any kind.
  * Uses readActivityLogTail (sources: .lattice/activity.jsonl + legacy docs/story/activity.jsonl).
  */
 function checkIdleLattice(root: string, thresholds: StaleThresholds, now: number): string | null {
@@ -149,7 +149,7 @@ function checkIdleLattice(root: string, thresholds: StaleThresholds, now: number
     if (!Number.isFinite(ts)) return null;
     const diff = now - ts;
     if (diff > thresholds.idleProofOrStop * 60_000) {
-      return `It has been ${formatMinutes(diff)} since the last lattice command; remember to continue the flow`;
+      return `It has been ${formatMinutes(diff)} since the last proof-or-stop command; remember to continue the flow`;
     }
   } catch { /* PROBE */ }
   return null;
@@ -184,8 +184,8 @@ function cooldownKeyForWarning(warning: string): string {
     .replace(/(has been in .+? phase for )\d+ (?:min|minutes)( without advance)/, '$1<duration>$2')
     .replace(/(has been in_progress for )\d+h(?: \d+ (?:min|minutes))?/, '$1<duration>')
     .replace(/(has been in_progress for )\d+ (?:min|minutes)/, '$1<duration>')
-    .replace(/(It has been )\d+h(?: \d+ (?:min|minutes))?( since the last lattice command; remember to continue the flow)/, '$1<duration>$2')
-    .replace(/(It has been )\d+ (?:min|minutes)( since the last lattice command; remember to continue the flow)/, '$1<duration>$2')
+    .replace(/(It has been )\d+h(?: \d+ (?:min|minutes))?( since the last proof-or-stop command; remember to continue the flow)/, '$1<duration>$2')
+    .replace(/(It has been )\d+ (?:min|minutes)( since the last proof-or-stop command; remember to continue the flow)/, '$1<duration>$2')
     .replace(/(has been open for )\d+h(?: \d+ (?:min|minutes))?(; consider fixing it first)/, '$1<duration>$2')
     .replace(/(has been open for )\d+ (?:min|minutes)(; consider fixing it first)/, '$1<duration>$2');
 }

@@ -93,9 +93,7 @@ export interface AliasNormalizationResult {
 }
 
 export function normalizeNestedSpaceAlias(argv: string[]): AliasNormalizationResult {
-  // B-cdf6 CHK-002: tolerate a pasted redundant bin token under EITHER name, so
-  // `proof-or-stop proof-or-stop host list` is forgiven exactly like the
-  // `lattice lattice host list` form the deprecated alias already accepted.
+  // Tolerate one pasted redundant canonical bin token.
   const aliasStart = PROOF_OR_STOP_BIN_NAMES.includes(argv[0]) ? 1 : 0;
   const candidates: Array<{ text: string; consumed: 2 | 3 | 4 }> = [
     { text: argv.slice(aliasStart, aliasStart + 4).join(' '), consumed: 4 },

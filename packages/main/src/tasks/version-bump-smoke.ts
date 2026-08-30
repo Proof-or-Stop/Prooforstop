@@ -142,7 +142,7 @@ void (async () => {
     check('gate: root package.json -> bump', shouldBuildDoneMainPackageForChangedPaths(['package.json']) === true);
     check('gate: docs/CLI.md capability contract -> bump', shouldBuildDoneMainPackageForChangedPaths(['docs/CLI.md']) === true);
     check('gate: packages/main/tests proof regression -> bump', shouldBuildDoneMainPackageForChangedPaths(['packages/main/tests/milestone-status.test.mjs']) === true);
-    check('gate: .lattice metadata only -> NO bump', shouldBuildDoneMainPackageForChangedPaths(['.lattice/story/actives/B-x/index.json']) === false);
+    check('gate: .proof-or-stop metadata only -> NO bump', shouldBuildDoneMainPackageForChangedPaths(['.lattice/story/actives/B-x/index.json']) === false);
     check('gate: requirements decision doc -> NO bump', shouldBuildDoneMainPackageForChangedPaths(['docs/requirements/decisions/story-lifecycle.md']) === false);
     check('gate: experiments harness -> NO bump', shouldBuildDoneMainPackageForChangedPaths(['experiments/tier-c-proof/sum.mjs']) === false);
     check('gate: mixed (.lattice + src) -> bump', shouldBuildDoneMainPackageForChangedPaths(['.lattice/story/actives/B-x/index.json', 'packages/main/src/core/x.ts']) === true);

@@ -1320,7 +1320,7 @@ async function run(): Promise<void> {
       assert.equal(git(root, ['status', '--short', '--', 'packages/main/src/index.ts']), '', 'fixture source path is clean after restoring the final-record HEAD drift case');
 
       // (6) Control: dirty ONLY under .lattice/ metadata → the handler proceeds
-      // (Codex reviews source, not story bookkeeping; .lattice churns during a story).
+      // (Codex reviews source, not story bookkeeping; .proof-or-stop churns during a story).
       write(root, `${PROOF_OR_STOP_STATE_DIR}/story/actives/some-churn.json`, JSON.stringify({ churn: Date.now() }) + '\n');
       write(root, `${PROOF_OR_STOP_STATE_DIR}/activity.jsonl`, 'ignored-metadata-churn\n');
       const cleanRunId = `${STORY_ID}-xhr-lattice-only`;

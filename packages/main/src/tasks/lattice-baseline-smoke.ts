@@ -53,7 +53,7 @@ interface CliResult {
 const here = dirname(fileURLToPath(import.meta.url));
 const cliPath = join(here, '..', 'cli.js');
 const repoRoot = join(here, '..', '..', '..', '..');
-const PASS_LINE = '✓ lattice baseline smoke passed';
+const PASS_LINE = '✓ proof-or-stop baseline smoke passed';
 const AUTHORITY_FALSE_KEYS = [
   'authorityChanged',
   'authorityDone',
@@ -968,12 +968,12 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   assert.equal(
     isMaterialExcludedRuntimeArtifactPath('.lattice/artifacts/baseline/example/final-report.json'),
     true,
-    '.lattice baseline proof artifacts must be excluded from material hash',
+    '.proof-or-stop baseline proof artifacts must be excluded from material hash',
   );
   assert.equal(
     isMaterialExcludedRuntimeArtifactPath('.lattice/artifacts/baseline/example/final-report.json'),
     true,
-    '.lattice baseline proof artifacts must be excluded from material hash',
+    '.proof-or-stop baseline proof artifacts must be excluded from material hash',
   );
 
   const help = runCli(repoRoot, ['help']);

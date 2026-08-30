@@ -372,7 +372,7 @@ check('CHK-002/edge: precedence pairs (docs>prefix, README vs shebang script, se
   const customRoot = makeConfigRoot({ storyDir: 'custom-stories/actives' });
   const customPolicy = resolveMaterialCodePolicy(customRoot);
   assert.equal(classifyMaterialCodePath(customPolicy, 'custom-stories/actives/B-1/story.json', { projectRoot: customRoot }).materialCode, false, 'a file under the resolved custom storyDir is excluded');
-  assert.equal(classifyMaterialCodePath(customPolicy, '.lattice/story/actives/B-1/story.json', { projectRoot: customRoot }).materialCode, false, 'the default .lattice story metadata stays excluded too');
+  assert.equal(classifyMaterialCodePath(customPolicy, '.lattice/story/actives/B-1/story.json', { projectRoot: customRoot }).materialCode, false, 'the default .proof-or-stop story metadata stays excluded too');
 });
 
 check('CHK-002/adversarial: manifest exclusion rejected at resolve AND by the PRODUCTION fs preflight; enumeration + malformed config fail closed', () => {

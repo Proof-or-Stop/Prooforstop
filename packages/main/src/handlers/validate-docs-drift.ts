@@ -1,11 +1,11 @@
 /**
- * validate-docs-drift — pure function: scan lattice command references in CLAUDE.md vs registry command name alignment.
+ * validate-docs-drift — pure function: scan proof-or-stop command references in CLAUDE.md vs registry command name alignment.
  *
  * Two directions:
- *   - missing: md references `lattice <cmd>` but it's not registered in registry → docs promise a non-existent command
+ *   - missing: md references `proof-or-stop <cmd>` but it's not registered in registry → docs promise a non-existent command
  *   - stale:   registry has it but md never mentions it → advisory (docs lag, non-blocking)
  *
- * Only parses lines starting with lattice inside fenced bash code blocks (within ```bash / ```).
+ * Only parses lines starting with proof-or-stop inside fenced bash code blocks (within ```bash / ```).
  * allowlist excludes known exceptions (e.g. YAGNI commands).
  *
  * B-805f CHK-001
@@ -27,7 +27,7 @@ export interface DocsDriftResult {
 }
 
 /**
- * Extracts all `lattice <cmd>` command names from fenced bash code blocks in markdown text.
+ * Extracts all `proof-or-stop <cmd>` command names from fenced bash code blocks in markdown text.
  *
  * Only matches lines inside code blocks fenced with ``` or ```bash.
  */
@@ -54,9 +54,9 @@ export function extractLatticeCommands(mdContent: string): Set<string> {
 
     if (!inFencedBlock) continue;
 
-    // Inside fenced block, match lattice <cmd> pattern
+    // Inside fenced block, match proof-or-stop <cmd> pattern
     // Support optional $ / # prefix and whitespace at line start
-    const match = trimmed.match(/(?:^[$#]\s+)?lattice\s+([a-z][a-z0-9_]*)/);
+    const match = trimmed.match(/(?:^[$#]\s+)?proof-or-stop\s+([a-z][a-z0-9_]*)/);
     if (match) {
       commands.add(match[1]);
     }
@@ -66,7 +66,7 @@ export function extractLatticeCommands(mdContent: string): Set<string> {
 }
 
 /**
- * Core pure function: compare lattice commands referenced in markdown vs commands actually registered in registry.
+ * Core pure function: compare proof-or-stop commands referenced in markdown vs commands actually registered in registry.
  *
  * @param mdContent   - CLAUDE.md text content (can be multiple md files concatenated)
  * @param registryNames - set of command names returned by registry.list()
@@ -277,7 +277,7 @@ function normalizeAssetPath(raw: string): string {
  * Is `forbidden` the generated asset itself OR an ancestor directory of it?
  * Both are stored already path-normalized. A claim forbidding a parent dir like
  * `.codex/hooks` contradicts a generated file under it like
- * `.codex/hooks/lattice-scope-pretool.cjs`.
+ * `.codex/hooks/proof-or-stop-scope-pretool.cjs`.
  */
 function forbidsAssetOrAncestor(forbidden: string, assetPath: string): boolean {
   if (forbidden.length === 0 || assetPath.length === 0) return false;

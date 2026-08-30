@@ -16,7 +16,7 @@ import {
   type AgentAssetResolution,
 } from './agent-asset-resolution.js';
 import { isManagedGlobalThinRoot, loadConfig } from './config.js';
-import { PROOF_OR_STOP_DEPRECATED_BIN, PROOF_OR_STOP_PRIMARY_BIN } from './lattice-brand.js';
+import { PROOF_OR_STOP_PRIMARY_BIN } from './lattice-brand.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
   promptRegistryManifest,
@@ -596,13 +596,13 @@ function hookEntriesContainCommand(entries: unknown, commandNeedle: string): boo
 
 function checkCodexNativeHooks(root: string, checks: CodexAdapterCheck[]): void {
   const hooksJsonPath = join(root, '.codex', 'hooks.json');
-  const hookScriptPath = join(root, '.codex', 'hooks', 'lattice-scope-pretool.cjs');
+  const hookScriptPath = join(root, '.codex', 'hooks', 'proof-or-stop-scope-pretool.cjs');
   if (!existsSync(hooksJsonPath)) {
     push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, 'missing .codex/hooks.json with Proof-or-Stop PreToolUse hook', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   if (!existsSync(hookScriptPath)) {
-    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, 'missing .codex/hooks/lattice-scope-pretool.cjs', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, 'missing .codex/hooks/proof-or-stop-scope-pretool.cjs', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
 
@@ -627,18 +627,18 @@ function checkCodexNativeHooks(root: string, checks: CodexAdapterCheck[]): void 
     return matcher === CODEX_PRETOOL_SCOPE_HOOK_MATCHER
       || (/apply_patch/.test(matcher) && /Edit|Write/.test(matcher));
   });
-  if (!hasMatcher || !hookEntriesContainCommand(preToolUse, '.codex/hooks/lattice-scope-pretool.cjs')) {
-    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, '.codex/hooks.json does not wire lattice-scope-pretool.cjs for apply_patch/Edit/Write', LOCAL_INIT_VERIFY_COMMAND);
+  if (!hasMatcher || !hookEntriesContainCommand(preToolUse, '.codex/hooks/proof-or-stop-scope-pretool.cjs')) {
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, '.codex/hooks.json does not wire proof-or-stop-scope-pretool.cjs for apply_patch/Edit/Write', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
 
   const hookScript = readText(hookScriptPath);
   if (!/provider:\s*['"]codex['"]/.test(hookScript) || !hookScript.includes('prewrite_guard_check')) {
-    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, '.codex/hooks/lattice-scope-pretool.cjs does not delegate to prewrite_guard_check as provider=codex', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, '.codex/hooks/proof-or-stop-scope-pretool.cjs does not delegate to prewrite_guard_check as provider=codex', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
 
-  push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'pass', true, '.codex/hooks.json wires apply_patch/Edit/Write to lattice-scope-pretool.cjs');
+  push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'pass', true, '.codex/hooks.json wires apply_patch/Edit/Write to proof-or-stop-scope-pretool.cjs');
 }
 
 function activityForEntrypoint(root: string, tool: string, entrypoint: string): Record<string, unknown> | null {
@@ -758,7 +758,7 @@ function runHeartbeat(
         label,
         'warn',
         false,
-        'installed global lattice still reports a legacy raw heartbeat identity; upgrade the global CLI before using it for owner coordination',
+        'installed global proof-or-stop still reports a legacy raw heartbeat identity; upgrade the global CLI before using it for owner coordination',
         retryCommand,
       );
       return;
@@ -804,14 +804,10 @@ function pathContains(parent: string, child: string): boolean {
 }
 
 /**
- * Locate a globally installed CLI on PATH, preferring the canonical bin name.
- *
- * Read-both by design (B-cdf6): a globally installed package built before the rename
- * exposes only `lattice`, so probing `proof-or-stop` alone would report "no global CLI"
- * on a machine that has a perfectly working one. Canonical name wins when both exist.
+ * Locate the canonical globally installed CLI on PATH.
  */
 function resolveGlobalCliCommandPath(root: string): string | null {
-  for (const bin of [PROOF_OR_STOP_PRIMARY_BIN, PROOF_OR_STOP_DEPRECATED_BIN]) {
+  for (const bin of [PROOF_OR_STOP_PRIMARY_BIN]) {
     const command = process.platform === 'win32' ? 'where' : 'sh';
     const args = process.platform === 'win32' ? [bin] : ['-lc', `command -v ${bin}`];
     try {
@@ -825,7 +821,7 @@ function resolveGlobalCliCommandPath(root: string): string | null {
       const found = out.split(/\r?\n/).find(Boolean);
       if (found) return found;
     } catch {
-      // probe: this bin name is not on PATH; try the next alias.
+      // probe: the canonical bin name is not on PATH.
     }
   }
   // No global CLI under any known name; heartbeat execution reports the real failure.
@@ -969,7 +965,7 @@ function checkGlobalFallback(
       'Global fallback heartbeat',
       'warn',
       false,
-      'skipped in packaged desktop runtime; standalone binaries do not require a global lattice command',
+      'skipped in packaged desktop runtime; standalone binaries do not require a global proof-or-stop command',
       `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`,
     );
     return;
@@ -1002,7 +998,7 @@ function checkGlobalFallback(
           'Global fallback heartbeat',
           'warn',
           false,
-          `global ${globalCore.label} resolves to ${globalReal}, not current worktree ${currentReal}; treat global lattice as heartbeat-only, not current-worktree gate/status evidence`,
+          `global ${globalCore.label} resolves to ${globalReal}, not current worktree ${currentReal}; treat global proof-or-stop as heartbeat-only, not current-worktree gate/status evidence`,
           resolveCodexSessionBriefCommand(root),
         );
         return;

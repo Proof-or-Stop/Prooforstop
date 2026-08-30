@@ -802,7 +802,7 @@ assert.equal(
     const latticeSymlink = join(globalBin, 'lattice');
     mkdirSync(globalBin, { recursive: true });
     symlinkSync(activeCliEntrypoint, latticeSymlink);
-    assert.equal(realpathSync(latticeSymlink), activeCliEntrypoint, 'fixture mirrors a global lattice symlink to the exact active CLI realpath');
+    assert.equal(realpathSync(latticeSymlink), activeCliEntrypoint, 'fixture mirrors a global proof-or-stop symlink to the exact active CLI realpath');
     const budgetEnv = { ...process.env, PATH: `${globalBin}${delimiter}${process.env.PATH ?? ''}` };
     const doneRequiredCommand = 'proof-or-stop done_required_validate --storyId=B-livesmoke --json';
     const donePrepareCommand = 'proof-or-stop done_prepare --storyId=B-livesmoke --json';
@@ -858,7 +858,7 @@ assert.equal(
       doneRequiredCommand,
       { ...budgetEnv, PATH: `${nodeAliasBin}${delimiter}${budgetEnv.PATH ?? ''}` },
     );
-    assert.equal(nodeAlias.recognizedCommand, null, 'PATH lattice symlink to node cannot impersonate the active CLI');
+    assert.equal(nodeAlias.recognizedCommand, null, 'PATH proof-or-stop symlink to node cannot impersonate the active CLI');
     assert.equal(nodeAlias.timeoutMs, 60_000);
     assert.equal(
       commandCliMaxBudget(root, 'live_smoke_transcript', {

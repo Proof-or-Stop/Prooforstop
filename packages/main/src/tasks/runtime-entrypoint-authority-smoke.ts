@@ -202,7 +202,7 @@ try {
   assert.equal(recovered.status, 0, `emitted recovery command should dispatch locally: ${recovered.stderr}`);
   assert.match(recovered.stdout, /"runtimeMode"/);
 
-  const linkedMainCli = join(tmp, 'global lattice cli.js');
+  const linkedMainCli = join(tmp, 'global proof-or-stop cli.js');
   symlinkSync(mainCli, linkedMainCli);
   const linkedStale = spawnSync(process.execPath, [linkedMainCli, '--root', worktreeRoot, 'check', '--json'], {
     cwd: join(worktreeRoot, 'packages'),

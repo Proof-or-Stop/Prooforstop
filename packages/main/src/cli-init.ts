@@ -26,7 +26,7 @@ import {
   getClaudeHooks,
   hookCommand,
   LEGACY_SCOPE_PRETOOL_HOOK_FILE,
-  LATTICE_SCOPE_PRETOOL_HOOK_FILE,
+  PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE,
   ENGLISH_ONLY_GUARD_HOOK_FILE,
   EVIDENCE_PRETOOL_HOOK_FILE,
   migrateHookCommandEntries,
@@ -67,7 +67,7 @@ const agentTemplateDir = [
   join(packageRoot, '..', '..', '.claude', 'agents'),
 ].find(existsSync);
 const hookSrcDir = join(packageRoot, '..', '..', '.claude', 'hooks');
-const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, ENGLISH_ONLY_GUARD_HOOK_FILE, EVIDENCE_PRETOOL_HOOK_FILE, 'session-brief-reminder.cjs'] as const;
+const HOOK_FILES = ['log-tools.cjs', PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE, ENGLISH_ONLY_GUARD_HOOK_FILE, EVIDENCE_PRETOOL_HOOK_FILE, 'session-brief-reminder.cjs'] as const;
 
 // 通过 proof-or-stop init 调用时 argv[2]='init'，跳过；直接运行 init entrypoint 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
@@ -482,12 +482,8 @@ function removeClaudeSettingsIfManaged() {
 }
 
 function removeCodexWrapperIfManaged() {
-  // Both the canonical wrapper and the retained deprecated alias are managed-generated
-  // shapes, so profile cleanup must consider both names (B-cdf6). A file whose content
-  // is not the generated template is still left alone by removeWholeFileIfGenerated.
-  for (const rel of ['bin/proof-or-stop-codex.js', 'bin/lattice-codex.js']) {
-    removeWholeFileIfGenerated(rel, rel, [renderProofOrStopCodexWrapperScript()]);
-  }
+  const rel = 'bin/proof-or-stop-codex.js';
+  removeWholeFileIfGenerated(rel, rel, [renderProofOrStopCodexWrapperScript()]);
 }
 
 function removeCodexManifestIfManaged() {
@@ -507,7 +503,7 @@ function removeCodexManifestIfManaged() {
 
 function removeCodexNativeHooksIfManaged() {
   removeWholeFileIfGenerated('.codex/hooks.json', '.codex/hooks.json', [renderCodexHooksJson()]);
-  removeWholeFileIfGenerated('.codex/hooks/lattice-scope-pretool.cjs', '.codex/hooks/lattice-scope-pretool.cjs', [renderCodexPretoolScopeHookScript()]);
+  removeWholeFileIfGenerated('.codex/hooks/proof-or-stop-scope-pretool.cjs', '.codex/hooks/proof-or-stop-scope-pretool.cjs', [renderCodexPretoolScopeHookScript()]);
   removeWholeFileIfGenerated('.codex/hooks/scope-pretool.cjs', '.codex/hooks/scope-pretool.cjs', [renderCodexPretoolScopeHookScript()]);
   cleanupEmptyDirChain('.codex/hooks');
 }
@@ -635,31 +631,15 @@ if (withStarter) {
   }
 }
 
-// B-cdf6: init writes the CANONICAL wrapper names. The deprecated `bin/lattice.js` /
-// `bin/lattice-codex.js` names are still ACCEPTED (a project that already has them is
-// left alone rather than gaining a duplicate), but they are never newly generated —
-// otherwise fresh projects would keep inheriting the retired brand.
-//
-// B-cc10 CHK-006 SCOPE NOTE: that story deleted the two deprecated aliases from THIS
-// repository's own `bin/`. It deliberately did NOT remove the tolerance below, because
-// this code path generates into and cleans up DOWNSTREAM user projects: a project that
-// was initialized before the rename still has the old wrapper on disk, and silently
-// ceasing to recognize it would either strand a managed file or hand that project a
-// duplicate wrapper. Recognizing an old name in someone else's checkout costs nothing;
-// shipping the dead name from our own bin/ was the actual break, and that is gone.
 const CANONICAL_BOOTSTRAP_REL = 'bin/proof-or-stop.js';
 const CANONICAL_CODEX_WRAPPER_REL = 'bin/proof-or-stop-codex.js';
-const DEPRECATED_BOOTSTRAP_REL = 'bin/lattice.js';
-const DEPRECATED_CODEX_WRAPPER_REL = 'bin/lattice-codex.js';
 
-const existingCodexWrapperRel = [CANONICAL_CODEX_WRAPPER_REL, DEPRECATED_CODEX_WRAPPER_REL]
-  .find(rel => existsSync(join(targetDir, rel)));
+const existingCodexWrapperRel = existsSync(join(targetDir, CANONICAL_CODEX_WRAPPER_REL))
+  ? CANONICAL_CODEX_WRAPPER_REL
+  : undefined;
 
 if (!isGlobalThin) {
   writeExecutable(CANONICAL_BOOTSTRAP_REL, renderProofOrStopBootstrapScript(packageRoot));
-  if (existsSync(join(targetDir, DEPRECATED_BOOTSTRAP_REL))) {
-    console.log(`  - ${DEPRECATED_BOOTSTRAP_REL} (deprecated alias retained, still works)`);
-  }
 } else {
   console.log(`  - ${CANONICAL_BOOTSTRAP_REL} (global-thin mode; use global proof-or-stop CLI)`);
 }
@@ -1075,7 +1055,7 @@ if (wantsClaude) {
       console.log(`  - .claude/hooks/${hookFile} (exists, skip)`);
     }
   }
-  const newPretoolHookSrc = join(hookSrcDir, LATTICE_SCOPE_PRETOOL_HOOK_FILE);
+  const newPretoolHookSrc = join(hookSrcDir, PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE);
   if (existsSync(newPretoolHookSrc)) {
     removeWholeFileIfGenerated(
       `.claude/hooks/${LEGACY_SCOPE_PRETOOL_HOOK_FILE}`,
@@ -1148,10 +1128,10 @@ if (wantsClaude) {
 }
 
 if (wantsCodex || isGlobalThin) {
-  writeExecutable('.codex/hooks/lattice-scope-pretool.cjs', renderCodexPretoolScopeHookScript());
+  writeExecutable('.codex/hooks/proof-or-stop-scope-pretool.cjs', renderCodexPretoolScopeHookScript());
   removeWholeFileIfGenerated('.codex/hooks/scope-pretool.cjs', '.codex/hooks/scope-pretool.cjs', [renderCodexPretoolScopeHookScript()]);
   // B-1507 CHK-003: fail-open evidence-pin seatbelt on the Codex shell tool.
-  writeExecutable('.codex/hooks/lattice-evidence-pretool.cjs', renderCodexEvidencePretoolHookScript());
+  writeExecutable('.codex/hooks/proof-or-stop-evidence-pretool.cjs', renderCodexEvidencePretoolHookScript());
 
   const codexHooksPath = join(targetDir, '.codex', 'hooks.json');
   const codexHooks = getCodexHooks();

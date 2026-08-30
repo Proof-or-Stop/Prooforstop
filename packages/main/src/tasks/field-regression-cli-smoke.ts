@@ -1089,7 +1089,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     assert.equal(doctor.wrapperGitRoot.suggestedGitRoot, 'clawcreek');
     assert.equal(
       doctor.wrapperGitRoot.repairCommand,
-      'lattice config repair --set-git-root=clawcreek --confirm',
+      'proof-or-stop config repair --set-git-root=clawcreek --confirm',
     );
     assert.match(doctor.wrapperGitRoot.note, /Operator suggestion only/i);
 
@@ -1097,7 +1097,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     assert.match(doctorText, /wrapperGitRoot:/);
     assert.match(doctorText, /status: single-candidate/);
     assert.match(doctorText, /suggestedGitRoot: clawcreek/);
-    assert.match(doctorText, /repairCommand: lattice config repair --set-git-root=clawcreek --confirm/);
+    assert.match(doctorText, /repairCommand: proof-or-stop config repair --set-git-root=clawcreek --confirm/);
 
     const before = await runLatticeJson<{
       resolved: boolean;
@@ -1122,7 +1122,7 @@ async function assertWrapperGitRootDoctorAndRepairCliSurface(): Promise<void> {
     assert.equal(preview.gitRoot, 'clawcreek');
     assert.equal(preview.write, 'preview-only');
     assert.equal(preview.verification, 'configured-git-root verified');
-    assert.equal(preview.confirmCommand, 'lattice config repair --set-git-root=clawcreek --confirm');
+    assert.equal(preview.confirmCommand, 'proof-or-stop config repair --set-git-root=clawcreek --confirm');
     assert.equal(JSON.parse(readFileSync(join(repairable.root, 'lattice.config.json'), 'utf-8')).gitRoot, undefined);
 
     const unsafeOutside = await runProofOrStopRaw(repairable.root, 'lattice_config_repair', {
@@ -1422,7 +1422,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
 
     const docPromiseOutput = await runProofOrStop(root, 'finding_add', {
       storyId,
-      desc: 'doc-promise-undelivered: README promised lattice foo command but it does not exist in registry.',
+      desc: 'doc-promise-undelivered: README promised proof-or-stop foo command but it does not exist in registry.',
       severity: 'critical',
       category: 'doc-promise-undelivered',
       agent: 'lattice-review-quality',

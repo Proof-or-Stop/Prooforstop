@@ -149,7 +149,7 @@ function trustedLatticeExecutable(
   executable: string,
   env: NodeJS.ProcessEnv,
 ): boolean {
-  const resolvedExecutable = executable === 'lattice'
+  const resolvedExecutable = executable === 'proof-or-stop'
     ? executableOnInheritedPath(executable, root, env)
     : safeRealpath(isAbsolute(executable) ? executable : resolve(root, executable));
   if (!resolvedExecutable) return false;

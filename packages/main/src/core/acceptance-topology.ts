@@ -138,7 +138,7 @@ function basename(token: string): string {
 }
 
 // B-cdf6:F-042 — recognized ONLY the deprecated bin, so producer-command provenance
-// worked for `lattice acceptance_matrix` and silently FAILED for the canonical
+// worked for `proof-or-stop acceptance_matrix` and silently FAILED for the canonical
 // `proof-or-stop acceptance_matrix`. That is backwards from the read-both contract:
 // the new name is canonical and must be recognized, the old one is kept for
 // compatibility. Both are accepted now, and the deprecated spellings are retained

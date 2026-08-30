@@ -12,7 +12,7 @@
  * seed with the capability release present, and asserts
  * `candidate.lineage.capabilityReleaseId === capabilityRelease.id`.
  *
- * It reads no live repo-root .lattice state, so it is hermetic and re-runnable.
+ * It reads no live repo-root .proof-or-stop state, so it is hermetic and re-runnable.
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';

@@ -8,7 +8,6 @@ import {
   LATTICE_CLI_VERSION,
   PROOF_OR_STOP_PRODUCT_NAME,
   PROOF_OR_STOP_PRIMARY_BIN,
-  PROOF_OR_STOP_DEPRECATED_BIN,
   formatProofOrStopProductLine,
 } from './lattice-brand.js';
 import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
@@ -161,12 +160,7 @@ function readPackageName(path: string): string | null {
   return typeof parsed?.name === 'string' ? parsed.name : null;
 }
 
-/**
- * B-cdf6 CHK-002: the bin map is now additive — `proof-or-stop` is canonical and
- * `lattice` is retained as a deprecated alias. Require the CANONICAL entry so a
- * package that only ships the deprecated alias is reported as needing a refresh,
- * while a package shipping both still passes.
- */
+/** Require the sole canonical product bin. */
 function packageBinHasLattice(path: string): boolean {
   const parsed = readJsonFile(path);
   const bin = parsed?.bin;
@@ -298,10 +292,7 @@ function buildConfigProbe(projectRoot: string): RolloutProbe {
   const mainPackagePath = join(projectRoot, 'packages', 'main', 'package.json');
   const mainPackageVersion = readPackageVersion(mainPackagePath);
   const mainPackageName = readPackageName(mainPackagePath);
-  // B-cdf6 CHK-002: the canonical wrapper is bin/proof-or-stop.js; bin/lattice.js
-  // remains as a deprecated alias and is reported separately rather than gating.
   const hasLatticeWrapper = existsSync(join(projectRoot, 'bin', `${PROOF_OR_STOP_PRIMARY_BIN}.js`));
-  const hasDeprecatedWrapper = existsSync(join(projectRoot, 'bin', `${PROOF_OR_STOP_DEPRECATED_BIN}.js`));
   const hasBinAliases = packageBinHasLattice(mainPackagePath);
   // B-cc10 CHK-005: renamed @lattice/core -> @proof-or-stop/core. Accept both spellings.
   // A miss here does NOT fail loudly: isSelfLayout=false short-circuits `ok` to true and
@@ -312,7 +303,7 @@ function buildConfigProbe(projectRoot: string): RolloutProbe {
     : true;
   const status: RolloutStatus = ok ? 'pass' : 'warn';
   const detail = isSelfLayout
-    ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${LATTICE_CLI_VERSION}; wrapper=${hasLatticeWrapper}; deprecatedAliasWrapper=${hasDeprecatedWrapper}; bin=${PROOF_OR_STOP_PRIMARY_BIN}:${hasBinAliases}`
+    ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${LATTICE_CLI_VERSION}; wrapper=${hasLatticeWrapper}; bin=${PROOF_OR_STOP_PRIMARY_BIN}:${hasBinAliases}`
     : `external project; global ${formatProofOrStopProductLine()} can be used without a project-local JS wrapper`;
   return {
     id: 'lattice_config_doctor',

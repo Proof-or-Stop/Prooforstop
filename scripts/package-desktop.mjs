@@ -52,7 +52,7 @@ function targetForHost() {
 function artifactName(target) {
   const [, platform, arch] = target.match(/^node18-(macos|linux|win)-(.+)$/) || [];
   if (!platform || !arch) throw new Error(`Unsupported pkg target: ${target}`);
-  return `lattice-${platform}-${arch}${platform === 'win' ? '.exe' : ''}`;
+  return `proof-or-stop-${platform}-${arch}${platform === 'win' ? '.exe' : ''}`;
 }
 
 function writePkgEntrypoint() {
@@ -239,7 +239,7 @@ function packageTarget(target) {
 
 function writeManifest(results) {
   writeFileSync(manifestPath, JSON.stringify({
-    entry: 'bin/lattice.js via generated pkg-entry.js',
+    entry: 'bin/proof-or-stop.js via generated pkg-entry.js',
     artifacts: results,
   }, null, 2) + '\n', 'utf8');
 }
