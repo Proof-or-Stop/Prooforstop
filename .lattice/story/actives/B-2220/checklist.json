@@ -27,6 +27,14 @@
               "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const must=[\\\"B-3434 remains accepted.\\\",\\\"## What ships\\\",\\\"**The measured numbers**\\\",\\\"smokeExpected=158 measured=158 hypothetical4SpaceStore=168 smokeStillPasses=true\\\",\\\"inherited-toJSON-real-store: calls=3 reported=67 withinBound=true disk=31457342 exceedsBound=true\\\",\\\"## Known limitations\\\",\\\"B-3434:F-033\\\",\\\"B-3434:F-035\\\",\\\"B-3434:F-036\\\",\\\"B-3434:F-037\\\"];if(!must.every(x=>s.includes(x)))process.exit(1);console.log(\\\"B-2220 happy-1 PASS\\\");\"",
               "selector": "B-2220 happy-1 PASS"
             }
+          },
+          {
+            "desc": "The executable validation-evidence smoke accepts the current declined/no-active-follow-up decision and no longer requires the removed heading or an actionable work list; WHY: the repository contract must agree with the decision document.",
+            "type": "logic",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
+              "selector": "validation-evidence-buffer-smoke: PASS"
+            }
           }
         ],
         "edge": [
@@ -57,11 +65,11 @@
             }
           },
           {
-            "desc": "A whole-document scan finds no remaining active-tense instruction to carry work into or optimize in the follow-up; historical descriptions may remain only when clearly labelled as superseded context; WHY: changing only the header would leave the body as an operative work order.",
+            "desc": "The independently reviewed final decision record remains byte-for-byte unchanged after acceptance; WHY: an exact digest catches any later paraphrased mandate or deletion without pretending a keyword list can prove arbitrary natural-language semantics. A future document edit must establish a new reviewed decision and digest.",
             "type": "docs",
             "verification": {
-              "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const must=[\\\"## Historical proposal: writer-owned canonical boundary\\\",\\\"This historical scope explanation remains valid\\\",\\\"That historical candidate does not reserve scope or create an obligation now.\\\",\\\"This history is retained as evidence, not as an instruction to continue.\\\"];const bad=[/carry it into the follow-up/i,/thing to revisit in the follow-up/i,/whoever picks up the follow-up/i,/implement this proposal in a new story/i,/proposal must now be implemented/i];if(!must.every(x=>s.includes(x))||bad.some(r=>r.test(s)))process.exit(1);console.log(\\\"B-2220 adversarial-1 PASS\\\");\"",
-              "selector": "B-2220 adversarial-1 PASS"
+              "command": "node -e \"const fs=require(\\\"fs\\\"),c=require(\\\"crypto\\\");const h=c.createHash(\\\"sha256\\\").update(fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\")).digest(\\\"hex\\\");if(h!==\\\"02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d\\\")process.exit(1);console.log(\\\"B-2220 adversarial-1 exact-decision PASS\\\");\"",
+              "selector": "B-2220 adversarial-1 exact-decision PASS"
             }
           }
         ]
