@@ -91,12 +91,12 @@
           "kind": "docs_check",
           "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const must=[\\\"## Decision after B-3434\\\",\\\"Decision: decline the writer-owned canonical boundary as not currently justified.\\\",\\\"No follow-up story is planned or owned.\\\",\\\"this document is not an active work order.\\\"];if(!must.every(x=>s.includes(x)))process.exit(1);console.log(\\\"B-2220 happy-0 PASS\\\");\"",
           "result": "pass",
-          "note": "Fresh post-fix receipt: decision record, executable smoke contract, and exact-digest mutation protection were independently reviewed and rerun.",
+          "note": "Fresh receipt after final verifier pinning and executable smoke-contract alignment.",
           "mechanical": false,
-          "headHash": "535c8cf475343bc23bcebccdb8327916971247cd",
+          "headHash": "b9664f914deeee017a3960f72fb87ed6f19868b0",
           "materialHash": "82123503ea45bf355aad85f6a3f1a67263c333a7f99aad88a8063e7aa692b3d5",
           "storyFilesHash": "882b121f7b58ffa5db11f24ad43ed3777504391647481b9a5d5fa5dfe57dba70",
-          "timestamp": "2026-08-30T23:31:19.619Z"
+          "timestamp": "2026-08-30T23:35:58.042Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
