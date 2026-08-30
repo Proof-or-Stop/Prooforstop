@@ -20891,6 +20891,85 @@
       },
       "readDiagnostics": [],
       "_hash": "1d02bb3e12ded17d88923a7c7d287fedea27c452c06b085f3323d3a3a26bb9b6"
+    },
+    {
+      "id": "B-45a0:RP-416",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed all fourteen checklist scopes and the narrowly coupled F-415 repair. The recomputed Section 27.6 prefix digest matches the corrected record, the full-document integrity verifier passes, and no new concept blocker was found.",
+      "createdAt": "2026-08-30T06:23:08.104Z",
+      "reviewRound": "2026-08-30T06:18:36.371Z",
+      "reviewRunId": "B-45a0:RR-974",
+      "envelopeId": "4afc235e21a8c74ec5d67a4d0bd85cd97305adfd6e9eb3a17d24205e68dd9145",
+      "writerSessionId": "sess-c4b55feea61e405a7d74f766af71c8fa",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "scripts/verify-story-aware-validation-plan.mjs"
+        ],
+        "scanEscalationReason": "The current material change is the narrowly scoped F-415 decision-record digest and verifier binding; the full story plan and complete checklist were read, while the changed long-form decision record was reviewed at its exact diff and audit boundary."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": 3309
+        },
+        "digest": "9a9f7084b3982493bb8abee6e2cfeb87fcd76f97a75902a8958455e1bc1d235c"
+      },
+      "readDiagnostics": [],
+      "_hash": "acbcb99bf3cf2a54afd36b2f02f4e644b4883ef40485f80ee5df42dc4cbe0826"
+    },
+    {
+      "id": "B-45a0:RP-417",
+      "agent": "lattice-review-quality",
+      "note": "No additional quality blocker in the F-415 repair: current prefix is c26f2da7, old 67b246 provenance is explicitly historical, and integrity plus tamper checks pass. F-416 coverage staleness remains owned by its reporting lane.",
+      "createdAt": "2026-08-30T06:25:50.313Z",
+      "reviewRound": "2026-08-30T06:18:36.371Z",
+      "reviewRunId": "B-45a0:RR-973",
+      "envelopeId": "fb82e4dbe871efa7331bec75b31a91309ca5ec3d1652384737ad49dc883930d7",
+      "writerSessionId": "sess-415c7d1916612eb43358cd5f27b457fc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "scripts/verify-story-aware-validation-plan.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "AGENTS.md",
+          "docs/CLI.md"
+        ],
+        "scanEscalationReason": "This quality lane independently reviewed only the current F-415 document/verifier correction and found no duplicate issue; the changed decision record was read in full."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 20112
+        },
+        "digest": "096ed63a5bae098cbca4f3e4d1cd8791b0d7498275a201fb6f2181a175665e7a"
+      },
+      "readDiagnostics": [],
+      "_hash": "6f406e4c5e87fe145b9979de38c8b9d2b348aa240b496ba99e15b28a3a2cac36"
     }
   ]
 }
