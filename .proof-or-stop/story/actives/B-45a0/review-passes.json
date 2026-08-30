@@ -22678,6 +22678,37 @@
         "scanEscalationReason": null
       },
       "_hash": "aa5e4404d950083d48cf504618748093d60f4de314de16929ffc8c67283b061f"
+    },
+    {
+      "id": "B-45a0:RP-469",
+      "agent": "lattice-review-topology-critic",
+      "note": "Wave 2 completeness re-check at head 14c4d6f2c3/c743700: independently re-ran acceptance_topology_check (pass/structuralPass=true/diagnostic_only), pre_review_check_read (fail/10 PR_* codes), acceptance_rollout_report_read+acceptance_rollout_check (fail/AR_REPORT_STALE, headHash+materialHash+storyFilesHash drift confirmed vs current story state, runnerDigest matches so not a runner-code cause), and confirmed rollout report body itself is genuine full 3x2 (rounds=3, both hostIds each round, mislabeled3x1Count=0). State is unchanged from wave-1 F-429/F-430; no new gap found.",
+      "createdAt": "2026-08-30T17:36:10.720Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1062",
+      "envelopeId": "cf8835fcdee2a703d5b061e7b1fb1820c1bed3af358d84241e3fcc66f28f9b75",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "268d1e5d9e7cdf03d115f9f4d02e2e809a7f24e183761086483b6b59b0f3de2b"
     }
   ]
 }
