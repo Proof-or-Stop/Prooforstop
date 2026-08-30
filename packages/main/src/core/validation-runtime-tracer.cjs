@@ -116,7 +116,11 @@ Module._load = function wrappedModuleLoad(request, parent, isMain) {
   add(trace.registryKeys, resolved || requestName);
   return originalLoad.call(this, request, parent, isMain);
 };
-for (const name of ['spawn', 'spawnSync', 'execFile', 'execFileSync']) {
+// These APIs do not share one argument shape: exec/execSync accept one shell
+// command string, while fork accepts a module path followed by its argv.  The
+// common first argument is still an observable process boundary; only array
+// second arguments are argv and must be recorded as such.
+for (const name of ['spawn', 'spawnSync', 'exec', 'execSync', 'execFile', 'execFileSync', 'fork']) {
   const original = childProcess[name];
   if (typeof original !== 'function') continue;
   childProcess[name] = function wrappedChildProcess(command, args, ...rest) {
