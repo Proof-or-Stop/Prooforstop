@@ -22254,6 +22254,29 @@
       },
       "readDiagnostics": [],
       "_hash": "7271ddd48ebc6b75c9998eb6419c5c355e8cafb76f013fad122616e5e5691043"
+    },
+    {
+      "id": "B-45a0:RP-452",
+      "agent": "lattice-review-docs",
+      "note": "Verified docs/code agreement for commit e3a6186f7f (fix(validation): bound historical replay admission). dynamic-validation-enforcement-evidence.md item 5 + new Bounded post-replay consumer exception section match REPLAY_ADMISSION_NONEXECUTING_PATHS in historical-replay-artifact.ts; MINIMUM/MAXIMUM_HISTORICAL_STORIES=30/50 match the pre-existing 30-50 range in story-aware-dynamic-validation-execution-plan.md (lines 1397, 1477, unchanged by this commit) and are covered by smoke tests for 29/30/50/51 counts. Repo-wide grep found no remaining unqualified no-stale-receipt wording and no stale 50-only minimum claim anywhere in docs/requirements/decisions. Findings F-423/F-425 already resolved citing this same commit; independent re-check agrees, no new drift found.",
+      "createdAt": "2026-08-30T16:17:16.432Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1037",
+      "envelopeId": "b0941ec02f0a8d1ef8c9ad3594f0c6fe17748b01f300c26a966fd2add86edb0c",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "88453cefb1d8dde5b1f8b2b5645940e297438eefd0978498228577779253e4c7"
     }
   ]
 }
