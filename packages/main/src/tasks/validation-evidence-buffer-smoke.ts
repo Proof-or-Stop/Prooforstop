@@ -223,9 +223,9 @@ function validationResult(
   // story's allowed scope. This section does not close that: it re-types the same formula rather
   // than importing StoryStore, so both copies move together and a store.ts format change leaves
   // every assertion here passing while the measurement reads low. Measured on a two-space to
-  // four-space change: expected 158, measured 158, writer 168, smoke still passing. B-3434:F-033;
-  // the repair is a writer-owned boundary, recorded in
-  // docs/requirements/decisions/validation-evidence-artifact-growth.md.
+  // four-space change: expected 158, measured 158, writer 168, smoke still passing. B-3434:F-033.
+  // A writer-owned boundary would close this narrower byte-identity gap; the decision document
+  // preserves the limitation and records why no active follow-up is currently justified.
   const record = buildRecord('{"allPass":true}');
   const expected = Buffer.byteLength(`${JSON.stringify(record, null, 2)}\n`, 'utf8');
   assert.equal(measurePersistedEvidenceBytes(record), expected, 'the measurement is JSON.stringify(record, null, 2) + newline, which is what store.ts writes today - compared against a second copy of that formula, not against store.ts');
@@ -689,14 +689,14 @@ function validationResult(
   );
   // CHK-004 requires a BINDING disposition, and outcome B is the one that shipped: the reduction
   // above is wired into both write paths, but the byte-for-byte agreement between the number it
-  // reports and the file on disk is not established from this side, and the repair needs
-  // core/store.ts, which is out of this story's scope. That makes the committed rationale a required
-  // artifact rather than an optional note - and a bare existsSync would let an empty file satisfy it.
+  // reports and the file on disk is not established from this side. The committed decision record
+  // remains required audit evidence even though its later human decision declines an active
+  // writer-owned-boundary follow-up. A bare existsSync would let an empty file satisfy that contract.
   const rationalePath = 'docs/requirements/decisions/validation-evidence-artifact-growth.md';
   const rationale = resolve(repoRoot, rationalePath);
   assert.ok(
     existsSync(rationale),
-    `CHK-004 shipped outcome B (the reduction ships, the byte-for-byte guarantee is deferred), so the committed rationale must exist at ${rationalePath}`,
+    `CHK-004 shipped outcome B (the reduction ships while byte-for-byte agreement remains a known limitation), so the committed decision record must exist at ${rationalePath}`,
   );
   const rationaleText = readFileSync(rationale, 'utf8');
   // Exactly one disposition is declared, and it is B. This is the mutual-exclusivity the outcome-A
@@ -707,13 +707,19 @@ function validationResult(
   assert.equal(
     declared[0],
     'Disposition: outcome B (committed rationale). The reduction ships; the byte-for-byte agreement between the measured size and the file on disk does not.',
-    'and the one it declares is outcome B, in the document a follow-up story will read',
+    'and the one it declares is outcome B in the retained decision record',
   );
-  // Teeth: a follow-up needs the boundary to build, the file to build it in, and a work list. A
-  // document that has lost any of these has stopped being the thing CHK-004 asked for.
+  // Teeth: the record must preserve what shipped, what remains technically true, and the later
+  // decision that the historical proposal is not active work. It must not regress to the old
+  // work-order posture.
   for (const required of [
+    '## Decision after B-3434',
+    'Decision: decline the writer-owned canonical boundary as not currently justified.',
+    'No follow-up story is planned or owned.',
     '## What ships',
-    '## What does not ship',
+    '## Known limitations retained from B-3434',
+    '## Historical proposal: writer-owned canonical boundary',
+    '## Known limitations',
     'writer-owned canonical boundary',
     'packages/main/src/core/store.ts',
     'Object.prototype',
@@ -724,13 +730,23 @@ function validationResult(
   ]) {
     assert.ok(
       rationaleText.includes(required),
-      `the rationale is actionable by someone who was not here: it names ${JSON.stringify(required)}`,
+      `the decision record preserves required audit context: it names ${JSON.stringify(required)}`,
+    );
+  }
+  for (const supersededMandate of [
+    'Owner of the follow-up: unassigned',
+    'This document is the work order',
+    'A follow-up story should be scoped',
+  ]) {
+    assert.ok(
+      !rationaleText.includes(supersededMandate),
+      `the decision record does not retain the superseded active mandate ${JSON.stringify(supersededMandate)}`,
     );
   }
   // Read out of the document rather than restated beside it: a hardcoded list here would be one more
   // sentence owned somewhere else, which is the defect class this whole story kept reopening.
   const namedFindings = [...new Set(rationaleText.match(/B-3434:F-\d+/g) ?? [])].sort();
-  console.log('✓ CHK-004 disposition observed: outcome B shipped - the reduction is wired into both evidence write paths, and the deferred guarantee is recorded in a committed rationale');
+  console.log('✓ CHK-004 disposition observed: outcome B shipped, its limitations remain recorded, and no writer-owned-boundary follow-up is currently active');
   console.log(`    rationale=${rationalePath} bytes=${Buffer.byteLength(rationaleText, 'utf8')} findingIdsNamed=${namedFindings.join(',')}`);
 }
 
