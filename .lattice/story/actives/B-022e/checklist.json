@@ -26,6 +26,26 @@
         "test": [
           "scripts/verify-proof-or-stop-identity-cutover.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Before the first production migration commit, the superseding cutover decision enumerates root/Lab/Utils package names, bins and wrappers, command text, role IDs, environment keys, state/config/adapter paths, runtime identifiers, hooks, prompts, and current docs, and assigns each occurrence an explicit canonical-only write, remove, or exact frozen-evidence disposition with rationale; the committed verifier reports no unclassified active residue. WHY: proves the clean-break policy precedes implementation and is exhaustive.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the residue classifier over all tracked paths and compare every Lattice token to the decision inventory -> active occurrences are classified as migrate/remove, frozen historical or signature-bound occurrences match exact path+token+reason entries, and no directory wildcard or broad substring exemption is accepted. WHY: distinguishes exact active residue from protected history without rewriting either class.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "On a temporary copy, delete one identity class from the decision, broaden one frozen-evidence entry, or place the decision after a production migration commit -> the cutover verifier fails with the missing class, overbroad exemption, or ordering violation and cannot claim policy completion. WHY: prevents a retrospective or vacuous superseding decision.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {

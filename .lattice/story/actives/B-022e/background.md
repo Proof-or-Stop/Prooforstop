@@ -9,3 +9,4 @@ A clean break removes compatibility complexity and is safe before public release
 
 ## Conversational Texture
 The operator explicitly rejected deprecated Lattice wording and aliases because only two people are developing the code. The desired product experience is categorical: users and internal agents run proof-or-stop commands only, while past evidence remains an honest record rather than being cosmetically rewritten.
+- 2026-08-30 operator clarification: rename lattice-review-story-init to proof-or-stop-review-story-init, and rename every current Agent/role identity containing lattice to the canonical Proof-or-Stop form; do not retain active role aliases.
