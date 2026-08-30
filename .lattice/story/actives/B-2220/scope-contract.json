@@ -2,12 +2,16 @@
   "storyId": "B-2220",
   "mode": "enforce",
   "allowedModify": [
-    "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+    "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+    "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
   ],
   "allowedCreate": [],
-  "allowedTest": [],
+  "allowedTest": [
+    "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+  ],
   "protectedFiles": [
-    "packages/main/src/**",
+    "packages/main/src/core/**",
+    "packages/main/src/handlers/**",
     "packages/main/dist/**",
     ".lattice/story/actives/B-3434/**"
   ],
@@ -16,10 +20,10 @@
     "tests/fixtures/**",
     "packages/main/tests/fixtures/**"
   ],
-  "scopeChangeReason": "User authorized one decision-document update only; B-3434 history and runtime code are explicitly excluded.",
+  "scopeChangeReason": "B-2220:F-003 proved the existing validation-evidence smoke is the executable contract for this decision document and still enforces the superseded active follow-up. Scope expands only to that smoke task; production runtime and B-3434 history remain protected.",
   "acknowledgements": [],
   "createdAt": "2026-08-30T22:57:42.914Z",
-  "updatedAt": "2026-08-30T22:57:42.914Z",
+  "updatedAt": "2026-08-30T23:20:09.977Z",
   "fileRules": [
     {
       "path": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
@@ -29,13 +33,26 @@
       "intentRefs": [
         "CHK-001:happy:0",
         "CHK-001:happy:1",
+        "CHK-001:happy:2",
         "CHK-001:edge:0",
         "CHK-001:edge:1",
         "CHK-001:adversarial:0",
         "CHK-001:adversarial:1"
       ]
+    },
+    {
+      "path": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:2",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1"
+      ]
     }
   ],
+  "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -45,7 +62,10 @@
     ".lattice/story/actives/B-3434/**": ".lattice/story/actives/B-3434/**",
     "docs/story/**": "docs/story/**",
     "tests/fixtures/**": "tests/fixtures/**",
-    "packages/main/tests/fixtures/**": "packages/main/tests/fixtures/**"
+    "packages/main/tests/fixtures/**": "packages/main/tests/fixtures/**",
+    "packages/main/src/tasks/validation-evidence-buffer-smoke.ts": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+    "packages/main/src/core/**": "packages/main/src/core/**",
+    "packages/main/src/handlers/**": "packages/main/src/handlers/**"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",

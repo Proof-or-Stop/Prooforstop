@@ -1,53 +1,61 @@
 {
   "storyId": "B-2220",
-  "checkedAt": "2026-08-30T23:12:12.219Z",
+  "checkedAt": "2026-08-30T23:23:18.792Z",
   "features": [
     {
-      "feature": "Record the human decision to decline the B-3434 writer-owned canonical boundary as not currently justified",
-      "covered_by": "CHK-001; CHK-001:happy:0",
+      "feature": "Decline the active B-3434 writer-owned-boundary follow-up and reject stale active mandates",
+      "covered_by": "CHK-001:happy:0 + CHK-001:adversarial:0 + decision document",
       "status": "covered",
-      "excluded_by": ""
+      "excluded_by": "",
+      "source": "understanding.task/outcome and decision document"
     },
     {
-      "feature": "Preserve B-3434 accepted status, shipped mechanism, measurements, transcripts, and retained finding history",
-      "covered_by": "CHK-001:happy:1; docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "feature": "Preserve B-3434 acceptance, shipped mechanism, measurements, transcripts, and retained finding history",
+      "covered_by": "CHK-001:happy:1 + decision document",
       "status": "covered",
-      "excluded_by": ""
+      "excluded_by": "",
+      "source": "understanding.constraints and checklist context"
     },
     {
-      "feature": "State the limited guarantee accurately: byte identity does not prove input consistency, semantic consistency, or evidence truth",
-      "covered_by": "CHK-001:edge:0",
+      "feature": "State the limited byte-identity property and evidence-based reopen conditions",
+      "covered_by": "CHK-001:edge:0 + CHK-001:edge:1 + decision document",
       "status": "covered",
-      "excluded_by": ""
+      "excluded_by": "",
+      "source": "understanding.facts and constraints"
     },
     {
-      "feature": "Keep the decision reversible through concrete evidence-based reconsideration triggers",
-      "covered_by": "CHK-001:edge:1",
+      "feature": "Make the executable validation-evidence smoke accept the declined/no-active-follow-up decision",
+      "covered_by": "CHK-001:happy:2 + packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
       "status": "covered",
-      "excluded_by": ""
+      "excluded_by": "",
+      "source": "B-2220:F-003 and expanded touchpoints"
     },
     {
-      "feature": "Reject active follow-up mandates while allowing negated language such as must not",
-      "covered_by": "CHK-001:adversarial:0; CHK-001:adversarial:1; metadata commit cc5324367c",
+      "feature": "Detect any post-review decision-document mutation, including paraphrased active mandates",
+      "covered_by": "CHK-001:adversarial:1 + sha256 02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d",
       "status": "covered",
-      "excluded_by": ""
+      "excluded_by": "",
+      "source": "exact-document digest plus in-memory F-004 mutation probe"
     },
     {
-      "feature": "Runtime/source implementation of the writer-owned boundary",
+      "feature": "Change production runtime behavior or generated dist",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "scope contract protectedFiles packages/main/src/** and packages/main/dist/**; user authorized documentation decision only"
+      "excluded_by": "protectedFiles: packages/main/src/core/**; packages/main/src/handlers/**; packages/main/dist/**",
+      "source": "understanding constraint: do not change production runtime behavior"
     },
     {
-      "feature": "Mutation of B-3434 lifecycle metadata or protected historical story records",
+      "feature": "Rewrite B-3434 lifecycle metadata or historical Story evidence",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "scope contract protectedFiles .lattice/story/actives/B-3434/**; AGENTS.md story-metadata access boundary"
+      "excluded_by": "protectedFiles: .lattice/story/actives/B-3434/**",
+      "source": "understanding constraint: preserve historical findings and accepted status"
     }
   ],
   "readManifest": {
     "filesReadFully": [
-      "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+      "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
     ],
     "filesTriagedByName": [],
     "scanEscalationReason": null
@@ -60,7 +68,7 @@
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-08-30T23:02:35.178Z",
-  "_hash": "023b543cee4388fe1401ef224b0aaaf5f4fdad8612810891b59666da1dfbe1ab",
+  "reviewRound": "2026-08-30T23:14:26.406Z",
+  "_hash": "5e64113b9a25f0ae11bc2f080522a545d6526e7ac8dde4940c50e3e1cd006147",
   "openQuestions": []
 }
