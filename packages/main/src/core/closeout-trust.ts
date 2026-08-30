@@ -38,6 +38,11 @@ export const CLOSEOUT_ARTIFACT_POLICIES = [
   { path: 'scope-contract.json', artifactClass: 'scope-defining', canonicalWriters: ['scope_contract_set', 'scope_contract_acknowledge'] },
   { path: 'milestone-ledger.json', artifactClass: 'scope-defining', canonicalWriters: ['milestone_ledger_set', 'milestone_ledger_add', 'intent_collision_set'] },
   { path: 'slice-plan.json', artifactClass: 'scope-defining', canonicalWriters: ['slice_plan_set'] },
+  // A stale-evidence refresh only re-executes already-pinned verification and
+  // replaces its evidence rows; it cannot create or change verification intent.
+  // Other checklist writers are deliberately absent because they may alter
+  // checklist status or acceptance semantics and therefore require re-review.
+  { path: 'checklist.json', artifactClass: 'closeout-evidence', canonicalWriters: ['verification_evidence_refresh_stale'] },
   { path: 'parent-ledger-rollup.json', artifactClass: 'closeout-evidence', canonicalWriters: ['parent_ledger_rollup_set'] },
   { path: 'evidence/delivery-context-pack.json', artifactClass: 'closeout-evidence', canonicalWriters: ['delivery_context_pack'] },
   { path: 'test-evidence.json', artifactClass: 'closeout-evidence', canonicalWriters: ['validate', 'test_add', 'test_story'] },

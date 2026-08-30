@@ -357,7 +357,10 @@ const approvedLegacyDeliveryCompatUsages = new Map<string, {
 
 const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   [LEGACY_DELIVERY_COMPAT_MODULE, 'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98'],
-  ['packages/main/src/core/closeout-trust.ts', '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887'],
+  // B-45a0 F-419: repinned after adding a receipt-bound checklist policy for
+  // the one canonical stale-evidence refresh writer. Compatibility symbols and
+  // their approved call shapes remain independently checked above.
+  ['packages/main/src/core/closeout-trust.ts', 'ac47b87069f5d0f0e7dff1ad2f3ac7896a6a08e57cd7e0c18ae9a5da6159b431'],
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
   ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
@@ -370,7 +373,9 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // call shape or occurrence count changed; the whole-file structural
   // fingerprint just moves with any source edit to this file.
   // B-1e1f: repinned after persistSyntheticAdmittedWindowForTest; approved call shapes/occurrence counts unchanged.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', '49af08591ff783654df81918b26db7a9be9478e0fa3655fadaeabb79e0cb6d37'],
+  // B-45a0 F-421: repinned with executable checks that canonical checklist
+  // refresh lineage retains review while checklist_update remains rejected.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', '0b65e0467efb6eee0dfe36d306743303cb8b8859fd50a5b4f0bea5de3887c7d3'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
