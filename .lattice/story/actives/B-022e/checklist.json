@@ -415,6 +415,26 @@
           "proof-or-stop done_required_validate",
           "proof-or-stop done_prepare"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After all implementation/evidence commits, package.json, package-lock.json, main/Lab/Utils manifests, the canonical brand/version constant, built output, packed --version output, and proof-or-stop --version all agree on 0.3.268; required REVIEW lanes record fresh signed pass evidence, routine proof-or-stop validate passes, configured DONE-required validation passes, done_prepare --mergeMain --refreshStale --validate reports PASS, and story_advance DONE merges locally to main. WHY: proves version and lifecycle convergence at the shipped boundary.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Recompute review, verificationEvidence, validation, DONE-required, delivery, and adapter freshness against the final story-owned files/HEAD after the last generated metadata or main merge -> only admissible current evidence is consumed, head-only unrelated drift follows the CLI freshness classification, and no remote task branch/main push occurs. WHY: prevents a superficially green but stale closeout.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "From temporary closeout states with one manifest/version constant at 0.3.267, dirty product files, stale validation or DONE-required evidence, missing review lane/pass, open blocking finding, failing clean-install negative, or changed storyFilesHash after review -> build/version verifier or lifecycle gate refuses DONE and names the blocker. WHY: proves REVIEW/TEST/DONE cannot be bypassed by partial version or stale proof.",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
