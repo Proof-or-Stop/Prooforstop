@@ -38,10 +38,31 @@
       "headHash": "6ff31ddb26647a83a3e6af84af52c6f3498cb1c8",
       "materialHash": "82123503ea45bf355aad85f6a3f1a67263c333a7f99aad88a8063e7aa692b3d5",
       "hunkDigest": "4a04a4aed1799918416600258f01f66524f1f9297a6540f9b3d96a83090c39c1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-005 requires the in-scope smoke contract to replace stale deferred wording and its narrow phrase blacklist with an exact SHA-256 binding to the independently reviewed decision document.",
+      "timestamp": "2026-08-30T23:43:55.832Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4cb27e944de0bb21f6ff0effe77c5520bce53f0b",
+      "materialHash": "63ec3b21168ab0c49bc04769102feb0ac7275a0c3a4bc6457135688eab4921ed",
+      "hunkDigests": [
+        "fdf6469452aa57e575ca7917c34d676a2637047a984682d7df0d256f3b2dbe57",
+        "bd730551dc7b1039d3c918b389d5aa0a3e0bb20abab48f3653bed3fa305e09f1",
+        "99281ddb8adfd691ecd7235c517fdbb36d4a0be0f6fcaa2ff9877e9e78121c50"
+      ]
     }
   ],
   "createdAt": "2026-08-30T22:57:42.914Z",
-  "updatedAt": "2026-08-30T23:36:34.956Z",
+  "updatedAt": "2026-08-30T23:43:55.832Z",
   "fileRules": [
     {
       "path": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
