@@ -22950,6 +22950,25 @@
       ],
       "signatureTag": "pre-review-admissibility",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-415",
+      "desc": "doc-code-drift: docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md:1757 says the Section 27.6 prefix is the exact audited payload and its recomputation command proves SHA-256 67b2466c..., but the current documented command computes c26f2da7... for that prefix. The authoritative integrity verifier at scripts/verify-story-aware-validation-plan.mjs:15 instead pins the full current file to 4c48c3c5.... The normative record therefore presents a stale audit digest as a current authority boundary; it must bind the actual audited payload or explicitly mark the 67b record historical before DYN-1 authority claims are trusted.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-30T05:48:26.072Z",
+      "reviewRound": "2026-08-30T05:40:28.609Z",
+      "reviewRunId": "B-45a0:RR-964",
+      "_hash": "73f566a20e255133421af8f667979295affd128899bd1eebdf790902b1c94358",
+      "files": [
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "scripts/verify-story-aware-validation-plan.mjs"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
