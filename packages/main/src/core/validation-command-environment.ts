@@ -99,7 +99,7 @@ const VALIDATION_TRANSPORT_ENV_KEYS = new Set<string>(
  * embedded the volatile values; they are re-earned by re-running the
  * validation, which is the normal remedy for a stale receipt.
  */
-const HOST_LAUNCHER_SESSION_ENV_KEYS = [
+export const HOST_LAUNCHER_SESSION_ENV_KEYS = [
   'CLAUDE_CODE_CHILD_SESSION',
   'CLAUDE_CODE_MESSAGING_SOCKET',
   'CLAUDE_CODE_MESSAGING_TOKEN',
