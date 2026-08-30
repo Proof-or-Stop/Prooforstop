@@ -148,6 +148,40 @@
       },
       "readDiagnostics": [],
       "_hash": "bc212a9fb60f1426c90365478ebf38e78b68fe0c9235170c485b40b8e9869641"
+    },
+    {
+      "id": "B-2220:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "F-003 re-audit PASS: the decision doc declines the writer-owned canonical boundary and requires a new human-approved story for reconsideration. validation-evidence-buffer-smoke.ts no longer calls it the repair or a mandatory follow-up/work list; line 227 is conditional byte-identity analysis, lines 690-749 require the declined/no-active-follow-up record and reject the three superseded mandates. Repository source scan found no related mandatory residue; the only other canonical-boundary modal hit concerns an unrelated durable terminal-event boundary.",
+      "createdAt": "2026-08-30T23:40:08.143Z",
+      "reviewRound": "2026-08-30T23:37:17.497Z",
+      "reviewRunId": "B-2220:RR-010",
+      "envelopeId": "21f0711f0b55875955a8b56fa0afb87b49aa5526c719c5e96cf9d8b62090b5aa",
+      "writerSessionId": "sess-2233222d493596fbbca660081c442cf4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "F-003 required a repository-wide source/docs semantic residue scan for mandatory writer-owned-boundary language."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "91c08d3a4b9fc8fa0da118806cba9b28c93b234b530de5632ac3e8300d3ca41b"
     }
   ]
 }
