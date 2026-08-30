@@ -23249,6 +23249,77 @@
       ],
       "signatureTag": "missing-closeout-retention-canonical-evidence",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-422",
+      "desc": "docs-closeout-retention-contract: docs/requirements/decisions/story-lifecycle.md:195,265,278 promise that verification_evidence_refresh_stale safely re-executes pinned evidence and re-stamps current freshness, but omit that its canonical checklist.json mutation must retain an already-current review receipt only through a verified closeout-evidence writer/receipt lineage. The actual retention gate rejects the refresh because checklist.json has no CLOSEOUT_ARTIFACT_POLICIES entry (packages/main/src/core/closeout-trust.ts:37-49,607-610), although the command necessarily rewrites that file (packages/main/src/handlers/checklist.ts:1140-1168). Consequently, the documented remediation for stale evidence can itself invalidate REVIEW and deadlock REVIEW→TEST without product-material change. Add an explicit lifecycle contract for canonical evidence-refresh retention, its permitted writer(s), and the safe rejection behavior for non-canonical checklist mutations, coupled to the code fix and tests.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-30T12:18:42.208Z",
+      "reviewRound": "2026-08-30T11:33:19.289Z",
+      "reviewRunId": "B-45a0:RR-998",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": "Focused RI-100 documentation contract review of the canonical stale-evidence refresh and current-review retention interaction."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 10934
+        },
+        "digest": "67eafc0f9326a649ef03fbf8dbd1e9dbf11091dc3dec02b448cf6885aeb10cd8"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/dynamic-validation-operations.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/dynamic-validation-operations.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        }
+      ],
+      "_hash": "7d11c9db5c62ff7c32bb8d7b47d5023057893337c9e29468a8c3dfa8362c85a1",
+      "files": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "docs-closeout-retention-contract",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
