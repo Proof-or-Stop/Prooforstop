@@ -69,10 +69,13 @@
       "userSees": "The document states: \"Decision after B-3434: decline the writer-owned canonical boundary as not currently justified.\" It also states: \"B-3434 remains accepted\" and \"Reconsider only if\" followed by evidence-based triggers.",
       "files": {
         "modify": [
-          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
         ],
         "create": [],
-        "test": []
+        "test": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ]
       },
       "verificationEvidence": [
         {
