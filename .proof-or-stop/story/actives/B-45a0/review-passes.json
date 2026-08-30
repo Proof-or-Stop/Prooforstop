@@ -21043,6 +21043,47 @@
         "scanEscalationReason": null
       },
       "_hash": "cfb3527f66f5bd3b28ecc6ad02d8e8f223f5a239f1cd2d68d42766ee7a7a734e"
+    },
+    {
+      "id": "B-45a0:RP-421",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed: all 50 intent mappings have valid pass evidence, including all 44 must intents; every mapping is material-fresh on the current f2f3d837 binding, and CHK-014 directly covers the four verifier-owned acceptance routes.",
+      "createdAt": "2026-08-30T06:55:30.972Z",
+      "reviewRound": "2026-08-30T06:18:36.371Z",
+      "reviewRunId": "B-45a0:RR-982",
+      "envelopeId": "bf11efaae6eb76ba5b7ae093180a49f9679e35bd8ad1624d740d93fc7051e8fb",
+      "writerSessionId": "sess-3dbc153fa277f004cb7137d252bfed8c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "scripts/verify-story-aware-validation-plan.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "scanEscalationReason": "Coverage review was bounded to the current 50 verificationEvidence mappings, their current material binding, and the DYN-3/DYN-5 enforcement and Wave 4 acceptance evidence routes; no historical replay was executed."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "34513f97bdfd046030ff5946ce599a72eae10373a53d8b5ae001191889cb8be6"
+      },
+      "readDiagnostics": [],
+      "_hash": "976b5bbbfdb0d41a4e55ec25a3690fccdc9a0ee4bb876ad7c6c6b3b8fd9ecf60"
     }
   ]
 }
