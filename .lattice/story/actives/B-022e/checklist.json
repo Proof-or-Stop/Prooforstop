@@ -186,6 +186,26 @@
           "scripts/verify-entrypoints.mjs",
           "scripts/verify-proof-or-stop-identity-cutover.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Install the packed CLI globally into an isolated prefix and enumerate executable bins -> proof-or-stop is the sole product bin; proof-or-stop --version, help, lab help, and representative help/error/hint paths succeed and begin with or teach proof-or-stop only. WHY: verifies the user-visible command surface end to end.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exercise child-process spawn sites, hooks, package scripts, generated agent instructions, CI examples, and repair hints -> each invokes the canonical proof-or-stop command and none depends on a repository-local deprecated wrapper. WHY: covers indirect entrypoints that a bin-map-only assertion misses.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "In the isolated install, invoke lattice, search installed bins for a lattice alias, and attempt any deprecated wrapper/fallback path -> command resolution fails, no wrapper file or bin map exists, and adding one alias causes entrypoint/cutover verifiers to fail. WHY: proves removal rather than documentation-only renaming.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
