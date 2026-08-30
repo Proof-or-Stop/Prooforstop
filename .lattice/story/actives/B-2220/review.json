@@ -124,6 +124,29 @@
         }
       ],
       "_hash": "e0919f16096c1b8d420c9733d9227c7e55dda8f0b37e9edf6f7b5ea22d0b73e9"
+    },
+    {
+      "timestamp": "2026-08-30T23:12:52.085Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        },
+        {
+          "type": "missing_decision",
+          "severity": "advisory",
+          "message": "decision.json not filled. Optional for non-high-risk stories, but recommended so reviewers can audit the design rationale."
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        }
+      ],
+      "_hash": "54e096b6f11f31ac7317eb0d7c429b7a6cbe5d59e2dce153157053c37f65e864"
     }
   ]
 }

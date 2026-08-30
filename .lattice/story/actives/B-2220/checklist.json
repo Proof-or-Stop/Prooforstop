@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/validation-evidence-artifact-growth.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-08-30T22:58:35.708Z",
       "endTime": "2026-08-30T23:01:43.735Z",
       "verificationIntent": {
@@ -155,6 +155,17 @@
         "attestedAt": "2026-08-30T23:01:43.898Z",
         "materialHash": "7eb23b12327a2b23a5c40936d7ccd6aec089ecf7097ff54eeae1fece412fc323"
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-30T23:13:06.868Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix review findings B-2220:F-001 and B-2220:F-002."
     }
   ]
 }
