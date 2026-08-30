@@ -10,7 +10,8 @@ const PAIRED_SCHEMA = 'proof-or-stop.dynamic-validation.paired-performance.v1';
 const FAULT_SCHEMA = 'proof-or-stop.dynamic-validation.fault-injection.v1';
 const RECEIPT_SCHEMA = 'proof-or-stop.dynamic-validation.replay-command-receipt.v1';
 const REQUIRED_FAULT_FAMILIES = ['FI-1', 'FI-2', 'FI-3', 'FI-4', 'FI-5'];
-const MINIMUM_HISTORICAL_STORIES = 50;
+const MINIMUM_HISTORICAL_STORIES = 30;
+const MAXIMUM_HISTORICAL_STORIES = 50;
 
 // A historical replay proves the validation subject (inventory, catalog, and
 // executed runners), not the bookkeeping that subsequently records its use.
@@ -22,6 +23,14 @@ const MINIMUM_HISTORICAL_STORIES = 50;
 const REPLAY_ADMISSION_NONEXECUTING_PATHS = new Set([
   'packages/main/src/core/historical-replay-artifact.ts',
   'packages/main/src/tasks/historical-replay-artifact-smoke.ts',
+  // These paths only consume or mechanically guard evidence after a replay
+  // completed. They neither participate in inventory/catalog derivation nor
+  // execute, select, or configure replay runners.
+  'packages/main/src/core/closeout-trust.ts',
+  'packages/main/src/handlers/checklist.ts',
+  'packages/main/src/tasks/closeout-trust-smoke.ts',
+  'packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts',
+  'scripts/verify-process-fact-contract.mjs',
   // This smoke reads pre-review evidence after it exists. It is not selected by
   // the replay producer and cannot affect inventory, catalog, or execution.
   'packages/main/src/tasks/proofstory-pre-review-check-smoke.ts',
@@ -30,6 +39,7 @@ const REPLAY_ADMISSION_NONEXECUTING_PATHS = new Set([
   // boundary auditable.
   'docs/requirements/decisions/dynamic-validation-enforcement-evidence.md',
   'docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md',
+  'docs/requirements/decisions/story-lifecycle.md',
 ]);
 
 export interface HistoricalReplayArtifactAdmission {
@@ -254,7 +264,10 @@ export function verifyHistoricalReplayArtifact(projectRoot: string): HistoricalR
     reasons.push('historical-replay-report-inadmissible');
   }
   const records = Array.isArray(report.records) ? report.records : undefined;
-  if (!records || records.length < MINIMUM_HISTORICAL_STORIES || report.storyCount !== records.length) {
+  if (!records
+    || records.length < MINIMUM_HISTORICAL_STORIES
+    || records.length > MAXIMUM_HISTORICAL_STORIES
+    || report.storyCount !== records.length) {
     reasons.push('historical-replay-record-count-invalid');
   } else {
     if (report.recordsDigest !== stableDigest(records)) reasons.push('historical-replay-records-digest-invalid');

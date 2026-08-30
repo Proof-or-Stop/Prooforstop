@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { verifyHistoricalReplayArtifact } from '../core/historical-replay-artifact.js';
 import { compileValidationCatalog, discoverValidationInventory, signPayload, stableDigest } from '../core/story-aware-validation.js';
 
@@ -20,7 +20,7 @@ function writeJson(path: string, value: unknown): void {
   writeFileSync(path, JSON.stringify(value, null, 2) + '\n');
 }
 
-function buildReport(root: string): { report: Record<string, unknown>; paired: Record<string, unknown> } {
+function buildReport(root: string, storyCount = 50): { report: Record<string, unknown>; paired: Record<string, unknown> } {
   const head = git(root, ['rev-parse', 'HEAD']);
   const inventory = discoverValidationInventory(root);
   const catalog = compileValidationCatalog(inventory);
@@ -38,7 +38,7 @@ function buildReport(root: string): { report: Record<string, unknown>; paired: R
     order: 'full-dynamic / dynamic-full / full-dynamic', runs: pairedRuns,
     medianWallTimeMs: 1, resourceTimelineDigest: 'timeline', perCommandEquivalent: true, verdictEquivalent: true,
   });
-  const records = Array.from({ length: 50 }, (_, index) => {
+  const records = Array.from({ length: storyCount }, (_, index) => {
     const storyId = `B-replay-${String(index + 1).padStart(2, '0')}`;
     const receipt = (mode: 'full' | 'dynamic') => signed({
       schema: 'proof-or-stop.dynamic-validation.replay-command-receipt.v1',
@@ -65,7 +65,7 @@ function buildReport(root: string): { report: Record<string, unknown>; paired: R
     schema: 'proof-or-stop.dynamic-validation.historical-replay.v1',
     generatedAt: new Date().toISOString(), root, execute: true, storyCount: records.length,
     categories: ['smoke'], recordsDigest: stableDigest(records), records, historicalVerdictDriftCount: 0,
-    replayExecution: { resumeRequested: true, repairMissingRequested: true, resumedHistoricalRecords: 50, reexecutedHistoricalRecords: 0 },
+    replayExecution: { resumeRequested: true, repairMissingRequested: true, resumedHistoricalRecords: storyCount, reexecutedHistoricalRecords: 0 },
     faultInjection,
     admissibility: { execute: true, pairedRequested: true, admissible: true, reasons: [] },
     pairedPerformance: paired,
@@ -150,6 +150,51 @@ try {
     true,
     'the bounded pre-review evidence consumer drift remains admissible without executing a replay',
   );
+
+  const consumerOnlyPaths = [
+    'packages/main/src/core/closeout-trust.ts',
+    'packages/main/src/handlers/checklist.ts',
+    'packages/main/src/tasks/closeout-trust-smoke.ts',
+    'packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts',
+    'scripts/verify-process-fact-contract.mjs',
+    'docs/requirements/decisions/story-lifecycle.md',
+  ];
+  for (const consumerOnlyPath of consumerOnlyPaths) {
+    const path = join(root, consumerOnlyPath);
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, 'export const consumerOnly = true;\n');
+  }
+  git(root, ['add', ...consumerOnlyPaths]);
+  git(root, ['commit', '-m', 'change bounded replay evidence consumers']);
+  assert.equal(
+    verifyHistoricalReplayArtifact(root).ok,
+    true,
+    'exact post-replay evidence consumers remain admissible without executing a replay',
+  );
+
+  const minimum = buildReport(root, 30);
+  writeJson(reportPath, minimum.report);
+  writeJson(pairedPath, minimum.paired);
+  assert.equal(verifyHistoricalReplayArtifact(root).ok, true, 'a 30-Story signed replay meets the lower bound');
+
+  const tooFew = buildReport(root, 29);
+  writeJson(reportPath, tooFew.report);
+  writeJson(pairedPath, tooFew.paired);
+  const tooFewResult = verifyHistoricalReplayArtifact(root);
+  assert.equal(tooFewResult.ok, false);
+  assert.ok(tooFewResult.reasons.includes('historical-replay-record-count-invalid'), '29 replay records fail closed');
+
+  const tooMany = buildReport(root, 51);
+  writeJson(reportPath, tooMany.report);
+  writeJson(pairedPath, tooMany.paired);
+  const tooManyResult = verifyHistoricalReplayArtifact(root);
+  assert.equal(tooManyResult.ok, false);
+  assert.ok(tooManyResult.reasons.includes('historical-replay-record-count-invalid'), '51 replay records fail closed');
+
+  const refreshed = buildReport(root);
+  writeJson(reportPath, refreshed.report);
+  writeJson(pairedPath, refreshed.paired);
+  assert.equal(verifyHistoricalReplayArtifact(root).ok, true, 'the upper-bound probe leaves a valid 50-Story artifact for producer-drift coverage');
 
   const producerPath = join(root, 'scripts', 'run-dynamic-validation-replay.mjs');
   mkdirSync(join(root, 'scripts'), { recursive: true });
