@@ -250,6 +250,38 @@
       },
       "readDiagnostics": [],
       "_hash": "a4d8411a89fb4822f047c2bbdfd44314448f09cf40d3be0cea8d0a1d6149c6b2"
+    },
+    {
+      "id": "B-2220:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Final F-005 re-review clean: the smoke no longer calls the boundary deferred, the three-phrase blacklist and its overclaim are removed, SHA-256 02bb788f...83b75d exactly binds the independently reviewed decision, the specified paraphrased mandate changes the digest and is rejected, git diff --check passes, and build-binding plus the complete compiled validation-evidence smoke exits 0 with validation-evidence-buffer-smoke: PASS.",
+      "createdAt": "2026-08-30T23:47:19.310Z",
+      "reviewRound": "2026-08-30T23:44:16.271Z",
+      "reviewRunId": "B-2220:RR-014",
+      "envelopeId": "aee1ee5b980c6f35d992f33977c376d8c1fdbc40a3bb09880f75927ce9b5eb17",
+      "writerSessionId": "sess-cefb267c4be123ec5ea78e95963412ad",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "dec2dc7551f6c4a790c2894c457bf0fd9343463d4f43c22e57b9ebe86ff7ab0c"
     }
   ]
 }
