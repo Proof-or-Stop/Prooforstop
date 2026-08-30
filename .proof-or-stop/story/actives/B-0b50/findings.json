@@ -441,7 +441,7 @@
       "desc": "Acceptance basis, acceptance_topology_check, pre_review_check_read, and acceptance_rollout_check are all failing/stale for B-0b50 at current head (214e3a6a). acceptance_basis: status=invalid, basisStatus=partial, receiptVerification.ok=false code=AT_SCOPE_BINDING_MISSING. acceptance_topology_check: structuralPass=false, AT_CLOSURE_FILES_STALE + AT_COVERAGE_BASIS_PARTIAL + AT_MISSING_TOPOLOGY. pre_review_check_read: ok=false, 13 failure codes including PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_AUTHORITY_INADMISSIBLE, PR_TRANSCRIPT_MISSING. acceptance_rollout_check/report_read: mode=enforce blocking=true diagnostics=[AR_REPORT_STALE] receipt=stale, embedded report binding.headHash=56cc3b86 does not match current head so the embedded full-3x2 pass is not current. Separately topology_critic_receipt_check reports AT_TOPOLOGY_CRITIC_CONTEXT_INVALID: implementation provenance missing a session-bound lattice-implementer dispatch. Verified via git log main..HEAD: business commits 214e3a6a and c485a74e are authored by lattice-implementer, but process-events.jsonl has zero dispatch events with agentType=lattice-implementer (only agentType-less bare dispatch records for CHK-001/CHK-002 with no sessionId). Real reproducible provenance gap independent of caller session; story is normal channel (riskSignals non-empty) so implementer dispatch is expected. None of the four Wave 4 checks pass; a topology-critic pass is forbidden while the basis is invalid/partial and the rollout receipt is stale under enforce.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-30T16:44:46.221Z",
@@ -476,7 +476,9 @@
         "packages/main/src/handlers/done-prepare.ts"
       ],
       "signatureTag": "missing|ts|acceptance-basis-acceptance",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-30T16:51:57.498Z",
+      "resolutionType": "fixed"
     }
   ]
 }
