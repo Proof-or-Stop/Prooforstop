@@ -1,8 +1,14 @@
 {
   "story_advance/f9f116fdc1ee": {
-    "count": 1,
+    "count": 2,
     "command": "story_advance",
     "lastReason": "Cannot transition from TEST to REVIEW",
-    "lastAt": "2026-08-30T12:26:48.356Z"
+    "lastAt": "2026-08-30T14:56:10.892Z"
+  },
+  "story_advance/15cad63597c3": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Convergence breaker FROZEN for B-0b50: this story tripped the runaway signature and already spent its one automatic recovery, so story_advance is hard-blocked until a human reviews it. Tripped counters: gate-repeat 2>=2. This is the hard brake that the B-f458 14-hour burn lacked. Next action (a human, not an autopilot session): run `proof-or-stop done_prepare --dryRun --storyId=B-0b50` to see the real blocker, then `proof-or-stop story_resume --storyId=B-0b50 --ack --reason=\"<why it is safe to c",
+    "lastAt": "2026-08-30T14:56:15.804Z"
   }
 }
