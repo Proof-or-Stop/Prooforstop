@@ -22979,7 +22979,7 @@
       "desc": "Coverage evidence is not current for REVIEW head c8517d7: all 44 priority=must intent mappings in .proof-or-stop/story/actives/B-45a0/checklist.json bind older heads (mostly bcd7b40; CHK-011:happy:0 binds 73068d6; CHK-014:happy:1 binds 6975596). The F-415 correction at docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md:1767 and scripts/verify-story-aware-validation-plan.mjs:13-14 passes the narrow verifier and tamper self-test locally, but neither result is recorded as a current structured verificationEvidence receipt. The reviewer could not run the required routine validate because the active owner lease rejected it, so stale evidence cannot be treated as current coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-30T06:22:43.227Z",
@@ -22991,7 +22991,11 @@
         "scripts/verify-story-aware-validation-plan.mjs"
       ],
       "signatureTag": "missing|md|coverage-evidence-current",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The prescribed extended-budget evidence refresh completed successfully: 50/50 stale pinned verifier receipts were re-executed and rebound, including replay threshold and fault-injection verification only. No historical replay execution was started.",
+      "resolvedAt": "2026-08-30T06:44:28.528Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
