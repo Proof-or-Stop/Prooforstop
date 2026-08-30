@@ -9893,9 +9893,9 @@
       "epochId": "B-45a0:RI-103",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-30T15:57:31.479Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-30T16:27:54.637Z",
-      "updatedAt": "2026-08-30T16:27:54.637Z",
+      "updatedAt": "2026-08-30T17:04:51.061Z",
       "cutoff": {
         "headHash": "9bf168cb4f5bd126feb9371bf1a89f6ef4d3edb7",
         "materialHash": "7d844f63c8b5e92caf825ae6da761b6b1de4b95c51753dcda24bbac28f04de53",
@@ -9912,7 +9912,30 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "69abdf910c0387c9409b5e2d8424302e104f68337534d90a91c72025dc6eb282"
+      "cancelledAt": "2026-08-30T17:04:51.061Z",
+      "cancelReason": "Epoch RI-103 cannot finalize: review_inventory_critic_set fails closed with 'untrusted closeout artifact path: acceptance-basis.json' because acceptance_basis_generate was run during REVIEW to repair a stale basis, and acceptance-basis.json is not a trusted closeout artifact class in closeout-trust.ts, which poisons closeout metadata retention for every review run bound before that write. Independently, two Wave-4 acceptance surfaces are genuinely failing and are repairable only from DEV: acceptance_rollout_check is fail/enforce/blocking with AR_REPORT_STALE (sole writer acceptance_rollout_report is DEV-only) and pre_review_check_read is FAIL with 10 PR_ codes (sole writer pre_review_check is DEV-only). Topology critic finding F-429 verified this and stands. Cancelling to take the documented recovery path into DEV rather than retrying the same gate a third time.",
+      "terminalRunSequenceBoundary": 1050,
+      "_hash": "191058b3ff994957d7eac18831a8a6899b9e38fbc14ad42615efaf16ddc372ba"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RIE-121",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-30T17:05:23.485Z",
+      "updatedAt": "2026-08-30T17:05:23.485Z",
+      "cutoff": {
+        "headHash": "bcf324d9e1142f26edf16608f001569e37ce8de1",
+        "materialHash": "7d844f63c8b5e92caf825ae6da761b6b1de4b95c51753dcda24bbac28f04de53",
+        "storyFilesHash": "ba1a26505043cf105c9d998798275f5e2777d12022b3406bf5aa1a21f20a4a80"
+      },
+      "scopeDigest": "707885b2aa63668c18312f609b25b08c69f0b4a7696f9dbb7ca5f47603669fac",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-45a0:RIE-121:RCP-001",
+      "_hash": "a18c0af9a28492aa4a46e81af723048647f6fbb78706d0bb9a26213e5ce5a12e"
     }
   ],
   "receipts": [
@@ -11351,6 +11374,28 @@
       "issuedAt": "2026-08-30T15:02:25.027Z",
       "consumedAt": "2026-08-30T15:03:33.678Z",
       "_hash": "3651f00a36463795a871114c48d9dfa49d2dfffc11751b3216c524956f420bab"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-45a0:RIE-121:RCP-001",
+      "epochId": "B-45a0:RIE-121",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "cutoff": {
+        "headHash": "bcf324d9e1142f26edf16608f001569e37ce8de1",
+        "materialHash": "7d844f63c8b5e92caf825ae6da761b6b1de4b95c51753dcda24bbac28f04de53",
+        "storyFilesHash": "ba1a26505043cf105c9d998798275f5e2777d12022b3406bf5aa1a21f20a4a80"
+      },
+      "scopeDigest": "707885b2aa63668c18312f609b25b08c69f0b4a7696f9dbb7ca5f47603669fac",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-30T17:05:23.485Z",
+      "_hash": "1b44fc5f1bdfdb4255e870de51de421723f8ebb7a65c2f4520c4a38435930913"
     }
   ],
   "criticReceipts": [
