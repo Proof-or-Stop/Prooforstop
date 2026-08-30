@@ -544,6 +544,31 @@
         "scanEscalationReason": null
       },
       "_hash": "ad52d6e24ed5380c41ba9d1fc88c9116c7502112ecf1ba3c7988670d5e4bd681"
+    },
+    {
+      "id": "B-0b50:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 6 must-priority verificationIntent (CHK-001 happy/edge/adversarial, CHK-002 happy/edge/adversarial) have valid non-vacuous manual_transcript evidence via certification-window-smoke.js. Independently rebuilt and re-ran at current HEAD, confirmed PASS. Material unchanged vs RI-005 cutoff. No coverage gap.",
+      "createdAt": "2026-08-30T16:56:57.434Z",
+      "reviewRound": "2026-08-30T16:51:42.451Z",
+      "reviewRunId": "B-0b50:RR-033",
+      "envelopeId": "5f0b9044b08b0dbc06bd50f1f24d9381fc0b1cf260619a0d35ebac13f647274e",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7a5b8005d6492401a6d4af1818c3c4bdf8c424b53b39b884e570b807585aa269"
     }
   ]
 }
