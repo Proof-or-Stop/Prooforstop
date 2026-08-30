@@ -1165,7 +1165,9 @@ function writeStaleRefresh(
       ? '→ Rerun the above command without dryRun to refresh evidence metadata'
       : `Refreshed ${refreshed}/${stale.length} stale evidence item(s). Re-run proof-or-stop validate --story=${storyId} --json`);
     if (!opts.dryRun) {
-      const commitHint = autoCommitStoryMetadata(root, storyId, 'verification_evidence_refresh_stale');
+      const commitHint = autoCommitStoryMetadata(root, storyId, 'verification_evidence_refresh_stale', {
+        closeoutArtifactPaths: ['checklist.json'],
+      });
       if (commitHint) lines.push(commitHint.replace(/^\n/, ''));
     }
     return lines.join('\n');

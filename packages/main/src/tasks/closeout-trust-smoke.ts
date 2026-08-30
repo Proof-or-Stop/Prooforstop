@@ -116,6 +116,7 @@ assert.deepEqual(
     'scope-contract.json',
     'milestone-ledger.json',
     'slice-plan.json',
+    'checklist.json',
     'parent-ledger-rollup.json',
     'evidence/delivery-context-pack.json',
     'test-evidence.json',
@@ -132,6 +133,8 @@ for (const policy of CLOSEOUT_ARTIFACT_POLICIES) {
   for (const writer of policy.canonicalWriters) assert(writer in COMMAND_POLICIES, `${policy.path} writer ${writer} must be a registered CLI command`);
 }
 assert.equal(assertCanonicalCloseoutWrite('scope-contract.json', 'scope_contract_acknowledge').artifactClass, 'scope-defining');
+assert.equal(assertCanonicalCloseoutWrite('checklist.json', 'verification_evidence_refresh_stale').artifactClass, 'closeout-evidence');
+assert.throws(() => assertCanonicalCloseoutWrite('checklist.json', 'checklist_update'), /non-canonical writer.*checklist/);
 assert.throws(() => assertCanonicalCloseoutWrite('../parent-ledger-rollup.json', 'parent_ledger_rollup_set'), /untrusted closeout artifact path/);
 assert.throws(() => assertCanonicalCloseoutWrite('parent-ledger-rollup.json', 'manual-write'), /non-canonical writer.*parent-ledger-rollup/);
 console.log('PASS closeout artifact classifications: closed policy set verified');
@@ -730,6 +733,27 @@ try {
     store, runtimeStoryId, 'summary.json', repo, repo,
   );
   assert.equal(retainedSummary.retainsReview, true, retainedSummary.reason);
+
+  const checklistPath = store.storyFilePath(runtimeStoryId, 'checklist.json');
+  writeFileSync(checklistPath, JSON.stringify({ items: [], refreshedBy: 'verification_evidence_refresh_stale' }), 'utf8');
+  assert.match(autoCommitStoryMetadata(repo, runtimeStoryId, 'verification_evidence_refresh_stale', {
+    closeoutArtifactPaths: ['checklist.json'],
+  }), /metadata auto-committed/);
+  assertWriterReceipt('checklist.json', 'verification_evidence_refresh_stale');
+  const retainedChecklist = classifyCurrentCloseoutArtifactForReviewRetention(
+    store, runtimeStoryId, 'checklist.json', repo, repo,
+  );
+  assert.equal(retainedChecklist.retainsReview, true, retainedChecklist.reason);
+
+  writeFileSync(checklistPath, JSON.stringify({ items: [], changedBy: 'checklist_update' }), 'utf8');
+  const nonCanonicalChecklistCommit = autoCommitStoryMetadata(repo, runtimeStoryId, 'checklist_update', {
+    closeoutArtifactPaths: ['checklist.json'],
+  });
+  assert.match(nonCanonicalChecklistCommit, /local causal closeout receipt was not issued: non-canonical writer/);
+  const rejectedChecklist = classifyCurrentCloseoutArtifactForReviewRetention(
+    store, runtimeStoryId, 'checklist.json', repo, repo,
+  );
+  assert.equal(rejectedChecklist.retainsReview, false);
 
   git(repo, ['checkout', '-b', 'source-drift', baselineHead]);
   writeFileSync(join(repo, 'src/app.ts'), 'export const stable = false;\n', 'utf8');

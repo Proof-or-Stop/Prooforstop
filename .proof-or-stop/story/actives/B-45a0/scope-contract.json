@@ -506,10 +506,55 @@
       "phase": "REVIEW",
       "headHash": "ca37e5166abba9c39b236545499a2586e5b990bc",
       "materialHash": "e51e3cca220f461d5054ffb7ffd7aaef3c2d1505fe37a3708cd7621a934101a0"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These lifecycle paths are required to repair the signed canonical evidence-refresh review-retention defect and document its fail-closed boundary.",
+      "timestamp": "2026-08-30T12:41:11.772Z",
+      "paths": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "b1ad6a80e5191edadf687364e0fd5e3575678524",
+      "materialHash": "cb44357ecc2764bd334776e8e358463866e5dde301135418bcb3fd2330d1f24f",
+      "anchors": [
+        "closeoutTrust.classifyCurrentCloseoutArtifactForReviewRetention",
+        "checklist.verificationEvidenceRefreshStale"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The broader regression suite requires intentional repinning of its structural guard after the reviewed closeout-retention source and smoke changes.",
+      "timestamp": "2026-08-30T12:45:58.360Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "b1ad6a80e5191edadf687364e0fd5e3575678524",
+      "materialHash": "cb44357ecc2764bd334776e8e358463866e5dde301135418bcb3fd2330d1f24f",
+      "anchors": [
+        "retiredAuthorityVocabulary.pinnedExecutableSourceFingerprints"
+      ]
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-29T17:27:28.606Z",
+  "updatedAt": "2026-08-30T12:45:58.360Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -604,6 +649,10 @@
     "packages/main/src/handlers/review-run.ts": "packages/main/src/handlers/review-run.ts",
     "packages/main/src/tasks/review-inventory-handler-smoke.ts": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
     "packages/main/src/core/convergence-breaker.ts": "packages/main/src/core/convergence-breaker.ts",
-    "packages/main/src/tasks/convergence-breaker-smoke.ts": "packages/main/src/tasks/convergence-breaker-smoke.ts"
+    "packages/main/src/tasks/convergence-breaker-smoke.ts": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+    "packages/main/src/core/closeout-trust.ts": "packages/main/src/core/closeout-trust.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "docs/requirements/decisions/story-lifecycle.md": "docs/requirements/decisions/story-lifecycle.md",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
   }
 }
