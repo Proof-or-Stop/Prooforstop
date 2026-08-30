@@ -35,6 +35,7 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -668,7 +669,7 @@ function validationResult(
   console.log('✓ advisory is log-only and bounding never mutates the caller result or its verdict');
 }
 
-// ── 13. CHK-004 disposition: outcome B shipped. The reduction is wired; the guarantee is deferred.
+// ── 13. CHK-004 disposition: outcome B shipped; the limitation remains; follow-up is declined. ───
 {
   const here = dirname(fileURLToPath(import.meta.url));
   const repoRoot = resolve(here, '../../../..');
@@ -699,6 +700,12 @@ function validationResult(
     `CHK-004 shipped outcome B (the reduction ships while byte-for-byte agreement remains a known limitation), so the committed decision record must exist at ${rationalePath}`,
   );
   const rationaleText = readFileSync(rationale, 'utf8');
+  const rationaleDigest = createHash('sha256').update(rationaleText).digest('hex');
+  assert.equal(
+    rationaleDigest,
+    '02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d',
+    'the decision record changed after independent review; any wording change requires a new reviewed digest',
+  );
   // Exactly one disposition is declared, and it is B. This is the mutual-exclusivity the outcome-A
   // guard used to get from the document's ABSENCE, re-expressed against the document's own structure
   // now that it is present.
@@ -709,9 +716,8 @@ function validationResult(
     'Disposition: outcome B (committed rationale). The reduction ships; the byte-for-byte agreement between the measured size and the file on disk does not.',
     'and the one it declares is outcome B in the retained decision record',
   );
-  // Teeth: the record must preserve what shipped, what remains technically true, and the later
-  // decision that the historical proposal is not active work. It must not regress to the old
-  // work-order posture.
+  // The exact reviewed digest above catches every unreviewed edit, including paraphrased active
+  // work-order language. These positive checks retain local diagnostics for the contract's key parts.
   for (const required of [
     '## Decision after B-3434',
     'Decision: decline the writer-owned canonical boundary as not currently justified.',
@@ -731,16 +737,6 @@ function validationResult(
     assert.ok(
       rationaleText.includes(required),
       `the decision record preserves required audit context: it names ${JSON.stringify(required)}`,
-    );
-  }
-  for (const supersededMandate of [
-    'Owner of the follow-up: unassigned',
-    'This document is the work order',
-    'A follow-up story should be scoped',
-  ]) {
-    assert.ok(
-      !rationaleText.includes(supersededMandate),
-      `the decision record does not retain the superseded active mandate ${JSON.stringify(supersededMandate)}`,
     );
   }
   // Read out of the document rather than restated beside it: a hardcoded list here would be one more
