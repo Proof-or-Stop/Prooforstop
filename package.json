@@ -26,6 +26,7 @@
     "test:legacy": "node packages/main/dist/tasks/run-all-smokes.js --select",
     "test:coverage": "NODE_OPTIONS=--max-old-space-size=8192 c8 node packages/main/dist/tasks/run-all-smokes.js --jobs 1",
     "test:lattice-residue": "node scripts/verify-lattice-residue.mjs",
+    "test:proof-or-stop-identity-cutover": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
     "test:proof-or-stop-prompt-baseline": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
     "test:orphan-surface": "node scripts/verify-orphan-surface.mjs",
     "test:nested-worktree-bootstrap": "node scripts/verify-nested-worktree-bootstrap.mjs",
