@@ -217,6 +217,39 @@
       },
       "readDiagnostics": [],
       "_hash": "714b68e5dd83edecccea815d8586414bb326c71c599285d53f7d11d13e318b14"
+    },
+    {
+      "id": "B-2220:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: 7/7 must intents have exact pinned verifier coverage, all seven commands passed, F-002/F-004 false-green regressions were re-audited, the mandatory-later-task paraphrase changed the exact decision digest and was rejected, and happy:2 verifies the source/dist build binding before importing the complete compiled smoke. No waiver or coverage blocker.",
+      "createdAt": "2026-08-30T23:41:49.219Z",
+      "reviewRound": "2026-08-30T23:37:17.497Z",
+      "reviewRunId": "B-2220:RR-013",
+      "envelopeId": "7744e838edef7f12daf0b629059c51c18b6a170c237c6b6d91a1d522155fc101",
+      "writerSessionId": "sess-b45d1a20047466a852020f35b32e5d2e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "scripts/full-suite-build-binding.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "a4d8411a89fb4822f047c2bbdfd44314448f09cf40d3be0cea8d0a1d6149c6b2"
     }
   ]
 }
