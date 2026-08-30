@@ -22277,6 +22277,28 @@
         "scanEscalationReason": null
       },
       "_hash": "88453cefb1d8dde5b1f8b2b5645940e297438eefd0978498228577779253e4c7"
+    },
+    {
+      "id": "B-45a0:RP-453",
+      "agent": "lattice-review-quality",
+      "note": "Verified F-425 resolution (commit e3a6186f7f) for real: dynamic-validation-enforcement-evidence.md item 5 (lines 29-31) amended to reference new Bounded post-replay consumer exception section (lines 79-90) placed before code admits consumer drift. historical-replay-artifact.ts predicate is exact Set.has() allowlist plus narrow story-metadata regex; diff.paths.every(...) requires ALL changed paths to match, cannot be widened by any single unlisted producer/config/catalog/runner file. checkPairedPerformance independently requires live-recomputed inventoryDigest/catalogDigest to match, a second lock. Ran build then historical-replay-artifact-smoke.js: PASS, including negative test asserting producer drift is rejected. No new blocking issue in this diff.",
+      "createdAt": "2026-08-30T16:18:08.956Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1038",
+      "envelopeId": "072b3a5d5e0b6b32f5c6ff2bb8fff30a367d32a74626d4faf918eafba03d0219",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "178dfcf6279990574d614fa7d6e2c84932089e11038f23fb26be1d330b656b55"
     }
   ]
 }
