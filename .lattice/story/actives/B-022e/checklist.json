@@ -97,7 +97,28 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Every current invocation begins with proof-or-stop; a clean install exposes no lattice command or deprecated wrapper, and all help/hints teach proof-or-stop.",
+      "excludes": [
+        "Deprecated lattice command aliases",
+        "Legacy lattice wrapper files"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "packages/main/src",
+          "bin",
+          "scripts",
+          ".githooks",
+          ".github",
+          "package.json"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-005",
