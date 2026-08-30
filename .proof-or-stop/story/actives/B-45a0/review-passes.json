@@ -22434,6 +22434,27 @@
         "scanEscalationReason": null
       },
       "_hash": "706edce4590ec97fca5db4639e159117cc9f37e78e808cd51afc59de1edb60a7"
+    },
+    {
+      "id": "B-45a0:RP-459",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: independently re-verified F-427 fix (f2e648606d) by mutation testing on a private copy of dist core; production file unchanged; all checklist verificationEvidence has must-intent coverage with real mechanical receipts; whole-story staleness noted as pre-existing advisory not blocking.",
+      "createdAt": "2026-08-30T16:49:05.901Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1044",
+      "envelopeId": "f0b393fe0246d673f9627ad9dd02d6067477cf5637b7b715bd672a78c0ec46f7",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1a78c90340ab9b8907c420e7341c6d69bd65e30619213f5629d79289b43b0f4e"
     }
   ]
 }
