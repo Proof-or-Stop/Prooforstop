@@ -21,9 +21,27 @@
     "packages/main/tests/fixtures/**"
   ],
   "scopeChangeReason": "B-2220:F-003 proved the existing validation-evidence smoke is the executable contract for this decision document and still enforces the superseded active follow-up. Scope expands only to that smoke task; production runtime and B-3434 history remain protected.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "B-2220:F-003 proved this smoke is the executable contract for the edited decision document; its assertion and comments must change from requiring an active follow-up to validating the human-declined posture.",
+      "timestamp": "2026-08-30T23:36:34.956Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6ff31ddb26647a83a3e6af84af52c6f3498cb1c8",
+      "materialHash": "82123503ea45bf355aad85f6a3f1a67263c333a7f99aad88a8063e7aa692b3d5",
+      "hunkDigest": "4a04a4aed1799918416600258f01f66524f1f9297a6540f9b3d96a83090c39c1"
+    }
+  ],
   "createdAt": "2026-08-30T22:57:42.914Z",
-  "updatedAt": "2026-08-30T23:20:09.977Z",
+  "updatedAt": "2026-08-30T23:36:34.956Z",
   "fileRules": [
     {
       "path": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
