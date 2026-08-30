@@ -1,0 +1,34 @@
+{
+  "task": "Write the canonical Dynamic Finding System execution plan that turns seven historically evidenced Finding failure classes into a safe four-component architecture and three bounded implementation Stories.",
+  "outcome": "The user opens one Markdown plan and can see, for every one of the seven problems, the evidence that proves it, the component that owns it, the exact follow-up Story that delivers it, the dependency order, the gate behavior, and the acceptance test; the document also explains why @lattice/lab changes from historically out of scope to currently applicable without changing the package in this Story.",
+  "facts": [
+    "The exact component names are Finding Ledger Integrity; Candidate and Defect Identity; Dynamic Applicability; and Freshness and Supersession.",
+    "The exact follow-up Story names are Dynamic Finding Applicability; Finding Identity and Historical Lineage; and Finding Ledger and Runtime Evidence Integrity.",
+    "The current Finding gate consumes status, severity, evidenceState, and round policy, but no current-Story applicability verdict.",
+    "Historical CLI evidence includes B-cdf6:F-056 runtime-artifact false positive, B-cdf6:F-067 verified pre-existing routing, B-cdf6:F-070 detector noise, and B-META-framework-audit:F-029/F-031 ledger and correction failures.",
+    "Historical learning remains non-authoritative and cannot itself satisfy lifecycle gates.",
+    "The package rename from @lattice/lab to @proof-or-stop/lab is an example only; implementation remains out of scope."
+  ],
+  "constraints": [
+    "Write repository artifacts in English and create only one canonical Markdown decision document.",
+    "Do not directly read or edit protected Story or fixture storage.",
+    "Do not implement runtime schemas, gates, package renames, or create the three follow-up Stories.",
+    "Label corpus counts as a dated, HEAD-bound observation and provide regeneration commands because the values drift.",
+    "Treat applicability as a new gate-consumed process fact only after current signed evidence; never let historical learning directly block or unblock.",
+    "Distinguish historical incidents from claims that the same defect remains unresolved in current code."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+    "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+    "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+    "docs/requirements/decisions/story-files-hash-material-drift.md",
+    "docs/step3-review-budget-breaker-handoff.md",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/advisory.ts",
+    "packages/main/src/core/cluster-compute.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/process-fact-levels.ts"
+  ],
+  "timestamp": "2026-08-30T22:28:33.252Z"
+}

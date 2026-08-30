@@ -11,7 +11,78 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:seven-problems",
+            "desc": "The canonical Markdown plan separately enumerates exactly seven historical Finding problem classes: review-volume/convergence cost; verified-but-not-current-Story responsibility; detector-signal noise; runtime-artifact freshness false positives; incorrect historical statement/supersession; concurrent ledger write loss; and weak/coarse historical recall. Every class states the observed failure, why the current model permits it, and at least one named Story/Finding or decision-document anchor.",
+            "type": "docs",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:happy:cli-corpus",
+            "desc": "The plan includes a dated, reproducible CLI-only corpus inventory and records the exact commands or a checked-in read-only query procedure used to derive every aggregate figure; rerunning it reconciles story-with-findings, total/status/severity counts and field-coverage denominators without directly parsing Story storage files.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:happy:named-evidence",
+            "desc": "Named evidence covers the characteristic incidents: repeated sibling/root-cause findings or runaway review evidence for problem 1; B-cdf6:F-067 with its B-META route for problem 2; B-cdf6:F-070/B-META:F-035 for problem 3; B-cdf6:F-056/B-META:F-032 for problem 4; B-META:F-030/F-031 for problem 5; B-META:F-029 for problem 6; and current learning/signature audit output for problem 7. Each reference is retrievable through authorized CLI commands or an explicitly cited decision document.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:historical-vs-current",
+            "desc": "Every incident is labelled as a historical observation with its recorded outcome, and the text explicitly avoids claiming that an old open, resolved, dismissed, disproven, superseded, or routed Finding proves the same defect is currently unresolved. Where current behavior was not freshly reproduced, the document says so.",
+            "type": "docs",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:edge:metric-semantics",
+            "desc": "Corpus figures disclose projection and denominator semantics, including legacy evidenceState normalization and missing optional fields; reviewRun counts are not described as review-round counts; point-in-time figures include the query date/HEAD or an equivalent freshness qualifier.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:edge:lineage-authority",
+            "desc": "The evidence section distinguishes raw Finding provenance, derived learning/signature records, and current gate evidence. It states that source-lineage identity prevents double counting but does not prove semantic defect equivalence, and that historical learning remains non-authoritative until current evidence is minted.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:no-storage-shortcut",
+            "desc": "A reviewer can reproduce the cited corpus and named records using proof-or-stop CLI surfaces such as story_list, finding_list, learning_validate, learning_effectiveness, signature_registry_list, and source_lineage_audit; neither the plan nor its verification procedure instructs readers to read or parse protected Story or Finding storage directly.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:no-seven-problem-overclaim",
+            "desc": "The problem and evidence section does not claim that an applicability field alone fixes all seven classes. It identifies which failures require candidate separation, defect identity and lineage, freshness and supersession, or ledger integrity, while reserving detailed architecture and delivery allocation for later sections.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-001:adversarial:replay-and-contradiction",
+            "desc": "An independent reviewer reruns the documented CLI queries and checks every quoted Finding ID and outcome against authorized output. Any mismatched total, stale claim, missing record, supersession reversal, or contradiction between prose and source evidence fails this item rather than being accepted as illustrative prose.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
