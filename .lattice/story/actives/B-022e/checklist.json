@@ -115,7 +115,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Packed manifests identify the root, Lab, and Utils packages only as proof-or-stop / @proof-or-stop/* and contain no unpublished file dependency.",
+      "userSees": "Packed-manifest inspection prints `PASS packages: proof-or-stop, @proof-or-stop/core, @proof-or-stop/lab, @proof-or-stop/utils; no @lattice or file: dependencies`.",
       "excludes": [
         "Publishing packages to a remote registry",
         "Keeping @lattice alias packages"
