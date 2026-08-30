@@ -24,7 +24,7 @@
       "desc": "docs/requirements/decisions/validation-evidence-artifact-growth.md:7 — all six CHK-001 docs_check receipts can pass for the wrong reason, so none is valid must-intent coverage. Read-only stream mutations proved: happy:0 still PASSes after deleting lines 7-15 (the decision section); happy:1 still PASSes after deleting line 27 onward (shipped mechanism, measurements, transcripts, and retained finding table); edge:0 still PASSes after deleting semantic-consistency and evidence-truth clauses; edge:1 still PASSes after replacing all concrete triggers with only `Reconsider only if.`; adversarial:0 and adversarial:1 still PASS after prepending paraphrased active mandates (`Follow-up owner: TBD. Implement this proposal in a new story.` / `This proposal must now be implemented in a new story.`). WHY high: every intent is must coverage, but the positive regexes use alternation where conjunction/preservation checks are required and the negative scans enumerate only exact historical phrases instead of testing the claimed whole-document semantic property. The current document reads correctly, but these receipts would not detect regression; replace them with checks that independently require each positive claim, compare preserved historical sections/content, and reject broader active-mandate wording or provide a truthful manual whole-document transcript.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-30T23:05:16.796Z",
@@ -35,7 +35,11 @@
         "docs/requirements/decisions/validation-evidence-artifact-growth.md"
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replanned all six must-intent verifiers at metadata commits 2ca1ce2 and cc53243 so required claims are conjunctive, concrete reopen triggers are individually required, historical measurements/transcripts/finding IDs are pinned, and affirmative active mandates are rejected while must not is allowed. Owner-side in-memory mutation probes confirmed all six specified regressions fail. Fresh tool-executed receipts were recorded at fb68d0f through 5b680fb; scope and intent coverage checks pass.",
+      "resolvedAt": "2026-08-30T23:14:38.599Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
