@@ -162,6 +162,21 @@
       ],
       "signatureTag": "missing|ts|code-drift-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-2220:F-009",
+      "desc": "concept-cleanup: packages/main/src/tasks/validation-evidence-buffer-smoke.ts:562 and :589 still state that a plain returned record means later serialisation cannot disagree and that there is no toJSON left to consult. This contradicts the newly narrowed check-time wording at :81-84 and the retained Object.prototype.toJSON limitation in docs/requirements/decisions/validation-evidence-artifact-growth.md:61-64: a later inherited Object.prototype.toJSON remains visible and can change writer serialisation. Read-only runtime probe reproduced before={payload:x}, after={payload:changed-after-check}, diverged=true. The obsolete absolute guarantee must be narrowed to the own-toJSON fixture/check-time scope before closure.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-30T23:54:48.999Z",
+      "reviewRound": "2026-08-30T23:51:06.818Z",
+      "reviewRunId": "B-2220:RR-021",
+      "_hash": "bffca0f816f9a9522fde3c45e6d836f6bbd82cd7668f4593b27fc5871db240ea",
+      "signatureTag": "missing|unknown|concept-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
