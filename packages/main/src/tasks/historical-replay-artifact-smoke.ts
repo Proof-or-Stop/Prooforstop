@@ -20,7 +20,14 @@ function writeJson(path: string, value: unknown): void {
   writeFileSync(path, JSON.stringify(value, null, 2) + '\n');
 }
 
-function buildReport(root: string, storyCount = 50): { report: Record<string, unknown>; paired: Record<string, unknown> } {
+function buildReport(
+  root: string,
+  storyCount = 50,
+  // B-45a0 F-427: the digest-staleness branches can only be reached by a report whose
+  // signature is VALID but whose signed digest disagrees with live state. Overriding after
+  // signing would trip the signature check first, so the override must be signed in here.
+  digestOverrides: { inventoryDigest?: string; catalogDigest?: string } = {},
+): { report: Record<string, unknown>; paired: Record<string, unknown> } {
   const head = git(root, ['rev-parse', 'HEAD']);
   const inventory = discoverValidationInventory(root);
   const catalog = compileValidationCatalog(inventory);
@@ -30,8 +37,8 @@ function buildReport(root: string, storyCount = 50): { report: Record<string, un
   const paired = signed({
     schema: 'proof-or-stop.dynamic-validation.paired-performance.v1',
     head,
-    inventoryDigest: inventory.digest,
-    catalogDigest: stableDigest(catalog),
+    inventoryDigest: digestOverrides.inventoryDigest ?? inventory.digest,
+    catalogDigest: digestOverrides.catalogDigest ?? stableDigest(catalog),
     selectionDigest: 'selection', dependencyGraphDigest: 'graph', closureCertificateSetDigest: 'closure',
     canonicalBaselineEpochId: head, toolchainDigest: 'toolchain', revocationLedgerDigest: 'revocations',
     selectedCommandIds: ['validation-smoke'], selectedCount: 1, executedCount: 1, reusedCount: 0, unverifiedCount: 0,
@@ -195,6 +202,52 @@ try {
   writeJson(reportPath, refreshed.report);
   writeJson(pairedPath, refreshed.paired);
   assert.equal(verifyHistoricalReplayArtifact(root).ok, true, 'the upper-bound probe leaves a valid 50-Story artifact for producer-drift coverage');
+
+  // B-45a0 F-427: the head check above short-circuits on any path-allowlist drift, so the
+  // producer-drift case below never reaches the digest comparisons. These two branches exist
+  // for a different mechanism entirely: inventory/catalog-affecting source mutated while HEAD
+  // still matches, so the LIVE-recomputed digest diverges from the one signed into the report.
+  // Hold head constant (no commit) and diverge each stored digest in turn.
+  const inventoryStale = buildReport(root, 50, { inventoryDigest: 'sha256:divergent-inventory' });
+  writeJson(reportPath, inventoryStale.report);
+  writeJson(pairedPath, inventoryStale.paired);
+  const inventoryStaleResult = verifyHistoricalReplayArtifact(root);
+  assert.equal(inventoryStaleResult.ok, false);
+  assert.ok(
+    !inventoryStaleResult.reasons.includes('paired-performance-signature-invalid'),
+    'the divergent inventory digest is signed in, so the digest branch is reached rather than the signature branch',
+  );
+  assert.ok(
+    inventoryStaleResult.reasons.includes('paired-performance-inventory-stale'),
+    'a signed paired report whose inventory digest no longer matches live inventory fails closed at unchanged HEAD',
+  );
+  assert.ok(
+    !inventoryStaleResult.reasons.includes('paired-performance-head-stale'),
+    'inventory-digest drift is rejected on its own merits, not misreported as head drift',
+  );
+
+  const catalogStale = buildReport(root, 50, { catalogDigest: 'sha256:divergent-catalog' });
+  writeJson(reportPath, catalogStale.report);
+  writeJson(pairedPath, catalogStale.paired);
+  const catalogStaleResult = verifyHistoricalReplayArtifact(root);
+  assert.equal(catalogStaleResult.ok, false);
+  assert.ok(
+    !catalogStaleResult.reasons.includes('paired-performance-signature-invalid'),
+    'the divergent catalog digest is signed in, so the digest branch is reached rather than the signature branch',
+  );
+  assert.ok(
+    catalogStaleResult.reasons.includes('paired-performance-catalog-stale'),
+    'a signed paired report whose catalog digest no longer matches the live catalog fails closed at unchanged HEAD',
+  );
+  assert.ok(
+    !catalogStaleResult.reasons.includes('paired-performance-head-stale'),
+    'catalog-digest drift is rejected on its own merits, not misreported as head drift',
+  );
+
+  const restored = buildReport(root);
+  writeJson(reportPath, restored.report);
+  writeJson(pairedPath, restored.paired);
+  assert.equal(verifyHistoricalReplayArtifact(root).ok, true, 'restoring matching digests leaves a valid artifact for producer-drift coverage');
 
   const producerPath = join(root, 'scripts', 'run-dynamic-validation-replay.mjs');
   mkdirSync(join(root, 'scripts'), { recursive: true });
