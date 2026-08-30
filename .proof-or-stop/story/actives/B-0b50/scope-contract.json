@@ -34,10 +34,26 @@
       "phase": "DEV",
       "headHash": "f11a1da0560229e95ff81b58e804f4db9cf3c884",
       "materialHash": "32633da45e00d9b642ae29c19dd1c33801fb328effa87bf2a8ede234c8afe0a9"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Framework-written dev-memory runtime log, not story-authored content. The CLI appends to .proof-or-stop/dev-memory/experience.jsonl on its own during normal command execution, and it was swept into this story's lifecycle-metadata commit alongside the dev_memory_finish_decision record that the DONE gate requires. It carries no implementation change for B-0b50; the file is an append-only observability log written by the runtime itself.",
+      "timestamp": "2026-08-30T18:58:28.924Z",
+      "paths": [
+        ".proof-or-stop/dev-memory/experience.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/dev-memory/experience.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a26a8465db502f138f95c258b15bdc40538ee899",
+      "materialHash": "9fd1a248ff279ff34b6fa7faee0b6b0a87807720c1191d7fd09636c4243e70b2"
     }
   ],
   "createdAt": "2026-08-25T19:38:03.063Z",
-  "updatedAt": "2026-08-30T16:26:44.465Z",
+  "updatedAt": "2026-08-30T18:58:28.924Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -48,6 +64,7 @@
     "tests/fixtures": "tests/fixtures",
     "packages/main/src/remote publishing": "remote publishing",
     "packages/main/src/core/validation-command-environment.ts": "packages/main/src/core/validation-command-environment.ts",
-    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts"
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
+    ".proof-or-stop/dev-memory/experience.jsonl": ".proof-or-stop/dev-memory/experience.jsonl"
   }
 }
