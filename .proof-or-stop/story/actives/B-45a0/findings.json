@@ -23017,7 +23017,7 @@
       "desc": "historical-replay-current-head-gap: .proof-or-stop/story/actives/B-45a0/checklist.json CHK-011 has no current signed paired replay assurance after the F-417 source repair. Its happy receipt is bound to head 8059be0, while its fault-injection and missing-evidence receipts bind f0c0ad5; the current REVIEW material is cb44357 and includes packages/main/src/core/validation-runtime-tracer.cjs coverage for exec, execSync, and fork. The focused production smoke passes, but it cannot establish the required 30-50 Story paired-run guarantee or prove that the new child-process paths preserve zero undeclared runtime inputs across the replay corpus. The verify-only threshold command cannot promote an old paired artifact to current source. Run exactly one authorized current-head --execute paired replay, then its admission/mutation checks, and bind the resulting signed receipts before TEST.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-30T11:38:38.610Z",
@@ -23045,7 +23045,11 @@
         "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
       ],
       "signatureTag": "missing|json|historical-replay-current",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Refuted by current `node scripts/run-dynamic-validation-replay.mjs --verify-threshold`: historical replay artifact admission PASS and historical replay threshold PASS. The paired replay executed after F-417 at head 8059be0; the subsequent differences are permitted Story metadata, so current admission succeeds without another execution.",
+      "resolvedAt": "2026-08-30T11:39:55.416Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
