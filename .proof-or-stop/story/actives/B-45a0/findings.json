@@ -22969,6 +22969,25 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-416",
+      "desc": "Coverage evidence is not current for REVIEW head c8517d7: all 44 priority=must intent mappings in .proof-or-stop/story/actives/B-45a0/checklist.json bind older heads (mostly bcd7b40; CHK-011:happy:0 binds 73068d6; CHK-014:happy:1 binds 6975596). The F-415 correction at docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md:1767 and scripts/verify-story-aware-validation-plan.mjs:13-14 passes the narrow verifier and tamper self-test locally, but neither result is recorded as a current structured verificationEvidence receipt. The reviewer could not run the required routine validate because the active owner lease rejected it, so stale evidence cannot be treated as current coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-30T06:22:43.227Z",
+      "reviewRound": "2026-08-30T06:18:36.371Z",
+      "reviewRunId": "B-45a0:RR-972",
+      "_hash": "88b2dc832e9b5c21f6bcd9a5d576b4ea144d5a5cd673cf929563106cfbb1dcf0",
+      "files": [
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "scripts/verify-story-aware-validation-plan.mjs"
+      ],
+      "signatureTag": "missing|md|coverage-evidence-current",
+      "signatureTagSource": "auto"
     }
   ]
 }
