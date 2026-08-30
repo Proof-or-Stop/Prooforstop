@@ -22224,6 +22224,36 @@
       },
       "readDiagnostics": [],
       "_hash": "86f0e9e257102db71fa75e47e217cab335114e910d725e2794e6fdbc11bcb3ae"
+    },
+    {
+      "id": "B-45a0:RP-451",
+      "agent": "lattice-review-topology-critic",
+      "note": "Saturation review found no issue distinct from the four already-open remediation families; F-426 remains an open topology blocker.",
+      "createdAt": "2026-08-30T15:02:07.904Z",
+      "reviewRound": "2026-08-30T13:07:40.639Z",
+      "reviewRunId": "B-45a0:RR-1028",
+      "envelopeId": "f48b334fc2753db704592326b563336cdc443446eecdbee26eb62594e5aa1e86",
+      "writerSessionId": "sess-0bde48f175a669bcbafa696b3683e99f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7271ddd48ebc6b75c9998eb6419c5c355e8cafb76f013fad122616e5e5691043"
     }
   ]
 }
