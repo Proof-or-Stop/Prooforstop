@@ -27,7 +27,8 @@ The enforcement report must bind one current HEAD and contain:
    `full → dynamic`) with median wall time, selected/reused counts, closure and
    resource timelines, and zero residue.
 5. Current inventory/catalog/graph/closure/baseline/runner/toolchain and
-   revocation-ledger digests; no stale receipt is admissible.
+   revocation-ledger digests; no stale receipt is admissible, subject only to
+   the bounded post-replay consumer exception below.
 6. All Section 24 prerequisites true, including source-first build proof,
    periodic baseline policy, explicit catalog ownership and changed-test
    propagation.
@@ -74,6 +75,19 @@ already-persisted signed paired artifact plus mutation audit and never starts,
 repairs, resumes, or replays a campaign. It fails closed when that artifact is
 inadmissible; invoking the wrapper with no arguments remains plan-only. The wrapper also writes
 `fault-injection.json` with per-catalog FI-1..FI-5 rows.
+
+### Bounded post-replay consumer exception
+
+An executed replay remains bound to its recorded HEAD. A later HEAD may admit
+that replay only when the verifier recomputes the current inventory and catalog
+digests and they exactly match the signed replay, and every changed path from
+the recorded HEAD is either Story metadata or one of the exact named
+non-executing consumers in `historical-replay-artifact.ts`. Those consumers
+may read, retain, or mechanically verify a completed replay; they cannot
+change its inventory, catalog, configuration, selection, runner, or producer.
+The exception is therefore not a receipt re-binding mechanism and never admits
+a stale replay after any producer-side change. All other head drift fails
+closed and requires a new executed paired campaign.
 
 `node scripts/run-dynamic-validation-replay.mjs --mutation=missing-evidence`
 is deliberately mutation-only: it runs the fail-closed missing-evidence probe
