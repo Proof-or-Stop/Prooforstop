@@ -650,6 +650,30 @@
         "scanEscalationReason": null
       },
       "_hash": "5b32140e0826e57c2678c3e93499f6d29e50870e4e4b2ff2dbe8fafd2f039d46"
+    },
+    {
+      "id": "B-0b50:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified quality lane at current HEAD (3466f26) after DEV bounce that only regenerated pre-review-check.json. Reviewed source diff: certification-window.ts (new PRE_CERT_INVENTORY_PROBE_FAILED constant + probeFinalizedUnconsumedReviewInventory helper with typed discriminated-union result and proper try/catch that surfaces error.message, no swallowing; refuseHeavyCertificationUnlessAdmitted now distinguishes probe-failed vs empty vs present before choosing next-command), done-prepare.ts (new safeDoneRequiredRecoveryCommand: allowlist-based extraction of a Next: command from validation output text, used only for display text never passed to exec/spawn), validation-command-environment.ts + done-required-validation-smoke.ts (HOST_LAUNCHER_SESSION_ENV_KEYS stripped at filter seam rather than appended to the digest-pinned list, imported not re-listed in its own regression per F-012 fix). No dead code: every new export (PRE_CERT_INVENTORY_PROBE_FAILED, probeFinalizedUnconsumedReviewInventory, ReviewInventoryProbeResult, safeDoneRequiredRecoveryCommand, HOST_LAUNCHER_SESSION_ENV_KEYS) is consumed in production code and covered by certification-window-smoke.ts assertions. No unnecessary as any. No empty catch blocks. tsc --noEmit -p packages/main/tsconfig.json clean. Ran packages/main/dist/tasks/certification-window-smoke.js (the compiled artifact validate.commands actually invokes) after a fresh npm --prefix packages/main run build: exits 0, matches the certification-window-smoke: PASS evidence already recorded in checklist.json. Note: running the .ts source directly via tsx throws, but that is a tsx-only artifact of loadReviewInventoryAdmitApis resolving a compiled-relative ./review-inventory-epoch.js sibling via import.meta.url + createRequire, which only exists under dist/; reproduced identically on main before this diff, so it is pre-existing and not a source of truth for this lane (the project verification path is the compiled dist smoke, which is green). Re-examined the RP-020 comment-precision nit near certification-window.ts ~L923-924 (comment says fallthrough is for no-window-and-no-inventory-APIs; the same rendered-block also covers window-present-but-not-authorizing, e.g. stale/invalid window, since that case does not return early). Confirmed this is comment-only imprecision -- the refreshed.window ternary logic immediately following is correct regardless of the comment wording, so no behavioral defect. Keeping this non-blocking as previously agreed in RP-020; not filing a finding.",
+      "createdAt": "2026-08-30T17:10:25.765Z",
+      "reviewRound": "2026-08-30T17:05:18.175Z",
+      "reviewRunId": "B-0b50:RR-036",
+      "envelopeId": "0095340ab19a073d11720a2248159bdb8a4c4862fdb721894af4fd2e648f083e",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1991706df21ff9f9b18e8d113206f9d8f1c45d78c5fa6876adb517d1b7975697"
     }
   ]
 }
