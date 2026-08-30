@@ -161,7 +161,65 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The canonical plan contains an explicit seven-problem ownership matrix in which P1 through P7 are each present, each row names its historical evidence, primary owning component, exact follow-up Story, direct-versus-mitigated coverage, and a falsifiable future acceptance result; verify seven unique problem IDs, all four exact component names, and all three exact Story names.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Each of the three exact implementation Story sections defines objective, included component responsibilities, directly solved and merely mitigated problems, deliverables, prerequisites, acceptance criteria, and non-goals. The dependency DAG is acyclic and distinguishes headline numbering from safe execution order, with ledger/runtime and identity/lineage prerequisites satisfied before applicability gate enforcement.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "A reconciliation section maps the four components into the three Stories without an orphan component, orphan problem, or duplicate primary owner, and states accurately that the complete program covers all seven problems while Dynamic Applicability alone does not.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "For cross-cutting P1 and P3, the plan distinguishes direct solution, mitigation, and the existing review-convergence backstop: candidate filtering, canonical grouping, and batch applicability may reduce review work but must not promise to eliminate genuine defects or replace stall adjudication.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Because Freshness and Supersession spans two delivery Stories, the plan assigns historical supersession and canonical lookup to Finding Identity and Historical Lineage, runtime receipt and stale-artifact invalidation to Finding Ledger and Runtime Evidence Integrity, and documents the interface and dependency between them so neither half is unowned.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The plan permits staged observe or warn work only when it remains non-gating, but makes enforce rollout depend on atomic persistence, runtime freshness, identity and lineage, signed current-material assessments, process-fact registration, and fail-closed compatibility for legacy records. It must not imply that this specification Story creates the follow-up Stories or migrates the historical corpus.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject a decomposition that follows displayed Story numbering as execution order, contains a cyclic dependency, or allows Dynamic Finding Applicability to enforce a gate before ledger atomicity and runtime receipts are proven. The plan must expose actual dependency order and enforcement preconditions.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The three Story definitions collectively require reproducible negative tests for concurrent write loss and idempotent retry, candidate-versus-finding gate separation and canonical supersession, historical non-authority, base and head applicability and routed ownership, stale scope, material and runtime invalidation, tamper rejection, and unknown high or critical fail-closed behavior.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Reject scope expansion hidden inside the decomposition: this Story must not implement schemas or gates, bulk-rewrite legacy Findings, create the follow-up Stories, rename @lattice/lab, rebuild the existing convergence breaker, or claim that out-of-scope and duplicate findings cease to exist rather than being routed with evidence.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Because future Stories touch lifecycle gates and process facts, their acceptance and dependency text preserves the current review assurance floor, requires registry and contract-verifier coverage for new gate facts, and calls for merged-state combination review when parallel process-framework deliveries are combined.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
