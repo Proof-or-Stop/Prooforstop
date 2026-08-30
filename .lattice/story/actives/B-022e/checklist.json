@@ -234,7 +234,28 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`proof-or-stop --version` reports 0.3.268 and B-022e completes REVIEW, routine validation, required DONE proof, done_prepare, and local merge to main.",
+      "excludes": [
+        "Pushing a task branch or remote main",
+        "Declaring completion without product-level clean-install evidence"
+      ],
+      "files": {
+        "modify": [
+          "package.json",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/utils/package.json",
+          "packages/lab/package.json"
+        ],
+        "create": [],
+        "test": [
+          "proof-or-stop validate",
+          "proof-or-stop done_required_validate",
+          "proof-or-stop done_prepare"
+        ]
+      }
     }
   ]
 }
