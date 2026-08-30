@@ -1,0 +1,183 @@
+{
+  "storyId": "B-022e",
+  "checkedAt": "2026-08-30T21:53:15.345Z",
+  "features": [
+    {
+      "feature": "package: rename root, core, Lab, and Utils public package identities and synchronized lockfile/dependency edges to proof-or-stop/@proof-or-stop only",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-003"
+    },
+    {
+      "feature": "bin: expose proof-or-stop as the sole installed product bin and remove lattice wrappers and aliases",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-004"
+    },
+    {
+      "feature": "command: convert help, usage, hints, errors, child-process spawns, hooks, CI, scripts, and examples to proof-or-stop invocations",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-004"
+    },
+    {
+      "feature": "role: rename lattice-review-story-init to proof-or-stop-review-story-init and make the legacy lookup fail non-zero",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "operator clarification and B-022e checklist CHK-005"
+    },
+    {
+      "feature": "role: migrate every current lattice-named Agent/role ID and verify the complete canonical proof-or-stop role registry with no omitted active role",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "operator clarification and B-022e checklist CHK-005"
+    },
+    {
+      "feature": "role assets: rename template filenames, YAML frontmatter names, registry keys, reviewer-lane/process-fact consumers, config routing, host mirrors, and generated assets",
+      "covered_by": "CHK-005,CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-005 and CHK-006"
+    },
+    {
+      "feature": "env: canonical fresh environment keys and runtime writes use Proof-or-Stop only; active legacy keys do not remain read-both aliases",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-005"
+    },
+    {
+      "feature": "path: active state, adapter, hook, wrapper, and generated path/file identities use canonical Proof-or-Stop names",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-005"
+    },
+    {
+      "feature": "config: canonical config filenames, keys, routing, and fresh writes use Proof-or-Stop only without active legacy fallback",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-005"
+    },
+    {
+      "feature": "runtime: migrate active constants, identifiers, dispatch/reviewer parsing, process-fact/runtime-fact registries, and gate consumers while preserving cryptographic literals",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-005"
+    },
+    {
+      "feature": "docs: current README, CLI, AGENTS, CLAUDE, templates, adapters, hooks, and verifier prose describe only Proof-or-Stop active surfaces",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-006"
+    },
+    {
+      "feature": "history: exact historical stories, compatibility fixtures, CHANGELOG records, migration inputs, signature salts, schemas, and provenance/hash-bound bytes remain unchanged and still verify",
+      "covered_by": "CHK-001,CHK-002,CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-001, CHK-002, and CHK-005"
+    },
+    {
+      "feature": "policy: a pre-production superseding clean-break decision explicitly replaces B-cdf6/B-cc10 additive and role-freeze policy for active identities while retaining exact evidence freezes",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/brand-rename-mapping.md and docs/requirements/decisions/proof-or-stop-identity-migration.md"
+    },
+    {
+      "feature": "RED-GREEN: commit the failing identity harness before production edits, record RED against a stable acceptance target, and prove descendant GREEN against that same target",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-002"
+    },
+    {
+      "feature": "self-host: keep B-022e story/checklist discoverable and fresh metadata writable through canonical storyDir/config/runtime identity cutover",
+      "covered_by": "CHK-002,CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-002 and CHK-005"
+    },
+    {
+      "feature": "clean-install: build and pack all workspaces, install tarballs without registry/workspace fallback, prove canonical package/CLI/Lab positives and legacy package/bin/role negatives",
+      "covered_by": "CHK-003,CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-003 and CHK-007"
+    },
+    {
+      "feature": "residue-mutation: exact reasoned allowlist rejects active residue, stale/deleted/broadened entries, injected legacy identities, and historical-byte mutation",
+      "covered_by": "CHK-001,CHK-002,CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-001, CHK-002, and CHK-007"
+    },
+    {
+      "feature": "version-closeout: synchronize 0.3.268 across manifests, lockfile, source, dist, packed output and CLI, then complete fresh REVIEW, TEST, DONE-required, done_prepare, and local DONE merge",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "B-022e checklist CHK-008"
+    },
+    {
+      "feature": "remote publishing or pushing story/main branches",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-003, CHK-007, and CHK-008 explicitly limit delivery to local pack/install/merge and forbid remote publish or push",
+      "source": "B-022e checklist exclusions"
+    },
+    {
+      "feature": "deprecated lattice package/bin/role/env/path/config compatibility aliases for active runtime use",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Operator requested a pre-public clean break; CHK-003 through CHK-005 require legacy resolution failure and no active read-both compatibility",
+      "source": "B-022e background, decision, and checklist exclusions"
+    },
+    {
+      "feature": "rewriting historical decision claims, story/fixture evidence, CHANGELOG history, signature salts, schemas, or provenance bytes to achieve textual zero residue",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001, CHK-005, and CHK-006 preserve exact evidence/history and use a superseding decision instead",
+      "source": "B-022e checklist exclusions"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "AGENTS.md",
+      "docs/requirements/decisions/brand-rename-mapping.md",
+      "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "README.md"
+    ],
+    "filesTriagedByName": [
+      "docs/CLI.md",
+      "docs/dev/test-coverage.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/testing-infra.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 21,
+    "covered": 18,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7f34deee6c3a981ba91cc1f381dea21fcf159220456a08eecabadbb6a0d7bed3",
+  "openQuestions": []
+}
