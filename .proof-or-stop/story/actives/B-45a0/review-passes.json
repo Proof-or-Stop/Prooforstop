@@ -22479,6 +22479,35 @@
         "scanEscalationReason": null
       },
       "_hash": "5ff722bec4cbf332d7bcb632a3156316d59366dd6c702300ac5b5020016cbf9f"
+    },
+    {
+      "id": "B-45a0:RP-461",
+      "agent": "lattice-review-concept",
+      "note": "Re-confirmed CHK e3a6186f7f (bound historical replay admission: MIN 30/MAX 50, expanded non-executing consumer allowlist, doc exception section) and f2e648606d (test-only coverage for previously-dead inventory-stale/catalog-stale branches via signed digestOverrides). Verified: single source of truth for MIN/MAX constants, no residual old-bound refs, new consumer paths (closeout-trust.ts, handlers/checklist.ts, closeout-trust-smoke.ts, retired-authority-vocabulary-guard-smoke.ts, verify-process-fact-contract.mjs) genuinely non-executing (no inventory/catalog/replay-producer imports), story-lifecycle.md exists non-trivially, smoke test passes live. No concept residue found.",
+      "createdAt": "2026-08-30T17:12:46.228Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1051",
+      "envelopeId": "bf985bb0b0b90f87375dceb8d1eb5aa6634c9f95c2cdbc36fc6fcd07d4348285",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ac24f20017d2467bed9b4bac95e0bcbfaba860313554f2e476df7f26d58d043a"
     }
   ]
 }
