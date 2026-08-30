@@ -1,0 +1,32 @@
+{
+  "storyId": "B-022e",
+  "checkedAt": "2026-08-30T21:40:18.574Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "I-ARCH-A1",
+      "severity": "medium",
+      "desc": "The revised checklist closes both architectural blockers. During PLAN, make the self-hosting path transition non-vacuous in verificationIntent: bind a concrete RED receipt through red_evidence_create, exercise story_get/checklist_get for B-022e across the canonical storyDir/config switch, and evaluate the same acceptance target GREEN at a descendant commit. This is advisory because CHK-002 now owns the identity and history invariants and lifecycle completion itself will fail if the story becomes undiscoverable."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-08-30T21:40:17.671Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-08-30T21:40:18.574Z",
+      "issues": [
+        {
+          "id": "I-ARCH-A1",
+          "severity": "medium",
+          "desc": "The revised checklist closes both architectural blockers. During PLAN, make the self-hosting path transition non-vacuous in verificationIntent: bind a concrete RED receipt through red_evidence_create, exercise story_get/checklist_get for B-022e across the canonical storyDir/config switch, and evaluate the same acceptance target GREEN at a descendant commit. This is advisory because CHK-002 now owns the identity and history invariants and lifecycle completion itself will fail if the story becomes undiscoverable."
+        }
+      ]
+    }
+  ],
+  "_hash": "5caf1b152a1f46bcdcf802a11f5074441641d14178ef9a5d997870f41f871fb4"
+}

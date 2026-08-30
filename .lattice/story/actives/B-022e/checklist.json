@@ -2,11 +2,12 @@
   "items": [
     {
       "id": "CHK-001",
-      "title": "Inventory active Lattice identities and frozen historical evidence boundaries",
-      "context": "Scan packages, CLI, runtime paths, environment variables, agent roles, scripts, and current docs. Never mechanically rewrite historical stories, legacy migration fixtures, compatibility fixtures, changelog entries, signature salts, or provenance-bound bytes.",
+      "title": "Inventory active Lattice identities, freeze historical evidence, and adopt the superseding clean-break policy",
+      "context": "Before any production edit, inventory each active identity class (root/lab/utils package names, npm bins and wrappers, command text, role IDs, environment keys, state/config/adapter paths, runtime identifiers, hooks, prompts, and docs) and write a superseding decision with per-class canonical-write, compatibility-read, historical-verification, and residue-allowlist rules. Historical stories, legacy migration inputs, compatibility fixtures, changelog records, schemas, signature salts, and provenance/hash-bound bytes remain frozen only where byte stability is required.",
       "relatedDocs": [
         "docs/requirements/decisions/brand-rename-mapping.md",
-        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
       ],
       "status": "pending",
       "startTime": null,
@@ -14,11 +15,12 @@
     },
     {
       "id": "CHK-002",
-      "title": "Commit RED regression tests that prove active legacy identity still leaks",
-      "context": "Before production edits, add failing tests covering @lattice/lab, @lattice/utils, the root package, CLI bins and command guidance, plus active-file residue. Frozen historical evidence admitted by a narrow allowlist must not fail.",
+      "title": "Commit RED regression tests for every active legacy identity class and frozen-history boundary",
+      "context": "Before production edits, commit failing tests that cover @lattice/lab, @lattice/utils, root package identity, npm bin maps and removed wrappers, active command guidance, role/env/path/config canonical-only new writes, and active-file residue. The same RED suite must capture pre-migration historical byte/digest baselines and successful signature verification, then GREEN must prove those bytes/digests and verification results remain unchanged. The residue allowlist must be narrow, reasoned, fail closed when stale, and have mutation proof.",
       "relatedDocs": [
         "docs/requirements/decisions/red-evidence-subsystem-spec.md",
-        "docs/requirements/decisions/brand-rename-mapping.md"
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
       ],
       "status": "pending",
       "startTime": null,

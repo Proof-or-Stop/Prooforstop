@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-022e",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git status*",
+    "node *",
+    "npm *",
+    "proof-or-stop *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Proof-or-Stop CLI",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".claude/",
+    ".codex/",
+    ".githooks/",
+    ".gitignore",
+    ".proof-or-stop-codex/",
+    ".proof-or-stop/",
+    "AGENTS.md",
+    "bin/",
+    "CLAUDE.md",
+    "docs/",
+    "package-lock.json",
+    "package.json",
+    "packages/",
+    "proof-or-stop.config.json",
+    "README.md",
+    "scripts/"
+  ],
+  "excludedCommands": [
+    "git clean -fd*",
+    "git push *",
+    "git reset --hard*",
+    "npm publish *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/story/",
+    ".proof-or-stop/story/",
+    "CHANGELOG.md",
+    "docs/story/",
+    "packages/main/tests/fixtures/",
+    "tests/fixtures/"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "No remote publish/push. Historical and provenance-bound artifacts are immutable; Story/checklist/evidence mutations go through Proof-or-Stop CLI only.",
+  "createdAt": "2026-08-30T21:30:12.949Z",
+  "updatedAt": "2026-08-30T21:30:12.949Z",
+  "_hash": "b6c7ea709a4afe21071c8f0c0bb3fcac6ab0034de61aeace75738321da33561e"
+}

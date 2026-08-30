@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-022e",
+  "mode": "maintenance",
+  "allowed": [
+    "Add RED-first regression coverage, historical-residue allowlisting, clean package/install verification, builds, and lifecycle evidence",
+    "Remove active lattice CLI entrypoints, invocations, prompts, hints, and documentation so every current command starts with proof-or-stop",
+    "Rename active package identities from lattice/@lattice to proof-or-stop/@proof-or-stop, including root, lab, and utils manifests and lockfiles",
+    "Rename active runtime identifiers, role IDs, verifier contracts, env/config/path identities where they represent the current product"
+  ],
+  "excluded": [
+    "Do not add deprecated lattice CLI aliases or runtime compatibility fallbacks",
+    "Do not edit historical Story artifacts or their recorded findings/evidence",
+    "Do not publish npm packages, push git branches, or create remote releases",
+    "Do not rewrite legacy migration inputs, compatibility fixtures, CHANGELOG release history, signature salts, schema literals, or provenance/hash-bound bytes merely to remove the old token"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "The user explicitly requested a clean cutover because the repository is private and has two developers; all commands must begin with proof-or-stop, while historical evidence bytes remain unchanged.",
+  "createdAt": "2026-08-30T21:30:12.552Z",
+  "updatedAt": "2026-08-30T21:30:12.552Z",
+  "_hash": "c96849b747647fa91e480bf1400fdeb8d6fbba480532cbe984baa2cec2f54642"
+}
