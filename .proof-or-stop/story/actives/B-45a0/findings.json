@@ -23320,6 +23320,49 @@
       ],
       "signatureTag": "docs-closeout-retention-contract",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-423",
+      "desc": "packages/main/src/core/historical-replay-artifact.ts:22-33 permits only a fixed old consumer list and omits the current closeout-retention repair at packages/main/src/core/closeout-trust.ts:37-49 and packages/main/src/handlers/checklist.ts:1168-1170. Those paths govern trusted Story receipt retention, not validation inventory, catalog, or replay production. Consequently, on current HEAD ea4c568, the verifier-only command `node scripts/run-dynamic-validation-replay.mjs --verify-threshold` rejects the signed execute=true 50-record report recorded at 8059be0 with `paired-performance-head-stale; paired-performance-head-drift-nonadmissible`, forcing an unnecessary historical replay execution after unrelated closeout-retention work. Add a bounded, audited nonexecuting admission for this consumer-only family and a regression proving it cannot admit producer/config/catalog/runner drift.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-30T14:21:46.063Z",
+      "reviewRound": "2026-08-30T13:07:40.639Z",
+      "reviewRunId": "B-45a0:RR-1013",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": "Focused current-round review of replay artifact admission after the closeout-retention repair. It compared the exact permitted drift boundary to the current changed paths and ran verifier-only checks; no historical replay producer was invoked."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "26e07c3287bb709b3590e4f92622d9592295dd4107eeea03949b08fda4d6d8bb",
+      "files": [
+        "packages/main/src/core/historical-replay-artifact.ts",
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "scripts/run-dynamic-validation-replay.mjs"
+      ],
+      "signatureTag": "historical-replay-admission-closeout-retention",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
