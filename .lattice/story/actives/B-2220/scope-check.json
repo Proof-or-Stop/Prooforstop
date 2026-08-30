@@ -1,69 +1,66 @@
 {
   "storyId": "B-2220",
-  "checkedAt": "2026-08-30T23:30:30.719Z",
+  "checkedAt": "2026-08-30T23:35:03.778Z",
   "features": [
     {
-      "feature": "Decision document explicitly declines the B-3434 writer-owned canonical boundary as not currently justified and removes any active owner/work-order commitment.",
-      "covered_by": "CHK-001:happy:0",
+      "feature": "The decision record explicitly declines the active writer-owned canonical-boundary follow-up while preserving B-3434 acceptance.",
+      "covered_by": "docs/requirements/decisions/validation-evidence-artifact-growth.md; CHK-001:happy:0; CHK-001:happy:1",
       "status": "covered",
       "excluded_by": null,
-      "source": "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+      "source": "B-2220 checklist and current decision document"
     },
     {
-      "feature": "B-3434 remains accepted while its shipped mechanism, measurements, transcripts, finding identifiers, and known limitations remain historical evidence rather than being rewritten as fixed.",
-      "covered_by": "CHK-001:happy:1",
+      "feature": "Known limitations, measurements, transcripts, and the historical proposal remain audit context without active work-order semantics.",
+      "covered_by": "docs/requirements/decisions/validation-evidence-artifact-growth.md; CHK-001:happy:1; CHK-001:adversarial:0; CHK-001:adversarial:1",
       "status": "covered",
       "excluded_by": null,
-      "source": "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+      "source": "Current decision document and executable smoke assertions"
     },
     {
-      "feature": "The decision distinguishes byte identity from input consistency, semantic consistency, and evidence truth, and records evidence-based human-approved reopen triggers.",
-      "covered_by": "CHK-001:edge:0,CHK-001:edge:1",
+      "feature": "The decision distinguishes byte identity from input consistency, semantic consistency, and evidence truth, and gives evidence-based reopen triggers.",
+      "covered_by": "docs/requirements/decisions/validation-evidence-artifact-growth.md; CHK-001:edge:0; CHK-001:edge:1",
       "status": "covered",
       "excluded_by": null,
-      "source": "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+      "source": "Current decision document"
     },
     {
-      "feature": "The executable validation-evidence smoke agrees with the declined/no-active-follow-up posture; happy:2 now uses the repository-native direct Node build-and-run command without expanding deliverable scope.",
-      "covered_by": "CHK-001:happy:2",
+      "feature": "The repository-native validation-evidence smoke accepts the declined/no-active-follow-up disposition and rejects the superseded mandate strings.",
+      "covered_by": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts; CHK-001:happy:2; CHK-001:adversarial:0; CHK-001:adversarial:1",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      "source": "Current smoke source and passing executable smoke output"
     },
     {
-      "feature": "Adversarial verification rejects restored or paraphrased active follow-up mandates while retaining the reviewed final decision record.",
-      "covered_by": "CHK-001:adversarial:0,CHK-001:adversarial:1",
+      "feature": "CHK-001:happy:2 is one executable Node command that verifies source/dist build binding before importing the built smoke.",
+      "covered_by": "CHK-001:happy:2 pinned command; validation-evidence-buffer-smoke: PASS",
       "status": "covered",
       "excluded_by": null,
-      "source": "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+      "source": "checklist_get plus independent exact-command execution in this PLAN review"
     },
     {
-      "feature": "Production runtime behavior and generated output are excluded: packages/main/src/core/**, packages/main/src/handlers/**, and packages/main/dist/** remain protected even though happy:2 builds and executes the generated smoke.",
+      "feature": "Production runtime implementation changes in core, handlers, or dist.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "This story changes only the decision record and its source-level executable document contract; it does not authorize runtime or generated-dist edits.",
-      "source": ".lattice/story/actives/B-2220/scope-contract.json"
+      "excluded_by": "scope contract protectedFiles; git diff main...HEAD shows no protected runtime paths",
+      "source": "scope_contract_show and protected-path diff"
     },
     {
-      "feature": "B-3434 lifecycle metadata remains immutable historical evidence.",
+      "feature": "B-3434 story metadata/history and fixture changes.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": ".lattice/story/actives/B-3434/** is explicitly protected; B-2220 must not rewrite the completed story.",
-      "source": ".lattice/story/actives/B-2220/scope-contract.json"
+      "excluded_by": "scope contract protectedFiles/explicitExcludes; git diff main...HEAD shows no B-3434 metadata, docs/story, or fixture paths",
+      "source": "scope_contract_show and protected-path diff"
     }
   ],
   "readManifest": {
     "filesReadFully": [
-      ".lattice/story/actives/B-2220/background.md",
-      ".lattice/story/actives/B-2220/checklist.json",
-      ".lattice/story/actives/B-2220/understanding.json",
       "docs/requirements/decisions/validation-evidence-artifact-growth.md",
       "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
     ],
     "filesTriagedByName": [
-      ".lattice/story/actives/B-2220/scope-contract.json",
       "AGENTS.md",
-      "scripts/build-main-with-binding.mjs"
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/story-lifecycle.md"
     ],
     "scanEscalationReason": null
   },
@@ -76,6 +73,6 @@
     "drift": 0
   },
   "reviewRound": "2026-08-30T23:14:26.406Z",
-  "_hash": "0626d11a80962a47895fe9e6c734e1304281ee2a66a85f3c971586868d6e6257",
+  "_hash": "9fe28d879a454bbfbdf79cf0a50409c098a77f46750a725d298d8d7e34586542",
   "openQuestions": []
 }
