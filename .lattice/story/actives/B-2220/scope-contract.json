@@ -79,10 +79,30 @@
         "54ca6c2de022c72f5805e34cd2cbd9ca66b9b1f90dcc5e8499cf70a7b7ad4fd5",
         "66edc638c3c7fe38d1886d621f7bac0ca3c065308f297472f61c576623d40a41"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Duplicate F-007/F-008/F-009 require narrowing all remaining section 10c later-serialization claims to own-value snapshotting under an unchanged shared prototype, while retaining the inherited toJSON limitation.",
+      "timestamp": "2026-08-30T23:58:48.751Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "7b2ee6240d91da6692189a7ea9b81e32eae511d6",
+      "materialHash": "75f4327ee0b880e75b9906090bcb71f45c75f9fddd50a5c5d72ad135e3061152",
+      "hunkDigests": [
+        "83950d47b6555471c372a54f15b1d64df4e9f5bad7767b021aa8bee2666c2247",
+        "d27975454012de15c1ab024d3e52cd505c0b3ea3b3417e73f4ed9141e263b0e3"
+      ]
     }
   ],
   "createdAt": "2026-08-30T22:57:42.914Z",
-  "updatedAt": "2026-08-30T23:50:46.956Z",
+  "updatedAt": "2026-08-30T23:58:48.751Z",
   "fileRules": [
     {
       "path": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
