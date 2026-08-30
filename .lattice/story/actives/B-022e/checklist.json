@@ -60,7 +60,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The committed cutover verifier fails on the pre-migration tree and names each active Lattice identity class, while named historical proof baselines verify successfully.",
+      "userSees": "At RED it prints `FAIL identity-cutover: active legacy identities remain` with class diagnostics; at descendant GREEN the same command prints `PASS identity-cutover` while named historical digest/signature checks print `PASS unchanged`.",
       "excludes": [
         "Fixture-only RED proof",
         "Uncommitted ad-hoc grep as the sole RED evidence"
