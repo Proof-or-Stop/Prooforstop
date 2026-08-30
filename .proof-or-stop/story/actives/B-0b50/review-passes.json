@@ -674,6 +674,32 @@
         "scanEscalationReason": null
       },
       "_hash": "1991706df21ff9f9b18e8d113206f9d8f1c45d78c5fa6876adb517d1b7975697"
+    },
+    {
+      "id": "B-0b50:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified at HEAD e8f31eb (closeout round). Deleted concept heavyCertificationStatusNext (packages/main/src/core/certification-window.ts) grepped across full repo: zero live residue outside .proof-or-stop/story/actives/B-0b50/**/*.json historical audit records and the gitignored activity.jsonl runtime log. Intervening commit 383c9c2d35 only appends env keys to an existing array, no new concept deletion. No blocker.",
+      "createdAt": "2026-08-30T19:00:20.797Z",
+      "reviewRound": "2026-08-30T18:58:39.043Z",
+      "reviewRunId": "B-0b50:RR-038",
+      "envelopeId": "86ed929756e83b2005f96e4e40703e5aba597e9902167b2d5efc0f39b2e60a69",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "abb7819819c5779ec651eeeea11ef201f5d0f9152fa9e31d02ec2764ef1575dc"
     }
   ]
 }
