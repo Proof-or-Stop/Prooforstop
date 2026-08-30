@@ -241,6 +241,38 @@
           "scripts/verify-process-fact-contract.mjs",
           "scripts/verify-runtime-fact-contract.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Create a fresh isolated project/runtime and invoke canonical init/generation/state/config/adapter paths -> every newly written directory, config key, environment key, runtime identifier, agent role ID, and generated asset uses Proof-or-Stop only; the canonical role registry resolves proof-or-stop-review-story-init and the complete expected proof-or-stop-* role set. WHY: verifies canonical-only fresh writes across runtime surfaces.",
+            "type": "cli"
+          },
+          {
+            "desc": "Load the canonical package role registry and render each active role -> every registry key, template filename, frontmatter name, config route, and generated role identifier is the expected Proof-or-Stop identity with no omitted active role. WHY: treats Agent identity as runtime identity, not prose.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "For every exact historical artifact named in the RED baseline, compare pre-cutover and GREEN bytes/digests and rerun its signature verifier -> byte content and digest are identical and verification still succeeds, while fresh artifacts use only canonical identities. WHY: proves migration did not purchase zero residue by corrupting evidence.",
+            "type": "cli"
+          },
+          {
+            "desc": "Exercise the self-hosted proof-or-stop.config.json/storyDir transition while querying B-022e and writing fresh nonhistorical metadata -> the active story remains discoverable and new writes land only under the canonical path without a read-both legacy runtime dependency. WHY: proves the running tool survives its own identity migration.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to resolve or generate lattice-review-story-init or any other active lattice-* role ID, legacy env key, state/config path, adapter ID, or runtime identifier -> resolution/generation fails rather than aliasing; injecting one legacy registry key/template/frontmatter/config route makes the verifier fail. WHY: proves old runtime and Agent identities are retired.",
+            "type": "cli"
+          },
+          {
+            "desc": "On a temporary copy, mutate a frozen provenance byte or signature salt while keeping active residue zero -> history verification fails and blocks GREEN. WHY: prevents the residue objective from overriding evidence integrity.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
