@@ -78,12 +78,10 @@ function persist(result: unknown) {
 /**
  * Every node of a persisted record must be plain JSON data.
  *
- * This is the structural form of the postcondition below. A number that describes a value is only
- * about the bytes that reach disk if the value cannot answer a later serialisation differently, and
- * the only values that cannot are strings, numbers, booleans, null, arrays and plain objects. A
- * getter, a Proxy or a `toJSON` anywhere in the graph reopens the gap between the reading that was
- * measured and the reading that is written - so the check is for the ABSENCE of such a node, not for
- * agreement between two readings, which a value that changes on the third call would still pass.
+ * This checks the returned snapshot at the instant the bound is evaluated: it contains JSON scalars,
+ * arrays and plain objects, with no own getter or visible `toJSON`. It does not freeze the shared
+ * `Object.prototype`; installing an inherited `toJSON` after this check can still change the later
+ * writer serialisation. That retained limitation is recorded in the CHK-004 decision document.
  */
 function assertPlainJsonData(value: unknown, path: string): void {
   if (value === null) return;
@@ -97,7 +95,7 @@ function assertPlainJsonData(value: unknown, path: string): void {
   const prototype = Object.getPrototypeOf(value as object);
   assert.ok(
     prototype === Object.prototype || prototype === null,
-    `${path}: a persisted record carries plain objects only, so nothing in it can define toJSON or a getter`,
+    `${path}: a persisted record carries standard or null-prototype containers; later shared-prototype mutation remains outside this check`,
   );
   assert.equal(
     typeof (value as { toJSON?: unknown }).toJSON,
@@ -112,9 +110,9 @@ function assertPlainJsonData(value: unknown, path: string): void {
 }
 
 /**
- * The postcondition check, applied to every case: the reported size must be a real measurement of
- * the record being persisted, the record must be a value that measurement still describes on the
- * next serialisation, and the flag must be derived from it. An earlier revision reported a hardcoded
+ * The check applied to every case: the reported size must be a real measurement of the returned
+ * snapshot at check time, and the flag must be derived from it. It does not claim that later mutation
+ * of the shared prototype cannot alter writer serialisation. An earlier revision reported a hardcoded
  * success flag, and every fixture passed while it was structurally unable to say no.
  */
 function assertFlagAgreesWithMeasurement(bound: ReturnType<typeof persist>): void {
