@@ -11,7 +11,22 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A superseding Proof-or-Stop identity-cutover decision is present before any production migration commit, with every legacy identity classified as remove, migrate, or exact frozen evidence.",
+      "excludes": [
+        "Editing historical story bytes",
+        "Rewriting changelog history",
+        "Changing signature salts or provenance-bound schemas"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-002",
