@@ -569,6 +569,30 @@
         "scanEscalationReason": null
       },
       "_hash": "7a5b8005d6492401a6d4af1818c3c4bdf8c424b53b39b884e570b807585aa269"
+    },
+    {
+      "id": "B-0b50:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified against RI-005 (cutoff unchanged from RI-004/RP-016). No dead code/type-safety/IO issues in the diff; both smoke tasks pass after rebuild.",
+      "createdAt": "2026-08-30T16:58:29.122Z",
+      "reviewRound": "2026-08-30T16:51:42.451Z",
+      "reviewRunId": "B-0b50:RR-032",
+      "envelopeId": "35b8af790decc7c9b0a2da6cc83b19ed0f13c6adf2b7579ffba27d90e9535f4b",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "4c38aa43e05a79b2c6348f0922cdb74212c7215aaebcb6198cdbcd9a4664461b"
     }
   ]
 }
