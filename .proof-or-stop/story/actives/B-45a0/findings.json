@@ -23326,7 +23326,7 @@
       "desc": "packages/main/src/core/historical-replay-artifact.ts:22-33 permits only a fixed old consumer list and omits the current closeout-retention repair at packages/main/src/core/closeout-trust.ts:37-49 and packages/main/src/handlers/checklist.ts:1168-1170. Those paths govern trusted Story receipt retention, not validation inventory, catalog, or replay production. Consequently, on current HEAD ea4c568, the verifier-only command `node scripts/run-dynamic-validation-replay.mjs --verify-threshold` rejects the signed execute=true 50-record report recorded at 8059be0 with `paired-performance-head-stale; paired-performance-head-drift-nonadmissible`, forcing an unnecessary historical replay execution after unrelated closeout-retention work. Add a bounded, audited nonexecuting admission for this consumer-only family and a regression proving it cannot admit producer/config/catalog/runner drift.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-30T14:21:46.063Z",
@@ -23362,7 +23362,11 @@
         "scripts/run-dynamic-validation-replay.mjs"
       ],
       "signatureTag": "historical-replay-admission-closeout-retention",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in e3a6186f7f. REPLAY_ADMISSION_NONEXECUTING_PATHS in historical-replay-artifact.ts now includes the closeout-retention consumer family (core/closeout-trust.ts, handlers/checklist.ts, tasks/closeout-trust-smoke.ts, tasks/retired-authority-vocabulary-guard-smoke.ts, scripts/verify-process-fact-contract.mjs, docs story-lifecycle.md). These paths only read or mechanically guard a completed replay and cannot alter inventory, catalog, configuration, selection, or runner. The admission stays bounded: historical-replay-artifact-smoke.ts asserts these exact consumer paths remain admissible without executing a replay, and a following producer-drift case (scripts/run-dynamic-validation-replay.mjs) still fails closed. Verified by node packages/main/dist/tasks/historical-replay-artifact-smoke.js printing historical replay artifact smoke PASS.",
+      "resolvedAt": "2026-08-30T15:58:01.985Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-424",
