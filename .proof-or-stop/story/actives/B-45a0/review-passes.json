@@ -21714,6 +21714,52 @@
       },
       "readDiagnostics": [],
       "_hash": "cd2296bc3333890668357d59c01406b12576a701096b0d8eb167d5c1740521b2"
+    },
+    {
+      "id": "B-45a0:RP-438",
+      "agent": "lattice-review-docs",
+      "note": "Current closeout-retention repair aligns the lifecycle decision record with the constrained code boundary: only receipt-bound verification_evidence_refresh_stale may retain an already-current review, while non-canonical checklist writes remain untrusted. The focused smoke covers both branches. No distinct current documentation blocker was found.",
+      "createdAt": "2026-08-30T13:11:01.696Z",
+      "reviewRound": "2026-08-30T13:07:40.639Z",
+      "reviewRunId": "B-45a0:RR-1008",
+      "envelopeId": "445bb7f237d45793d1fc0f4be2bcb11eabe356dd9da498941c133a3a280e09a2",
+      "writerSessionId": "sess-36f272870b26f429c11140590aec86c6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Current REVIEW documentation-lane audit confined to the B-45a0 closeout-retention repair and its lifecycle contract, canonical writer, receipt lineage, and regression boundary."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 10934
+        },
+        "digest": "637f00574c44687a0a4d4dab0bb689053f7de72b630afe7ab94da7a44aefcc39"
+      },
+      "readDiagnostics": [],
+      "_hash": "3a754a6c5f045ce67db5c08d973ccce2a2e062c78e07d3de2eac0beaa25ab735"
     }
   ]
 }
