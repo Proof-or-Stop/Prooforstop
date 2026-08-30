@@ -113,9 +113,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const MIN_NODE_MAJOR = 20;
-// B-cc10 CHK-005: the ROOT package name stays `lattice` (deliberately out of scope, see
-// proof-or-stop-identity-migration.md); only the core package was renamed.
-const CANONICAL_ROOT_PACKAGE_NAME = 'lattice';
+// B-022e CHK-003: the root package identity is part of the clean-break cutover.
+const CANONICAL_ROOT_PACKAGE_NAME = 'proof-or-stop';
 const CANONICAL_CORE_PACKAGE_NAME = '@proof-or-stop/core';
 const DEPRECATED_CORE_PACKAGE_NAME = '@lattice/core';
 // Self-project detection must accept EITHER core spelling: a miss makes runtimeScope flip

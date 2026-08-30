@@ -1,5 +1,5 @@
 /**
- * Auxiliary tool CLI registry provided by @lattice/utils.
+ * Auxiliary tool CLI registry provided by @proof-or-stop/utils.
  * Passed to the main package's runCli by a bootstrap script and merged with
  * the main package's own mainToolDefs.
  */

@@ -114,13 +114,13 @@ function makePartialDoneRecoveryFixture(): { root: string; storyId: string } {
 }
 
 function writeVersionSyncFiles(root: string, version: string): void {
-  write(root, 'package.json', JSON.stringify({ name: 'lattice', version }, null, 2) + '\n');
+  write(root, 'package.json', JSON.stringify({ name: 'proof-or-stop', version }, null, 2) + '\n');
   write(root, 'package-lock.json', JSON.stringify({
-    name: 'lattice',
+    name: 'proof-or-stop',
     version,
     lockfileVersion: 3,
     packages: {
-      '': { name: 'lattice', version },
+      '': { name: 'proof-or-stop', version },
     },
   }, null, 2) + '\n');
   write(root, 'packages/main/package.json', JSON.stringify({

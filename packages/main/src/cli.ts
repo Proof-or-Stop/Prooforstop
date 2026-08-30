@@ -2,7 +2,7 @@
 /**
  * Proof-or-Stop bin entry (main standalone mode)
  *
- * This script only loads tools bundled with main (process category). If you also want to enable @lattice/utils
+ * This script only loads tools bundled with main (process category). If you also want to enable @proof-or-stop/utils
  * helper tools, use the generated bin/proof-or-stop.js bootstrap script.
  * (B-cc10 F-010: bin/lattice.js was deleted by CHK-006; the generated entrypoint is bin/proof-or-stop.js.)
  *

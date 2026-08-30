@@ -27,7 +27,7 @@ function git(cwd: string, args: string[]): string {
 function makeSelfProject(root: string): void {
   mkdirSync(join(root, 'packages', 'main'), { recursive: true });
   mkdirSync(join(root, 'bin'), { recursive: true });
-  writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'lattice', version: '1.0.0', type: 'module' }));
+  writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'proof-or-stop', version: '1.0.0', type: 'module' }));
   writeFileSync(join(root, 'packages', 'main', 'package.json'), JSON.stringify({ name: '@proof-or-stop/core', version: '1.0.0', type: 'module' }));
   writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
@@ -50,7 +50,7 @@ function makeSelfProject(root: string): void {
   cpSync(compiledMainRoot, join(root, 'packages', 'main', 'dist'), { recursive: true });
   writeFileSync(join(root, 'packages', 'main', 'dist', 'runtime-generation.txt'), 'main-old');
   mkdirSync(join(root, 'packages', 'utils'), { recursive: true });
-  writeFileSync(join(root, 'packages', 'utils', 'package.json'), JSON.stringify({ name: '@lattice/utils', version: '1.0.0', type: 'module' }));
+  writeFileSync(join(root, 'packages', 'utils', 'package.json'), JSON.stringify({ name: '@proof-or-stop/utils', version: '1.0.0', type: 'module' }));
   cpSync(join(sourceRepoRoot, 'packages', 'utils', 'dist'), join(root, 'packages', 'utils', 'dist'), { recursive: true });
   assert.ok(sourceNodeModules, 'source node_modules required for hermetic copied runtime');
   symlinkSync(sourceNodeModules, join(root, 'node_modules'), 'dir');
@@ -162,7 +162,7 @@ try {
 
   const malformedSelf = join(tmp, 'malformed-self');
   mkdirSync(join(malformedSelf, 'packages', 'main'), { recursive: true });
-  writeFileSync(join(malformedSelf, 'package.json'), JSON.stringify({ name: 'lattice' }));
+  writeFileSync(join(malformedSelf, 'package.json'), JSON.stringify({ name: 'proof-or-stop' }));
   writeFileSync(join(malformedSelf, 'packages', 'main', 'package.json'), JSON.stringify({ name: '@proof-or-stop/core' }));
   const malformedDecision = classifyRuntimeEntrypointAuthority({
     command: 'story_advance',

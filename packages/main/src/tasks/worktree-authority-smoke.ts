@@ -61,13 +61,13 @@ function write(root: string, path: string, content: string): void {
 // Proofbound checkout has package.json et al. by construction). Synthetic fixture roots that
 // exercise done_recover's post-merge path need this same scaffold.
 function writeVersionSyncFiles(root: string, version: string): void {
-  write(root, VERSION_SYNC_FILES.rootPackageJson, `{\n  "name": "lattice",\n  "version": "${version}",\n  "description": ""\n}\n`);
+  write(root, VERSION_SYNC_FILES.rootPackageJson, `{\n  "name": "proof-or-stop",\n  "version": "${version}",\n  "description": ""\n}\n`);
   write(root, VERSION_SYNC_FILES.rootPackageLock, JSON.stringify({
-    name: 'lattice',
+    name: 'proof-or-stop',
     version,
     lockfileVersion: 3,
     packages: {
-      '': { name: 'lattice', version },
+      '': { name: 'proof-or-stop', version },
       'packages/main': { name: '@proof-or-stop/core', version },
     },
   }, null, 2) + '\n');
