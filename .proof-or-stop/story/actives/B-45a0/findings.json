@@ -23050,6 +23050,49 @@
       "resolvedAt": "2026-08-30T11:39:55.416Z",
       "resolutionType": "superseded",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-419",
+      "desc": "closeout-retention-checklist-untrusted: verification_evidence_refresh_stale canonically rewrites checklist.json (checklist.ts:1140-1163), but CLOSEOUT_ARTIFACT_POLICIES omits checklist.json (closeout-trust.ts:37-48), so classifyCurrentCloseoutArtifactForReviewRetention rejects every refreshed evidence update as untrusted (closeout-trust.ts:607-610). This makes a required current-evidence refresh invalidate the same current review receipt and blocks REVIEW→TEST without any product-material change.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-30T12:15:31.595Z",
+      "reviewRound": "2026-08-30T11:33:19.289Z",
+      "reviewRunId": "B-45a0:RR-997",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "431e83f7d3f8741d538c77680f93e47216c874d2b55b9981c16d1469cbd22225"
+      },
+      "readDiagnostics": [],
+      "_hash": "fedb8a1c5726c6e2b74f9611befcf8d8eded6c5bf6b24afc0adb16b4990c72c0",
+      "files": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "closeout-retention-checklist-untrusted",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
