@@ -9,7 +9,63 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document explicitly records the post-B-3434 human decision that the writer-owned-boundary proposal is declined and not currently justified; WHY: the old unassigned work-order posture is the statement the user asked to change.",
+            "type": "docs",
+            "verification": {
+              "command": "rg -n \"Decision after B-3434|not currently justified|declined\" docs/requirements/decisions/validation-evidence-artifact-growth.md",
+              "selector": "Decision after B-3434"
+            }
+          },
+          {
+            "desc": "The document keeps B-3434 accepted and preserves the shipped mechanism, measurements, transcripts, and historical finding identifiers as known limitations; WHY: declining new work must not rewrite the completed story or claim the limitations were fixed.",
+            "type": "docs",
+            "verification": {
+              "command": "rg -n \"B-3434 remains accepted|Known limitations|B-3434:F-033|B-3434:F-037\" docs/requirements/decisions/validation-evidence-artifact-growth.md",
+              "selector": "B-3434 remains accepted"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The decision explicitly states that measuring and writing one serialized byte string would not establish input consistency, semantic consistency, or evidence truth; WHY: this is the key limitation that makes the proposed refactor disproportionate.",
+            "type": "docs",
+            "verification": {
+              "command": "rg -n \"does not establish input consistency|semantic consistency|evidence truth\" docs/requirements/decisions/validation-evidence-artifact-growth.md",
+              "selector": "does not establish input consistency"
+            }
+          },
+          {
+            "desc": "The document gives concrete evidence-based reconsideration triggers rather than saying the proposal is abandoned forever; WHY: the choice should remain reversible if the risk profile changes.",
+            "type": "docs",
+            "verification": {
+              "command": "rg -n \"Reconsider only if|reopen\" docs/requirements/decisions/validation-evidence-artifact-growth.md",
+              "selector": "Reconsider only if"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Active stale mandates are absent: no unassigned owner, work-order declaration, or sentence saying a follow-up story should be scoped; WHY: leaving any of these would contradict the new disposition.",
+            "type": "docs",
+            "verification": {
+              "command": "if rg -n \"Owner of the follow-up: unassigned|This document is the work order|A follow-up story should be scoped\" docs/requirements/decisions/validation-evidence-artifact-growth.md; then exit 1; else echo \"stale follow-up mandate absent\"; fi",
+              "selector": "stale follow-up mandate absent"
+            }
+          },
+          {
+            "desc": "A whole-document scan finds no remaining active-tense instruction to carry work into or optimize in the follow-up; historical descriptions may remain only when clearly labelled as superseded context; WHY: changing only the header would leave the body as an operative work order.",
+            "type": "docs",
+            "verification": {
+              "command": "if rg -n \"carry it into the follow-up|thing to revisit in the follow-up|whoever picks up the follow-up\" docs/requirements/decisions/validation-evidence-artifact-growth.md; then exit 1; else echo \"no active mandatory follow-up language\"; fi",
+              "selector": "no active mandatory follow-up language"
+            }
+          }
+        ]
+      }
     }
   ]
 }

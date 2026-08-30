@@ -1,0 +1,22 @@
+{
+  "task": "Update the B-3434 artifact-growth decision document so it no longer presents the writer-owned boundary as required unfinished work.",
+  "outcome": "Opening the decision document shows: the writer-owned-boundary proposal is declined as not currently justified; B-3434 remains accepted; the historical findings remain recorded as known limitations; and concrete evidence-based conditions say when reconsideration is warranted.",
+  "facts": [
+    "B-3434 is DONE and accepted",
+    "The existing document names an unassigned follow-up and calls itself a work order",
+    "The proposed boundary guarantees only that one serialized byte string is both measured and written",
+    "The proposal does not guarantee semantic input consistency",
+    "No real production input is currently known to trigger the synthetic divergence paths"
+  ],
+  "constraints": [
+    "Modify only docs/requirements/decisions/validation-evidence-artifact-growth.md",
+    "Preserve historical findings, transcripts, and B-3434 accepted status",
+    "Do not create runtime or source-code changes",
+    "Do not claim the known limitations are fixed"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+  ],
+  "timestamp": "2026-08-30T22:48:18.384Z"
+}
