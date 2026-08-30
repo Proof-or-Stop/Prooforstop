@@ -166,7 +166,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Every current invocation begins with proof-or-stop; a clean install exposes no lattice command or deprecated wrapper, and all help/hints teach proof-or-stop.",
+      "userSees": "The isolated install prints `Proof-or-Stop 0.3.268` for `proof-or-stop --version`; `proof-or-stop help` and `proof-or-stop lab help` succeed; invoking `lattice` prints command-not-found or equivalent non-zero resolution failure.",
       "excludes": [
         "Deprecated lattice command aliases",
         "Legacy lattice wrapper files"
