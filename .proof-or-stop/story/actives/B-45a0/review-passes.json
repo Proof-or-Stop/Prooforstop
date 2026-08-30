@@ -21760,6 +21760,41 @@
       },
       "readDiagnostics": [],
       "_hash": "3a754a6c5f045ce67db5c08d973ccce2a2e062c78e07d3de2eac0beaa25ab735"
+    },
+    {
+      "id": "B-45a0:RP-439",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-round coverage review verified the receipt-bound canonical checklist refresh repair. The focused closeout-trust smoke and process-fact contract pass; the canonical writer is allowed only with coherent lineage and checklist_update remains rejected. No distinct current coverage blocker found.",
+      "createdAt": "2026-08-30T13:13:18.859Z",
+      "reviewRound": "2026-08-30T13:07:40.639Z",
+      "reviewRunId": "B-45a0:RR-1007",
+      "envelopeId": "1c978bba449e01c6a3b6f4a622cd5a0feafcacf46f6360168ae519d69d6eef16",
+      "writerSessionId": "sess-bc065476087f79b88d727c1cb0979263",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/closeout-trust.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Focused current-round coverage review of the B-45a0 closeout-retention repair. It checked the canonical writer policy, the refresh writer's receipt request, the retention consumer, targeted regression coverage, and process-fact contract; no historical replay or duplicate-family re-attestation was performed."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d30e9fe43fdaa3b70055ad3b77594ba48a99e90074ce36a0083d6a9416414fae"
     }
   ]
 }
