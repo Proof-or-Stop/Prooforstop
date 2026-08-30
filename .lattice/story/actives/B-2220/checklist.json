@@ -126,14 +126,14 @@
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "docs_check",
-          "command": "if rg -n \"Owner of the follow-up: unassigned|This document is the work order|A follow-up story should be scoped\" docs/requirements/decisions/validation-evidence-artifact-growth.md; then exit 1; else echo \"stale follow-up mandate absent\"; fi",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const modal=\\\"(?:must(?!\\\\\\\\s+not)|should|shall|needs? to)\\\";const bad=[new RegExp(\\\"(?:follow-up owner|owner of the follow-up)[^\\\\\\\\n]*(?:TBD|unassigned|assigned)\\\",\\\"i\\\"),new RegExp(\\\"(?:follow-up story|proposal|boundary|new story)[^\\\\\\\\n]*(?:\\\"+modal+\\\"|work order)\\\",\\\"i\\\"),new RegExp(\\\"(?:\\\"+modal+\\\")[^\\\\\\\\n]*(?:follow-up story|proposal|boundary|new story)\\\",\\\"i\\\"),/this document is the work order/i];if(bad.some(r=>r.test(s)))process.exit(1);console.log(\\\"B-2220 adversarial-0 PASS\\\");\"",
           "result": "pass",
-          "note": "Executed the pinned document verifier against commit 0221f6270a; confirms the user-approved decision text and preservation boundary.",
+          "note": "Re-executed the strengthened pinned verifier after B-2220 review findings; deletion and active-mandate mutation probes were also shown to fail.",
           "mechanical": false,
-          "headHash": "95d6ae9055aeb416eb036e846a5fb3abf6859db8",
-          "materialHash": "7eb23b12327a2b23a5c40936d7ccd6aec089ecf7097ff54eeae1fece412fc323",
-          "storyFilesHash": "2b46ef95d456e0fe31fb10c562982734b302c639a18709a590a5b69590a47cc0",
-          "timestamp": "2026-08-30T23:01:34.841Z"
+          "headHash": "9786096dad0b1961cd77bba5a8a49216425545c9",
+          "materialHash": "a5c6ccc1da20de04007d478e273de214ac0f969aa2a9f7007c02636bb3f47d7a",
+          "storyFilesHash": "46f24c6ef45f6b6d11dcb548a3d90d951fba1cb6c2bc6b7b16fc2ee74ec993a2",
+          "timestamp": "2026-08-30T23:13:41.576Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
