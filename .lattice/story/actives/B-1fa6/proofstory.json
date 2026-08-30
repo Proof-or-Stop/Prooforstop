@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-1fa6",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:d7c256947573bf70306899f4d586c4563ed46aa4906f2c058a2c86c34e7908b3",
+  "acceptanceBindings": [
+    {
+      "id": "AB-DYNAMIC-FINDING-PLAN",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:seven-problems",
+        "CHK-001:happy:cli-corpus",
+        "CHK-001:happy:named-evidence",
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:happy:2",
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:happy:2",
+        "CHK-004:happy:rollout-contract",
+        "CHK-004:happy:metrics-scorecard",
+        "CHK-004:happy:lab-scope-transition",
+        "CHK-004:happy:legacy-compatibility"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The committed Markdown document contains a complete seven-problem evidence matrix, the four named components, the three named implementation Stories, rollout and migration rules, and the lab scope-change example without implementing future runtime work.",
+      "note": "One document jointly proves the seven-problem evidence, architecture, decomposition, and rollout acceptance claim."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    },
+    {
+      "code": "scope_ambiguity",
+      "severity": "warn",
+      "artifact": "scope-contract.json",
+      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
+      "triggeredBy": [
+        "scope_ambiguity"
+      ]
+    }
+  ],
+  "note": "Documentation-only ProofStory binding for the canonical Dynamic Finding System execution plan.",
+  "createdAt": "2026-08-30T22:42:41.073Z",
+  "updatedAt": "2026-08-30T22:42:41.073Z"
+}
