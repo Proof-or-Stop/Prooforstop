@@ -95,7 +95,60 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The execution-plan document defines exactly four responsibility components: Finding Ledger Integrity, Candidate and Defect Identity, Dynamic Applicability, and Freshness and Supersession. It shows the end-to-end flow from detector signal through verified Finding and a fresh applicability assessment to the gate, and gives each component explicit inputs, outputs, authority, and non-responsibilities.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The document specifies one gate contract in which only an open, evidence-blocking, severity-blocking Finding with a current signed assessment that is applicable, or fail-closed unknown where required, can block, while historical learning remains non-authoritative until current-Story evidence is minted.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The document defines DetectorSignal, CandidateFinding, verified Finding, canonical defect identity, applicability verdict, owner and routing, freshness binding, supersession, and batch disposition manifest, including which records are advisory and which are gate-consumed process facts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy Findings with no applicability assessment remain readable and are not rewritten in bulk. The plan states fallback behavior for missing, uncomputable, or stale assessments, including stricter treatment for high and critical unknowns.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Freshness semantics distinguish matching materialHash, materialHash-only drift with matching storyFilesHash, story-owned drift, scope drift, and runtime-artifact drift; accepted unrelated drift remains explicitly advisory rather than silently rebound.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Supersession and canonical-defect lookup preserve append-only historical records while returning the current canonical record, and source-lineage identity is explicitly not treated as proof of semantic defect equivalence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No detector hit, CandidateFinding, signatureTag, playbook, historical match, file-disjoint heuristic, or DONE outcome alone may block or unblock REVIEW, TEST, or DONE. Promotion to a gate-consumed conclusion requires fresh current-material evidence and designated reviewer and CLI authority.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Non-blocking verdicts cannot make a verified high or critical problem disappear: pre_existing_unaffected requires base and head evidence and no worsening, out_of_scope requires structured scope proof plus routing, duplicate requires a valid canonical owner, and stale or tampered assessments fail closed.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The architecture identifies one authoritative shared blocking predicate and all gate consumers that must use it, registers applicability and freshness as gate-consumed process facts, and requires atomic idempotent writes for Findings and assessments.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
