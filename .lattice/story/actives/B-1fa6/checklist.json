@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Document the seven historical Finding problems and reproducible evidence",
+      "context": "Use current CLI-derived corpus figures and named historical Finding examples without directly reading Story storage files. Distinguish historical observations from claims about current unresolved behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/step3-review-budget-breaker-handoff.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Specify the four-component Dynamic Finding architecture and gate contract",
+      "context": "Define Candidate, verified Finding, applicability, routing, freshness, supersession, and ledger responsibilities; preserve the rule that historical learning is non-authoritative until current evidence is minted.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Decompose delivery into three implementation Stories with dependencies and acceptance criteria",
+      "context": "Map every one of the seven problems to an owning component and follow-up Story, define ordering and non-goals, and prevent a single oversized gate migration.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/step3-review-budget-breaker-handoff.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Define migration rollout metrics and the @proof-or-stop/lab scope-change example",
+      "context": "Specify observe, warn, and enforce rollout, legacy compatibility, performance and safety metrics, and demonstrate historical out-of-scope becoming currently applicable using the lab package rename without implementing that rename.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

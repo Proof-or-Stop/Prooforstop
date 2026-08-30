@@ -1,0 +1,36 @@
+{
+  "storyId": "B-1fa6",
+  "name": "dynamic-finding-system-execution-plan",
+  "title": "Define the Dynamic Finding System execution plan from historical evidence",
+  "description": "Create the canonical Markdown execution plan for a Dynamic Finding System. The plan must document seven historically evidenced failure classes, distinguish current Finding truth and status from dynamic applicability, define four components, and decompose implementation into three bounded follow-up Stories with dependencies, process-fact and gate rules, rollout, migration, evidence, and acceptance criteria. Documentation only; do not implement runtime mechanisms or create the three follow-up Stories.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "dynamic-finding",
+    "finding-applicability",
+    "candidate-finding",
+    "historical-lineage",
+    "ledger-integrity"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-08-30T22:22:49.083Z",
+  "startedAt": "2026-08-30T22:22:49.083Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-30T22:22:49.529Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-926732d65bb5e74c324cbadbf4d314bc",
+      "agent": "main"
+    }
+  ]
+}
