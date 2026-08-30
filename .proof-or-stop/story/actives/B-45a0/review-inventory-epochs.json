@@ -9965,9 +9965,9 @@
       "epochId": "B-45a0:RI-104",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-30T15:57:31.479Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-08-30T17:08:30.811Z",
-      "updatedAt": "2026-08-30T17:22:08.525Z",
+      "updatedAt": "2026-08-30T17:37:19.584Z",
       "cutoff": {
         "headHash": "79788cc44bf569a75ede23d3a382f9e26b903449",
         "materialHash": "7d844f63c8b5e92caf825ae6da761b6b1de4b95c51753dcda24bbac28f04de53",
@@ -10041,12 +10041,72 @@
           "criticDigest": "ae04c5c92a3dc8d29d74665c6ac6f350e4368147693dea86c376e081163efc4a",
           "saturated": false,
           "nextRunSequenceBoundary": 1055
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-30T17:22:08.525Z",
+          "completedAt": "2026-08-30T17:37:19.584Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-1059",
+              "terminal": "pass",
+              "hostIdentity": "1749937aa43511d9914ea5ab497e40d3a1f934c23a1873de1e114b2a9c6c4411",
+              "promptIdentity": "fdd9ca7ff0150d1f215c5d3f32c77d0fcfc40d1eeb9360c61217f5ecaa9c2022",
+              "evidenceIds": [
+                "B-45a0:RP-465"
+              ],
+              "coverageDigest": "2554f5f22fcb63fe8ccfca5675c13cb64606242ec2b2da7a2940320acabc3739"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-1060",
+              "terminal": "pass",
+              "hostIdentity": "5ddf994fe0bee25039481e1151714e05a8ef86d3209abfd722fb62bc5b71dd98",
+              "promptIdentity": "28bf16042cf522fb76718721d69ee2fa123265a22aa98310836928d87c4e55a8",
+              "evidenceIds": [
+                "B-45a0:RP-467"
+              ],
+              "coverageDigest": "501aa161d64bb415076c28e6e0ba7013d72a65cc22709b3238a547e218319100"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-1057",
+              "terminal": "pass",
+              "hostIdentity": "1749937aa43511d9914ea5ab497e40d3a1f934c23a1873de1e114b2a9c6c4411",
+              "promptIdentity": "e7a0b37af991a9d3bbb058b1ac663e41db512135cc595f759fd260f10400656e",
+              "evidenceIds": [
+                "B-45a0:RP-466"
+              ],
+              "coverageDigest": "d502c127bd27d1e9cd65466b58505f0bd4c818f4792d9980ccdd720278ab3ab0"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-1058",
+              "terminal": "pass",
+              "hostIdentity": "1749937aa43511d9914ea5ab497e40d3a1f934c23a1873de1e114b2a9c6c4411",
+              "promptIdentity": "bcb788ddcc0d3ee67ae87dfbb20e8f2c55147a2d35ab5ad52c02af9ff2c21781",
+              "evidenceIds": [
+                "B-45a0:RP-464"
+              ],
+              "coverageDigest": "6f56289f7474f1df5aab25b5ea6d1813555295ca3ef0bebc79ca8993e39fd67d"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-wave4-surface-staleness"
+          ],
+          "verifiedFindingSetDigest": "70c3eb7faab570432e59c1e1216eedc6cbe947ac644973634cda1e920ebb876f",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "bb437cdefdf838d32e6fb5fb91cbc14ae672432fbe31f4454bc43fdcea178638",
+          "saturated": true,
+          "nextRunSequenceBoundary": 1062
         }
       ],
       "baselineFindingIds": [
         "B-45a0:F-429"
       ],
-      "_hash": "b031deff68a9bae57403a0f5affe8e69d9bd14efc946f5051be55b70c30d1f01"
+      "receiptId": "B-45a0:RI-104:RCP-001",
+      "_hash": "e4455b8acb73cb466529ef7fc50970ad3f3de72d539c710bf542cc47f02332f2"
     }
   ],
   "receipts": [
@@ -11531,6 +11591,33 @@
       "invalidatedAt": "2026-08-30T17:08:24.025Z",
       "invalidationReason": "Circular deadlock between review_inventory_begin and story_advance DEV. Receipt B-45a0:RIE-122:RCP-001 is FINALIZED-unconsumed with scopeDigest dbf8417be2ff30417e26efd902ede7c2eab6dcba9c77694a5bb34de3d2a60eed, but reviewInventoryAcceptanceSubjectDigestForStore now deterministically computes 46d67cfc10aeb1e1f0aaf91759fb3329a0e538ebdf3fc875a8bbb36d48aaf6bf (verified stable across repeated calls and fresh store instances), so consumeReviewInventoryReceipt rejects it with REVIEW_INVENTORY_REMEDIATION_BLOCKED while review_inventory_begin refuses with REVIEW_INVENTORY_RECEIPT_UNCONSUMED and points back at DEV. The four digest inputs (scope contract, checklist, ProofStory contract, shrinkage decision) have no commits since before finalize, so the mismatch originates at finalize time rather than from a subsequent subject edit. Invalidating the unconsumed receipt to break the cycle and allow a fresh epoch bound to the current subject digest.",
       "_hash": "7c6a2d2cb0c4da16d71229b15948516f7619c00df82d586ffc2983c9d68d85e4"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-45a0:RI-104:RCP-001",
+      "epochId": "B-45a0:RI-104",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "cutoff": {
+        "headHash": "79788cc44bf569a75ede23d3a382f9e26b903449",
+        "materialHash": "7d844f63c8b5e92caf825ae6da761b6b1de4b95c51753dcda24bbac28f04de53",
+        "storyFilesHash": "ba1a26505043cf105c9d998798275f5e2777d12022b3406bf5aa1a21f20a4a80"
+      },
+      "scopeDigest": "46d67cfc10aeb1e1f0aaf91759fb3329a0e538ebdf3fc875a8bbb36d48aaf6bf",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "waveCount": 2,
+      "findingSetDigest": "70c3eb7faab570432e59c1e1216eedc6cbe947ac644973634cda1e920ebb876f",
+      "coverageDigest": "5650923b8fdc06a67834b935c07ce9a4183af7156231611ed66f39bfab7490de",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-30T17:37:19.584Z",
+      "_hash": "879c21fcc24d9d980292954ae23c16ca35f74e0827dbe186d3c4db20e44f8041"
     }
   ],
   "criticReceipts": [
