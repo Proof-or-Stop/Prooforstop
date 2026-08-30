@@ -59,6 +59,24 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-2220:F-004",
+      "desc": "docs/requirements/decisions/validation-evidence-artifact-growth.md:15 — CHK-001:adversarial:1 remains false-green for paraphrased active follow-up mandates. All six strengthened pinned commands pass the baseline; deletion probes for happy:0, happy:1, edge:0 and edge:1 and the explicit active-mandate probe for adversarial:0 exit 1 as intended. But appending `This optimization remains mandatory and will continue in a later task.` to a disposable copy makes the exact adversarial:1 pinned command print `B-2220 adversarial-1 PASS` and exit 0. Its five exact forbidden phrases do not cover this ordinary paraphrase, contradicting the must-intent requirement for a whole-document active-tense scan and leaving F-002 incompletely fixed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-30T23:17:15.550Z",
+      "reviewRound": "2026-08-30T23:14:26.406Z",
+      "reviewRunId": "B-2220:RR-008",
+      "_hash": "2198d62956df1a1ae112ce10349ad1586993ab2757b08980a16b8aa6fe4180ac",
+      "files": [
+        "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+      ],
+      "signatureTag": "adversarial-doc-verifier-paraphrase-false-green",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
