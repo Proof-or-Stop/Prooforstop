@@ -9646,9 +9646,9 @@
       "epochId": "B-45a0:RI-101",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-30T13:07:40.639Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-30T14:15:22.510Z",
-      "updatedAt": "2026-08-30T14:35:15.364Z",
+      "updatedAt": "2026-08-30T14:36:17.679Z",
       "cutoff": {
         "headHash": "78bd309c047315dae7d66ba89ed3aefe14fdd123",
         "materialHash": "f0c872feff468149741f4aaf1f15e7d22cd42047f37f1ad9f1b2368722762217",
@@ -9727,7 +9727,40 @@
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "e29f973b995558ef30791bf6f3218097bd885b694186f893577fbef37aafe79f"
+      "cancelledAt": "2026-08-30T14:36:17.679Z",
+      "cancelReason": "The one-wave budget was exhausted after three verified remediation families; reopen only the required two-wave saturation inventory.",
+      "terminalRunSequenceBoundary": 1017,
+      "_hash": "c1b1bef15d9d15745deebe47f1c0c3c5b8c1512dd6f407fefa2bac0b6c448fc2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-102",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-30T13:07:40.639Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-30T14:36:18.750Z",
+      "updatedAt": "2026-08-30T14:36:18.750Z",
+      "cutoff": {
+        "headHash": "63c4b8d3a2810ff403e62a82bcf1e4f3b38c596f",
+        "materialHash": "f0c872feff468149741f4aaf1f15e7d22cd42047f37f1ad9f1b2368722762217",
+        "storyFilesHash": "b6f724f72b956568e414bff212980252cc4fc7eba06b3141e00a762381695f86"
+      },
+      "scopeDigest": "920816b31dd3a541c78c0a243983491a6c7a38d669a51a22c0e922e09490e0cc",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 1017,
+      "maxWaves": 2,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-45a0:F-423",
+        "B-45a0:F-424",
+        "B-45a0:F-425"
+      ],
+      "_hash": "4f47ce3160b8bd1d392f918ef5a2402e958d8b245bd4788259f88a33eb61adda"
     }
   ],
   "receipts": [
