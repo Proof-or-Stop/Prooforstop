@@ -4392,6 +4392,510 @@
       "selectionReason": "SAFETY_REQUIRES_FULL",
       "fullContextBytes": 10325,
       "escalatedToFull": false
+    },
+    {
+      "schemaVersion": "proofbound.prompt-envelope.v1",
+      "roleId": "lattice-review-concept",
+      "storyId": "B-0b50",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-0b50:RR-035",
+      "reviewRound": "2026-08-30T17:05:18.175Z",
+      "lane": "lattice-review-concept",
+      "dispatchPromptDigest": "ea223f232864c568f896a6e8a748d84c593da80517d0c998fcd8e37ea7be398f",
+      "hostRenderIdentityDigest": "b0d7476dacac74494a174b414d37ee643cbe2af2673fc9e8b0186b8d124eac07",
+      "createdAt": "2026-08-30T17:06:22.670Z",
+      "headHash": "3466f26f57bdb10143e11f48ebec22314ec4fd02",
+      "runtimeContractVersion": "proofbound.agent-runtime.v1",
+      "runtimeSemanticDigest": "b62d11379b513f77a921a18a93c00e1a620e636c978441a0d1301ff875f5063a",
+      "runtimeRenderDigest": "2ed90580d07e50b86852b451625a813960d49ba33bab0a5ad90e504d75c59b1b",
+      "roleContractVersion": "proofbound.role-contract.v1",
+      "roleSemanticDigest": "197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2",
+      "roleRenderDigest": "49cd9020c9fe9e657a170805a1e957aa4df79b9f9d6797b008c3612d53de416a",
+      "contextMode": "incremental",
+      "contextDigest": "11b2ca55ad4162e3b1586979b7d12abcd33c2aba731e8d7d2ca15176f6658c49",
+      "materialHash": "18267efa56708d7e267c82e8770f61c1eee970800fc9a2b9b78a4cefed509061",
+      "storyFilesHash": "a2bf495d791e0749e4727d2ed0012ad6cd5d0ec082e078a912e615d4722260e0",
+      "policyHash": "0e09c27cc41fe72570029bbbf58c103d1e11dac7d2cbb299fe7f3a7a6429212c",
+      "eligibilityDecision": "incremental",
+      "eligibilityDigest": "ae5f31f546fcc5799bd4c45119be989d077e9d1e381ba332007941b9e1954693",
+      "knownExecutionEnvironmentDigest": "b1e32cccc89b448e83a89f6cc6fde8bc23960f036837a9f06078e16ca389bcdd",
+      "assemblerVersion": "proofbound.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proofbound.prompt-dispatch.v1",
+      "launcherSpecDigest": "f1fb676c6bdbd8c0a814f13bfc0ed336db2085c19a7a8d0479c8c67b2b639f4a",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "926bc35e5d90985e34631c12a34c3e6a60c557bae25588ca078b1ddc83e09e0c",
+      "bytes": 9982,
+      "lines": 114,
+      "estimatedTokens": 2496,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "b519064dca00cf37de43dacc7756cce9efe01f154c38251027f3d283d0dbdcf5",
+      "priorPassRef": "B-0b50:RP-018",
+      "freshnessClassification": "CURRENT_MATERIAL",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "ELIGIBLE_NO_MATERIAL_CHANGE",
+        "ELIGIBLE_TRUSTED_PRIOR_BINDINGS"
+      ],
+      "changedFilesDigest": "ce39c82f18aea7568f558050388905f8e7e6ebc9a14d39e222b3ac3c57419ff2",
+      "impactedFilesDigest": "dd8f5205a92536795510a242fad3802357c41d2c486aa747162ba37bd521b049",
+      "taskSemanticDigest": "f7f09090f3c52088eeed1ada472d9c2c582a00575b449a68ddc1e425eda35b32",
+      "findingProjection": [
+        {
+          "id": "B-0b50:F-001",
+          "createdAt": "2026-08-25T20:14:15.160Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/certification-window.ts:878 quality: finalizedUnconsumedReviewInventory exceptions are silently converted to hasUnconsumedInventory=false, so an inventory read/health failure is indistinguishable from genuinely missing inventory and the operator is incorrectly routed to review_inventory_finalize. This new catch needs explicit probe/error classification or propagation/health reporting under the repository fail-fast policy; otherwise data/API failures are hidden."
+        },
+        {
+          "id": "B-0b50:F-002",
+          "createdAt": "2026-08-25T20:14:16.311Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-817 only tests rejection of a Next line for another Story ID; it never feeds safeDoneRequiredRecoveryCommand malformed or shell-metacharacter input, so CHK-001:adversarial:0 lacks concrete evidence for its command-injection resistance requirement."
+        },
+        {
+          "id": "B-0b50:F-003",
+          "createdAt": "2026-08-25T20:14:35.659Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-817 never calls safeDoneRequiredRecoveryCommand with a non-inventory blocker or with no authoritative Next line, so CHK-001:edge:0 lacks concrete evidence that the existing caller-specific fallback is retained."
+        },
+        {
+          "id": "B-0b50:F-004",
+          "createdAt": "2026-08-25T20:14:40.372Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/core/certification-window.ts:801 quality: heavyCertificationStatusNext is no longer referenced after refuseHeavyCertificationUnlessAdmitted switched to nextCommandForBlocker; the now-dead exported helper should be removed or have a documented remaining caller to avoid stale recovery behavior."
+        },
+        {
+          "id": "B-0b50:F-005",
+          "createdAt": "2026-08-25T20:21:51.749Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/certification-window.ts:878 quality: finalizedUnconsumedReviewInventory exceptions are silently converted to hasUnconsumedInventory=false, so an inventory read/health failure is indistinguishable from genuinely missing inventory and the operator is incorrectly routed to review_inventory_finalize. This new catch needs explicit probe/error classification or propagation/health reporting under the repository fail-fast policy; otherwise data/API failures are hidden."
+        },
+        {
+          "id": "B-0b50:F-006",
+          "createdAt": "2026-08-25T20:22:13.605Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/core/certification-window.ts:801 quality: heavyCertificationStatusNext is no longer referenced after refuseHeavyCertificationUnlessAdmitted switched to nextCommandForBlocker; the now-dead exported helper should be removed or have a documented remaining caller to avoid stale recovery behavior."
+        },
+        {
+          "id": "B-0b50:F-007",
+          "createdAt": "2026-08-25T20:27:33.126Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-818 — CHK-001:adversarial requires proving malformed or unrelated refusal text cannot inject an arbitrary shell command, but the regression only checks a wrong Story ID; it does not exercise a metacharacter-bearing or malformed Next line against safeDoneRequiredRecoveryCommand, so this must-priority intent lacks concrete executable coverage."
+        },
+        {
+          "id": "B-0b50:F-008",
+          "createdAt": "2026-08-26T06:21:22.771Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, and CHK-002:adversarial:0 lack current valid verificationEvidence: .proof-or-stop/story/actives/B-0b50/checklist.json:59-249 contains only receipts bound to head fe2d6d1, materialHash c0bd5e6, and storyFilesHash a5eefa4, while the current RI-002 cutoff is c485a74, materialHash 79e35e, and storyFilesHash 7e3d7. The current certification-window smoke passes, but its result must be re-recorded at the RI-002 cutoff before coverage is admissible."
+        },
+        {
+          "id": "B-0b50:F-009",
+          "createdAt": "2026-08-26T06:21:50.411Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/certification-window.ts:369 — when finalizedUnconsumedReviewInventory throws, refuseHeavyCertificationUnlessAdmitted reports pre_cert_inventory_probe_failed but points to certification_window_begin. That command writes a new blocked CertificationWindow and collectAdmitFacts swallows the same probe error before falling back to review_inventory_finalize, so the prescribed recovery cannot repair or faithfully surface the failed inventory read and causes avoidable metadata churn; keep this path fail-closed with an explicit diagnostic/read-only retry instead."
+        },
+        {
+          "id": "B-0b50:F-010",
+          "createdAt": "2026-08-26T06:57:39.988Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "The current acceptance evidence is inadmissible for topology review: acceptance_basis reports status=invalid and basisStatus=partial with AT_ADAPTER_RESULT_DIGEST_MISMATCH, closure/storyFiles freshness mismatches, and unmapped process-fact paths; acceptance_topology_check reports inconclusive legacy_missing with AT_MISSING_TOPOLOGY; pre_review_check_read reports authority=inadmissible; and acceptance_rollout_check fails AR_REPORT_STALE. The verifier-owned basis/topology and dependent pre-review evidence must be regenerated before a topology pass can be admitted."
+        },
+        {
+          "id": "B-0b50:F-011",
+          "createdAt": "2026-08-26T07:17:06.187Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Wave 4 coverage gap: the only current-HEAD evidence for CHK-001/CHK-002 is node packages/main/dist/tasks/certification-window-smoke.js (12/12 must intents). packages/main/src/tasks/certification-window-smoke.ts:1044-1056 only checks the certification-window/done-prepare smoke and final PASS; it executes none of acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check. Therefore the required verifier-owned coverage of full 3 rounds x 2 hosts, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history is not mechanically evidenced. Current acceptance_topology_check is inconclusive with AT_COVERAGE_BASIS_PARTIAL and AT_MISSING_TOPOLOGY; pre_review_check_read is inconclusive with missing executable evidence and inadmissible authority."
+        },
+        {
+          "id": "B-0b50:F-012",
+          "createdAt": "2026-08-30T16:31:16.730Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/done-required-validation-smoke.ts:361-368 duplicates the literal 6-key HOST_LAUNCHER_SESSION_ENV_KEYS list from packages/main/src/core/validation-command-environment.ts:102-109 by hand instead of importing it (the source constant is not exported). If a key is later added/removed/renamed on the source list, this regression silently stops covering the drift instead of failing, defeating its own purpose as a digest-neutrality guard."
+        },
+        {
+          "id": "B-0b50:F-013",
+          "createdAt": "2026-08-30T16:44:46.221Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "Acceptance basis, acceptance_topology_check, pre_review_check_read, and acceptance_rollout_check are all failing/stale for B-0b50 at current head (214e3a6a). acceptance_basis: status=invalid, basisStatus=partial, receiptVerification.ok=false code=AT_SCOPE_BINDING_MISSING. acceptance_topology_check: structuralPass=false, AT_CLOSURE_FILES_STALE + AT_COVERAGE_BASIS_PARTIAL + AT_MISSING_TOPOLOGY. pre_review_check_read: ok=false, 13 failure codes including PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_AUTHORITY_INADMISSIBLE, PR_TRANSCRIPT_MISSING. acceptance_rollout_check/report_read: mode=enforce blocking=true diagnostics=[AR_REPORT_STALE] receipt=stale, embedded report binding.headHash=56cc3b86 does not match current head so the embedded full-3x2 pass is not current. Separately topology_critic_receipt_check reports AT_TOPOLOGY_CRITIC_CONTEXT_INVALID: implementation provenance missing a session-bound lattice-implementer dispatch. Verified via git log main..HEAD: business commits 214e3a6a and c485a74e are authored by lattice-implementer, but process-events.jsonl has zero dispatch events with agentType=lattice-implementer (only agentType-less bare dispatch records for CHK-001/CHK-002 with no sessionId). Real reproducible provenance gap independent of caller session; story is normal channel (riskSignals non-empty) so implementer dispatch is expected. None of the four Wave 4 checks pass; a topology-critic pass is forbidden while the basis is invalid/partial and the rollout receipt is stale under enforce."
+        },
+        {
+          "id": "B-0b50:F-014",
+          "createdAt": "2026-08-30T17:02:00.970Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Re-verification of the F-013 resolution at current HEAD 257063177c shows the fix is only partial. (1) pre_review_check_read (.proof-or-stop/story/actives/B-0b50/pre-review-check.json) is still bound to a stale headHash=d735f1aea24a35db99cc744ce0d5bde565ccf5ad / materialHash=c0bd5e6.../storyFilesHash=a5eefa4... (the same pre-RI-002 binding F-008/F-010 already flagged as stale) and was never regenerated: it self-reports status=inconclusive with 9 codes including PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_PRODUCTION_PATH_UNPROVEN, and its executableProof block is empty (caseRecords=empty string, commandDigests=[], bindingProofs=[]). This is a live FAIL of a DEV-to-REVIEW gate-evidence artifact, not a benign advisory, even though the read wrapper currently reports blocking=false under mode=observe. (2) topology_critic_receipt_check independently and currently still returns REJECTED / AT_TOPOLOGY_CRITIC_CONTEXT_INVALID: grep of process-events.jsonl confirms zero lattice-implementer dispatch events (grep -c lattice-implementer = 0), matching the provenance gap the prior critic explicitly declined to back-fill. F-013 was marked resolved with no resolvedReason field (unlike every other resolved finding in this story), and neither of these two conditions was actually remediated. acceptance_topology_check (inconclusive/partial/AT_MISSING_TOPOLOGY, non-blocking, pre-existing legacy_missing) and acceptance_rollout_report_read/acceptance_rollout_check (both current PASS, receipt=current, quorum=full-3x2) are the two Wave 4 checks that are genuinely fixed."
+        }
+      ],
+      "findingProjectionDigest": "bad0cbd97abb4720c7948b3fbfc3017fbb20581d9765c447faadf745f7a25d07",
+      "reviewBasisDigest": "11b2ca55ad4162e3b1586979b7d12abcd33c2aba731e8d7d2ca15176f6658c49",
+      "incrementalContextDigest": "abb1998535572b0ba3fa407c982b3bc3c65cbe85532a172f22687be8d8671225",
+      "selectionReason": "SAFE_INCREMENTAL",
+      "fullContextBytes": 13310,
+      "incrementalContextBytes": 9982,
+      "escalatedToFull": false
+    },
+    {
+      "schemaVersion": "proofbound.prompt-envelope.v1",
+      "roleId": "lattice-review-quality",
+      "storyId": "B-0b50",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-0b50:RR-036",
+      "reviewRound": "2026-08-30T17:05:18.175Z",
+      "lane": "lattice-review-quality",
+      "dispatchPromptDigest": "161f531226581e9de13523ec9da9d4e6bd62e8a5a2a649a9e7ef3daba8b06185",
+      "hostRenderIdentityDigest": "5108dd808a08da06c56f38ef9567eb6073b3b467c7754281a8b876d2d19a91d5",
+      "createdAt": "2026-08-30T17:06:34.701Z",
+      "headHash": "3466f26f57bdb10143e11f48ebec22314ec4fd02",
+      "runtimeContractVersion": "proofbound.agent-runtime.v1",
+      "runtimeSemanticDigest": "b62d11379b513f77a921a18a93c00e1a620e636c978441a0d1301ff875f5063a",
+      "runtimeRenderDigest": "2ed90580d07e50b86852b451625a813960d49ba33bab0a5ad90e504d75c59b1b",
+      "roleContractVersion": "proofbound.role-contract.v1",
+      "roleSemanticDigest": "ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0",
+      "roleRenderDigest": "e7d61a313c3a370c312634f2a0fde6875e96da9ab52a9c656ede18cff207798f",
+      "contextMode": "incremental",
+      "contextDigest": "28ea6f6fdbc197affa0d2fdfd0e8f3c589a6f810be3ac9fbaa750003b74cf1dc",
+      "materialHash": "18267efa56708d7e267c82e8770f61c1eee970800fc9a2b9b78a4cefed509061",
+      "storyFilesHash": "a2bf495d791e0749e4727d2ed0012ad6cd5d0ec082e078a912e615d4722260e0",
+      "policyHash": "0e09c27cc41fe72570029bbbf58c103d1e11dac7d2cbb299fe7f3a7a6429212c",
+      "eligibilityDecision": "incremental",
+      "eligibilityDigest": "bd58da922798f621010f281deab36c5d5f6cf6382a646692d936ec4a8713637c",
+      "knownExecutionEnvironmentDigest": "b1e32cccc89b448e83a89f6cc6fde8bc23960f036837a9f06078e16ca389bcdd",
+      "assemblerVersion": "proofbound.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proofbound.prompt-dispatch.v1",
+      "launcherSpecDigest": "219e07e3db91ea7b5b7b8f3017efdd443ed1166b4188219dcb773c84b575556b",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "32f10b36d94c0dbbf6e4ad92defb2f28af45ea858eb0f493a5f9134cad96dd2b",
+      "bytes": 10450,
+      "lines": 138,
+      "estimatedTokens": 2613,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "0095340ab19a073d11720a2248159bdb8a4c4862fdb721894af4fd2e648f083e",
+      "priorPassRef": "B-0b50:RP-020",
+      "freshnessClassification": "CURRENT_MATERIAL",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "ELIGIBLE_NO_MATERIAL_CHANGE",
+        "ELIGIBLE_TRUSTED_PRIOR_BINDINGS"
+      ],
+      "changedFilesDigest": "ce39c82f18aea7568f558050388905f8e7e6ebc9a14d39e222b3ac3c57419ff2",
+      "impactedFilesDigest": "dd8f5205a92536795510a242fad3802357c41d2c486aa747162ba37bd521b049",
+      "taskSemanticDigest": "f7f09090f3c52088eeed1ada472d9c2c582a00575b449a68ddc1e425eda35b32",
+      "findingProjection": [
+        {
+          "id": "B-0b50:F-001",
+          "createdAt": "2026-08-25T20:14:15.160Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/certification-window.ts:878 quality: finalizedUnconsumedReviewInventory exceptions are silently converted to hasUnconsumedInventory=false, so an inventory read/health failure is indistinguishable from genuinely missing inventory and the operator is incorrectly routed to review_inventory_finalize. This new catch needs explicit probe/error classification or propagation/health reporting under the repository fail-fast policy; otherwise data/API failures are hidden."
+        },
+        {
+          "id": "B-0b50:F-002",
+          "createdAt": "2026-08-25T20:14:16.311Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-817 only tests rejection of a Next line for another Story ID; it never feeds safeDoneRequiredRecoveryCommand malformed or shell-metacharacter input, so CHK-001:adversarial:0 lacks concrete evidence for its command-injection resistance requirement."
+        },
+        {
+          "id": "B-0b50:F-003",
+          "createdAt": "2026-08-25T20:14:35.659Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-817 never calls safeDoneRequiredRecoveryCommand with a non-inventory blocker or with no authoritative Next line, so CHK-001:edge:0 lacks concrete evidence that the existing caller-specific fallback is retained."
+        },
+        {
+          "id": "B-0b50:F-004",
+          "createdAt": "2026-08-25T20:14:40.372Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/core/certification-window.ts:801 quality: heavyCertificationStatusNext is no longer referenced after refuseHeavyCertificationUnlessAdmitted switched to nextCommandForBlocker; the now-dead exported helper should be removed or have a documented remaining caller to avoid stale recovery behavior."
+        },
+        {
+          "id": "B-0b50:F-005",
+          "createdAt": "2026-08-25T20:21:51.749Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/certification-window.ts:878 quality: finalizedUnconsumedReviewInventory exceptions are silently converted to hasUnconsumedInventory=false, so an inventory read/health failure is indistinguishable from genuinely missing inventory and the operator is incorrectly routed to review_inventory_finalize. This new catch needs explicit probe/error classification or propagation/health reporting under the repository fail-fast policy; otherwise data/API failures are hidden."
+        },
+        {
+          "id": "B-0b50:F-006",
+          "createdAt": "2026-08-25T20:22:13.605Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/core/certification-window.ts:801 quality: heavyCertificationStatusNext is no longer referenced after refuseHeavyCertificationUnlessAdmitted switched to nextCommandForBlocker; the now-dead exported helper should be removed or have a documented remaining caller to avoid stale recovery behavior."
+        },
+        {
+          "id": "B-0b50:F-007",
+          "createdAt": "2026-08-25T20:27:33.126Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-818 — CHK-001:adversarial requires proving malformed or unrelated refusal text cannot inject an arbitrary shell command, but the regression only checks a wrong Story ID; it does not exercise a metacharacter-bearing or malformed Next line against safeDoneRequiredRecoveryCommand, so this must-priority intent lacks concrete executable coverage."
+        },
+        {
+          "id": "B-0b50:F-008",
+          "createdAt": "2026-08-26T06:21:22.771Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, and CHK-002:adversarial:0 lack current valid verificationEvidence: .proof-or-stop/story/actives/B-0b50/checklist.json:59-249 contains only receipts bound to head fe2d6d1, materialHash c0bd5e6, and storyFilesHash a5eefa4, while the current RI-002 cutoff is c485a74, materialHash 79e35e, and storyFilesHash 7e3d7. The current certification-window smoke passes, but its result must be re-recorded at the RI-002 cutoff before coverage is admissible."
+        },
+        {
+          "id": "B-0b50:F-009",
+          "createdAt": "2026-08-26T06:21:50.411Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/certification-window.ts:369 — when finalizedUnconsumedReviewInventory throws, refuseHeavyCertificationUnlessAdmitted reports pre_cert_inventory_probe_failed but points to certification_window_begin. That command writes a new blocked CertificationWindow and collectAdmitFacts swallows the same probe error before falling back to review_inventory_finalize, so the prescribed recovery cannot repair or faithfully surface the failed inventory read and causes avoidable metadata churn; keep this path fail-closed with an explicit diagnostic/read-only retry instead."
+        },
+        {
+          "id": "B-0b50:F-010",
+          "createdAt": "2026-08-26T06:57:39.988Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "The current acceptance evidence is inadmissible for topology review: acceptance_basis reports status=invalid and basisStatus=partial with AT_ADAPTER_RESULT_DIGEST_MISMATCH, closure/storyFiles freshness mismatches, and unmapped process-fact paths; acceptance_topology_check reports inconclusive legacy_missing with AT_MISSING_TOPOLOGY; pre_review_check_read reports authority=inadmissible; and acceptance_rollout_check fails AR_REPORT_STALE. The verifier-owned basis/topology and dependent pre-review evidence must be regenerated before a topology pass can be admitted."
+        },
+        {
+          "id": "B-0b50:F-011",
+          "createdAt": "2026-08-26T07:17:06.187Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Wave 4 coverage gap: the only current-HEAD evidence for CHK-001/CHK-002 is node packages/main/dist/tasks/certification-window-smoke.js (12/12 must intents). packages/main/src/tasks/certification-window-smoke.ts:1044-1056 only checks the certification-window/done-prepare smoke and final PASS; it executes none of acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check. Therefore the required verifier-owned coverage of full 3 rounds x 2 hosts, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history is not mechanically evidenced. Current acceptance_topology_check is inconclusive with AT_COVERAGE_BASIS_PARTIAL and AT_MISSING_TOPOLOGY; pre_review_check_read is inconclusive with missing executable evidence and inadmissible authority."
+        },
+        {
+          "id": "B-0b50:F-012",
+          "createdAt": "2026-08-30T16:31:16.730Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/done-required-validation-smoke.ts:361-368 duplicates the literal 6-key HOST_LAUNCHER_SESSION_ENV_KEYS list from packages/main/src/core/validation-command-environment.ts:102-109 by hand instead of importing it (the source constant is not exported). If a key is later added/removed/renamed on the source list, this regression silently stops covering the drift instead of failing, defeating its own purpose as a digest-neutrality guard."
+        },
+        {
+          "id": "B-0b50:F-013",
+          "createdAt": "2026-08-30T16:44:46.221Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "Acceptance basis, acceptance_topology_check, pre_review_check_read, and acceptance_rollout_check are all failing/stale for B-0b50 at current head (214e3a6a). acceptance_basis: status=invalid, basisStatus=partial, receiptVerification.ok=false code=AT_SCOPE_BINDING_MISSING. acceptance_topology_check: structuralPass=false, AT_CLOSURE_FILES_STALE + AT_COVERAGE_BASIS_PARTIAL + AT_MISSING_TOPOLOGY. pre_review_check_read: ok=false, 13 failure codes including PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_AUTHORITY_INADMISSIBLE, PR_TRANSCRIPT_MISSING. acceptance_rollout_check/report_read: mode=enforce blocking=true diagnostics=[AR_REPORT_STALE] receipt=stale, embedded report binding.headHash=56cc3b86 does not match current head so the embedded full-3x2 pass is not current. Separately topology_critic_receipt_check reports AT_TOPOLOGY_CRITIC_CONTEXT_INVALID: implementation provenance missing a session-bound lattice-implementer dispatch. Verified via git log main..HEAD: business commits 214e3a6a and c485a74e are authored by lattice-implementer, but process-events.jsonl has zero dispatch events with agentType=lattice-implementer (only agentType-less bare dispatch records for CHK-001/CHK-002 with no sessionId). Real reproducible provenance gap independent of caller session; story is normal channel (riskSignals non-empty) so implementer dispatch is expected. None of the four Wave 4 checks pass; a topology-critic pass is forbidden while the basis is invalid/partial and the rollout receipt is stale under enforce."
+        },
+        {
+          "id": "B-0b50:F-014",
+          "createdAt": "2026-08-30T17:02:00.970Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Re-verification of the F-013 resolution at current HEAD 257063177c shows the fix is only partial. (1) pre_review_check_read (.proof-or-stop/story/actives/B-0b50/pre-review-check.json) is still bound to a stale headHash=d735f1aea24a35db99cc744ce0d5bde565ccf5ad / materialHash=c0bd5e6.../storyFilesHash=a5eefa4... (the same pre-RI-002 binding F-008/F-010 already flagged as stale) and was never regenerated: it self-reports status=inconclusive with 9 codes including PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_PRODUCTION_PATH_UNPROVEN, and its executableProof block is empty (caseRecords=empty string, commandDigests=[], bindingProofs=[]). This is a live FAIL of a DEV-to-REVIEW gate-evidence artifact, not a benign advisory, even though the read wrapper currently reports blocking=false under mode=observe. (2) topology_critic_receipt_check independently and currently still returns REJECTED / AT_TOPOLOGY_CRITIC_CONTEXT_INVALID: grep of process-events.jsonl confirms zero lattice-implementer dispatch events (grep -c lattice-implementer = 0), matching the provenance gap the prior critic explicitly declined to back-fill. F-013 was marked resolved with no resolvedReason field (unlike every other resolved finding in this story), and neither of these two conditions was actually remediated. acceptance_topology_check (inconclusive/partial/AT_MISSING_TOPOLOGY, non-blocking, pre-existing legacy_missing) and acceptance_rollout_report_read/acceptance_rollout_check (both current PASS, receipt=current, quorum=full-3x2) are the two Wave 4 checks that are genuinely fixed."
+        }
+      ],
+      "findingProjectionDigest": "bad0cbd97abb4720c7948b3fbfc3017fbb20581d9765c447faadf745f7a25d07",
+      "reviewBasisDigest": "28ea6f6fdbc197affa0d2fdfd0e8f3c589a6f810be3ac9fbaa750003b74cf1dc",
+      "incrementalContextDigest": "36918b71fd6380e1a0705bddca93a5cabea7efbfd24b91e9e694bbfc6400f9a9",
+      "selectionReason": "SAFE_INCREMENTAL",
+      "fullContextBytes": 13778,
+      "incrementalContextBytes": 10450,
+      "escalatedToFull": false
+    },
+    {
+      "schemaVersion": "proofbound.prompt-envelope.v1",
+      "roleId": "lattice-review-test-coverage",
+      "storyId": "B-0b50",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-0b50:RR-037",
+      "reviewRound": "2026-08-30T17:05:18.175Z",
+      "lane": "lattice-review-test-coverage",
+      "dispatchPromptDigest": "0bb947bc98114a6acd55a6ca464da1be26ea1fad2d484bb4c0255646aafc5bbb",
+      "hostRenderIdentityDigest": "8e5773632ab740b19129c2c2afbfa5bade905d7785c3b57c915b50d9c1a3fbb9",
+      "createdAt": "2026-08-30T17:06:44.002Z",
+      "headHash": "3466f26f57bdb10143e11f48ebec22314ec4fd02",
+      "runtimeContractVersion": "proofbound.agent-runtime.v1",
+      "runtimeSemanticDigest": "b62d11379b513f77a921a18a93c00e1a620e636c978441a0d1301ff875f5063a",
+      "runtimeRenderDigest": "2ed90580d07e50b86852b451625a813960d49ba33bab0a5ad90e504d75c59b1b",
+      "roleContractVersion": "proofbound.role-contract.v1",
+      "roleSemanticDigest": "9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7",
+      "roleRenderDigest": "14e30fd77897dc778dbcccb3f30420f27b46d5c8affb9b1c635cf4f7f40ac1fe",
+      "contextMode": "incremental",
+      "contextDigest": "bc1ae7b952df5d5758fac8f4c893fca786fa3203e0e05ea52f3b74b669df3f23",
+      "materialHash": "18267efa56708d7e267c82e8770f61c1eee970800fc9a2b9b78a4cefed509061",
+      "storyFilesHash": "a2bf495d791e0749e4727d2ed0012ad6cd5d0ec082e078a912e615d4722260e0",
+      "policyHash": "0e09c27cc41fe72570029bbbf58c103d1e11dac7d2cbb299fe7f3a7a6429212c",
+      "eligibilityDecision": "incremental",
+      "eligibilityDigest": "6365f54ab83e3cf985ef1c1178d9687c234000420cc2c232ae59f1a549190f68",
+      "knownExecutionEnvironmentDigest": "b1e32cccc89b448e83a89f6cc6fde8bc23960f036837a9f06078e16ca389bcdd",
+      "assemblerVersion": "proofbound.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proofbound.prompt-dispatch.v1",
+      "launcherSpecDigest": "1e24be7d55c8ae4c0df436140e40bf9b35ee30c39d850e7fb462d487a173b380",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "80e828ab5b13c6f625bbae6dcaa8162c822a7defcb0beb65541783c36f0233d9",
+      "bytes": 7737,
+      "lines": 98,
+      "estimatedTokens": 1935,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "5862648300af59bf2b4f960d8386b78e5effa38e61785473841f7cc9b30683b2",
+      "priorPassRef": "B-0b50:RP-019",
+      "freshnessClassification": "CURRENT_MATERIAL",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "ELIGIBLE_NO_MATERIAL_CHANGE",
+        "ELIGIBLE_TRUSTED_PRIOR_BINDINGS"
+      ],
+      "changedFilesDigest": "ce39c82f18aea7568f558050388905f8e7e6ebc9a14d39e222b3ac3c57419ff2",
+      "impactedFilesDigest": "dd8f5205a92536795510a242fad3802357c41d2c486aa747162ba37bd521b049",
+      "taskSemanticDigest": "f7f09090f3c52088eeed1ada472d9c2c582a00575b449a68ddc1e425eda35b32",
+      "findingProjection": [
+        {
+          "id": "B-0b50:F-001",
+          "createdAt": "2026-08-25T20:14:15.160Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/certification-window.ts:878 quality: finalizedUnconsumedReviewInventory exceptions are silently converted to hasUnconsumedInventory=false, so an inventory read/health failure is indistinguishable from genuinely missing inventory and the operator is incorrectly routed to review_inventory_finalize. This new catch needs explicit probe/error classification or propagation/health reporting under the repository fail-fast policy; otherwise data/API failures are hidden."
+        },
+        {
+          "id": "B-0b50:F-002",
+          "createdAt": "2026-08-25T20:14:16.311Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-817 only tests rejection of a Next line for another Story ID; it never feeds safeDoneRequiredRecoveryCommand malformed or shell-metacharacter input, so CHK-001:adversarial:0 lacks concrete evidence for its command-injection resistance requirement."
+        },
+        {
+          "id": "B-0b50:F-003",
+          "createdAt": "2026-08-25T20:14:35.659Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-817 never calls safeDoneRequiredRecoveryCommand with a non-inventory blocker or with no authoritative Next line, so CHK-001:edge:0 lacks concrete evidence that the existing caller-specific fallback is retained."
+        },
+        {
+          "id": "B-0b50:F-004",
+          "createdAt": "2026-08-25T20:14:40.372Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/core/certification-window.ts:801 quality: heavyCertificationStatusNext is no longer referenced after refuseHeavyCertificationUnlessAdmitted switched to nextCommandForBlocker; the now-dead exported helper should be removed or have a documented remaining caller to avoid stale recovery behavior."
+        },
+        {
+          "id": "B-0b50:F-005",
+          "createdAt": "2026-08-25T20:21:51.749Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/certification-window.ts:878 quality: finalizedUnconsumedReviewInventory exceptions are silently converted to hasUnconsumedInventory=false, so an inventory read/health failure is indistinguishable from genuinely missing inventory and the operator is incorrectly routed to review_inventory_finalize. This new catch needs explicit probe/error classification or propagation/health reporting under the repository fail-fast policy; otherwise data/API failures are hidden."
+        },
+        {
+          "id": "B-0b50:F-006",
+          "createdAt": "2026-08-25T20:22:13.605Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/core/certification-window.ts:801 quality: heavyCertificationStatusNext is no longer referenced after refuseHeavyCertificationUnlessAdmitted switched to nextCommandForBlocker; the now-dead exported helper should be removed or have a documented remaining caller to avoid stale recovery behavior."
+        },
+        {
+          "id": "B-0b50:F-007",
+          "createdAt": "2026-08-25T20:27:33.126Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-818 — CHK-001:adversarial requires proving malformed or unrelated refusal text cannot inject an arbitrary shell command, but the regression only checks a wrong Story ID; it does not exercise a metacharacter-bearing or malformed Next line against safeDoneRequiredRecoveryCommand, so this must-priority intent lacks concrete executable coverage."
+        },
+        {
+          "id": "B-0b50:F-008",
+          "createdAt": "2026-08-26T06:21:22.771Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, and CHK-002:adversarial:0 lack current valid verificationEvidence: .proof-or-stop/story/actives/B-0b50/checklist.json:59-249 contains only receipts bound to head fe2d6d1, materialHash c0bd5e6, and storyFilesHash a5eefa4, while the current RI-002 cutoff is c485a74, materialHash 79e35e, and storyFilesHash 7e3d7. The current certification-window smoke passes, but its result must be re-recorded at the RI-002 cutoff before coverage is admissible."
+        },
+        {
+          "id": "B-0b50:F-009",
+          "createdAt": "2026-08-26T06:21:50.411Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/certification-window.ts:369 — when finalizedUnconsumedReviewInventory throws, refuseHeavyCertificationUnlessAdmitted reports pre_cert_inventory_probe_failed but points to certification_window_begin. That command writes a new blocked CertificationWindow and collectAdmitFacts swallows the same probe error before falling back to review_inventory_finalize, so the prescribed recovery cannot repair or faithfully surface the failed inventory read and causes avoidable metadata churn; keep this path fail-closed with an explicit diagnostic/read-only retry instead."
+        },
+        {
+          "id": "B-0b50:F-010",
+          "createdAt": "2026-08-26T06:57:39.988Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "The current acceptance evidence is inadmissible for topology review: acceptance_basis reports status=invalid and basisStatus=partial with AT_ADAPTER_RESULT_DIGEST_MISMATCH, closure/storyFiles freshness mismatches, and unmapped process-fact paths; acceptance_topology_check reports inconclusive legacy_missing with AT_MISSING_TOPOLOGY; pre_review_check_read reports authority=inadmissible; and acceptance_rollout_check fails AR_REPORT_STALE. The verifier-owned basis/topology and dependent pre-review evidence must be regenerated before a topology pass can be admitted."
+        },
+        {
+          "id": "B-0b50:F-011",
+          "createdAt": "2026-08-26T07:17:06.187Z",
+          "status": "dismissed",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Wave 4 coverage gap: the only current-HEAD evidence for CHK-001/CHK-002 is node packages/main/dist/tasks/certification-window-smoke.js (12/12 must intents). packages/main/src/tasks/certification-window-smoke.ts:1044-1056 only checks the certification-window/done-prepare smoke and final PASS; it executes none of acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check. Therefore the required verifier-owned coverage of full 3 rounds x 2 hosts, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history is not mechanically evidenced. Current acceptance_topology_check is inconclusive with AT_COVERAGE_BASIS_PARTIAL and AT_MISSING_TOPOLOGY; pre_review_check_read is inconclusive with missing executable evidence and inadmissible authority."
+        },
+        {
+          "id": "B-0b50:F-012",
+          "createdAt": "2026-08-30T16:31:16.730Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/done-required-validation-smoke.ts:361-368 duplicates the literal 6-key HOST_LAUNCHER_SESSION_ENV_KEYS list from packages/main/src/core/validation-command-environment.ts:102-109 by hand instead of importing it (the source constant is not exported). If a key is later added/removed/renamed on the source list, this regression silently stops covering the drift instead of failing, defeating its own purpose as a digest-neutrality guard."
+        },
+        {
+          "id": "B-0b50:F-013",
+          "createdAt": "2026-08-30T16:44:46.221Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "Acceptance basis, acceptance_topology_check, pre_review_check_read, and acceptance_rollout_check are all failing/stale for B-0b50 at current head (214e3a6a). acceptance_basis: status=invalid, basisStatus=partial, receiptVerification.ok=false code=AT_SCOPE_BINDING_MISSING. acceptance_topology_check: structuralPass=false, AT_CLOSURE_FILES_STALE + AT_COVERAGE_BASIS_PARTIAL + AT_MISSING_TOPOLOGY. pre_review_check_read: ok=false, 13 failure codes including PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_AUTHORITY_INADMISSIBLE, PR_TRANSCRIPT_MISSING. acceptance_rollout_check/report_read: mode=enforce blocking=true diagnostics=[AR_REPORT_STALE] receipt=stale, embedded report binding.headHash=56cc3b86 does not match current head so the embedded full-3x2 pass is not current. Separately topology_critic_receipt_check reports AT_TOPOLOGY_CRITIC_CONTEXT_INVALID: implementation provenance missing a session-bound lattice-implementer dispatch. Verified via git log main..HEAD: business commits 214e3a6a and c485a74e are authored by lattice-implementer, but process-events.jsonl has zero dispatch events with agentType=lattice-implementer (only agentType-less bare dispatch records for CHK-001/CHK-002 with no sessionId). Real reproducible provenance gap independent of caller session; story is normal channel (riskSignals non-empty) so implementer dispatch is expected. None of the four Wave 4 checks pass; a topology-critic pass is forbidden while the basis is invalid/partial and the rollout receipt is stale under enforce."
+        },
+        {
+          "id": "B-0b50:F-014",
+          "createdAt": "2026-08-30T17:02:00.970Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Re-verification of the F-013 resolution at current HEAD 257063177c shows the fix is only partial. (1) pre_review_check_read (.proof-or-stop/story/actives/B-0b50/pre-review-check.json) is still bound to a stale headHash=d735f1aea24a35db99cc744ce0d5bde565ccf5ad / materialHash=c0bd5e6.../storyFilesHash=a5eefa4... (the same pre-RI-002 binding F-008/F-010 already flagged as stale) and was never regenerated: it self-reports status=inconclusive with 9 codes including PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_PRODUCTION_PATH_UNPROVEN, and its executableProof block is empty (caseRecords=empty string, commandDigests=[], bindingProofs=[]). This is a live FAIL of a DEV-to-REVIEW gate-evidence artifact, not a benign advisory, even though the read wrapper currently reports blocking=false under mode=observe. (2) topology_critic_receipt_check independently and currently still returns REJECTED / AT_TOPOLOGY_CRITIC_CONTEXT_INVALID: grep of process-events.jsonl confirms zero lattice-implementer dispatch events (grep -c lattice-implementer = 0), matching the provenance gap the prior critic explicitly declined to back-fill. F-013 was marked resolved with no resolvedReason field (unlike every other resolved finding in this story), and neither of these two conditions was actually remediated. acceptance_topology_check (inconclusive/partial/AT_MISSING_TOPOLOGY, non-blocking, pre-existing legacy_missing) and acceptance_rollout_report_read/acceptance_rollout_check (both current PASS, receipt=current, quorum=full-3x2) are the two Wave 4 checks that are genuinely fixed."
+        }
+      ],
+      "findingProjectionDigest": "bad0cbd97abb4720c7948b3fbfc3017fbb20581d9765c447faadf745f7a25d07",
+      "reviewBasisDigest": "bc1ae7b952df5d5758fac8f4c893fca786fa3203e0e05ea52f3b74b669df3f23",
+      "incrementalContextDigest": "9159e11315f509d19300ba55f8f36881f83ecee12b6483180a80af581293419e",
+      "selectionReason": "SAFE_INCREMENTAL",
+      "fullContextBytes": 11059,
+      "incrementalContextBytes": 7737,
+      "escalatedToFull": false
     }
   ]
 }

@@ -593,6 +593,34 @@
         "scanEscalationReason": null
       },
       "_hash": "4c38aa43e05a79b2c6348f0922cdb74212c7215aaebcb6198cdbcd9a4664461b"
+    },
+    {
+      "id": "B-0b50:RP-021",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified at HEAD 3466f26 (round 2026-08-30T17:05:18.175Z). Only source-level concept deletion since RP-018 is unchanged: heavyCertificationStatusNext removed from packages/main/src/core/certification-window.ts, fully replaced by nextCommandForBlocker() plus new PRE_CERT_INVENTORY_PROBE_FAILED / probeFinalizedUnconsumedReviewInventory symbols (defined, exported, wired into refuseHeavyCertificationUnlessAdmitted, and smoke-covered in certification-window-smoke.ts). Repo-wide grep for heavyCertificationStatusNext outside .proof-or-stop/story/actives/B-0b50/** returns zero hits (source, tests, docs, dist checked, node_modules/.git excluded). Remaining hits confined to .proof-or-stop/story/actives/B-0b50/{summary,prompt-envelopes,findings,review-runs,review-passes}.json, which are historical audit records per the exempted category, not live residue. Confirmed the only change since prior pass (RP-018) is commit 822eeae, a metadata-only pre-review-check.json/index.json/process-events.jsonl/process-metrics.json/review-inventory-epochs.json regeneration touching zero source files. No incomplete concept deletion or replacement blocker found.",
+      "createdAt": "2026-08-30T17:07:13.834Z",
+      "reviewRound": "2026-08-30T17:05:18.175Z",
+      "reviewRunId": "B-0b50:RR-035",
+      "envelopeId": "b519064dca00cf37de43dacc7756cce9efe01f154c38251027f3d283d0dbdcf5",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/findings.json",
+          ".proof-or-stop/story/actives/B-0b50/review-passes.json",
+          ".proof-or-stop/story/actives/B-0b50/summary.json",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0bcef8036f3714ae97d56b22a864a5d7df509937035b9a5f9cf2eba488aa8bd0"
     }
   ]
 }
