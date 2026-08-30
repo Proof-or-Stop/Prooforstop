@@ -20970,6 +20970,37 @@
       },
       "readDiagnostics": [],
       "_hash": "6f406e4c5e87fe145b9979de38c8b9d2b348aa240b496ba99e15b28a3a2cac36"
+    },
+    {
+      "id": "B-45a0:RP-418",
+      "agent": "lattice-review-docs",
+      "note": "Docs consistency review passed: scanned 1001 changed symbols, then compared 3 bounded documentation paragraphs for the F-415 digest repair plus the NAV reference. The current c26f2d prefix is documented as authoritative, 67b246 is explicitly historical provenance only, and the verifier exact-file constants/tamper behavior match the amended record; no documentation-code blocker found.",
+      "createdAt": "2026-08-30T06:26:50.865Z",
+      "reviewRound": "2026-08-30T06:18:36.371Z",
+      "reviewRunId": "B-45a0:RR-976",
+      "envelopeId": "59bd6c545bedf643506e42acb4eebdc20eadca0ec7461362666583d1ba958d08",
+      "writerSessionId": "sess-a8e10d17896652e3c54cae8b8b65cf5e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Docs lane was bounded to the F-415 amended digest/verifier consistency surface; no unrelated documentation paragraph was compared."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 2248
+        },
+        "digest": "a64edc15aec417fc40b3dc62c92f5d301faba0195507baa37ff73584a9f725e5"
+      },
+      "readDiagnostics": [],
+      "_hash": "d8156577695ec48c614e6d2d776382c7d834284bb8944803b0d2c264a6fdf479"
     }
   ]
 }
