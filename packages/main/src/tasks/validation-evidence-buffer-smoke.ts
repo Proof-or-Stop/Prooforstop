@@ -559,7 +559,7 @@ function validationResult(
   console.log(`    hashDelta=${hashDelta} withoutHashes=${withoutHashes.fileBytes} withHashes=${withHashes.disposition}`);
 }
 
-// ── 10c. The returned record is plain data, so a later serialisation cannot disagree with it. ────
+// ── 10c. Own volatile values are snapshotted; inherited prototype mutation remains possible. ────
 {
   // The reported size described ONE reading of a live object; StoryStore performs another when it
   // writes. Any value free to answer differently on a later call - a getter, a Proxy, a toJSON -
@@ -585,13 +585,14 @@ function validationResult(
   assertFlagAgreesWithMeasurement(bound);
   assert.notEqual(bound.record, null, 'the record was built');
   assert.equal(bound.withinBound, true, 'and the small record it measured is admissible');
-  // Serialised well past the call at which the live object changed its answer. The returned value
-  // has no toJSON left to consult, so every reading is the same reading.
+  // Serialised well past the call at which the SOURCE object's own toJSON changed its answer. The
+  // snapshot no longer consults that own method, so immediate remeasurement under the unchanged
+  // shared prototype reproduces the count. This does not cover a later Object.prototype mutation.
   for (let attempt = 1; attempt <= 5; attempt += 1) {
     assert.equal(
       measurePersistedEvidenceBytes(bound.record),
       bound.fileBytes,
-      `serialising the returned record again reproduces fileBytes (attempt ${attempt}, ${toJsonCalls} toJSON calls so far)`,
+      `remeasuring the snapshot without intervening prototype mutation reproduces fileBytes (attempt ${attempt}, ${toJsonCalls} source toJSON calls so far)`,
     );
   }
   assert.equal(
@@ -599,7 +600,7 @@ function validationResult(
     '{"state":"small"}',
     'the record carries the value that was measured, not a live source that can produce another one',
   );
-  console.log('✓ the persisted record is a snapshot of the bytes that were counted, not the object they were counted from');
+  console.log('✓ own volatile source values are snapshotted at check time; inherited prototype mutation remains outside this assertion');
   console.log(`    fileBytes=${bound.fileBytes} toJSONCallsDuringBounding=${toJsonCalls}`);
 }
 
