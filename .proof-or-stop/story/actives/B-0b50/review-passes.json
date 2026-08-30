@@ -621,6 +621,35 @@
         "scanEscalationReason": null
       },
       "_hash": "0bcef8036f3714ae97d56b22a864a5d7df509937035b9a5f9cf2eba488aa8bd0"
+    },
+    {
+      "id": "B-0b50:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: re-verified against current HEAD 3466f26 after DEV bounce that only regenerated pre-review-check.json lifecycle metadata. All 6 verificationIntent entries have concrete manual_transcript evidence (mechanical=true, exitCode=0, selectorMatched=true, result=pass). Re-ran the pinned smoke test against current dist and confirmed clean pass. No coverage gap.",
+      "createdAt": "2026-08-30T17:07:47.848Z",
+      "reviewRound": "2026-08-30T17:05:18.175Z",
+      "reviewRunId": "B-0b50:RR-037",
+      "envelopeId": "5862648300af59bf2b4f960d8386b78e5effa38e61785473841f7cc9b30683b2",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5b32140e0826e57c2678c3e93499f6d29e50870e4e4b2ff2dbe8fafd2f039d46"
     }
   ]
 }
