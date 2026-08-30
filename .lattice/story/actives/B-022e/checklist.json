@@ -203,7 +203,25 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Builds, tarballs, clean installs, proof-or-stop CLI/Lab smoke tests, doctor, contract verifiers, and the zero-residue gate all pass; old identities fail to resolve.",
+      "excludes": [
+        "Remote publish",
+        "Treating allowlisted historical evidence as active residue"
+      ],
+      "files": {
+        "modify": [
+          "package.json",
+          "proof-or-stop.config.json",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-008",
