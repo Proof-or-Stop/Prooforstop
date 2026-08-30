@@ -66,7 +66,26 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Packed manifests identify the root, Lab, and Utils packages only as proof-or-stop / @proof-or-stop/* and contain no unpublished file dependency.",
+      "excludes": [
+        "Publishing packages to a remote registry",
+        "Keeping @lattice alias packages"
+      ],
+      "files": {
+        "modify": [
+          "package.json",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/utils/package.json",
+          "packages/lab/package.json"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-004",
