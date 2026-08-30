@@ -424,7 +424,7 @@
       "desc": "packages/main/src/tasks/done-required-validation-smoke.ts:361-368 duplicates the literal 6-key HOST_LAUNCHER_SESSION_ENV_KEYS list from packages/main/src/core/validation-command-environment.ts:102-109 by hand instead of importing it (the source constant is not exported). If a key is later added/removed/renamed on the source list, this regression silently stops covering the drift instead of failing, defeating its own purpose as a digest-neutrality guard.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-30T16:31:16.730Z",
@@ -432,7 +432,9 @@
       "reviewRunId": "B-0b50:RR-023",
       "_hash": "b57e7be65a3145bb0b5b0025fa976d4def1c647fe9d7b5f65af9e8864c25c160",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-30T16:33:20.981Z",
+      "resolutionType": "fixed"
     }
   ]
 }
