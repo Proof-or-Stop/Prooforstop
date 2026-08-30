@@ -1,0 +1,55 @@
+{
+  "storyId": "B-0b50",
+  "changes": "Routed the missing PRE_CERT inventory blocker to its TEST-safe recovery command instead of a generic status hint. certification-window.ts now probes for a FINALIZED unconsumed Review Inventory receipt when no CertificationWindow exists, and renders 'Next: proof-or-stop review_inventory_finalize --storyId=<id>' when that receipt is what is missing. A failing probe is reported separately as [pre_cert_inventory_probe_failed] with a certification_window_status next-command, so an unreadable inventory store is never silently misreported as an un-finalized inventory. done-prepare.ts adds safeDoneRequiredRecoveryCommand, which lifts the recovery command out of the done_required_validate output only when it matches an allowlist of nine exact story-scoped commands and contains no shell metacharacters, falling back to the original command otherwise. The dead heavyCertificationStatusNext helper was removed.",
+  "usage": "When done_prepare or done_required_validate blocks a green TEST story on a missing PRE_CERT inventory, read the rendered 'Next:' line and run it: proof-or-stop review_inventory_finalize --storyId=B-xxxx, then retry done_prepare. No lifecycle bounce through DEV or REVIEW is needed. If the line instead reads [pre_cert_inventory_probe_failed], the inventory store itself could not be read; run proof-or-stop certification_window_status --storyId=B-xxxx to diagnose before finalizing anything.",
+  "expectedOutcome": "A TEST story blocked only by a missing PRE_CERT inventory receipt shows 'Next: proof-or-stop review_inventory_finalize --storyId=<id>' rather than 'Next: proof-or-stop certification_window_status --storyId=<id>', and the operator finalizes and retries without leaving TEST.",
+  "actualTranscript": "node packages/main/dist/tasks/certification-window-smoke.js exited 0 and printed, among other cases: 'State: BLOCKED / Blocker: [pre_cert_window_missing] / Next: proof-or-stop review_inventory_finalize --storyId=B-cw20' for the TEST-phase choke story; 'Blocker: [pre_cert_inventory_not_finalized] / Detail: No FINALIZED unconsumed Review Inventory receipt is present. / Next: proof-or-stop review_inventory_finalize --storyId=B-cw01'; 'Blocker: [pre_cert_inventory_not_finalized] / Detail: [pre_cert_inventory_api_absent] ... / Next: proof-or-stop review_inventory_finalize --storyId=B-cw23'; and the still-correct non-inventory routes 'Blocker: [pre_cert_main_not_merged] / Next: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain' and 'Blocker: [pre_cert_blocking_findings_open] / Next: proof-or-stop finding_list --storyId=B-cw14'. Final line: 'certification-window-smoke: PASS'.",
+  "outcomeDiff": "No diff. Every expected next-command matched the observed smoke output: the inventory-missing cases route to review_inventory_finalize, the probe-failure case routes to certification_window_status and explicitly does not route to certification_window_begin, and the unrelated blockers (main-not-merged, open blocking findings, invalidated window) keep their pre-existing next-commands. 6/6 verification intents are covered by passing evidence.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The recovery hint is a routing and rendering change only; it does not finalize the inventory for the operator, by deliberate design, so done_prepare never auto-writes certification evidence. safeDoneRequiredRecoveryCommand is an exact-match allowlist of nine story-scoped commands, so a future blocker whose recovery command is not on that list silently falls back to the original done_required_validate command rather than surfacing the more specific hint; adding a new PRE_CERT blocker means adding its command to that allowlist too.",
+  "pitfalls": "Do not treat [pre_cert_inventory_probe_failed] as an un-finalized inventory: it means the inventory store threw while being read, and running review_inventory_finalize against it can mask a real storage fault, which is exactly why it renders certification_window_status instead. Also note the allowlist in safeDoneRequiredRecoveryCommand is matched byte-for-byte against the story-scoped command string, so any change to a command's flag spelling or argument order must be mirrored there or the specific hint degrades back to the generic fallback with no error.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 302056
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 21768
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 696422
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2031335
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 49137545
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 354758128
+    }
+  },
+  "totalDurationMs": 406950080,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-30T12:26:15.228Z",
+  "updatedAt": "2026-08-30T12:26:15.228Z"
+}
