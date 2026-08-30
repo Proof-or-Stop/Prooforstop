@@ -182,6 +182,41 @@
       },
       "readDiagnostics": [],
       "_hash": "91c08d3a4b9fc8fa0da118806cba9b28c93b234b530de5632ac3e8300d3ca41b"
+    },
+    {
+      "id": "B-2220:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Extracted 0 changed exported symbols and therefore compared 0 symbol-anchored paragraphs. Fallback review covered all 10 headed sections of the decision document, the full smoke contract, and CLAUDE.md. The decision is currently declined, B-3434 history and three fenced transcripts remain preserved, reopening is conditional on evidence plus human approval, no active work order remains, and the build-bound compiled smoke passed with no promised-but-undelivered behavior.",
+      "createdAt": "2026-08-30T23:41:07.193Z",
+      "reviewRound": "2026-08-30T23:37:17.497Z",
+      "reviewRunId": "B-2220:RR-012",
+      "envelopeId": "a91c435203a30ef3f2f43bf4d535d26a5cad834795407773d2976b49e05c5f47",
+      "writerSessionId": "sess-4931fa23e7a4b17636b3761535c772d7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "714b68e5dd83edecccea815d8586414bb326c71c599285d53f7d11d13e318b14"
     }
   ]
 }
