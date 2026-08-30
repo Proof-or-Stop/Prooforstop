@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/validation-evidence-artifact-growth.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-08-30T22:58:35.708Z",
       "endTime": "2026-08-30T23:37:05.741Z",
       "verificationIntent": {
@@ -224,6 +224,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Decision doc and executable smoke contract are aligned; seven fresh receipts pass, including build binding, full smoke, and exact-digest mutation protection."
+    },
+    {
+      "timestamp": "2026-08-30T23:42:38.459Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix F-005 stale deferred wording and replace narrow smoke blacklist with exact reviewed decision digest."
     }
   ]
 }
