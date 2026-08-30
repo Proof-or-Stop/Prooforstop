@@ -22530,6 +22530,28 @@
         "scanEscalationReason": null
       },
       "_hash": "a86388aa87a20ca699994e183a5ae2365e060ea857c132d2fede79cfb413a209"
+    },
+    {
+      "id": "B-45a0:RP-463",
+      "agent": "lattice-review-docs",
+      "note": "Re-confirmation (fresh epoch RI-104, prior epoch RI-103 cancelled) of docs-code consistency for e3a6186f7f (bounded historical replay admission: doc item 5 caveat + new 'Bounded post-replay consumer exception' section in dynamic-validation-enforcement-evidence.md) and f2e648606d (test-only, no production/doc change). Verified: doc item 5 now reads 'no stale receipt is admissible, subject only to the bounded post-replay consumer exception below' and the new section text ('Story metadata or one of the exact named non-executing consumers in historical-replay-artifact.ts') matches the code's expanded REPLAY_ADMISSION_NONEXECUTING_PATHS set (adds closeout-trust.ts, handlers/checklist.ts, closeout-trust-smoke.ts, retired-authority-vocabulary-guard-smoke.ts, verify-process-fact-contract.mjs, story-lifecycle.md). Confirmed code constants MINIMUM_HISTORICAL_STORIES=30 / MAXIMUM_HISTORICAL_STORIES=50 match doc's 30-50 bounded range; no stale fixed-50-only minimum language. Re-ran grep for stale phrasings ('50 Stories', 'exactly 50', 'minimum of 50', '50-Story') across docs/requirements, README.md, CLAUDE.md: zero hits in docs; one hit in historical-replay-artifact-smoke.ts:204 which is an accurate per-case assertion label for the specific upper-bound-50 test case, not a stale minimum claim. f2e648606d git show --stat confirms it touches only historical-replay-artifact-smoke.ts (test-only), zero doc files. No blocker found.",
+      "createdAt": "2026-08-30T17:13:07.988Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1054",
+      "envelopeId": "b7209ac236d8fc24c20557a839be308e37827f502af5625908330ceb0c724daa",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "03cfac1f070c7bda88dc1edf0c5dddc3470e6f9cb2c4c9100f78e5ad84c804c3"
     }
   ]
 }
