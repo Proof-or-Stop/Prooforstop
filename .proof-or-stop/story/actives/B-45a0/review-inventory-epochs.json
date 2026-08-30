@@ -9648,7 +9648,7 @@
       "reviewRound": "2026-08-30T13:07:40.639Z",
       "state": "OPEN",
       "begunAt": "2026-08-30T14:15:22.510Z",
-      "updatedAt": "2026-08-30T14:15:22.510Z",
+      "updatedAt": "2026-08-30T14:35:15.364Z",
       "cutoff": {
         "headHash": "78bd309c047315dae7d66ba89ed3aefe14fdd123",
         "materialHash": "f0c872feff468149741f4aaf1f15e7d22cd42047f37f1ad9f1b2368722762217",
@@ -9663,9 +9663,71 @@
       ],
       "initialRunSequenceBoundary": 1009,
       "maxWaves": 1,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-30T14:15:22.510Z",
+          "completedAt": "2026-08-30T14:35:15.364Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-1012",
+              "terminal": "finding",
+              "hostIdentity": "fe6a0841481d84e1c51d04364982ebdfa3aae8deb50b288a2d82376d44dd1ac4",
+              "promptIdentity": "835d13744f7f85577dcb5a7d46197cbd2785f973163a104598fb9140a9046d5a",
+              "evidenceIds": [
+                "B-45a0:F-424"
+              ],
+              "coverageDigest": "1716e8fdb6d2c6d30208c4ed6054f00b6027bd87a686555b4c6d020783392864"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-1014",
+              "terminal": "finding",
+              "hostIdentity": "2da82cb8669a0e096f737220a9ca54370897a3afd333823d5254be2f767bccc8",
+              "promptIdentity": "ec5094b7ca9766b393052acf2f1c18b4b2e600fb9209b5e41eceb3aa91dce47e",
+              "evidenceIds": [
+                "B-45a0:F-425"
+              ],
+              "coverageDigest": "c42ed86cb069288381a3720fb53c381c230d40dd33c3e32589b91660bbd32aa5"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-1013",
+              "terminal": "finding",
+              "hostIdentity": "f19757eb914449a453d814f3cfa0081d5344cd491b302d5487cef8b1ab390ff5",
+              "promptIdentity": "aff31af0d4fcf7ce522ff4d30df15ba0baa46014dba27d25e2ff83f2e6c81ff9",
+              "evidenceIds": [
+                "B-45a0:F-423"
+              ],
+              "coverageDigest": "c8df5cf4c989346c0a34b011b09e4069716cf003084dbbd8d4e278c1f5bbb6e2"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-1010",
+              "terminal": "pass",
+              "hostIdentity": "fe6a0841481d84e1c51d04364982ebdfa3aae8deb50b288a2d82376d44dd1ac4",
+              "promptIdentity": "14bb34e10c9b0e4c34150c0b36f2e443150c1db32be60f762c6a75ba8dd2e8df",
+              "evidenceIds": [
+                "B-45a0:RP-441"
+              ],
+              "coverageDigest": "5e46592ae7f73044dd1383f628c0275875644bb9a2c5fcf6f98d1df13b16598a"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "replay-admission-30-50-population-bound",
+            "replay-admission-nonexecuting-consumer-drift",
+            "replay-admission-normative-exception-contract"
+          ],
+          "verifiedFindingSetDigest": "077000e12e8da69a89678e7c76e3ac7e1820a2df21d9544db3c3dfa4820b26de",
+          "newVerifiedFindingCount": 3,
+          "criticDigest": "6ef80cc5a86cbba449a34c1f1199f25915d63c4564d5e190cc605e523f79219e",
+          "saturated": false,
+          "nextRunSequenceBoundary": 1017
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "8c3b8abd94a4ae0c685804480552eabeeb330139d94d0380720f057cdfc9fce5"
+      "_hash": "e29f973b995558ef30791bf6f3218097bd885b694186f893577fbef37aafe79f"
     }
   ],
   "receipts": [
@@ -15561,6 +15623,49 @@
       "findingDispositions": [],
       "createdAt": "2026-08-30T12:39:09.715Z",
       "_hash": "d23b490c93ef2a3d3796de49f44bfc0827b10b35a4be3c1f72530d5001bae424"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-101:CRIT-01",
+      "epochId": "B-45a0:RI-101",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-30T13:07:40.639Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "78bd309c047315dae7d66ba89ed3aefe14fdd123",
+        "materialHash": "f0c872feff468149741f4aaf1f15e7d22cd42047f37f1ad9f1b2368722762217",
+        "storyFilesHash": "b6f724f72b956568e414bff212980252cc4fc7eba06b3141e00a762381695f86"
+      },
+      "aggregateFindingSetDigest": "077000e12e8da69a89678e7c76e3ac7e1820a2df21d9544db3c3dfa4820b26de",
+      "requiredLaneCoverageDigest": "b48f5ccc2e48c8740d2fa782bbb36ca27a338bc39140576264312cc4e44b9074",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-1017",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-442"
+      ],
+      "readEvidenceDigest": "378b204182219764d83d2adccb59c3eaf398ff74b7bac0880e5a50fde8957af7",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-423",
+          "disposition": "verified_family",
+          "familyKey": "replay-admission-nonexecuting-consumer-drift",
+          "reason": "The recorded pair differs only by Story metadata and explicitly identified lifecycle evidence consumers; the inventory/catalog and replay producer remain unchanged, so the admission policy needs an exact fail-closed consumer boundary."
+        },
+        {
+          "findingId": "B-45a0:F-424",
+          "disposition": "verified_family",
+          "familyKey": "replay-admission-30-50-population-bound",
+          "reason": "The normative and producer policy accepts 30 through 50 representative Stories, while the artifact verifier only enforces a 50-story lower bound and no upper bound."
+        },
+        {
+          "findingId": "B-45a0:F-425",
+          "disposition": "verified_family",
+          "familyKey": "replay-admission-normative-exception-contract",
+          "reason": "Any consumer-only drift allowance must be explicitly documented and constrained so it cannot silently admit replay producer, catalog, inventory, runner, or configuration drift."
+        }
+      ],
+      "createdAt": "2026-08-30T14:34:56.820Z",
+      "_hash": "608460d76a7468e9ae5f6278fdb7d054b5bb8b87820544e591e3e9448bc77c45"
     }
   ]
 }
