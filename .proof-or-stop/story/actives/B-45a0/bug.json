@@ -1,0 +1,11 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-001",
+      "title": "review_run_start / review_incremental_context throw IncrementalReviewBasis.unresolvedFindings exceeds bounded entries for ANY reviewer lane with a prior pass once open findings exceed 256, and reviewerEscalationReason cannot bypass it because validateIncrementalReviewBasis runs before selectionReason is decided; this mechanically deadlocks REVIEW for stories with large open-finding backlogs (391 currently open on B-45a0)",
+      "status": "open",
+      "foundAt": "2026-08-30T16:04:42.710Z",
+      "fixedAt": null
+    }
+  ]
+}
