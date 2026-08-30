@@ -130,7 +130,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Fresh state, config, adapter, environment, and agent outputs use Proof-or-Stop identifiers only; frozen historical signatures still verify unchanged.",
+      "excludes": [
+        "Changing historical signature salts",
+        "Changing frozen provenance bytes",
+        "Maintaining read-both compatibility for active runtime identities"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src",
+          "packages/utils/src",
+          "packages/lab/src",
+          "proof-or-stop.config.json",
+          "packages/main/templates",
+          ".claude/agents",
+          ".proof-or-stop-codex/agents"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-006",
