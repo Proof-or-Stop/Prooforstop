@@ -23423,7 +23423,7 @@
       "desc": "replay-admission-current-head-contract: F-423 proposes admitting the 8059 paired artifact after the closeout-retention repair by expanding the nonexecuting path set in historical-replay-artifact.ts:15-33, but the normative enforcement record requires one current HEAD and says no stale receipt is admissible (docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:17-30); it also states the paired current-HEAD campaign is never reused (:84-101). The approved plan likewise requires three current-HEAD paired experiments (story-aware-dynamic-validation-execution-plan.md:1474-1484). Adding code-only closeout paths would allow value.head != current HEAD and silently change this gate contract. Before admitting any consumer-only drift, make the normative documents explicitly define the bounded exception, its exact non-producer path predicate and causal review/receipt requirements, and test both allowed consumer drift and rejected producer/config/catalog/runner drift. Otherwise retain the existing fail-closed rejection.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-30T14:25:01.443Z",
@@ -23464,7 +23464,11 @@
         "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
       ],
       "signatureTag": "replay-admission-current-head-contract",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in e3a6186f7f. Per this finding's requirement, the normative document now defines the bounded exception BEFORE any code admits consumer drift: dynamic-validation-enforcement-evidence.md item 5 is amended to say no stale receipt is admissible subject only to the bounded post-replay consumer exception, and a new section Bounded post-replay consumer exception states the exact predicate - the verifier must recompute current inventory and catalog digests and match the signed replay exactly, and every changed path must be Story metadata or one of the exact named non-executing consumers. It states explicitly that this is not a receipt re-binding mechanism and never admits a stale replay after any producer-side change. Both directions are tested in historical-replay-artifact-smoke.ts: allowed consumer drift admitted, producer/config/catalog/runner drift rejected. Verified by node packages/main/dist/tasks/historical-replay-artifact-smoke.js printing historical replay artifact smoke PASS.",
+      "resolvedAt": "2026-08-30T15:58:03.212Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-426",
