@@ -75,6 +75,34 @@
         "test": [
           "scripts/verify-proof-or-stop-identity-cutover.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "At the pre-migration commit, run the committed identity-cutover verifier and bind its non-zero result through red_evidence_create to the exact acceptance target later used for GREEN -> the receipt names each failing active identity class while the explicitly named historical artifacts already pass byte, digest, and signature-verification baselines. WHY: establishes non-fixture RED before production edits without treating protected history as failure.",
+            "type": "cli"
+          },
+          {
+            "desc": "At a descendant GREEN commit, evaluate the same RED receipt acceptance target -> it passes without changing the receipt target, and its recorded RED commit is an ancestor of GREEN. WHY: proves true RED-to-GREEN lineage rather than replacing the test after implementation.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Before and after changing the self-hosted canonical storyDir/config identity, invoke story_get and checklist_get for B-022e through the canonical proof-or-stop entrypoint -> both phases discover the same story and CHK-001..CHK-008 metadata, and the descendant GREEN run uses the same acceptance target. WHY: makes the self-host transition non-vacuous.",
+            "type": "cli"
+          },
+          {
+            "desc": "The baseline manifest names each frozen artifact by exact repository-relative path plus byte digest algorithm/value and signature verification command/result -> GREEN reproduces byte-for-byte equality, identical digests, and the same successful verification result. WHY: prevents an anonymous or prose-only history claim.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "In temporary copies, inject one new active lattice identity, mutate one frozen byte or signature salt, make an allowlist entry stale, or widen it to a directory/glob -> the same verifier fails with a class-specific diagnostic; removing or renaming the RED test also invalidates the receipt. WHY: supplies fail-closed allowlist and mutation proof.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
