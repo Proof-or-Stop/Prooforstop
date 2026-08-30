@@ -9959,6 +9959,34 @@
       "cancelReason": "Circular deadlock between review_inventory_begin and story_advance DEV. Receipt B-45a0:RIE-122:RCP-001 is FINALIZED-unconsumed with scopeDigest dbf8417be2ff30417e26efd902ede7c2eab6dcba9c77694a5bb34de3d2a60eed, but reviewInventoryAcceptanceSubjectDigestForStore now deterministically computes 46d67cfc10aeb1e1f0aaf91759fb3329a0e538ebdf3fc875a8bbb36d48aaf6bf (verified stable across repeated calls and fresh store instances), so consumeReviewInventoryReceipt rejects it with REVIEW_INVENTORY_REMEDIATION_BLOCKED while review_inventory_begin refuses with REVIEW_INVENTORY_RECEIPT_UNCONSUMED and points back at DEV. The four digest inputs (scope contract, checklist, ProofStory contract, shrinkage decision) have no commits since before finalize, so the mismatch originates at finalize time rather than from a subsequent subject edit. Invalidating the unconsumed receipt to break the cycle and allow a fresh epoch bound to the current subject digest.",
       "terminalRunSequenceBoundary": 1050,
       "_hash": "2225ebddaa2ba1b5634d4b7f55f265816ded2c0890fe94c6e0ae535affe723da"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-104",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-30T17:08:30.811Z",
+      "updatedAt": "2026-08-30T17:08:30.811Z",
+      "cutoff": {
+        "headHash": "79788cc44bf569a75ede23d3a382f9e26b903449",
+        "materialHash": "7d844f63c8b5e92caf825ae6da761b6b1de4b95c51753dcda24bbac28f04de53",
+        "storyFilesHash": "ba1a26505043cf105c9d998798275f5e2777d12022b3406bf5aa1a21f20a4a80"
+      },
+      "scopeDigest": "46d67cfc10aeb1e1f0aaf91759fb3329a0e538ebdf3fc875a8bbb36d48aaf6bf",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 1050,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-45a0:F-429"
+      ],
+      "_hash": "d9be86fb08e589b4cbd7d4c2d95f69a482515926168d576d50137847a5da573c"
     }
   ],
   "receipts": [
