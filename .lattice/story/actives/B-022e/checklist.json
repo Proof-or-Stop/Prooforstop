@@ -311,6 +311,26 @@
           "scripts/verify-proof-or-stop-identity-cutover.mjs",
           "scripts/verify-proof-or-stop-prompt-baseline.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Render current README/CLI guidance, templates, adapters, hooks, verifier output, and generated prompts -> all current product prose and examples say Proof-or-Stop/proof-or-stop, and generated active roles expose the exact canonical proof-or-stop-* set including proof-or-stop-review-story-init. WHY: verifies source and generated user surfaces together.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Compare current-source residue findings with the exact frozen-history allowlist -> prior decision/changelog statements remain byte-identical and truthfully superseded, while no current template, registry key, filename, frontmatter name, config route, or generated asset is exempted as history. WHY: preserves honest records without sheltering live assets.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Ask agent_prompt/config routing for lattice-review-story-init and every other legacy lattice-* role, and regenerate assets from templates -> old IDs cannot resolve and no legacy filename/frontmatter/registry key is emitted; reintroducing any one of them or rewriting a historical statement makes the prompt-baseline/cutover verifier fail. WHY: proves both negative role resolution and frozen-history boundaries.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
