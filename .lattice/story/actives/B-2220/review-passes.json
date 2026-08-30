@@ -282,6 +282,40 @@
       },
       "readDiagnostics": [],
       "_hash": "dec2dc7551f6c4a790c2894c457bf0fd9343463d4f43c22e57b9ebe86ff7ab0c"
+    },
+    {
+      "id": "B-2220:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept cleanup is complete: the byte-identity limitation remains explicit, the current writer-owned-boundary follow-up is declined, all proposal language is historical or human-triggered, and the build-bound smoke passes with no mandatory-repair residue.",
+      "createdAt": "2026-08-30T23:47:24.759Z",
+      "reviewRound": "2026-08-30T23:44:16.271Z",
+      "reviewRunId": "B-2220:RR-015",
+      "envelopeId": "16d2372175e524648562b5178fefd160fbad7b6561bba8e4798c30cc9d2f7aad",
+      "writerSessionId": "sess-0191c2326971a9aac79fa0658847daa6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "f4d980eed078fcdd7bbfe2de695bc60d229ac6f634e300fe9779988a9dce8bd2"
     }
   ]
 }
