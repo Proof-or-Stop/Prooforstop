@@ -485,7 +485,7 @@
       "desc": "Re-verification of the F-013 resolution at current HEAD 257063177c shows the fix is only partial. (1) pre_review_check_read (.proof-or-stop/story/actives/B-0b50/pre-review-check.json) is still bound to a stale headHash=d735f1aea24a35db99cc744ce0d5bde565ccf5ad / materialHash=c0bd5e6.../storyFilesHash=a5eefa4... (the same pre-RI-002 binding F-008/F-010 already flagged as stale) and was never regenerated: it self-reports status=inconclusive with 9 codes including PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_PRODUCTION_PATH_UNPROVEN, and its executableProof block is empty (caseRecords=empty string, commandDigests=[], bindingProofs=[]). This is a live FAIL of a DEV-to-REVIEW gate-evidence artifact, not a benign advisory, even though the read wrapper currently reports blocking=false under mode=observe. (2) topology_critic_receipt_check independently and currently still returns REJECTED / AT_TOPOLOGY_CRITIC_CONTEXT_INVALID: grep of process-events.jsonl confirms zero lattice-implementer dispatch events (grep -c lattice-implementer = 0), matching the provenance gap the prior critic explicitly declined to back-fill. F-013 was marked resolved with no resolvedReason field (unlike every other resolved finding in this story), and neither of these two conditions was actually remediated. acceptance_topology_check (inconclusive/partial/AT_MISSING_TOPOLOGY, non-blocking, pre-existing legacy_missing) and acceptance_rollout_report_read/acceptance_rollout_check (both current PASS, receipt=current, quorum=full-3x2) are the two Wave 4 checks that are genuinely fixed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-30T17:02:00.970Z",
@@ -518,7 +518,9 @@
         "packages/main/src/core/topology-critic-receipt.ts"
       ],
       "signatureTag": "missing|json|verification-resolution-current",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-30T17:05:38.315Z",
+      "resolutionType": "fixed"
     }
   ]
 }
