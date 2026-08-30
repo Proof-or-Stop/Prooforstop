@@ -9,9 +9,9 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md",
         "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-30T21:56:02.455Z",
-      "endTime": null,
+      "endTime": "2026-08-30T22:03:19.755Z",
       "userSees": "The verifier prints `PASS identity-cutover policy: every active legacy identity is classified; frozen evidence allowlist is exact and current` before production migration begins.",
       "excludes": [
         "Editing historical story bytes",
@@ -46,6 +46,13 @@
             "type": "cli"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "de697e434dec1875be18f3dbbb00da2136ae46d3983996f3ab057d7e15c25d6e",
+        "storyFilesHash": "60e6ce51ca4b4e95bbb0cae1b1919f08add6c350872b1f8e545d7848468a4d7b",
+        "headHash": "1dab23ae287fb9364244a3a73156f62f1abdb6e8",
+        "attestedAt": "2026-08-30T22:03:19.918Z",
+        "materialHash": "3cb1c5cd9c4042ac95b674806e07c82002518cff7f1611d5a74af10ee283da07"
       }
     },
     {
