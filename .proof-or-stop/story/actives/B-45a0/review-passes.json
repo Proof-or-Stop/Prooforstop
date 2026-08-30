@@ -22631,6 +22631,32 @@
         "scanEscalationReason": null
       },
       "_hash": "16ed997a4ac44763bdbe159b7f2e093b23377b8caa041fbbdccfe1b1163a7393"
+    },
+    {
+      "id": "B-45a0:RP-467",
+      "agent": "lattice-review-quality",
+      "note": "Wave 2 re-pass at HEAD a6735dfc (bound review head 1d27e2a; only intervening commit is a review_pass_set metadata bookkeeping commit from a sibling lane, not code). Audited e3a6186f7f (bound historical replay admission: MINIMUM_HISTORICAL_STORIES lowered 50->30, new MAXIMUM_HISTORICAL_STORIES=50 enforced in verifyHistoricalReplayArtifact; REPLAY_ADMISSION_NONEXECUTING_PATHS extended with closeout-trust.ts/checklist.ts/closeout-trust-smoke.ts/retired-authority-vocabulary-guard-smoke.ts/verify-process-fact-contract.mjs/story-lifecycle.md, all confirmed to be post-hoc read-only consumers with zero historical-replay references; doc dynamic-validation-enforcement-evidence.md already states the 30-50 range at line 19 and gains a Bounded post-replay consumer exception section before code admits consumer drift, no stale wording found) and f2e648606d (test-only F-427 fix: adds digestOverrides param to buildReport so paired-performance-inventory-stale/paired-performance-catalog-stale branches are reachable with a VALID signature over a divergent digest; each new case asserts the correct reason fires and NOT signature-invalid/head-stale, matching source check ordering at historical-replay-artifact.ts:166-172; zero production-file changes confirmed by commit diff). No dead code, no unnecessary as any, no swallowed empty catches, no shell/fn.ts boundary violations in either commit. Ran node packages/main/dist/tasks/historical-replay-artifact-smoke.js directly (dist newer than src, reflects current source): prints historical replay artifact smoke PASS. Cross-checked finding_list: F-423/F-424/F-425/F-427 (the findings these two commits target) are all status=resolved evidenceState=verified strong evidence; no open finding references either commit's files. F-428/F-429/F-430 (Wave 4 acceptance-gate failures) and whole-story verificationEvidence staleness are known pre-existing issues out of this pass's scope per dispatch instructions, not re-filed. Wave 1 (RP-462) findings reconfirmed unchanged. Clean re-pass, zero new findings.",
+      "createdAt": "2026-08-30T17:30:09.029Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1060",
+      "envelopeId": "28bf16042cf522fb76718721d69ee2fa123265a22aa98310836928d87c4e55a8",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c954a1da59374ea0796575c164abef8d3fda3b7956de0119ecd9c7200b123f5a"
     }
   ]
 }
