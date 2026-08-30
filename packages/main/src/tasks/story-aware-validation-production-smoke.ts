@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { persistCanonicalFullBaseline, runStoryAwareDynamicValidation } from '../handlers/story-aware-validation.js';
 import { configuredValidationCommands } from '../handlers/verifier.js';
-import { verifyValidationShardReceipt } from '../core/story-aware-validation.js';
+import { createValidationClosureCertificate, verifyValidationShardReceipt, verifyValidationClosureCertificate } from '../core/story-aware-validation.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 
 const root = mkdtempSync(join(tmpdir(), 'proof-story-aware-production-'));
@@ -71,6 +71,47 @@ try {
   assert.equal(tracedChild.allPass, true);
   assert.equal(tracedChild.commands[0]?.runtimeTrace?.readPaths?.includes('/dev/null'), true,
     'runtime closure trace merges child reads instead of allowing the parent wrapper to overwrite them');
+  const forkProbePath = join(root, 'packages/main/src/fork-probe.cjs');
+  const forkArgument = 'fork-probe-argument';
+  const execCommand = `${JSON.stringify(runtimeNode)} -e ${JSON.stringify("require('node:fs').readFileSync('/dev/null'); process.stdout.write('exec')")}`;
+  const execSyncCommand = `${JSON.stringify(runtimeNode)} -e ${JSON.stringify("require('node:fs').readFileSync('/dev/null'); process.stdout.write('exec-sync')")}`;
+  writeFileSync(forkProbePath, "require('node:fs').readFileSync('/dev/null');\n");
+  const tracedChildApis = await executeValidationPlan({
+    provider: 'runtime-trace-child-api-coverage',
+    commands: [{
+      label: 'child-api-probe',
+      command: runtimeNode,
+      args: ['-e', [
+        "const { exec, execSync, fork } = require('node:child_process');",
+        `const execCommand = ${JSON.stringify(execCommand)};`,
+        `const execSyncCommand = ${JSON.stringify(execSyncCommand)};`,
+        `const forkProbePath = ${JSON.stringify(forkProbePath)};`,
+        `const forkArgument = ${JSON.stringify(forkArgument)};`,
+        'execSync(execSyncCommand, { stdio: "ignore" });',
+        'const forked = fork(forkProbePath, [forkArgument]);',
+        'forked.once("exit", () => exec(execCommand, error => { if (error) throw error; }));',
+      ].join(' ')],
+    }],
+    warnings: [],
+  }, root, head, 'B-production-child-apis', { jobs: 1 });
+  assert.equal(tracedChildApis.allPass, true);
+  const tracedSpawnedPaths = tracedChildApis.commands[0]?.runtimeTrace?.spawnedPaths || [];
+  for (const expectedPath of [execCommand, execSyncCommand, forkProbePath, forkArgument]) {
+    assert.equal(tracedSpawnedPaths.includes(expectedPath), true,
+      `runtime tracer must observe ${expectedPath} for exec/execSync/fork`);
+  }
+  const undeclaredChildApiClosure = createValidationClosureCertificate({
+    commandId: 'child-api-probe', baseHead: head, inventoryDigest: 'smoke-inventory', catalogDigest: 'smoke-catalog',
+    staticPaths: [], runtimeTrace: { spawnedPaths: tracedSpawnedPaths },
+  });
+  assert.equal(undeclaredChildApiClosure.undeclaredObservedPaths.includes(execCommand), true,
+    'an undeclared exec command must invalidate the runtime closure');
+  assert.equal(undeclaredChildApiClosure.undeclaredObservedPaths.includes(execSyncCommand), true,
+    'an undeclared execSync command must invalidate the runtime closure');
+  assert.equal(undeclaredChildApiClosure.undeclaredObservedPaths.includes(forkProbePath.replace(/^\//, '')), true,
+    'an undeclared fork module path must invalidate the runtime closure');
+  assert.equal(verifyValidationClosureCertificate(undeclaredChildApiClosure), false,
+    'runtime closure verification must fail closed when a newly traced child API is undeclared');
   const run = await runStoryAwareDynamicValidation({
     projectRoot: root,
     gitCwd: root,
