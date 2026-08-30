@@ -23409,6 +23409,54 @@
       ],
       "signatureTag": "historical-replay-admission-range",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-425",
+      "desc": "replay-admission-current-head-contract: F-423 proposes admitting the 8059 paired artifact after the closeout-retention repair by expanding the nonexecuting path set in historical-replay-artifact.ts:15-33, but the normative enforcement record requires one current HEAD and says no stale receipt is admissible (docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:17-30); it also states the paired current-HEAD campaign is never reused (:84-101). The approved plan likewise requires three current-HEAD paired experiments (story-aware-dynamic-validation-execution-plan.md:1474-1484). Adding code-only closeout paths would allow value.head != current HEAD and silently change this gate contract. Before admitting any consumer-only drift, make the normative documents explicitly define the bounded exception, its exact non-producer path predicate and causal review/receipt requirements, and test both allowed consumer drift and rejected producer/config/catalog/runner drift. Otherwise retain the existing fail-closed rejection.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-30T14:25:01.443Z",
+      "reviewRound": "2026-08-30T13:07:40.639Z",
+      "reviewRunId": "B-45a0:RR-1014",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "scripts/run-dynamic-validation-replay.mjs"
+        ],
+        "scanEscalationReason": "RI-101 quality review restricted to F-423/F-424 remediation boundaries and the paired replay admission contract; no replay producer was invoked."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 8000
+        },
+        "digest": "d6830e5f1d33b8ccdbaa53ad1e9ae30ae6f3692d53a28c20ffb677f82d31af8d"
+      },
+      "readDiagnostics": [],
+      "_hash": "b950bf5190adae403b5bbff64c5565d54c09910b186b42fa058edbd2464f6a16",
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "packages/main/src/core/historical-replay-artifact.ts",
+        "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+      ],
+      "signatureTag": "replay-admission-current-head-contract",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
