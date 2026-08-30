@@ -73,7 +73,21 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Decision after B-3434|not currently justified|declined\" docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "Executed the pinned document verifier against commit 0221f6270a; confirms the user-approved decision text and preservation boundary.",
+          "mechanical": false,
+          "headHash": "0221f6270aeeb56c7beebf44c7ddb5832e705d7d",
+          "materialHash": "7eb23b12327a2b23a5c40936d7ccd6aec089ecf7097ff54eeae1fece412fc323",
+          "storyFilesHash": "2b46ef95d456e0fe31fb10c562982734b302c639a18709a590a5b69590a47cc0",
+          "timestamp": "2026-08-30T23:01:31.698Z"
+        }
+      ]
     }
   ]
 }
