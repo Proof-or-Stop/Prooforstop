@@ -515,6 +515,35 @@
         "scanEscalationReason": null
       },
       "_hash": "9f1a88b877dff4836b20571b89b98934f7523d484b4285dfe5eb2953ee796683"
+    },
+    {
+      "id": "B-0b50:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified for epoch B-0b50:RI-005 at frozen cutoff 18267efa56708d7e267c82e8770f61c1eee970800fc9a2b9b78a4cefed509061 (unchanged from prior epoch). git diff main...HEAD confirms the only concept deletion is heavyCertificationStatusNext removed from packages/main/src/core/certification-window.ts, replaced inline by nextCommandForBlocker(). Repo-wide grep for heavyCertificationStatusNext (excluding node_modules/dist/.git) returns zero hits outside .proof-or-stop/story/actives/B-0b50/** which are historical audit records (findings.json, review-passes.json, prompt-envelopes.json, summary.json), not live residue. Confirmed nextCommandForBlocker is defined and wired at certification-window.ts:362,397,902,914,927. No other concept deletions/replacements present in the diff. No blocker.",
+      "createdAt": "2026-08-30T16:55:31.539Z",
+      "reviewRound": "2026-08-30T16:51:42.451Z",
+      "reviewRunId": "B-0b50:RR-031",
+      "envelopeId": "2598393012ba47954f94697bc9738b42ef632810339375b16571eaffe6220823",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/findings.json",
+          ".proof-or-stop/story/actives/B-0b50/prompt-envelopes.json",
+          ".proof-or-stop/story/actives/B-0b50/review-passes.json",
+          ".proof-or-stop/story/actives/B-0b50/summary.json",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ad52d6e24ed5380c41ba9d1fc88c9116c7502112ecf1ba3c7988670d5e4bd681"
     }
   ]
 }
