@@ -298,6 +298,35 @@
       },
       "readDiagnostics": [],
       "_hash": "dc78517ed1ffb7d88de5328766d3bf55c856f661a27daa793a86d2646efc6bd8"
+    },
+    {
+      "id": "B-0b50:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion completeness check for B-0b50. Sole deleted concept symbol: heavyCertificationStatusNext (removed from certification-window.ts, replaced by nextCommandForBlocker dispatch). Repo-wide grep for heavyCertificationStatusNext across *.ts/*.md/*.json (excl node_modules/dist/.git) found zero source/doc residue; only hits are inside .proof-or-stop/story/actives/B-0b50/*.json audit-trail records describing the removal. Cross-checked with proof-or-stop validate --concept, which independently confirms 1 symbol deleted, 0 residual references. Verified no importer of the removed symbol remains via import-site grep across packages/main/src. packages/graph/src/core/detail/fn.ts has no diff in main...HEAD (its graph-audit-fix commit bff5ddcdc4 is already a common ancestor via main). New symbols added (PRE_CERT_INVENTORY_PROBE_FAILED, probeFinalizedUnconsumedReviewInventory, ReviewInventoryProbeResult, safeDoneRequiredRecoveryCommand, HOST_LAUNCHER_SESSION_ENV_KEYS) are additive, not concept replacements. No incomplete concept deletion or replacement blocker found.",
+      "createdAt": "2026-08-30T16:29:15.150Z",
+      "reviewRound": "2026-08-30T16:26:56.469Z",
+      "reviewRunId": "B-0b50:RR-020",
+      "envelopeId": "2af2dadf858ebe6c6839fa9bae24812cfa7bc333fb88bc539aeb4f5045f58a45",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "packages/graph/src/core/detail/fn.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8ee422e956b406883f8d9d1d9b8e3d6f5a97dedc8abb329a129fb8e0c5d991b8"
     }
   ]
 }
