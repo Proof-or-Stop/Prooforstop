@@ -464,6 +464,30 @@
         "scanEscalationReason": null
       },
       "_hash": "d9952f6595d1bc09efe545b4395c2a6bf22edab164011a9072e1759d48b9de05"
+    },
+    {
+      "id": "B-0b50:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified at HEAD c0171d1 (round 2026-08-30T16:51:42.451Z). No source changed since RP-013: git diff main...HEAD --name-only confirms identical 5 production/test files. F-012 fix confirmed present (import not re-list). safeDoneRequiredRecoveryCommand allowlist + shell-metachar reject confirmed. probeFinalizedUnconsumedReviewInventory try/catch discrimination confirmed. Dead heavyCertificationStatusNext confirmed fully removed repo-wide. HOST_LAUNCHER_SESSION_ENV_KEYS strip-at-filter (not digest-list append) confirmed intentional per in-code rationale. No as any, no empty catch, no dead code, no shell/fn.ts isolation violations. No blockers.",
+      "createdAt": "2026-08-30T16:53:40.007Z",
+      "reviewRound": "2026-08-30T16:51:42.451Z",
+      "reviewRunId": "B-0b50:RR-029",
+      "envelopeId": "89717a9091520adcc3e76d74f9f44a6492a905f68ac31d7f47b579c249044e55",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2714a85d3ba822c662568f3fcf05574b2dfdb84d09f878f2c97f8f9ff13113b8"
     }
   ]
 }
