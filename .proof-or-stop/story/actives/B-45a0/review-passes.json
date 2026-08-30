@@ -21441,6 +21441,37 @@
         "scanEscalationReason": null
       },
       "_hash": "e2c43930f2d680132c3b3ecdb2db33d516423e7540f8803383a9ec4d183ee301"
+    },
+    {
+      "id": "B-45a0:RP-431",
+      "agent": "lattice-review-topology-critic",
+      "note": "Independent inventory critic confirms one receipt-bound retention defect and no additional family.",
+      "createdAt": "2026-08-30T12:30:11.539Z",
+      "reviewRound": "2026-08-30T11:33:19.289Z",
+      "reviewRunId": "B-45a0:RR-1000",
+      "envelopeId": "b4dd5cedc4b79fef542d9da9e7563e3405670801a11c7e61e01bccdd3e9ca70b",
+      "writerSessionId": "sess-0bde48f175a669bcbafa696b3683e99f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "be87e2bf579c932456d441b8b019951cfea71768ef551b3e8f96d024872d9c37"
     }
   ]
 }
