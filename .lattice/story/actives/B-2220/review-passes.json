@@ -33,6 +33,53 @@
       },
       "readDiagnostics": [],
       "_hash": "ceb09409dcd35aff2ca2e743c3921da09d9ab47f2461ae1bc49c65c7939bce6c"
+    },
+    {
+      "id": "B-2220:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-retirement review PASS. Read the full B-2220 background, checklist, and revised decision document; triaged the full main...HEAD file set and inspected the complete product diff. The active work-order posture is removed from the decision doc, all remaining proposal language is explicitly historical or conditional, and B-3434 measurements/transcripts/F-033/F-035/F-036/F-037 remain intact. Repository residue consists only of B-2220 negative-check literals and immutable B-3434 historical audit records, which the new decision explicitly supersedes rather than rewrites. The revised text correctly limits the proposal to byte identity and explicitly disclaims input consistency, semantic consistency, and evidence truth. No promised-but-undelivered behavior was added.",
+      "createdAt": "2026-08-30T23:05:49.541Z",
+      "reviewRound": "2026-08-30T23:02:35.178Z",
+      "reviewRunId": "B-2220:RR-002",
+      "envelopeId": "bccb4316f42c5c5c942332d6517c855b41a4017b2b1034dc4a63d32afc036fc7",
+      "writerSessionId": "sess-7768c0f4c83cb0573bf17bf93f89ccb5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/acceptance-basis.json",
+          ".lattice/story/actives/B-2220/dev-memory-preflight-ack.json",
+          ".lattice/story/actives/B-2220/index.json",
+          ".lattice/story/actives/B-2220/intent-collision.json",
+          ".lattice/story/actives/B-2220/original-intent-snapshot.json",
+          ".lattice/story/actives/B-2220/pre-review-check.json",
+          ".lattice/story/actives/B-2220/process-events.jsonl",
+          ".lattice/story/actives/B-2220/process-metrics.json",
+          ".lattice/story/actives/B-2220/proofstory.json",
+          ".lattice/story/actives/B-2220/review.json",
+          ".lattice/story/actives/B-2220/scope-check.json",
+          ".lattice/story/actives/B-2220/scope-contract.json",
+          ".lattice/story/actives/B-2220/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "a360761b2626c403f769d6b820c183980766c571d86f02ad1d291c6ac9907ad1"
     }
   ]
 }
