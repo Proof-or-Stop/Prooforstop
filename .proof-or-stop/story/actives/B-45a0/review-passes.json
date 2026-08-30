@@ -22357,6 +22357,54 @@
         "scanEscalationReason": null
       },
       "_hash": "1fa0ecf248d8c7463641f47a8ed54b8ed61c2c7fdd3621bdc24932cadc9426e8"
+    },
+    {
+      "id": "B-45a0:RP-456",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code consistency review of e3a6186f7f (bounded historical replay admission) and f2e648606d (test-only, adds coverage for paired-performance-inventory-stale/catalog-stale branches). Symbol set from Step 1: MINIMUM_HISTORICAL_STORIES, MAXIMUM_HISTORICAL_STORIES, REPLAY_ADMISSION_NONEXECUTING_PATHS (added consumers), verifyHistoricalReplayArtifact, checkPairedPerformance, buildReport (test-only, not exported/doc-facing). Compared 1 doc paragraph (Bounded post-replay consumer exception + gate item 5 in dynamic-validation-enforcement-evidence.md) against historical-replay-artifact.ts. Confirmed: doc item 5 caveat 'subject only to the bounded post-replay consumer exception below' matches code (no unqualified no-stale-receipt claim); new consumer-exception paragraph text ('Story metadata or one of the exact named non-executing consumers in historical-replay-artifact.ts') matches the expanded REPLAY_ADMISSION_NONEXECUTING_PATHS set; '30-50 historical Story' language matches MINIMUM_HISTORICAL_STORIES=30/MAXIMUM_HISTORICAL_STORIES=50, no stale '50-only minimum' wording found (grepped all decisions/*.md for 50-Story/exactly 50/minimum of 50). f2e648606d is test-only (single file, historical-replay-artifact-smoke.ts); no decision doc makes any claim about digest-mismatch branch test-coverage completeness that this commit's added coverage would newly contradict or that was previously overclaiming proof -- the coverage gap (F-427) lived only in the story finding registry (resolved, evidenceState=verified), not in any decisions doc prose. No blocker found.",
+      "createdAt": "2026-08-30T16:33:34.271Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1046",
+      "envelopeId": "3a332fa87976bae31fe815c2a1d15c3ea803a36e82b09992a8c6b4d774e0d3da",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5e1cabc459b9a545dad0f9f2bf4b1d7000ce856d44a7179e5795a22be9fa84c6"
+    },
+    {
+      "id": "B-45a0:RP-457",
+      "agent": "lattice-review-quality",
+      "note": "Quality audit of e3a6186f7f and f2e648606d. f2e648606d adds genuine coverage for previously-dead paired-performance-inventory-stale/catalog-stale branches, verified by manual mutation on a scratch copy (not the live shared file): deleting either check line fails the smoke at the exact new assertions; restoring passes. No blocking issues.",
+      "createdAt": "2026-08-30T16:35:43.011Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1045",
+      "envelopeId": "73806b8183813b615a127015286d3697a6fcefdae41e1869e57702f6b6d3e505",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "947121250aa5ceaab9c424735f8041d00d1c8940458915bbeed6031c0ba2e9aa"
     }
   ]
 }
