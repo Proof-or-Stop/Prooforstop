@@ -115,12 +115,12 @@
           "kind": "docs_check",
           "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const exact=\\\"it does not establish input consistency, semantic consistency or evidence truth\\\";if(!s.includes(exact))process.exit(1);console.log(\\\"B-2220 edge-0 PASS\\\");\"",
           "result": "pass",
-          "note": "Re-executed the strengthened pinned verifier after B-2220 review findings; deletion and active-mandate mutation probes were also shown to fail.",
+          "note": "Fresh receipt after final verifier pinning and executable smoke-contract alignment.",
           "mechanical": false,
-          "headHash": "24bf8a1fcdb49443e36cc5dcf2efe72431963253",
-          "materialHash": "a5c6ccc1da20de04007d478e273de214ac0f969aa2a9f7007c02636bb3f47d7a",
-          "storyFilesHash": "46f24c6ef45f6b6d11dcb548a3d90d951fba1cb6c2bc6b7b16fc2ee74ec993a2",
-          "timestamp": "2026-08-30T23:13:37.582Z"
+          "headHash": "12a988a3de5af2087d0ecf52dd9c5fd89c2954c3",
+          "materialHash": "82123503ea45bf355aad85f6a3f1a67263c333a7f99aad88a8063e7aa692b3d5",
+          "storyFilesHash": "882b121f7b58ffa5db11f24ad43ed3777504391647481b9a5d5fa5dfe57dba70",
+          "timestamp": "2026-08-30T23:35:59.652Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
