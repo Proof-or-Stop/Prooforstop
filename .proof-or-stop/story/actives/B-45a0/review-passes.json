@@ -21551,6 +21551,37 @@
       },
       "readDiagnostics": [],
       "_hash": "61ab6f45eddf55f9601e61572c6de390874de0ba79c7c4270f00339630ccf15d"
+    },
+    {
+      "id": "B-45a0:RP-434",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement is introduced by the retention finding; residual scan found no distinct blocker.",
+      "createdAt": "2026-08-30T12:36:42.295Z",
+      "reviewRound": "2026-08-30T11:33:19.289Z",
+      "reviewRunId": "B-45a0:RR-1004",
+      "envelopeId": "50a92cb06fa9a20c21a2a2101573178263e4a2723c54d2766afb1d777859b5e4",
+      "writerSessionId": "sess-3ed4a4424966d302a11420cbb081a5c1",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "79dc9fc41f7868cefa44a8d648d450958667263d5c1faaadc281a6c971e31961"
     }
   ]
 }
