@@ -316,6 +316,43 @@
       },
       "readDiagnostics": [],
       "_hash": "f4d980eed078fcdd7bbfe2de695bc60d229ac6f634e300fe9779988a9dce8bd2"
+    },
+    {
+      "id": "B-2220:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final test-coverage review passed: ran all seven pinned intents (7/7 pass, 0 must gaps, 0 waivers), including build binding and baseline validation-evidence smoke. In a detached disposable worktree, adding the paraphrased active mandate 'This optimization remains mandatory and will continue in a later task.' changed the decision digest from 02bb788f...83b75d to 6d1e3df4...f8afa; the standalone exact-digest verifier rejected it with exit 42 and the compiled smoke rejected the same digest with exit 1. Disposable worktree was removed and the story worktree remained clean.",
+      "createdAt": "2026-08-30T23:48:51.739Z",
+      "reviewRound": "2026-08-30T23:44:16.271Z",
+      "reviewRunId": "B-2220:RR-016",
+      "envelopeId": "820835750279fdcfc5708eadeb0b4a90216a016026a02f56a37f11be5e2c8ac1",
+      "writerSessionId": "sess-bf18156096c31d2900251c1ecdc263a5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/plan.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "scripts/full-suite-build-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "cae09df1656d6a8a377d5ad0b6e2fd13e827e53d8dff91f06724fba88be9c796"
     }
   ]
 }
