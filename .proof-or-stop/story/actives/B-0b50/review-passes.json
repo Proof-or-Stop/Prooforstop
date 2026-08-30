@@ -488,6 +488,33 @@
         "scanEscalationReason": null
       },
       "_hash": "2714a85d3ba822c662568f3fcf05574b2dfdb84d09f878f2c97f8f9ff13113b8"
+    },
+    {
+      "id": "B-0b50:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3, RR-030): re-verified all 6 verificationIntent entries against current HEAD c0171d1, all covered by valid non-vacuous manual_transcript evidence, no open findings, no blocker.",
+      "createdAt": "2026-08-30T16:53:51.056Z",
+      "reviewRound": "2026-08-30T16:51:42.451Z",
+      "reviewRunId": "B-0b50:RR-030",
+      "envelopeId": "9ffed5a72039c88c2d88400ccee0db17d8ba3f46e715fc3dab918bc0e319d5df",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9f1a88b877dff4836b20571b89b98934f7523d484b4285dfe5eb2953ee796683"
     }
   ]
 }
