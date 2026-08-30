@@ -1595,13 +1595,20 @@
           "kind": "logic_test",
           "command": "node scripts/run-dynamic-validation-replay.mjs --verify-threshold",
           "result": "pass",
-          "note": "Current signed historical replay threshold verification passed against the completed paired execution receipt without re-executing historical stories.",
-          "headHash": "f0c0ad5553d9ead88fe3ce7e1c41639cedef674c",
-          "materialHash": "f2f3d8377efbbecc44b6a21f3cdc1f4fa0697aa9374de528c044235a8886a6f9",
-          "storyFilesHash": "e4d250fd00ca0531364f30152ce1360a8419d356b9e1ce38a9c92e4d575eaa69",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-30T06:43:55.965Z"
+          "note": "Current signed historical replay threshold verification passed against the newly completed paired execution receipt; the replay itself completed once at current head.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9151aac06b9b547421291b538be910aa207f69d3fb984aef9afa3a40dbd9b982",
+            "outputTail": "historical replay artifact admission PASS\ndynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\nhistorical replay assurance PASS\nhistorical replay discovery threshold PASS\nhistorical replay threshold PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-30T11:33:02.455Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "8059be01032c27174d1b796d5a45ccc085418bb5",
+          "materialHash": "cb44357ecc2764bd334776e8e358463866e5dde301135418bcb3fd2330d1f24f",
+          "storyFilesHash": "c13389d56c5d016f7da6d274f358750710fc17231ace210625f84f6ea2a16847",
+          "timestamp": "2026-08-30T11:33:02.672Z"
         },
         {
           "intentRef": "CHK-011:edge:0",
