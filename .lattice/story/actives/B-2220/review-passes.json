@@ -80,6 +80,39 @@
       },
       "readDiagnostics": [],
       "_hash": "a360761b2626c403f769d6b820c183980766c571d86f02ad1d291c6ac9907ad1"
+    },
+    {
+      "id": "B-2220:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review found no blockers. B-2220:F-001 is fixed at line 43: both internal references exactly resolve to existing headings. The full decision document is coherent, contains no active follow-up work order, preserves B-3434 acceptance, transcripts, finding identifiers, row-guard counts, and historical performance measurements, and git diff --check passes.",
+      "createdAt": "2026-08-30T23:16:11.552Z",
+      "reviewRound": "2026-08-30T23:14:26.406Z",
+      "reviewRunId": "B-2220:RR-005",
+      "envelopeId": "1578f9f7694971dc87b3d8b2163b57ff1fbcf028a853a770fdf043d9c23c3360",
+      "writerSessionId": "sess-352bf663f3e65e1a5eac6db82af3626b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "8951045c637de82d22831755edf639bf955b4dd14cf4c92d8fb7d8e15682cdc4"
     }
   ]
 }
