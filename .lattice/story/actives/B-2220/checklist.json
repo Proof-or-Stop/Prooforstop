@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/validation-evidence-artifact-growth.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-08-30T22:58:35.708Z",
       "endTime": "2026-08-30T23:50:54.817Z",
       "verificationIntent": {
@@ -266,6 +266,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "F-006 fixed: smoke now claims only check-time plain-data facts and explicitly records inherited Object.prototype.toJSON as a retained limitation; build binding and full smoke pass."
+    },
+    {
+      "timestamp": "2026-08-30T23:57:26.028Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fix duplicate F-007/F-008/F-009 by narrowing all remaining section 10c later-serialization claims in one pass."
     }
   ]
 }
