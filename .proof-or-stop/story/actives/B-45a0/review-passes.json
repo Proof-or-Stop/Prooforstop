@@ -22577,6 +22577,35 @@
         "scanEscalationReason": null
       },
       "_hash": "a02fc105daf5ae71f79b7594811242df7c965ab2dc1d20519179ce512e230f81"
+    },
+    {
+      "id": "B-45a0:RP-465",
+      "agent": "lattice-review-concept",
+      "note": "Wave2 re-confirm at HEAD dafc2c2: bounded replay admission (30-50) and new non-executing consumer allowlist entries verified with zero producer/inventory/catalog participation; boundary smoke 29/30/50/51 and paired-performance stale-digest branches pass; no residual references; clean re-pass.",
+      "createdAt": "2026-08-30T17:26:58.643Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1059",
+      "envelopeId": "fdd9ca7ff0150d1f215c5d3f32c77d0fcfc40d1eeb9360c61217f5ecaa9c2022",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "aec8e9eb798952a4397f19341a3d2b914b80ca8c1e588b9c02b6f8758c003f8b"
     }
   ]
 }
