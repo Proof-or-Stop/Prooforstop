@@ -59,10 +59,30 @@
         "bd730551dc7b1039d3c918b389d5aa0a3e0bb20abab48f3653bed3fa305e09f1",
         "99281ddb8adfd691ecd7235c517fdbb36d4a0be0f6fcaa2ff9877e9e78121c50"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-006 requires narrowing the in-scope smoke documentation and assertion message to check-time plain-data facts while explicitly retaining the inherited Object.prototype.toJSON limitation.",
+      "timestamp": "2026-08-30T23:50:46.956Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "8dfbd5536fbb7e28923a800c16e3603c7cafa284",
+      "materialHash": "e7c653ed8363a985924648df82d831580af169961c08a94bc62320525d1a2b58",
+      "hunkDigests": [
+        "54ca6c2de022c72f5805e34cd2cbd9ca66b9b1f90dcc5e8499cf70a7b7ad4fd5",
+        "66edc638c3c7fe38d1886d621f7bac0ca3c065308f297472f61c576623d40a41"
+      ]
     }
   ],
   "createdAt": "2026-08-30T22:57:42.914Z",
-  "updatedAt": "2026-08-30T23:43:55.832Z",
+  "updatedAt": "2026-08-30T23:50:46.956Z",
   "fileRules": [
     {
       "path": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
