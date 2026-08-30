@@ -1,63 +1,70 @@
 {
   "storyId": "B-2220",
-  "checkedAt": "2026-08-30T23:23:18.792Z",
+  "checkedAt": "2026-08-30T23:30:30.719Z",
   "features": [
     {
-      "feature": "Decline the active B-3434 writer-owned-boundary follow-up and reject stale active mandates",
-      "covered_by": "CHK-001:happy:0 + CHK-001:adversarial:0 + decision document",
+      "feature": "Decision document explicitly declines the B-3434 writer-owned canonical boundary as not currently justified and removes any active owner/work-order commitment.",
+      "covered_by": "CHK-001:happy:0",
       "status": "covered",
-      "excluded_by": "",
-      "source": "understanding.task/outcome and decision document"
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/validation-evidence-artifact-growth.md"
     },
     {
-      "feature": "Preserve B-3434 acceptance, shipped mechanism, measurements, transcripts, and retained finding history",
-      "covered_by": "CHK-001:happy:1 + decision document",
+      "feature": "B-3434 remains accepted while its shipped mechanism, measurements, transcripts, finding identifiers, and known limitations remain historical evidence rather than being rewritten as fixed.",
+      "covered_by": "CHK-001:happy:1",
       "status": "covered",
-      "excluded_by": "",
-      "source": "understanding.constraints and checklist context"
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/validation-evidence-artifact-growth.md"
     },
     {
-      "feature": "State the limited byte-identity property and evidence-based reopen conditions",
-      "covered_by": "CHK-001:edge:0 + CHK-001:edge:1 + decision document",
+      "feature": "The decision distinguishes byte identity from input consistency, semantic consistency, and evidence truth, and records evidence-based human-approved reopen triggers.",
+      "covered_by": "CHK-001:edge:0,CHK-001:edge:1",
       "status": "covered",
-      "excluded_by": "",
-      "source": "understanding.facts and constraints"
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/validation-evidence-artifact-growth.md"
     },
     {
-      "feature": "Make the executable validation-evidence smoke accept the declined/no-active-follow-up decision",
-      "covered_by": "CHK-001:happy:2 + packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+      "feature": "The executable validation-evidence smoke agrees with the declined/no-active-follow-up posture; happy:2 now uses the repository-native direct Node build-and-run command without expanding deliverable scope.",
+      "covered_by": "CHK-001:happy:2",
       "status": "covered",
-      "excluded_by": "",
-      "source": "B-2220:F-003 and expanded touchpoints"
+      "excluded_by": null,
+      "source": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
     },
     {
-      "feature": "Detect any post-review decision-document mutation, including paraphrased active mandates",
-      "covered_by": "CHK-001:adversarial:1 + sha256 02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d",
+      "feature": "Adversarial verification rejects restored or paraphrased active follow-up mandates while retaining the reviewed final decision record.",
+      "covered_by": "CHK-001:adversarial:0,CHK-001:adversarial:1",
       "status": "covered",
-      "excluded_by": "",
-      "source": "exact-document digest plus in-memory F-004 mutation probe"
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/validation-evidence-artifact-growth.md"
     },
     {
-      "feature": "Change production runtime behavior or generated dist",
-      "covered_by": "",
+      "feature": "Production runtime behavior and generated output are excluded: packages/main/src/core/**, packages/main/src/handlers/**, and packages/main/dist/** remain protected even though happy:2 builds and executes the generated smoke.",
+      "covered_by": null,
       "status": "excluded",
-      "excluded_by": "protectedFiles: packages/main/src/core/**; packages/main/src/handlers/**; packages/main/dist/**",
-      "source": "understanding constraint: do not change production runtime behavior"
+      "excluded_by": "This story changes only the decision record and its source-level executable document contract; it does not authorize runtime or generated-dist edits.",
+      "source": ".lattice/story/actives/B-2220/scope-contract.json"
     },
     {
-      "feature": "Rewrite B-3434 lifecycle metadata or historical Story evidence",
-      "covered_by": "",
+      "feature": "B-3434 lifecycle metadata remains immutable historical evidence.",
+      "covered_by": null,
       "status": "excluded",
-      "excluded_by": "protectedFiles: .lattice/story/actives/B-3434/**",
-      "source": "understanding constraint: preserve historical findings and accepted status"
+      "excluded_by": ".lattice/story/actives/B-3434/** is explicitly protected; B-2220 must not rewrite the completed story.",
+      "source": ".lattice/story/actives/B-2220/scope-contract.json"
     }
   ],
   "readManifest": {
     "filesReadFully": [
+      ".lattice/story/actives/B-2220/background.md",
+      ".lattice/story/actives/B-2220/checklist.json",
+      ".lattice/story/actives/B-2220/understanding.json",
       "docs/requirements/decisions/validation-evidence-artifact-growth.md",
       "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
     ],
-    "filesTriagedByName": [],
+    "filesTriagedByName": [
+      ".lattice/story/actives/B-2220/scope-contract.json",
+      "AGENTS.md",
+      "scripts/build-main-with-binding.mjs"
+    ],
     "scanEscalationReason": null
   },
   "summary": {
@@ -69,6 +76,6 @@
     "drift": 0
   },
   "reviewRound": "2026-08-30T23:14:26.406Z",
-  "_hash": "5e64113b9a25f0ae11bc2f080522a545d6526e7ac8dde4940c50e3e1cd006147",
+  "_hash": "0626d11a80962a47895fe9e6c734e1304281ee2a66a85f3c971586868d6e6257",
   "openQuestions": []
 }
