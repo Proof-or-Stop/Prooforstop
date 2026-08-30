@@ -21269,6 +21269,46 @@
       },
       "readDiagnostics": [],
       "_hash": "8903460264b087a5b6bda0fe02a234594f99ce095a274d8570ace85f5d96aa3f"
+    },
+    {
+      "id": "B-45a0:RP-427",
+      "agent": "lattice-review-concept",
+      "note": "F-417 remediation correctly records exec, execSync, and fork boundaries; focused production proof passes and undeclared paths still invalidate closure authority.",
+      "createdAt": "2026-08-30T11:37:32.718Z",
+      "reviewRound": "2026-08-30T11:33:19.289Z",
+      "reviewRunId": "B-45a0:RR-990",
+      "envelopeId": "615d2ebabf828fa98db2f53cac0e64a85737376674b3b97307f2f113dc0f0b08",
+      "writerSessionId": "sess-a2d5604a7cc58bc27ebeb3374c2fa18d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "scanEscalationReason": "Concept review focused on the current F-417 remediation and its DYN-2/DYN-3 closure-authority boundary."
+      },
+      "_hash": "5fbb6252f42d00e8f697a728d5587d8bb6f628b0e7118c35b647a5e26c4a3dce"
     }
   ]
 }
