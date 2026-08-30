@@ -23011,6 +23011,41 @@
       "_hash": "ebfeeb3d3cb42bff13dfead341e1069a9011d109269fddf1de6f0fbdc1fad235",
       "signatureTag": "missing|unknown|runtime-tracer-misses",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-418",
+      "desc": "historical-replay-current-head-gap: .proof-or-stop/story/actives/B-45a0/checklist.json CHK-011 has no current signed paired replay assurance after the F-417 source repair. Its happy receipt is bound to head 8059be0, while its fault-injection and missing-evidence receipts bind f0c0ad5; the current REVIEW material is cb44357 and includes packages/main/src/core/validation-runtime-tracer.cjs coverage for exec, execSync, and fork. The focused production smoke passes, but it cannot establish the required 30-50 Story paired-run guarantee or prove that the new child-process paths preserve zero undeclared runtime inputs across the replay corpus. The verify-only threshold command cannot promote an old paired artifact to current source. Run exactly one authorized current-head --execute paired replay, then its admission/mutation checks, and bind the resulting signed receipts before TEST.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-30T11:38:38.610Z",
+      "reviewRound": "2026-08-30T11:33:19.289Z",
+      "reviewRunId": "B-45a0:RR-992",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "scanEscalationReason": "Coverage review reduced all 50 verificationEvidence bindings and independently ran the focused production smoke. The current F-417 tracer repair changes runtime-child observation, so the historical replay assurance must be re-earned at current source material; no historical replay was executed by this reviewer."
+      },
+      "_hash": "08daa741ffb48a2e56ba9cdb5bd256766c854f0245c29616beae121546e15e27",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        "packages/main/src/core/validation-runtime-tracer.cjs",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts"
+      ],
+      "signatureTag": "missing|json|historical-replay-current",
+      "signatureTagSource": "auto"
     }
   ]
 }
