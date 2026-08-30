@@ -75,11 +75,13 @@ const VALIDATION_TRANSPORT_ENV_KEYS = new Set<string>(
  * Host-launcher session identity that is NOT in the frozen list above.
  *
  * These are the same class of value as `LATTICE_SESSION_ID` -- per-process
- * identity injected by the coding-agent host, carrying no validation-command
+ * identity injected by the coding-agent host or the terminal multiplexer it runs
+ * under, carrying no validation-command
  * semantics -- but they are spelled by the host, not by Proof-or-Stop, so
  * `brandEnvNames` does not reach them. Left ambient they are hashed into
  * `effectiveEnvironmentDigest`, and because they change with every session
- * (`CLAUDE_PID` is a pid; `CLAUDE_CODE_MESSAGING_SOCKET` embeds that pid) a
+ * (`CLAUDE_PID` is a pid, `CLAUDE_CODE_MESSAGING_SOCKET` embeds that pid, and
+ * `CMUX_TERMINAL_LIFECYCLE_ID` is a per-terminal UUID) a
  * receipt written in one session can never be re-derived in another. That is
  * precisely the "one session's PASS is unverifiable by an independent
  * reviewer" failure the frozen list exists to prevent: on this repo it
@@ -104,6 +106,8 @@ export const HOST_LAUNCHER_SESSION_ENV_KEYS = [
   'CLAUDE_CODE_MESSAGING_SOCKET',
   'CLAUDE_CODE_MESSAGING_TOKEN',
   'CLAUDE_PID',
+  'CMUX_SOCKET_PATH',
+  'CMUX_TERMINAL_LIFECYCLE_ID',
   'CODEX_COMPANION_SESSION_ID',
   'CODEX_COMPANION_TRANSCRIPT_PATH',
 ] as const;
