@@ -32,7 +32,7 @@
             "desc": "The executable validation-evidence smoke accepts the current declined/no-active-follow-up decision and no longer requires the removed heading or an actionable work list; WHY: the repository contract must agree with the decision document.",
             "type": "logic",
             "verification": {
-              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
+              "command": "node scripts/build-main-with-binding.mjs && node packages/main/dist/tasks/validation-evidence-buffer-smoke.js",
               "selector": "validation-evidence-buffer-smoke: PASS"
             }
           }
