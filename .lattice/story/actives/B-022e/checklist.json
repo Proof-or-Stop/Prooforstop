@@ -39,7 +39,23 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The committed cutover verifier fails on the pre-migration tree and names each active Lattice identity class, while named historical proof baselines verify successfully.",
+      "excludes": [
+        "Fixture-only RED proof",
+        "Uncommitted ad-hoc grep as the sole RED evidence"
+      ],
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-003",
