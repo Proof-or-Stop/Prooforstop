@@ -85,6 +85,21 @@
       "resolvedAt": "2026-08-30T23:37:31.803Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2220:F-005",
+      "desc": "quality-coherence: packages/main/src/tasks/validation-evidence-buffer-smoke.ts:671 still labels the writer-owned guarantee as deferred after the accepted decision changed it to declined with no follow-up planned; lines 712-749 then claim the record must not regress and print that no follow-up is active, but they reject only three exact legacy phrases. A read-only mutation adding This optimization remains mandatory and will continue in a later task left every required/forbidden guard true. WHY medium: build binding proves dist faithfully carries the same stale/overbroad contract, so the executable smoke can report PASS for a contradictory paraphrased mandate even though the separate exact-digest verifier would catch it. Historicalise the section title and either narrow the smoke claim to the exact phrases it checks or bind it to the accepted document decision without duplicating a weaker semantic guarantee.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-30T23:41:07.954Z",
+      "reviewRound": "2026-08-30T23:37:17.497Z",
+      "reviewRunId": "B-2220:RR-011",
+      "_hash": "763707d040bd09c1798791286753faa06311dd6cb7dbc503cff3a0e008f46130",
+      "signatureTag": "adversarial|unknown|quality-coherence-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
