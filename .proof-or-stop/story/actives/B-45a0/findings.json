@@ -23510,6 +23510,25 @@
       "resolvedAt": "2026-08-30T16:01:09.694Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-45a0:F-427",
+      "desc": "packages/main/src/core/historical-replay-artifact.ts:171-172 the paired-performance-inventory-stale and paired-performance-catalog-stale rejection branches (inside checkPairedPerformance, reached only when value.head equals expected.head or expected.admittedHistoricalHead) have zero test coverage: grep for these exact strings across packages/main/src finds only their own definition site, never a test assertion. historical-replay-artifact-smoke.ts:199-207 (F-423/F-425 resolution cited producer-drift regression) only exercises isPermittedReplayHeadDriftPath allowlist rejection, which short-circuits before the digest comparisons at 171-172 -- it never causes inventoryDigest or catalogDigest to actually diverge while head/admittedHistoricalHead still match. Since inventoryDigest/catalogDigest are recomputed from live working-tree filesystem state, the scenario these two branches exist to catch (catalog/inventory-affecting source mutated while HEAD is unchanged or only drifted through admitted consumer paths) is untested and the branches remain dead code from a test-coverage perspective. F-423 resolution's general claim of producer/config/catalog/runner drift rejection holds for path-allowlist-detectable drift but not for this specific digest-mismatch mechanism. Recommend a test case that holds head/admittedHistoricalHead constant while mutating a real catalog/inventory-affecting source file so inventoryDigest or catalogDigest actually differs, asserting the corresponding reason fires.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-30T16:20:01.233Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1040",
+      "_hash": "55c3f5b546b7720c7459dc8c13eda0443870877bbde19d08a91507e0288162f3",
+      "files": [
+        "packages/main/src/tasks/historical-replay-artifact-smoke.ts",
+        "packages/main/src/core/historical-replay-artifact.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
