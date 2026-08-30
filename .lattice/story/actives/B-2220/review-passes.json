@@ -353,6 +353,43 @@
       },
       "readDiagnostics": [],
       "_hash": "cae09df1656d6a8a377d5ad0b6e2fd13e827e53d8dff91f06724fba88be9c796"
+    },
+    {
+      "id": "B-2220:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Closure test-coverage PASS: 7/7 current intents independently re-executed, 0 must gaps, 0 waivers. All six docs checks pass; the required paraphrased mandate mutation changes the exact decision digest from 02bb788f...83b75d to e80b2ae2...92ca. Build binding and the complete compiled validation-evidence-buffer smoke exit 0 with its PASS selector. F-006 changed comments plus one assertion failure message only: 126 executable assertion predicates before/after have identical SHA-256 09e19d6f...de1f7, so executable proof was not weakened.",
+      "createdAt": "2026-08-30T23:56:01.097Z",
+      "reviewRound": "2026-08-30T23:51:06.818Z",
+      "reviewRunId": "B-2220:RR-020",
+      "envelopeId": "fe698524426c8afabd5186a7978de5ee3b90a878bb094867232a474c712af0e5",
+      "writerSessionId": "sess-a63a0e98d16210f6e40f11de022115d8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "scripts/full-suite-build-binding.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "700b5fb2f81b0e737134b23507340c532c2d17f232ebfee41fa9e053d712dcd7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1adf41c3be385f7db49bdae906cd27652910da812949e0e5f560f720775413b4"
     }
   ]
 }
