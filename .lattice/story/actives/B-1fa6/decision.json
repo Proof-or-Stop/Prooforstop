@@ -1,0 +1,88 @@
+{
+  "principles": [
+    "Separate observation truth from current-Story applicability and responsibility.",
+    "Historical evidence may nominate candidates but only current signed evidence may change a lifecycle gate.",
+    "Fail closed for unknown critical or high applicability while keeping medium and low uncertainty advisory.",
+    "Preserve append-only audit history through explicit lineage and supersession instead of destructive rewrites.",
+    "Assign every process fact and write path to one mechanically verified owner."
+  ],
+  "drivers": [
+    "Reduce finding-heavy Story review and disposition time without hiding genuine high or critical defects.",
+    "Remain compatible with the existing Finding corpus and Experience Layer non-authoritative contract.",
+    "Avoid a monolithic gate migration by making ledger, identity, applicability, and freshness independently testable."
+  ],
+  "options": [
+    {
+      "name": "Single related flag on Finding",
+      "pros": [
+        "Small schema change",
+        "Simple reviewer interface"
+      ],
+      "cons": [
+        "Cannot represent scope changes, ownership, runtime freshness, or historical correction",
+        "Encourages permanent and unsafe related or unrelated decisions",
+        "Cannot address ledger integrity or detector noise"
+      ]
+    },
+    {
+      "name": "One monolithic Dynamic Finding implementation Story",
+      "pros": [
+        "One headline delivery",
+        "All concepts can be demonstrated together"
+      ],
+      "cons": [
+        "Combines storage, classifiers, history, runtime evidence, and gates in one high-risk review surface",
+        "Makes rollback and process-fact verification difficult",
+        "Increases convergence and partial-delivery risk"
+      ]
+    },
+    {
+      "name": "One program with four components and three ordered implementation Stories",
+      "pros": [
+        "Covers all seven problems with explicit ownership",
+        "Allows ledger and evidence foundations to be proven before gate enforcement",
+        "Supports observe, warn, and enforce rollout with independent rollback",
+        "Keeps historical learning advisory until current assessment evidence is minted"
+      ],
+      "cons": [
+        "Requires dependency management across three Stories",
+        "The four components do not map one-to-one onto three Stories and must be documented precisely"
+      ]
+    }
+  ],
+  "chosen": "One program with four components and three ordered implementation Stories",
+  "rationale": "This option is the smallest architecture that can cover all seven evidenced failure classes without pretending that applicability alone fixes detector quality, historical identity, runtime freshness, or concurrent writes. It preserves the existing deterministic lifecycle and makes each future gate change dependent on signed, current evidence.",
+  "preMortem": [
+    {
+      "scenario": "Frozen corpus counts in the document drift and become false evidence.",
+      "trigger": "New Stories or Findings are added after the plan is committed.",
+      "consequence": "Reviewers size the problem from stale duplicated figures and repeat B-META F-030/F-031.",
+      "mitigation": "Label every count as a dated HEAD-bound observation, store the regeneration commands, and make the invariant depend on query shape rather than the copied number."
+    },
+    {
+      "scenario": "Historical learning silently becomes gate authority.",
+      "trigger": "An implementation reads signatureTag, recall score, or a historical outcome directly inside isFindingBlocking.",
+      "consequence": "Old or weak evidence can incorrectly block or unblock the current Story.",
+      "mitigation": "Require a signed current applicability assessment as the only new L4 fact, keep learning records gateEvidence=false, and extend the process-fact contract verifier."
+    },
+    {
+      "scenario": "An unrelated high or critical Finding is downgraded from file disjointness alone.",
+      "trigger": "The classifier treats no changed-file overlap as proof of pre-existing or out-of-scope status.",
+      "consequence": "A transitive shared-path regression escapes REVIEW.",
+      "mitigation": "Require base and head reproduction plus scope evidence or an explicit routed owner; unknown critical and high remain blocking."
+    },
+    {
+      "scenario": "The three follow-up Stories are delivered in headline order rather than dependency order.",
+      "trigger": "Dynamic gate enforcement lands before ledger atomicity or runtime receipts are verified.",
+      "consequence": "Applicability records can be lost or remain fresh against the wrong executable artifact.",
+      "mitigation": "Document semantic Story numbering separately from execution order and make enforcement depend on the ledger/runtime and identity/lineage deliverables."
+    },
+    {
+      "scenario": "A batch manifest hides an unresolved member behind a cluster or canonical defect.",
+      "trigger": "The batch apply command trusts a group verdict without per-member evidence and canonical-owner validation.",
+      "consequence": "A genuine blocker is silently treated as duplicate or routed.",
+      "mitigation": "Sign the manifest digest and each member disposition, require a live canonical owner, and reject incomplete, stale, or tampered member sets."
+    }
+  ],
+  "timestamp": "2026-08-30T22:28:55.272Z"
+}
