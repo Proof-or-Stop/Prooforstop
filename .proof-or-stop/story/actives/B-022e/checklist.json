@@ -244,9 +244,9 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md",
         "docs/requirements/decisions/story-files-hash-material-drift.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-30T22:47:49.188Z",
-      "endTime": null,
+      "endTime": "2026-08-30T23:25:14.293Z",
       "userSees": "Fresh-runtime checks print `PASS canonical identities` and `PASS roles: proof-or-stop-review-story-init and complete proof-or-stop-* registry`; every legacy lattice-* role lookup prints unknown-role and exits non-zero.",
       "excludes": [
         "Changing historical signature salts",
@@ -301,6 +301,13 @@
             "type": "cli"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "b1e9675715b87ccf80dfd1ef860334bfbaf6295a24493f781b65656a9ac1ed58",
+        "storyFilesHash": "019508ac9517b0a01db5de196d940cc5889c718471526a1b6faa884a15a044b3",
+        "headHash": "3009a6b60a7beed39d5df4ef46d0ad2221642e0a",
+        "attestedAt": "2026-08-30T23:25:14.511Z",
+        "materialHash": "a7f0ad9254707acabc2b3cfbfeb93ccf834dcf485c2b323a04f0e297cf00bdf2"
       }
     },
     {
