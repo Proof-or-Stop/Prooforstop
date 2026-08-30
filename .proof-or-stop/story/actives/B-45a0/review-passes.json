@@ -22606,6 +22606,31 @@
         "scanEscalationReason": null
       },
       "_hash": "aec8e9eb798952a4397f19341a3d2b914b80ca8c1e588b9c02b6f8758c003f8b"
+    },
+    {
+      "id": "B-45a0:RP-466",
+      "agent": "lattice-review-test-coverage",
+      "note": "Wave 2 test-coverage re-confirm of F-427 fix: re-verified both paired-performance-inventory-stale and paired-performance-catalog-stale branches at historical-replay-artifact.ts:171-172, rebuilt, ran historical-replay-artifact-smoke.js (PASS), and independently re-ran the mutation check (deleting the inventory-stale branch fails the smoke test with an assertion error; restoring it passes again). No source drift in working tree. No new coverage gaps found in commits e3a6186f7f/f2e648606d.",
+      "createdAt": "2026-08-30T17:27:50.370Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1057",
+      "envelopeId": "e7a0b37af991a9d3bbb058b1ac663e41db512135cc595f759fd260f10400656e",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "16ed997a4ac44763bdbe159b7f2e093b23377b8caa041fbbdccfe1b1163a7393"
     }
   ]
 }
