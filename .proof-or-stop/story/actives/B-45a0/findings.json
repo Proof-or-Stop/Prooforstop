@@ -23369,7 +23369,7 @@
       "desc": "replay-admission-range-mismatch: packages/main/src/core/historical-replay-artifact.ts:13 and :257 admit a signed executed paired report only when records.length is at least 50, while the replay producer accepts any population with at least 30 DONE Stories and selects up to 50 (packages/main/src/tasks/story-aware-validation-historical-replay.ts:174-198). The normative plan and enforcement gate require 30–50 replays (story-aware-dynamic-validation-execution-plan.md:1397 and dynamic-validation-enforcement-evidence.md:19). Thus a complete signed, execute=true, paired, otherwise-admissible 30–49 Story campaign is rejected as historical-replay-record-count-invalid despite meeting policy; the verifier also does not express the 50-story upper bound. This blocks the permitted minimum campaign from supporting DYN-3. Enforce the policy range and add boundary regressions for 29 rejected, 30 accepted, and 51 rejected.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-30T14:21:50.638Z",
@@ -23408,7 +23408,11 @@
         "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
       ],
       "signatureTag": "historical-replay-admission-range",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in e3a6186f7f. historical-replay-artifact.ts now enforces the normative 30-50 policy range: MINIMUM_HISTORICAL_STORIES lowered 50 to 30, new MAXIMUM_HISTORICAL_STORIES=50 upper bound, both checked in verifyHistoricalReplayArtifact so 51 records now yield historical-replay-record-count-invalid. Boundary regressions added to historical-replay-artifact-smoke.ts covering 30 accepted, 29 rejected, 51 rejected. Verified by running node packages/main/dist/tasks/historical-replay-artifact-smoke.js which prints historical replay artifact smoke PASS.",
+      "resolvedAt": "2026-08-30T15:57:48.473Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-425",
