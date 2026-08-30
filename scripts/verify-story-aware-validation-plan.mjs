@@ -12,8 +12,8 @@ const approvedSourceSha256 = 'db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68
 // The approved plan was amended with the signed-artifact admission boundary.
 // Keep this exact byte identity beside the verifier so newline, Unicode, and
 // payload-prefix drift fail closed instead of silently changing the contract.
-const expectedSha256 = '4c48c3c52e7d2cfee36cc5fd3194965b52cbf61363a12f4000d29879ee819a6d';
-const expectedBytes = 80196;
+const expectedSha256 = '1132853e574f3b28e4b7ba53bfb81717b4755d425f56e0ee268930b37970372c';
+const expectedBytes = 80447;
 const requiredSelectors = [
   '# Story-Aware Dynamic Validation — Execution and Audit Plan',
   '## 1. Executive decision',
