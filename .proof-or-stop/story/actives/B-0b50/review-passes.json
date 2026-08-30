@@ -700,6 +700,31 @@
         "scanEscalationReason": null
       },
       "_hash": "abb7819819c5779ec651eeeea11ef201f5d0f9152fa9e31d02ec2764ef1575dc"
+    },
+    {
+      "id": "B-0b50:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified against current HEAD (e8f31eb). Since RP-023 only one source commit landed (383c9c2d35): appends CMUX_SOCKET_PATH and CMUX_TERMINAL_LIFECYCLE_ID to HOST_LAUNCHER_SESSION_ENV_KEYS with a matching doc-comment update. Digest-pinned list and digest are unchanged; new keys are stripped at the filter seam, not appended to the pinned list. Regression test imports the array (not a re-listed literal) and its digest-neutrality loop genuinely varies each key and asserts digest equality, so the two new keys are covered automatically. No as any, no empty catch, no dead code. Other diff since RP-023 confirmed to be .proof-or-stop lifecycle metadata only. No blocking quality-lane issues found.",
+      "createdAt": "2026-08-30T19:00:26.453Z",
+      "reviewRound": "2026-08-30T18:58:39.043Z",
+      "reviewRunId": "B-0b50:RR-039",
+      "envelopeId": "a09f97c6eb019b3eddf1064ac47a200d9d6603eedfbd5e4871f411bbb3ef7940",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0722664d8b10d3557ff5cd38c19f24dca27c3212018ee7d96ad4878070f46007"
     }
   ]
 }
