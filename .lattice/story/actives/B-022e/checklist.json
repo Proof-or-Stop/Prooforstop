@@ -166,7 +166,32 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "README, CLI docs, generated prompts, adapters, hooks, verifiers, and current source prose describe only Proof-or-Stop; historical decision/changelog text remains an honest record.",
+      "excludes": [
+        "Rewriting prior decision claims in place",
+        "Rewriting CHANGELOG history"
+      ],
+      "files": {
+        "modify": [
+          "README.md",
+          "docs/CLI.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/templates",
+          ".claude/agents",
+          ".proof-or-stop-codex/agents",
+          "scripts",
+          ".githooks"
+        ],
+        "create": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-007",
