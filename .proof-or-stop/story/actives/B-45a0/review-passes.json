@@ -22455,6 +22455,30 @@
         "scanEscalationReason": null
       },
       "_hash": "1a78c90340ab9b8907c420e7341c6d69bd65e30619213f5629d79289b43b0f4e"
+    },
+    {
+      "id": "B-45a0:RP-460",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-confirmed F-427 fix in commits e3a6186f7f/f2e648606d: paired-performance-inventory-stale/catalog-stale branches in historical-replay-artifact.ts:170-171 now covered by digestOverrides-based smoke cases holding HEAD constant and diverging signed digests; smoke test rebuilt and rerun PASS at current HEAD, files clean, no coverage gap found.",
+      "createdAt": "2026-08-30T17:12:31.896Z",
+      "reviewRound": "2026-08-30T15:57:31.479Z",
+      "reviewRunId": "B-45a0:RR-1052",
+      "envelopeId": "8f9911afed09d7ac9f6f56410ea69f21d2a21148a371ccba312516dfbf91e63f",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/tasks/historical-replay-artifact-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5ff722bec4cbf332d7bcb632a3156316d59366dd6c702300ac5b5020016cbf9f"
     }
   ]
 }
