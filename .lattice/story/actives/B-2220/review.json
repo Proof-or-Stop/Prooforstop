@@ -96,6 +96,34 @@
         }
       ],
       "_hash": "2a8e8d453e4b9c505b6f754df02e54686222605fefe937ba685558998956180b"
+    },
+    {
+      "timestamp": "2026-08-30T23:09:02.252Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        },
+        {
+          "type": "missing_decision",
+          "severity": "advisory",
+          "message": "decision.json not filled. Optional for non-high-risk stories, but recommended so reviewers can audit the design rationale."
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (none) does not match the current review round (2026-08-30T23:02:35.178Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "e0919f16096c1b8d420c9733d9227c7e55dda8f0b37e9edf6f7b5ea22d0b73e9"
     }
   ]
 }
