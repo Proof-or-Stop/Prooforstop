@@ -29,6 +29,7 @@ import { persistSyntheticAdmittedWindowForTest } from '../core/certification-win
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
 import {
   effectiveValidationCommandEnvironment,
+  HOST_LAUNCHER_SESSION_ENV_KEYS,
   VALIDATION_TRANSPORT_ENV_KEY_LIST,
 } from '../core/validation-command-environment.js';
 
@@ -356,14 +357,9 @@ function assertDoneRequiredBlocked(
     // pid; the socket path embeds it), and leaving them ambient made a receipt
     // written in one session unverifiable in the next -- surfacing as
     // effective-environment-digest-mismatch on a story that had actually passed.
-    for (const key of [
-      'CLAUDE_CODE_CHILD_SESSION',
-      'CLAUDE_CODE_MESSAGING_SOCKET',
-      'CLAUDE_CODE_MESSAGING_TOKEN',
-      'CLAUDE_PID',
-      'CODEX_COMPANION_SESSION_ID',
-      'CODEX_COMPANION_TRANSCRIPT_PATH',
-    ]) {
+    // Imported, never re-listed: a hand-copied literal would silently stop
+    // covering a key added to the source list later (B-0b50:F-012).
+    for (const key of HOST_LAUNCHER_SESSION_ENV_KEYS) {
       const ownerSession = buildDoneRequiredExecutionIdentity({
         projectRoot: root, policy,
         processEnvironment: { ...common, [key]: 'session-one' }, platform: 'linux',
