@@ -1,0 +1,101 @@
+{
+  "storyId": "B-2220",
+  "checkedAt": "2026-08-30T22:55:49.652Z",
+  "features": [
+    {
+      "feature": "Record the human decision that the B-3434 writer-owned canonical boundary follow-up is declined and not currently justified.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2220/background.md; .lattice/story/actives/B-2220/checklist.json"
+    },
+    {
+      "feature": "Preserve B-3434 as accepted and preserve its shipped mechanism, measurements, transcripts, historical findings, and known limitations without claiming they were fixed.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2220/understanding.json; .lattice/story/actives/B-2220/checklist.json"
+    },
+    {
+      "feature": "Explain that measuring and writing one serialized byte string does not establish input consistency, semantic consistency, or evidence truth.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2220/checklist.json"
+    },
+    {
+      "feature": "Explain why the cross-file refactor is disproportionate for the current plain-JSON production path where no real triggering input is known.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2220/background.md; .lattice/story/actives/B-2220/understanding.json"
+    },
+    {
+      "feature": "Define concrete evidence-based conditions under which the declined proposal should be reconsidered.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2220/checklist.json"
+    },
+    {
+      "feature": "Remove or clearly supersede active unassigned-owner, work-order, and mandatory-follow-up language throughout the decision document.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2220/checklist.json; docs/requirements/decisions/validation-evidence-artifact-growth.md"
+    },
+    {
+      "feature": "The user sees the exact decision, continued B-3434 acceptance, and a Reconsider only if trigger section in the target document.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2220/checklist.json"
+    },
+    {
+      "feature": "Modify only docs/requirements/decisions/validation-evidence-artifact-growth.md.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2220/understanding.json; .lattice/story/actives/B-2220/execution-boundary.json"
+    },
+    {
+      "feature": "Implement the previously proposed writer-owned boundary or make runtime/source-code changes.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The user requested a decision-document update only; runtime and source-code work are explicitly outside B-2220.",
+      "source": ".lattice/story/actives/B-2220/scope-boundary.json; .lattice/story/actives/B-2220/execution-boundary.json"
+    },
+    {
+      "feature": "Change B-3434 historical story artifacts/findings or perform remote publishing/deployment.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Historical story metadata and remote side effects are explicitly outside the maintenance scope.",
+      "source": ".lattice/story/actives/B-2220/scope-boundary.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-2220/background.md",
+      ".lattice/story/actives/B-2220/checklist.json",
+      ".lattice/story/actives/B-2220/execution-boundary.json",
+      ".lattice/story/actives/B-2220/index.json",
+      ".lattice/story/actives/B-2220/scope-boundary.json",
+      ".lattice/story/actives/B-2220/scope-freeze-check.json",
+      ".lattice/story/actives/B-2220/understanding.json",
+      "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 10,
+    "covered": 8,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0350369f89b3c0e4874035b9fd9f8868de7987d081055dfe3ebe0dfc3ec4de4b",
+  "openQuestions": []
+}
