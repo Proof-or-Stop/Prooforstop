@@ -9500,7 +9500,7 @@
       "reviewRound": "2026-08-30T11:33:19.289Z",
       "state": "OPEN",
       "begunAt": "2026-08-30T12:10:57.560Z",
-      "updatedAt": "2026-08-30T12:10:57.560Z",
+      "updatedAt": "2026-08-30T12:32:58.794Z",
       "cutoff": {
         "headHash": "52257db538e7043103ea62496ef163fad2944426",
         "materialHash": "cb44357ecc2764bd334776e8e358463866e5dde301135418bcb3fd2330d1f24f",
@@ -9515,9 +9515,69 @@
       ],
       "initialRunSequenceBoundary": 994,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-30T12:10:57.560Z",
+          "completedAt": "2026-08-30T12:32:58.794Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-997",
+              "terminal": "finding",
+              "hostIdentity": "5fa73d549ead8bbc6cc608c6d50c0e2b19a06642688ece4caf6f7dc2ecf6cacb",
+              "promptIdentity": "1128a11033448c03123b097748136a48f34468f8144c2b301ebf38f9ca04b91e",
+              "evidenceIds": [
+                "B-45a0:F-419"
+              ],
+              "coverageDigest": "11522a8c601fa29e6128e56c8ead1f61d4892b25de8a4e27460192c6ccf3d047"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-995",
+              "terminal": "finding",
+              "hostIdentity": "5fa73d549ead8bbc6cc608c6d50c0e2b19a06642688ece4caf6f7dc2ecf6cacb",
+              "promptIdentity": "64f88a82c308b4b170ce5b2a6986877f0b7ca1c6c2c224615080d79ed8dd0161",
+              "evidenceIds": [
+                "B-45a0:F-420"
+              ],
+              "coverageDigest": "9b781d34e6cf34cc904299763093540bcd28a04c7ce6850ff4a4f9f0aa4e82e9"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-996",
+              "terminal": "finding",
+              "hostIdentity": "5fa73d549ead8bbc6cc608c6d50c0e2b19a06642688ece4caf6f7dc2ecf6cacb",
+              "promptIdentity": "a789c6ad13eec1894ac6fd98983eea0d2dd258859cc8c0922753e317b9be5b50",
+              "evidenceIds": [
+                "B-45a0:F-421"
+              ],
+              "coverageDigest": "1ae026c66dfd71a23af55b16d07f08a56e48e62817c0bc15189d5594ffb05ddd"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-998",
+              "terminal": "finding",
+              "hostIdentity": "254bc2c81ddb003af5331ae5b27f03b16470d1c693a25df3f7089ab456e793a5",
+              "promptIdentity": "447d6a3130ccef0a8208c59af00d7fd1adadfebece29e739fa0c478a8b3cf7ba",
+              "evidenceIds": [
+                "B-45a0:F-422"
+              ],
+              "coverageDigest": "b8e39b0e9f9497af29ff63a7e253f9a96b52e1746cefe5d1eea9384311fab053"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "canonical-checklist-evidence-retention"
+          ],
+          "verifiedFindingSetDigest": "d0bb398f2b569c4236b076ceea8532ce136fea148d6b09b92dc8ac895cb7e81e",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "ca5f8006b70383d0fb5c28423d71c6e8c5e36a8d33ead502f11016200d344b7f",
+          "saturated": false,
+          "nextRunSequenceBoundary": 1000
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "f95132dd688d6ef87cf140b5417133ce13b27b0e2415b58137c216bbc8e17265"
+      "_hash": "669ed36697b61af60c71d37f7f1273278833fa8f2da1320471a66cb8ee3be329"
     }
   ],
   "receipts": [
@@ -15312,6 +15372,55 @@
       "findingDispositions": [],
       "createdAt": "2026-08-30T07:16:20.389Z",
       "_hash": "6668057253b5bb739667b8a0dcf4c90c356b4f5ae1c48105761185ce8ebb9446"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-100:CRIT-01",
+      "epochId": "B-45a0:RI-100",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-30T11:33:19.289Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "52257db538e7043103ea62496ef163fad2944426",
+        "materialHash": "cb44357ecc2764bd334776e8e358463866e5dde301135418bcb3fd2330d1f24f",
+        "storyFilesHash": "c13389d56c5d016f7da6d274f358750710fc17231ace210625f84f6ea2a16847"
+      },
+      "aggregateFindingSetDigest": "d0bb398f2b569c4236b076ceea8532ce136fea148d6b09b92dc8ac895cb7e81e",
+      "requiredLaneCoverageDigest": "25160713e35303cd0d06a0ef0b0d93cd54730dcfdf723c1a9da834c0da98acd1",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-1000",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-431"
+      ],
+      "readEvidenceDigest": "6985b162617f7c7974db56def6dd1de6001e9df45a3cd5a176cc60211ae32304",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-419",
+          "disposition": "verified_family",
+          "familyKey": "canonical-checklist-evidence-retention",
+          "reason": "Verified root defect: canonical stale-evidence refresh is rejected by the closeout retention registry."
+        },
+        {
+          "findingId": "B-45a0:F-420",
+          "disposition": "verified_family",
+          "familyKey": "canonical-checklist-evidence-retention",
+          "reason": "Independent quality evidence confirms the same missing receipt-bound checklist policy."
+        },
+        {
+          "findingId": "B-45a0:F-421",
+          "disposition": "verified_family",
+          "familyKey": "canonical-checklist-evidence-retention",
+          "reason": "Coverage evidence confirms the same root and requires allowed and rejected-writer regression coverage."
+        },
+        {
+          "findingId": "B-45a0:F-422",
+          "disposition": "verified_family",
+          "familyKey": "canonical-checklist-evidence-retention",
+          "reason": "Documentation omission is the same retention contract defect and must be corrected with the implementation."
+        }
+      ],
+      "createdAt": "2026-08-30T12:30:59.972Z",
+      "_hash": "f7655011582b8c56e0d72c0ee351b6eba73e49c132b8b3daa1b7806a1a811d40"
     }
   ]
 }
