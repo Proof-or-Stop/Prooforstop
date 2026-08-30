@@ -76,6 +76,55 @@
         "scanEscalationReason": null
       },
       "_hash": "798ad3d0b5bc1c476255e1ae04218d4231e8582ecf102e9e8e2b01d8bf6f48bf"
+    },
+    {
+      "id": "B-1fa6:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 40 must intents have 40 valid docs_check receipts, zero gaps and zero waivers; independently replayed the CLI corpus and named Finding evidence, then verified structure, fail-closed paths, rollback, dependencies, and lab scope transition.",
+      "createdAt": "2026-08-30T23:11:06.891Z",
+      "reviewRound": "2026-08-30T23:04:38.253Z",
+      "reviewRunId": "B-1fa6:RR-002",
+      "envelopeId": "4d0313b2896b46891bc12ea7fdc562accdca3c879b72a42e1c927e8d6139ceee",
+      "writerSessionId": "sess-596d26992c51349591fde2693027e348",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1fa6/background.md",
+          ".lattice/story/actives/B-1fa6/checklist.json",
+          ".lattice/story/actives/B-1fa6/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/step3-review-budget-breaker-handoff.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "cd183fa2dd7be629ccc6d9f94175e70ee77c829e04c4069d488622e4490469fd"
+      },
+      "readDiagnostics": [],
+      "_hash": "49b1a9ba9dbc56bd5f402580cf56614de0888eb7bd29d0a838c501edd7407eff"
     }
   ]
 }
