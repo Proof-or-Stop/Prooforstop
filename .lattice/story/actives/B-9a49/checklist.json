@@ -211,6 +211,63 @@
           "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:review-only-registration",
+            "desc": "Enumerate active role contracts and assert that defect-triage-and-routing-check is present in requiredCheckIds for exactly lattice-review-behavior, lattice-review-concept, lattice-review-docs, lattice-review-quality, and lattice-review-test-coverage; every non-REVIEW, retired, INIT, PLAN, DEV, TEST, DONE, and evaluator role contract omits it.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:happy:declarative-rendering",
+            "desc": "Render each active REVIEW role contract and assert that the check identifier is carried consistently as a declarative requirement without claiming execution or emitting a review pass, Finding, applicability assessment, or gate artifact.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:metadata-cannot-satisfy-gate",
+            "desc": "Keep the triage requiredCheckId present but omit or stale signed review_run_start/reviewRunId and review_pass_set or finding_add evidence; the existing REVIEW gate must still refuse or report the same missing or stale structured evidence, proving requiredCheckIds and prompt prose are neither execution proof nor gate evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:edge:dynamic-runtime-unchanged",
+            "desc": "Compare the Dynamic Finding runtime contract before and after this change: Finding schema fields, evidenceState and severity semantics, applicability verdict vocabulary, freshness and supersession rules, isFindingBlocking behavior, command policies, and process-fact consumers remain unchanged by the metadata-only registration.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:no-authority-dataflow",
+            "desc": "Search lifecycle and gate consumers and attempt to feed requiredCheckIds, rendered prompt text, or the defect-triage-and-routing-check string as authority; fail unless these values remain confined to prompt or role-contract assembly and contract verification, with no path able to mint or substitute signed L4 evidence.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:runtime-matrix-invariant",
+            "desc": "Exercise verified open blocking findings, suspected and disproven findings, round decay, and missing, unknown, or stale applicability information; outcomes must match the authoritative runtime and must not change when the declarative metadata is added, removed, or forged.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-003:adversarial:no-dynamic-schema-expansion",
+            "desc": "Assert the change introduces no related boolean, applicability field on Finding, automatic resolve, dismiss, hide, or delete behavior, severity rewrite, owner or route gate shortcut, freshness rebind, or new Dynamic Finding command or schema; any such runtime mutation fails CHK-003 even when prompt contract tests pass.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
