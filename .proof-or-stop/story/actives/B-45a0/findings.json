@@ -6247,7 +6247,7 @@
       "desc": "concept-cleanup: the required shared changed-file resolver is not a complete replacement. packages/main/src/core/evidence-freshness.ts:427-473 still retains the superseded private changedStoryFilesBetween and objectIdsAtRef implementations, and :411-424 keeps a second mergeBaseWithMain implementation; rg confirms the former two are now unused while currentStoryFilesHash at :477-481 calls resolveStoryChangedFiles from packages/main/src/core/story-aware-validation.ts:158-183. This leaves two changed-file/merge-base concepts and dead resolver residue in the changed implementation, so future fixes can diverge between freshness and dynamic selection despite CHK-003 requiring one shared resolver. Remove the old helpers and use the shared resolver base result (or explicitly centralize/re-export the sole implementation).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-22T06:01:52.627Z",
@@ -6385,7 +6385,11 @@
       ],
       "signatureTag": "concept-cleanup-shared-changed-resolver",
       "signatureTagSource": "confirmed",
-      "clusterId": "CL-013"
+      "clusterId": "CL-013",
+      "resolvedReason": "Superseded by current code state, independently verified at HEAD ee5b2fb by the concept lane in epoch RI-109 and re-confirmed by the main agent. The three superseded private implementations named in this finding (changedStoryFilesBetween, objectIdsAtRef, mergeBaseWithMain) return ZERO hits across a repo-wide grep of packages/*/src for *.ts, so the retained-duplicate-resolver condition no longer holds. The shared resolvers resolveStoryMergeBase / resolveStoryChangedFiles in packages/main/src/core/story-aware-validation.ts are now the single implementation, and the concept lane's repo-wide residual scan of all four deleted local names also returned zero references (recorded in review pass B-45a0:RP-499).",
+      "resolvedAt": "2026-08-31T11:42:23.073Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-122",
