@@ -295,7 +295,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:723-776,1293-1294,1324-1333 [medium] progressEvidence is not mechanically replay-resistant. Its schema contains only previousDeferralId, free-form evidenceRefs, and progressDigest; it has no admissible evidence kind, referenced evidence hash/signature, producedAt, target/head/material binding, or predecessor baseline digest. Consequently the requirement that evidence be created after the predecessor and materially changed cannot be proven from the receipt: stale or cross-target refs, reordered refs, or a newly signed digest over unchanged bytes can satisfy the shape. Define canonical server/CLI-derived progress input tuples and digest comparison against the predecessor target snapshot, require referenced signed target evidence newer than the predecessor and current at renewal, and add replay/reorder/cross-target/stale-evidence negative tests.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T01:09:42.458Z",
@@ -306,7 +306,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 9d96f86af9: typed ProgressEvidenceBinding signs evidence ID, hash, signature and producedAt, full target snapshot, previous deferral and predecessor baseline in a canonical tuple digest; stale, cross-target, reordered, replayed and re-signed unchanged evidence is explicitly rejected.",
+      "resolvedAt": "2026-08-31T01:27:32.370Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-016",
