@@ -11382,6 +11382,56 @@
       },
       "readDiagnostics": [],
       "_hash": "e7de28d0a2ddf7363dab4d072ac9ee37cfd122ba8476ba08bc3ff0f1e083b5fe"
+    },
+    {
+      "id": "B-5a15:RP-237",
+      "agent": "lattice-review-concept",
+      "note": "Concept review of B-5a15 HEAD 7b51bf8: no public API deletion. Unique execution keys, immutable CAS receipts before canonical import, and signed causal invalidation are implemented in causal-evidence.ts and wired through checklist, store, CertificationWindow, and evidence-freshness. Internal helper rename sameFileCallableCalls->sameFileCallableReachable has no residual. Post-start test-only F-247 bootstrap codes do not remove U-03. No concept-deletion blocker.",
+      "createdAt": "2026-08-31T17:23:20.136Z",
+      "reviewRound": "2026-08-26T09:37:09.709Z",
+      "reviewRunId": "B-5a15:RR-763",
+      "envelopeId": "fff49fb2a99d7f9436d013b0c20ea8c03ad7da4cad66a5fe2a6e91d73dc0036b",
+      "writerSessionId": "sess-review-concept-b5a15",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "e80825281499be0cb711f44b6197d4eda471857b63a1946bac336c2494c455df"
+      },
+      "readDiagnostics": [],
+      "_hash": "e8fdcc51757ba1a5e7b8980b7d1fdaa615177b1d6f71fc48d67c91adb179ac91"
     }
   ]
 }
