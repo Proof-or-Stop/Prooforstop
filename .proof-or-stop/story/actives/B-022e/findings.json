@@ -68,7 +68,7 @@
       "desc": "package-install-boundary: packages/lab/package.json:15 and packages/utils/package.json:15 pin @proof-or-stop/core@0.3.65 while packages/main/package.json:8 packs the only supplied core tarball as 0.3.268. Therefore the mandated four-tarball clean install cannot close its dependency graph with registry/network fallback disabled; it must fetch a second core@0.3.65 that these artifacts do not provide. scripts/verify-global-lab-entrypoint.mjs:12,72-73 incorrectly codifies the mismatch as expected, and CHK-003/CHK-007 evidence invokes that workspace-only verifier rather than the promised tarball install. Align the extension dependency constraints with the packed core version (and locks/verifier), then record a mechanically executed empty-project install of only the four tarballs under disabled fallback.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-31T01:42:47.621Z",
@@ -82,7 +82,11 @@
         "scripts/verify-global-lab-entrypoint.mjs"
       ],
       "signatureTag": "missing|json|package-install-boundary",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 75a231165a: Lab and Utils retain 0.3.65 while accepting core through peer range ^0.3.65; source, locks, packed manifests, and four-tarball offline install resolve core 0.3.268 with a closed dependency graph.",
+      "resolvedAt": "2026-08-31T03:05:05.111Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-005",
