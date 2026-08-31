@@ -1896,7 +1896,7 @@ function assertCloseoutTrustBoundary() {
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
     // B-1e1f: lockstep with PINNED_EXECUTABLE_SOURCE_FINGERPRINTS closeout-trust-smoke.ts
     // after persistSyntheticAdmittedWindowForTest (see B-cdf6:F-057 coupling note).
-    '49af08591ff783654df81918b26db7a9be9478e0fa3655fadaeabb79e0cb6d37',
+    '0db66c17122a2b50330de960fa3be4ece0d77b48bd5815d21dcff60513d8871e',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
     //
@@ -1914,8 +1914,8 @@ function assertCloseoutTrustBoundary() {
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
-    '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527',
-    '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e',
+    'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739',
+    '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f',
     'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',
     'post-call assignment of canonical report.claims into an exported container must invalidate the complete importer fingerprint',
     'changing the path producer behind an otherwise identical benign loader call must invalidate its source fingerprint',
@@ -2013,10 +2013,13 @@ function assertCloseoutTrustBoundary() {
     "'packages/main/src/handlers/fixture-executors.ts'",
     'efac815e5c27ce69c10c038846f53d99631617a75b97e0ee649844202f203822',
     '09f3a0a52a4e50818da742a5dbe69d1b9f108c10d171547ded64507e94020e5c',
-    'bin/bootstrap-runner.js is pinned in both the benign-loader and dynamic-code exemption maps, making seven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
+    '3d72a08a73de4add9b833e95eb52f3fcb3307e98f0fd8dc35b07fec8e99db2d0',
+    'bootstrap-runner.js and cli.ts are pinned in both exact exemption maps, making nine whole-source entries; no broad pattern exemptions are allowed',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
     '09f3a0a52a4e50818da742a5dbe69d1b9f108c10d171547ded64507e94020e5c',
-    'c8906ce79242cd30e4519990a69fc7b2b6725a29b12699b9ad32d703b4e0b6d1',
+    '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506',
+    'runDirectCli',
+    'workspaceLabSpecifier',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
     'PACKAGE_ALIAS_EDGE_INVENTORY',

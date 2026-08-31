@@ -373,7 +373,10 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // call shape or occurrence count changed; the whole-file structural
   // fingerprint just moves with any source edit to this file.
   // B-1e1f: repinned after persistSyntheticAdmittedWindowForTest; approved call shapes/occurrence counts unchanged.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', '49af08591ff783654df81918b26db7a9be9478e0fa3655fadaeabb79e0cb6d37'],
+  // B-022e post-merge re-attestation: canonical agent/config/store tokens changed
+  // fixture data only; the approved compatibility constructor call shapes and
+  // occurrence counts above remain unchanged.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', '0db66c17122a2b50330de960fa3be4ece0d77b48bd5815d21dcff60513d8871e'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
@@ -424,8 +427,13 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // enclosing file, while runCli's `file://${initPath}` loader and producer are
   // unchanged; the exact structural pin remains mutation-sensitive.
   ['packages/main/src/cli-engine.ts', 'b7f71c8c28ce724f8cf9552d9e665e5177c4c92e31226ea8cef3678ff3ebcfd2'],
-  ['packages/main/src/verifier/serve.ts', '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527'],
-  ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e'],
+  // B-022e post-merge re-attestation: runtime identity/path tokens changed;
+  // startCircuitServe's filePath producer and import(`file://${filePath}`)
+  // call shape remain unchanged.
+  ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
+  // B-022e post-merge re-attestation: fixture identities and expected command
+  // names changed to their canonical spellings; loadRuntime(modulePath) is unchanged.
+  ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
 ]);
 
@@ -450,6 +458,10 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // while MAIN_DIST, UTILS_DIST, and LAB_DIST remain the same path-derived loaders.
   // Ownership metadata and identity text add no executable-code construction sink.
   ['bin/bootstrap-runner.js', '09f3a0a52a4e50818da742a5dbe69d1b9f108c10d171547ded64507e94020e5c'],
+  // B-022e: main's standalone entrypoint loads the canonical Lab package first,
+  // then one repository-relative build fallback. The exact-file pin covers both
+  // the loader producer and the dynamically imported Lab namespace calls.
+  ['packages/main/src/cli.ts', '3d72a08a73de4add9b833e95eb52f3fcb3307e98f0fd8dc35b07fec8e99db2d0'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
 const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
@@ -1534,6 +1546,9 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
       { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(LAB_DIST).href' },
     ],
   }],
+  ['packages/main/src/cli.ts', {
+    calls: [{ anchor: 'runDirectCli', argument: 'workspaceLabSpecifier' }],
+  }],
   // B-cdf6: the canonical Codex entrypoint moved to bin/proof-or-stop-codex.js, and it now
   // probes a LIST of sibling bootstrap wrappers (canonical first, deprecated alias as
   // fallback) instead of a single hardcoded one — so the loader argument changed from
@@ -1557,7 +1572,9 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // The former path-derived zod loader is the literal package import('zod'), so it
   // leaves this exception set instead of receiving a broader allowance.
   ['bin/bootstrap-runner.js', '09f3a0a52a4e50818da742a5dbe69d1b9f108c10d171547ded64507e94020e5c'],
-  ['bin/proof-or-stop-codex.js', 'c8906ce79242cd30e4519990a69fc7b2b6725a29b12699b9ad32d703b4e0b6d1'],
+  ['bin/proof-or-stop-codex.js', '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506'],
+  // Same exact-file review boundary as the dynamic-module-call exemption above.
+  ['packages/main/src/cli.ts', '3d72a08a73de4add9b833e95eb52f3fcb3307e98f0fd8dc35b07fec8e99db2d0'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
@@ -4207,8 +4224,8 @@ function assertNormalizedSpecifierPositiveControls(): void {
 function assertDynamicCodeGenerationPositiveControls(): void {
   assert.equal(
     DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size,
-    7,
-    'bin/bootstrap-runner.js is pinned in both the benign-loader and dynamic-code exemption maps, making seven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
+    9,
+    'bootstrap-runner.js and cli.ts are pinned in both exact exemption maps, making nine whole-source entries; no broad pattern exemptions are allowed',
   );
   const cases = [
     ['direct eval', "eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
