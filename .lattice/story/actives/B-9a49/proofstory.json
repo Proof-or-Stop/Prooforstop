@@ -63,7 +63,7 @@
             "id": "C-DELIVERY-TOPOLOGY-CHECK",
             "sourceRef": {
               "refKind": "existing",
-              "canonicalSourceRef": "process-fact:acceptance_topology_check"
+              "canonicalSourceRef": "consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
             },
             "producerRefs": [
               "P-DELIVERY-BASIS-GENERATOR"
@@ -182,6 +182,26 @@
           {
             "refKind": "existing",
             "canonicalSourceRef": "basis-path:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
           }
         ]
       }
@@ -215,10 +235,10 @@
         ],
         "consumerRefs": [
           {
-            "id": "C-BOUNDARY-PRE-REVIEW-READER",
+            "id": "C-BOUNDARY-REVIEW-GATE",
             "sourceRef": {
               "refKind": "existing",
-              "canonicalSourceRef": "process-fact:pre_review_check_read"
+              "canonicalSourceRef": "consumer:transition-orchestrator DEV to REVIEW executable gate"
             },
             "producerRefs": [
               "P-BOUNDARY-PRE-REVIEW-CHECK"
@@ -236,7 +256,7 @@
               "P-BOUNDARY-PRE-REVIEW-CHECK"
             ],
             "consumerRefs": [
-              "C-BOUNDARY-PRE-REVIEW-READER"
+              "C-BOUNDARY-REVIEW-GATE"
             ]
           }
         ],
@@ -251,7 +271,7 @@
               "P-BOUNDARY-PRE-REVIEW-CHECK"
             ],
             "consumerRefs": [
-              "C-BOUNDARY-PRE-REVIEW-READER"
+              "C-BOUNDARY-REVIEW-GATE"
             ]
           },
           {
@@ -264,7 +284,7 @@
               "P-BOUNDARY-PRE-REVIEW-CHECK"
             ],
             "consumerRefs": [
-              "C-BOUNDARY-PRE-REVIEW-READER"
+              "C-BOUNDARY-REVIEW-GATE"
             ]
           },
           {
@@ -277,7 +297,7 @@
               "P-BOUNDARY-PRE-REVIEW-CHECK"
             ],
             "consumerRefs": [
-              "C-BOUNDARY-PRE-REVIEW-READER"
+              "C-BOUNDARY-REVIEW-GATE"
             ]
           }
         ],
@@ -292,7 +312,7 @@
               "P-BOUNDARY-PRE-REVIEW-CHECK"
             ],
             "consumerRefs": [
-              "C-BOUNDARY-PRE-REVIEW-READER"
+              "C-BOUNDARY-REVIEW-GATE"
             ]
           }
         ],
@@ -324,6 +344,26 @@
           {
             "refKind": "existing",
             "canonicalSourceRef": "basis-path:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
           }
         ]
       }
@@ -332,5 +372,5 @@
   "diagnosticGaps": [],
   "note": "Acceptance bindings for the approved REVIEW Finding triage Agent-behavior projection.",
   "createdAt": "2026-08-31T14:38:19.652Z",
-  "updatedAt": "2026-08-31T23:47:49.291Z"
+  "updatedAt": "2026-08-31T23:48:52.297Z"
 }
