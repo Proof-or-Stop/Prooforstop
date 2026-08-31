@@ -52,6 +52,25 @@
       "_hash": "b8bdfbea4c3323d76e4fbf6b220f598d3637a4009977808faec588ba4a5e3fc1",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-004",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:938-964,1012-1018,1189-1191 — the promised mandatory repair for every verified applicable high Finding conflicts with the explicitly preserved round-decay predicate. isDynamicFindingBlocking still applies !isAdvisoryThisRound before the disposition decision, and the current advisory contract makes high advisory from Round 3 onward; section 7.1 also says current round-decay semantics continue. Consequently an unfixed high Finding can clear the blocker through round decay without any deferral, Red/root-cause/fix/Green, contradicting Path C and Story 1 acceptance. Critical does not decay, but high does. Either define and register a non-decaying mandatory-repair class/fact for applicable high and protected-surface Findings, or narrow the Red-to-Green promise to critical/currently blocking severities and state that high still follows existing decay. The present plan cannot simultaneously preserve decay and guarantee high repair.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-31T00:33:55.162Z",
+      "reviewRound": "2026-08-31T00:31:14.768Z",
+      "reviewRunId": "B-1fa6:RR-007",
+      "_hash": "7ab2492610a7c119ab09de04cf83508a20e6426ffca48e19a47004b68de4a850",
+      "files": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "packages/main/src/core/advisory.ts"
+      ],
+      "signatureTag": "adversarial|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
