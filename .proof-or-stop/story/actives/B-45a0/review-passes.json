@@ -23084,6 +23084,42 @@
         "scanEscalationReason": null
       },
       "_hash": "4dcf37b2bac43cede3db6e581913282a52b7dda702e7150b2af985f5fde72c21"
+    },
+    {
+      "id": "B-45a0:RP-481",
+      "agent": "lattice-review-topology-critic",
+      "note": "Wave 3 completeness check: independently re-verified F-441 (story-aware-validation.ts:273-276,320 config-resolution duplication vs config.ts pickProjectConfigPath) and F-442 (unconsumed export-star compat shims from commit b3f5379f64). Re-derived F-442's import graph myself via grep across packages/main/src, packages/main/scripts, scripts/, packages/utils/src: confirmed 12 of the 14 listed files are true zero-importer one-line shims, while dual-revision-impact-graph.ts and story-change-resolver.ts are real consumed modules (not shims). No additional blocking gap found beyond the two raw findings; corroborating pass, not a new finding.",
+      "createdAt": "2026-08-31T03:33:18.827Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1085",
+      "envelopeId": "c2285ae1a10c1bd75a6d22aaf5170115467b42d46e7a49b2492b03c6cb39d590",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/story-change-resolver.ts",
+          "packages/main/src/core/validation-catalog.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/dynamic-validation-enforcement.ts",
+          "packages/main/src/core/dynamic-validation-observer.ts",
+          "packages/main/src/core/dynamic-validation-report.ts",
+          "packages/main/src/core/dynamic-validation-scheduling.ts",
+          "packages/main/src/core/dynamic-validation-selection.ts",
+          "packages/main/src/core/dynamic-validation-shadow.ts",
+          "packages/main/src/core/validation-baseline-epoch.ts",
+          "packages/main/src/core/validation-build-proof.ts",
+          "packages/main/src/core/validation-closure-certificate.ts",
+          "packages/main/src/core/validation-command-receipt.ts",
+          "packages/main/src/core/validation-revocation-ledger.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2a12431bc692f4ff7708569db7b304eaf630532c5f012eaf8af9f296292875ad"
     }
   ]
 }
