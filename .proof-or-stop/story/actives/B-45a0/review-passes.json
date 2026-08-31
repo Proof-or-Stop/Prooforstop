@@ -23291,6 +23291,40 @@
         "scanEscalationReason": null
       },
       "_hash": "b11a461d61a95427d2e10cfb2a8cc0818584c8a1b2e10d3f056a5ad7bf24a6c6"
+    },
+    {
+      "id": "B-45a0:RP-487",
+      "agent": "lattice-review-topology-critic",
+      "note": "Wave 1 topology-critic pass at current HEAD f109a98e. Independently re-ran acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, acceptance_rollout_check against current worktree state: all four reproduce the same live desync already tracked by open findings F-437/F-439/F-440 (AT_COVERAGE_BASIS_STALE/AT_CLOSURE_FILES_STALE via acceptance_topology_check status=inconclusive_basis_unverified; AR_REPORT_STALE via acceptance_rollout_check status=fail mode=enforce blocking=true, report bound to headHash 6ab05f62 not current f109a98e; acceptance_rollout_report_read carries the identical stale AR_REPORT_STALE binding; pre_review_check_read top-level status=inconclusive ok=false codes=[PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED], with a misleadingly nested criticReceipt.status=pass sub-object that is not the actual check verdict). No NEW distinct topology gap found beyond what F-437/F-439/F-440 already track; this is corroboration, not a new family, and those three remain open for DEV-only writers per instruction. Also independently re-derived rawFindings scope for epoch B-45a0:RI-108 wave 1 (waves.length===0, baselineFindingIds=[] so the baseline carry-forward at review-inventory-epoch.ts:389-395 contributes nothing): only F-446 (reviewRunId RR-1091) matches this wave candidate filter (reviewRound/materialHash/storyFilesHash equal epoch cutoff, startedAt after begunAt); F-441/F-444 are administratively still status=open in the tracker but bound to earlier reviewRunIds (RR-1082/RR-1087) outside this waves candidate window, so they do not enter rawFindings for RI-108 wave 1 regardless of tracker status. F-446 is real (self-verified: contradictory adjacent comment in story-aware-validation.ts:329-335, one asserting the pre-F-444 behavior, one asserting the corrected behavior), evidenceState=verified, and has no in-wave sibling to fold into -- it is a new family for this epoch.",
+      "createdAt": "2026-08-31T04:59:39.790Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1095",
+      "envelopeId": "ca957831f44fc5067bcb669fff919fc4a0ee3824c3b861ebb9bb7f623274c4e1",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+      },
+      "readDiagnostics": [],
+      "_hash": "e1c0e6ad8f22489c338b314673f0782355957920664b3087097d9cf941c8e8b6"
     }
   ]
 }
