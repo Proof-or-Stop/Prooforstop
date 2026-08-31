@@ -717,6 +717,41 @@
       },
       "readDiagnostics": [],
       "_hash": "117a0a37f9084a78d294c4b288a3c2d98be28baec8934334438e7262da996316"
+    },
+    {
+      "id": "B-2220:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "1 changed symbol extracted (rationaleDigest), 0 symbol-anchored documentation paragraphs; fallback review read the full related decision record and full changed smoke source. They consistently retire the active B-3434 follow-up, retain limitations as historical/conditional context, and do not alter Dynamic Finding behavior. Direct compiled smoke passed; no docs-code blocker.",
+      "createdAt": "2026-08-31T22:33:27.587Z",
+      "reviewRound": "2026-08-31T00:10:59.937Z",
+      "reviewRunId": "B-2220:RR-030",
+      "envelopeId": "1890db30385512456be584473c4d6b53e63aedddc88fe81dc05c7ce41c8e2efe",
+      "writerSessionId": "sess-4aacbe64b7ca9ea99a4eb7c3818dc150",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/checklist.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 3100
+        },
+        "digest": "8899f08f657f224802808e6c4fd33783fa76cf9cc6316af17354f4e176ffb8fe"
+      },
+      "readDiagnostics": [],
+      "_hash": "79a9ff483c4d2e648df6990411bd90d058495b4710cadcabc4e7aa67b565324d"
     }
   ]
 }
