@@ -72,6 +72,26 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-005",
+      "desc": "doc-promise-undelivered: AGENTS.md:573 and packages/main/src/core/prompt-registry.ts:59 omit the proposal current-versus-future boundary and direct Agents to record through or trigger an authoritative Dynamic Finding applicability/history flow now. The authority is explicitly specification-only and future work (dynamic-finding-system-execution-plan.md:3-10,909-965); the proposal requires compatibility-only disposition before implementation and says correction/supersession is used when available (proposal sections 7-10). This promises unavailable structured authority and can induce fabricated fields or an impossible workflow. severity=critical",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-31T20:54:09.140Z",
+      "reviewRound": "2026-08-31T20:39:14.724Z",
+      "reviewRunId": "B-9a49:RR-006",
+      "_hash": "93a7f52f85ae769cb2e9bcce13909fb3919daf7ba17a3566ad70d982c164544c",
+      "files": [
+        "AGENTS.md",
+        "packages/main/src/core/prompt-registry.ts",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-agents",
+      "signatureTagSource": "auto"
     }
   ]
 }
