@@ -131,7 +131,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:707-721,793-823,988-1008 [medium] Deferral says root-cause analysis may remain for the target Story, yet every deferral requires canonicalDefectId and the only CanonicalDefect contract requires a concrete rootCause string. A new reproduced defect with unknown root cause cannot satisfy both contracts without fabricating a placeholder or doing the work deferral is meant to postpone. Make the dependency implementable by allowing an explicitly unresolved canonical identity state/rootCause, or require deferral to reference an already-confirmed canonical defect whose root cause is known and state that narrower eligibility in the tests.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T00:34:39.998Z",
@@ -139,7 +139,11 @@
       "reviewRunId": "B-1fa6:RR-008",
       "_hash": "8688cfb96794ecbb157faad2327093d4c93ff0892f75ab9f70921f2e3bde31fa",
       "signatureTag": "edge|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f741bf8754: CanonicalDefect now has rootCauseState unknown|hypothesized|confirmed with optional rootCause; unknown identity uses trigger/reproduction/contract evidence and later correction is append-only supersession.",
+      "resolvedAt": "2026-08-31T00:48:16.934Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-008",
