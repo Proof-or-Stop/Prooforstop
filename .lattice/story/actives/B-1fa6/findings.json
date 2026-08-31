@@ -254,7 +254,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:946-1000,1039-1060,1296-1304,1492-1494 [high] exact-receipt binding is promised but absent from the gate-bearing schemas: FindingDeferralDisposition.target and FindingDispositionManifest store only routeReceiptId, while the plan says Story 1 binds the exact Story 2 receipt hash into the signed L4 deferral. Without routeReceiptHash plus an expectedRouteReceiptHash/CAS field in the manifest, the deferral signature cannot mechanically bind the verified receipt bytes and the batch apply cannot detect ID-to-content mismatch/substitution at decision time. Add the exact receipt hash to the deferral and manifest disposition, include it in deferralHash/manifestDigest/signatures, and require ID+hash+profile+source-assessment hash equality with stale/revoked/superseded negative tests. F-009s dependency cycle is otherwise closed: Story 2 is independently testable and every receipt remains standalone non-gate.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T01:08:02.808Z",
@@ -262,7 +262,11 @@
       "reviewRunId": "B-1fa6:RR-014",
       "_hash": "8cb52ba98871586fea6616c857e9c715a1a6cdafd4444111a00fff0aece0339a",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 9d96f86af9: FindingDeferralDisposition now signs routeReceiptId, routeReceiptHash, finding_route profile, source-assessment hash and target snapshot; manifest actions sign the corresponding expected tuple and apply validates it against latest-chain bytes in the same CAS transaction.",
+      "resolvedAt": "2026-08-31T01:27:30.266Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-014",
