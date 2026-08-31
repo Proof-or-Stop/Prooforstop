@@ -425,10 +425,26 @@
       "phase": "DEV",
       "headHash": "0a017306bd31b0f1c2398977276d10aee35992fe",
       "materialHash": "5aea0338b9221e52ef914b982e674195d9425ca783012648f81dc4c25f6722e1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Supersedes the earlier main-sync-only assumption: B-022e intentionally canonicalized active retired identity references in this current decision document as part of the repository-wide clean-break cutover.",
+      "timestamp": "2026-08-31T23:26:46.612Z",
+      "paths": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "56817f0d265a32d5ea999c8f57822840e3486577",
+      "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70"
     }
   ],
   "createdAt": "2026-08-30T21:48:39.503Z",
-  "updatedAt": "2026-08-31T22:49:12.570Z",
+  "updatedAt": "2026-08-31T23:26:46.612Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
