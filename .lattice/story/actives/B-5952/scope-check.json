@@ -1,0 +1,80 @@
+{
+  "storyId": "B-5952",
+  "checkedAt": "2026-08-31T02:40:51.909Z",
+  "features": [
+    {
+      "feature": "Raise only the retired-authority dynamic-binding instrumentation assertion to a finite documented ceiling strictly above the observed 804 and no greater than 850.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-5952/checklist.json"
+    },
+    {
+      "feature": "Rebuild packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js from the TypeScript source and prove source/dist binding.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-5952/checklist.json"
+    },
+    {
+      "feature": "Preserve a real absolute bound with ceiling and ceiling+1 characterization, adversarial mutation rejection, deterministic rebuild-and-smoke evidence, and an operator-visible PASS at the current inventory.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-5952/checklist.json"
+    },
+    {
+      "feature": "Changes to production command behavior.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The Story description and understanding constraints explicitly limit the repair to validation instrumentation and forbid production-command behavior changes.",
+      "source": ".lattice/story/actives/B-5952/understanding.json"
+    },
+    {
+      "feature": "Changes to docs/requirements/decisions/dynamic-finding-system-execution-plan.md.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Understanding explicitly says do not edit the Dynamic Finding plan, and CHK-001 adversarial verification requires its fork/base diff to remain unchanged.",
+      "source": ".lattice/story/actives/B-5952/understanding.json"
+    },
+    {
+      "feature": "A frozen execution boundary mechanically allows only packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts and its rebuilt packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js while rejecting Dynamic Finding documentation changes.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "scope_contract_show and plan_get CLI results"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-5952/background.md",
+      ".lattice/story/actives/B-5952/checklist.json",
+      ".lattice/story/actives/B-5952/understanding.json"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 6,
+    "covered": 3,
+    "excluded": 2,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d740ef0df132c6c5d9032b04e3d814bf303b11553fe690be1eed37ae5660fb17",
+  "openQuestions": [
+    {
+      "id": "Q-SCOPE-001",
+      "q": "Where is the frozen PLAN execution boundary that permits exactly the assertion source plus rebuilt dist and mechanically excludes the Dynamic Finding document?",
+      "evidence": "plan_get reports plan.md not found; scope_contract_show reports no scope contract configured. Textual understanding and verificationIntent exclusions are present but are not the frozen path gate requested for DEV.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-5952/understanding.json",
+        ".lattice/story/actives/B-5952/checklist.json",
+        "proof-or-stop plan_get B-5952",
+        "proof-or-stop scope_contract_show B-5952"
+      ]
+    }
+  ]
+}
