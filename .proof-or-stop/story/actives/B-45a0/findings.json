@@ -24653,6 +24653,49 @@
       ],
       "signatureTag": "missing|json|edge-verificationevidence-pins",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-458",
+      "desc": "Wave 2 independent re-verification (bound to fresh RR-1126, HEAD 12d884b, materialHash 3e3daf6d) confirms the acceptance-topology defects reported in F-455 are unresolved and unchanged in substance: acceptance_topology_check still returns diagnostics [AT_CLOSURE_FILES_STALE, AT_SCOPE_BINDING_MISSING] (producer/consumer closure changed after the PLAN basis was issued; basis semantic/scope-contract/closure/snapshot-seal digest mismatches; evidence storyFilesHash mismatch). pre_review_check_read still returns ok:false status:fail codes:[PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND]. acceptance_rollout_check and acceptance_rollout_report_read both still return ok:false status:fail mode:enforce blocking:true diagnostics:[AR_REPORT_STALE] receipt:stale. Independently traced provenance: rollout binding headHash f101e24c is this storys own verification_run metadata commit (2026-08-31 18:32), not an unrelated older campaign as previously mis-described; 23 story-metadata commits (including acceptance_rollout_report regeneration, multiple finding_add/review_pass_set/finding_resolve cycles, and my own prior topology_critic_receipt_set) have landed since that binding, confirming genuine staleness relative to current HEAD. This is the same defect family as F-455, not a new independent finding; recorded as a fresh terminal verdict on RR-1126 per REVIEW_INVENTORY_CRITIC_TERMINAL_MISSING requirement.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-31T12:11:47.570Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1126",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "67c9085bc4d95a090a821ff0bb0d780379e2260ab03b7bb9fea8955d890f037e",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|independent-topology-critic",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
