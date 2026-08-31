@@ -24679,7 +24679,7 @@
       "desc": "Wave 2 independent re-verification (bound to fresh RR-1126, HEAD 12d884b, materialHash 3e3daf6d) confirms the acceptance-topology defects reported in F-455 are unresolved and unchanged in substance: acceptance_topology_check still returns diagnostics [AT_CLOSURE_FILES_STALE, AT_SCOPE_BINDING_MISSING] (producer/consumer closure changed after the PLAN basis was issued; basis semantic/scope-contract/closure/snapshot-seal digest mismatches; evidence storyFilesHash mismatch). pre_review_check_read still returns ok:false status:fail codes:[PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND]. acceptance_rollout_check and acceptance_rollout_report_read both still return ok:false status:fail mode:enforce blocking:true diagnostics:[AR_REPORT_STALE] receipt:stale. Independently traced provenance: rollout binding headHash f101e24c is this storys own verification_run metadata commit (2026-08-31 18:32), not an unrelated older campaign as previously mis-described; 23 story-metadata commits (including acceptance_rollout_report regeneration, multiple finding_add/review_pass_set/finding_resolve cycles, and my own prior topology_critic_receipt_set) have landed since that binding, confirming genuine staleness relative to current HEAD. This is the same defect family as F-455, not a new independent finding; recorded as a fresh terminal verdict on RR-1126 per REVIEW_INVENTORY_CRITIC_TERMINAL_MISSING requirement.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-31T12:11:47.570Z",
@@ -24715,7 +24715,11 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|ts|independent-topology-critic",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed: all four Wave-4 acceptance surfaces are now admissible at current HEAD, verified by direct command execution. acceptance_topology_check: status=pass, codes=[] (AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING both cleared by regenerating the acceptance basis, which reports complete with a verified receipt). acceptance_rollout_check and acceptance_rollout_report_read: ok=true, status=pass, codes=[] (AR_REPORT_STALE cleared by running acceptance_rollout_report, which executed the real Story cohort and produced a freshly signed report: seededDetection=100%, falseBlockRate=0%, waiverDelta=0, quorum=full-3x2). pre_review_check_read: ok=true, status=pass, codes=[] (the PR_* set cleared by recapturing the live-smoke transcript and reissuing pre_review_check in DEV; all sub-verdicts are now executableEvidence=current, mutations=biting, transcript=related, authority=admissible). Family independent-topology-critic-wave4-surfaces-not-admissible is closed.",
+      "resolvedAt": "2026-08-31T14:11:23.817Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-459",
