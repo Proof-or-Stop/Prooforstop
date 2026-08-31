@@ -153,7 +153,7 @@
       "desc": "doc-code-drift: packages/main/src/tasks/validation-evidence-buffer-smoke.ts:562 and :588-590 [medium] still promise that a later serialization cannot disagree and that the returned record has no toJSON left to consult. docs/requirements/decisions/validation-evidence-artifact-growth.md:72-82 and :124 explicitly retain the opposite Object.prototype.toJSON limitation. Independent isolated Node probe on a JSON.parse snapshot produced before=23 after=25 diverged=true after installing inherited Object.prototype.toJSON. The F-006 repair narrowed the top-level helper comments but left this section heading/explanation stale; narrow these lines to own/live input toJSON removal and acknowledge later inherited prototype mutation.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-30T23:54:15.833Z",
@@ -165,7 +165,11 @@
         "docs/requirements/decisions/validation-evidence-artifact-growth.md"
       ],
       "signatureTag": "missing|ts|code-drift-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-2220:F-007: both cite the same section-10c overclaim. The shared root cause was fixed in f62e88384b and verified by full-file wording audit plus build-bound compiled smoke receipt 7b2ee62.",
+      "resolvedAt": "2026-08-31T00:00:56.431Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-2220:F-009",
