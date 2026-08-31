@@ -163,6 +163,21 @@
       "resolvedAt": "2026-08-31T00:48:17.999Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1fa6:F-009",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1408-1429,1513-1549,1643-1661 [high] route-receipt ownership introduces a Story 1 <-> Story 2 cycle: Story 1 is the sole semantic FindingRouteReceipt signer/verifier and requires Story 2 accepted/merged plus consumes Story 2 CandidateRoute, while Story 2 deliverables/tests require an accepted fresh Story 1 route receipt before CandidateRoute/recall can pass. Story 2 therefore cannot satisfy its acceptance before Story 1, contradicting the declared Story 3 -> Story 2 -> Story 1 DAG and leaving CandidateRoute acceptance unavailable at Story 2 completion. Move the non-gating target-acceptance receipt contract/signer-verifier needed by CandidateRoute into Story 2 (with Story 1 later consuming and registering it as an L4 deferral dependency), or explicitly split advisory candidate-route acceptance from gate-bearing deferral acceptance with an acyclic interface and tests.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T00:51:19.756Z",
+      "reviewRound": "2026-08-31T00:47:52.310Z",
+      "reviewRunId": "B-1fa6:RR-012",
+      "_hash": "61b7537cbc44381da33c3efb92dee75498c351546ce65fcfeeca75ca12e68628",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
