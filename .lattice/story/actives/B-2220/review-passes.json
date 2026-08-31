@@ -942,6 +942,39 @@
       },
       "readDiagnostics": [],
       "_hash": "1bee415dceeefb9c1d8d94e2cbf1363eb5802a52528fd12bd9204f0a30cd990d"
+    },
+    {
+      "id": "B-2220:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 10 test coverage passed: executed all 7 verificationIntent commands unchanged with 7/7 PASS; each intent has matching current-story evidence, with 0 gaps and 0 waivers; build-binding smoke and exact decision digest both passed.",
+      "createdAt": "2026-08-31T23:24:58.644Z",
+      "reviewRound": "2026-08-31T23:22:30.466Z",
+      "reviewRunId": "B-2220:RR-042",
+      "envelopeId": "22793daf085e5e9b13690c9c6a5e6955793872bea528390094603472a26b6c61",
+      "writerSessionId": "sess-4b977e97aa7782e9beadd0fc82f7cfc7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 4096
+        },
+        "digest": "025332c6d67ef2612b56b4a26f4e61ac8d81c146bb61c52b483b47cb96a607ea"
+      },
+      "readDiagnostics": [],
+      "_hash": "b68c49cdacb3ca17cad9465207dc1921d44698c7d6779acf5dd62046ac32188f"
     }
   ]
 }
