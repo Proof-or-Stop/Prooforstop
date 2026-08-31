@@ -74,19 +74,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Cutover verifier proves exhaustive policy and zero active residue.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:23.049Z",
+            "executedAt": "2026-08-31T01:24:59.921Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -95,19 +95,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Exact frozen paths and byte baselines pass without broad exemptions.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:26.110Z",
+            "executedAt": "2026-08-31T01:25:02.911Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -116,19 +116,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
           "result": "pass",
           "note": "Mutation self-test rejects missing, broadened, or stale evidence.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "50734c56920bea8cfd83716c912ee3e173e7d8dbd590ffd3669261c9506d94b2",
             "outputTail": "PASS identity-cutover self-test: active residue plus missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:28.624Z",
+            "executedAt": "2026-08-31T01:25:05.521Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         }
       ]
     },
@@ -223,19 +223,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Original committed RED target now passes at descendant GREEN.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:31.840Z",
+            "executedAt": "2026-08-31T01:25:08.519Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -244,19 +244,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Same acceptance target passes without test replacement.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:34.998Z",
+            "executedAt": "2026-08-31T01:25:11.531Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -265,19 +265,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Self-host migration preserves story and exact schema evidence.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:38.040Z",
+            "executedAt": "2026-08-31T01:25:14.514Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -286,19 +286,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Frozen salts, source rows, and byte baselines remain unchanged.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:41.202Z",
+            "executedAt": "2026-08-31T01:25:17.534Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -307,19 +307,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
           "result": "pass",
           "note": "Injected residue and allowlist mutations fail closed.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "50734c56920bea8cfd83716c912ee3e173e7d8dbd590ffd3669261c9506d94b2",
             "outputTail": "PASS identity-cutover self-test: active residue plus missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:43.704Z",
+            "executedAt": "2026-08-31T01:25:20.048Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         }
       ]
     },
@@ -399,19 +399,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Package and lock identities contain no active legacy package edges.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:46.844Z",
+            "executedAt": "2026-08-31T01:25:23.139Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -420,19 +420,19 @@
           "command": "node scripts/verify-global-lab-entrypoint.mjs",
           "result": "pass",
           "note": "Published Lab registration, help, create, dry-run, and core isolation pass.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a663ad2f3d87a7202fb441923a31bd3cad708e6f57fc142c7fe1ef11117ee04c",
             "outputTail": "ok versions\nok lab-help\nok lab-create\nok core-without-lab\nglobal lab entrypoint verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:48.677Z",
+            "executedAt": "2026-08-31T01:25:24.964Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -441,19 +441,19 @@
           "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
           "result": "pass",
           "note": "Legacy commands, wrappers, and aliases remain unresolvable.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
             "outputTail": "proof-or-stop-only absence smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:48.851Z",
+            "executedAt": "2026-08-31T01:25:25.122Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         }
       ]
     },
@@ -536,19 +536,19 @@
           "command": "node bin/proof-or-stop.js --version",
           "result": "pass",
           "note": "Canonical bin reports the synchronized shipped version.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "f6a00f33f9605a02d2596fccdcfec5d26cd148c3e27181ddccc18ff1eda84c2f",
             "outputTail": "Proof-or-Stop 0.3.268\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:49.297Z",
+            "executedAt": "2026-08-31T01:25:25.565Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -557,19 +557,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Indirect command guidance and generated surfaces have zero legacy command residue.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:52.366Z",
+            "executedAt": "2026-08-31T01:25:28.621Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -578,19 +578,19 @@
           "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
           "result": "pass",
           "note": "Retired lattice bin and wrapper paths fail closed.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
             "outputTail": "proof-or-stop-only absence smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:52.537Z",
+            "executedAt": "2026-08-31T01:25:28.779Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         }
       ]
     },
@@ -699,19 +699,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Fresh runtime identity scan proves canonical environment, state, config, adapter, and Agent identities.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:10:55.581Z",
+            "executedAt": "2026-08-31T01:25:31.831Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -720,19 +720,19 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "Canonical role registry binds the complete exact role and prompt set.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4879f65fcebc2604a96886b9e3026c10a787b40e9933bae9ece7ee170b48e648",
             "outputTail": "PASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:11:02.290Z",
+            "executedAt": "2026-08-31T01:25:38.617Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -741,19 +741,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Historical bytes and provenance remain unchanged after active migration.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:11:05.389Z",
+            "executedAt": "2026-08-31T01:25:41.661Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
@@ -762,19 +762,19 @@
           "command": "node scripts/verify-runtime-fact-contract.mjs",
           "result": "pass",
           "note": "Canonical runtime paths and authorities are mechanically verified.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "edb14a9654ad6a6c476b9e504fa270382191634f16e68d1e9837a4aede982e55",
             "outputTail": "Runtime fact contract verified (entrypoint-authority, cli-entrypoint, global-core-realpath, project-local-bin, node-version, package-version, validate-source, external-reference-policy)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:11:06.128Z",
+            "executedAt": "2026-08-31T01:25:42.396Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -783,19 +783,19 @@
           "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
           "result": "pass",
           "note": "Retired role, env, path, config, and runtime identities cannot alias.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
             "outputTail": "proof-or-stop-only absence smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:11:06.310Z",
+            "executedAt": "2026-08-31T01:25:42.570Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -804,19 +804,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
           "result": "pass",
           "note": "Frozen provenance and signature mutation blocks GREEN.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "50734c56920bea8cfd83716c912ee3e173e7d8dbd590ffd3669261c9506d94b2",
             "outputTail": "PASS identity-cutover self-test: active residue plus missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:11:08.795Z",
+            "executedAt": "2026-08-31T01:25:45.108Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         }
       ]
     },
@@ -904,19 +904,19 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "Current prompts and generated assets render all canonical roles.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4879f65fcebc2604a96886b9e3026c10a787b40e9933bae9ece7ee170b48e648",
             "outputTail": "PASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:11:15.688Z",
+            "executedAt": "2026-08-31T01:25:51.823Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -925,19 +925,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Current prose residue is zero while exact history stays byte-bound.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:11:18.811Z",
+            "executedAt": "2026-08-31T01:25:55.064Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -946,19 +946,19 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "Legacy role generation and prompt mutations are rejected.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4879f65fcebc2604a96886b9e3026c10a787b40e9933bae9ece7ee170b48e648",
             "outputTail": "PASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:11:25.684Z",
+            "executedAt": "2026-08-31T01:26:01.907Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         }
       ]
     },
@@ -1038,19 +1038,19 @@
           "command": "node scripts/verify-global-lab-entrypoint.mjs",
           "result": "pass",
           "note": "Final CLI and Lab behavior passes with identity GREEN and offline package transcript.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a663ad2f3d87a7202fb441923a31bd3cad708e6f57fc142c7fe1ef11117ee04c",
             "outputTail": "ok versions\nok lab-help\nok lab-create\nok core-without-lab\nglobal lab entrypoint verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:11:27.541Z",
+            "executedAt": "2026-08-31T01:26:03.731Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -1059,19 +1059,19 @@
           "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
           "result": "pass",
           "note": "Canonical surfaces succeed while retired identities stay absent.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
             "outputTail": "proof-or-stop-only absence smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:11:27.717Z",
+            "executedAt": "2026-08-31T01:26:03.890Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -1080,19 +1080,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
           "result": "pass",
           "note": "Residue and allowlist mutation suite is sensitive and non-vacuous.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "50734c56920bea8cfd83716c912ee3e173e7d8dbd590ffd3669261c9506d94b2",
             "outputTail": "PASS identity-cutover self-test: active residue plus missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:11:30.313Z",
+            "executedAt": "2026-08-31T01:26:06.395Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         }
       ]
     },
@@ -1169,19 +1169,19 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "Version authorities agree on 0.3.268; lifecycle evidence is separately gate-enforced.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "af761eb4a1cd7fa8e6b2b3df37948a0fb085dad335eaeda36d9b9c839787aca6",
             "outputTail": "version-bump smoke passed: 86 assertions\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:11:30.677Z",
+            "executedAt": "2026-08-31T01:26:06.725Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -1190,19 +1190,19 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Review, validation, delivery, and adapter facts are bound to lifecycle gates.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a69108452f6f1575d3112cf32924474214d28eea1f0ca55882426a7b94e57d08",
             "outputTail": "s; the assurance floor consumes host-verdict rounds emitted after quorum admission artifact=prompt-envelopes.json\n- artifact:proofstory.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=proofstory.json\n- artifact:red-evidence.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=red-evidence.json\n- artifact:review-inventory-epochs.json [L4/signed-artifact] producer=handlers/review-inventory gate=certification_window_begin artifact=review-inventory-epochs.json:signed\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\n- artifact:review-runs.json [L4/signed-artifact] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed\n- artifact:review.json [L4/signed-artifact] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed\n- artifact:scope-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed\n- artifact:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed\n- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json\n- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed\n- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed\n- artifact:scope-shrinkage-decision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=scope-shrinkage-decision.json\n- artifact:slice-plan.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json\n- artifact:spike.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json\n- artifact:story-evidence-binding [L4/artifact] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding\n- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- artifact:topology-critic-receipt.json [L3/signed-artifact] producer=handlers/proofstory.topology_critic_receipt_set gate=topology_critic_receipt_check CLI verification only artifact=topology-critic-receipt.json:signed\n- artifact:topology-exclusion-approvals.json [L3/signed-artifact] producer=handlers/proofstory.topology_exclusion_approval_set gate=topology_critic_receipt_set and topology_critic_receipt_check artifact=topology-exclusion-approvals.json:signed\n- audit [L2/command] producer=handlers/audit\n- autopilot_cancel [L1/command] producer=handlers/proof-or-stop-autopilot\n- autopilot_doctor [L0/command] producer=handlers/autopilot\n- autopilot_execute [L2/command] producer=handlers/autopilot\n- autopilot_policy_check [L0/command] p\n...[truncated 42970 chars]",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:11:34.371Z",
+            "executedAt": "2026-08-31T01:26:10.342Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -1211,19 +1211,19 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "Partial and mismatched version authority states are rejected.",
+          "headHash": "d84e23170ca1566c9307202371e58927f157b264",
+          "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59",
+          "storyFilesHash": "8808868ed1c9195767c51f43410abf8c55668a5a5b74a5bceee66ea8d42d10db",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "af761eb4a1cd7fa8e6b2b3df37948a0fb085dad335eaeda36d9b9c839787aca6",
             "outputTail": "version-bump smoke passed: 86 assertions\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T01:11:34.769Z",
+            "executedAt": "2026-08-31T01:26:10.682Z",
             "timeoutMs": 270000
           },
-          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
-          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
-          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
-          "timestamp": "2026-08-31T01:11:34.908Z"
+          "timestamp": "2026-08-31T01:26:10.691Z"
         }
       ],
       "userSeesSnapshot": {
