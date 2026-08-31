@@ -292,6 +292,40 @@
       },
       "readDiagnostics": [],
       "_hash": "fbb2895a3afcf86d19b16107df747341bc24e6189f681b8bb1960947338a9e76"
+    },
+    {
+      "id": "B-5952:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Scoped concept re-review passed: this baseline repair changes one smoke assertion into a bounded helper plus explicit self-characterization, but does not delete or replace any repository concept en masse. Within B-5952 scope I found no concept residue blocker and no promised-but-undelivered scoped addition; checklist evidence is receipt-backed for the bounded ceiling, mutation probes, binding/scope probe, and causal baseline map.",
+      "createdAt": "2026-08-31T08:52:09.732Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-023",
+      "envelopeId": "d1a2632e3a5a383fe2ffd9be393a429597d445e5ebcf3c33b0b00c9f58eaa2c3",
+      "writerSessionId": "sess-3ffde344b0dce95a551651f8a3e90c31",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4fcbb352608e49a61cae8650d63d43311c1e71f9b531aeaf0e801feaa2a5eece"
     }
   ]
 }
