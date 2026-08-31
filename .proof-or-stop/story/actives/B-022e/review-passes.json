@@ -244,6 +244,38 @@
         "scanEscalationReason": null
       },
       "_hash": "9034d8f8e7dcabb9fe4c03ac22007beb5256de396d0aa4ee88bf25e450221f07"
+    },
+    {
+      "id": "B-022e:RP-009",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Round 5 final docs review found no blocker. Step 1 full-story extraction yielded 1422 changed declaration names; the targeted F-011 repair commits add no exported declaration. Step 2/3 compared six bounded identity-document sections: Active vs Legacy Boundary, CHK-002 migration history, CHK-003 runtime identities, CHK-005 residue policy, Verification Commands, and Expected Results. Canonical proof-or-stop-review-* roles including story-init/topology-critic, proof_or_stop_metadata_changes, and proof-or-stop-verifier-* are consistently positive requirements; only retired lattice roles are residue. The documented searches were executed: canonical positives were non-empty, raw retired hits were historical/migration/signature inventory, and context-aware residue was []. Historical legacy-to-lattice and lattice-to-Proof-or-Stop mappings are explicit. F-011 resolution correctly narrows the earlier F-009 statement, while F-010 remains accurate for exact-token mechanics.",
+      "createdAt": "2026-08-31T05:32:15.946Z",
+      "reviewRound": "2026-08-31T05:21:14.709Z",
+      "reviewRunId": "B-022e:RR-026",
+      "envelopeId": "94bbd770840deb8bbab37cb047c0aaeac1cae200858ec4fafe389c0dd40327a1",
+      "writerSessionId": "sess-c4e852e510a4581a8e47f00c9ff0ad50",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "17350d90813802d6a83f5a3f8ec434bcb7bfbae7d7cd8ff55d8e6f6f3f9bf218"
+      },
+      "readDiagnostics": [],
+      "_hash": "2eaeabb33f377eccda965582a26293df1e7daea05085462255512a54b35ef006"
     }
   ]
 }
