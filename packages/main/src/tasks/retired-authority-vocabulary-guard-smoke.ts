@@ -662,6 +662,18 @@ const typeProgramInstrumentation = {
 };
 
 const DYNAMIC_BINDING_BUILD_CEILING = 808;
+const MAX_DYNAMIC_BINDING_BUILD_CEILING = 850;
+
+function assertDynamicBindingBuildBudget(actualBuilds: number, ceiling: number): void {
+  assert.ok(
+    Number.isInteger(ceiling) && ceiling > 0 && ceiling <= MAX_DYNAMIC_BINDING_BUILD_CEILING,
+    `dynamic binding graph build ceiling must be a finite integer between 1 and ${MAX_DYNAMIC_BINDING_BUILD_CEILING}, got ${ceiling}`,
+  );
+  assert.ok(
+    actualBuilds <= ceiling,
+    `dynamic binding graph builds must remain bounded at ${ceiling}, got ${actualBuilds}`,
+  );
+}
 
 function parseSource(file: string, text: string): ts.SourceFile {
   const cached = parsedSourceCache.get(file);
@@ -880,10 +892,26 @@ function assertTypeProgramInstrumentation(): void {
     .reduce((total, [, count]) => total + count, 0);
   const repoBuildSample = [...typeProgramInstrumentation.dynamicBindingBuildFiles.keys()]
     .filter(file => !file.includes('dynamic-code-control-')).slice(0, 12).join(',');
-  assert.ok(
-    typeProgramInstrumentation.dynamicBindingBuilds <= DYNAMIC_BINDING_BUILD_CEILING,
-    `dynamic binding graph builds must remain bounded at ${DYNAMIC_BINDING_BUILD_CEILING}, got ${typeProgramInstrumentation.dynamicBindingBuilds} (synthetic=${syntheticBindingBuilds}, repo=${typeProgramInstrumentation.dynamicBindingBuilds - syntheticBindingBuilds}, sample=${repoBuildSample})`,
+  assert.doesNotThrow(
+    () => assertDynamicBindingBuildBudget(DYNAMIC_BINDING_BUILD_CEILING, DYNAMIC_BINDING_BUILD_CEILING),
+    'the exact dynamic binding build ceiling must remain accepted',
   );
+  assert.throws(
+    () => assertDynamicBindingBuildBudget(DYNAMIC_BINDING_BUILD_CEILING + 1, DYNAMIC_BINDING_BUILD_CEILING),
+    new RegExp(`bounded at ${DYNAMIC_BINDING_BUILD_CEILING}, got ${DYNAMIC_BINDING_BUILD_CEILING + 1}`),
+    'one dynamic binding build beyond the ceiling must remain rejected',
+  );
+  assert.throws(
+    () => assertDynamicBindingBuildBudget(typeProgramInstrumentation.dynamicBindingBuilds, typeProgramInstrumentation.dynamicBindingBuilds - 1),
+    new RegExp(`bounded at ${typeProgramInstrumentation.dynamicBindingBuilds - 1}, got ${typeProgramInstrumentation.dynamicBindingBuilds}`),
+    'a ceiling below the measured build count must remain rejected',
+  );
+  try {
+    assertDynamicBindingBuildBudget(typeProgramInstrumentation.dynamicBindingBuilds, DYNAMIC_BINDING_BUILD_CEILING);
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(`${detail} (synthetic=${syntheticBindingBuilds}, repo=${typeProgramInstrumentation.dynamicBindingBuilds - syntheticBindingBuilds}, sample=${repoBuildSample})`);
+  }
   assert.ok(typeProgramInstrumentation.dynamicAstCandidateScans >= 1, 'decoded AST candidates missed by the raw token hint must reach full analysis');
   assert.ok(typeProgramInstrumentation.dynamicPrefilterSkips >= 1, 'call-free sources must retain the cheap AST skip path');
   assert.equal(typeProgramInstrumentation.dynamicReachabilityAssertions, DYNAMIC_PROVENANCE_REACHABILITY_LABELS.size, 'critical safe provenance reachability count must remain exact');
