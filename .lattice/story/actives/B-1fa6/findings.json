@@ -651,7 +651,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:2457-2460 and :2518-2521 still define the Story 1 Round-3 matrix and required fail-closed behavior as the old seven-state set, omitting newly introduced re_attestation_required and expired. This conflicts with REQUIRED_ASSESSMENT_INVALID (nine states) and the Section 11 scorecard denominator at :3090, so required test coverage no longer mechanically proves the two new invalid states block. Update both required-test bullets to the exact nine-state set and require their round-3 fail-closed fixtures.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-31T08:50:11.994Z",
@@ -662,7 +662,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 93ab5605b4: all Story 1 required-test and boundary summaries now use the canonical nine invalid states, including re_attestation_required and expired, and require the high/critical round-3 fail-closed Cartesian fixtures.",
+      "resolvedAt": "2026-08-31T09:08:00.585Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-031",
