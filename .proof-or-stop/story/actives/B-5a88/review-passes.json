@@ -23434,6 +23434,32 @@
         "scanEscalationReason": null
       },
       "_hash": "767d930f756ec9469d72aa28506a7fcf327e4a8ffdb9a337cc521cdc6df17d98"
+    },
+    {
+      "id": "B-5a88:RP-391",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-anchor quality pass at frozen cutoff 3f6b8710 (RI-093 wave1). Reviewed only what changed since RP-389: commit 562be4b841 (STRIPPABLE_BIN_TOKENS in alias-normalizer.ts+cli-engine.ts) and 192666f558 (fingerprint repin). No dead code, type-unsafety, or I/O-isolation blocker found.",
+      "createdAt": "2026-08-31T13:33:46.169Z",
+      "reviewRound": "2026-08-31T11:31:20.622Z",
+      "reviewRunId": "B-5a88:RR-964",
+      "envelopeId": "73031c846b02b158c039dc9301f6b61032f66b4386a9a15477e371ea45cc4111",
+      "writerSessionId": "claude-b5a88-1788161424",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/core/audit-scan.ts",
+          "packages/main/src/core/lattice-brand.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "082a093e756570e4c484f83b9651f885593e99d0bae122eb2ea3775f07310501"
     }
   ]
 }
