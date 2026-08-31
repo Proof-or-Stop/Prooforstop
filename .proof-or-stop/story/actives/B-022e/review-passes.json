@@ -165,6 +165,28 @@
       },
       "readDiagnostics": [],
       "_hash": "d24c47dd27b0e218298d9a6ec5c0efc5f9e0190490847f9b752dddd65707c75e"
+    },
+    {
+      "id": "B-022e:RP-006",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 4 test coverage passed: d3e4823931 removes the semantic-row broad-token exemption, narrows current legacy contexts, and executes fail-closed mutations for a broad semantic token plus unrelated exact-context reuse; independent self-test exit 0. evidence_inspect is fresh with staleRefs=0 and non-empty transcriptRefs; all 29 verification intents have fresh valid mechanical receipts, no waiver, plus one supplemental pack transcript. F-002 remains verified medium/non-blocking and is deferred per operator policy.",
+      "createdAt": "2026-08-31T04:59:35.333Z",
+      "reviewRound": "2026-08-31T04:53:13.440Z",
+      "reviewRunId": "B-022e:RR-016",
+      "envelopeId": "fa477b3786d0e47598bf1e84e9def897dbd3fb9d7375e3799a39d567e8eafaf1",
+      "writerSessionId": "sess-7e9eac50d15b4e6186c393729457a89c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "fe2aca5afa59f33f775a0bbd79d1cc5e361f7c8314603e716f1c3f2c872abe3b"
     }
   ]
 }
