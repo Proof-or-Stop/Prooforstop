@@ -493,6 +493,52 @@
         "scanEscalationReason": null
       },
       "_hash": "5f65a4434387d420b738c8fcfe6d59aff1aba6a96bddaeb2f5b50c205936bad5"
+    },
+    {
+      "id": "B-022e:RP-018",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 8 final concept review found no blocker. Reviewed the final e0b933ca3b product delta against the clean-break goal: active managed markers, init templates, canonical PATH resolution, runtime-env smoke fixtures, package/role negatives, and user-facing entrypoints consistently use Proof-or-Stop identities while frozen persisted/schema/historical spellings remain bounded rather than rewritten. Independently reran identity full verifier, mutation self-test, offline four-package clean-install/role boundary, and all 28 entrypoint checks; all passed. The explicitly deferred B-e5f1/B-b319 and B-5952 boundaries remain outside B-022e: neither the final diff nor the checklist presents their follow-up regression/debt work as delivered identity-cutover capability, so they are not expanded into this story.",
+      "createdAt": "2026-08-31T13:35:15.227Z",
+      "reviewRound": "2026-08-31T13:24:19.241Z",
+      "reviewRunId": "B-022e:RR-038",
+      "envelopeId": "5db86d61777103714b43f9101a5cee4c4016aa60287b6a977f7874d376db0e20",
+      "writerSessionId": "sess-c4e852e510a4581a8e47f00c9ff0ad50",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitattributes",
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "packages/main/src/core/usage-ledger/diagnostics.ts",
+          "packages/main/src/core/usage-ledger/ids.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "packages/main/src/claude-md-sync.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e0e9a6fe3792327cd89477694096f3588d020bb5dfd571eb6147b94c8d0b6c3b"
     }
   ]
 }
