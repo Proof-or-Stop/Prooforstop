@@ -308,6 +308,28 @@
       },
       "readDiagnostics": [],
       "_hash": "f55e963327fe3c0daf26e58837b0f6598c217ec46c683c40bb4484cbd8d40c76"
+    },
+    {
+      "id": "B-022e:RP-011",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Eligibility re-sign passed: current incremental basis is SAFE_INCREMENTAL with changedFiles=[] and trusted prior Round 5 coverage bindings; no product drift exists after the F-011 test commit. The Prompt Envelope explicitly includes open F-002 and F-012 as verified medium non-blocking/deferred findings. evidence_inspect remains fresh with staleRefs=0, non-empty transcriptRefs, and 30/30 fresh evidence refs covering all 29 mechanical intents plus the supplemental pack transcript.",
+      "createdAt": "2026-08-31T05:52:29.463Z",
+      "reviewRound": "2026-08-31T05:21:14.709Z",
+      "reviewRunId": "B-022e:RR-028",
+      "envelopeId": "7e5091114345b8cda559b23e08d311c51cde7deb1675530250059a0f76e5f8f1",
+      "writerSessionId": "sess-7e9eac50d15b4e6186c393729457a89c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "30e07ab598469b060585dee7a42695f998e03c067399eec2596a1f81bd7f8bb8"
     }
   ]
 }
