@@ -1096,8 +1096,10 @@ interface AssessmentEnvelope {
 }
 
 type AssessmentRouteBinding =
-  | { verdict: 'applicable' | 'unknown'; acceptedRoute?: never }
-  | { verdict: 'pre_existing_unaffected' | 'out_of_scope' | 'duplicate' | 'not_reproduced_under_current_witness'; acceptedRoute: NonNullable<AssessmentEnvelope['acceptedRoute']> };
+  | { verdict: 'applicable'; dispositionPlan: 'repair_current'; acceptedRoute?: never }
+  | { verdict: 'applicable'; dispositionPlan: 'defer_with_proof'; acceptedRoute: NonNullable<AssessmentEnvelope['acceptedRoute']> }
+  | { verdict: 'unknown'; dispositionPlan?: never; acceptedRoute?: never }
+  | { verdict: 'pre_existing_unaffected' | 'out_of_scope' | 'duplicate' | 'not_reproduced_under_current_witness'; dispositionPlan?: never; acceptedRoute: NonNullable<AssessmentEnvelope['acceptedRoute']> };
 
 type FindingApplicabilityAssessment = FindingAssessmentProposal & AssessmentEnvelope & AssessmentRouteBinding;
 
@@ -1377,6 +1379,10 @@ interface FindingDeferralDisposition {
   findingHash: string;
   findingVersion: string;
   assessmentId: string;
+  assessmentHash: string;
+  assessmentProposalId: string;
+  assessmentProposalDigest: string;
+  assessmentDispositionPlan: 'defer_with_proof';
   canonicalDefectId: string;
   lineageCanonicalDefectIds: string[];
   lineageRootDeferralId: string;
@@ -1408,6 +1414,7 @@ interface FindingDeferralDisposition {
     routeReceiptId: string;
     routeReceiptHash: string;
     routeReceiptProfile: 'finding_route';
+    routeReceiptSourceAssessmentProposalId: string;
     routeReceiptSourceAssessmentProposalDigest: string;
     targetSnapshotDigest: string;
   };
@@ -1493,6 +1500,8 @@ interface FindingDispositionManifest {
     assessmentId: string;
     expectedFindingHash: string;
     expectedAssessmentHash: string;
+    expectedAssessmentVerdict?: 'applicable' | 'pre_existing_unaffected' | 'out_of_scope' | 'duplicate' | 'not_reproduced_under_current_witness' | 'unknown';
+    expectedAssessmentDispositionPlan?: 'repair_current' | 'defer_with_proof';
     action:
       | 'retain_blocker'
       | 'mandatory_repair'
@@ -1627,10 +1636,18 @@ interface LegacyFindingIdentityBinding {
 
 For a `defer_with_proof` action, all five `expectedRouteReceipt*` fields are
 required and `expectedRouteReceiptProfile` must equal `finding_route`.
+Its manifest entry must also name `expectedAssessmentVerdict='applicable'` and
+`expectedAssessmentDispositionPlan='defer_with_proof'`; the verifier rejects a
+route-free applicable final assessment, a repair-current plan, or any other
+verdict for that action.
 `expectedRouteReceiptSourceAssessmentProposalId` and
 `expectedRouteReceiptSourceAssessmentProposalDigest` must equal the exact
 receipt source's `subjectId` and `subjectHash`; `expectedAssessmentHash`
 separately binds the final signed assessment and never flows back into the receipt.
+The signed `FindingDeferralDisposition` repeats that final assessment hash,
+proposal ID/digest, and `assessmentDispositionPlan='defer_with_proof'`; its
+verifier rejects an assessment whose verdict/plan/route or exact tuple differs
+from the corresponding manifest entry.
 `routeReceiptId`, `routeReceiptHash`, `routeReceiptProfile`,
 `routeReceiptSourceAssessmentProposalId`, and
 `routeReceiptSourceAssessmentProposalDigest` are canonical inputs to
@@ -1681,9 +1698,13 @@ dependency.
 
 `FindingDispositionManifest` is a transaction envelope, not a second gate
 authority: its actions are the verifier's deterministic derivation from the
-signed assessment verdict and the versioned `derivationPolicyDigest`. The
-verifier rejects a missing, extra, reordered, or mismatched action before the
-ledger transaction commits.
+signed final assessment verdict/disposition plan and the versioned
+`derivationPolicyDigest`. In particular, `defer_with_proof` consumes only an
+`applicable + dispositionPlan='defer_with_proof'` final assessment and its exact
+proposal ID/digest plus accepted receipt tuple; a route-free
+`applicable + repair_current` assessment can derive mandatory repair but never a
+deferral. The verifier rejects a missing, extra, reordered, or mismatched action
+before the ledger transaction commits.
 
 Every lifecycle decision consumes a signed `GateEvaluationSnapshot`. REVIEW to
 TEST, TEST to DONE, and certification/release transitions either evaluate and
@@ -2039,6 +2060,14 @@ when already known but is not required for deferral; root-cause analysis, repair
 and fresh Green evidence belong to the receipted target Story. All of the
 following are mandatory:
 
+- A final `applicable` assessment declares exactly one disposition plan:
+  `repair_current` forbids `acceptedRoute`, while `defer_with_proof` requires the
+  exact accepted `finding_route` tuple for its durable proposal ID/digest. This
+  union makes both final applicable paths constructible, but is not eligibility:
+  critical/high or any known/uncertain protected-surface case can never choose
+  `defer_with_proof` even with a valid receipt; an otherwise eligible low/medium
+  applicable case may choose either `repair_current` or `defer_with_proof`.
+
 - The Finding has no direct relationship to the current acceptance contract or
   any `verificationIntent`; `acceptanceImpact` names the inspected references
   and evidence rather than relying on an empty assertion.
@@ -2391,7 +2420,7 @@ from the non-gate `progress_baseline` entry/set capture, sign, verify, and read
 handlers/artifacts, and all of those must be separate
 from Story 1's L4 mandatory-repair classify/close and deferral create/supersede
 handlers. It must register Story 1's exact receipt-hash/profile dependency,
-source-assessment proposal digest, CAS apply handler, `DeferralLineageState`,
+source-assessment proposal ID/digest, CAS apply handler, `DeferralLineageState`,
 `MaterialDriftReattestation`, initial-baseline ID/hash CAS,
 `MandatoryRepairClassification`, `DeferralExpiryPolicy`, cumulative-lineage
 reader, `AssessmentIntegrityState` reader dependency, every shared-predicate
@@ -2515,7 +2544,8 @@ authoritative artifacts and cannot alter lifecycle output.
   Red/repro, root-cause, fix, Green, and closure evidence.
 - Consumer/adapter for Story 2's non-gate `FindingRouteReceipt` and
   `progress_baseline` entry/set artifacts; validate the receipt's latest-chain
-  ID/hash, `finding_route` profile, source-assessment proposal digest, freshness, and non-
+  ID/hash, `finding_route` profile, source-assessment proposal ID/digest,
+  freshness, and non-
   revoked/non-superseded state, plus the initial set's exact ID/hash, marker,
   entry completeness, and signatures before consuming them inside the L4
   deferral without redefining its signer, verifier, baseline
@@ -2601,7 +2631,8 @@ authoritative artifacts and cannot alter lifecycle output.
   negative command/runtime witness and command-policy/witness digests plus a
   live accepted owner/route; warn rollback reproduces the exact old predicate.
 - A Story 2 route receipt alone produces no gate delta. Story 1 accepts only the
-  latest `finding_route` profile with exact ID/hash/source assessment proposal digest and
+  latest `finding_route` profile with exact ID/hash/source assessment proposal
+  ID/digest and
   binds that tuple into `FindingDeferralDisposition.dispositionHash` and the
   manifest action/digest; candidate-profile or mismatched receipts fail closed.
 - Receipt creation and deferral apply are separate transactions. The apply CAS
@@ -2694,6 +2725,14 @@ authoritative artifacts and cannot alter lifecycle output.
   missing immutable FindingRef/version/dependency-bundle member, stale/expired
   freshness, and a current-witness verdict used as a freshness value. They prove
   dependency drift invalidates integrity state and no raw assessment bypasses it.
+- Applicable disposition-plan union fixtures reject
+  `applicable + defer_with_proof` without an exact accepted route and
+  `applicable + repair_current` with any route. They reject high/critical or
+  known/uncertain protected-surface `defer_with_proof` even with a valid receipt,
+  while an otherwise eligible low/medium `applicable + defer_with_proof` final
+  assessment with a live exact proposal/receipt tuple constructs and passes to
+  the separate deferral eligibility policy. Eligible low/medium
+  `applicable + repair_current` remains constructible without a route.
 - Proposal/final fixtures require one immutable, receipted
   `FindingAssessmentProposal` lookup before route acceptance or finalization;
   wrong proposal signer/authority/signature, missing lookup, stale/expired
@@ -3235,7 +3274,7 @@ merged-state dependency review.
 | Suspected-candidate route completeness and isolation | Low/medium candidate routes with explicit uncertainty, current evidence, live existing target/owner, signed receipt, expiry/triggers, and zero gate delta / all proposed suspected routes | Candidate/route ledger join, target validation, and frozen-gate before/after comparison | 100% complete and 100% zero gate delta; no promotion/root-cause/Green prerequisite | Any incomplete route accepted, any candidate promoted implicitly, or any gate delta |
 | Route-receipt authority, isolation, and freshness | Story 2 receipts accepted by the exact target-authorized owner/policy actor with matching source/target/hash/scope and live lease/policy, while producing zero standalone gate delta / all acceptance proposals and adversarial receipts | Story 2 authority lookup/command log/signature-freshness suite plus Story 1 exact ID/hash/profile/source integration and frozen-gate comparison | 100% valid, 100% zero standalone gate delta; source Story self-sign rejected | Any wrong signer/owner/target/hash, stale/closed target, revocation, tamper, standalone gate delta, or Story 2 -> Story 1 import |
 | Initial progress-baseline integrity and isolation | Initial finding-route receipts with one target-authorized CLI/server-derived signed present-or-absent baseline for each eligible progress kind, exact signed non-gate authority marker, subject/route/defect binding, and zero standalone gate delta / all initial finding-route proposals and injected baseline/consumer mutations | Story 2 baseline capture/verifier rows joined to Story 3 atomic receipt-plus-set commit; mutate kind/subject/state/digest/authority/producer/signature, remove/flip marker fields, impersonate receipt/L4 profiles, and inject registry/command-policy/phase-allowlist blocker/pass/unblock consumers | 100% complete/valid, 100% marker mutation rejection, and 100% zero direct gate delta; only exact-CAS-derived Story 1 L4 state may affect the gate | Any missing/duplicate/wrong-kind or wrong-subject entry, fabricated caller baseline, partial receipt/set, invalid signature/hash/marker, profile impersonation, or direct baseline gate dependency accepted |
-| Exact receipt/baseline CAS and deferral atomicity | Applies whose existing latest receipt exact ID/hash/profile/source-assessment proposal digest and baseline-set ID/hash/bytes are revalidated with freshness and no revocation/supersession, then deferral plus manifest/action commit together / all deferral applies and injected races | Story 1 transaction/CAS log joined to immutable Story 2 receipt/baseline chain and Story 3 commit receipt; mutate every expected tuple field and interleave revoke/supersede/baseline change | 100% valid commits; 100% mismatches/races write neither deferral nor manifest/action; receipt/baseline records alone remain legal/non-gate | Any stale/non-latest tuple or wrong baseline accepted, any partial deferral/manifest commit, any failed CAS mutation, or any receipt/baseline-alone gate delta |
+| Exact receipt/baseline CAS and deferral atomicity | Applies whose existing latest receipt exact ID/hash/profile/source-assessment proposal ID/digest and baseline-set ID/hash/bytes are revalidated with freshness and no revocation/supersession, then deferral plus manifest/action commit together / all deferral applies and injected races | Story 1 transaction/CAS log joined to immutable Story 2 receipt/baseline chain and Story 3 commit receipt; mutate every expected tuple field and interleave revoke/supersede/baseline change | 100% valid commits; 100% mismatches/races write neither deferral nor manifest/action; receipt/baseline records alone remain legal/non-gate | Any stale/non-latest tuple or wrong baseline accepted, any partial deferral/manifest commit, any failed CAS mutation, or any receipt/baseline-alone gate delta |
 | Deferral route completeness | Deferred rows with a live existing target, owner, exact accepted signed route receipt tuple, expiry, and complete recheck triggers / all proposed deferred rows | Deferral/manifest atomic ledger join plus latest receipt-chain and target existence/owner validation | 100% | Any orphan, missing/mismatched receipt, deferral-alone/manifest-alone commit, or closed-unfixed target accepted as valid |
 | False deferral | Independently adjudicated deferred rows that require current repair or touch a protected surface / all system-proposed deferrals | Current reproducible failure evidence, acceptance/verificationIntent diff, introduced/worsened analysis, protected-surface campaign, and independent disposition review | **0**; critical/high proposals are mechanically ineligible; root cause may remain for the target Story | Any one event or any protected-surface risk deferred |
 | Stale/overdue/reopened deferral handling | Triggered, expired, owner-invalid, or target-closed-unfixed deferrals recalled as candidates and made non-authoritative / all such deferrals injected or observed | Freshness/expiry evaluator events joined to candidate recall and gate decisions | 100%, exactly-once candidate recall per trigger set | Any stale/overdue row remains non-blocking, any missed recall, or duplicate recall changes gate state |
@@ -3492,6 +3531,12 @@ The program is complete only when all of the following are true in merged state:
   reproducible failure evidence, no acceptance or protected-surface impact, no
   current regression, and an existing receipted owner/route may use it. Root
   cause, repair, and Green evidence may remain for that target Story.
+- Final applicable assessments are a discriminated two-path contract:
+  `repair_current` forbids a route, whereas `defer_with_proof` requires the
+  exact accepted proposal ID/digest and receipt tuple. Receipt shape does not
+  relax eligibility: critical/high and known/uncertain protected-surface cases
+  always remain `repair_current`; only otherwise eligible low/medium cases may
+  reach deferral policy.
 - V1 deferral authority is cumulative across the canonical defect/supersession
   lineage: immutable earliest `firstDeferredAt`; medium total <=7 days with no
   renewal; low total <=30 days with at most one target-authorized, materially
