@@ -770,6 +770,21 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-027",
+      "desc": "historical-provenance-regression: packages/main/src/core/acceptance-topology.ts:140-146 restores the retired `lattice` basename and `bin/lattice`, but omits the explicit historical wrapper `bin/lattice.js` named by resolved F-021. Direct execution against current dist returns null for `acceptanceMatrixEvidenceProvenance({kind:\"logic_test\",command:\"node bin/lattice.js acceptance_matrix\"})`, while `lattice acceptance_matrix`, `bin/lattice acceptance_matrix`, and `node bin/proofOrStop.js acceptance_matrix` classify correctly. packages/main/tests/acceptance-topology-provenance.test.mjs:29-38 covers only the first two historical forms, so the incomplete fix passes. WHY: already-recorded L0 acceptance-matrix output using the `.js` wrapper can still escape the non-evidentiary guard; add only this bounded historical parser token plus positive and unavailable-executable negative coverage, without restoring an active alias.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-31T23:41:40.174Z",
+      "reviewRound": "2026-08-31T23:37:04.185Z",
+      "reviewRunId": "B-022e:RR-053",
+      "_hash": "10d39fd2d5a54331b3789c9cf049661d75ea8b1a4b626accd0db15fd810c227a",
+      "signatureTag": "adversarial|unknown|historical-provenance-regression",
+      "signatureTagSource": "auto"
     }
   ]
 }
