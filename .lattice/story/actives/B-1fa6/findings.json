@@ -917,6 +917,21 @@
       "_hash": "2592eed97f3c58a6ec38e4022eda7a53eb5e971bad80f6b1383f721b135faad5",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-045",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1025-1067,1382-1385,1479-1482,1610-1621,1982-1998,2322-2324 — HIGH: The proposed F-031 two-stage construction is still not constructible as written. assessmentProposalDigest is itself an AssessmentEnvelope input but the canonical exclusion list omits that field, and there is no separate proposal record/signature even though Story 2 must accept an assessor-signed immutable proposal before the final assessment exists. In addition, deferral/manifest schema and CAS/process-fact prose still bind sourceAssessmentHash/final expectedAssessmentHash instead of sourceAssessmentProposalDigest, recreating the final-hash cycle or two competing bindings. Define a separately signed proposal artifact/digest that excludes its own digest/signature, replace every route/deferral/manifest/CAS field with the proposal-digest binding where intended, and mutation-test proposal/final divergence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T09:12:54.136Z",
+      "reviewRound": "2026-08-31T09:05:58.911Z",
+      "reviewRunId": "B-1fa6:RR-047",
+      "_hash": "141d920f9eac717fd9c65ca88d1cb55b23ec72344dd9368e0af1265dd528f44d",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
