@@ -409,6 +409,24 @@
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-021",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:785-813,1209-1219,1497-1504,1771-1776,1865-1868,2142 [medium] The typed progress contract cannot mechanically implement all four advertised ProgressEvidenceKind values. The predecessor baseline and required material-change check cover only target kind/id/scope plus head/material/storyFiles hashes. A legitimate target_test_result, target_delivery_state, or target_status_transition can occur without changing those source/material hashes and is therefore indistinguishable from no progress; conversely an unrelated material/hash change can satisfy the snapshot-difference rule without advancing the routed defect. Define a kind-specific canonical progress projection/baseline (including signed test outcome, delivery/status transition or affected-contract/source delta and its relation to the canonical defect/route), compare that projection rather than only the repository snapshot, and add positive unchanged-code test/delivery/status cases plus negative unrelated-source-change cases. Until then the schema, Story 2 tests, scorecard, risk and acceptance claims of materially progressed renewal are not mutually supported.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-31T01:32:34.037Z",
+      "reviewRound": "2026-08-31T01:27:13.637Z",
+      "reviewRunId": "B-1fa6:RR-018",
+      "_hash": "8eeee14c5a8e26f58b97efd0c5df02367e66f2ae6ea8eff4b35788d3ead16bcb",
+      "files": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
