@@ -1015,7 +1015,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:3348-3350 — HIGH: the final implementation acceptance still defines the assessment-integrity floor with only seven states and omits re_attestation_required and expired, contradicting the normative REQUIRED_ASSESSMENT_INVALID nine-state set at lines 1851-1854 and the immediately following claim that all nine states are mutation-tested. An implementation can satisfy this acceptance bullet while failing open for either omitted state. Make the acceptance predicate consume the exact named nine-state constant/set, and require both omitted cells in the final acceptance fixture matrix.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T12:03:35.283Z",
@@ -1023,7 +1023,11 @@
       "reviewRunId": "B-1fa6:RR-050",
       "_hash": "25937d0af3343a49e326ea3d08cb36b47ea905c12c01dfd129daec1869f40111",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 6ec47f30f6: Section 15 final acceptance now consumes the named REQUIRED_ASSESSMENT_INVALID exact nine-state set and explicitly requires blocking re_attestation_required and expired cells in the final acceptance matrix.",
+      "resolvedAt": "2026-08-31T12:16:26.431Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-050",
