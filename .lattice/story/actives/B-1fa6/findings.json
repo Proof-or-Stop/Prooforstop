@@ -383,7 +383,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1621-1638,1706-1780,1936-1967,2015-2017 — HIGH: the contract text requires the verifier to reject every new gate consumer that bypasses the shared predicate and asserts an acyclic Story 3 -> Story 2 -> Story 1 dependency, but the future Required tests only compare the currently named consumer surfaces and reject Story 2 -> Story 1 imports. No falsifiable mutation test injects a newly registered/phase-allowed consumer that accepts CandidateRoute, standalone FindingRouteReceipt, or historical advisory evidence, and no dependency test rejects Story 3 importing Story 2/1. Therefore all three Story suites can pass while a new lifecycle consumer bypasses the mandatory floor or a reverse lower-layer import creates a cycle. Add contract-verifier mutations for registry/command-policy/phase-allowlist consumer bypasses and dependency fixtures for every forbidden reverse edge, with failure as an enforce stopping condition.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-31T01:32:31.541Z",
@@ -394,7 +394,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 0974481b67: Required tests now mutate registry, command-policy and phase allow-lists with new direct advisory consumers and inject every forbidden reverse dependency—Story 3 importing Story 2 or 1 and Story 2 importing Story 1; any surviving bypass stops enforce.",
+      "resolvedAt": "2026-08-31T01:46:07.899Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-020",
