@@ -23798,6 +23798,42 @@
       ],
       "signatureTag": "missing|ts|edge-verificationevidence-claims",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-437",
+      "desc": "CHK-014:edge:0 evidence row falsely claims result:pass for pre_review_check_read at headHash 9a87c4b15d27391aed17d675430739c7a0fbe657 (executedAt 2026-08-31T02:22:37.553Z), but the pinned selector \"status\": is a bare key-match that matches both pass and fail bodies (verified: independent re-run at current HEAD 29cef288af24f37893c4b2c907479471a5caa7ce still returns status:fail, ok:false, codes:[PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED]). This is the same live gap as F-436/RR-1068: only a docs-only commit (5b2510e0a7, Rule 10 in Section 9 of proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md) has landed since, no DEV-phase fix to pre_review_check basis regeneration or re-run/refresh of this evidence row has occurred. Selector needs to pin a passing-value literal (e.g. a JSON-value selector on ok:true or status:complete-equivalent), and the evidence row needs a genuine current-head refresh once the underlying PR_ARTIFACT_TAMPERED/PR_COVERAGE_BASIS_CHANGED gap is fixed in DEV.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T02:56:00.920Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1073",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d3d41eebaa860f807974cf58ad42a173cdb1e9dbe5aa2bfb56cdd21873add996",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|json|edge-evidence-falsely",
+      "signatureTagSource": "auto"
     }
   ]
 }
