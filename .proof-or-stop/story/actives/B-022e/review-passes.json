@@ -222,6 +222,28 @@
       },
       "readDiagnostics": [],
       "_hash": "849f11f332aeeaf492d2b4d173d2d9c08ab8748d65a25f75f145c7f891131357"
+    },
+    {
+      "id": "B-022e:RP-008",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 5 test coverage passed: F-011 canonical-positive/non-residue assertions execute in the committed identity self-test (including proof-or-stop-review-story-init, quality, topology-critic, canonical metadata and verifier identities), while nine retired identity-class injections remain classified and fail closed; independent self-test exited 0 and --print-residue returned []. evidence_inspect is fresh with staleRefs=0 and non-empty transcriptRefs; all 29 verification intents have valid fresh mechanical receipts, no waiver, plus one supplemental pack transcript. F-002 remains medium/non-blocking and is deferred per operator policy.",
+      "createdAt": "2026-08-31T05:27:06.101Z",
+      "reviewRound": "2026-08-31T05:21:14.709Z",
+      "reviewRunId": "B-022e:RR-022",
+      "envelopeId": "98ca69f7ea13dbba10d3ab3e64f8760311554ae22e000143c974d96c17d63e71",
+      "writerSessionId": "sess-7e9eac50d15b4e6186c393729457a89c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "9034d8f8e7dcabb9fe4c03ac22007beb5256de396d0aa4ee88bf25e450221f07"
     }
   ]
 }
