@@ -413,6 +413,25 @@
       "resolvedAt": "2026-08-31T12:45:19.475Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5952:F-020",
+      "desc": "CHK-001:happy:1 acceptance contradiction (high): this priority=must intent still requires that the diff show no change to docs/requirements/decisions/dynamic-finding-system-execution-plan.md, but candidate commit 2cb7bbe456 changes line 1210 to repair the DONE-required blocker. The repair itself already has adequate executable regression coverage: scripts/verify-core-package-rename.mjs exits non-zero at exact pre-fix commit 70dc39feba with deprecatedCoreNameWithoutCanonical=1 and the stranded document, exits 0 at current d4f4edf with deprecatedCoreNameWithoutCanonical=0, and is included in root test:serial-reference. No additional test file is necessary, but the current must intent is impossible and no intent/evidence maps the approved one-line repair. Revise the intent to permit only the paired historical/canonical package-name wording and bind a current mechanical verifier receipt before REVIEW can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T14:02:58.799Z",
+      "reviewRound": "2026-08-31T13:56:26.777Z",
+      "reviewRunId": "B-5952:RR-044",
+      "_hash": "e26a198a45f61e66daa118f2cf880ca7713289e3ea94ba0189bca03312204b7e",
+      "files": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "scripts/verify-core-package-rename.mjs"
+      ],
+      "signatureTag": "missing|md|happy-acceptance-contradiction",
+      "signatureTagSource": "auto"
     }
   ]
 }
