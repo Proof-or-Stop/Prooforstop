@@ -4,7 +4,7 @@
       "id": "CHK-001",
       "title": "Restore a bounded instrumentation ceiling for the current source inventory",
       "context": "The isolated command node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js fails identically on main and B-1fa6 with dynamicBindingBuilds=804 (synthetic=419, repo=385) against a stale absolute ceiling of 800. Adjust the source-of-truth assertion with documented headroom, rebuild dist, and prove the smoke still enforces boundedness.",
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-08-31T02:49:32.722Z",
       "endTime": "2026-08-31T02:51:44.910Z",
       "verificationIntent": {
@@ -223,7 +223,42 @@
           "storyFilesHash": "0a810d9ec23f5da95a914068afc3fb1a0ae6450c1f286365fd2487b0f25849aa",
           "timestamp": "2026-08-31T08:07:31.466Z"
         }
-      ]
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ]
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-31T09:32:23.704Z",
+      "phase": "PLAN",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "The first accepted REVIEW-to-TEST run exposed six reproducible clean-main validation blockers. Per the user rule, TEST blockers stay in the current story; scope expands only to the six failing regression tests and generated dist counterparts."
     }
   ]
 }
