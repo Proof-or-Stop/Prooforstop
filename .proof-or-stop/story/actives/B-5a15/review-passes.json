@@ -11612,6 +11612,64 @@
       },
       "readDiagnostics": [],
       "_hash": "54d7d6abdf5d087473213bc67f4f34f864fda4cacf06ab29880b9b2b07d72436"
+    },
+    {
+      "id": "B-5a15:RP-241",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review of F-324 on HEAD 2d74d54 / e64f58ea17. detectCertificationWindowMaterialDrift now records PRE_CERT re-attestation advisory then continues into official verifier/test identity checks; drifted=false only when those identities still match. Re-ran CHK-003: officialIdentityDrift.drifted=true reason=/verifier identity/; officialTestIdentityDrift.drifted=true reason=/test identity/; matching identities keep drifted=false with PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY. Production currentCertificationIdentity still supplies official identities. No new dead-code, type-safety, I/O-isolation, or fail-open quality blocker in this fix. Pre-existing Wave 4 artifact failures remain already-filed (F-304 family) and were not re-filed.",
+      "createdAt": "2026-08-31T17:38:19.609Z",
+      "reviewRound": "2026-08-26T09:37:09.709Z",
+      "reviewRunId": "B-5a15:RR-768",
+      "envelopeId": "5457bcecd0162126fc76678907de9b7527f968cd0fe710960da7a14c0536f2b9",
+      "writerSessionId": "sess-review-quality-b5a15-r2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": 5150
+        },
+        "digest": "3b5f1988789edb3413752008025f04b21f085e24f2328a9617d68a76f3010068"
+      },
+      "readDiagnostics": [],
+      "_hash": "a5d299f9b234f5a2d46a560ca85f3a242333823057367059aa7243140105dbb4"
     }
   ]
 }
