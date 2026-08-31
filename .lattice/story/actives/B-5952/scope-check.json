@@ -70,11 +70,13 @@
       "q": "Where is the frozen PLAN execution boundary that permits exactly the assertion source plus rebuilt dist and mechanically excludes the Dynamic Finding document?",
       "evidence": "plan_get reports plan.md not found; scope_contract_show reports no scope contract configured. Textual understanding and verificationIntent exclusions are present but are not the frozen path gate requested for DEV.",
       "sourcePointers": [
-        ".lattice/story/actives/B-5952/understanding.json",
-        ".lattice/story/actives/B-5952/checklist.json",
-        "proof-or-stop plan_get B-5952",
-        "proof-or-stop scope_contract_show B-5952"
-      ]
+        "CHK-001",
+        "scope-contract.json",
+        "plan.md",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "resolution": "The frozen mechanical boundary now exists in the enforce-mode scope contract: exactly the retired-authority assertion source and generated dist may change, while the Dynamic Finding decision document and runtime implementation directories are protected or excluded. The complete CHK-001 execution order is persisted in plan.md.",
+      "resolvedAt": "2026-08-31T02:41:55.266Z"
     }
   ]
 }
