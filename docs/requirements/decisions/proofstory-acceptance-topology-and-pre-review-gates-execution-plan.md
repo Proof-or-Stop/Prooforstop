@@ -1281,7 +1281,8 @@ Rules:
     `PR_COVERAGE_BASIS_CHANGED` (usually alongside `PR_ARTIFACT_TAMPERED`) with no
     material drift and an unchanged `storyFilesHash`. This is a hazard for the
     operator, not a code defect: failing closed is correct per Rule 9's
-    "never a silent pass". Recovery requires reissuing `pre_review_check`, which
+    "never a silent pass" (Rule 3, not Rule 9 — Rule 9 governs coverage-basis
+    freshness). Recovery requires reissuing `pre_review_check`, which
     is a DEV-only writer — so a story that hits this in REVIEW cannot self-repair
     and must return to DEV. Note the codebase has a purpose-built
     `acceptanceCoverageBasisSemanticDigest` (strips `basisDigest`/`binding`/

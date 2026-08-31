@@ -613,7 +613,7 @@ Legacy `fixture_batch_add` 批量添加时自动按顺序建立 `prevCaseId/next
 把刚拿到的 PASS 打成 `PR_COVERAGE_BASIS_CHANGED`（通常伴随 `PR_ARTIFACT_TAMPERED`），
 而 `storyFilesHash` 根本没动。
 
-这是**操作顺序陷阱，不是代码缺陷**：fail-closed 符合 Section 9 Rule 9「never a silent pass」。
+这是**操作顺序陷阱，不是代码缺陷**：fail-closed 符合 Section 9 Rule 3「never a silent pass」（Rule 9 讲的是 coverage-basis freshness，不是这条）。
 但补救只能靠重跑 `pre_review_check`，而它是 `allowedPhases: ['DEV']`——
 在 REVIEW 撞上这个的 story 无法自愈，必须回 DEV。
 

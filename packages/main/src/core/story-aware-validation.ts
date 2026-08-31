@@ -271,13 +271,17 @@ function commandId(row: { command: string; args: string[]; label?: string }, ind
 }
 export function discoverValidationInventory(projectRoot: string, injected?: ValidationInventoryCommand[]): ValidationInventory {
   let commands: ValidationInventoryCommand[] = injected ? injected.map((row, index) => ({ ...row, originalIndex: row.originalIndex ?? index })) : [];
+  // B-45a0 F-443: resolve ONCE and reuse for both the read and the reported
+  // `source`. Calling pickProjectConfigPath twice duplicated an existsSync +
+  // readFileSync pair and opened a narrow TOCTOU window where `source` could
+  // name a different file than `raw` was actually read from.
+  const picked = injected ? null : pickProjectConfigPath(projectRoot);
   if (!injected) {
     // B-45a0 F-441: reuse the canonical resolver instead of re-deriving the
     // canonical/legacy read-both lookup here. pickProjectConfigPath already
     // returns {path, filename, legacy} for exactly this, and its own comment
     // notes that deriving the answer without embedding a deprecated literal in
     // a comparison is deliberate — the B-cdf6 F-065/F-061/F-068 regression shape.
-    const picked = pickProjectConfigPath(projectRoot);
     const raw = picked ? JSON.parse(readFileSync(picked.path, 'utf8')) as Record<string, unknown> : {};
     const validation = ((raw.validate || raw.validation) as Record<string, unknown> | undefined) || {};
     const dynamic = validation.dynamic && typeof validation.dynamic === 'object' ? validation.dynamic as Record<string, unknown> : {};
@@ -329,10 +333,15 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
   // resolver. No config file at all reports the canonical name, matching the
   // prior behaviour where a missing file fell through to the legacy branch only
   // because existsSync on the canonical path failed.
-  const picked = injected ? null : pickProjectConfigPath(projectRoot);
+  // B-45a0 F-444: with NO config file at all, pickProjectConfigPath returns null.
+  // Reporting the canonical name there would silently flip behaviour: the old
+  // ternary chain fell through to the deprecated name when the canonical file was
+  // absent. Preserve that exactly rather than changing an unrelated edge case
+  // while fixing the duplication.
   const source = injected
     ? 'injected' as const
-    : picked?.legacy ? DEPRECATED_CONFIG_FILENAME : PROOF_OR_STOP_CONFIG_FILENAME;
+    : picked ? (picked.legacy ? DEPRECATED_CONFIG_FILENAME : PROOF_OR_STOP_CONFIG_FILENAME)
+    : DEPRECATED_CONFIG_FILENAME;
   return { schema: 'proof-or-stop.validation-inventory.v1', commands: normalized, digest: stableDigest(normalized), source };
 }
 function validRelativePath(path: string): boolean {
