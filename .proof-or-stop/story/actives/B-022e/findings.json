@@ -446,6 +446,60 @@
       "_hash": "2698ec8f5393416ae82c6fae093001b8d14db5b54b7a5730858460b6ccbf08d7",
       "signatureTag": "missing|unknown|scripts-verify-proof",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-021",
+      "desc": "historical-provenance-regression: packages/main/src/core/acceptance-topology.ts:152 replaced the intentionally bounded ['proof-or-stop','lattice']/bin-lattice historical parser with duplicate canonical entries. acceptanceMatrixEvidenceProvenance now returns null for recorded 'lattice acceptance_matrix' and 'node bin/lattice.js acceptance_matrix' commands (verified against dist), even though lines 189-195 say legacy rows must remain classified; this can let historical L0 matrix output escape the non-evidentiary guard. Restore the retired spelling only inside this explicit historical-verification parser and keep it unavailable as an executable alias.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-31T23:03:12.343Z",
+      "reviewRound": "2026-08-31T22:53:47.816Z",
+      "reviewRunId": "B-022e:RR-049",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "bin/bootstrap-runner.js",
+          "bin/proof-or-stop-codex.js",
+          "packages/main/src/cli.ts",
+          "packages/main/src/core/artifact-release.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/capability-release.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": "Story-level identity cutover required all checklist relatedDocs plus focused post-merge loader, provenance-prefix, and canonical-cleanup review."
+      },
+      "_hash": "bb621c008bdd7c0c03712de988554660f721d4c86447c2f2925585ecbef6d087",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|historical-provenance-regression",
+      "signatureTagSource": "auto"
     }
   ]
 }
