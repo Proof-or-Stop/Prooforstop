@@ -22678,6 +22678,46 @@
       "resolvedAt": "2026-08-31T07:50:01.893Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-502",
+      "desc": "packages/main/src/cli-engine.ts:37 imports PROOF_OR_STOP_BIN_NAMES but no longer references it after commit 562be4b841 swapped the sole usage site (~line 755) to STRIPPABLE_BIN_TOKENS. Dead import, not caught by tsc (noUnusedLocals unset in packages/main/tsconfig.json) or any lint gate (no eslint config in repo). No functional impact; cosmetic residue from the bin-token tolerance fix.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-31T13:33:54.465Z",
+      "reviewRound": "2026-08-31T11:31:20.622Z",
+      "reviewRunId": "B-5a88:RR-961",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/core/audit-scan.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7ce7c2228dd4f969bf9141cfb001ed61bec7ad60081785740f325fe4a266c5b0",
+      "files": [
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "cleanup|ts|packages-main-engine",
+      "signatureTagSource": "auto"
     }
   ]
 }
