@@ -551,10 +551,58 @@
       "anchors": [
         "retiredAuthorityVocabulary.pinnedExecutableSourceFingerprints"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "AGENTS.md is the Codex-host mirror of CLAUDE.md, which is already acknowledged in this contract. It carries the same two additions: the Rule 10 basis-before-pre_review_check ordering constraint that docs finding F-435/F-438 showed was documented nowhere, and the four-step defect triage discipline the user asked for. Leaving the mirror stale would recreate exactly the doc-drift F-438 reported, since a Codex-host agent reads this file rather than CLAUDE.md.",
+      "timestamp": "2026-08-31T10:44:58.283Z",
+      "paths": [
+        "AGENTS.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "AGENTS.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "8b84c7fd0f3e3526636440b89d7cb654bf436757",
+      "materialHash": "277d5434151b5d23a24d11c30b2627f17b12331e9bfcb5402219ad12466f1f62"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This is the truth source for the acceptance-topology and pre-review gates that F-435/F-438 found under-documented. Section 9 gained Rule 10, recording the ordering hazard that regenerating the coverage basis after pre_review_check silently invalidates a genuine PASS, and a later commit corrected a Rule 9 versus Rule 3 citation error that F-445 caught. Both are documentation of behaviour this story exercised; the file is the canonical place for it.",
+      "timestamp": "2026-08-31T10:45:12.792Z",
+      "paths": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "8b84c7fd0f3e3526636440b89d7cb654bf436757",
+      "materialHash": "277d5434151b5d23a24d11c30b2627f17b12331e9bfcb5402219ad12466f1f62"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Fixed a genuine framework defect that blocked this story: the no-OPEN-epoch finalize path wrote reviewInventoryDigest(cutoff) into scopeDigest while consumeReviewInventoryReceipt compares reviewInventoryAcceptanceSubjectDigestForStore, two different digest domains, so every receipt that path minted was permanently unconsumable and no story needing REVIEW to DEV remediation could advance. Measured before and after: stored 1b0e8855 recomputed exactly as the cutoff digest, and after the fix it stores 0375089c matching the live subject digest.",
+      "timestamp": "2026-08-31T10:45:13.460Z",
+      "paths": [
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "8b84c7fd0f3e3526636440b89d7cb654bf436757",
+      "materialHash": "277d5434151b5d23a24d11c30b2627f17b12331e9bfcb5402219ad12466f1f62"
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-30T12:45:58.360Z",
+  "updatedAt": "2026-08-31T10:45:13.460Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -653,6 +701,9 @@
     "packages/main/src/core/closeout-trust.ts": "packages/main/src/core/closeout-trust.ts",
     "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
     "docs/requirements/decisions/story-lifecycle.md": "docs/requirements/decisions/story-lifecycle.md",
-    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "AGENTS.md": "AGENTS.md",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "packages/main/src/core/review-inventory-epoch.ts": "packages/main/src/core/review-inventory-epoch.ts"
   }
 }
