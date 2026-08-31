@@ -54,6 +54,27 @@
       ],
       "signatureTag": "missing|mjs|scripts-verify-global",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-004",
+      "desc": "package-install-boundary: packages/lab/package.json:15 and packages/utils/package.json:15 pin @proof-or-stop/core@0.3.65 while packages/main/package.json:8 packs the only supplied core tarball as 0.3.268. Therefore the mandated four-tarball clean install cannot close its dependency graph with registry/network fallback disabled; it must fetch a second core@0.3.65 that these artifacts do not provide. scripts/verify-global-lab-entrypoint.mjs:12,72-73 incorrectly codifies the mismatch as expected, and CHK-003/CHK-007 evidence invokes that workspace-only verifier rather than the promised tarball install. Align the extension dependency constraints with the packed core version (and locks/verifier), then record a mechanically executed empty-project install of only the four tarballs under disabled fallback.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-31T01:42:47.621Z",
+      "reviewRound": "2026-08-31T01:34:00.265Z",
+      "reviewRunId": "B-022e:RR-003",
+      "_hash": "09d6b8f7d7142edb7544d73ce7536b64f84ffbc339108b7dc952b54874940102",
+      "files": [
+        "packages/main/package.json",
+        "packages/lab/package.json",
+        "packages/utils/package.json",
+        "scripts/verify-global-lab-entrypoint.mjs"
+      ],
+      "signatureTag": "missing|json|package-install-boundary",
+      "signatureTagSource": "auto"
     }
   ]
 }
