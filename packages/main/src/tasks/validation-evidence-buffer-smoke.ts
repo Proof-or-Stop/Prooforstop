@@ -17,10 +17,10 @@
  *   CHK-005 (the advisory) — the cliff must be marked, not merely moved, with thresholds derived
  *   from the ceiling THIS story set rather than a number copied beside it.
  *
- *   F-014 (the boundary) — the bound must hold over the SERIALISED FILE. StoryStore stringifies
- *   the record a second time, escaping the output string again, so an inner string under the bound
- *   can still write a file roughly twice that size. Bounding the inner value alone left a reachable
- *   wedge, and the sections below measure the file.
+ *   F-014 (the boundary) — the bound measures a candidate record with the serialisation format used
+ *   by StoryStore today, rather than bounding only its inner output string. This catches the second
+ *   escaping pass in the current format. It does not guarantee that StoryStore's later, independent
+ *   serialisation writes those same bytes; that limitation is retained in the decision document.
  *
  *   F-029 / F-030 / F-031 / F-032 (the same defect, four more doors) — every one of these was a
  *   claim about the bound that was wider than the code: a gate measuring a record the write then
@@ -76,7 +76,7 @@ function persist(result: unknown) {
 }
 
 /**
- * Every node of a persisted record must be plain JSON data.
+ * Every node of the candidate record returned by the bound must be plain JSON data.
  *
  * This checks the returned snapshot at the instant the bound is evaluated: it contains JSON scalars,
  * arrays and plain objects, with no own getter or visible `toJSON`. It does not freeze the shared
@@ -87,7 +87,7 @@ function assertPlainJsonData(value: unknown, path: string): void {
   if (value === null) return;
   const kind = typeof value;
   if (kind === 'string' || kind === 'number' || kind === 'boolean') return;
-  assert.equal(kind, 'object', `${path}: a persisted record carries only JSON scalars and containers (found ${kind})`);
+  assert.equal(kind, 'object', `${path}: a returned candidate record carries only JSON scalars and containers (found ${kind})`);
   if (Array.isArray(value)) {
     value.forEach((entry, index) => assertPlainJsonData(entry, `${path}[${index}]`));
     return;
@@ -95,7 +95,7 @@ function assertPlainJsonData(value: unknown, path: string): void {
   const prototype = Object.getPrototypeOf(value as object);
   assert.ok(
     prototype === Object.prototype || prototype === null,
-    `${path}: a persisted record carries standard or null-prototype containers; later shared-prototype mutation remains outside this check`,
+    `${path}: a returned candidate record carries standard or null-prototype containers; later shared-prototype mutation remains outside this check`,
   );
   assert.equal(
     typeof (value as { toJSON?: unknown }).toJSON,
@@ -126,12 +126,12 @@ function assertFlagAgreesWithMeasurement(bound: ReturnType<typeof persist>): voi
   }
   assertPlainJsonData(bound.record, 'bound.record');
   const actual = measurePersistedEvidenceBytes(bound.record);
-  assert.notEqual(actual, null, 'the persisted record is measurable');
-  assert.equal(bound.fileBytes, actual, 'fileBytes is a measurement of the record being persisted');
+  assert.notEqual(actual, null, 'the returned candidate record is measurable');
+  assert.equal(bound.fileBytes, actual, 'fileBytes is the check-time measurement of the returned candidate record');
   assert.equal(
     bound.withinBound,
     actual! < VALIDATION_EVIDENCE_BOUND_BYTES,
-    `withinBound must be derived from the file measurement (flag=${bound.withinBound}, actual=${actual}, bound=${VALIDATION_EVIDENCE_BOUND_BYTES})`,
+    `withinBound must be derived from the candidate measurement (flag=${bound.withinBound}, actual=${actual}, bound=${VALIDATION_EVIDENCE_BOUND_BYTES})`,
   );
 }
 
@@ -229,7 +229,7 @@ function validationResult(
   const expected = Buffer.byteLength(`${JSON.stringify(record, null, 2)}\n`, 'utf8');
   assert.equal(measurePersistedEvidenceBytes(record), expected, 'the measurement is JSON.stringify(record, null, 2) + newline, which is what store.ts writes today - compared against a second copy of that formula, not against store.ts');
   assert.equal(measurePersistedEvidenceBytes({ cycle: (() => { const o: any = {}; o.self = o; return o; })() }), null, 'an unserialisable record measures null rather than throwing');
-  console.log('✓ the persisted measurement applies the two-space format (a duplicate of the core/store.ts formula, not a pin of it)');
+  console.log('✓ the candidate measurement applies the current two-space format (a duplicate of core/store.ts, not a pin of it)');
 }
 
 // ── 4. Today's repository shape is untouched: no advisory, no reduction, byte-identical output. ──
@@ -245,7 +245,7 @@ function validationResult(
   console.log(`    fileBytes=${bound.fileBytes} state=${bound.state}`);
 }
 
-// ── 5. F-014: quote-heavy output, where the second escaping pass doubles the file. ───────────────
+// ── 5. F-014: quote-heavy output, where the second escaping pass expands the candidate record. ───
 {
   // The reachable wedge. Every captured character is a quote, so it costs two bytes on the second
   // stringify. Before the fix the reducer measured the inner string, found it under the bound, never
@@ -257,22 +257,22 @@ function validationResult(
   const unboundedFile = measurePersistedEvidenceBytes(buildRecord(JSON.stringify(result)))!;
   assert.ok(
     unboundedFile >= VALIDATION_EVIDENCE_READ_CEILING_BYTES,
-    `the fixture genuinely breaches the read ceiling once persisted (${unboundedFile} vs ${VALIDATION_EVIDENCE_READ_CEILING_BYTES})`,
+    `the unbounded candidate serialisation breaches the read ceiling (${unboundedFile} vs ${VALIDATION_EVIDENCE_READ_CEILING_BYTES})`,
   );
   assert.ok(
     unboundedFile > innerOnly.serializedBytes * 1.5,
-    `the second escaping pass expands the artifact substantially (inner ${innerOnly.serializedBytes}, file ${unboundedFile})`,
+    `the second escaping pass expands the candidate serialisation substantially (inner ${innerOnly.serializedBytes}, candidate ${unboundedFile})`,
   );
 
   const bound = persist(result);
   assertFlagAgreesWithMeasurement(bound);
-  assert.equal(bound.withinBound, true, `the PERSISTED FILE must be brought under the bound (${bound.fileBytes} vs ${VALIDATION_EVIDENCE_BOUND_BYTES})`);
-  assert.ok(bound.fileBytes < VALIDATION_EVIDENCE_READ_CEILING_BYTES, 'and therefore under the read ceiling the metadata commit enforces');
+  assert.equal(bound.withinBound, true, `the measured candidate record must be brought under the bound (${bound.fileBytes} vs ${VALIDATION_EVIDENCE_BOUND_BYTES})`);
+  assert.ok(bound.fileBytes < VALIDATION_EVIDENCE_READ_CEILING_BYTES, 'and its check-time measurement is under the configured read ceiling');
   const parsed = JSON.parse((bound.record as any).output);
   assert.equal(parsed.allPass, true, 'the verdict survives the reduction');
   assert.equal(bound.disposition, 'reduced', 'escaping expansion is handled by re-reducing, not by collapsing to the fallback');
   assert.ok(Array.isArray(parsed.commands) && parsed.commands.length > 0, 'per-command evidence survives the expansion-aware retry');
-  console.log('✓ quote-heavy output is bounded at the FILE, where the second escaping pass lands');
+  console.log('✓ quote-heavy output is bounded against the candidate serialisation used at check time');
   console.log(`    innerBytes=${innerOnly.serializedBytes} unboundedFile=${unboundedFile} boundedFile=${bound.fileBytes}`);
 }
 
@@ -281,7 +281,7 @@ function validationResult(
   const result = validationResult(Array.from({ length: 300 }, (_, index) => commandResult(`cmd-${index}`, 100_000)));
   const bound = persist(result);
   assertFlagAgreesWithMeasurement(bound);
-  assert.equal(bound.withinBound, true, 'the file is brought under the bound');
+  assert.equal(bound.withinBound, true, 'the measured candidate record is brought under the bound');
   assert.equal(bound.disposition, 'reduced', 'the staged reduction was enough; no fallback needed');
   const parsed = JSON.parse((bound.record as any).output);
   assert.equal(parsed.allPass, true, 'bounding preserves allPass, so the pass verdict is unchanged');
@@ -292,7 +292,7 @@ function validationResult(
   const markers = parsed.commands.filter((command: any) => String(command.output).startsWith('[evidence bound:'));
   assert.match(String(markers[0].output), /\d+ chars of captured output omitted/, 'the marker names how much was omitted');
   assert.ok(parsed.details.some((line: string) => line.includes('[evidence bound:')), 'the details elision is visible too');
-  console.log('✓ oversized realistic artifact is bounded with visible markers and JSON contract intact');
+  console.log('✓ the oversized candidate record is reduced with visible markers and JSON contract intact');
   console.log(`    fileBytes=${bound.fileBytes} elidedCommandOutputs=${bound.sizing!.elidedCommandOutputs} elidedDetailLines=${bound.sizing!.elidedDetailLines}`);
 }
 
@@ -301,7 +301,7 @@ function validationResult(
   const result = validationResult(Array.from({ length: 300 }, (_, index) => commandResult(`cmd-${index}`, 0, 100_000)));
   const bound = persist(result);
   assertFlagAgreesWithMeasurement(bound);
-  assert.equal(bound.withinBound, true, 'the file is brought under the bound');
+  assert.equal(bound.withinBound, true, 'the measured candidate record is brought under the bound');
   assert.ok(bound.sizing!.elidedCommandEntries > 0, 'entries were capped');
   const parsed = JSON.parse((bound.record as any).output);
   assert.equal(parsed.allPass, true, 'capping entries preserves the pass verdict');
@@ -320,7 +320,7 @@ function validationResult(
 {
   // The staged reduction only models commands / details / warnings. Anything else - a field added
   // later, a key name carrying bulk, a huge verdict-bearing scalar - is not its problem any more:
-  // the writer measures the file and swaps in a fallback sized by construction.
+  // the bounding function measures the candidate record and returns a fallback sized by construction.
   for (const [label, overrides] of [
     ['unknown field', { someFieldAddedLater: 'z'.repeat(30 * MIB) }],
     ['key name', { ['k'.repeat(30_000_000)]: 1 }],
@@ -328,7 +328,7 @@ function validationResult(
   ] as Array<[string, Record<string, unknown>]>) {
     const bound = persist(validationResult([], overrides));
     assertFlagAgreesWithMeasurement(bound);
-    assert.equal(bound.withinBound, true, `${label}: the file is brought under the bound`);
+    assert.equal(bound.withinBound, true, `${label}: the measured candidate record is brought under the bound`);
     assert.equal(bound.disposition, 'verdict_only', `${label}: the fallback is what got it there`);
     assert.ok(bound.fileBytes < 4_000, `${label}: the fallback record is sized by construction (${bound.fileBytes} bytes)`);
     const parsed = JSON.parse((bound.record as any).output);
@@ -374,7 +374,7 @@ function validationResult(
     assertFlagAgreesWithMeasurement(bound);
     assert.equal(bound.withinBound, true, `${label}: a degenerate input still produces a writable record`);
     assert.doesNotThrow(() => JSON.parse((bound.record as any).output), `${label}: the output field stays valid JSON`);
-    assert.notEqual((bound.record as any).output, 'null', `${label}: an unserialisable result is never persisted as a bare null, which reads as a silent not-a-pass`);
+    assert.notEqual((bound.record as any).output, 'null', `${label}: an unserialisable result is never returned as a bare-null candidate, which would read as a silent not-a-pass`);
     const parsed = JSON.parse((bound.record as any).output);
     assert.equal(parsed.evidenceBound.replacedWithVerdictOnlyRecord, true, `${label}: the replacement names itself`);
     console.log(`    ${label}: disposition=${bound.disposition} withinBound=${bound.withinBound}`);
@@ -401,7 +401,8 @@ function validationResult(
   // plain status lines expand x1, so no single expansion ESTIMATE describes the artifact. The old
   // writer estimated one, made a single corrective attempt, and on a miss threw away a perfectly
   // good reduced artifact for a several-hundred-byte stub. The reduction is now driven by a
-  // predicate that measures the file, so a miss is not a thing that can happen: it keeps reducing.
+  // predicate that measures each candidate serialisation, so a miss inside this function is not a
+  // thing that can happen: it keeps reducing. This says nothing about a later StoryStore reading.
   const details: string[] = [];
   for (let index = 0; index < 120_000; index += 1) {
     details.push(`✓ cmd-${index}: node packages/main/dist/tasks/example.js`);
@@ -434,7 +435,7 @@ function validationResult(
   const unboundedFile = measurePersistedEvidenceBytes(buildRecord(JSON.stringify(oversized)))!;
   assert.ok(
     unboundedFile >= VALIDATION_EVIDENCE_BOUND_BYTES,
-    `the fixture genuinely exceeds the bound once persisted (${unboundedFile} vs ${VALIDATION_EVIDENCE_BOUND_BYTES})`,
+    `the candidate serialisation genuinely exceeds the bound (${unboundedFile} vs ${VALIDATION_EVIDENCE_BOUND_BYTES})`,
   );
   const bound = persist(oversized);
   assertFlagAgreesWithMeasurement(bound);
@@ -446,7 +447,7 @@ function validationResult(
   // reported like any other input the reducer has no structure for.
   const small = persist(['a', 'b', 'c']);
   assertFlagAgreesWithMeasurement(small);
-  assert.equal(small.disposition, 'unmodified', 'a small array is persisted as measured');
+  assert.equal(small.disposition, 'unmodified', 'a small array is returned unmodified after measurement');
   assert.equal(small.withinBound, true, 'and is admissible');
   console.log('✓ an oversized array is refused rather than handed a verdict record it never carried');
   console.log(`    unboundedFile=${unboundedFile} fileBytes=${bound.fileBytes} disposition=${bound.disposition}`);
@@ -454,7 +455,7 @@ function validationResult(
 
 // ── 10. An unmeetable bound is refused, and the text says refusal rather than reassurance. ───────
 {
-  // Bulk in a sibling field the writer must NOT mangle: verificationCoverage is read by the phase
+  // Bulk in a sibling field the reducer must NOT mangle: verificationCoverage is read by the phase
   // gate, so silently trimming it would trade a size defect for an admissibility defect. The honest
   // outcome is a refusal the caller acts on.
   const heavyCoverage = { entries: Array.from({ length: 200_000 }, (_, index) => ({ itemId: `CHK-${index}`, note: 'n'.repeat(200) })) };
@@ -471,12 +472,12 @@ function validationResult(
   assert.match(advisory!, /evidence size limit reached/, 'the refusal text does not open as an advisory');
   assert.match(advisory!, /write is refused/, 'it states that the write does not happen');
   assert.doesNotMatch(advisory!, /verdict is unchanged/, 'and it does NOT claim the verdict is unchanged, because on this path the evidence write fails');
-  assert.ok(advisory!.includes(String(bound.fileBytes)), 'it names the measured file size');
+  assert.ok(advisory!.includes(String(bound.fileBytes)), 'it names the check-time candidate size');
   console.log('✓ an unmeetable bound is refused, with text that reads as a refusal');
   console.log(`    fileBytes=${bound.fileBytes} disposition=${bound.disposition}`);
 }
 
-// ── 10b. The gate must measure the record it is about to WRITE, hash fields included. ────────────
+// ── 10b. The gate measures the candidate offered to the writer, hash fields included. ─────────────
 {
   // persistStoryValidationEvidence computes the bound once, after the hash fields are known. The
   // defect that repairs: the gate measured the record WITHOUT headHash / materialHash /
@@ -499,8 +500,8 @@ function validationResult(
   });
   const result = validationResult([]);
   // The smallest output this result can produce: its own serialisation. The verdict-only fallback is
-  // LARGER than this, so no path through the writer can shrink the record below this size, and the
-  // refusal asserted below cannot be an artefact of the reduction not having been tried.
+  // LARGER than this, so no path through the bounding function can shrink the candidate below this
+  // size, and the refusal asserted below cannot be an artefact of reduction not having been tried.
   const smallestOutput = JSON.stringify(result);
   const baseBytes = measurePersistedEvidenceBytes(windowRecord(smallestOutput, 0, false))!;
   const hashDelta = measurePersistedEvidenceBytes(windowRecord(smallestOutput, 0, true))! - baseBytes;
@@ -521,7 +522,7 @@ function validationResult(
     buildRecord: (output) => windowRecord(output, pad, true),
   });
   assertFlagAgreesWithMeasurement(withHashes);
-  assert.equal(withHashes.withinBound, false, 'the record that would actually be written does not fit');
+  assert.equal(withHashes.withinBound, false, 'the candidate passed to the writer does not fit at check time');
   assert.equal(withHashes.disposition, 'refused', 'and it is refused, not admitted on the strength of the smaller measurement');
   assert.ok(withHashes.fileBytes >= VALIDATION_EVIDENCE_BOUND_BYTES, 'the refusal rests on a measurement of the final record');
   assert.ok(withHashes.fileBytes > withoutHashes.fileBytes, 'the added fields are inside the number the gate reads');
@@ -555,7 +556,7 @@ function validationResult(
   );
   assert.match(persistBody, /const persistedBound = boundEvidence\(hashes\);/, 'the hashed computation is the one bound to the git path');
   assert.ok(written.includes('persistedBound'), 'and it is what the git path writes');
-  console.log('✓ the size gate sees the final record, hash fields included, and one computation both gates and writes');
+  console.log('✓ the size gate sees the candidate record with hash fields, and that bound result supplies the record passed to the writer');
   console.log(`    hashDelta=${hashDelta} withoutHashes=${withoutHashes.fileBytes} withHashes=${withHashes.disposition}`);
 }
 
@@ -645,7 +646,7 @@ function validationResult(
   assert.equal(bound.state, 'advisory', 'this fixture lands in the advisory band');
   const advisory = formatValidationEvidenceAdvisory(bound);
   assert.ok(advisory, 'an artifact past the advisory fraction produces an advisory');
-  assert.ok(advisory!.includes(String(bound.fileBytes)), 'the advisory names the MEASURED file size');
+  assert.ok(advisory!.includes(String(bound.fileBytes)), 'the advisory names the check-time candidate size');
   assert.ok(advisory!.includes(String(VALIDATION_EVIDENCE_READ_CEILING_BYTES)), 'the advisory names the configured limit');
   assert.match(advisory!, /advisory/i, 'the advisory says it is an advisory');
   assert.match(advisory!, /informational/i, 'the advisory states that it is informational');
