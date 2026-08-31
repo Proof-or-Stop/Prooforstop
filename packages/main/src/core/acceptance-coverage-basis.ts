@@ -13,6 +13,7 @@ import type {
 import { digestCanonicalJson } from './digest.js';
 import { isConfigFilenameMentioned } from './brand-paths.js';
 import { isAcceptanceBasisPathSourceRef } from './acceptance-topology.js';
+import { getProcessFactRegistryEntry } from './process-fact-registry.js';
 import {
   ACCEPTANCE_PLAN_DISCOVERY_PROFILE,
   acceptanceDiscoveryFactActivationPhase,
@@ -151,12 +152,26 @@ function sourceRefValue(node: unknown): string | null {
 
 function topologyPathEndpointValue(node: unknown): string | null {
   const value = sourceRefValue(node);
-  // `existing:` records provenance (the endpoint references already-existing
-  // material); it is not part of the verifier's canonical path namespace.
-  // The canonicalSourceRef itself carries the bounded endpoint kind, such as
-  // process-fact/consumer or runtime-fact/checker. Exact basis membership below
-  // still rejects unknown or unrelated endpoints after this normalization.
-  return value?.startsWith('existing:') ? value.slice('existing:'.length) : value;
+  // Only registry-backed process-fact references are legal canonical endpoints
+  // that can be projected into verifier path space. Keep every other existing
+  // reference provenance-qualified so caller-authored aliases such as
+  // `consumer:*` cannot impersonate a verifier-owned endpoint.
+  return value?.startsWith('existing:process-fact:') ? value.slice('existing:'.length) : value;
+}
+
+function consumerGateNamesProcessFact(consumerGate: string, factName: string): boolean {
+  const escaped = factName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(^|[^A-Za-z0-9_:.-])${escaped}(?=$|[^A-Za-z0-9_:.-])`).test(consumerGate);
+}
+
+function canonicalRegistryTopologyPath(producerRef: string, consumerRef: string): string | null {
+  const producerName = producerRef.match(/^process-fact:(.+)$/)?.[1];
+  const consumerName = consumerRef.match(/^process-fact:(.+)$/)?.[1];
+  if (!producerName || !consumerName) return null;
+  const producer = getProcessFactRegistryEntry(producerName);
+  const consumer = getProcessFactRegistryEntry(consumerName);
+  if (!producer?.consumerGate || !consumer || !consumerGateNamesProcessFact(producer.consumerGate, consumerName)) return null;
+  return `path:process-fact:${producerName}->consumer:${producer.consumerGate}`;
 }
 
 function topologyPaths(contract: ProofStoryContractData | null): string[] {
@@ -169,7 +184,7 @@ function topologyPaths(contract: ProofStoryContractData | null): string[] {
       const consumerRef = topologyPathEndpointValue(consumer);
       for (const producerId of consumer.producerRefs ?? []) {
         const producerRef = producers.get(producerId);
-        if (producerRef && consumerRef) paths.push(`path:${producerRef}->${consumerRef}`);
+        if (producerRef && consumerRef) paths.push(canonicalRegistryTopologyPath(producerRef, consumerRef) ?? `path:${producerRef}->${consumerRef}`);
       }
     }
   }
@@ -497,7 +512,10 @@ export function reconcileTopologyWithCoverageBasis(
   const topology = new Set(topologyPaths(contract));
   const topologySourceRefs = stable((contract?.acceptanceBindings ?? []).flatMap(binding => {
     const value = binding.verificationTopology as AcceptanceVerificationTopologyV1 | undefined;
-    return value ? [...value.producerRefs, ...value.consumerRefs, ...value.commandRefs]
+    // Consumer process facts name the endpoint of a producer edge; they do not
+    // independently claim coverage of their own producer path. A separate
+    // producerRef or commandRef is required for that path.
+    return value ? [...value.producerRefs, ...value.commandRefs]
       .map(sourceRefValue).filter((ref): ref is string => Boolean(ref)).map(ref => ref.replace(/^existing:/, '')) : [];
   }));
   const planned = new Set((contract?.acceptanceBindings ?? []).flatMap(binding => {
