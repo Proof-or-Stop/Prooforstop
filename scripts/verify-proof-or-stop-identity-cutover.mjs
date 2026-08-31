@@ -14,7 +14,9 @@ const CURRENT_LEGACY_CONTEXT_MANIFEST_PATH = 'scripts/proof-or-stop-identity-cur
 const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = '4b57856dec08f4bc46dfc86d98647b1f71eabcbec9ad531f3284fe83fe1fc475';
 const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 163;
 const POLICY_PATH = 'docs/requirements/decisions/proof-or-stop-identity-cutover.md';
-const POLICY_COMMIT = '1dab23ae287fb9364244a3a73156f62f1abdb6e8';
+// Rewritten from 1dab23ae287f by the authorized repository-wide Git identity
+// rewrite. The tree and one-path policy-commit boundary are verified below.
+const POLICY_COMMIT = 'f245fd614c728ce6027bd3a08f25eda4de32429c';
 const EXPECTED_PACKAGE_SCRIPT = 'node scripts/verify-proof-or-stop-identity-cutover.mjs';
 const SELF_TEST_PASS_SUMMARY = 'PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted';
 const TRUTH_SOURCE_ENTRYPOINTS = ['AGENTS.md', 'CLAUDE.md', 'README.md', 'docs/requirements/NAV.md'];
@@ -271,8 +273,8 @@ const FROZEN_FILE_BASELINES = [
     reason: 'Exact migration fixture proves bounded legacy input handling.',
   },
   ...[
-    ['.proof-or-stop/artifact-releases.jsonl', '0918320f9803f910a351b9cb3e55fa4a572ce5b7', '353ad771076933f9c1e1eb74cf83eadf03aa2cb21ddc32865f764aa341ab382c'],
-    ['.proof-or-stop/capability-releases.jsonl', 'c908eaf4626a4fa893e86887d3a40885d4aca324', '9dd9fdfc54061145558aac04f959673c8dade7051c2d8ff9c2db1bf05e23d584'],
+    ['.proof-or-stop/artifact-releases.jsonl', '0918320f9803f910a351b9cb3e55fa4a572ce5b7', '353ad771076933f9c1e1eb74cf83eadf03aa2cb21ddc32865f764aa341ab382c', 'proofbound.artifact-release.v1'],
+    ['.proof-or-stop/capability-releases.jsonl', 'c908eaf4626a4fa893e86887d3a40885d4aca324', '9dd9fdfc54061145558aac04f959673c8dade7051c2d8ff9c2db1bf05e23d584', 'proofbound.product-capability-release.v1'],
     ['RESUME-B-cc10.md', 'a7a5a123d35b67270eeacae103ffce90a3489657', 'e35061dd7c7130b441158f298c30aa203ab8a1ab4a20f7b5967d715c802c55b3'],
     ['docs/evidence/orchestrate-legacy-index.md', 'dee96f0808570c108112b9b0dce9ea234464b712', 'a95eb9728f5e34c5a01fcb142e63d13400142c223ca466c5eb7d932cdc9acf7c'],
     ['docs/evidence/proof-surface-inventory.json', '0f8a38666f5d121b4bb367e9c061fc612bceac34', '5fd0421c5d37efef5e03d1c5e8be0d743049816f086a2a7566b6b0892651e1eb'],
@@ -298,9 +300,10 @@ const FROZEN_FILE_BASELINES = [
     ['experiments/runs/lab-reviewer-history-v1/run-001/config.snapshot.json', '6337143cb6019c6246c190f2784681f1f71ff38d', 'bcf0d513dc65e42644f22f588e40863108118c9b7440813f676d3c8dc6fd15dd'],
     ['experiments/runs/lab-reviewer-history-v1/run-002/config.snapshot.json', '6337143cb6019c6246c190f2784681f1f71ff38d', 'bcf0d513dc65e42644f22f588e40863108118c9b7440813f676d3c8dc6fd15dd'],
     ['experiments/runs/lab-reviewer-reviewer-quality-v1/run-001/config.snapshot.json', '1c99896241d820e9e5435bb5bd7064f5b4cbd620', '28a83d48f7bda40a82750f7ea9af3ea78d9cab239105ecc0b93127237d4cac8c'],
-  ].map(([path, gitBlobOid, byteSha256], index) => ({
+  ].map(([path, gitBlobOid, byteSha256, appendOnlyJsonlSchemaVersion], index) => ({
     id: `legacy-provenance-${String(index + 1).padStart(2, '0')}`,
     class: 'provenance_bytes', path, gitBlobOid, byteSha256,
+    ...(appendOnlyJsonlSchemaVersion ? { appendOnlyJsonlSchemaVersion } : {}),
     reason: 'Historical release, replay, report, or evidence bytes are immutable provenance.',
   })),
   {
@@ -713,6 +716,51 @@ function isProtectedArtifact(path) {
     || path.startsWith('tests/fixtures/');
 }
 
+function verifyAppendOnlyJsonlPrefix(row, frozenBytes, currentBytes) {
+  const errors = [];
+  if (sha256(frozenBytes) !== row.byteSha256) {
+    errors.push(`frozen baseline ${row.id}: pinned Git blob bytes do not match byteSha256`);
+    return errors;
+  }
+  if (currentBytes.length < frozenBytes.length || !currentBytes.subarray(0, frozenBytes.length).equals(frozenBytes)) {
+    errors.push(`frozen baseline ${row.id}: immutable JSONL prefix changed`);
+    return errors;
+  }
+  const suffix = currentBytes.subarray(frozenBytes.length);
+  if (suffix.length === 0) return errors;
+  if (frozenBytes.at(-1) !== 0x0a) {
+    errors.push(`frozen baseline ${row.id}: pinned JSONL prefix does not end at a record boundary`);
+    return errors;
+  }
+  if (suffix.at(-1) !== 0x0a) {
+    errors.push(`frozen baseline ${row.id}: appended JSONL suffix is truncated`);
+    return errors;
+  }
+  const text = suffix.toString('utf8');
+  if (!Buffer.from(text, 'utf8').equals(suffix)) {
+    errors.push(`frozen baseline ${row.id}: appended JSONL suffix is not valid UTF-8`);
+    return errors;
+  }
+  const lines = text.slice(0, -1).split('\n');
+  for (const [index, line] of lines.entries()) {
+    if (!line) {
+      errors.push(`frozen baseline ${row.id}: appended JSONL record ${index + 1} is empty`);
+      continue;
+    }
+    try {
+      const record = JSON.parse(line);
+      if (!record || Array.isArray(record) || typeof record !== 'object') {
+        errors.push(`frozen baseline ${row.id}: appended JSONL record ${index + 1} is not an object`);
+      } else if (record.schemaVersion !== row.appendOnlyJsonlSchemaVersion) {
+        errors.push(`frozen baseline ${row.id}: appended JSONL record ${index + 1} has schemaVersion ${JSON.stringify(record.schemaVersion)}, expected ${row.appendOnlyJsonlSchemaVersion}`);
+      }
+    } catch {
+      errors.push(`frozen baseline ${row.id}: appended JSONL record ${index + 1} is invalid JSON`);
+    }
+  }
+  return errors;
+}
+
 function verifyFrozenFiles(root, tracked, baselines = FROZEN_FILE_BASELINES) {
   const errors = [];
   if (baselines.length !== EXPECTED_FROZEN_FILE_BASELINE_COUNT) {
@@ -729,6 +777,17 @@ function verifyFrozenFiles(root, tracked, baselines = FROZEN_FILE_BASELINES) {
     }
     if (!/^[a-f0-9]{40}$/u.test(row.gitBlobOid || '')) errors.push(`frozen baseline ${row.id}: invalid Git blob OID`);
     if (!/^[a-f0-9]{64}$/u.test(row.byteSha256 || '')) errors.push(`frozen baseline ${row.id}: invalid byte sha256`);
+    if (row.appendOnlyJsonlSchemaVersion) {
+      let frozenBytes;
+      try {
+        frozenBytes = git(['cat-file', 'blob', row.gitBlobOid], { cwd: root, encoding: null });
+      } catch {
+        errors.push(`frozen baseline ${row.id}: pinned Git blob cannot be read`);
+        continue;
+      }
+      errors.push(...verifyAppendOnlyJsonlPrefix(row, frozenBytes, readFileSync(resolve(root, row.path))));
+      continue;
+    }
     let actualOid;
     try {
       actualOid = git(['hash-object', '--', row.path], { cwd: root }).trim();
@@ -1177,6 +1236,17 @@ function runSelfTest(root, files) {
   expect(verifyFrozenFiles(root, tracked, changedFrozenDigest).some((error) => error.includes('byte mutation')), 'changed frozen digest did not fail');
   const missingFrozenRow = FROZEN_FILE_BASELINES.slice(1);
   expect(verifyFrozenFiles(root, tracked, missingFrozenRow).some((error) => error.includes('row count')), 'missing frozen baseline row did not fail');
+  const appendOnlyRow = FROZEN_FILE_BASELINES.find((row) => row.appendOnlyJsonlSchemaVersion);
+  expect(Boolean(appendOnlyRow), 'append-only frozen prefix row is missing');
+  const appendOnlyPrefix = git(['cat-file', 'blob', appendOnlyRow.gitBlobOid], { cwd: root, encoding: null });
+  const validAppend = Buffer.from(`${JSON.stringify({ schemaVersion: appendOnlyRow.appendOnlyJsonlSchemaVersion, id: 'post-freeze-record' })}\n`);
+  expect(verifyAppendOnlyJsonlPrefix(appendOnlyRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, validAppend])).length === 0, 'valid complete JSONL append did not preserve the frozen prefix');
+  const mutatedPrefix = Buffer.from(appendOnlyPrefix);
+  mutatedPrefix[0] ^= 1;
+  expect(verifyAppendOnlyJsonlPrefix(appendOnlyRow, appendOnlyPrefix, Buffer.concat([mutatedPrefix, validAppend])).some((error) => error.includes('immutable JSONL prefix changed')), 'append-only row accepted a frozen-prefix mutation');
+  expect(verifyAppendOnlyJsonlPrefix(appendOnlyRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, validAppend.subarray(0, validAppend.length - 1)])).some((error) => error.includes('truncated')), 'append-only row accepted a truncated appended record');
+  const wrongSchemaAppend = Buffer.from(`${JSON.stringify({ schemaVersion: 'wrong.schema.v1' })}\n`);
+  expect(verifyAppendOnlyJsonlPrefix(appendOnlyRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, wrongSchemaAppend])).some((error) => error.includes('schemaVersion')), 'append-only row accepted an appended record from another schema');
   const experimentMutation = EXPERIMENT_PROVENANCE_ROWS.map((row, index) => index === 0
     ? { ...row, byteSha256: '0'.repeat(64) }
     : row);

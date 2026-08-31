@@ -64,7 +64,8 @@ time of genuinely applicable defects, and it must not claim that it does.
 - Do not create the three future Stories from this document.
 - Do not replace the existing review-convergence/stall adjudication mechanism.
 - Do not automatically resolve, dismiss, hide, or delete a Finding.
-- Do not rename `@lattice/lab`, `@lattice/utils`, or any other package here.
+- Do not rename package identities here; the separate identity-cutover Story
+  owns that migration.
 - Do not treat historical learning, a DONE result, a signature tag, a file
   overlap, or a model confidence score as lifecycle gate evidence.
 
@@ -1197,29 +1198,29 @@ detector may promote many candidates, while a broad safety detector may promote
 few. Unexplained drift is the signal. Similarly, reduced Finding count is never
 accepted as a safety metric by itself.
 
-## 12. `@lattice/lab` -> `@proof-or-stop/lab` scope-change example
+## 12. Canonical Lab package scope-change example
 
-This example demonstrates why applicability must be dynamic. It does not
-perform the rename.
+This example demonstrates why applicability must be dynamic. The separate
+identity-cutover Story has since completed the package rename; this document
+records the scope transition without reintroducing the retired package token.
 
 ### 12.1 Historical scope
 
 `docs/requirements/decisions/proof-or-stop-identity-migration.md`, under
-"Out of scope, verified untouched", states that sibling package names
-`@lattice/utils` and `@lattice/lab` were not renamed because the operator had
-enumerated `@lattice/core` (later replaced by `@proof-or-stop/core`)
-specifically. That is an explicit historical scope
+"Out of scope, verified untouched", states that the sibling utils and lab
+package identities were not renamed because the operator had enumerated only
+the core package identity. That is an explicit historical scope
 decision, not evidence that the lab package name was accidentally missed.
 
-At the point-in-time documentation HEAD, current code/package evidence is:
+At the post-cutover documentation HEAD, current code/package evidence is:
 
-- `packages/lab/package.json` names the package `@lattice/lab`.
-- `packages/main/package.json` depends on `@lattice/lab`.
-- relevant package lockfiles contain the old package key/name.
+- `packages/lab/package.json` names the canonical Lab package.
+- `packages/main/package.json` depends on the canonical Lab package.
+- relevant package lockfiles contain the canonical package key/name.
 - `scripts/verify-global-lab-entrypoint.mjs` explicitly asserts
-  `@lattice/lab` and the core dependency key.
-- `packages/lab/src/index.ts`, `register.ts`, and `tool-defs.ts` retain old-name
-  comments.
+  the canonical Lab and core dependency keys.
+- `packages/lab/src/index.ts`, `register.ts`, and `tool-defs.ts` use canonical
+  package commentary.
 - `bin/bootstrap-runner.js` loads lab `dist` by filesystem path; that proves
   local bootstrap wiring, not npm package-name resolution.
 
@@ -1231,8 +1232,8 @@ Finding nor gate evidence.
 1. Preserve B-cc10 and its decision unchanged.
 2. Under B-cc10's old scope digest, a proposed assessment for changing the lab
    sibling name is `out_of_scope` with `decision_scope` evidence.
-3. The new operator instruction explicitly adds
-   `@lattice/lab -> @proof-or-stop/lab` to a new rename Story's scope.
+3. The new operator instruction explicitly adds the Lab package identity
+   migration to a new rename Story's scope.
 4. The scope digest changes. Any old applicability assessment becomes stale; it
    is not edited or reused.
 5. A current reviewer checks manifests, exact-name consumers, lockfiles,
@@ -1273,10 +1274,10 @@ scope decision is wrong.
 ### 12.4 Boundary
 
 The example does not rename anything, does not retroactively edit B-cc10, and
-does not silently include `@lattice/utils`, the root package, signature salts,
-agent role IDs, archived evidence, or other frozen identities. Any such
-expansion needs a new scope decision and a new assessment. In particular, the
-operator's lab request is not authority to rename utils.
+does not silently include the utils package, the root package, signature salts,
+agent role IDs, archived evidence, or other frozen identities. Any such scope
+expansion needs a new decision and a new assessment. In particular, the
+operator's Lab request alone was not authority to rename utils.
 
 ## 13. Risk analysis and stopping rules
 
@@ -1314,7 +1315,7 @@ Line numbers drift; symbol names and CLI queries are the durable anchors.
 | Process-fact assembly/semantics | `packages/main/src/core/process-fact-registry.ts` |
 | Command authority/ownership | `packages/main/src/core/command-policy.ts` |
 | Contract verification | `scripts/verify-process-fact-contract.mjs` |
-| Learning remains advisory | `docs/requirements/decisions/lattice-experience-layer-execution-plan.md` |
+| Learning remains advisory | historical experience-layer execution decision (archived provenance) |
 | Source lineage and non-authority | `docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md` |
 | Whole-tree versus Story-file drift | `docs/requirements/decisions/story-files-hash-material-drift.md` |
 | Existing convergence backstop | `docs/step3-review-budget-breaker-handoff.md`, `core/review-convergence.ts`, `handlers/stall-adjudication.ts` |
