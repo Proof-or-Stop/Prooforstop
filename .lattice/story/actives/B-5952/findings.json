@@ -57,6 +57,26 @@
       ],
       "signatureTag": "tautological-mutation-proof",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5952:F-003",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:884 — CHK-001:edge:0 and CHK-001:adversarial:0 do not execute the guard boundary or a real mutation. The edge receipt only evaluates the tautologies c<=c and !((c+1)<=c); the 803 receipt only evaluates the constant false expression 804<=803 and greps for comparator text. Both can PASS if the assertion is dead, warning-only, or fails to reject 821. CHK-001:adversarial:1 is also mechanical=false with no result/receipt, and its command checks only the current positive source/dist/doc state rather than proving source-only, dist-only, and document mutations fail. Add an isolated executable mutation harness that exercises the actual guard/smoke with 820 accepted, 821 and 803 rejected, weakening/removal rejected, source/dist drift rejected, and protected-document drift rejected. Severity high because preserving absolute boundedness and fail-closed rebuild/scope binding is the Story objective.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T02:55:20.519Z",
+      "reviewRound": "2026-08-31T02:52:42.602Z",
+      "reviewRunId": "B-5952:RR-003",
+      "_hash": "bdd561f61e3a60c68a84c9f615ecca62ec7e4da2f7fbcf7e5fdaba24ba5aba9d",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
