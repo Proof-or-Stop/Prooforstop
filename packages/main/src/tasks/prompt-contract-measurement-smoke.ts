@@ -381,6 +381,43 @@ validateDispatchUsageObservation({
 });
 
 const packageRoleIds = readPromptRegistry().agents.map(entry => entry.agentId).sort();
+const roleById = new Map(PROMPT_ROLE_CONTRACTS.map(contract => [contract.roleId, contract]));
+const defectTriageReviewerRoleIds = [
+  'lattice-review-behavior',
+  'lattice-review-concept',
+  'lattice-review-docs',
+  'lattice-review-quality',
+  'lattice-review-test-coverage',
+] as const;
+const rolesDeclaringDefectTriageCheck = PROMPT_ROLE_CONTRACTS
+  .filter(contract => contract.requiredCheckIds.includes('defect-triage-and-routing-check'))
+  .map(contract => contract.roleId)
+  .sort();
+assert.deepEqual(
+  rolesDeclaringDefectTriageCheck,
+  [...defectTriageReviewerRoleIds].sort(),
+  'only the five active modular REVIEW lanes declare the defect-triage-and-routing check',
+);
+for (const roleId of defectTriageReviewerRoleIds) {
+  assert.equal(
+    roleById.get(roleId)?.requiredCheckIds.includes('defect-triage-and-routing-check'),
+    true,
+    `${roleId} must declare defect-triage-and-routing-check`,
+  );
+}
+for (const contract of PROMPT_ROLE_CONTRACTS.filter(
+  contract => !defectTriageReviewerRoleIds.includes(contract.roleId as typeof defectTriageReviewerRoleIds[number]),
+)) {
+  assert.equal(
+    contract.requiredCheckIds.includes('defect-triage-and-routing-check'),
+    false,
+    `${contract.roleId} must not inherit the REVIEW-only defect triage check`,
+  );
+}
+// requiredCheckIds are declarative prompt metadata. Membership here is not
+// evidence that a check ran, is not lifecycle gate evidence, and does not
+// change Dynamic Finding schema, blocking, freshness, supersession, severity,
+// or applicability semantics.
 assert.equal(PROMPT_ROLE_CONTRACTS.length, 16);
 assert.deepEqual(PROMPT_ROLE_CONTRACTS.map(contract => contract.roleId).sort(), packageRoleIds);
 assert.equal(new Set(PROMPT_ROLE_CONTRACTS.map(contract => contract.roleId)).size, 16);
@@ -396,7 +433,6 @@ assert.deepEqual(
 for (const contract of PROMPT_ROLE_CONTRACTS.filter(contract => contract.status !== 'active')) {
   assert.equal(contract.defaultDispatch, false);
 }
-const roleById = new Map(PROMPT_ROLE_CONTRACTS.map(contract => [contract.roleId, contract]));
 assert.equal(roleById.get('product-reviewer')?.status, 'active');
 assert.equal(roleById.get('implementation-reviewer')?.replacementAgentType, 'lattice-review-quality');
 assert.match(roleById.get('implementation-reviewer')?.migrationHint ?? '', /lattice-review-behavior/);
