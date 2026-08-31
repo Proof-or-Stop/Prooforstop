@@ -736,14 +736,15 @@
         },
         {
           "intentRef": "CHK-002:adversarial:4",
-          "kind": "logic_test",
+          "kind": "docs_check",
           "command": "node --input-type=module -e \"import { readFileSync } from 'node:fs'; const owner=readFileSync('AGENTS.md','utf8'); const claude=readFileSync('CLAUDE.md','utf8'); const impl=readFileSync('packages/main/templates/agents/lattice-implementer.md','utf8'); const shared=['Bounded current-Story repair','introduced or worsened by the current Story','Severity and applicability are separate axes','Evidence-backed routing, otherwise fail closed','including a medium Finding in a policy round where medium is blocking','Critical or high Findings must never be left without a traceable owner','Never expand the Story merely to make the repository globally green','Compatibility boundary and dismissal','Dynamic Finding System execution plan is future authority','never fabricate an assessment field, verdict, owner, route, signature, freshness result, or receipt','not applicability','out_of_scope','repair, or resolution proof','prompt text does not mechanically enforce this discipline']; for (const doc of [owner,claude]) for (const p of shared) if (!doc.includes(p)) throw new Error('missing shared guidance: '+p); for (const p of ['Preserve its reproduction evidence and impact evidence','Report it to the Story Owner','Never widen the assigned item or Story unilaterally']) if (!impl.includes(p)) throw new Error('missing implementer phrase: '+p); console.log('owner claude implementer triage guidance: PASS');\"",
-          "note": "Current tool-executed source contract proves both host guides identify Dynamic Finding as future authority, prohibit fabricated fields and receipts, and do not claim prompt prose mechanically enforces lifecycle truth.",
-          "headHash": "9dd098a0030e85687c646238f9b13d2934fbabea",
-          "materialHash": "ff1f61597c55aa003274d1ade0ba30cd5e46d7b6e8db7f83a6fdb9cd079ed8fc",
-          "storyFilesHash": "b65c2da734cc14c45a23c5180d54e67246de2180df8462a3ddf572a977179e42",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier confirms the repaired must intent against the current source and selected proof output.",
           "mechanical": false,
-          "timestamp": "2026-08-31T21:24:40.817Z"
+          "headHash": "43d110ccad71f76fd58eb9ed7be455e9ca390b66",
+          "materialHash": "8b96cfaf1b019fc2449b25b70785dc1fcdce52199f99b07ed336ad87bf0e4360",
+          "storyFilesHash": "46edcd4c47ce89700af76be53e38b53b76cd16b86627bf1b7b1758ed07f2e93a",
+          "timestamp": "2026-08-31T22:07:42.114Z"
         }
       ],
       "userSeesSnapshot": {
