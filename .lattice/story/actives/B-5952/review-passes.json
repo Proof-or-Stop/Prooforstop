@@ -926,6 +926,55 @@
       },
       "readDiagnostics": [],
       "_hash": "a4ca124fc912fb76f8f0129a56a12b84bfb195f01d8fc5170b90f551bd5d11d8"
+    },
+    {
+      "id": "B-5952:RP-031",
+      "agent": "lattice-review-docs",
+      "note": "Docs review PASS: Step 1 extracted 8 declaration tokens; Step 2 compared 4 relevant documentation paragraphs/sections after excluding generic local-name grep noise. The one-line §12.1 annotation accurately pairs historical @lattice/core with @proof-or-stop/core, matches the authoritative identity-migration decision and passing package-rename verifier, and changes no Dynamic Finding or B-3434 semantics. plan.md, scope-boundary.json, scope-contract.json, scope-check.json, and proofstory.json consistently limit the exception and keep handlers/CLI excluded. No promised-but-undelivered command, field, env, config, or behavior was introduced.",
+      "createdAt": "2026-08-31T19:25:05.318Z",
+      "reviewRound": "2026-08-31T15:00:25.549Z",
+      "reviewRunId": "B-5952:RR-050",
+      "envelopeId": "79c9ea4701959b0a701bcae2b1e1421693fca6ab258cf06ffc8232b915e956c6",
+      "writerSessionId": "sess-9cf60a45b31581d1cf8cfa003a08ec7f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/proofstory.json",
+          ".lattice/story/actives/B-5952/scope-boundary.json",
+          ".lattice/story/actives/B-5952/scope-check.json",
+          ".lattice/story/actives/B-5952/scope-contract.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ff7eadea8fbb77f51fb4c73f31cf30e87de81afaa4ce667cb9dbde256074c704"
+      },
+      "readDiagnostics": [],
+      "_hash": "882de82dd2345a3d071801184f448cb275d96cfa4bd320b12a9a74405007cf16"
     }
   ]
 }
