@@ -510,6 +510,38 @@
       },
       "readDiagnostics": [],
       "_hash": "65951b859842fd831bf3782e8ac2e69b9050b595c3b4b1fc9ba917ede667574d"
+    },
+    {
+      "id": "B-2220:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Full concept audit of committed HEAD: read the entire decision record and all 749 lines of validation-evidence-buffer-smoke.ts; F-010 language is now consistently candidate/check-time only, StoryStore/disk byte identity remains explicitly unguaranteed, section 10c retains inherited-prototype risk, repository residue scan found no active writer-boundary follow-up, and the compiled smoke passed.",
+      "createdAt": "2026-08-31T00:13:25.816Z",
+      "reviewRound": "2026-08-31T00:10:59.937Z",
+      "reviewRunId": "B-2220:RR-028",
+      "envelopeId": "5276c2a0091a2fb4474e59f36053fb1a38750baf613541ee052643351eb254a9",
+      "writerSessionId": "sess-8e78648f278d7dbb4b820d41451a0a7f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "48620337000ef8691ed1e2681bdccdaa8aa90cebd7fee366f0ea22f8255c508f"
     }
   ]
 }
