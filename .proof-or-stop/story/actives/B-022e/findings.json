@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-022e:F-001",
+      "desc": "scripts/verify-proof-or-stop-identity-cutover.mjs:754-763 concept-cleanup: HIGH — the claimed exact residue boundary is bypassed by prefix-wide exclusions for all docs/requirements/decisions, all fixtures, and .proof-or-stop/dev-memory. This contradicts proof-or-stop-identity-cutover.md:106-147, which forbids directory exemptions and says docs/requirements is not generally frozen. The bypass is observable in current normative truth sources: docs/requirements/decisions/story-lifecycle.md:7,68,101,303,335,343 still teaches lattice-review-story-init / lattice-review-test-coverage / lattice-review-*; docs/requirements/decisions/testing-infra.md:9,141,151,160 does the same, yet the verifier prints PASS identity-cutover. WHY: the user-required Agent rename is incomplete on active lifecycle documentation and the GREEN residue claim is vacuous over broadly skipped roots; replace active role names and make exemptions exact/fail-closed instead of directory-wide.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-31T01:38:39.162Z",
+      "reviewRound": "2026-08-31T01:34:00.265Z",
+      "reviewRunId": "B-022e:RR-001",
+      "_hash": "cd6a236ce7c3755e72f006a54511952c6f0b822b27412e0b95bd92c3d7323366",
+      "signatureTag": "missing|unknown|scripts-verify-proof",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
