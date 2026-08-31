@@ -26,7 +26,12 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, ScopeContractData, StoryInfo } from '../core/types.js';
-import { checkScopeContract, readChangedFiles, validatePaths } from '../core/scope-contract.js';
+import {
+  checkScopeContract,
+  readChangedFiles,
+  readRetiredRepoRootDiffPaths,
+  validatePaths,
+} from '../core/scope-contract.js';
 import {
   canonicalizeScopePath,
   isMalformedScopeGlob,
@@ -131,6 +136,7 @@ try {
   write(root, 'src/protected.ts', 'export const protectedValue = 1;\n');
   write(root, 'packages/main/src/core/foo.ts', 'export const foo = 1;\n');
   write(root, 'README.md', 'scope contract smoke\n');
+  write(root, 'retired-root.md', 'retired root fixture\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'init']);
 
@@ -177,6 +183,48 @@ try {
   assert.throws(() => canonicalizeScopePath({ ...canonicalArgs, input: 'C:\\Windows\\system.ini' }), /absolute/);
   assert.throws(() => canonicalizeScopePath({ ...canonicalArgs, input: '../secret' }), /traversal/);
   assert.throws(() => canonicalizeScopePath({ ...canonicalArgs, input: '%2e%2e/secret' }), /encoded/);
+  const retiredFixtureRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-retired-scope-path-'));
+  try {
+    git(retiredFixtureRoot, ['init', '-b', 'main']);
+    git(retiredFixtureRoot, ['config', 'user.email', 'retired-scope@example.test']);
+    git(retiredFixtureRoot, ['config', 'user.name', 'Retired Scope Smoke']);
+    write(retiredFixtureRoot, 'packages/main/src/.keep', 'source root\n');
+    write(retiredFixtureRoot, 'retired-root.md', 'retired identity content\n');
+    git(retiredFixtureRoot, ['add', '.']);
+    git(retiredFixtureRoot, ['commit', '-m', 'retired baseline']);
+    git(retiredFixtureRoot, ['checkout', '-b', 'story/B-retired-scope']);
+    git(retiredFixtureRoot, ['mv', 'retired-root.md', 'canonical-root.md']);
+    const retiredRepoRootPaths = readRetiredRepoRootDiffPaths(retiredFixtureRoot);
+    assert.deepEqual(
+      retiredRepoRootPaths,
+      ['retired-root.md'],
+      'rename provenance exposes only the exact removed repo-root identity',
+    );
+    const retiredRoot = canonicalizeScopePath({
+      projectRoot: retiredFixtureRoot,
+      scanRoot: 'packages/main',
+      sourceRoot: 'src',
+      input: 'retired-root.md',
+      exactRepoRootPaths: retiredRepoRootPaths,
+    });
+    assert.equal(retiredRoot.canonicalPath, 'retired-root.md', 'an exact renamed-away path keeps its repo-root identity');
+    assert.equal(retiredRoot.base, 'repo-root', 'the exact retired path is never remapped below source-root');
+    write(retiredFixtureRoot, 'shared/.keep', 'repo ancestor\n');
+    write(retiredFixtureRoot, 'packages/main/src/shared/.keep', 'source ancestor\n');
+    assert.throws(
+      () => canonicalizeScopePath({
+        projectRoot: retiredFixtureRoot,
+        scanRoot: 'packages/main',
+        sourceRoot: 'src',
+        input: 'shared/missing.ts',
+        exactRepoRootPaths: retiredRepoRootPaths,
+      }),
+      /ambiguous/,
+      'an arbitrary missing ambiguous path is not covered by an unrelated exact retired-path classification',
+    );
+  } finally {
+    rmSync(retiredFixtureRoot, { recursive: true, force: true });
+  }
   assert.equal(pathMatchesScopePattern('src/core/a.ts', 'src/**/*.ts'), true, '** matches nested files');
   assert.equal(pathMatchesScopePattern('src/a.ts', 'src/**/*.ts'), true, '** matches zero directory segments');
   assert.equal(pathMatchesScopePattern('src/a1.ts', 'src/a?.ts'), true, '? matches exactly one character');
@@ -334,6 +382,35 @@ try {
   assert.match(partialUpdate, /allowedModify: \[src\/allowed.ts\]/, 'partial update should preserve omitted allowedModify');
   assert.match(partialUpdate, /allowedCreate: \[src\/new.ts\]/, 'partial update should preserve omitted allowedCreate');
   assert.match(partialUpdate, /allowedTest: \[tests, specs\]/, 'partial update should replace provided allowedTest');
+
+  git(root, ['mv', 'retired-root.md', 'canonical-root.md']);
+  const retiredAck = run(root, 'scope_contract_acknowledge', {
+    storyId,
+    paths: ['retired-root.md'],
+    actor: 'scope-contract-smoke',
+    reason: 'Acknowledge the exact repo-root identity removed by the one-shot rename.',
+  });
+  assert.match(retiredAck, /addedPaths: \[retired-root\.md\]/, 'handler preserves exact removed repo-root identity');
+  assert.deepEqual(
+    store.readScopeContract(storyId)?.acknowledgements.at(-1)?.paths,
+    ['retired-root.md'],
+    'handler does not remap a proven retired repo-root path below source-root',
+  );
+  write(root, 'shared/.keep', 'repo ancestor\n');
+  write(root, 'packages/main/src/shared/.keep', 'source ancestor\n');
+  assert.match(
+    run(root, 'scope_contract_acknowledge', {
+      storyId,
+      paths: ['shared/missing.ts'],
+      actor: 'scope-contract-smoke',
+      reason: 'An arbitrary ambiguous missing path must remain blocked.',
+    }, true),
+    /ambiguous/,
+    'handler rejects an arbitrary ambiguous missing path outside the exact retired set',
+  );
+  rmSync(join(root, 'shared'), { recursive: true, force: true });
+  rmSync(join(root, 'packages/main/src/shared'), { recursive: true, force: true });
+  git(root, ['mv', 'canonical-root.md', 'retired-root.md']);
 
   write(root, 'src/allowed.ts', 'export const allowed = 2;\n');
   let checked = JSON.parse(run(root, 'scope_contract_check', { storyId, json: true }));
