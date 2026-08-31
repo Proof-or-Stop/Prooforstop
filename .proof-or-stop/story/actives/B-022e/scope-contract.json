@@ -38,7 +38,6 @@
     "scripts/verify-proof-or-stop-prompt-baseline.mjs"
   ],
   "protectedFiles": [
-    ".lattice/story/**",
     ".proof-or-stop/story/**",
     "docs/story/**",
     "tests/fixtures/**",
@@ -57,7 +56,7 @@
     "experiments/baselines/**",
     "experiments/recovery-runner/**"
   ],
-  "scopeChangeReason": "Normalize explicit excludes to repository paths; operator explicitly requires full active identity and Agent role cutover.",
+  "scopeChangeReason": "The operator-required identity cutover formally migrates this active story from the retired .lattice root; retain canonical story protection and exact-path acknowledgements for legacy deletions.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -216,10 +215,40 @@
       "phase": "DEV",
       "headHash": "17b673909b4749968107e0f4516558c76d24cbbe",
       "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required exact-path deletion of the legacy story state after CLI-verified byte-identical migration to the canonical Proof-or-Stop state root.",
+      "timestamp": "2026-08-31T01:30:38.641Z",
+      "paths": [
+        ".lattice/story/actives/B-022e/background.md",
+        ".lattice/story/actives/B-022e/checklist.json",
+        ".lattice/story/actives/B-022e/execution-boundary.json",
+        ".lattice/story/actives/B-022e/index.json",
+        ".lattice/story/actives/B-022e/init-check.json",
+        ".lattice/story/actives/B-022e/process-events.jsonl",
+        ".lattice/story/actives/B-022e/scope-boundary.json",
+        ".lattice/story/actives/B-022e/scope-freeze-check.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-022e/background.md",
+        ".lattice/story/actives/B-022e/checklist.json",
+        ".lattice/story/actives/B-022e/execution-boundary.json",
+        ".lattice/story/actives/B-022e/index.json",
+        ".lattice/story/actives/B-022e/init-check.json",
+        ".lattice/story/actives/B-022e/process-events.jsonl",
+        ".lattice/story/actives/B-022e/scope-boundary.json",
+        ".lattice/story/actives/B-022e/scope-freeze-check.json"
+      ],
+      "affectedPathCount": 8,
+      "phase": "DEV",
+      "headHash": "cad37337bdc35e37c84a5609a4ea330d86962cb8",
+      "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59"
     }
   ],
   "createdAt": "2026-08-30T21:48:39.503Z",
-  "updatedAt": "2026-08-31T01:24:37.008Z",
+  "updatedAt": "2026-08-31T01:31:59.852Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
