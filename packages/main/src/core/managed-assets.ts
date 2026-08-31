@@ -583,7 +583,7 @@ export function detectManagedAssetMode(root: string): InitAssetMode {
   // Full-mode: PROOF_OR_STOP.md presence (any casing) implies non-global-thin project
   try {
     const lcNames = readdirSync(root).map(e => e.toLowerCase());
-    if (lcNames.includes('proofOrStop.md')) return 'full';
+    if (lcNames.includes('proof_or_stop.md')) return 'full';
   } catch {}
   return 'global-thin';
 }

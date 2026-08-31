@@ -17,7 +17,7 @@ import {
 } from '../handlers/verifier.js';
 import { createCheckHandlers } from '../handlers/check.js';
 import { createDoctorHandlers } from '../handlers/doctor.js';
-import { managedAssetNextAction, renderManagedAssetCheck, runManagedAssetCheck } from '../core/managed-assets.js';
+import { detectManagedAssetMode, managedAssetNextAction, renderManagedAssetCheck, runManagedAssetCheck } from '../core/managed-assets.js';
 import { renderRuntimeFootprintSummary, runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
 import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
@@ -1185,6 +1185,7 @@ try {
   const staleLocalAssetRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-managed-stale-local-'));
   try {
     writeFileSync(join(staleLocalAssetRoot, 'PROOF_OR_STOP.md'), '<!-- proof-or-stop:start -->\n# Local Proof-or-Stop Notes\ncustom text\n<!-- proof-or-stop:end -->\n');
+    assert.equal(detectManagedAssetMode(staleLocalAssetRoot), 'full', 'canonical PROOF_OR_STOP.md must select full managed-asset mode');
     const before = readFileSync(join(staleLocalAssetRoot, 'PROOF_OR_STOP.md'), 'utf-8');
     const plainCheck = createCheckHandlers({
       root: staleLocalAssetRoot,
