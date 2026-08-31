@@ -393,10 +393,26 @@
       "phase": "DEV",
       "headHash": "9f33bd7a058967490866750de8afd28a545b0570",
       "materialHash": "4ab7b06381fcdc79d2c305b2a70fe0815378c855e61bd8ed7901f779774bd093"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required so Git exposes the two in-scope TypeScript identity-cutover diffs as auditable text while preserving their runtime NUL separators.",
+      "timestamp": "2026-08-31T09:02:13.078Z",
+      "paths": [
+        ".gitattributes"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".gitattributes"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "86202f0687cfdbddeda5b8b7a1f3ee1ab557485e",
+      "materialHash": "0811c52999cc092ae7f3b259b542e8ad086ec824c7600e8d817ca22fd3b530e9"
     }
   ],
   "createdAt": "2026-08-30T21:48:39.503Z",
-  "updatedAt": "2026-08-31T04:14:34.309Z",
+  "updatedAt": "2026-08-31T09:02:13.078Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -568,6 +584,7 @@
     "docs/requirements/decisions/unlock-layer2-ENG-suite.md": "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
     "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md": "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
     "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md": "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
-    "docs/requirements/decisions/unlock-layer4-production-safety-suite.md": "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+    "docs/requirements/decisions/unlock-layer4-production-safety-suite.md": "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+    ".gitattributes": ".gitattributes"
   }
 }
