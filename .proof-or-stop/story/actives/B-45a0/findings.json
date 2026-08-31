@@ -23539,7 +23539,7 @@
       "desc": "All four Wave 4 acceptance surfaces fail at current HEAD 65b3f1273f9a051ac2faa754b0241327033e12c1, contradicting the prior claim of a converged/passing basis. acceptance_basis: status=invalid, evidentiary=false, receiptVerification.ok=false code=AT_ADAPTER_RESULT_DIGEST_MISMATCH (basis semantic discovery digest mismatch; snapshot seal digest mismatch; freshness mismatch: evidence storyFilesHash does not match current story-owned file state); its own binding.headHash=1f617044106b58cc23287fb86b385e028dd42cb8 is stale vs current HEAD. acceptance_topology_check: status=fail, structuralPass=false, same AT_ADAPTER_RESULT_DIGEST_MISMATCH diagnostic, nextAction explicitly instructs regenerating the basis. pre_review_check_read: status=fail, ok=false, 10 failing codes including PR_ARTIFACT_TAMPERED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED. acceptance_rollout_report_read and acceptance_rollout_check: status=fail, mode=enforce, blocking=true, diagnostics=[AR_REPORT_STALE], receipt=stale (evaluationWindow ends 2026-07-23, over a month stale vs current date). The on-disk topology-critic-receipt.json already independently records verdict=request_changes bound to an earlier headHash f6040a88a9e6f8adcb32920c03a06b329ea823f4, and topology_critic_receipt_check itself reports AT_TOPOLOGY_CRITIC_RECEIPT_INVALID with provenance/freshness diagnostics. Note: the embedded rollout report body does independently show genuine 3-round x 2-host (claude-cli + codex-cli) composition per pair with no degraded 3x1 pattern, so that specific sub-concern is not substantiated; the blocking defect is staleness/digest-mismatch across all four surfaces, not a rounds x hosts degradation.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-08-30T16:54:05.046Z",
@@ -23547,7 +23547,11 @@
       "reviewRunId": "B-45a0:RR-1050",
       "_hash": "05ccbf3314866d4075a66a383389e5b6834ecc047a0f0df8cecad77054540f8c",
       "signatureTag": "missing|unknown|four-wave-acceptance",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All four Wave-4 acceptance surfaces this finding named now pass at current HEAD, verified together. acceptance_rollout_check: mode=enforce status=pass blocking=false receipt=current quorum=full-3x2, after regenerating the report with acceptance_rollout_report (a DEV-only writer, which is exactly why this could not be repaired from REVIEW) at sampleCount=3 seededDetection=100% falseBlockRate=0% waiverDelta=0. pre_review_check: PASS with zero codes, down from ten. That repair was root-caused rather than retried: reissuing the check cleared PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED and PR_CUTOFF_UNBOUND; refreshing all 50 stale verificationEvidence rows, each re-executing its pinned command rather than re-signing, cleared PR_POSITIVE_EVIDENCE_MISSING and PR_EVIDENCE_STALE; and the final six executableProofState codes were diagnosed with PROOF_OR_STOP_DEBUG_PRE_REVIEW_PROOF=1, which printed 'receipt invalid writer=live_smoke_transcript storyFiles=cbc48e8d expected=ba1a2650', showing the live-smoke transcript was bound to a stale storyFilesHash. Capturing a fresh transcript through the same pinned producer node scripts/run-proofstory-pre-review-live-proof.mjs cleared all six at once; the check now reports executableEvidence=current mutations=biting transcript=related authority=admissible. acceptance_basis: complete, Receipt verification PASS, converged to the same receipt across two consecutive generates. acceptance_topology_check: Status pass, Structural pass yes, Diagnostics none.",
+      "resolvedAt": "2026-08-31T02:29:47.208Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-429",
