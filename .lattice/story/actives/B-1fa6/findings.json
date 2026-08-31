@@ -339,7 +339,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1227-1228,1296-1305,1492-1494,1597-1601,1712-1716,1806-1807 [high] The route-ownership cycle is removed at the API/DAG level, but the transaction contract still requires mutually incompatible write ordering. Story 2 now independently persists every non-gate FindingRouteReceipt and Story 1 consumes an already-available receipt; warn explicitly permits standalone Story 2 receipt writes. Yet Path B says the route and deferral commit atomically and neither may exist alone, and Story 3 tests require a deferral plus its prevalidated route/receipt to commit together or leave neither visible. Story 2 cannot both be independently accepted with durable standalone receipts and defer their first persistence until a later Story 1 transaction. Define one acyclic boundary: persist the Story 2 receipt independently, then have Story 1 atomically CAS-validate its exact latest ID/hash/profile/source and append the deferral plus manifest reference (or define an equally explicit orchestration contract); update Story 3 tests and Path B so receipt-alone is allowed but never gate-authoritative.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-31T01:11:35.484Z",
@@ -350,7 +350,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 9d96f86af9: the transaction contract is now explicitly two-stage and acyclic—Story 2 atomically persists a standalone non-gate receipt, then Story 1 separately CAS-validates it and atomically writes deferral plus manifest action; receipt-alone is legal and zero-gate while deferral-alone is invalid.",
+      "resolvedAt": "2026-08-31T01:27:34.451Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
