@@ -22980,6 +22980,51 @@
         "scanEscalationReason": null
       },
       "_hash": "5a28a1108ed041d65a62484ee7648e94b18cb3a117807f1bdc276b58846e6fa8"
+    },
+    {
+      "id": "B-45a0:RP-478",
+      "agent": "lattice-review-docs",
+      "note": "Saturation wave: extracted ~1025 changed symbols from full story diff, cross-checked new docs/CLI.md dynamic-mode section, NAV.md links, CLAUDE.md timeout-cap value, story-lifecycle.md closeout-trust claim, and historical-vs-current-N framing against code via targeted grep/read. All accurate. No NEW doc-code drift found beyond F-431..F-438 already registered; F-438 stays open for DEV repair.",
+      "createdAt": "2026-08-31T03:14:59.439Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1079",
+      "envelopeId": "ce0c347b178de633d4597d1d9d41d3f29cd5bd5c89a1c202b40598ce7d93c94c",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/NAV.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "f6a7a0996d34ffcef1546961a0e065b44d46712724f3c5dee685304beabf77bb"
+      },
+      "readDiagnostics": [],
+      "_hash": "a3d676ce4525e2d6aafd54ad77c74ab7a4f9ae32cc414bf3f9fb2612fad1dd6b"
     }
   ]
 }
