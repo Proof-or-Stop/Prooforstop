@@ -241,7 +241,7 @@
       "desc": ".lattice/story/actives/B-5952/checklist.json:131-245 [high] At the current review candidate (review_run_start bound HEAD 06dcafbf34b8c939996830a1a50d134be24b27c6, storyFilesHash 0a810d9ec23f5da95a914068afc3fb1a0ae6450c1f286365fd2487b0f25849aa), CHK-001 has no valid current-bound must evidence surface. All 9 verificationEvidence rows still bind older heads (9f0a0c2, 029a97c, e82bd0c, e027c3c) and older storyFilesHash values (311fcf1 / c95208c), so 0 of 6 must intents are covered by a receipt at this candidate. In addition, the active CHK-001:adversarial:binding-scope-mutants rerun command at checklist.json:233-235 still uses docRejected=scoped.status!==0||(scoped.stdout+scoped.stderr).includes(\"violation\"), which also matches the normal pass renderer text \"0 unacknowledged violations\". Until the receipts are refreshed on this candidate and the active mutation command is replaced with the fail-closed JSON-parsing variant, test-coverage cannot treat CHK-001 as currently covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-31T07:42:55.960Z",
@@ -252,7 +252,11 @@
         ".lattice/story/actives/B-5952/checklist.json"
       ],
       "signatureTag": "missing|json|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All old verificationEvidence rows were cleared during PLAN repair and seven current pins were executed from zero: build, two 804 smoke runs, committed finite-bound/hard-cap control, real comparator/sentinel mutations, exact JSON binding/scope mutations, and detached causal map comparison. evidence_inspect at REVIEW HEAD da4a27f reports all seven refs result=pass and freshness.status=fresh with materialHash 6c681470... and storyFilesHash 0a810d9e..., staleRefs=[]. The active scope mutation command is the corrected v2 pin.",
+      "resolvedAt": "2026-08-31T08:08:36.268Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
