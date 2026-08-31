@@ -519,6 +519,39 @@
         "scanEscalationReason": "Scoped story-level quality review followed the owner-provided B-5952 baseline-repair boundary and excluded unrelated observe-only Wave-4 rollout requirements."
       },
       "_hash": "a0e1992c8395a73ffe0f1ed0769a3ab057a8fa0f4dbe1eeac4c85f1a0c6e83e8"
+    },
+    {
+      "id": "B-5952:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Scoped concept review passed. The only material change preserves the dynamic-binding finite-budget concept while replacing the stale literal 800 assertion with a named 808 ceiling, a hard cap of 850, and matching source/dist helper semantics. Repository scan found no live-source residue of the retired literal assertion; historical 800 references are prior RED/review evidence and remain valid history. No concept deletion or mass replacement, no scoped promised-but-undelivered addition, and no Wave-4 expansion applies. HEAD moved after run start only through B-5952 reviewer metadata commits; scoped source, dist, protected document, materialHash, and storyFilesHash remained unchanged.",
+      "createdAt": "2026-08-31T09:05:54.505Z",
+      "reviewRound": "2026-08-31T08:59:48.174Z",
+      "reviewRunId": "B-5952:RR-033",
+      "envelopeId": "dfebff0516be7562c8b537608f7342254203c58779f0fa1be34e682623631044",
+      "writerSessionId": "sess-2933a72b126374f20b603a7492f382e0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/decision.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/proofstory.json",
+          ".lattice/story/actives/B-5952/scope-boundary.json",
+          ".lattice/story/actives/B-5952/scope-check.json",
+          ".lattice/story/actives/B-5952/scope-contract.json",
+          ".lattice/story/actives/B-5952/understanding.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/acceptance-basis.json",
+          ".lattice/story/actives/B-5952/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7b41126e409a30b615a4cca317dc8fa15e573d090e9d59f929f0430b24a90d45"
     }
   ]
 }
