@@ -879,6 +879,37 @@
       },
       "readDiagnostics": [],
       "_hash": "be1c6abc5fb6850150420644c675ad363ef1286b659b48eb0d377cd572b98ac3"
+    },
+    {
+      "id": "B-1fa6:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 18 test-coverage PASS: 40/40 must verification intents have exactly one valid docs_check PASS (0 missing, extra, duplicate, failed, or waived). All evidence binds commit 4849288280568ac0ca8b559ee5e19f2dfb8c37b0 and the current reviewer context has the same materialHash 6332780b28b6d4fdf9422a2832260f6d6358fd800f472608ebf5ec12316e7fef and storyFilesHash 1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2; intervening HEAD movement is metadata-only. Rename regression guard verified the target document has exactly one @lattice/core occurrence, paired in the same historical-to-canonical statement with exactly one @proof-or-stop/core occurrence; commit 4849288280 changes only the target document and that document is unchanged since the commit.",
+      "createdAt": "2026-08-31T21:22:16.004Z",
+      "reviewRound": "2026-08-31T21:15:39.856Z",
+      "reviewRunId": "B-1fa6:RR-061",
+      "envelopeId": "aa25c493d6548696138c2458640cdb55a3e928022b7ec0f88eee9bb15bfa2bc7",
+      "writerSessionId": "sess-9fa7784355cfbfea1a36f9e70e0881e6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "bf2a842e9f40f56cf51b02f15c2c9868f51bbd3104e9b2842c91b6e1415c9e24"
     }
   ]
 }
