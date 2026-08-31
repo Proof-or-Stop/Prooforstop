@@ -24088,6 +24088,40 @@
         "scanEscalationReason": null
       },
       "_hash": "1b26fc6759d07b80daf9cde1f1c9002126371616358ffd45877ca277c0e128e5"
+    },
+    {
+      "id": "B-45a0:RP-511",
+      "agent": "lattice-review-docs",
+      "note": "Step1: extracted symbols/config keys from diff touching merged surface. Step2: compared 4 paragraph groups across CLAUDE.md/AGENTS.md/docs/CLI.md/config files/graph decision doc. No blocker found on merged surface.",
+      "createdAt": "2026-08-31T20:25:53.398Z",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "reviewRunId": "B-45a0:RR-1145",
+      "envelopeId": "b370afab595a6c45ed8525345a94c9781f6e3566438249796a66796818f8742e",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "lattice.config.json",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/.gitignore",
+          "packages/graph/package.json",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cec089f945afdf305b8e5e345887a9b1b7ff351b685bd0d270261ee6537fb1c7"
     }
   ]
 }
