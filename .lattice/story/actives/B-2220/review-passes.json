@@ -975,6 +975,41 @@
       },
       "readDiagnostics": [],
       "_hash": "b68c49cdacb3ca17cad9465207dc1921d44698c7d6779acf5dd62046ac32188f"
+    },
+    {
+      "id": "B-2220:RP-028",
+      "agent": "lattice-review-concept",
+      "note": "Round 10 concept review passed: the B-3434 writer-owned-boundary proposal is retained only as historical audit context; all active owner/work-order/mandatory-follow-up language is removed, B-3434 remains accepted, exact CHK-001:adversarial:1 digest and all seven intent commands pass, and no promised-but-undelivered behavior was introduced.",
+      "createdAt": "2026-08-31T23:25:18.250Z",
+      "reviewRound": "2026-08-31T23:22:30.466Z",
+      "reviewRunId": "B-2220:RR-044",
+      "envelopeId": "35172a011be3334b32e5f72242296eb2e8bd71ea4fb5ecaed2a6396fb2bafcee",
+      "writerSessionId": "sess-f63576a25264988b7aada709e41669b2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "715629b11176cf79b5a2a946f831173b91d7ff5511e770e3ab288fc26cb0df71"
     }
   ]
 }
