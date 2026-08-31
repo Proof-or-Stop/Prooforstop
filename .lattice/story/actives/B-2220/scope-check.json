@@ -1,78 +1,92 @@
 {
   "storyId": "B-2220",
-  "checkedAt": "2026-08-30T23:35:03.778Z",
+  "checkedAt": "2026-08-31T23:21:48.400Z",
   "features": [
     {
-      "feature": "The decision record explicitly declines the active writer-owned canonical-boundary follow-up while preserving B-3434 acceptance.",
-      "covered_by": "docs/requirements/decisions/validation-evidence-artifact-growth.md; CHK-001:happy:0; CHK-001:happy:1",
+      "feature": "The decision record declines the active writer-owned canonical-boundary follow-up while preserving B-3434 acceptance.",
+      "covered_by": "CHK-001:happy:0; CHK-001:happy:1",
       "status": "covered",
       "excluded_by": null,
-      "source": "B-2220 checklist and current decision document"
+      "source": ".lattice/story/actives/B-2220/understanding.json; docs/requirements/decisions/validation-evidence-artifact-growth.md"
     },
     {
-      "feature": "Known limitations, measurements, transcripts, and the historical proposal remain audit context without active work-order semantics.",
-      "covered_by": "docs/requirements/decisions/validation-evidence-artifact-growth.md; CHK-001:happy:1; CHK-001:adversarial:0; CHK-001:adversarial:1",
+      "feature": "Known limitations, measurements, transcripts, and historical findings remain audit context without active work-order semantics.",
+      "covered_by": "CHK-001:happy:1; CHK-001:adversarial:0; CHK-001:adversarial:1",
       "status": "covered",
       "excluded_by": null,
-      "source": "Current decision document and executable smoke assertions"
+      "source": ".lattice/story/actives/B-2220/checklist.json; docs/requirements/decisions/validation-evidence-artifact-growth.md"
     },
     {
-      "feature": "The decision distinguishes byte identity from input consistency, semantic consistency, and evidence truth, and gives evidence-based reopen triggers.",
-      "covered_by": "docs/requirements/decisions/validation-evidence-artifact-growth.md; CHK-001:edge:0; CHK-001:edge:1",
+      "feature": "The decision distinguishes byte identity from input consistency, semantic consistency, and evidence truth.",
+      "covered_by": "CHK-001:edge:0",
       "status": "covered",
       "excluded_by": null,
-      "source": "Current decision document"
+      "source": "docs/requirements/decisions/validation-evidence-artifact-growth.md"
     },
     {
-      "feature": "The repository-native validation-evidence smoke accepts the declined/no-active-follow-up disposition and rejects the superseded mandate strings.",
-      "covered_by": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts; CHK-001:happy:2; CHK-001:adversarial:0; CHK-001:adversarial:1",
+      "feature": "The decision provides evidence-based reconsideration triggers and requires a new human-approved story.",
+      "covered_by": "CHK-001:edge:1",
       "status": "covered",
       "excluded_by": null,
-      "source": "Current smoke source and passing executable smoke output"
+      "source": "docs/requirements/decisions/validation-evidence-artifact-growth.md"
     },
     {
-      "feature": "CHK-001:happy:2 is one executable Node command that verifies source/dist build binding before importing the built smoke.",
-      "covered_by": "CHK-001:happy:2 pinned command; validation-evidence-buffer-smoke: PASS",
+      "feature": "The executable smoke accepts the declined/no-active-follow-up disposition and binds the exact reviewed decision digest.",
+      "covered_by": "CHK-001:happy:2; CHK-001:adversarial:0; CHK-001:adversarial:1",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist_get plus independent exact-command execution in this PLAN review"
+      "source": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts; .lattice/story/actives/B-2220/checklist.json"
     },
     {
-      "feature": "Production runtime implementation changes in core, handlers, or dist.",
+      "feature": "The CHK-001:adversarial:1 digest update is acceptance-metadata maintenance for the in-scope decision document, not authorization for a third implementation path.",
+      "covered_by": "CHK-001:adversarial:1",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2220/checklist.json"
+    },
+    {
+      "feature": "Implementation changes are limited to the decision document and its executable smoke contract.",
+      "covered_by": "B-2220 scope contract allowedModify and CHK-001 files.modify",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2220/scope-contract.json; .lattice/story/actives/B-2220/checklist.json"
+    },
+    {
+      "feature": "Production runtime changes in packages/main/src/core, packages/main/src/handlers, or packages/main/dist.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "scope contract protectedFiles; git diff main...HEAD shows no protected runtime paths",
-      "source": "scope_contract_show and protected-path diff"
+      "excluded_by": "Protected by the enforced scope contract; protected-path git diff is empty.",
+      "source": ".lattice/story/actives/B-2220/scope-contract.json"
     },
     {
-      "feature": "B-3434 story metadata/history and fixture changes.",
+      "feature": "Changes to B-3434 story metadata or history.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "scope contract protectedFiles/explicitExcludes; git diff main...HEAD shows no B-3434 metadata, docs/story, or fixture paths",
-      "source": "scope_contract_show and protected-path diff"
+      "excluded_by": "Protected by .lattice/story/actives/B-3434/**; protected-path git diff is empty.",
+      "source": ".lattice/story/actives/B-2220/scope-contract.json"
     }
   ],
   "readManifest": {
     "filesReadFully": [
+      ".lattice/story/actives/B-2220/background.md",
+      ".lattice/story/actives/B-2220/checklist.json",
+      ".lattice/story/actives/B-2220/scope-contract.json",
+      ".lattice/story/actives/B-2220/understanding.json",
       "docs/requirements/decisions/validation-evidence-artifact-growth.md",
       "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
     ],
-    "filesTriagedByName": [
-      "AGENTS.md",
-      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
-      "docs/requirements/decisions/story-lifecycle.md"
-    ],
+    "filesTriagedByName": [],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 7,
-    "covered": 5,
+    "total": 9,
+    "covered": 7,
     "excluded": 2,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-08-30T23:14:26.406Z",
-  "_hash": "9fe28d879a454bbfbdf79cf0a50409c098a77f46750a725d298d8d7e34586542",
+  "reviewRound": "2026-08-31T23:15:27.310Z",
+  "_hash": "830aa50f4a5ad3c05a3b2622d46b2b178a596337d0401248b947b3a9e6ff16ac",
   "openQuestions": []
 }

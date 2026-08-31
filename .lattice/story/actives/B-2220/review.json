@@ -216,6 +216,62 @@
         }
       ],
       "_hash": "7cc99665caa45b91994b66acaa846c29b0c95654c88ba5fb3c0992abe8056777"
+    },
+    {
+      "timestamp": "2026-08-31T23:19:40.453Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        },
+        {
+          "type": "missing_decision",
+          "severity": "advisory",
+          "message": "decision.json not filled. Optional for non-high-risk stories, but recommended so reviewers can audit the design rationale."
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-30T23:14:26.406Z) does not match the current review round (2026-08-31T23:15:27.310Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "dd74e557fa84c6e78a2f7d9a7c27665b8459781d6b063343ced3a940ee92dfb8"
+    },
+    {
+      "timestamp": "2026-08-31T23:19:47.320Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        },
+        {
+          "type": "missing_decision",
+          "severity": "advisory",
+          "message": "decision.json not filled. Optional for non-high-risk stories, but recommended so reviewers can audit the design rationale."
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-30T23:14:26.406Z) does not match the current review round (2026-08-31T23:15:27.310Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "8b617a61bd54f213c2b1f9ca693105cdac213e4760e04c7151208fda05b272e9"
     }
   ]
 }
