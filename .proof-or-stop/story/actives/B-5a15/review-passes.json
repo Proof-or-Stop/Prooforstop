@@ -11478,6 +11478,68 @@
       },
       "readDiagnostics": [],
       "_hash": "bf208a61fea2b248bfdeb780ac5a69368a13ef9dc06585ebc3e1e46afed934a1"
+    },
+    {
+      "id": "B-5a15:RP-239",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 53 intents (51 must, 2 should), 0 must-gaps, 0 waivers; every intent has mechanical logic_test PASS with selectorMatched. CHK-001..005 selectors remain in causal-evidence.test.mjs. F-324 unit regression uses official PRECERT identities, matching storyFilesHash advisory, and mutated verifier/test identity against detectCertificationWindowMaterialDrift (drifted=true unless identities still match). Wave 4 verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check are executable. Stale verificationEvidence hashes vs HEAD 2d74d54 are TEST/done_prepare, not a missing test.",
+      "createdAt": "2026-08-31T17:35:10.582Z",
+      "reviewRound": "2026-08-26T09:37:09.709Z",
+      "reviewRunId": "B-5a15:RR-766",
+      "envelopeId": "0852d2e0982254f332f942ddc0272928f9dce3bcdc376f365422c660bae83096",
+      "writerSessionId": "sess-review-coverage-b5a15-r2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": 3530
+        },
+        "digest": "b78d7deb4cb993b486c0ce7b5eb156205b3c80b62b11a2b204432d46b90a1c6a"
+      },
+      "readDiagnostics": [],
+      "_hash": "459757bf0a5c20fd099cd7edec079a7ef9ecc673f2f6e5365a1e3ccb3c5228b6"
     }
   ]
 }
