@@ -144,6 +144,24 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5952:F-007",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:654-665 [high] F-001 was resolved with resolveEvidenceStrength=strong using prose-only causal measurements that are absent from the Story evidence surface. finding_list claims detached 0abf3d859d produced 796 and that a per-file map proved exactly eight +1 repository entries, but checklist_get/evidence_inspect contain no command, output digest, per-file map, source ref, or signed receipt for that comparison; the current source only stores the resulting 808 constant. Because F-001 specifically required causal known-good/current evidence before accepting a higher budget, an unauditable resolvedReason cannot establish its accuracy. Record a reproducible tool receipt bound to both commits with the full map/diff and no duplicate-build increase, or leave F-001 open/weak until that evidence exists.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T03:31:24.527Z",
+      "reviewRound": "2026-08-31T03:23:55.455Z",
+      "reviewRunId": "B-5952:RR-004",
+      "_hash": "7932df5c6cb376937b6e4673665bbd817118777b8738df7fde4383aac033d7c9",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
