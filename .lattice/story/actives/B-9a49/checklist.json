@@ -119,6 +119,74 @@
         "test": [
           "packages/main/src/tasks/prompt-registry-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "Inspect the published Story Owner and implementer guidance and verify it gives one complete normal path: current-Story regressions, acceptance blockers, and gate-truth blockers return to DEV; evidence-backed non-applicable issues are routed to a named owner without unilateral scope expansion; an implementer preserves reproduction and impact evidence and reports the issue to the Story Owner.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:happy:1",
+            "desc": "Exercise or statically prove the role-specific prompt assembly and verify Story Owner disposition guidance and implementer escalation guidance reach their intended roles while neither role is told that prose itself changes Finding status, applicability, or a lifecycle gate.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "Verify an evidence-backed medium or low defect that is not a direct regression, acceptance contradiction, core user-result failure, or gate-truth failure is recorded with reproduction, impact, scope basis, and a proposed owner or route, while the current Story remains bounded.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:edge:1",
+            "desc": "Verify a high or critical issue proposed as pre-existing or out of scope cannot be treated as complete routing when no valid owner or follow-up route is named; the guidance must leave the disposition incomplete and must not silently lower severity.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:edge:2",
+            "desc": "Verify compatibility dismissal is described only as temporary accounting allowed when the current mechanical round or profile no longer requires current-Story repair, and explicitly not as applicability proof, repair, resolution, or authority to bypass a live blocker.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Present an otherwise-blocking Finding with unknown applicability, including a round-one blocking medium case, and verify the Story Owner guidance fails closed, refuses prose deferral, and returns to the mechanical gate or DEV path rather than interpreting uncertainty as out of scope.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:1",
+            "desc": "Present a critical or high defect introduced or worsened by the current Story but label it pre-existing, unrelated, or absent from the diff; verify the guidance rejects the label as sufficient evidence and requires current-Story repair when reproduction, acceptance, or gate-truth evidence makes it applicable.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:2",
+            "desc": "Give the implementer a reproducible defect outside the assigned checklist item and pressure it to fix the defect for a globally green repository; verify it preserves reproduction and impact evidence, reports to the Story Owner, and does not edit unrelated implementation or expand the item scope unilaterally.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:3",
+            "desc": "Attempt to justify deferral using only free text, file disjointness, an old DONE result, stale prior assessment, or severity reduction; verify the Owner guidance rejects these as gate evidence, preserves the original Finding and severity history, and requires current structured evidence plus a traceable owner or route.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-002:adversarial:4",
+            "desc": "Verify the guidance never claims that prompt compliance mechanically enforces dismissal restrictions, applicability, ownership, freshness, or gate behavior; current compatibility limitations must remain explicit and authoritative Dynamic Finding enforcement must remain future system work.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
