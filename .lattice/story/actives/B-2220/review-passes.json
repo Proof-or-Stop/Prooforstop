@@ -475,6 +475,41 @@
       },
       "readDiagnostics": [],
       "_hash": "cdd05cdbff5058276d5e347723c239d99a20e4df3b7813eca7423e08b729d9df"
+    },
+    {
+      "id": "B-2220:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Docs review PASS: Step 1 extracted 1 changed local symbol (rationaleDigest); Step 2 found 0 README/CLAUDE/docs reference paragraphs for that symbol, so fallback review read the full 141-line decision record and full 748-line smoke source, comparing the decision/disposition, retained-evidence, retained-limitations, historical-proposal/reopen, snapshot-limitation, and executable decision-contract paragraphs. B-3434 remains accepted; the writer-owned boundary is declined for now; no active owner/work order remains; reopen requires listed evidence triggers plus a new human-approved story. Exact SHA-256 02bb788f...83b75d matches and the build-bound compiled smoke passed.",
+      "createdAt": "2026-08-31T00:04:58.726Z",
+      "reviewRound": "2026-08-30T23:59:32.312Z",
+      "reviewRunId": "B-2220:RR-025",
+      "envelopeId": "1428b7539501baf3dae45fbd99b4b578d501071bfb1a6d989d10e08ac7ff32fa",
+      "writerSessionId": "sess-f5249dffe0b7825d61d6e87b79603faa",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "65951b859842fd831bf3782e8ac2e69b9050b595c3b4b1fc9ba917ede667574d"
     }
   ]
 }
