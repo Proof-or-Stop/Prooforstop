@@ -120,10 +120,27 @@
         "6e297bc8953931924698f1f64256feae055566f1f82913483364ea7d6d9c3608",
         "66e85e051b0b61a611685af5d160bda36901e3b3c9aee50d1582ba93bcf8cb54"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The reviewed digest must change with the in-scope decision-document measurement correction so the B-2220 acceptance smoke continues to bind the exact decision.",
+      "timestamp": "2026-08-31T23:15:22.487Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a09effae42bcfeed3b2f7ea204a5b8cd7f50214d",
+      "materialHash": "632d314bb1bb8282e40f0adf29868f71a632f42738d94abde26e7720fdad6e09",
+      "hunkDigest": "ff5ea2dee9c8e0f9d1345a8a707b5af7a06624d5fabbd0489177ba088b4cfe5d"
     }
   ],
   "createdAt": "2026-08-30T22:57:42.914Z",
-  "updatedAt": "2026-08-31T00:08:16.916Z",
+  "updatedAt": "2026-08-31T23:15:22.487Z",
   "fileRules": [
     {
       "path": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
