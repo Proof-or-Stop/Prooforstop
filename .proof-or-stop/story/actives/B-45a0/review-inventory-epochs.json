@@ -17573,6 +17573,37 @@
       ],
       "createdAt": "2026-08-31T12:44:09.521Z",
       "_hash": "204dc81a2665cb148c783c29f1bd9f50405085512ec85d69b2546d26f8fb38dc"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-110:CRIT-02",
+      "epochId": "B-45a0:RI-110",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "cdadcb741a63048226a4038734f3da64d5331d67",
+        "materialHash": "3e3daf6dfc97811211a29f1c8bb7d0129129fd65bc4553941ad0b1fbcbc24fe2",
+        "storyFilesHash": "aa02af10ad99dad2c2bf2d61d11a0f74682bb5fd99c9000781e908196ec5c0c4"
+      },
+      "aggregateFindingSetDigest": "6f85371467bd0e55aac52385c37c6d9585bec61bf2c306eb31b672da0bc2ac4b",
+      "requiredLaneCoverageDigest": "202bfc9bc7e81e3a6c1eac5efb37ac1e9b556f0c2ddad4b5de459aa0031fd2f3",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-1137",
+      "terminalEvidenceIds": [
+        "B-45a0:F-464"
+      ],
+      "readEvidenceDigest": "714e5f63d9c3af7b2dfcfcbb3e2f1a6928723923454dda68900e86d5a13052f8",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-463",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-basis-and-pre-review-inverted-verdict-staleness",
+          "reason": "Independently re-verified: pre_review_check_read at current HEAD returns ok:false status:fail codes:[PR_ARTIFACT_TAMPERED,PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE,PR_CUTOFF_UNBOUND] with ok:true occurring 0 times, matching the same CHK-014:edge:0 false-positive selector defect first filed as F-437/F-452/F-457/F-461. Same root cause, same fix (re-pin selector to ok:true), no new substance; test-coverage lane re-filed only because a current-run-bound verdict was required this wave. CLI already returned signatureTagSource:confirmed for this exact family string, corroborating the mapping."
+        }
+      ],
+      "createdAt": "2026-08-31T12:59:59.409Z",
+      "_hash": "b325a4b567d62bf92a989fdf9f25cbe160bb126be3608236600c27867b7723ea"
     }
   ]
 }
