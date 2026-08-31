@@ -23881,6 +23881,43 @@
       ],
       "signatureTag": "missing|md|code-drift-commit",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-439",
+      "desc": "NEW gap distinct from F-437 (which only covers CHK-014:edge:0/pre_review_check_read). At current HEAD 569eb009f74a333c064205d7c0ec67bd65ed69e1, THREE of the other four CHK-014 pinned commands now fail, contradicting the most recent live attestation on this surface (F-436, filed at RR-1068, which explicitly verified acceptance_rollout_check/acceptance_topology_check/acceptance_rollout_report_read were checking out live/passing at that time): (1) `node bin/proof-or-stop.js acceptance_rollout_check --storyId=B-45a0 --json` now returns ok:false status:fail mode:enforce blocking:true diagnostics:[AR_REPORT_STALE] receipt:stale, with report.evaluationWindow dated 2026-07-23 (over a month stale vs current date); CHK-014:happy:0 and CHK-014:adversarial:0 evidence rows pin selector \"ok\": true which would NOT match this output. (2) `node bin/proof-or-stop.js acceptance_rollout_report_read --storyId=B-45a0 --json` returns the identical ok:false/AR_REPORT_STALE/blocking:true; CHK-014:happy:2 evidence pins selector \"ok\": true which would NOT match. (3) `node bin/proof-or-stop.js acceptance_topology_check --storyId=B-45a0 --json` returns status:fail structuralPass:false (blocking:false, mode:observe/diagnostic_only); CHK-014:happy:1 evidence pins selector \"status\": \"pass\" which would NOT match. All three reproduced twice each (stable, not transient). Root cause not yet diagnosed by me -- distinct from the PR_ARTIFACT_TAMPERED/PR_COVERAGE_BASIS_CHANGED pre_review_check desync F-433/F-436/F-437 describe; AR_REPORT_STALE plus a month-old evaluationWindow suggests the acceptance-rollout report itself needs regeneration against current HEAD, separately from the pre-review-check/acceptance-basis desync. Combined with F-437, this means ALL FIVE CHK-014 verificationEvidence rows are currently stale/false relative to their pinned selectors at current HEAD, not just the one edge:0 row. Resolution requires a DEV-phase pass that regenerates the acceptance rollout report and re-runs/refreshes all five CHK-014 evidence rows against a settled current-HEAD basis.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T03:10:27.895Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1078",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "84417769e0edbaf4b0287ae9cea03ea9283400dd66cd77725885b8392f86d581",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|json|distinct-covers-edge",
+      "signatureTagSource": "auto"
     }
   ]
 }
