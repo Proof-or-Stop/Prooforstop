@@ -273,7 +273,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1113-1134,1163-1174,1237-1248,1339-1344 [high] Exhausted or invalid deferral lineage is promised as a non-decaying mandatory floor, but the first mandatoryRepairFloorBlocks call is not given deferralState/lineageState. Exhaustion is otherwise handled only by applicabilityAndDispositionBlocks after status, effective severity, evidence, and round short-circuits, where a low or round-decayed medium Finding returns non-blocking. The prose assumes a MandatoryRepairClassification is emitted at the clock boundary, but a missing/failed/racing append leaves the predicate no input from which to infer that this classification is required. Pass a derived signed/validated lineage exhaustion state into the first floor predicate (or make the floor reader derive it directly), and test missing classification/write failure at exact expiry, over-count, tamper, and severity-transition boundaries; fallback to the previous predicate is not fail-closed for low/decayed medium.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T01:09:41.144Z",
@@ -284,7 +284,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 9d96f86af9: verifier-derived DeferralLineageState is the first shared-predicate floor; missing, expired, exhausted, tampered or unknown-at-boundary claimed lineage blocks before status, severity, evidence or round policy even when classification audit append is absent, fails or races.",
+      "resolvedAt": "2026-08-31T01:27:31.315Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-015",
