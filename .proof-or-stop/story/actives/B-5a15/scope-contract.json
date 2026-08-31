@@ -431,10 +431,28 @@
       "phase": "REVIEW",
       "headHash": "96554e014fdd1c26403d29a0f7b3b454d3a42c4c",
       "materialHash": "cdc15bd102d7477311bb455067352b95438feb71fefb34e8c2732599c960912a"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Synthetic CertificationWindow fixtures must persist derived certification domain hashes so DONE-required and heartbeat smokes keep ADMITTED windows; this does not change unique-key, CAS-receipt, or precise-invalidation semantics.",
+      "timestamp": "2026-08-31T19:15:32.283Z",
+      "paths": [
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "cef220a2a90c6b7d81457a8f8e714de398b40d36",
+      "materialHash": "6d1ff7dcd6d03e382ddeecd9947b457e1d15122db53341de1f01e74308b26a5a"
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-08-31T17:07:14.081Z",
+  "updatedAt": "2026-08-31T19:15:32.283Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -500,6 +518,8 @@
     "packages/main/src/core/validation-command-environment.ts": "packages/main/src/core/validation-command-environment.ts",
     "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
     "packages/main/src/core/closeout-trust.ts": "packages/main/src/core/closeout-trust.ts",
-    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts"
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
   }
 }
