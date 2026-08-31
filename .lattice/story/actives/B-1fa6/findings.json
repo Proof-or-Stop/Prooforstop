@@ -996,7 +996,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1019-1068,1619-1630,2449-2465,2690-2703,2976-2979 [high] F-041/F-045 remain incomplete: proposalSignature was added only to the final AssessmentEnvelope, whose schema still requires final assessmentHash/signature and whose verdict-specific proposal fields live outside the envelope. There is no independently constructible/persisted pre-route proposal/attachment schema, canonical field list, signer authority, or verifier/negative-test contract for Story 2 to validate before issuing the receipt. Treating the digest as opaque cannot prove which verdict/basis/current-witness payload the target accepted; importing Story 1 assessment types/verifier would violate the declared Story 2 -> 3A-only DAG. Define a lower/shared signed proposal attachment contract (including exact union payload, signer authority, canonical exclusions and durable lookup/verification) that Story 2 can consume without Story 1, then mutation-test proposal/final divergence and wrong proposal signer/signature.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T12:03:19.183Z",
@@ -1004,7 +1004,11 @@
       "reviewRunId": "B-1fa6:RR-049",
       "_hash": "bfddca3a7082e9159efdeab5e1538fede9f02cac3998ee16f1d2806a3b757776",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 13ef26bf0e: a standalone immutable discriminated FindingAssessmentProposal now has canonical signed payload, signer authority and Story 3A append_assessment_proposal persistence/receipt plus a shared verifier/query API usable by Story 2 without importing Story 1; route and final assessment verify exact proposal lookup/digest and reject divergence.",
+      "resolvedAt": "2026-08-31T12:16:25.281Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-049",
