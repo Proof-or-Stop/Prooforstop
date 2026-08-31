@@ -277,6 +277,23 @@
       "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
       "inventory": {},
       "_hash": "2eee5137ad0b8837c40a7bcdecb6683d513a17a1ead16c41eced1ec2172f32e3"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5a15:CW-014",
+      "storyId": "B-5a15",
+      "state": "BLOCKED",
+      "createdAt": "2026-08-31T19:56:00.083Z",
+      "updatedAt": "2026-08-31T19:56:00.083Z",
+      "blockerCode": "pre_cert_main_not_merged",
+      "blockerDetail": "Local main is not an ancestor of HEAD.",
+      "inventory": {
+        "epochId": "B-5a15:RIE-068",
+        "receiptId": "B-5a15:RIE-068:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "9ab11b5896767ca052af8bd9daf83d1fc00c002447d68900176ff1a5ea2b7732"
     }
   ],
   "receipts": [
