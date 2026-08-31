@@ -1095,6 +1095,7 @@ function runSelfTest(root, files) {
   for (const canonicalIdentity of [
     'proof-or-stop-review-story-init',
     'proof-or-stop-review-quality',
+    'proof-or-stop-review-topology-critic',
     'proof_or_stop_metadata_changes',
     'proof-or-stop-verifier-pass',
   ]) {

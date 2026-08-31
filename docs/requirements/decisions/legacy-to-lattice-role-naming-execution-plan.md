@@ -199,7 +199,7 @@ rg -n --hidden \
   --glob '!tests/fixtures/**' \
   --glob '!.git/**' \
   --glob '!.worktrees/**' \
-  '\bproof-or-stop-review-(story-init|scope-plan|concept|quality|test-coverage|behavior|docs|channel|delivery)\b|proof_or_stop_metadata_changes|proof-or-stop-verifier-' \
+  '\bproof-or-stop-review-(story-init|scope-plan|concept|quality|test-coverage|behavior|docs|channel|delivery|topology-critic)\b|proof_or_stop_metadata_changes|proof-or-stop-verifier-' \
   packages/main/src packages/main/templates .claude .proof-or-stop-codex \
   CLAUDE.md README.md docs/requirements scripts bin
 ```
