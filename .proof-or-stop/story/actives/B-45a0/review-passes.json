@@ -22767,6 +22767,31 @@
         "scanEscalationReason": null
       },
       "_hash": "7161f83c5dbcd3710353c4a1d23474bd317617931429b960465c7d630979da54"
+    },
+    {
+      "id": "B-45a0:RP-472",
+      "agent": "lattice-review-quality",
+      "note": "Independently re-verified the corrected F-428/F-429/F-430 resolution text against live state (not taken on faith). git diff main...HEAD and working-tree diff on pre-review-check.ts confirm zero residue from the described revert (the only historical change to that file, criticReceiptDigestForPreReviewSemanticComparison, predates this round via commit ba1b6c6f47 for F-375, unrelated). Ran pre_review_check_read, acceptance_rollout_check, acceptance_topology_check, acceptance_basis live: all four match the resolution text exactly (pre_review_check_read FAIL/observe/blocking=false/codes=[PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED]/executableEvidence=current/mutations=biting/transcript=related/authority=admissible; acceptance_rollout_check enforce/pass/blocking=false/quorum=full-3x2; acceptance_topology_check observe/pass/structural-pass-yes/no-diagnostics; acceptance_basis complete/Receipt verification PASS). Confirmed by code that pre_review_check has allowedPhases=[DEV] only (command-policy.ts:439) while story is in REVIEW, validating the cannot-recertify-from-REVIEW claim, and that priorPlanBasisDigest is populated from raw basisDigest not acceptanceCoverageBasisSemanticDigest (acceptance-coverage-basis.ts / proofstory-acceptance-basis-smoke.ts), validating the schema-change-needed claim. F-432 correctly remains open since the underlying gate is still failing pending a genuine DEV re-run; F-428/F-429/F-430 resolution text is an honest correction, not an over-claim. No blocking quality issue found this round.",
+      "createdAt": "2026-08-31T02:48:27.844Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1069",
+      "envelopeId": "5fe799845375d308213fa725ccd94b382bf2b098316e58d07347f20db53809c7",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a4927ef98b8d88d347cc8b628d92d5a3f320d65501e43a06bf875835291e9467"
     }
   ]
 }
