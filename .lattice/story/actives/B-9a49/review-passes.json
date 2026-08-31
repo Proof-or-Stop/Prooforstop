@@ -1,0 +1,53 @@
+{
+  "passes": [
+    {
+      "id": "B-9a49:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Fresh full-scope concept review found no blocker. F-011 is precisely fixed: current compatibility only preserves and reports evidence, while signed revision/supersession and applicability/gate recalculation are explicitly future-only. F-013 is precisely fixed: the signed pre-review artifact now has 45 distinct evidenceRefs including all five former omissions; checklist inventory independently shows 45/45 unique must refs with mechanical=true, pass results, receipts, and current material/storyFiles bindings. The artifact remains observe-mode inconclusive for separate topology/live-proof diagnostics, which is not the resolved 40-of-45 coverage defect. AGENTS/CLAUDE parity, five-lane registration, focused semantic mutations, protected runtime isolation, and removed unbounded-scope residue checks passed.",
+      "createdAt": "2026-08-31T22:22:36.647Z",
+      "reviewRound": "2026-08-31T22:17:16.706Z",
+      "reviewRunId": "B-9a49:RR-010",
+      "envelopeId": "116e24e997fdf179686a2e37115ec430af3ca3b2b5bc8a1e669601e8270a6bab",
+      "writerSessionId": "sess-bd731efc8f0bf52dbe035f2d0adfa8b8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9a49/background.md",
+          ".lattice/story/actives/B-9a49/checklist.json",
+          ".lattice/story/actives/B-9a49/plan.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".proof-or-stop-codex/agents/lattice-implementer.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "51af2b3758c00a43f0c631bec62956249d623ebfa80a24bb8c1d9ef14ad10bac"
+      },
+      "readDiagnostics": [],
+      "_hash": "53e97aad9efbf7251db09f92f14663cf1c9e4b5d1206f2f343afb470b59023e4"
+    }
+  ]
+}
