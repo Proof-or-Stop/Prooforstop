@@ -24242,6 +24242,45 @@
         "scanEscalationReason": null
       },
       "_hash": "4d201ae16b891e874f374bb7d80a9fc00cba18d321fb5f7978eaa97be4c5740f"
+    },
+    {
+      "id": "B-45a0:RP-516",
+      "agent": "lattice-review-docs",
+      "note": "Re-attestation for commit 9f5b0d96b1 (verify-no-project-writes.mjs PRUNED regex + extended comment, docs lane). Verified all 3 factual claims in the added comment: (1) validation-executor.ts confirms one trace file per executed command into .proof-or-stop/runtime/validation-traces; (2) regex test confirms new PRUNED pattern matches trace files while a canary one level up still fails match, narrowed not weakened; (3) story-aware-validation.ts:719-725 already excludes the identical path for the identical runtime-artifact-registry rationale, matching the comments attribution. .gitignore confirms the path is gitignored, substantiating the KNOWN BOUNDARY extension. packages/graph diff in this story is only this one file; graph README and CLAUDE.md graph section make no claims about this guards pruned set, so no new staleness introduced. Pre-existing drift noted and deferred: graph-command-migration.md describes an older enumerates-every-write-call design that predates the current filesystem-snapshot-diff implementation, but that file has zero diff in this story and was last touched by prior story B-3e16, so out of scope here.",
+      "createdAt": "2026-08-31T22:13:52.208Z",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "reviewRunId": "B-45a0:RR-1150",
+      "envelopeId": "1378a6fa9f23b1f93321ebf62018314e8a6242d1df546f5a6338a8c3e52b711e",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/graph/README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "cfc2faa4b8a8bf588b33e61c48efbe664a0e948d8ccd0e6af7011297f415fc86"
+      },
+      "readDiagnostics": [],
+      "_hash": "060d60c97ca68edd04367d617154053041beb3a1759d4a164513ddaced5b7b0d"
     }
   ]
 }
