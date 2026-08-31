@@ -23482,6 +23482,45 @@
         "scanEscalationReason": null
       },
       "_hash": "304ce81e0f9f30765a84c3d163699285790b928e944fe204a1de8f3ac779472c"
+    },
+    {
+      "id": "B-5a88:RP-393",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Verified F-502 fix de8b75e0cb: single deleted PROOF_OR_STOP_BIN_NAMES import specifier, no remaining refs, other symbols intact, tsc -p packages/main clean, both digest copies match independently recomputed canonical AST fingerprint. No blocker.",
+      "createdAt": "2026-08-31T13:50:01.567Z",
+      "reviewRound": "2026-08-31T11:31:20.622Z",
+      "reviewRunId": "B-5a88:RR-966",
+      "envelopeId": "0fc1af0630268e06e3ff3e1739203f2ebbe98a50f3ed37c20d493db160110d17",
+      "writerSessionId": "claude-b5a88-1788161424",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/core/audit-scan.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/tests/bin-alias-migration.test.mjs",
+          "packages/main/tsconfig.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "623c5faefd66449af3436db6ab667add36316b9206d284cb8cdee530f5988714"
     }
   ]
 }
