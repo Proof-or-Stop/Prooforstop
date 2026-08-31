@@ -24610,6 +24610,49 @@
       ],
       "signatureTag": "missing|ts|quality-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-457",
+      "desc": "CHK-014:edge:0 verificationEvidence pins selector \"status\": on `pre_review_check_read --storyId=B-45a0 --json`, a non-discriminating pin. Re-reproduced at current HEAD: `\"status\":` occurs 4x with 3 distinct values (top-level status=fail, two nested transcript status=complete, one embedded artifact status=pass); top-level result is ok:false status:fail codes:[PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND]; \"ok\": true occurs 0 times in the output. The recorded evidence result=pass/selectorMatched=true is therefore a false positive: the selector matches an unrelated nested/embedded status token, not the check own top-level verdict. Fix: re-pin selector to \"ok\": true (occurs exactly once, top-level) via checklist_update; this is a DEV-only repair, blocked pending this epoch finalize receipt per epoch protocol. Same finding family as prior B-45a0:F-452 (wave 1) / B-45a0:F-437 (prior round); re-confirmed not newly discovered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T12:04:59.874Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1124",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1482e5939aa9f4255b6fc4a96bd4cac2a8be8a1b9d99aa5a48f74d6d56b023b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "011886d8d082d615d3a2b892145a617cdb807dc0ede95702678ebb90ce4b85ae",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json"
+      ],
+      "signatureTag": "missing|json|edge-verificationevidence-pins",
+      "signatureTagSource": "auto"
     }
   ]
 }
