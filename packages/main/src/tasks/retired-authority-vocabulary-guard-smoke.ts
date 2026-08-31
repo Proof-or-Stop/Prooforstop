@@ -661,7 +661,7 @@ const typeProgramInstrumentation = {
   dynamicFullAnalysisByFile: new Map<string, number>(),
 };
 
-const DYNAMIC_BINDING_BUILD_CEILING = 820;
+const DYNAMIC_BINDING_BUILD_CEILING = 808;
 
 function parseSource(file: string, text: string): ts.SourceFile {
   const cached = parsedSourceCache.get(file);
