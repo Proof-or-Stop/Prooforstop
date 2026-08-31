@@ -17351,7 +17351,7 @@
       "desc": "packages/main/src/core/certification-window.ts:794-802 [high] detectCertificationWindowMaterialDrift early-returns drifted=false on the new unrelated-materialHash advisory and never reaches the official verifier/test identity checks at :803-816. The U-03b happy path (matching storyFilesHash plus whole-tree materialHash drift) therefore disables a previously live fail-closed invalidation. Repro: keep a signed advisory causalDecision bound to the live hashes, set current.materialHash != frozen.materialHash, keep storyFilesHash equal, and set verifierIdentity to a mutated value; observed drifted=false with PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY instead of reason \"verifier identity changed\". packages/main/src/tasks/certification-window-smoke.ts:907-914 only mutates identity while hashes still match, so it cannot catch this. refuseHeavyCertificationUnlessAdmitted also drops the advisory, so the heavy-cert consumer can keep an ADMITTED window without printing Warning. Fix: record the advisory but continue into the identity checks, and only return drifted=false if verifier/test identity still match.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T17:25:32.485Z",
@@ -17403,7 +17403,11 @@
         "packages/main/src/tasks/certification-window-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "detectCertificationWindowMaterialDrift now records the unrelated-materialHash advisory and continues into official verifier/test identity checks. CHK-003 unit assertions cover mutated verifier and test identities with a matching storyFilesHash advisory; drifted=true with identity reasons. Commit e64f58ea17.",
+      "resolvedAt": "2026-08-31T17:29:53.430Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
