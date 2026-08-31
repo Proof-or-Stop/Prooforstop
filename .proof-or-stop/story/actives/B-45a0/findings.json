@@ -24854,7 +24854,7 @@
       "desc": "Wave-4 independent critic re-verification for review-inventory epoch B-45a0:RI-110. Confirmed all ten aggregate findings (F-452..F-461) are genuine, correctly classified into three families: quality-unused-import-buildRevocationLedger (verifier.ts:81 imports buildRevocationLedger, unused, confirmed via grep single occurrence, noUnusedLocals unset in tsconfig), acceptance-basis-and-pre-review-inverted-verdict-staleness (acceptance_basis AT_SCOPE_BINDING_MISSING, pre_review_check_read FAIL PR_ARTIFACT_TAMPERED+3 codes, matches decisions doc Section 9 Rule 10 hazard), docs-self-contradictory-rule-attribution (Rule 10 lines 1273-1294 misattributes the never-a-silent-pass quote to Rule 9 then self-corrects to Rule 3 in the same clause; quote itself is at Rule 3). Additionally independently re-verified F-455/F-458, my own prior-wave finding that all four Wave-4 acceptance surfaces (acceptance_topology_check, acceptance_basis, pre_review_check_read, acceptance_rollout_check) are currently non-admissible at HEAD 4d912c05 -- this finding does NOT belong to any of the three epoch-frozen family strings and is flagged as a distinct fourth family (independent-topology-critic-wave4-surfaces-not-admissible) rather than silently mapped into one of them. review_inventory_finalize --help confirms the finalize receipt certifies wave-completeness only (completeness is not PRE_CERT and authorizesTest stays false); it does not certify acceptance-surface admissibility, so the F-455/F-458 open high-severity finding correctly continues to gate TEST via canPassReviewGuard independent of this inventory epoch.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-31T12:43:51.740Z",
@@ -24895,7 +24895,11 @@
         ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json"
       ],
       "signatureTag": "topology-critic-wave4-aggregate-verification",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed: all four Wave-4 acceptance surfaces are now admissible at current HEAD, verified by direct command execution. acceptance_topology_check: status=pass, codes=[] (AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING both cleared by regenerating the acceptance basis, which reports complete with a verified receipt). acceptance_rollout_check and acceptance_rollout_report_read: ok=true, status=pass, codes=[] (AR_REPORT_STALE cleared by running acceptance_rollout_report, which executed the real Story cohort and produced a freshly signed report: seededDetection=100%, falseBlockRate=0%, waiverDelta=0, quorum=full-3x2). pre_review_check_read: ok=true, status=pass, codes=[] (the PR_* set cleared by recapturing the live-smoke transcript and reissuing pre_review_check in DEV; all sub-verdicts are now executableEvidence=current, mutations=biting, transcript=related, authority=admissible). Family independent-topology-critic-wave4-surfaces-not-admissible is closed.",
+      "resolvedAt": "2026-08-31T14:11:25.210Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-463",
