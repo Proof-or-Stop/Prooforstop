@@ -362,6 +362,28 @@
       },
       "readDiagnostics": [],
       "_hash": "78e5bb5b1247a4d7cc15027a9115e7259e62e8243e6c11a49a8295379871056e"
+    },
+    {
+      "id": "B-022e:RP-013",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage eligibility re-sign passed under Node v24.19.0: current basis is SAFE_INCREMENTAL with changedFiles=[] and trusted prior coverage bindings; F-012 is terminal/resolved and F-002 is the sole open verified medium non-blocking deferred finding. No product drift exists after the F-011 test commit. evidence_inspect reports 30/30 fresh refs, staleRefs=0, and a non-empty transcriptRefs array.",
+      "createdAt": "2026-08-31T08:09:53.616Z",
+      "reviewRound": "2026-08-31T05:21:14.709Z",
+      "reviewRunId": "B-022e:RR-030",
+      "envelopeId": "f171daf514f96cff65099c1aa2f48eaeb2029b34beadd3f64868440eed0a40dc",
+      "writerSessionId": "sess-7e9eac50d15b4e6186c393729457a89c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "56388964bdef654682d7e3b7be820b36c543b8111b92ee0bb7be61ea8ec0dfd8"
     }
   ]
 }
