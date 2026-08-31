@@ -1,0 +1,91 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-1fa6",
+  "status": "PASS",
+  "startedAt": "2026-08-31T23:52:15.854Z",
+  "endedAt": "2026-08-31T23:57:02.507Z",
+  "durationMs": 286653,
+  "headHash": "51c6bce16dbe4433414d7033c3395bc706610485",
+  "materialHash": "a65e3c606dd8a88262da4e9f071b0cf86f57cbb58e845eabf49166d03b35c93d",
+  "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-1fa6",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-1fa6",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 382,
+      "outputDigest": "be2e2bfac9b47b359e45b6a08fca25dc998471874c4e84eba5e007a992d1c3d1",
+      "outputTail": "\n> @proof-or-stop/core@0.3.268 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+      "startedAt": "2026-08-31T23:52:15.855Z",
+      "endedAt": "2026-08-31T23:52:16.237Z",
+      "effectiveEnvironmentDigest": "8bf031f5f3ae16d311779fb25dfaa82aee55bccdc4417a0c2de5f0790d9fd5a4",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "51c6bce16dbe4433414d7033c3395bc706610485",
+      "materialHash": "a65e3c606dd8a88262da4e9f071b0cf86f57cbb58e845eabf49166d03b35c93d",
+      "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-1fa6",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-1fa6",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 285914,
+      "outputDigest": "6a99ba836bdb5ea6b5b192bb9797d72ec594743a6876d18740a8a9e2b1798c75",
+      "outputTail": "\n> lattice@0.3.268 pretest\n> node scripts/ensure-dist.mjs\n\n\n> lattice@0.3.268 test\n> node packages/main/dist/tasks/full-suite-runner.js\n\nPASS test:flow-stability-smoke 137.0s\nPASS test:proofstory-intent-hardening-smoke 141.7s\nPASS test:proofstory-acceptance-rollout 177.3s\nPASS test:milestone-status 39.5s\nPASS test:experiments 13.4s\nPASS test:brief-output 33.2s\nPASS test:main-write-lock-coverage 0.3s\nPASS test:production-test-seam-guard 1.3s\nPASS test:lattice-residue 0.5s\nPASS test:residue-inject-repro 1.1s\nPASS test:review-incremental-context-smoke 88.9s\nPASS test:full-suite-runner-smoke 33.7s\nPASS test:full-suite-resource-sentinel 0.2s\nPASS test:codex-heartbeat-timeout 2.8s\nPASS test:audit-scan-bin-token 0.2s\nPASS test:review-convergence-smoke 0.2s\nPASS test:review-loop-smoke 0.9s\nPASS test:proof-or-stop-prompt-baseline 10.5s\nPASS test:delivery-context-pack-smoke 7.8s\nPASS test:scope-shrinkage-withdrawal-floor-smoke 0.9s\nPASS test:withdrawn-disposition-smoke 1.6s\nPASS test:global-core-realpath 0.6s\nPASS test:brand-path-resolver-smoke 0.5s\nPASS test:review-assurance-floor-smoke 8.3s\nPASS test:core-package-rename 0.6s\nPASS test:config-filename-migration-smoke 1.8s\nPASS test:state-dir-migration 0.7s\nPASS test:review-assurance-floor-storyfileshash-smoke 0.4s\nPASS test:docs-drift-smoke 0.2s\nPASS test:migration-contract 0.7s\nPASS test:gitroot-cwd-contract 0.2s\nPASS test:docs-drift-wrapper-root 0.9s\nPASS test:process-fact-contract 3.3s\nPASS test:runtime-fact-contract 2.7s\nPASS test:evidence-quality 0.1s\nPASS test:anti-stall 0.1s\nPASS test:storydir-inside-gitroot-smoke 0.8s\nPASS test:gitroot-cwd-routing 1.8s\nPASS test:bare-gate-gitroot-cwd 0.5s\nPASS test:retired-authority-vocabulary-guard 42.5s\nPASS test:project-gitroot-cwd 0.5s\nPASS test:done-oracle-wrapper-root 1.7s\nPASS test:done-escalation-drift-advisory 1.4s\nPASS test:review-escalation-freshness-root 4.3s\nPASS test:dispatch-checklist-doctor-wrapper-root 1.1s\nPASS test:done-premerge-mainsha-recheck 8.4s\nPASS test:graceful-sites-gitroot-cwd 0.9s\nPASS test:experience-hint-worktree-cache 1.4s\nPASS test:experience-coverage-gap 1.3s\nPASS test:done-merge-experience-refresh 2.9s\nPASS test:e2e 3.2s\nPASS test:experience-arm-gate 0.2s\nPASS test:experience-arm-isolation-e2e 9.9s\nPASS test:convergence-breaker 0.4s\nPASS test:topology-signing-source-guard 0.2s\nPASS test:signing-guard-mutation-proof 0.4s\nPASS test:closeout-trust 35.7s\nPASS test:nested-worktree-bootstrap 16.9s\nfull-suite: 58/58 passed in 284.7s; retries=0; jobs=3\n",
+      "startedAt": "2026-08-31T23:52:16.364Z",
+      "endedAt": "2026-08-31T23:57:02.278Z",
+      "effectiveEnvironmentDigest": "8bf031f5f3ae16d311779fb25dfaa82aee55bccdc4417a0c2de5f0790d9fd5a4",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "51c6bce16dbe4433414d7033c3395bc706610485",
+      "materialHash": "a65e3c606dd8a88262da4e9f071b0cf86f57cbb58e845eabf49166d03b35c93d",
+      "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2"
+    }
+  ],
+  "reasons": []
+}
