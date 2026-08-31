@@ -117,7 +117,7 @@
       "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:664-914 [high] CHK-001:adversarial:binding-scope-mutants does not prove the protected-document mutation returns nonzero as required. Its docRejected predicate is scoped.status!==0 OR combinedOutput.includes(\"violation\"); the normal passing renderer prints \"Scope gate: pass (... 0 unacknowledged violations)\", so a status-0 control also satisfies the substring branch. The receipt can therefore report protectedDocRejected=true even if the mutation is not rejected, while F-002/F-003 resolutions overclaim a nonzero fail-closed proof. Parse --json and require status=fail/nonzero plus the exact protected path/rule, then restore bytes and require an explicit status=pass control before re-recording the receipt and resolutions.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T03:31:00.239Z",
@@ -129,7 +129,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The earlier immutable-pinned binding-scope receipt is not relied on for the document branch and its overclaim is explicitly superseded here. A replacement executable mutation run parsed scope_contract_check --json and required status=fail plus violations[{path:'docs/requirements/decisions/dynamic-finding-system-execution-plan.md',rule:'protected',acknowledged:false}], then byte-restored source/dist/doc and required build-binding PASS plus scope status=pass. Output: binding-scope-mutants-v2 PASS sourceRejected=true distRejected=true docStatus=fail exactProtectedRule=true restored=true control=pass. The old pin cannot be silently rewritten in DEV, so strength is medium rather than strong.",
+      "resolvedAt": "2026-08-31T07:33:11.979Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-5952:F-006",
