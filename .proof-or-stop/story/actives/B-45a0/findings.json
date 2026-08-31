@@ -23918,6 +23918,44 @@
       ],
       "signatureTag": "missing|json|distinct-covers-edge",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-440",
+      "desc": "Independent completeness-critic corroboration of B-45a0:F-439 at current HEAD 50abb36da107c569c6f4983f2aee8e5cbf2fd2b6 (own review_run_start RR-1080). Reproduced directly, not from prompt text: acceptance_topology_check --json returns status=fail structuralPass=false mode=observe blocking=false AT_COVERAGE_BASIS_STALE (freshness mismatch: evidence storyFilesHash does not match current story-owned file state). acceptance_rollout_check --json returns ok=false status=fail mode=enforce blocking=true receipt=stale AR_REPORT_STALE. acceptance_rollout_report_read --json returns the identical ok=false/fail/enforce/blocking=true/AR_REPORT_STALE. acceptance_basis --json itself reports status=invalid. pre_review_check_read --json separately reports fail/mode=observe/blocking=false with PR_ARTIFACT_TAMPERED and PR_COVERAGE_BASIS_CHANGED (the distinct desync chain F-431/F-432/F-433/F-434/F-436/F-437 already track). Root-cause verification: git log --name-only af11244..HEAD shows 37 commits touching only .proof-or-stop/story/actives/B-45a0 (82 file-changes) plus 1 decisions doc and 1 evidence file -- zero touches to packages/main/src/core or packages/main/src/handlers -- confirming pure review-inventory metadata churn re-staling storyFilesHash-bound freshness bindings, not an implementation regression. Mechanically confirmed pre_review_check is DEV-only (story_advance tool listing: Allowed phases: DEV, reason: sole verifier-owned writer for the signed current-worktree executable pre-review artifact) and no rollout-report generate/write command appears in the REVIEW-phase tool list (only acceptance_rollout_report_read and acceptance_rollout_check reads), so REVIEW cannot self-heal this staleness; a DEV pass is required to regenerate the basis and the rollout report against a settled HEAD. Topology-critic verdict for this run: acceptance_basis status=invalid means a topology_critic_receipt_set pass is forbidden for this run; request_changes is the only admissible receipt while the basis is invalid.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-31T03:21:05.677Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1080",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/topology-critic-receipt.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/process-events.jsonl",
+          ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "04110745240e2c280fa2d973d32d6bca93b3400319ffcaf5cbbd33a721b0dabe",
+      "signatureTag": "acceptance-rollout-and-topology-basis-restaling-from-review-churn",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
