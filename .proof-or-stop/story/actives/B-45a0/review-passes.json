@@ -24357,6 +24357,35 @@
         "scanEscalationReason": null
       },
       "_hash": "fdbf4b8f2487a029ecbb4d5da34925c31746952dfbd6971df40be38a4f64c62b"
+    },
+    {
+      "id": "B-45a0:RP-520",
+      "agent": "lattice-review-quality",
+      "note": "Quality-lane story-level review of git diff main...HEAD (82 files, ~7479 insertions). No blocking dead-code/type-safety/I-O-isolation/doc-promise-undelivered defects: tsc --noEmit clean; no `as any` or empty catch blocks introduced; no commented-out code; all console.log occurrences are legitimate smoke/task-script output, not shell-layer violations. Re-verified RP-517 (verify-no-project-writes.mjs PRUNED-regex boundary): diff against both main and 9f5b0d96b1 is empty at this HEAD (bd156a8) - all 7 boundary cases, the ^-anchor asymmetry, and the two cited precedents (story-aware-validation.ts:725, runtime-artifact-registry.ts:173-176) still hold; no code changed, prior verdict stands. One new low-severity dead-code item filed as F-465 (buildLptSchedule alias export, zero consumers repo-wide) and deferred per Step 3 triage - not a regression, does not affect user outcome, does not distort a lifecycle gate. loadBestMatchingAdmissiblePassReceipt has pre-existing open findings F-125/F-383 I did not duplicate. Wave-4 quality boundary check (role-prompt-mandated): independently ran acceptance_topology_check, pre_review_check_read, acceptance_rollout_check, acceptance_rollout_report_read at this HEAD - all FAIL exactly as the dispatch described (AT_SCOPE_BINDING_MISSING; PR_ARTIFACT_TAMPERED/PR_POSITIVE_EVIDENCE_MISSING/PR_EVIDENCE_STALE/PR_CUTOFF_UNBOUND; AR_REPORT_STALE x2). Confirmed these are verifier/gate-owned commands registered in command-catalog.ts, not prompt prose. Confirmed full-3x2 (codex-cli+claude-cli) quorum and AR_QUORUM_NOT_FULL_3X2 degraded-3x1 rejection are real code in acceptance-rollout.ts (pre-existing infra, not touched by this story diff, so out of my direct-diff scope). I do NOT attest that the story is DONE-ready or that Wave-4 acceptance passes - those failures are stale-evidence/data-freshness problems in pre-existing gate infra consuming this story's current-head state, not code-quality defects in the reviewed diff, and CHK-014's remediation is explicitly DEV-scoped per the dispatch framing. This pass attests only to the quality-lane scope: no new blocking code-quality defects in the changed files.",
+      "createdAt": "2026-08-31T22:54:02.217Z",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "reviewRunId": "B-45a0:RR-1168",
+      "envelopeId": "9a922bcfe3366df422184255b21ad64679484a9970013bd8667a00468b82e59c",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-runtime-tracer.cjs",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8457927bb1f7721f25da564541fae6bb33797b60ce57f1b07074cd617d212ffd"
     }
   ]
 }
