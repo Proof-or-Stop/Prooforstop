@@ -5,7 +5,7 @@
       "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:654,881 — The change proves that 804 is reproducible and that only the ceiling code changes, but it does not prove the asserted cause that the four builds above 800 are legitimate current-source-inventory growth rather than an existing binding/cache/duplicate-analysis regression. The RED record reports synthetic=419/repo=385 and the green receipts repeat 804; neither supplies a prior-good per-file build-map comparison, expected newly included files, or an invariant showing no per-file duplicate-build increase. Raising the absolute limit to 820 therefore accepts the unexplained behavior and can mask the exact algorithmic regression this budget is intended to detect. Before loosening the limit, add causal evidence over dynamicBindingBuildFiles (or equivalent known-good/current comparison) that accounts for the +4 as intentional inventory; if it exposes duplication, repair the algorithm instead.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T02:54:58.420Z",
@@ -27,7 +27,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "budget-bump-without-causal-baseline",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Replaced the unexplained 820 ceiling with 808 after a causal known-good/current comparison. Detached build at 0abf3d859d measured 796 total = synthetic 419 + repo 377; current measured 804 = synthetic 419 + repo 385. Instrumented per-file maps showed exactly eight +1 repository entries and no removed or increased existing entry: core/brand-paths.ts, core/certification-window.ts, core/review-inventory-epoch.ts, handlers/certification-window.ts, tasks/adapter-session-env.ts, tasks/brand-path-resolver-smoke.ts, tasks/certification-window-smoke.ts, tasks/signing-guard-mutation-proof-smoke.ts. Commit 598dfeb805 therefore sets 808, preserving the prior fixed four-build headroom rather than widening it.",
+      "resolvedAt": "2026-08-31T03:24:07.202Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5952:F-002",
