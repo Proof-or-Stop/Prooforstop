@@ -306,20 +306,20 @@
           "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
           "result": "pass",
-          "note": "F-010 regression: semantic-context rows now reject broad lattice tokens and unrelated active instructions cannot reuse exact path-bound contexts.",
+          "note": "F-011 regression: canonical proof-or-stop reviewer, metadata, and verifier identities are not classified as legacy residue while retired identity mutations still fail closed.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4eec10b9921bb8d3ba1afc68210fadb1e029fc7f8dc2501f84c0e68b763ac382",
             "outputTail": "PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:45:28.288Z",
+            "executedAt": "2026-08-31T05:12:06.697Z",
             "timeoutMs": 270000
           },
-          "headHash": "d3e4823931dac1917c69aa331824351482506c05",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
-          "timestamp": "2026-08-31T04:45:28.474Z"
+          "headHash": "7e01c0f5757f3a8fe7919a3b620db9d061b5371c",
+          "materialHash": "806a71d94e8f74fe223d6a6d12d96c1a891799c4ac4ef0babe4e55dbcdbf82e4",
+          "storyFilesHash": "8d9d9880e146d5ab5db694f9c65dc4d36f56e255db9e3e7905c00c01590bc0d5",
+          "timestamp": "2026-08-31T05:12:06.889Z"
         }
       ]
     },
