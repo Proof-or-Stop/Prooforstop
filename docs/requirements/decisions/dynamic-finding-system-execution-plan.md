@@ -585,9 +585,9 @@ not an in-place invented cause.
 | Contract | Definition |
 | --- | --- |
 | Inputs | One verified/open Finding, target Story, signed scope contract/digest, base/head evidence, current diff/touchpoints, protected-surface risk classification, canonical owner, routing candidates, review run, freshness verdicts |
-| Records | Signed `FindingApplicabilityAssessment`, `MandatoryRepairClassification`, ledger-derived `DeferralLineageState`, gate-consumed `MaterialDriftReattestation`, Story 1's exact receipt/baseline CAS L4 profile over Story 2's `FindingRouteReceipt`, `FindingDeferralDisposition`, versioned `DeferralExpiryPolicy`, signed batch disposition manifest, read-only rollout scorecard, reviewer override/adjudication with reason |
-| Authority | Advisory in observe/warn. In enforce, only the designated CLI writer plus eligible current reviewer may mint signed L4 assessments/dispositions; the registered verifier derives signed `DeferralLineageState` directly for the shared predicate. |
-| Outputs | `applicable`, `pre_existing_unaffected`, `out_of_scope`, `duplicate`, `stale_or_not_reproduced`, or `unknown`; non-decaying mandatory-repair floor for applicable high/critical, verified open high/critical with missing or invalid required assessment, protected-surface risk, or ledger-derived invalid claimed lineage; optional defer-with-proof after eligible low/medium; exact-CAS consumption of Story 2 target acceptance/revocation; checked-in scorecard JSON/refusal; evidence references; gate projection |
+| Records | Signed `FindingApplicabilityAssessment`, verifier-derived signed `AssessmentIntegrityState`, `MandatoryRepairClassification`, ledger-derived `DeferralLineageState`, gate-consumed `MaterialDriftReattestation`, Story 1's exact receipt/baseline CAS L4 profile over Story 2's `FindingRouteReceipt`, `FindingDeferralDisposition`, versioned `DeferralExpiryPolicy`, signed batch disposition manifest, read-only rollout scorecard, reviewer override/adjudication with reason |
+| Authority | Advisory in observe/warn. In enforce, only the designated CLI writer plus eligible current reviewer may mint signed L4 assessments/dispositions; the registered verifier derives signed `AssessmentIntegrityState` and `DeferralLineageState` directly for the shared predicate. |
+| Outputs | `applicable`, `pre_existing_unaffected`, `out_of_scope`, `duplicate`, `stale_or_not_reproduced`, or `unknown`; a transient pre-round assessment-integrity floor for verified open high/critical Findings whose required assessment is missing or invalid; a distinct mandatory-repair floor for applicable high/critical, protected-surface risk, or ledger-derived invalid claimed lineage; optional defer-with-proof after eligible low/medium; exact-CAS consumption of Story 2 target acceptance/revocation; checked-in scorecard JSON/refusal; evidence references; gate projection |
 | Non-responsibilities | Changing Finding truth/severity/status, declaring semantic identity from similarity, proving bytes were stored, producing runtime receipts, or deleting the underlying issue |
 
 Applicability is target-specific and expiring. A Finding may be applicable to
@@ -627,6 +627,9 @@ detector/reviewer observation
   -> target-Story base/head/scope/owner analysis
   -> RuntimeEvidenceReceipt where execution uses mutable artifacts
   -> FindingApplicabilityAssessment          [signed, current, L4 in enforce]
+  -> AssessmentIntegrityState                [derived pre-round floor for an
+                                               invalid required high/critical
+                                               assessment; no repair claim]
   -> MandatoryRepairClassification           [applicable high/critical or
                                                 protected/lineage risk; L4 floor]
   -> Red/repro -> root cause -> fix -> Green  [mandatory floor closure]
@@ -1037,6 +1040,38 @@ type FindingRecheckTrigger =
   | 'owner_invalid'
   | 'target_closed_unfixed'
   | 'expiry_reached';
+
+type RequiredAssessmentInvalidState =
+  | 'missing'
+  | 'stale'
+  | 'unsigned'
+  | 'tampered'
+  | 'mismatched'
+  | 'incomplete'
+  | 'unknown';
+
+interface AssessmentIntegrityState {
+  schemaVersion: 1;
+  storyId: string;
+  findingId: string;
+  state:
+    | 'blocking_invalid'
+    | 'released_strong_non_applicable'
+    | 'converted_to_mandatory_repair'
+    | 'not_required';
+  invalidState?: RequiredAssessmentInvalidState;
+  assessmentId?: string;
+  assessmentHash?: string;
+  independentProofDigest?: string;
+  mandatoryRepairId?: string;
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  derivedAt: string;
+  verifierId: string;
+  stateHash: string;
+  signature: string;
+}
 
 interface MandatoryRepairClassification {
   schemaVersion: 1;
@@ -1538,6 +1573,10 @@ isDynamicFindingBlocking(
     finding,
     deferralLineageState
   ) then true
+  else if assessmentIntegrityFloorBlocks(
+    finding,
+    assessmentState
+  ) then true
   else if mandatoryRepairFloorBlocks(
     finding,
     assessmentState,
@@ -1596,34 +1635,65 @@ current counter-evidence. `DeferralLineageRelease` binds that exact artifact and
 proof digest. Advisory history, a replacement `applicable`/`unknown` assessment,
 or a new assessment that omits the old deferral cannot release the floor.
 
-The mandatory-repair classification check is also before ordinary policy. For
-an open verified Finding, a fresh strong non-applicable verdict
-(`pre_existing_unaffected`, `out_of_scope`, or `duplicate`) is an explicit
-exception and continues through its independent proof contract. Otherwise,
-`critical`/`high` severity with a fresh `applicable` assessment, or with a
-missing, stale, unsigned, tampered, mismatched, incomplete, or `unknown`
-required assessment, creates a non-decaying floor. The same applies to any
-known or unknown protected-surface risk, a missing protected-surface evaluation,
-or an exhausted/invalid deferral lineage. Thus an invalid or absent assessment
-cannot fall through to round/advisory policy. The floor remains blocking even
-when severity would fall out of `effectiveBlockingSeverities`,
-`isAdvisoryThisRound` would return true, or an invalid direct write marked the
-Finding resolved. A missing, stale, unsigned, tampered, or incomplete required
-classification/closure also blocks. For an invalid deferral lineage,
+The two assessment-related pre-round floors are deliberately different. Define
+the exact required-assessment invalid set once as:
+
+```text
+REQUIRED_ASSESSMENT_INVALID = {
+  missing, stale, unsigned, tampered, mismatched, incomplete, unknown
+}
+```
+
+The **assessment-integrity floor** is a verifier-derived transient projection,
+not a `MandatoryRepairClassification` and not evidence that the Finding is
+applicable. It exists when a Finding is verified, open, high/critical, and its
+required assessment is in `REQUIRED_ASSESSMENT_INVALID`. It runs before
+severity and round/advisory policy, so none of those policies can decay or
+bypass it. Here, "non-decaying" means only that ordinary severity, round, and
+advisory rules cannot waive missing integrity evidence; it does not mean the
+projection is permanent or that Red/root-cause/fix/Green is required to release
+it. The verifier recomputes it from the latest assessment state:
+
+- a later fresh, signed, strongly proven `pre_existing_unaffected`,
+  `out_of_scope`, or `duplicate` verdict that passes its independent proof
+  contract releases the assessment-integrity floor and is non-blocking when no
+  independent lineage or mandatory-repair obligation exists;
+- a later fresh signed `applicable` verdict removes the integrity floor but, for
+  high/critical, immediately enters the distinct mandatory-repair floor;
+- a later `unknown`, weakly proven non-applicable, or otherwise missing, stale,
+  unsigned, tampered, mismatched, or incomplete assessment remains in the
+  assessment-integrity floor.
+
+Because this projection is derived rather than an append-only repair record,
+there is no stale `required` classification to supersede on the first
+transition. A clean initial fresh strong non-applicable assessment and a
+missing-to-fresh-strong-non-applicable transition must produce the same final
+gate result.
+
+The **mandatory-repair floor** is the confirmed repair obligation. It is also
+checked before ordinary policy and is created by a fresh `applicable`
+high/critical assessment, any known or unknown protected-surface risk or
+missing protected-surface evaluation, or an exhausted/invalid deferral lineage.
+This floor remains blocking even when severity would fall out of
+`effectiveBlockingSeverities`, `isAdvisoryThisRound` would return true, or an
+invalid direct write marked the Finding resolved. A missing, stale, unsigned,
+tampered, mismatched, incomplete, or unknown required classification/closure
+also blocks. For an invalid deferral lineage,
 `MandatoryRepairClassification(state='required')` is an append-only audit
 receipt and recall anchor, not the sole source of the safety result: the shared
 predicate derives the floor from `DeferralLineageState` even if recording that
 classification fails.
 
-The only clearing state is a fresh signed superseding
+For an active mandatory-repair obligation, the only clearing state is a fresh signed superseding
 `MandatoryRepairClassification(state='closure_proven')` containing Red/current
 reproduction, root-cause, fix, Green, and closure evidence bound to current
 source/runtime material. Resolution/dismissal handlers must refuse an active
-floor; they may clear/resolve only after that closure validator passes. A fresh
-strong non-applicable verdict (`pre_existing_unaffected`, `out_of_scope`, or
-`duplicate`) does not create this floor and continues through its independent
-proof contract. In warn/rollback mode the new classification is advisory and
-the exact previous predicate is restored.
+mandatory-repair floor; they may clear/resolve only after that closure validator
+passes. This closure-only rule does not apply to the assessment-integrity floor,
+which has not confirmed applicability and follows the transitions above. A
+fresh strong non-applicable verdict (`pre_existing_unaffected`, `out_of_scope`,
+or `duplicate`) does not create a mandatory-repair floor. In warn/rollback mode
+the new classification is advisory and the exact previous predicate is restored.
 
 For `state='required'`, `closure` must be absent. For
 `state='closure_proven'`, `supersedesMandatoryRepairId` must name the active
@@ -1637,17 +1707,18 @@ self-supersession, cycles, stale evidence, or a partial chain.
 ```text
 fresh signed applicable assessment, no valid deferral      -> true
 fresh applicable assessment + valid low/medium deferral    -> false
-fresh signed unknown assessment                            -> true if the
-                                                               Finding would
-                                                               otherwise block
-missing, unsigned, tampered, mismatched, stale, or unknown
-assessment on verified open high/critical                  -> mandatory floor
-                                                               before round/advisory
-                                                               policy; blocks
-fresh strong non-applicable verdict on high/critical       -> no mandatory floor;
+required assessment in {missing, stale, unsigned, tampered,
+mismatched, incomplete, unknown} on a verified open
+high/critical Finding                                      -> assessment-integrity
+                                                               floor before round/
+                                                               advisory; blocks
+fresh strong non-applicable verdict on high/critical       -> integrity floor releases;
                                                                independent proof
-                                                               determines whether
-                                                               it is non-blocking
+                                                               determines non-blocking
+fresh applicable verdict on high/critical                  -> integrity floor releases;
+                                                               mandatory-repair floor blocks
+weak or invalid non-applicable verdict on high/critical    -> integrity floor remains;
+                                                               blocks
 claimed missing/stale/expired/exhausted/tampered/unknown
 lineage, independent of current assessment                 -> first safety floor
 claimed lineage + fresh strong superseding release         -> released only by
@@ -1658,18 +1729,21 @@ fresh non-blocking verdict with all required proof          -> false
 Thus applicability can remove a blocker only with stronger structured proof.
 It cannot create a shortcut around the current evidence/severity/round policy.
 In particular, an unknown high or critical Finding never becomes non-blocking
-merely because classification failed: missing/invalid assessment enters the
-mandatory floor before round decay. A fresh, strongly proven non-applicable
-high/critical verdict remains the deliberate exception and is evaluated by its
-own proof contract. Outside the mandatory floor, current round-decay semantics
-continue to apply; unknown does not create an extra downgrade.
+merely because classification failed: every state in
+`REQUIRED_ASSESSMENT_INVALID` enters the assessment-integrity floor before round
+decay. A fresh, strongly proven non-applicable high/critical verdict releases
+that temporary floor and is evaluated by its own proof contract; a fresh
+applicable verdict converts to mandatory repair. Outside the two pre-round
+floors, current round-decay semantics continue to apply; invalid assessment
+state does not create an extra downgrade.
 
 Legacy Findings with no assessment remain readable. In enforce mode, a missing
 assessment projects to `unknown`; a verified open high/critical Finding enters
-the mandatory floor before the previous round/advisory predicate, while a fresh
-strong non-applicable assessment may independently prove it non-blocking.
-Legacy missing `evidenceState` keeps the current compatibility projection to
-verified. No bulk rewrite is needed.
+the assessment-integrity floor before the previous round/advisory predicate,
+while a fresh strong non-applicable assessment may release that projection and
+independently prove it non-blocking. This does not manufacture an applicable
+repair obligation. Legacy missing `evidenceState` keeps the current compatibility
+projection to verified. No bulk rewrite is needed.
 
 ### 7.2 Candidate routing and defer-with-proof disposition
 
@@ -2077,9 +2151,10 @@ Secondary mitigation is named without creating duplicate ownership.
 ### 9.1 Story 1 — Dynamic Finding Applicability
 
 **Objective.** Add target-Story verdict, consume target-authorized route
-acceptance, enforce the mandatory-repair floor, defer-with-proof with cumulative
-lineage expiry, batch disposition, signed freshness binding, and the shared gate
-predicate. This is the product-facing Dynamic Finding behavior.
+acceptance, enforce the transient assessment-integrity floor and the distinct
+mandatory-repair floor, defer-with-proof with cumulative lineage expiry, batch
+disposition, signed freshness binding, and the shared gate predicate. This is
+the product-facing Dynamic Finding behavior.
 
 **Included component responsibility.** Own the Dynamic Applicability component
 and the assessment-consumer portion of Freshness and Supersession. Consume, but
@@ -2099,6 +2174,10 @@ authoritative artifacts and cannot alter lifecycle output.
 
 - `FindingApplicabilityAssessment` schema, signer/verifier, append-only reader,
   and current projection.
+- Verifier-derived `AssessmentIntegrityState` and
+  `assessmentIntegrityFloorBlocks`, using the exact
+  `REQUIRED_ASSESSMENT_INVALID` set and the release/convert/remain transitions;
+  it is gate-consumed but never persisted as a confirmed repair obligation.
 - `MandatoryRepairClassification` classify/close signer, verifier, reader, and
   non-decaying floor; resolve/dismiss handler integration requires fresh
   Red/repro, root-cause, fix, Green, and closure evidence.
@@ -2134,7 +2213,8 @@ authoritative artifacts and cannot alter lifecycle output.
   dependency proof or an equivalent new assessment restores authority.
 - One `isDynamicFindingBlocking` predicate used by every current consumer.
 - L4 command policies, process-fact entries, registry artifacts, and contract
-  verifier coverage.
+  verifier coverage for both the assessment-integrity projection and the
+  mandatory-repair classification without conflating their release contracts.
 - Checked-in read-only `finding_rollout_scorecard --json` aggregator owned by
   Story 1. It consumes only Story 2/3 public query contracts, emits the complete
   Section 11 qualification metadata/rows, and supplies the enforce-entry safety
@@ -2148,12 +2228,18 @@ authoritative artifacts and cannot alter lifecycle output.
   protected-surface evaluation create a mandatory floor before severity/round
   decay; changing `effectiveBlockingSeverities` or `isAdvisoryThisRound` cannot
   clear it.
-- The adversarial fixture includes a verified open high Finding at round 3 with
-  each missing, stale, unsigned, tampered, mismatched, and unknown assessment;
-  every variant remains blocking in the pre-round mandatory floor. A paired
-  round-3 verified open high with a fresh, signed, strongly proven
-  `pre_existing_unaffected`, `out_of_scope`, or `duplicate` assessment remains
-  non-blocking only when that verdict's independent proof contract passes.
+- The adversarial matrix crosses verified open `high` and `critical` at round 3
+  with exactly `missing`, `stale`, `unsigned`, `tampered`, `mismatched`,
+  `incomplete`, and `unknown` required assessments. Every cell remains blocking
+  in the pre-round assessment-integrity floor.
+- Transition fixtures start from the same missing-assessment state and prove:
+  missing -> fresh signed strong `pre_existing_unaffected`, `out_of_scope`, or
+  `duplicate` releases the temporary integrity floor and becomes non-blocking;
+  missing -> fresh signed `applicable` leaves the integrity floor and enters the
+  mandatory-repair floor; missing -> weakly proven non-applicable or any state
+  in `REQUIRED_ASSESSMENT_INVALID` remains blocking. Separate clean-initial
+  fresh-valid-strong non-applicable controls produce the same non-blocking result
+  as the first transition and prevent a latched or over-tightened floor.
 - Missing/stale/tampered classification and a direct resolved/dismissed write
   without a fresh closure remain blocking; closure requires non-empty current
   Red/repro, root-cause, fix, Green, and closure evidence.
@@ -2170,8 +2256,9 @@ authoritative artifacts and cannot alter lifecycle output.
   non-applicable/duplicate/disproven superseding proof or complete repair closure
   releases them.
 - Fresh strongly proven `pre_existing_unaffected`, `out_of_scope`, or
-  `duplicate` remains outside the mandatory floor; warn rollback reproduces the
-  exact old predicate.
+  `duplicate` remains outside the mandatory-repair floor and releases only a
+  temporary assessment-integrity floor; warn rollback reproduces the exact old
+  predicate.
 - A Story 2 route receipt alone produces no gate delta. Story 1 accepts only the
   latest `finding_route` profile with exact ID/hash/source assessment hash and
   binds that tuple into `FindingDeferralDisposition.dispositionHash` and the
@@ -2197,8 +2284,10 @@ authoritative artifacts and cannot alter lifecycle output.
 - Out-of-scope requires signed scope proof and valid route.
 - Duplicate requires a live valid canonical owner.
 - File disjointness/history/model confidence alone cannot unblock.
-- Missing, unsigned, tampered, scope-stale, story-files-stale, or runtime-stale
-  assessment fails closed for an otherwise blocking Finding.
+- A required assessment in exactly `missing`, `stale`, `unsigned`, `tampered`,
+  `mismatched`, `incomplete`, or `unknown` fails closed for a verified open
+  high/critical Finding. Scope-, story-files-, and runtime-stale inputs project
+  into that same exact state set rather than creating uncounted aliases.
 - Unknown high/critical is never downgraded by applicability.
 - Raw `materialHash`-only drift for a claimed deferral first yields
   `pending_re_attestation`/unknown and blocks even with matching
@@ -2596,7 +2685,7 @@ forbidden reverse import independently.
 | --- | --- | --- | --- | --- | --- |
 | `observe` | Read-only classifier/index prototype passes structural tests | None; stdout/report only. Benchmark artifacts, if explicitly exported outside lifecycle state, remain non-authoritative. | Existing `isFindingBlocking` only | Candidate groups/routes, predicted mandatory floors, proposed verdicts/deferrals, target-authority/receipt gaps, expiry-policy violations, high/critical closure gaps, predicted blocker delta, latency | Exit to warn after labeled replay shows no safety violation and Story 3/2 dependencies needed by persisted advice are ready; kill switch simply disables output |
 | `warn` | Story 3 atomic persistence/query contract accepted; Story 2 candidate/identity/supersession plus non-gate route/query semantics accepted; observe qualification thresholds met | Story 2 may append standalone signed target route receipts, atomically append an initial receipt with its four-kind baseline set, and later CAS-bound candidate routes; Story 1 appends only non-authoritative triage/mandatory/deferral/re-attestation proposals; no new L4 artifact affects lifecycle | Existing predicate only; every route receipt and every baseline entry/set carries and verifies its non-gate marker | Old blocker set plus proposed exact receipt/baseline tuple and CAS result, ledger-derived claimed-lineage floor, material-drift pending/re-attestation result, policy/progress projection results, protected-surface/closure gaps, and read-only scorecard JSON/refusal reasons | Return to observe on data/persistence defect; advance only after merged-state qualification and complete scorecard evidence |
-| `enforce` | All three Stories accepted in the acyclic order; signed current-material assessment; runtime receipt; mandatory-floor/process-fact contract; Story 2 target-authorized receipt and signed complete non-gate initial baseline set; exact receipt/baseline CAS; baseline authority-marker and direct-consumer mutations green; gate-consumed material-drift re-attestation contract; authentic effective V1 policy; legacy compatibility; gate/dependency mutations and adversarial/rollback tests green; complete `finding_rollout_scorecard --json` passes every safety threshold, qualification window, and merged prerequisite | Atomic/idempotent standalone non-gate receipt/candidate route and atomic initial receipt-plus-baseline set; separate Story 1 CAS atomically writes L4 deferral plus manifest/action; expiry policy, re-attestation, and audit records remain append-only | Ledger-derived claimed-lineage invalid or pending-re-attestation state first, then classification floor, then shared `isDynamicFindingBlocking`; route receipts/candidates/baseline entries/sets alone remain non-authoritative and only Story 1's signed L4 disposition/lineage projection can consume them into gate state | Effective mandatory/blocker sets, closure/release chain, expected/current receipt and baseline tuple with CAS result, policy binding, kind-specific progress projection, signed material-drift re-attestation state, scorecard evidence/refusal, candidate recall, freshness, kill switch | Any safety threshold, scorecard evidence, baseline marker/direct-consumer mutation, registry/dependency mutation, or merged-prerequisite failure immediately refuses/ends enforce and restores previous predicate; records remain append-only |
+| `enforce` | All three Stories accepted in the acyclic order; signed current-material assessment; runtime receipt; assessment-integrity and mandatory-repair process-fact contracts; Story 2 target-authorized receipt and signed complete non-gate initial baseline set; exact receipt/baseline CAS; baseline authority-marker and direct-consumer mutations green; gate-consumed material-drift re-attestation contract; authentic effective V1 policy; legacy compatibility; gate/dependency mutations and adversarial/rollback tests green; complete `finding_rollout_scorecard --json` passes every safety threshold, qualification window, and merged prerequisite | Atomic/idempotent standalone non-gate receipt/candidate route and atomic initial receipt-plus-baseline set; separate Story 1 CAS atomically writes L4 deferral plus manifest/action; expiry policy, re-attestation, and audit records remain append-only | Ledger-derived claimed-lineage invalid or pending-re-attestation state first, then assessment-integrity floor, then mandatory-repair classification floor, then ordinary shared-predicate policy; route receipts/candidates/baseline entries/sets alone remain non-authoritative and only Story 1's signed L4 disposition/lineage projection can consume them into gate state | Effective integrity/mandatory/blocker sets, integrity release-or-convert transition, repair closure/release chain, expected/current receipt and baseline tuple with CAS result, policy binding, kind-specific progress projection, signed material-drift re-attestation state, scorecard evidence/refusal, candidate recall, freshness, kill switch | Any safety threshold, scorecard evidence, baseline marker/direct-consumer mutation, registry/dependency mutation, or merged-prerequisite failure immediately refuses/ends enforce and restores previous predicate; records remain append-only |
 
 The feature-state downgrade is a policy switch, not a data rollback. Disabling
 enforce must restore the previous authoritative blocker predicate and treat all
@@ -2716,8 +2805,8 @@ merged-state dependency review.
 | --- | --- | --- | --- | --- |
 | False non-blocking high/critical | Adjudicated high/critical verdicts classified non-blocking by the system but applicable by independent qualification / all system-proposed non-blocking high/critical verdicts | Scorecard join of signed proposal, reviewer adjudication, and current repro receipt | **0**, including adversarial set | Any one event |
 | Stale/tampered rejection | Stale/tampered/mismatched test cases rejected / all injected stale/tampered/mismatched cases | Deterministic negative suite plus receipt-verifier events | 100% | Any accepted case |
-| Unknown high/critical fail-closed | Otherwise-blocking high/critical unknown cases that remain blocking / all such unknown cases | Shared predicate fixture and live warn comparison, including round-3 verified open high with missing, stale, unsigned, tampered, mismatched, and unknown assessments plus a fresh-valid non-applicable high control | 100% | Any downgrade caused by unknown or invalid assessment, or rejection of the fresh-valid non-applicable control |
-| Mandatory-repair floor and closure integrity | Applicable high/critical, known/unknown protected-surface, or ledger-derived claimed lineage with missing/stale/expired/exhausted/tampered/unknown state that remains blocking through missing/omitting replacement assessment, drift, severity/round decay and classification-audit append failure/race, then clears only with a fresh strong release or complete closure / all injected mandatory cases | Shared-predicate, ledger claim scan, no-replacement/omitted-lineage, scope/story-files/material/runtime drift, exact-boundary clock, classification-write failure, reader/writer race, stale/tamper, strong-release, and closure mutation suite | 100%; zero assessment-omission, direct-status, audit-write, or lineage bypasses | Any claimed lineage erased by assessment state, any decayed/bypassed floor, any audit-write failure that opens the gate, or any weak/incomplete release accepted |
+| Required-assessment integrity fail-closed | Verified open high/critical cases in `REQUIRED_ASSESSMENT_INVALID` that remain blocked by the assessment-integrity floor / all injected verified open high/critical required-assessment cases in exactly `{missing, stale, unsigned, tampered, mismatched, incomplete, unknown}`; fresh-valid controls are reported separately and excluded from this denominator | Shared-predicate and live-warn Cartesian fixtures for both severities at round 3 across all seven states; transition fixtures for missing -> fresh-strong-non-applicable release, missing -> fresh-applicable conversion to mandatory repair, and missing -> weak/invalid non-applicable continued blocking; separate clean-initial fresh-valid-strong `pre_existing_unaffected`/`out_of_scope`/`duplicate` controls | 100% of the exact invalid-set denominator blocks; 100% of valid strong controls release or start outside the integrity floor; 100% of fresh applicable transitions enter mandatory repair | Any invalid-set cell becomes non-blocking, any weak/invalid non-applicable transition releases, any fresh applicable transition fails to enter mandatory repair, or any clean/transitioned fresh-valid-strong non-applicable control is rejected |
+| Mandatory-repair floor and closure integrity | Applicable high/critical and known/unknown protected-surface obligations that remain blocked until complete Red/root-cause/fix/Green closure, plus ledger-derived claimed lineages with missing/stale/expired/exhausted/tampered/unknown state that remain blocked until their separate strong lineage release or complete repair closure / all injected confirmed mandatory-repair and claimed-lineage cases | Shared-predicate, ledger claim scan, no-replacement/omitted-lineage, scope/story-files/material/runtime drift, exact-boundary clock, classification-write failure, reader/writer race, stale/tamper, lineage strong-release, and mandatory-repair closure mutation suite | 100%; zero assessment-omission, direct-status, audit-write, or lineage bypasses; zero confirmed repair obligation released without complete closure | Any claimed lineage erased by assessment state, any confirmed mandatory-repair obligation accepted with only a non-applicable verdict, any decayed/bypassed floor, any audit-write failure that opens the gate, or any weak/incomplete lineage release or repair closure accepted |
 | Non-blocking classification precision | Independently confirmed correct non-blocking verdicts / all reviewed non-blocking verdicts | Stratified reviewer gold set; disclose severity and verdict mix | >=98% overall and 100% high/critical safety | <98% overall or any high/critical safety miss |
 | Candidate-to-verified conversion | Candidates promoted to verified Findings / all terminally adjudicated candidates, per detector/version | Candidate ledger and promotion receipts | Descriptive, not maximized; each detector preregisters a baseline band before warn | Absolute drift >10 percentage points without an explained corpus/version change pauses promotion |
 | Canonical root-cause honesty | Canonical identities whose `rootCauseState` and optional value match reviewed evidence / all independently reviewed canonical identities | Identity gold set plus supersession audit | 100%; unknown cause remains representable | Any fabricated cause, cause present with `unknown`, or in-place cause rewrite |
@@ -2827,7 +2916,8 @@ operator's lab request is not authority to rename utils.
 | Failure scenario | Trigger | Consequence | Mitigation / stop rule |
 | --- | --- | --- | --- |
 | A real high/critical issue is classified non-blocking | Missing/weak scope evidence, model confidence, or bad duplicate owner is accepted | False green REVIEW/TEST transition | Fail closed; zero-event safety threshold; immediate enforce -> warn kill switch |
-| Mandatory repair decays, is assessment-erased, or status-bypassed | Claim detection depends on a fresh assessment, a replacement omits old deferral state, floor runs after ordinary predicates, or classification audit append fails/races | Applicable high/critical/protected-surface or previously deferred defect clears without strong release/repair proof | Ledger/canonical claim scan first; missing/stale/tampered/omitting assessment stays in first floor; classification floor second; exact-boundary/drift/write-failure/race tests; any bypass stops enforce |
+| Assessment integrity is waived or latched into repair | A required high/critical assessment in the exact invalid set reaches round policy, or a later strong non-applicable proof cannot release the temporary projection | False green, or an unrelated Story is forced to perform Red-to-Green repair without applicable evidence | Derived assessment-integrity floor before round policy; exact seven-state Cartesian matrix; release/convert/remain transitions plus clean initial controls; any bypass or latched valid control stops enforce |
+| Mandatory repair decays, is assessment-erased, or status-bypassed | A confirmed applicable/protected/invalid-deferral obligation is confused with the temporary integrity projection, a replacement omits old deferral state, the repair floor runs after ordinary predicates, or classification audit append fails/races | Applicable high/critical/protected-surface or previously deferred defect clears without strong release/repair proof | Ledger/canonical claim scan first; assessment-integrity floor second; mandatory-repair classification floor third; exact-boundary/drift/write-failure/race tests; only the repair closure/release contract clears the confirmed obligation; any bypass stops enforce |
 | A correct assessment survives changed runtime bytes | Receipt omits artifact/build binding | False blocker or false pass | Story 3 runtime receipt prerequisite; mutation/tamper campaign; no enforce without 100% rejection |
 | Parallel reviewers lose or alias records | New record path bypasses shared transaction | Audit evidence disappears | Story 3 first; concurrency/idempotency tests; contract verifier requires atomic persistence |
 | Historical similarity becomes authority | Recall/tag/playbook is read by gate | Old context silently changes lifecycle | Hard `authority=non_authoritative`, `gateEvidence=false`; process-fact verifier rejects dependency |
@@ -2849,7 +2939,8 @@ prototype and Story 1 may not persist or enforce. If Story 2 cannot establish
 supersession-aware identity with measured retrieval, Story 1 may assess only
 current Findings without historical auto-suggestion and may not claim P3/P5/P7
 coverage. If the qualification set finds one false non-blocking high/critical
-decision, one ledger-claim erasure or mandatory-floor/audit-write-race bypass,
+decision, one assessment-integrity invalid-set/transition/control failure, one
+ledger-claim erasure or mandatory-repair-floor/audit-write-race bypass,
 one unauthorized route acceptance, one exact-receipt CAS/atomicity failure, one
 candidate-route/direct-advisory gate delta, shared-predicate bypass, forbidden
 Story import, expiry-policy mutation/rebinding, false/reset/over-horizon/wrong-
@@ -2905,6 +2996,15 @@ The program is complete only when all of the following are true in merged state:
 - Runtime execution evidence binds the bytes actually executed to source and
   command.
 - Applicability is target-Story-specific, signed, fresh, and routed.
+- A verified open high/critical Finding whose required assessment is exactly
+  `missing`, `stale`, `unsigned`, `tampered`, `mismatched`, `incomplete`, or
+  `unknown` enters a transient assessment-integrity floor before severity,
+  round, or advisory policy. The projection is not a confirmed applicable
+  repair obligation and does not require Red-to-Green closure. A later fresh
+  signed strong non-applicable verdict releases it through its independent
+  proof contract; a fresh applicable verdict converts to mandatory repair; a
+  weak or invalid verdict remains blocked. Clean initial and transition controls
+  must have identical final results.
 - Applicable verified critical/high and known/unknown protected-surface risks
   create a signed non-decaying mandatory-repair floor checked before status,
   severity, and round policy; only fresh Red/repro, root-cause, fix, Green, and
@@ -2920,8 +3020,9 @@ The program is complete only when all of the following are true in merged state:
   `duplicate`, or `disproven` superseding artifact, or complete repair closure,
   releases a previously claimed lineage; a new assessment omission cannot.
 - Fresh strongly proven pre-existing/out-of-scope/duplicate verdicts remain
-  independent of the mandatory floor, and warn rollback restores the exact old
-  predicate.
+  independent of the mandatory-repair floor, may release only the transient
+  assessment-integrity projection when no other obligation exists, and warn
+  rollback restores the exact old predicate.
 - Suspected low/medium observations may take the separate non-authoritative
   candidate-routing path with explicit uncertainty, evidence, a live existing
   target/owner, and a signed route receipt; this requires no promotion, root
@@ -3008,7 +3109,9 @@ The program is complete only when all of the following are true in merged state:
   `rootCauseState='unknown'` carries no fabricated cause, and later correction
   preserves history through supersession.
 - Every non-blocking real high/critical issue has a valid owner.
-- Missing/stale/tampered/unknown cannot downgrade an otherwise blocking Finding.
+- The exact required-assessment invalid set—missing, stale, unsigned, tampered,
+  mismatched, incomplete, and unknown—cannot downgrade an otherwise blocking
+  Finding; its temporary integrity projection is not mislabeled as repair.
 - One shared predicate drives every blocker consumer and is registered as an L4
   process fact with contract-verifier coverage.
 - Legacy Findings remain readable without bulk rewrite.
