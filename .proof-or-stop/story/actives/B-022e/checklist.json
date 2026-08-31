@@ -303,16 +303,22 @@
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "integration_test",
-          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
           "result": "pass",
-          "note": "Injected residue and allowlist mutations fail closed.",
-          "headHash": "685dd3ef82ea649109832e2901746ef106e4439b",
-          "materialHash": "4ab7b06381fcdc79d2c305b2a70fe0815378c855e61bd8ed7901f779774bd093",
-          "storyFilesHash": "1390c8b1ddf61a63c999781087fad7c4d810b3ed7b3fd2206dd889b70f371031",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T04:13:14.362Z"
+          "note": "Re-run the immutable adversarial self-test pin after restoring its exact acceptance selector.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4eec10b9921bb8d3ba1afc68210fadb1e029fc7f8dc2501f84c0e68b763ac382",
+            "outputTail": "PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T04:16:20.526Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "358e1252c245f02d599507489462a863f5229368",
+          "materialHash": "fb3dac306fa139ba80e22ef35c7ab58d188778bbd8f97d85fc357a0f9985190c",
+          "storyFilesHash": "0ff310a1462638282afc1d636a8be3c21367f738c9e63f9c5207c690f0a37010",
+          "timestamp": "2026-08-31T04:16:20.692Z"
         }
       ]
     },
