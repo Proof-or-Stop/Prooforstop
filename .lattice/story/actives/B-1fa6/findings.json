@@ -465,6 +465,24 @@
       "resolvedAt": "2026-08-31T01:46:10.943Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1fa6:F-023",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:825-859,1134-1170,1292-1311,1625-1650,1946-1954,2064-2071,2393 [medium] F-021 is only partially closed because the comparison side of ProgressProjection has no immutable source. A renewal supplies projectionDigest and predecessorProjectionDigest, but the initial deferral explicitly has no progressEvidenceBindingDigest and FindingDeferralDisposition stores only a repository targetSnapshotDigest, which the document correctly says is freshness-only and never semantic progress. Since V1 permits exactly one low renewal, that initial row is necessarily the predecessor, yet it contains no kind-specific source/test/delivery/status projection baseline from which the verifier can derive predecessorProjectionDigest. A caller can therefore invent the baseline, or every unchanged-code positive fixture must rely on evidence not represented by the schema. Persist signed kind-specific baseline projection digests (or a target-authorized baseline artifact) with the initial deferral/route for the eligible progress kinds, bind them into dispositionHash/manifest/CAS, and test missing/tampered/wrong-kind baseline plus legitimate unchanged-code and no-op/regressive comparisons. Hash inequality alone must not define semantic progress.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-31T01:47:53.862Z",
+      "reviewRound": "2026-08-31T01:45:48.999Z",
+      "reviewRunId": "B-1fa6:RR-021",
+      "_hash": "13413e6d1bddb5b1d8cb82ddf3dab3ad333b9967fd47c26c2514e7d48e3ea0ab",
+      "files": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
