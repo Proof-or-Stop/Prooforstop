@@ -1031,69 +1031,6 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-007:happy:0",
-          "kind": "integration_test",
-          "file": "scripts/verify-global-lab-entrypoint.mjs",
-          "command": "node scripts/verify-global-lab-entrypoint.mjs",
-          "result": "pass",
-          "note": "Final CLI and Lab behavior passes with identity GREEN and offline package transcript.",
-          "headHash": "8bf9af0885251c834c50dcc00130a1f94a0d1b47",
-          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
-          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "a663ad2f3d87a7202fb441923a31bd3cad708e6f57fc142c7fe1ef11117ee04c",
-            "outputTail": "ok versions\nok lab-help\nok lab-create\nok core-without-lab\nglobal lab entrypoint verified\n",
-            "selectorMatched": true,
-            "executedAt": "2026-08-31T23:31:04.132Z",
-            "timeoutMs": 270000
-          },
-          "timestamp": "2026-08-31T23:31:37.980Z"
-        },
-        {
-          "intentRef": "CHK-007:edge:0",
-          "kind": "integration_test",
-          "file": "packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
-          "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
-          "result": "pass",
-          "note": "Canonical surfaces succeed while retired identities stay absent.",
-          "headHash": "8bf9af0885251c834c50dcc00130a1f94a0d1b47",
-          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
-          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
-            "outputTail": "proof-or-stop-only absence smoke passed\n",
-            "selectorMatched": true,
-            "executedAt": "2026-08-31T23:31:04.325Z",
-            "timeoutMs": 270000
-          },
-          "timestamp": "2026-08-31T23:31:37.980Z"
-        },
-        {
-          "intentRef": "CHK-007:adversarial:0",
-          "kind": "integration_test",
-          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
-          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
-          "result": "pass",
-          "note": "Residue and allowlist mutation suite is sensitive and non-vacuous.",
-          "headHash": "8bf9af0885251c834c50dcc00130a1f94a0d1b47",
-          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
-          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "4eec10b9921bb8d3ba1afc68210fadb1e029fc7f8dc2501f84c0e68b763ac382",
-            "outputTail": "PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted\n",
-            "selectorMatched": true,
-            "executedAt": "2026-08-31T23:29:24.014Z",
-            "timeoutMs": 270000
-          },
-          "timestamp": "2026-08-31T23:31:37.980Z"
-        },
-        {
           "intentRef": "CHK-007:pack-boundary-transcript:0",
           "kind": "manual_transcript",
           "verdict": "success",
@@ -1101,10 +1038,10 @@
           "command": "node scripts/verify-proof-or-stop-pack-boundary.mjs",
           "result": "pass",
           "note": "CLI-captured network-disabled four-tarball clean-install transcript supplements CHK-003:edge:0, CHK-003:adversarial:0, CHK-004:happy:0, CHK-004:adversarial:0, CHK-005:adversarial:0, CHK-007:happy:0, and CHK-007:edge:0 without changing their immutable pins.",
-          "headHash": "b8142d0822fca3f1f58a8115ad675b3962fde12d",
-          "materialHash": "85385bf65ea7c8ac68a9711e73c36d48bd5bce93d10d98c6f53f38e98514a799",
-          "storyFilesHash": "01b680a95b167ec139f87052b72f7cb731173fcd75d6f9baa5523382a14561ed",
-          "timestamp": "2026-08-31T14:29:40.900Z"
+          "headHash": "1d445dcab62fde11a6111a865e39b748ca1bd297",
+          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
+          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
+          "timestamp": "2026-08-31T23:35:10.011Z"
         }
       ]
     },
