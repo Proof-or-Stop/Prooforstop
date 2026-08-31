@@ -24999,6 +24999,47 @@
       "resolvedAt": "2026-08-31T14:11:26.622Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-465",
+      "desc": "dead-code: packages/main/src/core/story-aware-validation.ts:1054 exports `export const buildLptSchedule = buildValidationSchedule;` as a pure alias, but nothing imports or calls buildLptSchedule anywhere in the repo (checked src, tasks, scripts, docs, and all 13 barrel re-export shims that `export * from story-aware-validation.js`). buildValidationSchedule itself is used (3 files), so this is not a functional gap; it is an unreferenced alias export left over from the CHK-012 DYN-4 LPT-naming intent.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T22:53:35.851Z",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "reviewRunId": "B-45a0:RR-1168",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1f95baca1e9ea593521fd0c16a587b3cfe2f5090fad52b6c16438ed511fb20eb",
+      "files": [
+        "packages/main/src/core/story-aware-validation.ts"
+      ],
+      "signatureTag": "missing|ts|dead-code-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
