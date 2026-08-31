@@ -24911,6 +24911,38 @@
       ],
       "signatureTag": "acceptance-basis-and-pre-review-inverted-verdict-staleness",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-464",
+      "desc": "Wave 2 independent topology-critic re-verification for review-inventory epoch B-45a0:RI-110, bound to fresh RR-1137 (head a990f48, materialHash matching frozen cutoff 3e3daf6dfc97811211a29f1c8bb7d0129129fd65bc4553941ad0b1fbcbc24fe2). All four Wave-4 acceptance surfaces remain non-admissible, unchanged in substance from F-455/F-458: acceptance_basis reports status=invalid AT_SCOPE_BINDING_MISSING, evidentiary=false. acceptance_topology_check returns status=fail structuralPass=no with diagnostics AT_CLOSURE_FILES_STALE (producer/consumer closure changed after the PLAN basis was issued) and AT_SCOPE_BINDING_MISSING (basis semantic discovery digest mismatch, scope-contract digest mismatch, closure files hash mismatch, snapshot seal digest mismatch, storyFilesHash freshness mismatch); it self-reports Blocking:no Authority:diagnostic_only, consistent with its PLAN-structural-only scope, not a substitute for pre_review_check_read admissibility. pre_review_check_read returns FAIL code=PR_ARTIFACT_TAMPERED with the full code set PR_ARTIFACT_TAMPERED,PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE,PR_CUTOFF_UNBOUND; independently re-grepped the persisted pre-review-check.json (1989 lines, well-formed JSON) at current story state: \"status\": occurs 3 times (values complete, pass -- 2 distinct) and \"ok\" occurs 0 times anywhere in the file; this differs in raw occurrence count from the 4x/3-distinct figure F-452/457/461/463 report, because those findings were filed against different, earlier HEADs where the artifact had one additional nested transcript row -- the substantive verdict is unchanged: top-level fail, ok:true still 0 occurrences, same code list. acceptance_rollout_report_read and acceptance_rollout_check both report receipt=stale, quorum=full-3x2 (genuine full 3 rounds x 2 hosts codex-cli+claude-cli, not degraded 3x1), mode=enforce, blocking=true, codes=AR_REPORT_STALE. Same defect family as F-455/F-458; not a new independent finding, filed as a fresh terminal verdict on RR-1137 per REVIEW_INVENTORY_CRITIC_TERMINAL_MISSING requirement. review_inventory_finalize semantics unchanged from last wave (verified via prior review of its --help output): the finalize receipt certifies wave finding-inventory completeness only, not acceptance-surface admissibility; this finding correctly continues to gate TEST via canPassReviewGuard independent of this inventory epoch finalizing.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-31T12:59:42.611Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1137",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f799758e43bef1489d4fcad8775cfdddc1dea03e53ee41af94814410b69c904c",
+      "signatureTag": "independent-topology-critic-wave4-surfaces-not-admissible",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
