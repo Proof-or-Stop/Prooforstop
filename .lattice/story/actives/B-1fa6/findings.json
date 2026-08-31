@@ -738,6 +738,21 @@
       "_hash": "73c5842893cbe4662c7237903c2530f6b32da39b7d8d5afafae00b576d614f97",
       "signatureTag": "adversarial|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-036",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1069-1075,1828-1843,1877-1899,2149-2155,2466-2473 — HIGH: not_reproduced_under_current_witness is newly modeled as a current-evidence verdict that may be non-blocking, but the verifier-derived integrity state machine and its required controls release a prior missing/invalid high-critical assessment only for pre_existing_unaffected, out_of_scope, or duplicate. Thus the same fresh signed not-reproduced assessment can be non-blocking when clean-initial yet remain latched blocking after missing→fresh, unless a consumer invents an undocumented fourth release path; either outcome contradicts the derived/no-second-authority contract. Specify its owner/routing and strong-proof requirements, include it consistently in release/remain semantics and clean-initial/transition fixtures (or explicitly make it always blocking), and bind that choice in the registered state machine.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T08:56:21.723Z",
+      "reviewRound": "2026-08-31T08:47:53.205Z",
+      "reviewRunId": "B-1fa6:RR-045",
+      "_hash": "565455ef39bd46efb007a0688d6d5867e9bd87e683de38370c85dd3180776574",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
