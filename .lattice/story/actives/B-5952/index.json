@@ -1,0 +1,30 @@
+{
+  "storyId": "B-5952",
+  "name": "refresh-retired-authority-instrumentation-bound",
+  "title": "Refresh the retired-authority instrumentation bound for the current source inventory",
+  "description": "Current main reproducibly reports 804 dynamic binding graph builds while the retired-authority vocabulary smoke retains an absolute ceiling of 800. Restore a bounded, explicit performance budget without changing production behavior, rebuild generated output, and verify the targeted smoke.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-08-31T02:31:30.475Z",
+  "startedAt": "2026-08-31T02:31:30.475Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-31T02:31:30.921Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-926732d65bb5e74c324cbadbf4d314bc",
+      "agent": "main"
+    }
+  ]
+}
