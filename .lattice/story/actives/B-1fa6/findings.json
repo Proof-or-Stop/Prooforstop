@@ -1072,7 +1072,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:3375-3381 [high] F-047 remains partially unfixed in the final implementation acceptance: the normative release/non-mandatory rule again enumerates only pre_existing_unaffected, out_of_scope, and duplicate, omitting target-bound strong not_reproduced_under_current_witness. That permits an implementation to satisfy the final acceptance summary while latching this valid verdict into the temporary integrity/mandatory floor, contrary to the union, transition tests, and scorecard. Add the current-witness verdict with its strong target-bound proof/owner-route qualification here while preserving the separate rule that it cannot release a claimed-deferral or existing mandatory-repair lineage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T12:04:45.341Z",
@@ -1080,7 +1080,11 @@
       "reviewRunId": "B-1fa6:RR-049",
       "_hash": "9eb01fc0539370b1c1bd1afd51acc2189c70afa0877d592512dd2cf5879f4633",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 13ef26bf0e: Section 15 final acceptance explicitly includes target-bound strong not_reproduced_under_current_witness with live accepted owner/route and signed current negative witness/policy digests, while forbidding it from releasing claimed lineage or an existing mandatory-repair floor.",
+      "resolvedAt": "2026-08-31T12:16:29.927Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
