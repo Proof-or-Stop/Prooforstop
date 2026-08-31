@@ -307,6 +307,34 @@
         "scanEscalationReason": null
       },
       "_hash": "171ad63c770d7983a672be4b6022b0e8a8651c2edf7709a255c07bef4437cc20"
+    },
+    {
+      "id": "B-1fa6:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Targeted Round 8 quality/adversarial review found no blocker. The claimed-lineage reader now projects every raw materialHash mismatch to pending_re_attestation before status/severity/round, including matching storyFilesHash. Only current signed L4 gate evidence with unchanged Story files and a complete unaffected runtime/process-policy/route/canonical dependency set restores valid; partial, related, unknown, missing, stale, tampered, wrong-authority, replayed, or host-classified evidence remains blocking. The valid unrelated path requires re-attestation but does not force full re-review. Mandatory floor, exact CAS, progress baseline, and expiry-policy guarantees remain intact.",
+      "createdAt": "2026-08-31T02:06:29.849Z",
+      "reviewRound": "2026-08-31T02:03:25.834Z",
+      "reviewRunId": "B-1fa6:RR-024",
+      "envelopeId": "359b5c7ff5fe07e9bc581cacb8ac70684001e747af31affce1a3f882cb1e2269",
+      "writerSessionId": "sess-4ed888a39420e14a9f405b4705c262ef",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/step3-review-budget-breaker-handoff.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "93a17f11aed9482eaea32c12e3cc800b3027d0419ddb48c5e5cd8d29f3d79fa5"
     }
   ]
 }
