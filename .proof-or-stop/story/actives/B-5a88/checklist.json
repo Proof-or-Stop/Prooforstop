@@ -242,13 +242,20 @@
           "kind": "logic_test",
           "command": "node --input-type=module -e \"import assert from \\\"node:assert/strict\\\"; import { inspectManagedBlock, replaceManagedBlock } from \\\"/private/tmp/proof-or-stop-b5a88-marker-build/core/managed-markers.js\\\"; import { generateProfileSection } from \\\"/private/tmp/proof-or-stop-b5a88-marker-build/claude-md-sync.js\\\"; const legacy=\\\"before\\\\n<!-- lattice:start -->\\\\nold\\\\n<!-- lattice:end -->\\\\nafter\\\\n\\\"; const replacement=\\\"<!-- proof-or-stop:start -->\\\\nnew\\\\n<!-- proof-or-stop:end -->\\\"; assert.equal(inspectManagedBlock(legacy,\\\"document\\\").status,\\\"valid\\\"); assert.match(replaceManagedBlock(legacy,replacement,\\\"document\\\"),/<!-- proof-or-stop:start -->/); const profile=generateProfileSection(\\\"balanced\\\"); assert.match(profile,/<!-- proof-or-stop-profile:start -->/); assert.equal(inspectManagedBlock(profile,\\\"profile\\\").status,\\\"valid\\\"); console.log(\\\"CHK-002-MARKER-PASS\\\");\"",
           "result": "pass",
-          "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-002:happy:0 under RR-414.",
-          "headHash": "aa4f9e2461d4a7241faa3d6eed0a083712f5aa83",
+          "note": "Re-earn tool-executed receipt after verification_evidence_refresh_stale invalidated it; the pinned command's module paths were restored so the unmodified pinned verifier executes and prints its selector",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "55ec2d254458e7ae31ba549b6407877c1da890df0cb89b3838028c6c0c10a448",
+            "outputTail": "CHK-002-MARKER-PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T09:15:41.208Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "f1948fa603efd970a74c44c58ee9134383685a10",
           "materialHash": "db6bc28792c31834a0cd12aac3232c99df51b79995daf43300413d82bc272484",
           "storyFilesHash": "949a7107e9f1646cc032477d0119da869aec3f2d1374f8a9770b687785d10984",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T08:58:23.118Z"
+          "timestamp": "2026-08-31T09:15:41.423Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
