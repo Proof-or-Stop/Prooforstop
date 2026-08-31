@@ -1,0 +1,37 @@
+{
+  "storyId": "B-9a49",
+  "name": "implement-review-finding-triage-agent-contract",
+  "title": "Implement REVIEW Finding triage behavior across Agent prompts",
+  "description": "Implement the approved English REVIEW Finding triage proposal as an Agent-behavior projection of the authoritative Dynamic Finding System. Acceptance: all five active REVIEW lanes receive one identical triage contract in full-envelope and legacy-full-context assembly; non-REVIEW prompts do not receive it; Story Owner and implementer guidance stays bounded; declarative role metadata remains non-evidentiary; compatibility dismissal is described as a temporary, round-aware behavior rather than applicability proof; disproven, duplicate, and stale-or-not-reproduced outcomes remain distinct; in-flight reviewer envelopes are treated as stale and redispatched; English-only prompt and tracked documentation quality, digests, process-fact checks, and Codex adapter verification all pass. Use RED then GREEN: contract tests must fail before implementation and pass afterward.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-08-31T13:52:39.588Z",
+  "startedAt": "2026-08-31T13:52:39.588Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-31T13:52:40.142Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-42da50a7b313e0c331adc9e9398afebf",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-31T14:02:41.586Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-42da50a7b313e0c331adc9e9398afebf",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-9a49",
+    "branch": "story/B-9a49",
+    "createdAt": "2026-08-31T14:02:39.135Z"
+  }
+}

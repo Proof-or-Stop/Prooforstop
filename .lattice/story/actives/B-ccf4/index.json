@@ -1,0 +1,43 @@
+{
+  "storyId": "B-ccf4",
+  "name": "story-relevance-validation-tiers-plan",
+  "title": "Define the Story-relevance dynamic validation tiers execution plan",
+  "description": "Create a canonical execution plan for dynamically selecting Story-relevant fast and intermediate validation while retaining repository-full validation as the exhaustive safety boundary. The plan must define selection inputs, impact indexing, signed selection evidence, fail-closed escalation, CLI behavior, rollout stages, and measurable acceptance without implementing runtime changes.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "validation",
+    "story-relevance",
+    "impact-selection",
+    "fast-intermediate-full"
+  ],
+  "createdAt": "2026-08-31T19:18:54.522Z",
+  "startedAt": "2026-08-31T19:18:54.522Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-31T19:18:55.093Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-48892603cdada8970d1e5f2de229a8c2",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-31T19:21:59.104Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-48892603cdada8970d1e5f2de229a8c2",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-ccf4",
+    "branch": "story/B-ccf4",
+    "createdAt": "2026-08-31T19:21:56.301Z"
+  }
+}

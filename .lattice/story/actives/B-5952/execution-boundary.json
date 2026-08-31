@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5952",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "node bin/proof-or-stop.js *",
+    "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-5952",
+    "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset --hard *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Bounded validation-test repair only; Story metadata is written exclusively through Proof-or-Stop commands.",
+  "createdAt": "2026-08-31T02:34:16.490Z",
+  "updatedAt": "2026-08-31T02:34:16.490Z",
+  "_hash": "314e0bf48fb8a9e36cd6b27f0a87a7ddf1118adb80efc23707a62d37d1fd3dbf"
+}

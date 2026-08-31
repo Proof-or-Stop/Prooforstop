@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-5952",
+  "sourceText": "User instructed us to continue B-1fa6 until DONE, stated the work is only a document audit, and classified failures affecting REVIEW/TEST/DONE gates as non-deferrable. The mandatory validation then independently failed on main because the retired-authority dynamic binding budget was 800 while current main measured 804.",
+  "normalizedOutcome": "The baseline validation blocker is repaired in an independent Story, while B-1fa6 remains document-only and can continue to TEST.",
+  "acceptanceClaim": "At a committed B-5952 green HEAD, the rebuilt retired-authority vocabulary smoke exits 0 under a finite ceiling no greater than 850, and B-1fa6 Dynamic Finding document has no B-5952 diff.",
+  "keyRequirementIds": [
+    "REQ-BOUND-REPAIR",
+    "REQ-DOC-SCOPE"
+  ],
+  "requestHash": "sha256:1606f73dca94cd9996f90edfea53d10641dda73803fe9ea23df5698e3888991d",
+  "createdAt": "2026-08-31T02:44:34.866Z",
+  "updatedAt": "2026-08-31T02:44:34.866Z"
+}

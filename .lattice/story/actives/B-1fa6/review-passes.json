@@ -1,0 +1,161 @@
+{
+  "passes": [
+    {
+      "id": "B-1fa6:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Story-level concept review passed: the sole material document is additive and deletes or replaces no existing concept; full specification, related decisions, CLI-only corpus replay, named Finding outcomes, learning/source-lineage projections, code anchors, and lab package evidence were checked. All proposed schemas and commands are explicitly future/planned, so no promised-but-undelivered blocker was found.",
+      "createdAt": "2026-08-30T23:09:19.303Z",
+      "reviewRound": "2026-08-30T23:04:38.253Z",
+      "reviewRunId": "B-1fa6:RR-001",
+      "envelopeId": "98d11537143e12a5fc6d2feadfebe8552a3bf974e0a6b148fd0ad500d939708a",
+      "writerSessionId": "sess-aceb67c8237e5ab3d7c43b80a6db1bab",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1fa6/background.md",
+          ".lattice/story/actives/B-1fa6/checklist.json",
+          ".lattice/story/actives/B-1fa6/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/step3-review-budget-breaker-handoff.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "cd183fa2dd7be629ccc6d9f94175e70ee77c829e04c4069d488622e4490469fd"
+      },
+      "readDiagnostics": [],
+      "_hash": "ecfa0e836caba2f792fbbad7510ecfe139baca33dadb7e2eb0f7d03265641ac5"
+    },
+    {
+      "id": "B-1fa6:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Pure-docs review: 0 source-code exported symbols (12 regex hits were code-fence pseudo-symbols), 1 changed Markdown file read in full, and 8 related-document sections plus current Finding/gate/lab package anchors compared. The dated corpus, named Finding outcomes, lineage authority, freshness rules, historical/current caveats, three-Story dependency order, and @lattice/lab scope transition all reconcile; no blocker found.",
+      "createdAt": "2026-08-30T23:10:06.216Z",
+      "reviewRound": "2026-08-30T23:04:38.253Z",
+      "reviewRunId": "B-1fa6:RR-003",
+      "envelopeId": "d195c7d224899ca3ec74414a454595e76761f0dcf4331b7e91b8a83d8ca7eacf",
+      "writerSessionId": "sess-7445e232624ef93d0772babad60d0ccf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/step3-review-budget-breaker-handoff.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "798ad3d0b5bc1c476255e1ae04218d4231e8582ecf102e9e8e2b01d8bf6f48bf"
+    },
+    {
+      "id": "B-1fa6:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 40 must intents have 40 valid docs_check receipts, zero gaps and zero waivers; independently replayed the CLI corpus and named Finding evidence, then verified structure, fail-closed paths, rollback, dependencies, and lab scope transition.",
+      "createdAt": "2026-08-30T23:11:06.891Z",
+      "reviewRound": "2026-08-30T23:04:38.253Z",
+      "reviewRunId": "B-1fa6:RR-002",
+      "envelopeId": "4d0313b2896b46891bc12ea7fdc562accdca3c879b72a42e1c927e8d6139ceee",
+      "writerSessionId": "sess-596d26992c51349591fde2693027e348",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1fa6/background.md",
+          ".lattice/story/actives/B-1fa6/checklist.json",
+          ".lattice/story/actives/B-1fa6/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/step3-review-budget-breaker-handoff.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 8,
+          "tokenCount": null
+        },
+        "digest": "cd183fa2dd7be629ccc6d9f94175e70ee77c829e04c4069d488622e4490469fd"
+      },
+      "readDiagnostics": [],
+      "_hash": "49b1a9ba9dbc56bd5f402580cf56614de0888eb7bd29d0a838c501edd7407eff"
+    },
+    {
+      "id": "B-1fa6:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the complete Dynamic Finding execution plan, replayed the CLI-only corpus and named historical evidence, checked current Finding/gate/cluster/lock/package anchors, and audited component ownership, safe Story order, fail-closed semantics, rollout thresholds, rollback, and future-command labeling. No blocking quality or implementability defect found.",
+      "createdAt": "2026-08-30T23:15:51.529Z",
+      "reviewRound": "2026-08-30T23:04:38.253Z",
+      "reviewRunId": "B-1fa6:RR-004",
+      "envelopeId": "bd460e77221cd29d63ed4bb7b58760441e5cb8e47630adbe0fb08be06072c77f",
+      "writerSessionId": "sess-4ed888a39420e14a9f405b4705c262ef",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1fa6/background.md",
+          ".lattice/story/actives/B-1fa6/checklist.json",
+          ".lattice/story/actives/B-1fa6/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/step3-review-budget-breaker-handoff.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7bde67843c8c007853d4d76ccdf0975fa2173c1f4d47eafe6df92a034ff089ad"
+    }
+  ]
+}
