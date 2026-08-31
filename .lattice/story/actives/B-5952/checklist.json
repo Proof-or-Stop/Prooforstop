@@ -142,6 +142,26 @@
           "materialHash": "6c681470d49ab185e200c43d04da9ea6a777bbe8c074f2ec2410cb9570d66d1a",
           "storyFilesHash": "0a810d9ec23f5da95a914068afc3fb1a0ae6450c1f286365fd2487b0f25849aa",
           "timestamp": "2026-08-31T07:58:42.963Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Fresh deterministic second 804-build smoke receipt.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1c4c42527981ee85ff91881293f097280d74dbe635a3c06448f2fbdb2d83b635",
+            "outputTail": "retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T07:59:26.842Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "98159af8ea6b7600c1d706eaca15b305ed0a4a5b",
+          "materialHash": "6c681470d49ab185e200c43d04da9ea6a777bbe8c074f2ec2410cb9570d66d1a",
+          "storyFilesHash": "0a810d9ec23f5da95a914068afc3fb1a0ae6450c1f286365fd2487b0f25849aa",
+          "timestamp": "2026-08-31T07:59:27.001Z"
         }
       ]
     }
