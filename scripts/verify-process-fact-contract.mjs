@@ -1995,7 +1995,7 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-    'ecf5cfec2f6156d4d49fb18bc7fdd63a537adc2e4325d78b701b95b53421dcf6',
+    '96b246fba1b363f9388ee4c641aa4840497886c98d57636cdd3750e9a09da75b',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.

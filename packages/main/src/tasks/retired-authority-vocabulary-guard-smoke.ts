@@ -429,7 +429,15 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // digest moved solely because this algorithm fingerprints the whole enclosing file.
   // BOTH coupled copies of this digest (here and in
   // scripts/verify-process-fact-contract.mjs) were updated together.
-  ['packages/main/src/cli-engine.ts', 'ecf5cfec2f6156d4d49fb18bc7fdd63a537adc2e4325d78b701b95b53421dcf6'],
+  // B-5a88 F-502: repinned again after removing the now-dead
+  // PROOF_OR_STOP_BIN_NAMES import that the parse-tolerance fix left behind.
+  // Re-approval basis, checked before repinning rather than after: the diff is a
+  // SINGLE DELETED import specifier line. ZERO import()/require() calls, arguments,
+  // or path producers changed; the dynamic-load surface is still exactly
+  // `await import(`file://${initPath}`)` (line 814, same runCli anchor and cli-init
+  // initPath producer) and `await import('./dashboard.js')` (line 826). Both coupled
+  // copies of this digest were updated together.
+  ['packages/main/src/cli-engine.ts', '96b246fba1b363f9388ee4c641aa4840497886c98d57636cdd3750e9a09da75b'],
   ['packages/main/src/verifier/serve.ts', '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],

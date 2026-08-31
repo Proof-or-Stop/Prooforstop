@@ -34,7 +34,6 @@ import { getGuardFailureReason } from './core/machine.js';
 import {
   formatLatticeVersionLine,
   detectProofOrStopBrand,
-  PROOF_OR_STOP_BIN_NAMES,
 } from './core/lattice-brand.js';
 import { PROOF_OR_STOP_DIR } from './core/lattice-paths.js';
 import { renderChecklistDerivedLedger, CHECKLIST_DERIVED_HEADER } from './core/milestone-status.js';
