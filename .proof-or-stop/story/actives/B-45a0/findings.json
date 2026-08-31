@@ -24267,6 +24267,50 @@
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-448",
+      "desc": "Independent Wave-3 corroboration of B-45a0:F-433/F-437/F-439/F-440 at current head 2761e5f13b9f38cebd28158458508f81d98f2fe1 (own review_run_start RR-1106). Reproduced live, not from prompt text: acceptance_topology_check --storyId=B-45a0 --json returns status=fail structuralPass=false mode=observe blocking=false, diagnostics=[AT_ADAPTER_RESULT_DIGEST_MISMATCH, AT_CLOSURE_FILES_STALE]. pre_review_check_read --storyId=B-45a0 --json returns status=inconclusive ok=false mode=observe blocking=false codes=[PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED]. acceptance_rollout_report_read --storyId=B-45a0 --json and acceptance_rollout_check --storyId=B-45a0 --json both return ok=false status=fail mode=enforce blocking=true diagnostics=[AR_REPORT_STALE] receipt=stale, report.evaluationWindow dated 2026-07-23 (over a month stale vs current date 2026-08-31). acceptance_basis --storyId=B-45a0 --json shows receiptVerification.ok=false code=AT_ADAPTER_RESULT_DIGEST_MISMATCH with an explicit freshness-mismatch diagnostic. CLAUDE.md documents this exact chain under the section acceptance basis and pre_review_check ordering constraint (B-45a0 F-435/F-438): acceptance_basis_generate run after pre_review_check invalidates the artifact it just signed via PR_COVERAGE_BASIS_CHANGED plus PR_ARTIFACT_TAMPERED, and states recovery requires pre_review_check, which is allowedPhases DEV only, so a story that hits this in REVIEW cannot self-heal and must return to DEV. Mechanically confirmed pre_review_check is rejected in REVIEW phase right now (Allowed phases: DEV). The review-inventory epoch RI-108 saturation mechanism (Verified findings: 2, New verified findings: 0) is scoped only to findings raised inside this epochs own wave windows (F-446/F-447) per review-inventory.ts evaluateCurrentWave, and mechanically REFUSES out-of-window findingDispositions (REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID when I attempted to disposition F-431/432/433/435/437/439/440). That refusal is correct epoch-scoping behavior, but it means epoch saturation answers only did the four lanes find anything new in their own waves, not is the acceptance-topology/pre-review/rollout chain actually healthy. It is not: all four mandated gates fail live on a DEV-only-repairable defect. Verdict: a pass disposition on this epoch would be a false convergence; DEV-phase repair of the pre_review_check/acceptance_basis write-ordering desync and rollout-report regeneration is required before this story can honestly proceed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-31T05:29:18.677Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1106",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "CLAUDE.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4deb964ecdc7bed385748ab7ff672d031ea8496119319e0c3920c52d7d3782e3",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "CLAUDE.md"
+      ],
+      "signatureTag": "acceptance-rollout-and-topology-basis-restaling-from-review-churn",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
