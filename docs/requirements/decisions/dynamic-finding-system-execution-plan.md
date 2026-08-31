@@ -2537,10 +2537,12 @@ authoritative artifacts and cannot alter lifecycle output.
   and direct-status-mutation variants all block. Only a fresh strong
   non-applicable/duplicate/disproven superseding proof or complete repair closure
   releases them.
-- Fresh strongly proven `pre_existing_unaffected`, `out_of_scope`, or
-  `duplicate` remains outside the mandatory-repair floor and releases only a
-  temporary assessment-integrity floor; warn rollback reproduces the exact old
-  predicate.
+- Fresh strongly proven `pre_existing_unaffected`, `out_of_scope`, `duplicate`,
+  or target-bound strong `not_reproduced_under_current_witness` remains outside
+  the mandatory-repair floor and releases only a temporary assessment-integrity
+  floor. For the current-witness verdict, strong means its signed current
+  negative command/runtime witness and command-policy/witness digests plus a
+  live accepted owner/route; warn rollback reproduces the exact old predicate.
 - A Story 2 route receipt alone produces no gate delta. Story 1 accepts only the
   latest `finding_route` profile with exact ID/hash/source assessment proposal digest and
   binds that tuple into `FindingDeferralDisposition.dispositionHash` and the
@@ -2626,9 +2628,11 @@ authoritative artifacts and cannot alter lifecycle output.
   injected gate consumer that reads a candidate, standalone receipt, individual
   progress baseline, baseline set, or historical advisory directly as blocker,
   pass, or unblock evidence, or bypasses the shared predicate.
-- The integrated dependency fixture accepts only the delivery DAG and rejects
-  Story 3 importing Story 2/1 or Story 2 importing Story 1; Story 1 enforce
-  cannot waive a failed reverse-edge mutation.
+- The integrated dependency fixture accepts only `3B -> 3A`, `Story 2 -> 3A`,
+  and `Story 1 -> Story 2`/`3B`/`3A` APIs. It independently rejects `3A -> 3B`,
+  `3A -> Story 2`/`Story 1`, `3B -> Story 2`/`Story 1`, and `Story 2 -> 3B`/
+  `Story 1`; Story 1 enforce cannot waive any failed reverse- or cross-edge
+  mutation.
 - Assessment union fixtures reject every illegal verdict/payload combination,
   missing immutable FindingRef/version/dependency-bundle member, stale/expired
   freshness, and a current-witness verdict used as a freshness value. They prove
