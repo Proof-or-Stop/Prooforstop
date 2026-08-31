@@ -24575,6 +24575,41 @@
       ],
       "signatureTag": "missing|ts|independent-topology-critic",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-456",
+      "desc": "quality-cleanup: packages/main/src/handlers/verifier.ts:81 imports buildRevocationLedger from ../core/story-aware-validation.js but never uses it (symbol occurs exactly once, the import itself). Dead import, low risk, no acceptance/gate impact. Same defect family as B-45a0:F-451/F-454, still unrepaired pending a DEV window.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T12:02:29.441Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1125",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "070ec8e44536ed25f9c5d1274620a16388550fa0ce4b0ef832da008ab6005685",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
