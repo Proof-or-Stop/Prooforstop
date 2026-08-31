@@ -261,6 +261,37 @@
       },
       "readDiagnostics": [],
       "_hash": "d688f74605dad752b06450244a226e77583099f9ed70d0b3d56c1c9599096cb7"
+    },
+    {
+      "id": "B-5952:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: independently reread the current story/checklist artifacts, current head d412bdd1354e4eacb814f8174eda24ace30896e4 remains stable, evidence_inspect is fresh with staleRefs=0, proofstory_review_completeness_check reports PASS with 0 gaps, and CHK-001 still has 7 must intents covered by 7 passing mechanical evidence rows including guard-mutants, binding-scope-mutants-v2, and B5952_CAUSAL receipts. validate --json was attempted per prompt but remained owner-gated by the active story lease.",
+      "createdAt": "2026-08-31T08:44:24.044Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-022",
+      "envelopeId": "99a2669107b7faf9370dd969f1e0c3309d5ff44507e2169207048c8001a49716",
+      "writerSessionId": "sess-2f0c0618963446d2f37d4c68b98cd519",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Per the authoritative prompt I attempted validate --json, but it remained owner-gated by the active story lease; coverage re-attestation therefore used the current story_get/checklist_get/evidence_inspect/proofstory_review_completeness_check outputs plus the reread story artifacts."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fbb2895a3afcf86d19b16107df747341bc24e6189f681b8bb1960947338a9e76"
     }
   ]
 }
