@@ -1215,6 +1215,39 @@
         "scanEscalationReason": null
       },
       "_hash": "5a85f68063368e6558bb007df3a5621398ca04c8950c1809252a1a4a329cb7fe"
+    },
+    {
+      "id": "B-5952:RP-038",
+      "agent": "lattice-review-concept",
+      "note": "Round 14 independent concept review found no blocker. The integrated change preserves the finite dynamic-binding guard at ceiling 808 with absolute cap 850 and leaves no live-source residue of the retired inline 800 assertion. Repository-wide scans confirm canonical proof-or-stop.config.json discovery retains intentional read-both/legacy-fixture compatibility, and the historical @lattice/core mention is paired with implemented @proof-or-stop/core semantics. The remaining sh -lc probes are separate generated PreToolUse hook resolvers, not the caller-PATH-sensitive global-fallback heartbeat path changed here. No concept deletion/replacement is incomplete and no promised-but-undelivered behavior was introduced. The injected Wave-4 rollout text remains observe-only diagnostic context explicitly outside B-5952 scope, not a claimed Story PASS.",
+      "createdAt": "2026-08-31T22:04:12.608Z",
+      "reviewRound": "2026-08-31T21:58:54.586Z",
+      "reviewRunId": "B-5952:RR-056",
+      "envelopeId": "aa02736c1335fd0cbe5885aca8af6fed68be98d23ced9607cc3ebac2131e1046",
+      "writerSessionId": "sess-97d5302257fa7ce0c7007d8dde537a55",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "scripts/verify-core-package-rename.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ea4a8591a4d3b53d20de7b3faab1c4d1701d8f554fb4872196e564a7a0c652f9"
     }
   ]
 }
