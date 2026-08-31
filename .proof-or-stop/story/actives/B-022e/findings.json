@@ -522,7 +522,7 @@
       "desc": "append-only-residue-bypass: scripts/verify-proof-or-stop-identity-cutover.mjs:752 accepts any JSON object whose schemaVersion string matches, while isFrozenSurface/scanActiveResidue (lines 993-1060) exempts the entire release-ledger path. Thus a post-freeze suffix record carrying 'lattice'/LATTICE_* or missing required release fields still passes the cutover gate; only the old byte prefix is truly frozen. Validate appended rows against the real ledger schema/invariants and scan suffix bytes for retired identities, with UTF-8/JSONL/schema and legacy-token mutation controls.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-31T23:03:14.754Z",
@@ -570,7 +570,11 @@
         "packages/main/src/core/capability-release.ts"
       ],
       "signatureTag": "adversarial|mjs|append-residue-bypass",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by edc7596cfa: appended artifact and capability release rows are validated against real invariants and their retired identities are exact provenance-bound; malformed schema and retired-token mutations fail closed.",
+      "resolvedAt": "2026-08-31T23:37:26.261Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-023",
