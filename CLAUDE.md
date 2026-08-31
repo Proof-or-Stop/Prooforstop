@@ -1029,58 +1029,68 @@ proof-or-stop dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 impl
 
 ## Defect triage discipline
 
-When a defect surfaces during REVIEW or TEST, classify it before acting. Do not
-reflexively fix everything a reviewer reports.
+Fix major or acceptance-blocking defects on the spot. Record non-major, non-blocking
+defects with evidence and defer them. Never widen scope to chase all-green.
 
-### 1. Major or acceptance-blocking defects — fix now
+### Step 1 — classify before acting
 
-Any one of these qualifies:
+For every new defect found during development, first decide: is this a major risk to
+the current story, or does it block its acceptance? Do not start fixing before this
+question is answered. The reviewer's job is to find; the main agent's job is to triage.
 
-- Blocks this story's acceptance surface (an acceptance gate, a DONE gate, or any
-  `blocking: true` check in enforce mode)
-- critical / high severity with `evidenceState: verified`
-- Makes already-registered evidence false — e.g. a selector that cannot match the
-  real verdict, or a receipt claiming `pass` for a command that actually failed
-- Security, data corruption, or anything that would make a later story inherit a
-  wrong premise
+### Step 2 — fix in the current story
 
-Action: fix it, add the regression test, and `finding_resolve` with mechanical
-evidence (the command run and its actual output). No deferral.
+Mandatory when the defect is any of:
 
-### 2. Non-major defects outside this story's blocking path — record with evidence, then defer
+- critical / high severity
+- security, data integrity, or destructive-compatibility impact
+- blocks the current story's acceptance, REVIEW, TEST, or DONE
+- makes already-registered evidence false (a selector that cannot match the real
+  verdict, a receipt claiming `pass` for a command that failed) — this is the subtlest
+  case and the easiest to wave past
 
-Real and reproducible, but does not block this story's acceptance and is not in its
-scope contract.
+Action: fix, add the regression test, `finding_resolve` with mechanical evidence — the
+command run and its actual output, not a description of it.
 
-Action: **the deferral must leave evidence behind.** A verbal mention is not enough:
+### Step 3 — record and defer
 
-- `finding_add` with reproduction steps, blast radius, and why it is non-blocking, or
-- `story_create` for a follow-up, with the evidence linked, and
-- state in this story's resolution or summary that it is recorded and deferred
+Applies when the defect is medium / low **and** all of:
 
-Do **not** fix an out-of-scope, non-blocking defect just because it is convenient.
-That is exactly what rule 3 exists to prevent.
+- not a direct regression of the current acceptance scope
+- does not affect the user's core outcome
+- does not distort a lifecycle gate
 
-### 3. Never widen scope to chase all-green
+Action: preserve reproduction steps, evidence, blast radius, and a recommended fix.
+Record it in a finding / gap / backlog entry and name the follow-up story that owns it.
+Do not widen the current story's scope. Convenience is not a reason to fix out-of-scope
+work.
 
-Green is not the goal. Trustworthy evidence is the goal.
+### Step 4 — deferral must be traceable, and is reversible
 
-- Never make a check pass by changing its decision rule, widening an allowlist, or
-  adjusting acceptance inputs to accommodate your own change.
-  (B-45a0 case: adding files to `REPLAY_ADMISSION_NONEXECUTING_PATHS` looked like a
-  cheap way to make the replay admit. Measuring the actual diff showed the drift was
-  in `story-aware-validation.ts` — where `discoverValidationInventory` and
-  `compileValidationCatalog` live — i.e. producer-side drift, precisely what that
-  allowlist is designed to refuse. The correct action was re-running the campaign to
-  earn a fresh report.)
-- "A reviewer raised it" does not imply "it must be fixed now". The reviewer's job is
-  to find; the main agent's job is to triage.
-- Every out-of-scope fix is another material change: it can invalidate an open review
-  inventory epoch, re-stale acceptance surfaces, and force another review round.
-- If something genuinely should be fixed but belongs elsewhere, apply rule 2.
+A deferral decided verbally does not count. It needs a durable, followable record:
+`finding_add`, `gap_log`, or a follow-up `story_create` with the evidence linked, plus a
+line in this story's resolution or summary saying it was recorded and deferred.
+
+If later evidence shows the severity was underestimated, or the defect turns out to
+block acceptance after all, pull it back into the current story immediately. Step 3 is a
+classification, not a commitment.
+
+### Why rule 3 has teeth
+
+Green is not the goal; trustworthy evidence is. Never make a check pass by relaxing its
+decision rule, widening an allowlist, or bending acceptance inputs to fit your own change.
+
+B-45a0 case: adding files to `REPLAY_ADMISSION_NONEXECUTING_PATHS` looked like a cheap
+way to make the replay admission pass. Measuring the actual diff showed the drift was in
+`story-aware-validation.ts` — where `discoverValidationInventory` and
+`compileValidationCatalog` are defined — i.e. producer-side drift, precisely what that
+allowlist refuses by design. The honest fix was re-running the campaign for a fresh report.
+
+Every out-of-scope fix is also another material change: it can invalidate an open review
+inventory epoch, re-stale acceptance surfaces, and force another review round.
 
 One-line test: **if this defect goes unfixed, is this story's acceptance conclusion
-false?** Yes → rule 1. No → rule 2.
+false?** Yes → step 2. No → step 3.
 
 ## Debugging Contract
 
