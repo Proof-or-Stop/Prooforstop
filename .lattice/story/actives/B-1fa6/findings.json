@@ -299,6 +299,24 @@
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-016",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:946-1000,1039-1060,1296-1304,1492-1494 [high] Route authority regresses at the gate binding: the prose requires Story 1 to bind the exact Story 2 receipt hash, but FindingDeferralDisposition.target and FindingDispositionManifest store only routeReceiptId. Neither signed structure carries routeReceiptHash/expectedRouteReceiptHash, so a manifest apply cannot CAS-check the bytes that were verified against ID substitution, stale-chain resolution, or a concurrent revoke/supersede. Add the receipt hash to both signed deferral and manifest disposition and validate ID+hash+profile+source-assessment hash plus latest-chain freshness atomically. This independently corroborates open F-013.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T01:09:43.742Z",
+      "reviewRound": "2026-08-31T01:06:09.081Z",
+      "reviewRunId": "B-1fa6:RR-013",
+      "_hash": "1d92f9ac7200402c62df872ca3f01b1b08db57eb5e4170a7823ac28cb4ac5d8a",
+      "files": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
