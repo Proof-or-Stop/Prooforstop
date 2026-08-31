@@ -500,6 +500,37 @@
         "scanEscalationReason": null
       },
       "_hash": "5440f8547e906ff3e24f193b7c04ddaacb80a00c1410bce392a7aeecbaf6d462"
+    },
+    {
+      "id": "B-1fa6:RP-015",
+      "agent": "lattice-review-docs",
+      "note": "Incremental F-029 re-review passed: 0 exported code symbols (pure-doc diff); compared 8 affected contract sections covering the AssessmentIntegrityState schema, shared predicate input, verified-reader-only boundary, L4 PROCESS_FACT_LEVELS/COMMAND_POLICIES/registry contract, signer-verifier-reader and direct-consumer mutations, Story 1 tests, rollout, scorecard, risk, and merged-state acceptance. Commit 9946ab4881 closes the raw-assessment and missing-registry gaps without conflating assessment integrity with mandatory repair. Checklist reports 40/40 PASS evidence rows on the current material/story-files binding and zero stale rows.",
+      "createdAt": "2026-08-31T08:12:48.301Z",
+      "reviewRound": "2026-08-31T08:10:20.788Z",
+      "reviewRunId": "B-1fa6:RR-038",
+      "envelopeId": "d49eebc85cb43e0a410db2c1fca5a976fcd51792298d3e76e9b46e76c166414b",
+      "writerSessionId": "sess-c2df4439c037f335d3f14cecf82422b4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "ac47eeb63424b5b75f3c9dccbbc3105d5dbd1df01da47a563b8a5902699fd891"
     }
   ]
 }
