@@ -78,6 +78,14 @@ const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage
 // contract requires a deliberate semantic-test review, and `--write` baseline
 // refreshes cannot approve extra or contradictory reviewer instructions.
 const approvedReviewFindingTriageContractSha256 = '66c3b113d98c127db56b8b3315d91d5e05ab8eea8e94444ad1ac6820f7a6cce9';
+const ownerTriageImmutablePhrases = [
+  'not applicability',
+  'repair, or resolution proof',
+  'does not prove applicability, repair, or resolution',
+  'does not prove `out_of_scope`',
+  'is not mechanically enforced by prompt text alone',
+  'prompt text does not mechanically enforce this discipline',
+] as const;
 const frozenReviewerLegacyReconstructionDigests = {
   'lattice-review-behavior': '45efbfe90d7705408ed95f0111b2108b5e39fc9397aeb7d99eda600db2ea3fe0',
   'lattice-review-concept': '846023d241693435c995900e5869b13e838795718143f2fab14e7a8f7f23eb5d',
@@ -331,6 +339,11 @@ function assertOwnerAndImplementerTriageGuidance(): void {
     .filter(line => /REVIEW Finding handling|Bounded current-Story repair|Evidence-backed routing|Compatibility boundary and dismissal/.test(line));
   assert.deepEqual(claudeTriageLines, ownerTriageLines, 'Claude and Codex Story Owner guidance is byte-identical');
   assert.doesNotMatch(claudeTriageLines.join('\n'), /[\u3400-\u9fff]/u, 'the Claude Story Owner triage slice is English-only');
+  for (const [file, slice] of [['AGENTS.md', ownerTriageSlice], ['CLAUDE.md', claudeTriageLines.join('\n')]] as const) {
+    for (const phrase of ownerTriageImmutablePhrases) {
+      assert.ok(slice.includes(phrase), `${file} Owner triage slice retains immutable phrase: ${phrase}`);
+    }
+  }
 
   const implementerGuide = readFileSync(join(registry.root, 'lattice-implementer.md'), 'utf8');
   for (const phrase of [
