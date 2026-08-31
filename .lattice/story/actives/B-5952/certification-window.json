@@ -37,6 +37,18 @@
       "cancelledAt": "2026-08-31T13:24:31.071Z",
       "cancelReason": "DONE-required run failed while main changed twice during the admitted window; reset TEST anchor before one bounded retry",
       "_hash": "a1769172f146eea2853aa25301be60bb38f6175ac4f0f83bff8a2e8a8d5a7e91"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5952:CW-003",
+      "storyId": "B-5952",
+      "state": "BLOCKED",
+      "createdAt": "2026-08-31T19:41:34.340Z",
+      "updatedAt": "2026-08-31T19:41:34.340Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "d04c263b2b88e9a7b803b245ccb075e038042424c9d6993c0bdd4ac9a9b6ce09"
     }
   ],
   "receipts": [
