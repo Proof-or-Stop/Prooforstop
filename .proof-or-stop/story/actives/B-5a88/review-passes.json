@@ -23640,6 +23640,38 @@
       },
       "readDiagnostics": [],
       "_hash": "4d5233e2b040bdc6dea02f3d27fea4fde302141aff9df90af743f275ff9f3821"
+    },
+    {
+      "id": "B-5a88:RP-397",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-anchor pass for new REVIEW round after RI-094 finalize+consume; verified via git diff --stat c6335a4557..HEAD (my prior RP-394 pass point) that packages/, scripts/, bin/, .githooks/ are byte-identical (empty diff); only story-metadata/verifier-derived files changed (index.json, process-events.jsonl, process-metrics.json, review-inventory-epochs.json, acceptance-basis, acceptance-rollout-report). My prior concept-lane review already covered the concept-deletion scope including F-502 fix de8b75e0cb. No new source changes to review; no blocker.",
+      "createdAt": "2026-08-31T14:06:00.041Z",
+      "reviewRound": "2026-08-31T14:02:35.128Z",
+      "reviewRunId": "B-5a88:RR-970",
+      "envelopeId": "3d86286d9ba2338650b012dc420f9fb9e93aec0c1f60586f8a71e709c226699b",
+      "writerSessionId": "claude-b5a88-1788161424",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".githooks/pre-push",
+          "packages/main/src/core/cli-engine.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2e24258e7128f0e81cfb276f0dc0e580498956953e1943c39b16dd6031b0551b"
     }
   ]
 }
