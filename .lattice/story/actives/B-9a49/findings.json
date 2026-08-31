@@ -269,7 +269,7 @@
       "desc": "B-9a49:F-008 resolution evidence is contradicted by the current signed CLI reader (high): proof-or-stop pre_review_check_read --storyId=B-9a49 --json reports status=inconclusive, ok=false, executableEvidence=missing, authority=inadmissible, codes including PR_POSITIVE_EVIDENCE_MISSING/PR_MUTATION_EVIDENCE_MISSING/PR_TRANSCRIPT_MISSING, and only 40 evidenceRefs. The same five intents named in F-008 remain absent from evidenceRefs: CHK-002:happy:0, CHK-002:edge:2, CHK-002:adversarial:4, CHK-003:adversarial:no-dynamic-schema-expansion, and CHK-004:edge:english-only-slices. Therefore the resolution statement that tool-executed receipts were added for those five and all 45 required intents were mechanically covered is false; REVIEW entry in observe mode is not proof of that claim. Re-execute and bind those exact checks or revise the resolution truthfully. severity=high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T21:31:39.974Z",
@@ -277,7 +277,11 @@
       "reviewRunId": "B-9a49:RR-008",
       "_hash": "1d43610e05bffc827b0d8a08e16f900ead536cea8ee0508f4e1e9bc40089951c",
       "signatureTag": "missing|unknown|9a49-resolution-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed with append-only correction of the premature F-008 resolution claim. After the authorized intent replan and tool execution, the current signed pre_review_check contains evidenceRefs for all 45 must intents, including the five previously missing refs. Its overall observe-mode status remains inconclusive for separate acceptance-topology and registered-live-proof diagnostics, but the specific 40-of-45 contradiction identified by this finding no longer exists; CLI freshness reports no stale verification evidence.",
+      "resolvedAt": "2026-08-31T22:18:12.797Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
