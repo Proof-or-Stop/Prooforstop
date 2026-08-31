@@ -48,7 +48,7 @@
       "desc": "concept-cleanup: CLAUDE.md:783-784 still contains the exact superseded unbounded-scope rules: proactively fix discovered issues instead of saying out of scope, and repair cross-Story infrastructure bugs together instead of leaving them to a later Story. AGENTS.md:571-573 now says the opposite bounded current-Story/evidence-backed routing contract. Because CLAUDE.md is the active Claude host guide, the replacement is incomplete and host behavior diverges: Claude is still instructed to expand scope while Codex is instructed not to. This violates the cross-host Agent behavior outcome and the proposal current-scope boundary. severity=critical",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T20:44:29.840Z",
@@ -60,7 +60,11 @@
         "AGENTS.md"
       ],
       "signatureTag": "missing|md|concept-cleanup-claude",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 8baacb207e and 9dd098a003: CLAUDE.md now uses the same bounded current-Story repair, evidence-backed routing, fail-closed applicability, compatibility boundary, and non-mechanical-enforcement language as AGENTS.md. Current CHK-002 pinned source receipts pass.",
+      "resolvedAt": "2026-08-31T21:25:52.204Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-004",
