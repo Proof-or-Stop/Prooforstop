@@ -354,7 +354,7 @@
       "desc": "packages/main/src/tasks/prompt-registry-smoke.ts:124-210 adversarial coverage remains false-green (high): all 45 must intents now have unique current mechanical passing receipts, and the five F-008/F-009/F-013 recovery rows are genuinely logic intents whose pinned commands/selectors pass. But the receipt used for CHK-001 adversarial:2/3/4/5 and CHK-004 adversarial:test-weakening/semantic-collapse relies on 13 narrow phrase-shape regexes. An independent read-only probe against those exact committed patterns accepted 13/13 semantically equivalent prohibited paraphrases, including reviewer gap_log permission, dismissal proving out-of-scope, severity-driven scope, stale reviewRunId validity, reviewer repair/story_create/scope expansion, severity lowering, routed-is-resolved, evidence-free routing, prompt-controlled gates, disjoint-files pre_existing, and stale/unowned canonical duplicate. Therefore the matching selector receipt proves only the enumerated spellings, not the required inverse semantic classes. B-9a49:F-014 independently corroborates the same canonical root class; this lane does not treat that duplicate evidence as resolution. Replace phrase-shape matching with a bounded semantic representation or add robust paraphrase/inverse mutation coverage, then rerun and rebind the affected intent evidence.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-31T22:28:36.370Z",
@@ -365,7 +365,11 @@
         "packages/main/src/tasks/prompt-registry-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 21d9b2c9af7f9dadf8f3eb780719ae518b021baa and verified again at current HEAD. All 13 semantically equivalent paraphrases now cause the focused mutation harness to fail; all 45 must-intent records are mechanical passes with exitCode=0 and selectorMatched=true, 45 unique refs, and verification_evidence_refresh_stale reports no stale evidence.",
+      "resolvedAt": "2026-08-31T22:46:43.666Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
