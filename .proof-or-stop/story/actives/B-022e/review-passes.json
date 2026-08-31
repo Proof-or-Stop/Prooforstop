@@ -276,6 +276,38 @@
       },
       "readDiagnostics": [],
       "_hash": "2eaeabb33f377eccda965582a26293df1e7daea05085462255512a54b35ef006"
+    },
+    {
+      "id": "B-022e:RP-010",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Incremental concept re-sign after Prompt Envelope eligibility drift. Git diff from the F-012 metadata base to current HEAD contains only Proof-or-Stop story review metadata and no product/document drift. The incremental basis explicitly includes open F-012 as medium/adversarial and the previously deferred nonblocking F-002; neither blocks this story. The completed Round 5 product conclusion remains unchanged: canonical identity boundary, 163 exact rows, 92/45 zero-overlap boundary, residue, self-test, and packed install checks have no new affected files or contracts.",
+      "createdAt": "2026-08-31T05:46:31.775Z",
+      "reviewRound": "2026-08-31T05:21:14.709Z",
+      "reviewRunId": "B-022e:RR-027",
+      "envelopeId": "97e50bbdcbed37433f8e52629caf1a0e2d2363b16bc6179f03c437d7d7545bca",
+      "writerSessionId": "sess-c4e852e510a4581a8e47f00c9ff0ad50",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "17350d90813802d6a83f5a3f8ec434bcb7bfbae7d7cd8ff55d8e6f6f3f9bf218"
+      },
+      "readDiagnostics": [],
+      "_hash": "f55e963327fe3c0daf26e58837b0f6598c217ec46c683c40bb4484cbd8d40c76"
     }
   ]
 }
