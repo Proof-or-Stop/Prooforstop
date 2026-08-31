@@ -250,7 +250,7 @@
       "desc": "packages/main/src/tasks/prompt-registry-smoke.ts:121-163 quality-test-gap (medium): F-002 resolution is only partial. The semantic validator has inverse-permission regexes for gap_log/finding_dismiss, dismissal-as-out_of_scope, severity-alone scope, and stale reviewRunId reuse, but none for reviewer repair, story_create permission, unilateral Story expansion, or verdict-specific proof weakening. Appending each of these contradictions to the otherwise complete contract still passes the current required-phrase checks and matches no forbidden pattern: reviewer may repair implementation; reviewer may call story_create; reviewer may expand the Story to make checks green; pre_existing_unaffected may rely on file disjointness alone; duplicate may use an unsigned stale Finding with no live owner. This violates CHK-001 adversarial:2/3/4 and CHK-004 test-weakening/semantic-collapse, which require semantic validation to reject every inverse permission and under-evidenced verdict, not merely retain adjacent correct prose. severity=medium",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T21:31:24.273Z",
@@ -258,7 +258,11 @@
       "reviewRunId": "B-9a49:RR-008",
       "_hash": "aa3a00e53e2bed16823ee35bb078c6cbf75f7aa127312549295b9bcb22122009",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 2181a509601320bad2f7a10a254b2d1c404c3219 by expanding inverse semantic validation from four to thirteen mutations. The added probes specifically reject reviewer repair, story_create, global-green scope expansion, file-disjoint-only pre_existing, weakened verdict evidence, and unsigned, stale, or ownerless duplicate routing. The focused smoke and full verification matrix pass.",
+      "resolvedAt": "2026-08-31T22:18:11.367Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-013",
