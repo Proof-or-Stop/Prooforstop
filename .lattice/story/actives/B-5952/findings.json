@@ -374,6 +374,21 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5952:F-019",
+      "desc": ".lattice/story/actives/B-5952/checklist.json:415 — lifecycle-blocking high: this Story modifies packages/main/src/core/codex-adapter-checks.ts, but its unchanged narrative at line 6 does not arm storyRequiresCodexEvidence; an independent call at current HEAD returned required=false and summarizeCodexEvidence status=not-required, and process-events.jsonl contains no codex_adapter_verification. The adapter change can therefore reach REVIEW/DONE without the mandatory current verify_codex evidence, creating a lifecycle false-green. Update the Story boundary so adapter evidence is mechanically required, run node bin/proof-or-stop.js verify_codex under the bound Node v26 environment, and require a fresh passing event before re-review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T12:26:09.284Z",
+      "reviewRound": "2026-08-31T12:18:00.095Z",
+      "reviewRunId": "B-5952:RR-036",
+      "_hash": "283f1d207ecd1e4d5d6f8f9856a9aa7eeaf07c0c0991dbce78f7dd9bed461b31",
+      "signatureTag": "missing|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
