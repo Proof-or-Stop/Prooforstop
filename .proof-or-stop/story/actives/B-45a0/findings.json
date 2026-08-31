@@ -23962,7 +23962,7 @@
       "desc": "packages/main/src/core/story-aware-validation.ts:273-276,320: discoverValidationInventory reimplements the canonical/legacy config-file read-both fallback as a raw join()+existsSync ternary (canonicalPath/legacyPath/configPath at lines 273-276, repeated at line 320 for the source field) instead of reusing core/config.ts pickProjectConfigPath(dir), which already returns {path, filename, legacy} for exactly this canonical-first read-both lookup and is documented at config.ts:764-770 as the fix for the B-cdf6 F-065/F-061/F-068 regression shape (a deprecated literal embedded in a comparison). Both filenames remain supported today so this is not a correctness break, but it duplicates a hardened resolver in a codebase that has paid for this exact duplication pattern multiple times; a future rename or third config filename only needs pickProjectConfigPath updated, and this call site will silently drift. Recommend replacing the local ternary with pickProjectConfigPath(projectRoot).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T03:26:37.887Z",
@@ -23992,7 +23992,11 @@
         "packages/main/src/core/config.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a89e174746 and refined in 8d605caeba. discoverValidationInventory now resolves the config path through pickProjectConfigPath instead of a join()+existsSync ternary, and derives source by narrowing on the resolver's legacy boolean rather than comparing filenames, keeping the deprecated literal out of the decision. Verified: tsc --noEmit clean; discoverValidationInventory returns 112 commands with source=proof-or-stop.config.json unchanged. Confirmed independently by lattice-review-quality in RI-108 wave 1, which judged the legacy narrowing the correct construction.",
+      "resolvedAt": "2026-08-31T05:31:03.503Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-442",
