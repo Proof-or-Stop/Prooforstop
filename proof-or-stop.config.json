@@ -2096,6 +2096,62 @@
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
         "policySource": "explicit-dyn1-audit-v1"
+      },
+      {
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/graph",
+          "run",
+          "check"
+        ],
+        "timeoutMs": 290000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/cli-surface-smoke.js"
+        ],
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/command-ownership-contract.js"
+        ],
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-orphan-surface.mjs"
+        ],
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
       }
     ]
   },

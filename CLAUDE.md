@@ -315,6 +315,46 @@ curl -X POST $API/bridge/replay -d '[{"event":"MOVE","input":{"row":7,"col":7}}]
 # 或直接打开 Dashboard URL（.lattice-serve.json 里的 dashboard 字段）
 ```
 
+## Story 图谱（`proof-or-stop graph`）
+
+交互式 story + evidence 图谱，读本仓 story 状态、建全文索引、起 HTTP 服务、开浏览器。
+由 B-3e16 从独立仓 `proof-or-stop-graph` 迁入，行为与源仓一致（未重写 web shell）。
+
+```bash
+proof-or-stop graph                  # 默认端口 8731，自动开浏览器
+proof-or-stop graph --port=9000      # 显式端口
+proof-or-stop graph --no-open        # 不开浏览器
+proof-or-stop graph --json           # 只打印状态 JSON 并退出（不起服务）
+proof-or-stop graph --root=<dir>     # 指定仓库（默认从 cwd 向上找）
+```
+
+| Flag | 含义 |
+|---|---|
+| `--root=<dir>` | 要读的仓库（默认：从 cwd 向上找最近的 Proof-or-Stop 根） |
+| `--port=<n>` | HTTP 端口（默认 8731） |
+| `--no-open` | 不启动浏览器 |
+| `--json` | 打印状态 JSON 后退出，不起服务 |
+
+页面提供 d3 图谱视图、FTS5 全文搜索、单 story detail drawer、mermaid 相位流程图，以及
+timeline playback（含 MP4/GIF 导出，需 Chrome/Edge）。
+
+**worktree 优先级是关键**：从 PLAN 起 story 的实时产物在它自己的 linked worktree 里，主
+checkout 只留 INIT_CHECK 快照。只读主 checkout 会把所有在飞 story 都报成 INIT_CHECK。
+
+**不脏工作树**：Proof-or-Stop 的 DONE 门禁要求干净工作树，所以索引缓存放在用户 cache 目录
+（按仓库根路径的 sha256 分目录），不写任何文件进被检查的仓库——因此它**不需要**
+`runtime-artifact-registry` 条目（`serve` 需要，因为它往项目里写 `.lattice-serve.json`）。
+
+**代码位置**：`packages/graph`（子包），`packages/main` 只有一个 thin handler 调它的
+library surface（`createApp` / `startServer`）。`packages/graph/assets/` 是 gitignored 的
+build 产物（`app.html` 由 `scripts/build-web.mjs` 组装，vendor bundle 从 node_modules 复制），
+由 `npm --prefix packages/graph run build` 重新生成，**不入 git**。
+
+**Node 版本**：全文索引用 `node:sqlite`，要求 Node ≥ 22.5（`packages/graph` 是本仓第一个
+声明 `engines` 的包）。
+
+设计决策真相源：`docs/requirements/decisions/graph-command-migration.md`。
+
 ## 目录结构
 
 所有源码统一放在 `src/` 下。逻辑核心放 `core/`（平台无关），表现层放 `shells/`。
