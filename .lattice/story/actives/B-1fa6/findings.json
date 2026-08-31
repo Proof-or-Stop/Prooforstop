@@ -787,7 +787,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:2306-2308,2333-2337,2578-2580,2852-2854,2913-2917,3210 — MEDIUM: The revised authoritative DAG distinguishes Story 3A and 3B and requires 3B to import 3A only and Story 2 to import 3A, but the process-fact contract, required tests, and risk stop-rule still assert only the old umbrella Story 3 -> Story 2 -> Story 1 mutation graph. Those tests do not independently reject 3A importing 3B or Story 2 importing 3B (and do not state the allowed 3B->3A edge), so a cyclic or over-coupled milestone graph can pass the promised enforce prerequisite. Update every mechanical dependency fixture/acceptance statement to the same explicit 3A/3B/Story 2/Story 1 edge matrix and mutate each forbidden reverse edge independently.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T08:56:38.996Z",
@@ -795,7 +795,11 @@
       "reviewRunId": "B-1fa6:RR-045",
       "_hash": "638827f4e2c4cd6bd12cbd13f68d9b388f66f0e282615d297fac56b39ae0bf59",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 93ab5605b4: process-fact, required-test and risk contracts now use the explicit 3A/3B/Story 2/Story 1 allowed-edge matrix and independently mutate every forbidden reverse or cross-layer import before enforce.",
+      "resolvedAt": "2026-08-31T09:08:08.639Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-038",
