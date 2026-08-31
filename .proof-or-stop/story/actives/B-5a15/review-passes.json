@@ -12247,6 +12247,76 @@
       },
       "readDiagnostics": [],
       "_hash": "7afc4b6bfd1a8b67ab4857d6db664ce25d5500ff570d095213d43bec4e5e5797"
+    },
+    {
+      "id": "B-5a15:RP-250",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 53 intents refreshed at 2026-08-31T20:02 (51 must, 2 should, 0 must-gaps, 0 waivers). All 51 must intents have mechanical logic_test receipts with selectorMatched=true on node --test packages/main/tests/causal-evidence.test.mjs; materialHash 05209e97 and storyFilesHash 46deda78 match current REVIEW bindings (headHash-only drift 735f159 -> dee30f0 from story metadata after refresh). F-324 coverage is present: detectCertificationWindowMaterialDrift records the unrelated-materialHash advisory then still invalidates mutated official verifier/test identities (packages/main/src/core/certification-window.ts:818-841; causal-evidence.test.mjs:1366-1395 and F-318/F-320 handler tests; certification-window-smoke.ts:983-1021). Two should-priority Wave-4 rows CHK-004:happy:2/3 remain result=pass with non-mechanical stale-refresh receipts; the same pinned suite still executes acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check (F-247/F-249). No new must-coverage blocker.",
+      "createdAt": "2026-08-31T20:21:27.296Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-776",
+      "envelopeId": "e8491db004c1b7efbac50a60e5255c4c882f83295f1cc029237af3c542d3f431",
+      "writerSessionId": "sess-review-coverage-b5a15-bounce",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "62980635de96d0a07d4488b696532ce4d6b2b6c83de858f9887788228afea307"
+      },
+      "readDiagnostics": [],
+      "_hash": "277686bcbfc0abc3ed98a5093a24a763d15faf4d7cd13aa703fff7cec9e2eff3"
     }
   ]
 }
