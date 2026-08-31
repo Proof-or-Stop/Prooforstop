@@ -24,6 +24,8 @@ const {
   verifyCertificationWindow,
   CERTIFICATION_WINDOW_SCHEMA,
   PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY,
+  PRECERT_TEST_IDENTITY,
+  PRECERT_VERIFIER_IDENTITY,
   setReviewInventoryAdmitApisForTest,
 } = await import(
   pathToFileURL(join(distRoot, 'core/certification-window.js')).href,
@@ -1351,6 +1353,46 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
   const laterMaterial = detectCertificationWindowMaterialDrift(window, { materialHash: 'm3', storyFilesHash: 's1', headHash: 'h3', causalDecision: advisory });
   assert.equal(laterMaterial.drifted, true, 'an advisory bound to m2 must not bypass a later live m3 material change');
   assert.match(laterMaterial.reason, /causal advisory binding|materialHash/);
+
+  const officialUnsigned = {
+    ...unsignedWindow,
+    frozen: {
+      ...unsignedWindow.frozen,
+      verifierIdentity: PRECERT_VERIFIER_IDENTITY,
+      testIdentity: PRECERT_TEST_IDENTITY,
+    },
+  };
+  const officialWindow = { ...officialUnsigned, _hash: signCertificationWindow(officialUnsigned) };
+  const officialAdvisory = detectCertificationWindowMaterialDrift(officialWindow, {
+    materialHash: 'm2',
+    storyFilesHash: 's1',
+    headHash: 'h2',
+    verifierIdentity: PRECERT_VERIFIER_IDENTITY,
+    testIdentity: PRECERT_TEST_IDENTITY,
+    causalDecision: advisory,
+  });
+  assert.equal(officialAdvisory.drifted, false, 'matching official identities keep the unrelated-drift advisory');
+  assert.equal(officialAdvisory.advisory?.code, PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY);
+  const officialIdentityDrift = detectCertificationWindowMaterialDrift(officialWindow, {
+    materialHash: 'm2',
+    storyFilesHash: 's1',
+    headHash: 'h2',
+    verifierIdentity: 'mutated-verifier',
+    testIdentity: PRECERT_TEST_IDENTITY,
+    causalDecision: advisory,
+  });
+  assert.equal(officialIdentityDrift.drifted, true, 'unrelated-material advisory must not skip official identity invalidation');
+  assert.match(String(officialIdentityDrift.reason), /verifier identity/);
+  const officialTestIdentityDrift = detectCertificationWindowMaterialDrift(officialWindow, {
+    materialHash: 'm2',
+    storyFilesHash: 's1',
+    headHash: 'h2',
+    verifierIdentity: PRECERT_VERIFIER_IDENTITY,
+    testIdentity: 'mutated-test',
+    causalDecision: advisory,
+  });
+  assert.equal(officialTestIdentityDrift.drifted, true, 'unrelated-material advisory must not skip official test-identity invalidation');
+  assert.match(String(officialTestIdentityDrift.reason), /test identity/);
 
   const completedRerunNode = {
     id: 'source-node',
