@@ -22939,6 +22939,47 @@
       },
       "readDiagnostics": [],
       "_hash": "2f6d8693fd7266cda0db3f67736bddb097470670177c5a4aaace655534f162d7"
+    },
+    {
+      "id": "B-45a0:RP-477",
+      "agent": "lattice-review-concept",
+      "note": "Wave2/3 saturation re-confirm at HEAD 569eb00 (materialHash/storyFilesHash byte-identical to wave-1 RP-473, confirmed via review-runs.json). No new concept deletion/replacement residue found. Verified: (1) evidence-freshness.ts clean relocation of isStoryMetadataPath/isMaterialExcludedPath into material-path-policy.ts via re-export, zero stale refs to removed private helpers mergeBaseWithMain/changedStoryFilesBetween/objectIdsAtRef (objectIdsAtRef in story-aware-validation.ts is an unrelated module-private reimpl, not a residual ref); (2) EVIDENCE_COMMAND_TIMEOUT_CAP_MS bump 7_200_000->21_600_000 correctly reflected in CLAUDE.md line 837 (6h), no stale 2h/7_200_000 residue outside legitimate lattice.config.json npm-test-budget comments; (3) B-38b7 correctly labeled stale-zombie, zero refs in new decision docs, NAV.md points to new records without promoting B-38b7; (4) Wave4 acceptance chain (acceptance_topology_check/pre_review_check_read/acceptance_rollout_report_read/acceptance_rollout_check) intact and consistently named across command-catalog.ts and checklist CHK-014; (5) all new docs/CLI.md promises (--dynamic-mode enum, caseRegistryPath, LATTICE_VALIDATION_SHARD_ADAPTER, PROOF_OR_STOP_CASES/SENTINEL, ValidationShardReceipt, FI-1..FI-5) verified implemented in code, no promise-but-undelivered. Noted but not filed (quality-lane not concept-lane, no deletion involved): discoverValidationInventory in story-aware-validation.ts reimplements config-file read-both fallback via join()+existsSync ternary rather than reusing existing CONFIG_FILENAMES resolver from config.ts/brand-paths.ts -- confirmed via scripts/verify-lattice-residue.mjs BRAND_DECISION_CASES that join() construction (not startsWith/===) is explicitly not a gate-flagged decision site, and no concept was deleted (both config filenames still supported).",
+      "createdAt": "2026-08-31T03:11:04.558Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1076",
+      "envelopeId": "2d7416a9f37c64bc096d3c0a8266cef7eb45a98091b57856634b93e4a2979f49",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5a28a1108ed041d65a62484ee7648e94b18cb3a117807f1bdc276b58846e6fa8"
     }
   ]
 }
