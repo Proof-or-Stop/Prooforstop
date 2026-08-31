@@ -874,6 +874,40 @@
       },
       "readDiagnostics": [],
       "_hash": "3ee68a4090f41b96288a3529b9a630b3fecc5d49410e8eb30a23f8dd7284d90b"
+    },
+    {
+      "id": "B-2220:RP-025",
+      "agent": "lattice-review-docs",
+      "note": "Round 10 docs review passed: 1 changed symbol (rationaleDigest), 1 full related decision document compared, and no README/CLAUDE/docs symbol reference existed for that local constant. All 7 acceptance commands passed, including exact digest fbd665df...d11d52 and build-bound compiled smoke. The document states no planned/owned follow-up, preserves B-3434 acceptance, limits the historical proposal to byte identity, and requires evidence triggers plus a new human-approved story before reconsideration. No promised-but-undelivered current behavior was found.",
+      "createdAt": "2026-08-31T23:24:51.891Z",
+      "reviewRound": "2026-08-31T23:22:30.466Z",
+      "reviewRunId": "B-2220:RR-043",
+      "envelopeId": "bd1cf314eda06ed58a900261955a0d7399a329617e3283cb4d5b2b7ce9ec6235",
+      "writerSessionId": "sess-7fc94e97a39e2b2a191bbff5ca267c68",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "6d82dae2141abbf5a0b7c4e657ca0bcda05fc7292b4795dac1c606719cbeca56"
     }
   ]
 }
