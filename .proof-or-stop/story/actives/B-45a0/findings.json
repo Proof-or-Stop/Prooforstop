@@ -23677,6 +23677,41 @@
       ],
       "signatureTag": "missing|ts|edge-verificationevidence-claims",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-434",
+      "desc": "Independent re-verification of B-45a0:F-431/F-432/F-433 (concept round RR-1067, HEAD c0c9dc6). Confirmed genuinely honest: (1) the corrected resolvedReason text on F-428/F-429/F-430 accurately reflects current reality -- a fresh pre_review_check_read right now reproduces status=fail, ok=false, codes=[PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED], blocking=false (mode=observe), matching the resolution text verbatim; the other cited sub-claims (plannedActual=complete, executableEvidence=current, mutations=biting, transcript=related, authority=admissible) are also reproduced verbatim in the current pre_review_check_read output. (2) git reflog confirms the exact commit sequence the resolution cites: pre_review_check signed at 38fd3b206d, then acceptance_basis_generate reran twice at 5dee7587a8 and 5ce0fd05ed, then stall_resolution_set and REVIEW advance at 0e1c5a3991 -- the basis moved after the pass and was never re-certified, exactly as claimed. (3) git diff main -- packages/main/src/core/pre-review-check.ts and git status --short show the file is clean of any uncommitted residue from the reverted acceptanceCoverageBasisSemanticDigest fix attempt; the only diff vs main in this file is fully committed (ba1b6c6f47, an unrelated prior finding fix), and line 342 still does the raw basis.priorPlanBasisDigest !== input.planArtifact.basis.basisDigest comparison (no semantic-digest wiring), consistent with a clean revert that left the original root cause in place. (4) config confirms acceptanceTopologyGateMode is absent from lattice.config.json (only acceptanceRolloutGateMode=enforce is set), so the surface defaults to observe/non-blocking as claimed. HOWEVER: F-431 itself (my own prior finding) remains status=open, and F-432/F-433 (independently filed by lattice-review-quality and lattice-review-test-coverage this same round) restate the identical underlying gap from their own independent angles and are also still open -- none of the three have been resolved. The dispatching context for this round characterized F-431 as something already verified and accepted in a way that implied it was settled/closing; that is not accurate -- it is settled only in the sense that the resolution text is now honest, not in the sense that the underlying artifact desync is fixed or the finding is closed. Recommendation: do not treat this round as closing F-431/F-432/F-433. A real fix requires either (a) wiring issuePreReviewCheckArtifacts PR_COVERAGE_BASIS_CHANGED check to compare acceptanceCoverageBasisSemanticDigest instead of raw basisDigest (needs a persisted semantic digest field, correctly scoped out of this story per the source-fix revert), or (b) reissuing a fresh pre_review_check after the basis has settled, per DEV-only writer constraints. This finding is advisory documentation of independent verification; it does not add new severity beyond F-431/F-432/F-433 and should be read alongside them, not instead of them.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T02:49:10.593Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1067",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b7c1f0dd47c9e352e782b923f34d29d9205f711fc3e6e15587382c654a6cbab7",
+      "files": [
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|ts|independent-verification-45a0",
+      "signatureTagSource": "auto"
     }
   ]
 }
