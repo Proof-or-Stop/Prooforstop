@@ -798,6 +798,21 @@
       "_hash": "3761b5a1871ccd28ba53d35b96e3a6c5edd297aad204a20817eaab87caae1d80",
       "signatureTag": "adversarial|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-040",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1489-1512,1565-1573,2923-2936,3275-3277 — HIGH: LegacyFindingIdentityBinding is an authoritative signed migration record, but the ledger operation union has no append/bind-legacy-identity operation and migration calls it unreceipted commit metadata. That leaves its tuple→recordId mapping outside the stated atomic/idempotent/receipted mutation boundary, with no exact CAS or replay contract for two concurrent first reads/backfills; the mapping intended to prevent aliasing can itself fork into two authorities. Give it an explicit Story 3A ledger operation/receipt, idempotency key and tuple/hash CAS (while still excluding only FindingLedgerReceipt self-recursion), and add concurrent bind/collision/retry/crash fixtures.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T08:58:02.108Z",
+      "reviewRound": "2026-08-31T08:47:53.205Z",
+      "reviewRunId": "B-1fa6:RR-045",
+      "_hash": "5dfd0a0f7b6f912b41d9457fe5b3e06bc14368409ab9c3e53d074637aadfbe82",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
