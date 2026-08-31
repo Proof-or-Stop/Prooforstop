@@ -119,6 +119,37 @@
         "scanEscalationReason": null
       },
       "_hash": "d5541fdae522a7178c86afb06efb52b6ed2f889f8b68019be75b7ebbe1af7dcc"
+    },
+    {
+      "id": "B-5952:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified 7/7 must intents have mechanical pass evidence, freshness is current at head fc99ce352ce65be050a896a69d0bee544015aa8d with staleRefs=0, and I re-ran the smoke, v2 JSON scope mutation harness, and causal baseline map successfully.",
+      "createdAt": "2026-08-31T08:12:54.599Z",
+      "reviewRound": "2026-08-31T08:07:59.883Z",
+      "reviewRunId": "B-5952:RR-014",
+      "envelopeId": "f6303dcc137defac454b75b5e763ebe7d96053cf1ae9dca24d57758326daee73",
+      "writerSessionId": "sess-2f0c0618963446d2f37d4c68b98cd519",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "52efe509f0e8fc07cacafbfda6540610db02b49b81dd6d799149ec5423508583"
     }
   ]
 }
