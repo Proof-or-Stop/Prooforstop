@@ -361,7 +361,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1249-1280,1324-1328,1420-1429,1542-1565 [high] The lineage-first floor still requires a fresh applicable assessment. When the deferral-bound assessment becomes stale or missing after scope, storyFiles/material, or runtime drift, the claimed deferral simultaneously loses authority, but deferralLineageFloorBlocks can skip because its fresh-applicable precondition is false. A low or round-decayed medium Finding can then fall through to the old non-blocking predicate, contradicting the stated rule that every invalid claimed deferral enters the enforce floor. Define claimed lineage from durable ledger history, not the current assessment/caller; once a committed deferral exists, stale/missing/tampered assessment must project the lineage to missing/unknown and block until a fresh strongly proven non-applicable/disproven verdict or complete repair closure supersedes the obligation. Add low/decayed-medium fixtures for scope/material/runtime drift, a newly minted assessment that omits the old deferral, and no replacement assessment.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T01:30:49.948Z",
@@ -372,7 +372,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 0974481b67: claimed-deferral existence is now derived independently from immutable ledger and canonical chains; missing, stale, tampered or lineage-omitting replacement assessments and scope, story-files, material or runtime drift remain in the first floor until a signed strong non-applicable, duplicate or disproven release or complete repair closure.",
+      "resolvedAt": "2026-08-31T01:46:06.888Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-019",
