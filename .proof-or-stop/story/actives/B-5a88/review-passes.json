@@ -23343,6 +23343,32 @@
         "scanEscalationReason": null
       },
       "_hash": "c4edfea617f346b775aaeb5814349b230ff46e7e252d050a00cda5699438875c"
+    },
+    {
+      "id": "B-5a88:RP-388",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No concept residue: verified c750f287 is pure prose, 1eb607b8 uses stateDirCandidates() resolver (not raw literals) for read-both, writer stays canonical-only, new exports used only where declared, test asserts same tolerance.",
+      "createdAt": "2026-08-31T11:34:40.877Z",
+      "reviewRound": "2026-08-31T11:31:20.622Z",
+      "reviewRunId": "B-5a88:RR-958",
+      "envelopeId": "59cc12148836da32dca9e5dbbdabbe262ab89ff99a06c2b0fd2924ac0c2fc795",
+      "writerSessionId": "claude-b5a88-1788161424",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/audit-meta-store.ts",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "81bfc243f6719b1a67bd58f5122bbf2e06b408e5e1df4add2c5aeac41d2e0800"
     }
   ]
 }
