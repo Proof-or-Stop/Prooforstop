@@ -692,6 +692,42 @@
         "scanEscalationReason": null
       },
       "_hash": "1d2c0829e31cf8fd02209934b2a8bf78691cd786fcfdf39c373e6ae3799294ac"
+    },
+    {
+      "id": "B-5952:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: Round 10 incremental basis has no material code or intent changes; all 13 must intents retain one concrete mechanical PASS receipt at the current storyFilesHash, zero waivers, and stored routine validation reports trusted-story-metadata-descendant PASS with 13/13 covered. Required Codex adapter verification is present and passing; no blocker.",
+      "createdAt": "2026-08-31T13:34:40.018Z",
+      "reviewRound": "2026-08-31T13:28:41.780Z",
+      "reviewRunId": "B-5952:RR-041",
+      "envelopeId": "1a1e66b300acbef55e3278ddc605d52b92d86105f6eb6defc13e9f74053dc671",
+      "writerSessionId": "sess-5a9d6f6312e38038ade0f5019af795b7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/scope-contract.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/process-events.jsonl",
+          ".lattice/story/actives/B-5952/review-passes.json",
+          ".lattice/story/actives/B-5952/review-runs.json",
+          ".lattice/story/actives/B-5952/scope-check.json",
+          ".lattice/story/actives/B-5952/test-evidence.json",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e97bf36f4b615a0980c6db217f5d4036c13f2e8ee503bdf542bd63d1c5b5c213"
     }
   ]
 }
