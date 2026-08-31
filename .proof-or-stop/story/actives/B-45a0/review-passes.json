@@ -23988,6 +23988,30 @@
         "scanEscalationReason": null
       },
       "_hash": "9de8386a7c4d8fef8ae4fa514d1c77ff42e48061820f9f8e8ea43a7cd126c613"
+    },
+    {
+      "id": "B-45a0:RP-507",
+      "agent": "lattice-review-docs",
+      "note": "Verified fix a756969763: Rule 10 primary clause now attributes never a silent pass to Rule 3 (quote lives at line 1256 under Rule 3; Rule 9 is coverage-basis freshness, distinct). No self-contradiction remains, no other wrong-attribution survivors in doc/CLAUDE.md/AGENTS.md, buildRevocationLedger fully removed with no stale doc reference. Pass, no blocker.",
+      "createdAt": "2026-08-31T14:17:54.058Z",
+      "reviewRound": "2026-08-31T14:10:34.153Z",
+      "reviewRunId": "B-45a0:RR-1139",
+      "envelopeId": "3d2c77ec656a840fcd99a32e6f0032cbb2b6370e47d03be4ad925dce2ab7aee8",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9ded402271fae81f376d3c8a381c895d1bae6ceb34fc76f5857c24b5fd73f53a"
     }
   ]
 }
