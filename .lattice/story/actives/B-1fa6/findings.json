@@ -515,7 +515,7 @@
       "desc": "Process-fact enforcement does not mechanically preserve the new baseline artifacts' declared non-gate boundary. FindingRouteReceipt encodes evidenceAuthority.gateEvidence=false (lines 734-741), but InitialProgressBaseline and InitialProgressBaselineSet expose signed target-authorized artifacts without an equivalent non-gate authority marker (lines 830-886). More importantly, the required registry/command-policy/phase-allowlist mutation suite only injects direct consumers of CandidateRoute, standalone FindingRouteReceipt, and historical advisory/candidate data (lines 1998-2002; repeated at 2324-2326 and 2441-2444), omitting InitialProgressBaseline/InitialProgressBaselineSet. Therefore an implementation could register a lifecycle gate that consumes a standalone baseline/set directly even though the prose and scorecard assert zero standalone gate delta. Add explicit baseline/set non-gate authority to the artifact contract and mutation fixtures that fail every direct baseline/baseline-set gate consumer; preserve Story 1 as the sole L4 consumer through exact final receipt+baseline CAS and the shared predicate.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T02:06:29.210Z",
@@ -562,7 +562,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "non-gate-artifact-authority-leak",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by cc5c996b61: every InitialProgressBaseline entry and InitialProgressBaselineSet now signs and hashes evidenceAuthority profile progress_baseline, target_route_semantic_only and gateEvidence false; registry, command-policy and phase-allowlist mutation tests reject direct blocker, pass or unblock consumption, marker removal or profile impersonation, leaving only Story 1 exact-CAS-derived signed L4 state gate-eligible.",
+      "resolvedAt": "2026-08-31T02:11:52.107Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
