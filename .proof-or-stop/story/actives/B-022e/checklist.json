@@ -1084,6 +1084,27 @@
           "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
           "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
           "timestamp": "2026-08-31T23:35:40.218Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
+          "result": "pass",
+          "note": "Mutation suite proves the active-residue and exact frozen-evidence boundary fails closed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4eec10b9921bb8d3ba1afc68210fadb1e029fc7f8dc2501f84c0e68b763ac382",
+            "outputTail": "PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T23:35:51.192Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "0d392f1aed7da64cb46a332c7aeca5144ec48489",
+          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
+          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
+          "timestamp": "2026-08-31T23:35:51.337Z"
         }
       ]
     },
