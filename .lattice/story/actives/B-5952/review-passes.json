@@ -415,6 +415,37 @@
       },
       "readDiagnostics": [],
       "_hash": "788fdb51230033e38461c09d8b48661f24d067c561a7f43dbd9849c8dfad8b7d"
+    },
+    {
+      "id": "B-5952:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: final clean-round scoped re-review at head 2a12ff4c3bf5dbb17eb05d36eaad5e6745dd058b confirmed CHK-001 still has 7 must intents covered by 7 passing mechanical evidence rows, evidence_inspect is fresh with staleRefs=0, and proofstory_review_completeness_check reports PASS with 0 gaps. Per the higher-priority user constraint I reviewed only the B-5952 baseline-repair task context and enforced scope, and did not convert unrelated observe-only/nonblocking Wave-4 diagnostic readers on excluded paths into a B-5952 finding.",
+      "createdAt": "2026-08-31T08:57:33.158Z",
+      "reviewRound": "2026-08-31T08:55:38.265Z",
+      "reviewRunId": "B-5952:RR-030",
+      "envelopeId": "4bdc18b096a45a1a4eda3b8c155317be465033788dccb55ad269f690437209f8",
+      "writerSessionId": "sess-2f0c0618963446d2f37d4c68b98cd519",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7f43d138fd60fe9edf24ce9e76fe9522db4f6fbe9153dd887a831d05574ed054"
     }
   ]
 }
