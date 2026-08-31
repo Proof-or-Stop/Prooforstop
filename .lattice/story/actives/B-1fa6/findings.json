@@ -711,7 +711,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:2457-2464,2518-2521 — HIGH: Story 1 Required tests twice call a seven-value subset the exact required-assessment set, omitting re_attestation_required and expired, while REQUIRED_ASSESSMENT_INVALID and the scorecard define nine states. This contradictory acceptance contract can ship without testing two fail-closed states. Both exact lists and the projection statement must reference all nine canonical states.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T08:55:12.160Z",
@@ -719,7 +719,11 @@
       "reviewRunId": "B-1fa6:RR-043",
       "_hash": "808ebba5883810058a6ee01425a8a1a11815226d387393cf8d3fc677bff3521f",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 93ab5605b4: the three stale seven-state lists were replaced with the exact nine-state REQUIRED_ASSESSMENT_INVALID set and the projection/test contract explicitly covers re_attestation_required and expired.",
+      "resolvedAt": "2026-08-31T09:08:04.047Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-034",
