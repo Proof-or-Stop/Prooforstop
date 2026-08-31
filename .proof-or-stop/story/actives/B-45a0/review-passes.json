@@ -23676,6 +23676,37 @@
         "scanEscalationReason": null
       },
       "_hash": "73ff856897753cd25d06f9d44a2ad9e581bb75442b14e1a7daeb8a5a6ce44486"
+    },
+    {
+      "id": "B-45a0:RP-497",
+      "agent": "lattice-review-docs",
+      "note": "Focused re-pass on 2 new doc changes since last pass (per dispatch): (1) docs/CLI.md PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER claim verified against packages/main/src/handlers/story-aware-validation.ts:620-621 (canonical-first, LATTICE_ fallback, matches F-447 comment) and lattice.config.json/proof-or-stop.config.json:171/787 (producer declares canonical name; F-449 both configs match byte-identical at both sites). (2) CLAUDE.md and AGENTS.md 'Defect triage discipline' sections (65 lines each) diffed byte-identical. Worked example verified: REPLAY_ADMISSION_NONEXECUTING_PATHS exists in packages/main/src/core/historical-replay-artifact.ts:23, discoverValidationInventory and compileValidationCatalog are both defined in packages/main/src/core/story-aware-validation.ts:272,400 (not in the allowlist), matching the doc's producer-side-drift claim. Also spot-checked unflagged CLAUDE.md hunk: EVIDENCE_COMMAND_TIMEOUT_CAP_MS doc value 21_600_000 matches packages/main/src/core/validation-executor.ts:140. Spot-checked docs/CLI.md new DYN-5 section (dynamicMode enum off/observe/shadow/enforce-low-risk, PROOF_OR_STOP_CASES/PROOF_OR_STOP_SENTINEL markers, ValidationShardReceipt type) against command-catalog.ts:2082 and story-aware-validation-case-adapter.mjs:96-97 -- all match. NAV.md 4 new decision-doc links all resolve to existing files. No re-file of already-resolved F-435/F-438/F-445. No new inconsistencies found.",
+      "createdAt": "2026-08-31T11:00:00.507Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1111",
+      "envelopeId": "3710292736531f558c9651a2300de5782ec4ce4ffb274a9ecb9eb4ee8fe2057b",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/NAV.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "3cfe3f0ef42797779fd7e80f1873b0ecb1a559c6dcf6acc23739f8cf910d4ab4"
     }
   ]
 }
