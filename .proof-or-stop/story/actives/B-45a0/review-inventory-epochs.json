@@ -17244,6 +17244,49 @@
       "findingDispositions": [],
       "createdAt": "2026-08-31T05:29:32.432Z",
       "_hash": "08530f84c11c17ca58198b4493a08bcb355a88485f41bda615cddbcb63d6d314"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-109:CRIT-01",
+      "epochId": "B-45a0:RI-109",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "ee5b2fb6be2e4ed45b9661a56d37b52e114af7db",
+        "materialHash": "3e3daf6dfc97811211a29f1c8bb7d0129129fd65bc4553941ad0b1fbcbc24fe2",
+        "storyFilesHash": "aa02af10ad99dad2c2bf2d61d11a0f74682bb5fd99c9000781e908196ec5c0c4"
+      },
+      "aggregateFindingSetDigest": "a85a4d589815850b56415a05da26625bbabce1d9076f75dc8cbd3fb794fb3417",
+      "requiredLaneCoverageDigest": "669ed3338fa026f4fdff15f64b7594df18f28369cb1c1a3dacb3846bd968c020",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-1121",
+      "terminalEvidenceIds": [
+        "B-45a0:F-455"
+      ],
+      "readEvidenceDigest": "75217c6644831bc690d3662a8035bb80597dcd89179dd8150004ffdc87171e45",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-452",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-basis-and-pre-review-inverted-verdict-staleness",
+          "reason": "Independently reproduced. pre_review_check_read top-level reports status=fail ok=false codes=[PR_ARTIFACT_TAMPERED,PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE,PR_CUTOFF_UNBOUND] while the embedded nested artifact self-reports status=pass codes=[]; grep -c of the quoted status key on the pinned command output returns 4 occurrences with 3 distinct values (top fail, two nested transcript complete, embedded pass) and 0 occurrences of the ok:true form. This inverts CHK-014:edge:0 stated intent to record explicit blockers rather than silently pass. High severity and directly blocks Wave 4 acceptance authority for this story (CHK-014), an acceptance-blocking defect per defect-triage rule 2, duplicating the still-open B-45a0:F-437 from a prior round. Same underlying acceptance-basis staleness independently reproduced via acceptance_basis (status=invalid, receiptVerification.ok=false, code=AT_SCOPE_BINDING_MISSING, receipt bound to stale PLAN-phase headHash=4448ecbf0d427710504c01b0b79a45b90c8eab14 rather than current HEAD 38cae53fc4f8d7f255c46de5183418adac116353) and acceptance_topology_check (status=fail, structuralPass=false, AT_CLOSURE_FILES_STALE plus AT_SCOPE_BINDING_MISSING), and acceptance_rollout_report_read and acceptance_rollout_check (both ok=false status=fail mode=enforce blocking=true diagnostics=[AR_REPORT_STALE], embedded report bound to an unrelated older campaign headHash=f101e24c164544f7e70653b0fd20908f166fc103 for stories B-cb0x and B-cc0x). Requires DEV-phase re-pin and regeneration of the acceptance basis at current HEAD; cannot be dismissed advisory."
+        },
+        {
+          "findingId": "B-45a0:F-453",
+          "disposition": "verified_family",
+          "familyKey": "docs-self-contradictory-rule-attribution",
+          "reason": "Independently confirmed the described self-contradiction in Section 9 Rule 10 of docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md: attributes the never-a-silent-pass quote to Rule 9 then immediately corrects to Rule 3 in the same clause, rather than substituting the correction into the primary attribution. Low severity, prose-only defect (docs lane already verified code citations are accurate), not acceptance-blocking. Defer to follow-up story per defect-triage rule 3; record repro pointer here."
+        },
+        {
+          "findingId": "B-45a0:F-454",
+          "disposition": "verified_family",
+          "familyKey": "quality-unused-import-buildRevocationLedger",
+          "reason": "Independently confirmed: packages/main/src/handlers/verifier.ts:81 imports buildRevocationLedger and grep -c shows exactly 1 occurrence (the import), no call sites. This is the same underlying defect and familyKey as the still-open B-45a0:F-451 from earlier in this review round (duplicate content, distinct finding id); canonicalFindingId could not be set to F-451 because F-451 falls outside this wave's disposition-eligible finding set, so family linkage is recorded via familyKey instead. Low severity, not an acceptance blocker for this story per defect-triage rule 3; fixing it mid-epoch would touch source and invalidate the frozen RI-109 cutoff. Defer to a follow-up story."
+        }
+      ],
+      "createdAt": "2026-08-31T11:54:39.636Z",
+      "_hash": "ed70fccf0199fd2dd5f1e5a4f884279880dfc6cd11b92c5a02f72561d1b3d092"
     }
   ]
 }
