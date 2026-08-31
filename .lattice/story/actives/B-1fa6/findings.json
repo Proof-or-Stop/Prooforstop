@@ -427,6 +427,24 @@
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-022",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:2113-2145 — HIGH: section 11 requires a checked-in finding_rollout_scorecard --json procedure whose computed thresholds authorize warn -> enforce, but none of the three future Story Deliverables/Required tests explicitly owns that command or tests its report computation. The implementation Stories can therefore all pass while the procedure is absent, miscounts numerator/denominator, omits HEAD/window/retry/exclusion metadata, parses protected storage, or promotes on incomplete/tampered events. Assign the scorecard to a Story (normally Story 1) and require deterministic fixture tests for every table row, exact numerator/denominator and threshold/rollback decision, required report metadata, CLI/read-only data boundary, missing/tampered evidence refusal, and enforce-entry refusal when any safety threshold or merged-state prerequisite is unmet.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T01:32:34.472Z",
+      "reviewRound": "2026-08-31T01:27:13.637Z",
+      "reviewRunId": "B-1fa6:RR-019",
+      "_hash": "26288e9e156d5195212814510237fd08fe735382d5f10b113fcec9164d73d147",
+      "files": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "doc-promise-undelivered|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
