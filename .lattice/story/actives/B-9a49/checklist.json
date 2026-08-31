@@ -304,6 +304,104 @@
           "scripts/verify-process-fact-contract.mjs",
           "scripts/verify-runtime-fact-contract.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:red-green-same-contract",
+            "desc": "Run the focused prompt-delivery contract test before implementation and capture a genuine RED caused by the missing REVIEW triage contract, then run the same assertions after implementation and capture GREEN; the RED and GREEN records must identify the command, relevant failing or passing assertion, source revision, and ordering so a harness syntax error, missing build artifact, or post-hoc weakened assertion cannot count.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:happy:delivery-matrix",
+            "desc": "From freshly built source, assemble all five active REVIEW lanes in both full-envelope and legacy-full-context modes and prove each selected body contains exactly one canonical triage contract, while an exhaustive registry-driven set of active non-REVIEW, compatibility, and retired roles contains none; include at least one mixed rollout configuration to prove per-role selection does not alter delivery.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:happy:digest-baselines",
+            "desc": "Regenerate prompt and role measurements from canonical assembled outputs, review the baseline diff, and make the prompt baseline verifier pass with every moved template, selected-body, semantic, render, and host-render digest attributable to an intentional changed surface; frozen reviewer legacy-body pins must remain unchanged when their legacy source bytes did not change.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:happy:release-verification",
+            "desc": "Run the focused prompt registry, full-context envelope, and prompt contract measurement smokes, both process-fact and runtime-fact contract verifiers, the prompt baseline verifier, the package type or build validation, and the story-bound local adapter command node bin/proof-or-stop.js verify_codex --storyId=B-9a49; all commands must pass against the same final committed source.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:english-only-slices",
+            "desc": "Extract the newly added canonical REVIEW contract, Story Owner guidance, implementer escalation guidance, compatibility note, and redispatch guidance and prove those new public or Agent-facing slices are English-only, allowing code identifiers and command syntax but rejecting accidental Chinese prose or encoded HTML artifacts; do not falsely require pre-existing unrelated repository documentation to be English.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:edge:compatibility-and-outcomes",
+            "desc": "Verify the published wording describes finding_dismiss only as a temporary current round or profile compatibility path and never as applicability proof, repair, resolution, or a mechanically enforced prohibition; independently assert that disproven, duplicate, and stale_or_not_reproduced retain three distinct meanings, evidence requirements, and routing effects.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:edge:inflight-envelope-redispatch",
+            "desc": "Create or inspect a reviewer Prompt Envelope bound to the pre-change selected body, then change the REVIEW contract digest and prove the old envelope or run is not silently rebound or reused; operator guidance must require a fresh review_run_start and redispatch of the newly selected prompt before new finding_add or review_pass_set evidence is accepted.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:edge:pin-diff-allowlist",
+            "desc": "Compare regenerated approved digests with the checked-in baseline and prove unrelated roles and unchanged legacy reviewer bodies retain their prior digests; every unexpected digest movement, role-count movement, duplicate row, missing role, or host-mode omission must fail instead of being accepted by a blanket repin.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:edge:version-and-local-artifacts",
+            "desc": "Verify the required CLI patch version is synchronized across root and package manifests, lockfiles, and the branded version constant, the package build regenerates local dist from the changed source, and the local built CLI reports the expected new version before verify_codex is accepted.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:false-red",
+            "desc": "Force a failing test through a stale dist tree, bad import, malformed fixture, environment failure, or unrelated baseline mismatch and prove it is rejected as RED evidence; the accepted RED must fail specifically because the pre-implementation assembled REVIEW prompt lacks the newly required contract behavior.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:adversarial:test-weakening",
+            "desc": "Remove, skip, invert, or weaken an assertion between RED and GREEN, or update expected text to whatever the implementation emits, and prove review rejects the result; GREEN must come from production prompt and contract changes plus deliberate reviewed pins, not from disabling the original failing requirement.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:adversarial:delivery-leak-or-duplication",
+            "desc": "Inject the contract through a broad common policy, append it in both a template and resolver, or key delivery by a name substring; prove tests fail on leakage into any non-REVIEW role, two copies in a REVIEW prompt, omission from one of the five lanes, or divergence between the two supported envelope modes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:adversarial:semantic-collapse",
+            "desc": "Change compatibility wording so dismissal appears to prove out-of-scope status, collapse disproven, duplicate, and stale_or_not_reproduced into a generic deferred or closed outcome, or omit current evidence and owner requirements; prove the focused semantic contract test fails even when all digest pins are refreshed.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:adversarial:stale-envelope-replay",
+            "desc": "Replay an old in-flight reviewer prompt, envelope, reviewRunId, pass, or Finding write after the selected REVIEW body or host-render digest changes and prove it cannot gain current evidence authority; deleting the redispatch warning, accepting the old binding, or claiming that prose refreshes it must fail.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "CHK-004:adversarial:authority-boundary-and-local-cli",
+            "desc": "Attempt to make requiredCheckIds, prompt text, a passing baseline verifier, or verify_codex output substitute for signed lifecycle evidence, or run verification only through a stale global binary; process-fact and runtime-fact checks plus the local build must prove prompt metadata remains non-evidentiary and final adapter verification exercised the committed local implementation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
