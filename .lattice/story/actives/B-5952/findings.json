@@ -203,7 +203,7 @@
       "desc": ".lattice/story/actives/B-5952/findings.json:161-179 [high] F-007 is marked resolved/fixed with resolveEvidenceStrength=strong, but the claimed detached-worktree causal harness is still not on the story evidence surface. A repo search at this HEAD finds the cited B5952_CAUSAL PASS output, baseline/current commit hashes, and repo-map digests only inside this resolvedReason prose; checklist.json and the changed evidence artifacts expose no bound command/receipt that a later reviewer can audit. That recreates the exact prose-only closure problem F-007 identified, so the resolution cannot honestly remain strong/fixed until the harness output is recorded as structured evidence outside this narrative field.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T07:37:22.634Z",
@@ -211,7 +211,11 @@
       "reviewRunId": "B-5952:RR-008",
       "_hash": "730c3d14f439db4fcddb8865eeae0387958194121cbbc8097b5174fc1c4ef31f",
       "signatureTag": "missing|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Returned to PLAN and added current must intent CHK-001:adversarial:causal-baseline-map. Its pinned command creates a detached exact-baseline worktree, rebuilds both revisions, extracts and normalizes both dynamic binding maps, checks totals/components/eight-file diff/removals/duplicates, and emits map SHA256 values plus the full exact diff. verification_run recorded a current tool-owned receipt with exit=0 and selectorMatched=true; evidence_inspect now exposes the command and reports this ref fresh.",
+      "resolvedAt": "2026-08-31T08:08:34.020Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5952:F-010",
