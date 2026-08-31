@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Deliver one canonical Finding triage contract to every active REVIEW lane",
-      "context": "Own all REVIEW-lane behavior and prohibitions in one canonical contract: current review_run_start/reviewRunId/finding_add/review_pass_set protocol; independent evidenceState, severity, applicability candidate, and gate-impact axes; fail-closed unknown applicability; evidence-backed routing with owner; no reviewer repair, finding_dismiss, story_create, severity rewriting, or unilateral scope expansion; and distinct disproven, duplicate, and stale-or-not-reproduced outcomes. Deliver identically to all five active REVIEW lanes through both envelope paths and nowhere else.",
+      "context": "Own all REVIEW-lane behavior and prohibitions in one canonical contract: current review_run_start/reviewRunId/finding_add/review_pass_set protocol; independent evidenceState, severity, applicability candidate, and gate-impact axes; fail-closed unknown applicability; evidence-backed routing with owner; no reviewer repair, finding_dismiss, story_create, gap_log, severity rewriting, or unilateral scope expansion; and distinct disproven, duplicate, and stale-or-not-reproduced outcomes. gap_log remains a main-Agent or human archive for Proof-or-Stop framework gaps, never general product-defect routing or backlog. Deliver identically to all five active REVIEW lanes through both envelope paths and nowhere else.",
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
@@ -80,7 +80,7 @@
             "priority": "must"
           },
           {
-            "desc": "Inject wording that permits a reviewer to repair implementation, call finding_dismiss, call story_create, or expand the Story merely to make all checks green, and prove semantic validation rejects every permission.",
+            "desc": "Inject wording that permits a reviewer to repair implementation, call finding_dismiss, call story_create, call gap_log, or expand the Story merely to make all checks green, and prove semantic validation rejects every permission. gap_log remains a main-Agent or human archive for Proof-or-Stop framework gaps, never a general product-defect routing or backlog shortcut.",
             "type": "logic",
             "priority": "must"
           },
