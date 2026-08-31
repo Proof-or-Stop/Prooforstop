@@ -234,6 +234,28 @@
       "resolvedAt": "2026-08-31T04:53:30.299Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-011",
+      "desc": "doc-code-drift: [high] docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:74-90,133-153,170-184 remains semantically inverted after the identity rewrite. The document first says active surfaces must use only proof-or-stop-* roles, but then calls `spawn proof-or-stop-review-quality` an unlabelled instruction that must not remain and tells implementers to remove active `proof-or-stop-review-*` aliases. Its advertised post-cleanup command also treats canonical `proof_or_stop_metadata` and `proof-or-stop-verifier` strings as residue, so it currently returns many production hits although the Expected Results promise a clean active-role search. The three active Agent roots and runtime correctly use proof-or-stop-review-story-init / proof-or-stop-review-*; the documentation is the outlier. WHY: an operator following this current truth source is directed to remove or reject canonical reviewer identities and cannot reproduce the documented verification result. This also makes the F-009 resolvedReason claim that all 92 mechanically referenced current truth sources were canonicalized too broad; d3e4823931 correctly fixes F-010 token mechanics but does not repair these prose inversions.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-08-31T05:03:24.530Z",
+      "reviewRound": "2026-08-31T04:53:13.440Z",
+      "reviewRunId": "B-022e:RR-017",
+      "_hash": "67f15fd732fcfcbb17b1ef4a5abc007ccb291ecb1cbc7f4411f7f66f0c8da89f",
+      "files": [
+        "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs",
+        "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+        ".claude/agents/proof-or-stop-review-story-init.md",
+        ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md"
+      ],
+      "signatureTag": "missing|md|code-drift-high",
+      "signatureTagSource": "auto"
     }
   ]
 }
