@@ -23819,6 +23819,42 @@
         "scanEscalationReason": null
       },
       "_hash": "637c7e4f597ff05d300221c0c5dc31a3c84f0c87be437612863a8dc666494209"
+    },
+    {
+      "id": "B-45a0:RP-501",
+      "agent": "lattice-review-docs",
+      "note": "Wave 2 re-check. Step 1/2/3 procedure run against git diff main...HEAD symbol set (~1025 raw). Only two doc paragraphs genuinely reference diff symbols: CLAUDE.md:1083-1086 historical narrative and the new B-45a0 acceptance-basis-ordering section in CLAUDE.md/AGENTS.md. All cited symbols/constants verified against code (discoverValidationInventory, compileValidationCatalog, REPLAY_ADMISSION_NONEXECUTING_PATHS, pre_review_check allowedPhases=[DEV], acceptanceCoverageBasisSemanticDigest, PR_COVERAGE_BASIS_CHANGED/PR_ARTIFACT_TAMPERED, EVIDENCE_COMMAND_TIMEOUT_CAP_MS=21_600_000 matching CLAUDE.md:859). docs/CLI.md new --dynamic-mode paragraph verified against DYNAMIC_MODES constant and handler code. dynamic-validation-operations.md numeric claims (112 commands, 58 full-only, 54 story-selectable, 58 forbidden) verified exactly against lattice.config.json. No new doc-code drift found this wave. Re-confirmed my own wave-1 finding B-45a0:F-453 (Rule 10 self-contradictory attribution in proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md) is still open/unfixed as expected for a read-only epoch; not re-filed, same finding family per wave-2 saturation instructions.",
+      "createdAt": "2026-08-31T12:03:06.780Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1123",
+      "envelopeId": "56b3456c1585a32a33f54caa6e23a995de68473a677af85f70d09c32ae13c7f5",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "008c2b9e8bef760af86a3e9472302e24741b7ed0112ec2330b59f285d2079964"
     }
   ]
 }
