@@ -1628,17 +1628,23 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-013-HAPPY-WAVE4-READS",
-          "kind": "manual_transcript",
-          "verdict": "success",
+          "kind": "integration_test",
           "command": "node --input-type=module -e \"import {execFileSync} from 'node:child_process'; const run=(name)=>execFileSync(process.execPath,['bin/proof-or-stop.js',name,'--storyId=B-5a88'],{encoding:'utf8'}); const [topology,preReview,rolloutReport,rolloutCheck]=['acceptance_topology_check','pre_review_check_read','acceptance_rollout_report_read','acceptance_rollout_check'].map(run); if (!topology.includes('Structural pass: yes') || !preReview.includes('plannedActual=complete executableEvidence=current mutations=biting transcript=related authority=admissible') || !rolloutReport.includes('Acceptance rollout report:') || !rolloutCheck.includes('Acceptance rollout policy:')) throw new Error('current Story Wave 4 acceptance reads failed'); console.log('WAVE4_CURRENT_READS_COVERED');\"",
           "result": "pass",
-          "note": "Current Story Wave 4 topology, pre-review, rollout report, and rollout policy reads passed after the acceptance basis, live proof, and rollout receipt were refreshed for the final implementation HEAD.",
-          "headHash": "aa4f9e2461d4a7241faa3d6eed0a083712f5aa83",
+          "note": "Re-earn tool-executed receipt after refresh invalidated it; regenerated the verifier-owned acceptance basis so acceptance_topology_check reports Structural pass yes and the unmodified pinned verifier prints WAVE4_CURRENT_READS_COVERED",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "78debd2a5552d2785b7e0f3deed9747cd9a93d771594970332413f5f64c47274",
+            "outputTail": "[0.1s] running acceptance_topology_check...\n[2.5s] acceptance_topology_check done\n[0.1s] running pre_review_check_read...\n[5.2s] pre_review_check_read done\n[0.1s] running acceptance_rollout_report_read...\n[0.5s] acceptance_rollout_report_read done\n[0.1s] running acceptance_rollout_check...\n[0.6s] acceptance_rollout_check done\nWAVE4_CURRENT_READS_COVERED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T09:17:12.959Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c17381f560dfb63abf613fde13b0aa6e9044243c",
           "materialHash": "db6bc28792c31834a0cd12aac3232c99df51b79995daf43300413d82bc272484",
           "storyFilesHash": "949a7107e9f1646cc032477d0119da869aec3f2d1374f8a9770b687785d10984",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T08:58:23.118Z"
+          "timestamp": "2026-08-31T09:17:13.143Z"
         },
         {
           "intentRef": "CHK-013-EDGE-WAVE4-MUTATIONS",
