@@ -853,7 +853,7 @@
           {
             "id": "CHK-003:adversarial:no-dynamic-schema-expansion",
             "desc": "Assert the change introduces no related boolean, applicability field on Finding, automatic resolve, dismiss, hide, or delete behavior, severity rewrite, owner or route gate shortcut, freshness rebind, or new Dynamic Finding command or schema; any such runtime mutation fails CHK-003 even when prompt contract tests pass.",
-            "type": "docs",
+            "type": "logic",
             "requiredIn": "strict",
             "priority": "must",
             "verification": {
