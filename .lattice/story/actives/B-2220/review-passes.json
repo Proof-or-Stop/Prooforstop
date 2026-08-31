@@ -908,6 +908,40 @@
       },
       "readDiagnostics": [],
       "_hash": "6d82dae2141abbf5a0b7c4e657ca0bcda05fc7292b4795dac1c606719cbeca56"
+    },
+    {
+      "id": "B-2220:RP-026",
+      "agent": "lattice-review-quality",
+      "note": "Round 10 quality review found no blocker: decision digest is fresh, all six duplicated measurements match the compiled smoke, source/dist build binding passes, full smoke passes, and the changed files introduce no dead code, unsafe type workaround, swallowed error, I/O boundary violation, or undelivered documentation promise.",
+      "createdAt": "2026-08-31T23:24:53.068Z",
+      "reviewRound": "2026-08-31T23:22:30.466Z",
+      "reviewRunId": "B-2220:RR-045",
+      "envelopeId": "5a63ba49614b2e8fb4bc13cec3ec2262bf44bd9474507a81562b3e583cb0a0aa",
+      "writerSessionId": "sess-0663890cf215126ec99752f50d4194b9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "1bee415dceeefb9c1d8d94e2cbf1363eb5802a52528fd12bd9204f0a30cd990d"
     }
   ]
 }
