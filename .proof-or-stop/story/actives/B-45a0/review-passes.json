@@ -23931,6 +23931,36 @@
         "scanEscalationReason": null
       },
       "_hash": "87acb99d9e13314771d2d82bb12c981b4b293816ed6ac6b565d3e0d8b170bc87"
+    },
+    {
+      "id": "B-45a0:RP-505",
+      "agent": "lattice-review-concept",
+      "note": "Wave 2 saturation re-verification at HEAD 92f3a08: no new concept-deletion residue found for the four established families (isStoryMetadataPath/isMaterialExcludedPath single-sourced via evidence-freshness.ts re-export; mergeBaseWithMain/changedStoryFilesBetween renamed to resolveStoryMergeBase/resolveStoryChangedFiles with zero dangling old-name references; objectIdsAtRef 1 def+1 use in story-aware-validation.ts; EVIDENCE_COMMAND_TIMEOUT_CAP_MS=21600000 value-only change).",
+      "createdAt": "2026-08-31T12:51:42.741Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1135",
+      "envelopeId": "c679144421c6f16f7a3ef568f25158653a5ea94fce131189bdfc89ecb99e937c",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dab8e7ffeb780cd21797d0f8831d2e672d1256d90e8b90f4509c71d6b0b8bead"
     }
   ]
 }
