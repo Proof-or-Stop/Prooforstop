@@ -355,6 +355,25 @@
       "_hash": "2984cb4aee364d64eed016d647f5be3dac0180e07b359c50513e53014f7abd76",
       "signatureTag": "missing|unknown|packages-main-tests",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5952:F-018",
+      "desc": "packages/main/src/tasks/red-evidence-envelope-smoke.ts:518,542-556 and packages/main/tests/red/red-w2d-command-readonly.mjs:223,273-288 — WHY: CHK-001:edge:missing-lattice-envelope-snapshot and CHK-001:edge:missing-lattice-readonly-snapshot are must intents that claim deterministic coverage when .lattice is absent, but both fixtures construct StoryStore/write story data before snapshotting, then assert the snapshot is non-empty; snapshotLattice itself calls readdirSync without an absent-directory branch. The two commands pass only because storyDir was explicitly redirected into .lattice, so their receipts do not execute the failure path named by either intent. This is an acceptance-blocking coverage gap: either add a causal pre-initialization missing-tree assertion while preserving the later non-empty manifest contract, or revise the two intents to the actual legacy-fixture storyDir compatibility requirement and regenerate matching evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T12:24:25.956Z",
+      "reviewRound": "2026-08-31T12:18:00.095Z",
+      "reviewRunId": "B-5952:RR-037",
+      "_hash": "e12226969cb6dbd85718b7b84051b6c2e0ff306a79b7be85eee681f23f3d7627",
+      "files": [
+        "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+        "packages/main/tests/red/red-w2d-command-readonly.mjs"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
