@@ -804,6 +804,25 @@
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-proof",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-029",
+      "desc": "doc-promise-undelivered: scripts/verify-proof-or-stop-identity-cutover.mjs:858-870 and 921-924 scan the raw serialized JSONL line before/independently of the JSON.parse result, so a newly appended suffix record can encode the l in .lattice as JSON Unicode escape \\\\u006c: JSON.parse exposes operator-visible .lattice/story while TOKEN_PATTERN returns zero matches and validateAppendOnlySuffixProvenance returns success without an exact provenance pin. Repro: node regex probe printed raw {\"notes\":[\"new .\\\\u006cattice/story path\"]} => matches [] while JSON.parse(...).notes[0] => new .lattice/story path. This leaves Round-11 F-020/F-022/F-023 release-ledger suffix hardening fail-open against semantic retired identities and contradicts policy lines 28-33 and 171-175 that new writes are canonical-only and every occurrence is accounted for. Decode and recursively scan all string keys/values (or reject escape-obscured identity spellings), then add a mutation proving this exact payload fails.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-31T23:43:01.521Z",
+      "reviewRound": "2026-08-31T23:37:04.185Z",
+      "reviewRunId": "B-022e:RR-054",
+      "_hash": "77e23cca105e483e4b267918874cda0a0b2b407bcc55e45ee65cc3fb7fdfcc58",
+      "files": [
+        "scripts/verify-proof-or-stop-identity-cutover.mjs",
+        "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+      ],
+      "signatureTag": "doc-promise-undelivered|mjs|promise-undelivered-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
