@@ -1,0 +1,33 @@
+{
+  "findings": [
+    {
+      "id": "B-5952:F-001",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:654,881 — The change proves that 804 is reproducible and that only the ceiling code changes, but it does not prove the asserted cause that the four builds above 800 are legitimate current-source-inventory growth rather than an existing binding/cache/duplicate-analysis regression. The RED record reports synthetic=419/repo=385 and the green receipts repeat 804; neither supplies a prior-good per-file build-map comparison, expected newly included files, or an invariant showing no per-file duplicate-build increase. Raising the absolute limit to 820 therefore accepts the unexplained behavior and can mask the exact algorithmic regression this budget is intended to detect. Before loosening the limit, add causal evidence over dynamicBindingBuildFiles (or equivalent known-good/current comparison) that accounts for the +4 as intentional inventory; if it exposes duplication, repair the algorithm instead.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T02:54:58.420Z",
+      "reviewRound": "2026-08-31T02:52:42.602Z",
+      "reviewRunId": "B-5952:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5a472cc4d7aca7b4d5a17c6cbc2fa0b8b25fc4309e83f6587b2841cbd406acc2",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "budget-bump-without-causal-baseline",
+      "signatureTagSource": "confirmed"
+    }
+  ]
+}
