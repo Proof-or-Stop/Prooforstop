@@ -1091,7 +1091,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1098-1102,1669-1679,2036-2067 — HIGH: the new two-stage proposal/final contract is not constructible for the plan’s own defer-with-proof path. AssessmentRouteBinding explicitly makes acceptedRoute impossible when verdict=applicable, but Path B requires a verified applicable low/medium assessment plus a target-accepted finding_route receipt, and the canonicalization paragraph says the final Story 1 assessment consumes and signs that exact receipt tuple. A conforming final applicable assessment therefore cannot carry the receipt the final verifier is required to validate; implementations must either violate the schema or silently move the route binding outside the promised final-assessment contract. Define an applicable-with-acceptedRoute variant for deferral (while retaining route-free ordinary applicable assessments), or state and test that the final applicable assessment is route-free and that only the signed deferral/manifest binds the proposal receipt tuple.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-31T12:27:25.741Z",
@@ -1102,7 +1102,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 59698dda90: AssessmentRouteBinding now has constructible applicable repair_current and applicable defer_with_proof variants; the former forbids route, the latter requires the exact accepted receipt, while mandatory eligibility independently rejects high/critical and protected-surface deferral and fixtures cover every illegal combination.",
+      "resolvedAt": "2026-08-31T12:32:51.005Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
