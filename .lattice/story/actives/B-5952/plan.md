@@ -1,11 +1,13 @@
 # B-5952 Execution Plan
 
-## CHK-001 — Restore a bounded instrumentation ceiling for the current source inventory
+## CHK-001 — Restore the bounded baseline and six TEST blockers
 
-1. Preserve an absolute finite dynamic-binding build ceiling and change only its explicit value in `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts`, choosing a small bound above the independently reproduced 804 baseline and no greater than 850.
-2. Rebuild `packages/main` so `packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` is generated from the source of truth; never edit dist independently.
-3. Run the targeted smoke twice at unchanged HEAD and verify its PASS transcript reports the measured build count.
-4. Exercise the finite boundary and a below-baseline mutation in an isolated temporary copy; ceiling+1 and a ceiling below 804 must fail with the bounded diagnostic.
-5. Verify source/dist binding, scope contract compliance, and zero diff for `docs/requirements/decisions/dynamic-finding-system-execution-plan.md`.
+1. Keep the retired-authority instrumentation guard finite: accept the causally measured 804 builds at ceiling 808, enforce the absolute cap 850, rebuild dist, and retain the existing mutation and detached-baseline proofs.
+2. Update repository-root checks in the three affected regressions to recognize canonical `proof-or-stop.config.json`, retaining legacy `lattice.config.json` only for isolated compatibility fixtures.
+3. Give the two legacy red-evidence fixtures an explicit `.lattice/story/actives` storyDir so their intended non-empty runtime manifest is created and compared. Do not claim or implement a new missing-tree snapshot contract.
+4. Preserve caller PATH during Unix global-CLI discovery by using a non-login shell; keep Windows discovery unchanged and prove timeout classification with the heartbeat smoke.
+5. Rebuild packages/main, run the original smoke and all six former failing commands, require source/dist binding and scope-contract PASS, and record fresh receipts for every must intent.
+6. Because the Story changes `packages/main/src/core/codex-adapter-checks.ts`, run `node bin/proof-or-stop.js verify_codex` under Node v26 and require fresh passing adapter evidence before REVIEW.
+7. Keep the Dynamic Finding decision document, all handlers, CLI sources, and unrelated medium/low diagnostics outside this Story. Any newly proven critical/high or acceptance/lifecycle blocker returns to current repair; nonblocking findings are recorded for a later Story.
 
-Rollback: revert the source assertion commit and rebuild dist. No runtime migration or production state is involved.
+Rollback: revert the bounded baseline/config-fixture commit and rebuild dist. Reverting the heartbeat production change restores login-shell discovery; if that rollback is needed, also revert its timeout-smoke expectation and rerun verify_codex. No persistent user data migration is involved.

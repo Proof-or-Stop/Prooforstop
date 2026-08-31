@@ -3,10 +3,10 @@
     {
       "id": "CHK-001",
       "title": "Restore a bounded instrumentation ceiling for the current source inventory",
-      "context": "The isolated command node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js fails identically on main and B-1fa6 with dynamicBindingBuilds=804 (synthetic=419, repo=385) against a stale absolute ceiling of 800. Adjust the source-of-truth assertion with documented headroom, rebuild dist, and prove the smoke still enforces boundedness.",
-      "status": "done",
-      "startTime": "2026-08-31T02:49:32.722Z",
-      "endTime": "2026-08-31T12:17:34.856Z",
+      "context": "The first full TEST run proved seven bounded baseline blockers: the 804 dynamic-binding ceiling plus six clean-main failures in canonical config root discovery, legacy red-evidence fixture storyDir, and Codex heartbeat timeout classification. Keep the existing 808/850 finite guard, repair only those six failures, preserve legacy fixture compatibility, and limit production behavior change to the Codex adapter path packages/main/src/core/codex-adapter-checks.ts using non-login Unix command discovery so caller PATH is honored. Because this touches the Codex adapter, fresh node bin/proof-or-stop.js verify_codex evidence is mandatory before REVIEW. The Dynamic Finding decision document, handlers, CLI sources, and unrelated diagnostics remain out of scope.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
       "verificationIntent": {
         "happy": [
           {

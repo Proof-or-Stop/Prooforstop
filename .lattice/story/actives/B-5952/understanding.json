@@ -1,22 +1,37 @@
 {
-  "task": "Repair the stale absolute dynamic-binding instrumentation ceiling that blocks current main validation at 804 builds.",
-  "outcome": "User sees the retired-authority vocabulary guard print PASS with a still-bounded dynamic binding build count, allowing the documentation Story to proceed through TEST.",
+  "task": "Restore the bounded instrumentation baseline and the six reproducible validation blockers discovered by the first full TEST run.",
+  "outcome": "User runs proof-or-stop validate for B-5952 and sees the retired-authority 804-build guard plus all six former baseline failures pass, including a distinct heartbeat timeout diagnosis.",
   "facts": [
-    "Current main and B-1fa6 independently reproduce 804 dynamic binding builds against ceiling 800",
-    "The assertion is located in packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "Generated dist must be rebuilt from the TypeScript source",
-    "The repair must remain independent of the B-1fa6 document-only scope"
+    "The retired-authority smoke reproduces 804 dynamic binding builds; its bounded ceiling repair is 808 with an absolute hard cap of 850.",
+    "The first full TEST run exposed six additional clean-main blockers: validate timeout, Codex heartbeat timeout, B-3434 blob buffer, red evidence envelope, W2d command readonly, and B-8df9 INIT_CHECK signature.",
+    "Four blockers were stale canonical-root configuration lookups after the proof-or-stop.config.json migration.",
+    "Two red-evidence fixtures wrote runtime metadata outside .lattice because their legacy lattice.config.json omitted storyDir; explicit fixture storyDir restores the intended non-empty .lattice manifest.",
+    "The heartbeat blocker is production-relevant: sh -lc rebuilt PATH and bypassed the injected CLI shim; sh -c preserves the caller environment.",
+    "Changing packages/main/src/core/codex-adapter-checks.ts makes fresh verify_codex evidence mandatory."
   ],
   "constraints": [
-    "Keep an explicit absolute upper bound",
-    "Do not change production command behavior",
-    "Do not edit the Dynamic Finding plan",
-    "Verify the targeted smoke and preserve source/dist binding"
+    "Fix only the original ceiling regression and the six reproducible TEST blockers; do not expand to unrelated diagnostics.",
+    "Keep an explicit finite dynamic-binding upper bound and preserve source/dist build binding.",
+    "Preserve legacy lattice.config.json fixture compatibility while repository-root discovery prefers proof-or-stop.config.json.",
+    "Limit production behavior change to non-login CLI discovery that preserves the caller PATH; Windows discovery is unchanged.",
+    "Do not edit the Dynamic Finding decision document, handlers, or CLI sources.",
+    "Run node bin/proof-or-stop.js verify_codex under the bound Node v26 environment before re-review."
   ],
   "unknowns": [],
   "touchpoints": [
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+    "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+    "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+    "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/dist/core/codex-adapter-checks.js",
+    "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+    "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+    "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+    "packages/main/tests/red/red-w2d-command-readonly.mjs",
+    "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
   ],
-  "timestamp": "2026-08-31T02:35:41.516Z"
+  "timestamp": "2026-08-31T12:29:18.343Z"
 }
