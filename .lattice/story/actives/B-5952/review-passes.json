@@ -552,6 +552,42 @@
         "scanEscalationReason": null
       },
       "_hash": "7b41126e409a30b615a4cca317dc8fa15e573d090e9d59f929f0430b24a90d45"
+    },
+    {
+      "id": "B-5952:RP-021",
+      "agent": "lattice-review-concept",
+      "note": "Fresh post-resolution concept review: F-014 through F-019 are mechanically resolved. The two must descriptions now match explicit legacy storyDir plus non-empty manifest behavior; background, plan, understanding, checklist context, touchpoints, and enforced scope coherently bound the 804 ceiling plus exactly six TEST blockers; all seven bounded commands and source/dist binding passed independently; storyRequiresCodexEvidence=true and summarizeCodexEvidence=passing under Node v26. No concept deletion/replacement residue, promised-but-undelivered requirement, current critical/high blocker, or traceable medium/low deferral was found. Wave-4 observe-only text is outside this Story.",
+      "createdAt": "2026-08-31T12:51:15.957Z",
+      "reviewRound": "2026-08-31T12:44:33.706Z",
+      "reviewRunId": "B-5952:RR-040",
+      "envelopeId": "9882c311dcd6596e6bec019a0cd88f384077d0637515fae1b438ae823c400b08",
+      "writerSessionId": "sess-a06b70be9e2c9c7e0bde574834ab7209",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/understanding.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/core/codex-adapter-checks.js",
+          "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "265d76b92db1cd9fed95da6aa5936bd594fafef00e6e2a225d03ed1921fd6ed7"
     }
   ]
 }
