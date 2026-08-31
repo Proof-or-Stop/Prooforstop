@@ -829,6 +829,11 @@ type ProgressProjection =
 
 interface InitialProgressBaseline {
   schemaVersion: 1;
+  evidenceAuthority: {
+    profile: 'progress_baseline';
+    authority: 'target_route_semantic_only';
+    gateEvidence: false;
+  };
   kind: ProgressEvidenceKind;
   canonicalDefectId: string;
   routeReceiptId: string;
@@ -865,6 +870,11 @@ interface InitialProgressBaseline {
 
 interface InitialProgressBaselineSet {
   schemaVersion: 1;
+  evidenceAuthority: {
+    profile: 'progress_baseline';
+    authority: 'target_route_semantic_only';
+    gateEvidence: false;
+  };
   baselineSetId: string;
   canonicalDefectId: string;
   routeReceiptId: string;
@@ -1465,6 +1475,14 @@ capture, or any entry/set hash/signature mismatch invalidates the set.
 The set encoder stores the four entries in canonical `ProgressEvidenceKind`
 order; caller array order is not semantic and duplicate or unknown kind keys are
 rejected before hashing.
+Every entry and the set itself must carry the exact
+`evidenceAuthority={profile:'progress_baseline',
+authority:'target_route_semantic_only', gateEvidence:false}` marker. Each
+entry's `baselineHash`/signature and the set's `baselineSetHash`/signature cover
+that marker. Removing or changing any marker member, or presenting a baseline
+as a receipt, L4 artifact, or other profile, invalidates the record; a valid
+marker still proves only target-route baseline semantics and has zero direct
+lifecycle authority.
 
 For renewal, `predecessorProjectionDigest` is derived by the verifier from the
 signed predecessor baseline set entry of the same kind; callers cannot supply or
@@ -1958,8 +1976,9 @@ freshness change REVIEW/TEST/DONE blocker state, their writers, signed artifacts
 triage-completeness semantics, and shared runtime predicate are L4 process
 facts. Story 2 route acceptance is a required signed semantic dependency but
 remains non-gate; only Story 1's deferral binds its receipt into L4 state.
-`CandidateRoute` and standalone `FindingRouteReceipt` are explicitly outside
-that authority boundary; their non-gate semantics must be mechanically
+`CandidateRoute`, standalone `FindingRouteReceipt`, every
+`InitialProgressBaseline`, and `InitialProgressBaselineSet` are explicitly
+outside that authority boundary; their non-gate semantics must be mechanically
 preserved. Future implementation must update:
 
 - `packages/main/src/core/process-fact-levels.ts`
@@ -1970,6 +1989,8 @@ preserved. Future implementation must update:
 
 The registry/contract verifier must explicitly enumerate Story 2's non-gate
 route accept/reject/revoke handlers and `FindingRouteReceipt` artifact separately
+from the non-gate `progress_baseline` entry/set capture, sign, verify, and read
+handlers/artifacts, and all of those must be separate
 from Story 1's L4 mandatory-repair classify/close and deferral create/supersede
 handlers. It must register Story 1's exact receipt-hash/profile dependency,
 source-assessment hash, CAS apply handler, `DeferralLineageState`,
@@ -1983,8 +2004,11 @@ for its invalid-lineage floor. The dependency verifier must reject any Story 2
 command/artifact import from Story 1 and any Story 3 import from Story 2 or
 Story 1.
 Story 2's target-authorized baseline-set capture/signer/verifier and Story 3's
-baseline-set persistence remain separately registered prerequisites; Story 1
-alone consumes their exact bytes in L4 deferral/progress semantics. The verifier
+baseline-set persistence remain separately registered non-gate prerequisites;
+their command policies and phase allow-lists cannot confer lifecycle authority.
+Story 1 alone consumes their exact bytes together with the exact receipt in a
+CAS and mints the signed L4 `FindingDeferralDisposition`/
+`DeferralLineageState` that may affect the shared predicate. The verifier
 must also reject a gate consumer that accepts raw material drift, a host-authored
 unrelated label, or a missing/stale/tampered re-attestation as continued
 deferral authority.
@@ -1997,9 +2021,11 @@ advisory historical record as evidence.
 
 The checked-in verifier must use mutation fixtures, not presence-only grep:
 inject a new process-registry, command-policy, and phase-allowlist gate consumer
-that directly consumes `CandidateRoute`, a standalone `FindingRouteReceipt`, or
-historical advisory/candidate data, and independently inject a consumer that
-bypasses `isDynamicFindingBlocking`; every mutation must fail. Dependency
+that directly consumes `CandidateRoute`, a standalone `FindingRouteReceipt`, an
+`InitialProgressBaseline`, an `InitialProgressBaselineSet`, or historical
+advisory/candidate data as blocker, pass, or unblock evidence, and independently
+inject a consumer that bypasses `isDynamicFindingBlocking`; every mutation must
+fail. Dependency
 fixtures must separately make Story 3 import Story 2, Story 3 import Story 1,
 and Story 2 import Story 1; every mutation fails, while the delivery DAG
 `Story 3 -> Story 2 -> Story 1` passes. Enforce entry also registers the
@@ -2013,6 +2039,9 @@ It also mutates raw material/story-files bindings, re-attestation signer/hash/
 freshness, and every runtime/process-policy/route/canonical dependency digest or
 comparison; accepting host narration, a partial dependency set, or any related/
 unknown dependency as `unrelated_re_attested` fails qualification.
+Baseline mutations remove or flip `gateEvidence`, change its authority/profile,
+or disguise an entry/set as a receipt or L4 profile; every registry,
+command-policy, and phase-allowlist variant must fail before enforce.
 
 ## 8. Seven-problem ownership matrix
 
@@ -2059,10 +2088,12 @@ authoritative artifacts and cannot alter lifecycle output.
 - `MandatoryRepairClassification` classify/close signer, verifier, reader, and
   non-decaying floor; resolve/dismiss handler integration requires fresh
   Red/repro, root-cause, fix, Green, and closure evidence.
-- Consumer/adapter for Story 2's non-gate `FindingRouteReceipt`; validate its
-  latest-chain ID/hash, `finding_route` profile, source-assessment hash,
-  initial-baseline-set ID/hash, freshness, and non-revoked/non-superseded state
-  inside the L4 deferral without redefining its signer, verifier, baseline
+- Consumer/adapter for Story 2's non-gate `FindingRouteReceipt` and
+  `progress_baseline` entry/set artifacts; validate the receipt's latest-chain
+  ID/hash, `finding_route` profile, source-assessment hash, freshness, and non-
+  revoked/non-superseded state, plus the initial set's exact ID/hash, marker,
+  entry completeness, and signatures before consuming them inside the L4
+  deferral without redefining its signer, verifier, baseline
   capture, or acceptance command.
 - `FindingDeferralDisposition` signer/verifier and eligibility policy, including
   acceptance-impact, current-Story regression, protected-surface, target-owner,
@@ -2185,6 +2216,10 @@ authoritative artifacts and cannot alter lifecycle output.
   Deferral/manifest hashes and their CAS bind the exact set ID/hash. Missing,
   tampered, duplicate/wrong kind, wrong defect/route/subject, stale capture, or
   non-target/non-CLI/server baseline fails closed and writes neither artifact.
+- The entry and set `progress_baseline` authority markers are signature/hash
+  inputs and remain zero-delta advisory records. Removing/flipping
+  `gateEvidence`, changing authority/profile, or disguising either as a route
+  receipt/L4 artifact fails validation and cannot block, pass, or unblock.
 - Renewal derives `predecessorProjectionDigest` from the signed predecessor
   baseline's same-kind entry, never caller input. Positive absent-to-present
   defect-bound test/delivery/status fixtures pass with unchanged code; mere hash
@@ -2197,8 +2232,9 @@ authoritative artifacts and cannot alter lifecycle output.
   existing rows retain their original policy binding, `firstDeferredAt`, count,
   and cumulative horizon.
 - Registry/command-policy/phase-allowlist mutation fixtures reject every newly
-  injected gate consumer that reads a candidate, standalone receipt, or
-  historical advisory directly, or bypasses the shared predicate.
+  injected gate consumer that reads a candidate, standalone receipt, individual
+  progress baseline, baseline set, or historical advisory directly as blocker,
+  pass, or unblock evidence, or bypasses the shared predicate.
 - The integrated dependency fixture accepts only the delivery DAG and rejects
   Story 3 importing Story 2/1 or Story 2 importing Story 1; Story 1 enforce
   cannot waive a failed reverse-edge mutation.
@@ -2245,8 +2281,9 @@ identity/supersession writes. A read-only benchmark prototype may precede Story
   candidate/finding source profiles, and typed target-authorized
   `InitialProgressBaselineSet`/`ProgressEvidenceBinding` with kind-specific
   `ProgressProjection`. Every receipt remains
-  `gateEvidence=false`; Story 1 alone binds a finding-profile receipt into L4
-  deferral state.
+  `gateEvidence=false`; every baseline entry/set separately carries the signed
+  non-gate `progress_baseline` authority marker. Story 1 alone binds exact
+  finding-profile receipt and baseline bytes into L4 deferral state.
 - Target-authorized CLI/server baseline capture command/handler, canonical
   present/absent projection derivation, per-entry/set signer/verifier, and atomic
   initial finding-route receipt plus baseline-set append through Story 3.
@@ -2295,6 +2332,11 @@ identity/supersession writes. A read-only benchmark prototype may precede Story
   exclusivity, canonical absence digest, kind uniqueness/completeness, target
   authority, CLI/server producer, defect/route/contract/item/command subject,
   capture freshness, and entry/set hashes/signatures are mutation-tested.
+- Entry and set hashes/signatures cover the exact non-gate
+  `progress_baseline` authority marker. Removing/flipping `gateEvidence`, changing
+  authority/profile, or masquerading as `FindingRouteReceipt`/L4 fails; direct
+  lifecycle consumption has zero delta and fails registry/policy/allow-list
+  mutation contracts.
 - Existing-Story acceptance succeeds only for its target-authorized owner/
   command-policy actor; B-META acceptance succeeds only for canonical audit/
   main-write authority. A source-Story author cannot self-sign either.
@@ -2405,9 +2447,13 @@ than adding an uncoordinated lock tree.
 - Mandatory-repair classify/close and expiry-policy records are append-only,
   unique, idempotent, and never half-visible with their manifest references.
 - Story 2 can atomically append a standalone prevalidated candidate/renewal
-  target receipt, or an initial finding-route receipt plus all four baseline-set
-  records; crash/retry yields the complete intended transaction or none, and
-  persisted receipt/baseline bytes alone have no gate authority.
+  target receipt, or an initial finding-route receipt plus its baseline set with
+  all four entries; crash/retry yields the complete intended transaction or
+  none, and persisted receipt/baseline bytes alone have no gate authority.
+- Persistence preserves each entry/set non-gate authority marker byte-for-byte.
+  Marker removal/flip/profile substitution, or registering persisted baseline
+  bytes as receipt/L4 blocker, pass, or unblock evidence, fails mutation tests;
+  Story 3 never upgrades persistence integrity into semantic gate authority.
 - A later candidate-route transaction CAS-checks an existing exact receipt and
   writes only the route; a failure leaves the standalone receipt intact and no
   half route visible.
@@ -2529,8 +2575,8 @@ forbidden reverse import independently.
 | State | Entry criteria | Permitted writes | Gate authority | Operator-visible output | Exit / rollback |
 | --- | --- | --- | --- | --- | --- |
 | `observe` | Read-only classifier/index prototype passes structural tests | None; stdout/report only. Benchmark artifacts, if explicitly exported outside lifecycle state, remain non-authoritative. | Existing `isFindingBlocking` only | Candidate groups/routes, predicted mandatory floors, proposed verdicts/deferrals, target-authority/receipt gaps, expiry-policy violations, high/critical closure gaps, predicted blocker delta, latency | Exit to warn after labeled replay shows no safety violation and Story 3/2 dependencies needed by persisted advice are ready; kill switch simply disables output |
-| `warn` | Story 3 atomic persistence/query contract accepted; Story 2 candidate/identity/supersession plus non-gate route/query semantics accepted; observe qualification thresholds met | Story 2 may append standalone signed target route receipts, atomically append an initial receipt with its four-kind baseline set, and later CAS-bound candidate routes; Story 1 appends only non-authoritative triage/mandatory/deferral/re-attestation proposals; no new L4 artifact affects lifecycle | Existing predicate only; every route receipt and baseline set remains non-gate | Old blocker set plus proposed exact receipt/baseline tuple and CAS result, ledger-derived claimed-lineage floor, material-drift pending/re-attestation result, policy/progress projection results, protected-surface/closure gaps, and read-only scorecard JSON/refusal reasons | Return to observe on data/persistence defect; advance only after merged-state qualification and complete scorecard evidence |
-| `enforce` | All three Stories accepted in the acyclic order; signed current-material assessment; runtime receipt; mandatory-floor/process-fact contract; Story 2 target-authorized receipt and signed complete initial baseline set; exact receipt/baseline CAS; gate-consumed material-drift re-attestation contract; authentic effective V1 policy; legacy compatibility; gate/dependency mutations and adversarial/rollback tests green; complete `finding_rollout_scorecard --json` passes every safety threshold, qualification window, and merged prerequisite | Atomic/idempotent standalone non-gate receipt/candidate route and atomic initial receipt-plus-baseline set; separate Story 1 CAS atomically writes L4 deferral plus manifest/action; expiry policy, re-attestation, and audit records remain append-only | Ledger-derived claimed-lineage invalid or pending-re-attestation state first, then classification floor, then shared `isDynamicFindingBlocking`; route receipts/candidates/baselines alone remain non-authoritative | Effective mandatory/blocker sets, closure/release chain, expected/current receipt and baseline tuple with CAS result, policy binding, kind-specific progress projection, signed material-drift re-attestation state, scorecard evidence/refusal, candidate recall, freshness, kill switch | Any safety threshold, scorecard evidence, registry/dependency mutation, or merged-prerequisite failure immediately refuses/ends enforce and restores previous predicate; records remain append-only |
+| `warn` | Story 3 atomic persistence/query contract accepted; Story 2 candidate/identity/supersession plus non-gate route/query semantics accepted; observe qualification thresholds met | Story 2 may append standalone signed target route receipts, atomically append an initial receipt with its four-kind baseline set, and later CAS-bound candidate routes; Story 1 appends only non-authoritative triage/mandatory/deferral/re-attestation proposals; no new L4 artifact affects lifecycle | Existing predicate only; every route receipt and every baseline entry/set carries and verifies its non-gate marker | Old blocker set plus proposed exact receipt/baseline tuple and CAS result, ledger-derived claimed-lineage floor, material-drift pending/re-attestation result, policy/progress projection results, protected-surface/closure gaps, and read-only scorecard JSON/refusal reasons | Return to observe on data/persistence defect; advance only after merged-state qualification and complete scorecard evidence |
+| `enforce` | All three Stories accepted in the acyclic order; signed current-material assessment; runtime receipt; mandatory-floor/process-fact contract; Story 2 target-authorized receipt and signed complete non-gate initial baseline set; exact receipt/baseline CAS; baseline authority-marker and direct-consumer mutations green; gate-consumed material-drift re-attestation contract; authentic effective V1 policy; legacy compatibility; gate/dependency mutations and adversarial/rollback tests green; complete `finding_rollout_scorecard --json` passes every safety threshold, qualification window, and merged prerequisite | Atomic/idempotent standalone non-gate receipt/candidate route and atomic initial receipt-plus-baseline set; separate Story 1 CAS atomically writes L4 deferral plus manifest/action; expiry policy, re-attestation, and audit records remain append-only | Ledger-derived claimed-lineage invalid or pending-re-attestation state first, then classification floor, then shared `isDynamicFindingBlocking`; route receipts/candidates/baseline entries/sets alone remain non-authoritative and only Story 1's signed L4 disposition/lineage projection can consume them into gate state | Effective mandatory/blocker sets, closure/release chain, expected/current receipt and baseline tuple with CAS result, policy binding, kind-specific progress projection, signed material-drift re-attestation state, scorecard evidence/refusal, candidate recall, freshness, kill switch | Any safety threshold, scorecard evidence, baseline marker/direct-consumer mutation, registry/dependency mutation, or merged-prerequisite failure immediately refuses/ends enforce and restores previous predicate; records remain append-only |
 
 The feature-state downgrade is a policy switch, not a data rollback. Disabling
 enforce must restore the previous authoritative blocker predicate and treat all
@@ -2556,6 +2602,11 @@ silently rebound.
   receipt revocation/supersession, or CAS conflict leaves both deferral and
   manifest/action absent; no rollback path treats a receipt/baseline bundle or
   deferral-alone row as authoritative.
+- Each initial baseline entry/set remains non-gate across state changes. Removing
+  or flipping its signed marker, changing its profile/authority, disguising it as
+  a receipt/L4 record, or wiring it directly into any blocker/pass/unblock
+  consumer fails closed; only Story 1's exact-CAS-derived signed L4 disposition/
+  lineage state may affect the predicate.
 - Scope, Story-owned material, and runtime artifact changes invalidate exactly
   the dependent assessments and deferrals.
 - A committed deferral remains ledger-derived claimed lineage after replacement
@@ -2653,7 +2704,7 @@ merged-state dependency review.
 | Duplicate/routed disposition accuracy | Correct canonical duplicate or valid routed-owner decisions / all independently reviewed duplicate/routed decisions | Manifest, canonical lookup, route target validation | >=98%; 100% of real high/critical non-blocking issues have a valid owner | Any unowned high/critical or <98% |
 | Suspected-candidate route completeness and isolation | Low/medium candidate routes with explicit uncertainty, current evidence, live existing target/owner, signed receipt, expiry/triggers, and zero gate delta / all proposed suspected routes | Candidate/route ledger join, target validation, and frozen-gate before/after comparison | 100% complete and 100% zero gate delta; no promotion/root-cause/Green prerequisite | Any incomplete route accepted, any candidate promoted implicitly, or any gate delta |
 | Route-receipt authority, isolation, and freshness | Story 2 receipts accepted by the exact target-authorized owner/policy actor with matching source/target/hash/scope and live lease/policy, while producing zero standalone gate delta / all acceptance proposals and adversarial receipts | Story 2 authority lookup/command log/signature-freshness suite plus Story 1 exact ID/hash/profile/source integration and frozen-gate comparison | 100% valid, 100% zero standalone gate delta; source Story self-sign rejected | Any wrong signer/owner/target/hash, stale/closed target, revocation, tamper, standalone gate delta, or Story 2 -> Story 1 import |
-| Initial progress-baseline integrity and isolation | Initial finding-route receipts with one target-authorized CLI/server-derived signed present-or-absent baseline for each eligible progress kind, exact subject/route/defect binding, and zero standalone gate delta / all initial finding-route proposals and injected baseline mutations | Story 2 baseline capture/verifier rows joined to Story 3 atomic receipt-plus-set commit; mutate kind/subject/state/digest/authority/producer/signature and frozen-gate result | 100% complete/valid and 100% zero standalone gate delta | Any missing/duplicate/wrong-kind or wrong-subject entry, fabricated caller baseline, partial receipt/set, invalid signature/hash, or standalone gate delta accepted |
+| Initial progress-baseline integrity and isolation | Initial finding-route receipts with one target-authorized CLI/server-derived signed present-or-absent baseline for each eligible progress kind, exact signed non-gate authority marker, subject/route/defect binding, and zero standalone gate delta / all initial finding-route proposals and injected baseline/consumer mutations | Story 2 baseline capture/verifier rows joined to Story 3 atomic receipt-plus-set commit; mutate kind/subject/state/digest/authority/producer/signature, remove/flip marker fields, impersonate receipt/L4 profiles, and inject registry/command-policy/phase-allowlist blocker/pass/unblock consumers | 100% complete/valid, 100% marker mutation rejection, and 100% zero direct gate delta; only exact-CAS-derived Story 1 L4 state may affect the gate | Any missing/duplicate/wrong-kind or wrong-subject entry, fabricated caller baseline, partial receipt/set, invalid signature/hash/marker, profile impersonation, or direct baseline gate dependency accepted |
 | Exact receipt/baseline CAS and deferral atomicity | Applies whose existing latest receipt exact ID/hash/profile/source-assessment and baseline-set ID/hash/bytes are revalidated with freshness and no revocation/supersession, then deferral plus manifest/action commit together / all deferral applies and injected races | Story 1 transaction/CAS log joined to immutable Story 2 receipt/baseline chain and Story 3 commit receipt; mutate every expected tuple field and interleave revoke/supersede/baseline change | 100% valid commits; 100% mismatches/races write neither deferral nor manifest/action; receipt/baseline records alone remain legal/non-gate | Any stale/non-latest tuple or wrong baseline accepted, any partial deferral/manifest commit, any failed CAS mutation, or any receipt/baseline-alone gate delta |
 | Deferral route completeness | Deferred rows with a live existing target, owner, exact accepted signed route receipt tuple, expiry, and complete recheck triggers / all proposed deferred rows | Deferral/manifest atomic ledger join plus latest receipt-chain and target existence/owner validation | 100% | Any orphan, missing/mismatched receipt, deferral-alone/manifest-alone commit, or closed-unfixed target accepted as valid |
 | False deferral | Independently adjudicated deferred rows that require current repair or touch a protected surface / all system-proposed deferrals | Current reproducible failure evidence, acceptance/verificationIntent diff, introduced/worsened analysis, protected-surface campaign, and independent disposition review | **0**; critical/high proposals are mechanically ineligible; root cause may remain for the target Story | Any one event or any protected-surface risk deferred |
@@ -2764,6 +2815,7 @@ operator's lab request is not authority to rename utils.
 | Source Story self-signs target acceptance | Receipt signer/owner/target authority is not checked or a ledger writer is treated as semantic authority | Work is exported to a target that never accepted it | Target-authorized Story actor or canonical B-META/main-write authority only; exact source/target/lease/policy binding; rejection/revocation/freshness tests |
 | Delivery dependency reverses or a new gate bypass appears | Story 3 imports Story 2/1, Story 2 imports Story 1, or a new registry/policy/allowlist consumer reads advisory data or bypasses the shared predicate | Prerequisites cycle or a new lifecycle path silently defeats non-authority/floor rules | Story 3 -> Story 2 -> Story 1 delivery DAG; mutation fixtures for every forbidden import and direct advisory/shared-predicate bypass; any surviving mutation stops enforce |
 | Receipt/baseline-to-deferral TOCTOU or partial apply | Story 1 validates a receipt/baseline before the transaction, binds only IDs, or writes deferral and manifest separately while receipt or baseline bytes change | A deferral becomes authoritative against stale target consent or a different progress before-state | Persist the target-authorized receipt plus baseline set standalone/non-gate; later same-transaction CAS of latest receipt ID/hash/profile/source/freshness and exact baseline-set ID/hash/bytes; atomic deferral+manifest/action; any mismatch writes neither |
+| A progress baseline is promoted directly into gate authority | Its non-gate marker is missing/flipped, it impersonates a receipt/L4 profile, or a new registry/policy/allow-list consumer reads it directly | Advisory target before-state blocks, passes, or unblocks lifecycle without an applicability disposition | Signed/hash-covered `progress_baseline` marker on entry and set; distinct non-gate registration; mutation tests for marker/profile and blocker/pass/unblock consumers; only exact-CAS-derived Story 1 L4 state may gate |
 | Initial progress baseline is absent, fabricated, or caller-selected | The initial route captures no semantic before-state, a later caller supplies the predecessor digest, or only hash inequality is checked | Unrelated, no-op, or regressive target activity renews an applicable defect indefinitely | Target-authorized CLI/server capture of all four signed present/absent baselines with exact subject binding; deferral/manifest CAS the set ID/hash; verifier selects the same-kind predecessor; any invalid baseline or non-semantic transition fails closed |
 | Deferral becomes an unowned waiver | Reproduction or acceptance/protected-surface analysis is incomplete, route receipt is missing/invalid, owner disappears, or target closes unfixed | An applicable defect silently falls out of current repair and future recall | Verified low/medium plus current reproduction only; exact-receipt CAS then atomic deferral+manifest/action; expiry/trigger recall; invalid claimed lineage enters the enforce mandatory floor; any false deferral stops enforce |
 | Deferral becomes indefinite | Per-row clock resets, policy bytes are tampered/rebound, unrelated repository change is called progress, or stale/replayed/cross-target/no-op evidence is re-signed | Open applicable work stays advisory forever | Authentic effective V1 policy and immutable row binding; ledger-derived clock/count/horizon; medium no renewal; low one only with kind-specific target-signed projection progress for the same defect/route; exhaustion enters mandatory repair |
@@ -2782,6 +2834,7 @@ one unauthorized route acceptance, one exact-receipt CAS/atomicity failure, one
 candidate-route/direct-advisory gate delta, shared-predicate bypass, forbidden
 Story import, expiry-policy mutation/rebinding, false/reset/over-horizon/wrong-
 projection progress deferral, missing/fabricated/caller-selected initial baseline,
+one baseline marker/profile mutation or direct baseline gate dependency accepted,
 raw material drift left valid or invalid/related re-attestation accepted,
 incomplete/tampered scorecard or false enforce
 eligibility, one fabricated canonical root cause, or one
@@ -2860,7 +2913,9 @@ The program is complete only when all of the following are true in merged state:
 - Story 2 independently owns those receipt semantics on Story 3 persistence and
   may commit a standalone receipt or atomically commit an initial finding-route
   receipt with its target-authorized CLI/server-derived four-kind
-  `InitialProgressBaselineSet`; every receipt/baseline remains non-gate. Story 1
+  `InitialProgressBaselineSet`; every entry and set carries a hash/signature-
+  covered `progress_baseline`/`target_route_semantic_only`/`gateEvidence=false`
+  marker and remains non-gate. Story 1
   later uses a separate same-transaction CAS of the latest exact receipt ID/hash/
   profile/source assessment/freshness state and exact baseline-set ID/hash/bytes,
   then atomically writes deferral plus manifest/action. A mismatch writes
@@ -2869,7 +2924,9 @@ The program is complete only when all of the following are true in merged state:
 - Story 3 imports neither Story 2 nor Story 1, and Story 2 never imports Story 1.
   Dependency fixtures and registry/command-policy/phase-allowlist mutations
   reject every forbidden import, direct CandidateRoute/standalone-receipt/
-  historical-advisory gate consumer, or shared-predicate bypass before enforce.
+  individual-baseline/baseline-set/historical-advisory gate consumer, or shared-
+  predicate bypass before enforce. Marker removal/flip and receipt/L4-profile
+  impersonation also fail.
 - Defer-with-proof is a disposition inside the four-component design, not a new
   verdict/component: only verified applicable low/medium Findings with current
   reproducible failure evidence, no acceptance or protected-surface impact, no
@@ -2901,6 +2958,11 @@ The program is complete only when all of the following are true in merged state:
   absent baseline may progress to a later defect-bound test/delivery/status
   projection with unchanged code, but hash inequality, no-op, regression, or
   unrelated activity does not prove progress.
+- A baseline entry or set never directly supplies blocker, pass, or unblock
+  evidence. Process-fact registry, command policy, and phase allow-list register
+  them separately as non-gate advisory artifacts; only Story 1's signed L4
+  `FindingDeferralDisposition`/`DeferralLineageState`, created after exact
+  receipt-plus-baseline CAS, may project their semantics into the shared gate.
 - For a claimed deferral lineage, any raw `materialHash` mismatch first becomes
   first-floor `pending_re_attestation`, including when `storyFilesHash` matches.
   Only a current signed L4 re-attestation or equivalent new-assessment proof
