@@ -176,7 +176,7 @@
       "desc": "concept-cleanup: packages/main/src/tasks/validation-evidence-buffer-smoke.ts:562 and :589 still state that a plain returned record means later serialisation cannot disagree and that there is no toJSON left to consult. This contradicts the newly narrowed check-time wording at :81-84 and the retained Object.prototype.toJSON limitation in docs/requirements/decisions/validation-evidence-artifact-growth.md:61-64: a later inherited Object.prototype.toJSON remains visible and can change writer serialisation. Read-only runtime probe reproduced before={payload:x}, after={payload:changed-after-check}, diverged=true. The obsolete absolute guarantee must be narrowed to the own-toJSON fixture/check-time scope before closure.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-30T23:54:48.999Z",
@@ -184,7 +184,11 @@
       "reviewRunId": "B-2220:RR-021",
       "_hash": "bffca0f816f9a9522fde3c45e6d836f6bbd82cd7668f4593b27fc5871db240ea",
       "signatureTag": "missing|unknown|concept-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-2220:F-007: this independently reports the same section-10c overclaim. The shared root cause was fixed in f62e88384b and verified by full-file wording audit plus build-bound compiled smoke receipt 7b2ee62.",
+      "resolvedAt": "2026-08-31T00:00:57.496Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
