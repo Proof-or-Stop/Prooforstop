@@ -12,7 +12,11 @@
           {
             "desc": "After the source-of-truth ceiling is changed and packages/main is rebuilt, node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exits 0 and emits its PASS line with dynamicBindingBuilds/builds=804 (synthetic=419, repo=385). The source names and documents a finite ceiling strictly above 804 but no greater than 850, so the current inventory is explicitly accepted with at most 46 builds of fixed headroom rather than by deleting or weakening the assertion.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+              "selector": "retired authority vocabulary guard PASS builds=804"
+            }
           },
           {
             "desc": "A clean packages/main rebuild succeeds, the generated dist smoke contains the same ceiling and failure semantics as packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts, and the targeted smoke passes from rebuilt dist at the tested HEAD. A diff from the recorded B-5952 fork/base shows no change to docs/requirements/decisions/dynamic-finding-system-execution-plan.md.",
@@ -44,7 +48,29 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Rebuilt targeted smoke must pass at the committed green HEAD and report the independently reproduced current inventory under the finite ceiling.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1c4c42527981ee85ff91881293f097280d74dbe635a3c06448f2fbdb2d83b635",
+            "outputTail": "retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T02:50:18.916Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1d782d3d85b2de30ed0a132e96d26ef6b866252b",
+          "materialHash": "3607757d632bffc9b4f4d942e7123a71ad1c9a216ed9b4b3e95dbcdf7f0426e9",
+          "storyFilesHash": "311fcf13796416837a1812303dd6363a3fcfe9ec50df439be8d8d74722c64b82",
+          "timestamp": "2026-08-31T02:50:19.079Z"
+        }
+      ]
     }
   ]
 }
