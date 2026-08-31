@@ -11742,6 +11742,76 @@
       },
       "readDiagnostics": [],
       "_hash": "b120a90a93c765f82dd4722c1262ebd31b83ca45fc2bb99223a1564734d088ee"
+    },
+    {
+      "id": "B-5a15:RP-243",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 53 intents across CHK-001..CHK-005; 51 must intents have mechanical logic_test receipts with selectorMatched=true bound to materialHash 6d1ff7dc and storyFilesHash 9a49bfb8; 2 should-priority intents (CHK-004:happy:2/3, requiredIn=strict) remain non-mechanical after refresh_stale and are not required coverage. All happy/edge/adversarial columns present; 0 must-gaps, 0 waivers, 0 fails. Every intent selector is emitted by packages/main/tests/causal-evidence.test.mjs. Wave 4 verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check execute in F-247/F-249 of that pinned suite, including 3x2 quorum, degraded-codex rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback. CertificationWindow identity assertions cover frozen headHash/materialHash/storyFilesHash plus official PRECERT verifier/test identities, storyFilesHash-only drift fail-closed, and DONE-required strict whole-tree drift.",
+      "createdAt": "2026-08-31T19:13:38.067Z",
+      "reviewRound": "2026-08-26T09:37:09.709Z",
+      "reviewRunId": "B-5a15:RR-769",
+      "envelopeId": "7be431eb9cd89ac4dcbb65221fc24589146caf4a86adf511dc587e9f8086d71e",
+      "writerSessionId": "sess-review-coverage-b5a15-r3",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": 5150
+        },
+        "digest": "32cbfb94020fc6309fa90f38a9bdd6d264ccd6fb7fafccec0161c1ee58e9bfe6"
+      },
+      "readDiagnostics": [],
+      "_hash": "3f377589555fb02b72aadb0f2254162444c6fcba1d1373eddc25ffe98ba484bb"
     }
   ]
 }
