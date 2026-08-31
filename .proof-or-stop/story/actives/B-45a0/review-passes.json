@@ -22792,6 +22792,36 @@
         "scanEscalationReason": null
       },
       "_hash": "a4927ef98b8d88d347cc8b628d92d5a3f320d65501e43a06bf875835291e9467"
+    },
+    {
+      "id": "B-45a0:RP-473",
+      "agent": "lattice-review-concept",
+      "note": "Independently verified new Rule 10 (basis-before-pre-review ordering) against code: PR_COVERAGE_BASIS_CHANGED compares raw basisDigest (pre-review-check.ts:342), basisDigest includes binding+receiptRef (acceptance-coverage-basis.ts:240-243), acceptanceCoverageBasisSemanticDigest strips those three fields (line 249-251) and is used by verifyAcceptanceBasisReceipt (acceptance-basis-receipt.ts:121) but NOT wired into the PR_COVERAGE_BASIS_CHANGED check itself, pre_review_check is DEV-only allowedPhases (command-policy.ts:439). No concept-level inconsistency introduced; F-431/432/433/435/436 remain open and unaffected by this doc-only addition.",
+      "createdAt": "2026-08-31T02:55:53.559Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1071",
+      "envelopeId": "5e6080cfc684abcd09d782f512721d7b426d5709912f037d3d96ac5a642fb9f7",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3f1dc20a6746cbd0843d854edab01ac75a3880d4bdef4266e0a44ae2c9c6893e"
     }
   ]
 }
