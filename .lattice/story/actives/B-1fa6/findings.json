@@ -692,7 +692,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1537-1561,1606-1614 — HIGH: GateEvaluationSnapshot binds record/digest heads but has no evaluatedAt, trusted-clock binding, or earliest-expiry boundary, and commit-time CAS only detects changed bytes. An assessment or route can cross expiresAt after preflight while every CAS head remains unchanged, so the stale snapshot can still authorize a transition. Bind trusted evaluation time/expiry and recheck time-based validity at commit, including replay/expiry race tests.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T08:55:10.655Z",
@@ -700,7 +700,11 @@
       "reviewRunId": "B-1fa6:RR-043",
       "_hash": "22804ea3a06304b3c8ea7c337fed3b5171d2ee6ab26e91dce91a0e212777a28a",
       "signatureTag": "adversarial|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 93ab5605b4: GateEvaluationSnapshot now binds evaluatedAt, trustedClockDigest, earliestBoundExpiry and commitDeadline; transition commit rechecks trusted time and every expiry, with expiry-boundary, replay, clock and preflight-to-commit race fixtures.",
+      "resolvedAt": "2026-08-31T09:08:02.888Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-033",
