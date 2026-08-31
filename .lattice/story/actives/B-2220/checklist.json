@@ -160,6 +160,17 @@
           "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
           "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
           "timestamp": "2026-08-31T00:10:33.379Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "command": "node -e \"const fs=require(\\\"fs\\\"),c=require(\\\"crypto\\\");const h=c.createHash(\\\"sha256\\\").update(fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\")).digest(\\\"hex\\\");if(h!==\\\"02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d\\\")process.exit(1);console.log(\\\"B-2220 adversarial-1 exact-decision PASS\\\");\"",
+          "note": "The accepted decision document remains byte-identical to the independently reviewed digest.",
+          "mechanical": false,
+          "headHash": "cb4d70a84b73206bdf0947d249e266159acb9dd3",
+          "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
+          "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
+          "timestamp": "2026-08-31T00:10:34.294Z"
         }
       ],
       "userSeesSnapshot": {
