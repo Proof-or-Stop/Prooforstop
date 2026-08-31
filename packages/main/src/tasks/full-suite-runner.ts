@@ -163,7 +163,7 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   isolated('test:experience-hint-worktree-cache'), isolated('test:done-merge-experience-refresh'),
   isolated('test:experience-coverage-gap'), isolated('test:nested-worktree-bootstrap'),
   isolated('test:e2e', { timeoutMs: 180_000 }), isolated('test:experience-arm-gate'),
-  isolated('test:experience-arm-isolation-e2e'), isolated('test:brief-output', { priority: 600 }),
+  isolated('test:experience-arm-isolation-e2e'), isolated('test:brief-output', { priority: 600, timeoutMs: 240_000 }),
   isolated('test:experiments', { priority: 500 }), isolated('test:convergence-breaker'),
   isolated('test:proofstory-acceptance-rollout', { timeoutMs: 300_000, priority: 1000 }),
 ].map((entry) => [entry.name, entry]));

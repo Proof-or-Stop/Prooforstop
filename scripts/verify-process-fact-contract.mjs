@@ -1939,12 +1939,12 @@ function assertCloseoutTrustBoundary() {
     'pinned executable source structural fingerprint drift',
     'review executable structure before updating the pinned fingerprint',
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
-    '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
+    '06c5151f3fa1dbfd15b1e802024a6c40c2fcca1d0ee0ac7f6734af2de9a91a28',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
     // B-1e1f: lockstep with PINNED_EXECUTABLE_SOURCE_FINGERPRINTS closeout-trust-smoke.ts
     // after persistSyntheticAdmittedWindowForTest (see B-cdf6:F-057 coupling note).
     // B-5a15: lockstep after the closeout smoke seeded its verifier owner lease.
-    '144e824d0eb927b00b4f8be4adaee39c61c5af8d16a34878a2025199c1c8162d',
+    'f98d7b1de183e1d520ecb84aae89a65c3784ddde745eae4ac6ad066b4878591f',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
     //

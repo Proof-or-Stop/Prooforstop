@@ -916,6 +916,7 @@ export function persistSyntheticAdmittedWindowForTest(args: {
   projectRoot: string;
   gitCwd?: string;
   inventory?: CertificationWindowInventoryBinding;
+  causalInputHashes?: Record<string, string>;
 }): { window: CertificationWindow; receipt: PrecertReceipt } {
   if (args.inventory?.authorizesTest === true) {
     throw new Error('persistSyntheticAdmittedWindowForTest: inventory binding must not set authorizesTest=true');
@@ -928,6 +929,7 @@ export function persistSyntheticAdmittedWindowForTest(args: {
     headHash,
     materialHash,
     storyFilesHash,
+    causalInputHashes: args.causalInputHashes,
     expectedMainSha: headHash,
     verifierIdentity: PRECERT_VERIFIER_IDENTITY,
     testIdentity: PRECERT_TEST_IDENTITY,
