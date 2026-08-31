@@ -60,7 +60,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Contract verification shows REVIEW roles declare triage behavior while prompt prose and metadata remain non-evidentiary and do not alter lifecycle gates."
+      "userSees": "Contract verification shows REVIEW roles declare triage behavior while prompt prose and metadata remain non-evidentiary and do not alter lifecycle gates.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-004",
