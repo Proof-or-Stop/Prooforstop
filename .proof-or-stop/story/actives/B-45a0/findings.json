@@ -23642,6 +23642,21 @@
       "_hash": "ecf01ddda4ef909e43187b9b26fed77721918562d0a180d47e5fe76e0adbfe34",
       "signatureTag": "missing|unknown|resolvedreason-unconditionally-claims",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-432",
+      "desc": "F-428/F-429/F-430 resolution claims pre_review_check: PASS with zero codes at current HEAD, and the stored .proof-or-stop/story/actives/B-45a0/pre-review-check.json (committed 38fd3b20, 2026-08-31T10:26:58+08) does show status=pass codes=[]. But a fresh, independent proof-or-stop pre_review_check_read at the exact reviewed HEAD 0c61e81d0c reproducibly returns FAIL code=PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED. Root cause: acceptance-basis.json was regenerated via acceptance_basis_generate (commit 5ce0fd05ed, 2026-08-31T10:28:20+08) 82 seconds AFTER pre-review-check.json was signed, and that regeneration commit is an ancestor of the reviewed head 0c61e81d0c (git merge-base --is-ancestor confirms it). So the PASS/zero-codes state the resolution narrative cites had already gone stale before it was dispatched to REVIEW. This is NOT currently a gate bypass -- report.mode=observe so blocking=false regardless -- but the resolution text presents PASS/zero-codes as durable proof the Wave 4 repair holds, which is false at inspection time; it is a snapshot that decayed within ~82s. Independent re-verification note: the caseRecords/mutation-testing portion of the artifact (30 mutations, all controlRestored=true) IS genuine -- my own fresh --live-proof re-execution against current repo state reproduced the exact same gzip-compressed caseRecords byte-for-byte, so the underlying re-execution claim (not re-signing) is honest. Only the coverage-basis freshness claim is stale.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T02:40:31.788Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1064",
+      "_hash": "35bfbcd48d7e2ec8858ae8862137b63e321a41f7c9ddcfc857e1806d518d14fa",
+      "signatureTag": "missing|unknown|resolution-claims-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
