@@ -23640,6 +23640,42 @@
         "scanEscalationReason": null
       },
       "_hash": "5a0434e38257bba974a512ce9d5404985c2f5e954c064fd1fa614ee58799c860"
+    },
+    {
+      "id": "B-45a0:RP-496",
+      "agent": "lattice-review-concept",
+      "note": "Concept-scope sweep at HEAD 84961f4 focused on the F-442 export-star shim restoration. Confirmed: (1) all 12 restored shims exist, are one-line export-star to story-aware-validation.js, and still have zero importers anywhere in the tree - consistent with them being declared modify targets across 8 checklist items, matching the F-442 resolution note. (2) No stray filename residue: all textual hits for these names outside the 12 files themselves are unrelated - npm script names, a docs decision filename, schema string literals, and story evidence JSON. (3) No prose anywhere claims the shims are deleted/orphaned. (4) Traced the surrounding refactor (evidence-freshness.ts delegating to material-path-policy.ts and story-aware-validation.ts) - all existing callers still resolve via re-export, no broken imports. (5) targeted tsc --noEmit completed clean with zero errors. No diff --diff-filter=D files against main. Also reviewed the unrelated concurrent F-449 config fix (shard-adapter env key declared in both configs) which does not affect the shim conclusion. No new findings this round.",
+      "createdAt": "2026-08-31T10:54:54.779Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1109",
+      "envelopeId": "6a8965c1f00c5bd9bb35c83ce2f1fd8dcde5e055aca7275dc796564d5175f828",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/story-change-resolver.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/dynamic-validation-enforcement.ts",
+          "packages/main/src/core/dynamic-validation-observer.ts",
+          "packages/main/src/core/dynamic-validation-report.ts",
+          "packages/main/src/core/dynamic-validation-scheduling.ts",
+          "packages/main/src/core/dynamic-validation-selection.ts",
+          "packages/main/src/core/dynamic-validation-shadow.ts",
+          "packages/main/src/core/validation-baseline-epoch.ts",
+          "packages/main/src/core/validation-build-proof.ts",
+          "packages/main/src/core/validation-catalog.ts",
+          "packages/main/src/core/validation-closure-certificate.ts",
+          "packages/main/src/core/validation-command-receipt.ts",
+          "packages/main/src/core/validation-revocation-ledger.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "73ff856897753cd25d06f9d44a2ad9e581bb75442b14e1a7daeb8a5a6ce44486"
     }
   ]
 }
