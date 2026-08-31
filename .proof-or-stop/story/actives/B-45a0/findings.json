@@ -23993,6 +23993,71 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-442",
+      "desc": "concept-cleanup: commit b3f5379f64 (fix: add story-aware validation compatibility modules) added 14 one-line export-star re-export shim files under packages/main/src/core/ that each just re-export story-aware-validation.js (dynamic-validation-enforcement/observer/report/scheduling/selection/shadow, dual-revision-impact-graph, story-change-resolver, validation-baseline-epoch, validation-build-proof, validation-catalog, validation-closure-certificate, validation-command-receipt, validation-revocation-ledger). Verified zero of these 14 shim paths are imported anywhere in packages/main/src, packages/main/scripts, scripts/, or packages/utils (checked via relative-import grep across the whole tree): no relative-import reference exists for any of them. The matching package.json test:dynamic-validation-* script names route through scripts/run-dynamic-validation-audit.mjs, which also does not import any of these 14 paths -- the name match is coincidental (topic label, not a file reference). No decision doc under docs/requirements/decisions/ documents this bridge as an intentional external-compat contract. These are unconsumed re-export residue: real logic lives solely in story-aware-validation.ts; the 14 shims add filesystem/API surface with zero callers and no documented rationale, misleadingly implying a load-bearing compatibility layer that does not exist. Recommend either deleting the 14 files (concept cleanup) or, if an external consumer genuinely depends on the old paths, documenting that contract in a decisions doc and adding a smoke test that imports through the shim path to make the dependency mechanically verifiable.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T03:29:02.902Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1081",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/dynamic-validation-enforcement.ts",
+          "packages/main/src/core/dynamic-validation-observer.ts",
+          "packages/main/src/core/dynamic-validation-report.ts",
+          "packages/main/src/core/dynamic-validation-scheduling.ts",
+          "packages/main/src/core/dynamic-validation-selection.ts",
+          "packages/main/src/core/dynamic-validation-shadow.ts",
+          "packages/main/src/core/validation-catalog.ts",
+          "scripts/run-dynamic-validation-audit.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/story-change-resolver.ts",
+          "packages/main/src/core/validation-baseline-epoch.ts",
+          "packages/main/src/core/validation-build-proof.ts",
+          "packages/main/src/core/validation-closure-certificate.ts",
+          "packages/main/src/core/validation-command-receipt.ts",
+          "packages/main/src/core/validation-revocation-ledger.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5f0ae7db85f4235b77d853be650041933a45b44d632b6b31e142c8d201edfdf7",
+      "files": [
+        "packages/main/src/core/dynamic-validation-enforcement.ts",
+        "packages/main/src/core/dynamic-validation-observer.ts",
+        "packages/main/src/core/dynamic-validation-report.ts",
+        "packages/main/src/core/dynamic-validation-scheduling.ts",
+        "packages/main/src/core/dynamic-validation-selection.ts",
+        "packages/main/src/core/dynamic-validation-shadow.ts",
+        "packages/main/src/core/dual-revision-impact-graph.ts",
+        "packages/main/src/core/story-change-resolver.ts",
+        "packages/main/src/core/validation-baseline-epoch.ts",
+        "packages/main/src/core/validation-build-proof.ts",
+        "packages/main/src/core/validation-catalog.ts",
+        "packages/main/src/core/validation-closure-certificate.ts",
+        "packages/main/src/core/validation-command-receipt.ts",
+        "packages/main/src/core/validation-revocation-ledger.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-commit",
+      "signatureTagSource": "auto"
     }
   ]
 }
