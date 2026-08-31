@@ -335,6 +335,54 @@
         "scanEscalationReason": null
       },
       "_hash": "93a17f11aed9482eaea32c12e3cc800b3027d0419ddb48c5e5cd8d29f3d79fa5"
+    },
+    {
+      "id": "B-1fa6:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Targeted Round 9 re-attestation found F-025 closed by cc5c996b61. InitialProgressBaseline and InitialProgressBaselineSet now carry exact progress_baseline/target_route_semantic_only/gateEvidence=false markers covered by entry/set hashes and signatures. The process-fact registry, command-policy, and phase allow-list contracts separately register them as non-gate and require independent blocker/pass/unblock direct-consumer plus marker removal/flip and receipt/L4-profile impersonation mutations to fail. Only Story 1 exact receipt-plus-baseline CAS may mint signed L4 disposition/lineage state for the shared predicate. The change leaves routeSubjectDigest's acyclic subject/final-hash construction and Story 3 -> Story 2 -> Story 1 dependency DAG intact and strengthens, rather than weakens, exact CAS.",
+      "createdAt": "2026-08-31T02:13:35.546Z",
+      "reviewRound": "2026-08-31T02:11:41.920Z",
+      "reviewRunId": "B-1fa6:RR-026",
+      "envelopeId": "3963e477e2354165e874253441cdaa44b65035827c649846a5a9c79af75d7685",
+      "writerSessionId": "sess-bd0a1dd5066b8c0e4abbb2196c133425",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/step3-review-budget-breaker-handoff.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "7bec5cd274c30db34dce134fa42fd1d1b9bdd993d25ab3692ee7b18f9e2dd80c"
+      },
+      "readDiagnostics": [],
+      "_hash": "8e7449e2ee16b58edc28126654caeb257af5161e1ed61aedc2e9ccd5c9d4754b"
     }
   ]
 }
