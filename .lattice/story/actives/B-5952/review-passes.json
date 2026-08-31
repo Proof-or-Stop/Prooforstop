@@ -803,6 +803,50 @@
       },
       "readDiagnostics": [],
       "_hash": "4b8df6c02a775ea497eebf3c947e0957fe1377a8753e00671044f4feeb4851e7"
+    },
+    {
+      "id": "B-5952:RP-028",
+      "agent": "lattice-review-concept",
+      "note": "Round 11 targeted concept review found no blocker. The repair commit changes only one historical sentence by pairing @lattice/core with its later canonical replacement @proof-or-stop/core; normalization against the repair parent is byte-identical, and verify-core-package-rename reports deprecatedCoreNameWithoutCanonical=0. The B-3434 test diff changes only canonical/legacy repository-config discovery. No Dynamic Finding behavior, B-3434 blob semantics, concept contract, or promised-but-undelivered behavior changed.",
+      "createdAt": "2026-08-31T14:02:21.233Z",
+      "reviewRound": "2026-08-31T13:56:26.777Z",
+      "reviewRunId": "B-5952:RR-046",
+      "envelopeId": "4c1ca4c873b697ff5a2476823115a20bc6c238fa98f52cb73edec04edf473dad",
+      "writerSessionId": "sess-5fe98c6914e95e6ef5edb7e43b404d76",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          "scripts/verify-core-package-rename.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6eeeabcd839f3d6b8bbfdf6bdf7ef02bd8e71e8c909dede294bff7c3ffd46498"
+      },
+      "readDiagnostics": [],
+      "_hash": "c29a4385af1862672ff5e1114f7934ca51da46765782767d192ad79d78108115"
     }
   ]
 }
