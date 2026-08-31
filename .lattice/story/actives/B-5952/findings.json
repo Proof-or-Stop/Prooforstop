@@ -178,6 +178,21 @@
       "resolvedAt": "2026-08-31T07:33:13.876Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5952:F-008",
+      "desc": ".lattice/story/actives/B-5952/checklist.json:64-70 [high] CHK-001:adversarial:binding-scope-mutants still publishes the old false-positive harness as the current verification.command. It sets docRejected=scoped.status!==0||(scoped.stdout+scoped.stderr).includes(\"violation\"), but a passing scope check prints \"0 unacknowledged violations\", so the active intent still accepts a status-0 control as rejected. F-005 says a JSON-parsing v2 harness superseded this, yet that replacement exists only in findings.json and was never propagated to the current checklist verification surface, leaving the F-005 root cause open for future reruns/reviews.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T07:37:12.057Z",
+      "reviewRound": "2026-08-31T07:32:26.785Z",
+      "reviewRunId": "B-5952:RR-008",
+      "_hash": "84258da3174b3b9ff03a622cc5562721c8a0bb6ec2dc4115ec96f57a81a0d382",
+      "signatureTag": "adversarial|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
