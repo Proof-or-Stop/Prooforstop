@@ -2720,7 +2720,7 @@ Behavior:
     json: z.boolean().optional(),
     verdict: z.never().optional(), receipt: z.never().optional(), evidence: z.never().optional(), write: z.never().optional(),
   }},
-  { name: 'acceptance_basis_generate', description: 'Run the registered PLAN verifier and atomically persist its signed coverage-basis receipt', schema: {
+  { name: 'acceptance_basis_generate', description: 'Run the registered PLAN verifier and atomically persist its signed coverage-basis receipt. ORDERING (B-45a0): run this BEFORE pre_review_check, never after. pre_review_check snapshots the plan basisDigest, and that digest covers binding/receiptRef, so regenerating the basis afterwards moves it and decays a genuine PASS to PR_COVERAGE_BASIS_CHANGED + PR_ARTIFACT_TAMPERED with no material drift. Recovery needs pre_review_check, which is DEV-only.', schema: {
     storyId: z.string().min(1),
     json: z.boolean().optional(),
     status: z.never().optional().describe('Forbidden: basis status is verifier-derived.'),
@@ -2754,7 +2754,7 @@ Behavior:
     sourceInventoryRefs: z.never().optional(), plannedPathRecords: z.never().optional(), receipt: z.never().optional(), binding: z.never().optional(),
     evidence: z.never().optional(), verdict: z.never().optional(), authority: z.never().optional(),
   }},
-  { name: 'pre_review_check', description: 'Recompute the current-worktree basis and persist the canonical signed executable pre-review result', schema: {
+  { name: 'pre_review_check', description: 'Recompute the current-worktree basis and persist the canonical signed executable pre-review result. ORDERING (B-45a0): any acceptance_basis_generate run AFTER this invalidates the artifact it just signed (PR_COVERAGE_BASIS_CHANGED + PR_ARTIFACT_TAMPERED), because the snapshotted plan basisDigest covers binding/receiptRef. Regenerate the basis first, then issue this last.', schema: {
     storyId: z.string().min(1),
     json: z.boolean().optional(),
     status: z.never().optional(), codes: z.never().optional(), ok: z.never().optional(), mode: z.never().optional(),
