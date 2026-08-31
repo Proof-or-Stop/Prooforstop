@@ -66,6 +66,31 @@
         "scanEscalationReason": null
       },
       "_hash": "1ed1c090c8e797efa703ea9f76ddb970a0e6ab7a337d12c6fe11e327cb31abed"
+    },
+    {
+      "id": "B-5952:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Final quality re-review passed. F-008 through F-011 are now coherently closed on the active story surface: CHK-001 publishes the JSON-parsing binding-scope-mutants-v2 pin, the causal-baseline-map must intent is present with a fresh structured evidence ref, evidence_inspect --format=json exposes both commands and freshness against current material/storyFiles hashes, and the committed smoke still self-characterizes exact bound, measured-minus-one, and >850 hard-cap rejection before PASS. No stale quality blocker or promised-but-undelivered review-surface language remains in the changed files reviewed this round.",
+      "createdAt": "2026-08-31T08:10:20.487Z",
+      "reviewRound": "2026-08-31T08:07:59.883Z",
+      "reviewRunId": "B-5952:RR-011",
+      "envelopeId": "51a3e579ccdc84160be25a7b4af3ad5204220a6e825dbcf03e86873f424f7bb7",
+      "writerSessionId": "sess-99e10822ebd43f64e2e5c770e2089728",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/findings.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/review-passes.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "76b29ecf2ec1661174e01bf3b5d2c00b8c8cec4099b7003aaf3d595aa733dbd7"
     }
   ]
 }
