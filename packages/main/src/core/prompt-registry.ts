@@ -30,6 +30,32 @@ export const MODULAR_REVIEWER_ROLE_IDS = [
   'lattice-review-test-coverage',
 ] as const;
 export type ModularReviewerRoleId = typeof MODULAR_REVIEWER_ROLE_IDS[number];
+export const REVIEW_FINDING_TRIAGE_CONTRACT_MARKER = '<!-- proofbound:review-finding-triage-contract:v1 -->';
+export const REVIEW_FINDING_TRIAGE_CONTRACT = `${REVIEW_FINDING_TRIAGE_CONTRACT_MARKER}
+## REVIEW Finding Triage and Routing Contract
+
+Apply this contract while reviewing. It governs reviewer behavior; it does not replace the CLI, handler, or gate as the authority for lifecycle state.
+
+### Record evidence before disposition
+
+- Start the current lane with \`proof-or-stop review_run_start\`. Carry its current \`reviewRunId\` on every \`finding_add\` or \`review_pass_set\` submission.
+- Keep four axes separate: \`evidenceState\` says whether the observation is suspected, verified, or disproven; severity says how harmful it is; applicability reports whether it belongs to this Story; gate impact is computed by the current lifecycle policy. Severity does not determine scope by itself.
+- Preserve reproduction steps, source or command evidence, observed impact, and uncertainty. Report an applicability candidate in the evidence supported by the current command; do not invent unsupported fields or present the candidate as a gate decision.
+- The machine-owned handler and gate derive the actual blocking result from structured facts. Reviewer prose, a routing proposal, or a claimed deferral is not gate evidence.
+
+### Decide current-Story responsibility without widening scope
+
+- Require repair in the current Story when a verified issue was introduced or worsened by the Story, directly violates its acceptance or public compatibility promise, threatens security or data integrity, or would make REVIEW, TEST, DONE, or their evidence misleading.
+- If an issue would otherwise block under the current review round and policy but its applicability is unknown, fail closed and keep it in the current Story until evidence resolves applicability. This rule applies regardless of severity, including medium findings when the current round treats them as blocking.
+- Evidence may support a \`pre_existing_unaffected\` or \`out_of_scope\` routing candidate only when the issue is not a direct Story regression, does not prevent the user-visible outcome, and cannot distort lifecycle evidence. Preserve the original Finding and attach reproduction, evidence, impact, recommended action, explicit owner, and route. Critical or high findings must never be left without an owner.
+- Do not expand the Story merely to make the repository globally green. A bounded, evidence-backed route is not dismissal, resolution, or proof that the problem disappeared.
+
+### Respect reviewer authority
+
+- Reviewers audit and record; they do not repair implementation, rewrite scope, or create follow-up Stories. Do not call \`finding_dismiss\`, \`story_create\`, or \`gap_log\` from a REVIEW lane. Return repair work to the Story Owner and propose routing for non-applicable work.
+- If no finding remains to report, record the lane result with \`review_pass_set\`; never encode a pass as a synthetic Finding.
+- Distinguish \`disproven\` (evidence refutes the observation), \`duplicate\` (another tracked Finding owns the same defect), and \`stale_or_not_reproduced\` (current evidence cannot reproduce an older claim). Do not collapse any of them into resolved.
+- Never delete the original observation, silently rewrite its severity, or overwrite history. New evidence must append a traceable revision or superseding Finding and trigger fresh applicability and gate-impact evaluation.`;
 /** Story 6 roles use the same trusted story-dispatch envelope, but are not REVIEW lanes. */
 export const MODULAR_COMPLEX_ROLE_IDS = [
   'lattice-review-story-init',
@@ -298,10 +324,14 @@ export function resolvePromptTemplateBody(
   entry: PromptRegistryEntry,
   mode: 'legacy-full-context' | 'full-envelope',
 ): string {
-  if (mode === 'legacy-full-context') return restoreLegacyPromptTemplate(entry);
-  const source = readPromptTemplate(entry);
-  if (!isModularRoleId(entry.agentId)) return source;
-  return source;
+  const body = mode === 'legacy-full-context'
+    ? restoreLegacyPromptTemplate(entry)
+    : readPromptTemplate(entry);
+  if (!isModularReviewerRoleId(entry.agentId)) return body;
+  if (body.includes(REVIEW_FINDING_TRIAGE_CONTRACT_MARKER)) {
+    throw new Error(`reviewer prompt ${entry.agentId} already contains ${REVIEW_FINDING_TRIAGE_CONTRACT_MARKER}`);
+  }
+  return `${body.trimEnd()}\n\n${REVIEW_FINDING_TRIAGE_CONTRACT}\n`;
 }
 
 export function renderCodexPromptContent(content: string): string {

@@ -30,6 +30,12 @@ import { isReviewerAgent, resolveReviewRunLane } from '../core/review-run.js';
 import { parseForceReviewers } from '../handlers/reviewer-list.js';
 import { StoryStore } from '../core/store.js';
 
+const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
+
+function occurrenceCount(content: string, needle: string): number {
+  return content.split(needle).length - 1;
+}
+
 const role = promptRoleContract('lattice-review-quality');
 const fullRollout = {
   version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
@@ -94,6 +100,7 @@ const common = {
 const first = assembleFullPromptEnvelope({ ...common, createdAt: '2026-07-18T00:00:01.000Z' });
 const repeated = assembleFullPromptEnvelope({ ...common, createdAt: '2026-07-18T00:00:02.000Z' });
 assert.equal(first.prompt, repeated.prompt, 'semantic assembly is deterministic');
+assert.equal(occurrenceCount(first.prompt, reviewFindingTriageContractMarker), 1, 'full prompt carries one REVIEW triage contract');
 assert.equal(first.envelope.envelopeId, repeated.envelope.envelopeId, 'createdAt is provenance outside envelopeId');
 assert.equal(first.envelope.envelopeId, computePromptEnvelopeId(first.envelope));
 assert.equal(verifyPromptEnvelopeIntegrity(first.envelope), true);
@@ -177,6 +184,7 @@ for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
     createdAt: '2026-07-18T00:00:04.000Z',
   });
   assert.equal(fullLaunch.envelope.roleId, roleId, `${roleId} trusted full launch binds its own role`);
+  assert.equal(occurrenceCount(fullLaunch.prompt, reviewFindingTriageContractMarker), 1, `${roleId} full launch carries one triage contract`);
   assert.equal(verifyPromptEnvelopeIntegrity(fullLaunch.envelope), true);
   const incrementalLaunch = assembleConditionalReviewPromptEnvelope({
     ...roleCommon,
@@ -193,6 +201,7 @@ for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
   });
   assert.equal(incrementalLaunch.envelope.roleId, roleId);
   assert.equal(incrementalLaunch.envelope.contextMode, 'incremental', `${roleId} trusted incremental launch stays role-bound`);
+  assert.equal(occurrenceCount(incrementalLaunch.prompt, reviewFindingTriageContractMarker), 1, `${roleId} incremental launch carries one triage contract`);
   assert.equal(verifyPromptEnvelopeIntegrity(incrementalLaunch.envelope), true);
 }
 
