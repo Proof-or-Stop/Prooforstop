@@ -11812,6 +11812,80 @@
       },
       "readDiagnostics": [],
       "_hash": "3f377589555fb02b72aadb0f2254162444c6fcba1d1373eddc25ffe98ba484bb"
+    },
+    {
+      "id": "B-5a15:RP-244",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of HEAD 1aea783 after F-324 identity-check continuation and smoke causalInputHashes seeding. detectCertificationWindowMaterialDrift now records the unrelated-materialHash advisory then continues into official verifier/test identity checks; unit and smoke identity assertions cover mutated verifier and test identities. DONE-required and heartbeat fixtures derive domain hashes before persistSyntheticAdmittedWindowForTest. No new dead code, unsafe any-casts, silent swallows, shell/fn isolation, or promised-but-undelivered quality blockers.",
+      "createdAt": "2026-08-31T19:13:59.669Z",
+      "reviewRound": "2026-08-26T09:37:09.709Z",
+      "reviewRunId": "B-5a15:RR-771",
+      "envelopeId": "5eb9a628f6b0e3469ec7a67075b508c9442a12ab1dd807261dd42b7ee2fd8b16",
+      "writerSessionId": "sess-review-quality-b5a15-r3",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": 26372
+        },
+        "digest": "acc004906605f2e5cc35c2b746785694d2f74ddf8b180fffbb880da687fb8b69"
+      },
+      "readDiagnostics": [],
+      "_hash": "6fd9f5990d95f7946a7b9f2a89a0e90bb83b3ca960282ceb3c5ac4b997625049"
     }
   ]
 }
