@@ -1090,25 +1090,41 @@
             "id": "CHK-004:edge:compatibility-and-outcomes",
             "desc": "Verify the published wording describes finding_dismiss only as a temporary current round or profile compatibility path and never as applicability proof, repair, resolution, or a mechanically enforced prohibition; independently assert that disproven, duplicate, and stale_or_not_reproduced retain three distinct meanings, evidence requirements, and routing effects.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "id": "CHK-004:edge:inflight-envelope-redispatch",
             "desc": "Create or inspect a reviewer Prompt Envelope bound to the pre-change selected body, then change the REVIEW contract digest and prove the old envelope or run is not silently rebound or reused; operator guidance must require a fresh review_run_start and redispatch of the newly selected prompt before new finding_add or review_pass_set evidence is accepted.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke: PASS"
+            }
           },
           {
             "id": "CHK-004:edge:pin-diff-allowlist",
             "desc": "Compare regenerated approved digests with the checked-in baseline and prove unrelated roles and unchanged legacy reviewer bodies retain their prior digests; every unexpected digest movement, role-count movement, duplicate row, missing role, or host-mode omission must fail instead of being accepted by a blanket repin.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:proof-or-stop-prompt-baseline",
+              "selector": "PASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies"
+            }
           },
           {
             "id": "CHK-004:edge:version-and-local-artifacts",
             "desc": "Verify the required CLI patch version is synchronized across root and package manifests, lockfiles, and the branded version constant, the package build regenerates local dist from the changed source, and the local built CLI reports the expected new version before verify_codex is accepted.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node bin/proof-or-stop.js --version",
+              "selector": "Proof-or-Stop 0.3.268"
+            }
           }
         ],
         "adversarial": [
@@ -1116,7 +1132,11 @@
             "id": "CHK-004:adversarial:false-red",
             "desc": "Force a failing test through a stale dist tree, bad import, malformed fixture, environment failure, or unrelated baseline mismatch and prove it is rejected as RED evidence; the accepted RED must fail specifically because the pre-implementation assembled REVIEW prompt lacks the newly required contract behavior.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "id": "CHK-004:adversarial:test-weakening",
@@ -1246,6 +1266,111 @@
           "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
           "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
           "timestamp": "2026-08-31T20:08:14.767Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:compatibility-and-outcomes",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Focused semantic smoke pins compatibility dismissal limitations and distinct disproven, duplicate, and stale_or_not_reproduced meanings.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T20:08:15.793Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "abdeee1ebe8bf305f24e285aa28184aab0d66b66",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:08:25.024Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:inflight-envelope-redispatch",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Envelope smoke proves changed selected-body bindings cannot be silently reused and requires fresh review_run_start plus redispatch.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3593bd04fc88df30c33dcdb2c8c62f259e3cc54871b1849fc6158d66e82f5d94",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ session identity degraded: derived-ppid; export LATTICE_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T20:08:16.562Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "abdeee1ebe8bf305f24e285aa28184aab0d66b66",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:08:25.024Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:pin-diff-allowlist",
+          "kind": "logic_test",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Exact approval manifest and mutation probes reject blanket repins, missing roles, duplicates, and unrelated digest movement.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6c40bc6b8a12ff3bb3a94b566b16daada75706d20264be3d4fc32a83131ae88f",
+            "outputTail": "\n> lattice@0.3.268 test:proof-or-stop-prompt-baseline\n> node scripts/verify-proof-or-stop-prompt-baseline.mjs\n\nPASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T20:08:24.120Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "abdeee1ebe8bf305f24e285aa28184aab0d66b66",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:08:25.024Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:version-and-local-artifacts",
+          "kind": "logic_test",
+          "file": "bin/proof-or-stop.js",
+          "command": "node bin/proof-or-stop.js --version",
+          "result": "pass",
+          "note": "Local built CLI reports the synchronized patch version after root/package manifests, lockfiles, and branded constant were updated.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f6a00f33f9605a02d2596fccdcfec5d26cd148c3e27181ddccc18ff1eda84c2f",
+            "outputTail": "Proof-or-Stop 0.3.268\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T20:08:24.622Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "abdeee1ebe8bf305f24e285aa28184aab0d66b66",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:08:25.024Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:false-red",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "The accepted RED was captured only after a successful build and failed specifically on the missing marker; current GREEN runs the production assembly.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T20:08:24.890Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "abdeee1ebe8bf305f24e285aa28184aab0d66b66",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:08:25.024Z"
         }
       ]
     }
