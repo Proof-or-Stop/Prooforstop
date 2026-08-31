@@ -8075,7 +8075,7 @@
       "reviewRound": "2026-08-26T15:22:14.772Z",
       "state": "OPEN",
       "begunAt": "2026-08-31T07:36:01.155Z",
-      "updatedAt": "2026-08-31T07:36:01.155Z",
+      "updatedAt": "2026-08-31T07:58:08.766Z",
       "cutoff": {
         "headHash": "a1ccfae35ca2f17bc5f37991498e2e66f31760ab",
         "materialHash": "db6bc28792c31834a0cd12aac3232c99df51b79995daf43300413d82bc272484",
@@ -8089,9 +8089,59 @@
       ],
       "initialRunSequenceBoundary": 934,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-31T07:36:01.155Z",
+          "completedAt": "2026-08-31T07:58:08.766Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-5a88:RR-936",
+              "terminal": "finding",
+              "hostIdentity": "dfe456cd05d23b9dd6a0577e015538a5e333cfd34bdb6304cb1fb403961c1156",
+              "promptIdentity": "5e10cbdb9b0d1dda2979e876fb98e3ca6909bb18aebf476470f33b3a74ae5851",
+              "evidenceIds": [
+                "B-5a88:F-501"
+              ],
+              "coverageDigest": "f4229744ce3c73756dfd1c4b164856d098915ffcd745e160a2ea85a2cb88da53"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-5a88:RR-935",
+              "terminal": "finding",
+              "hostIdentity": "dfe456cd05d23b9dd6a0577e015538a5e333cfd34bdb6304cb1fb403961c1156",
+              "promptIdentity": "46d426bf58e74e16fdcdeaa546f3c35a2d7c9cb3e150995a39c810a21bc23fe9",
+              "evidenceIds": [
+                "B-5a88:F-500"
+              ],
+              "coverageDigest": "99ec4e31392d12fa1f679c528712972d4ded1626fd65c3a5d4837bae5e870b17"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-5a88:RR-938",
+              "terminal": "pass",
+              "hostIdentity": "ff8e13873d5e593b8b567d03184f7734ebdb2363f05221307450b44bd60afd8d",
+              "promptIdentity": "e1206b870c80d4cfb4c2d6f6971036a40cc5c72ca62fd31b997bc3f735619f72",
+              "evidenceIds": [
+                "B-5a88:RP-370"
+              ],
+              "coverageDigest": "c8e465f480e3fec4184c91c279f7fcd3cd3d19c18ad47a1f9026545640379f88"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "dead-export-low-severity",
+            "lattice-provider-discriminant-rename-deferred"
+          ],
+          "verifiedFindingSetDigest": "cab0db552d811778563aba591ef164843be9b430a3d4c19f8b826a34cce12d5c",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "585dee733dc925a739acdca540d73525eb64ed94fb13ee71420a76a81fc53634",
+          "saturated": false,
+          "nextRunSequenceBoundary": 940
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "f0a1f0f888fbb579a504d772612b69ec6f7d7ae954a9dd21c2e621f1b4b9f7ba"
+      "_hash": "f25bb2f7e5f97d293349824927cac8a006922139bcd233b32363cb58cbe162b2"
     }
   ],
   "receipts": [
@@ -13532,6 +13582,43 @@
       "findingDispositions": [],
       "createdAt": "2026-08-26T13:54:15.686Z",
       "_hash": "947b2fc7629ebf398f21231fd32a30607a640e28b89b286753c35b4ba9f0d4e0"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-5a88:RI-091:CRIT-01",
+      "epochId": "B-5a88:RI-091",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-26T15:22:14.772Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "a1ccfae35ca2f17bc5f37991498e2e66f31760ab",
+        "materialHash": "db6bc28792c31834a0cd12aac3232c99df51b79995daf43300413d82bc272484",
+        "storyFilesHash": "949a7107e9f1646cc032477d0119da869aec3f2d1374f8a9770b687785d10984"
+      },
+      "aggregateFindingSetDigest": "cab0db552d811778563aba591ef164843be9b430a3d4c19f8b826a34cce12d5c",
+      "requiredLaneCoverageDigest": "0fcd2e1dcfcd5b060a68af9be542ddb27c7db4ead4fb55b29e6537faddfe2286",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-5a88:RR-940",
+      "terminalEvidenceIds": [
+        "B-5a88:RP-372"
+      ],
+      "readEvidenceDigest": "f3b9b436ecf76684c369a7957cabdc39708ea8c8c83871911e075cb38a6ec8bd",
+      "findingDispositions": [
+        {
+          "findingId": "B-5a88:F-500",
+          "disposition": "verified_family",
+          "familyKey": "dead-export-low-severity",
+          "reason": "Independently confirmed via repo-wide grep (packages/, scripts/, .githooks/, excluding node_modules/dist): isCanonicalAgentRoleId has exactly one occurrence, its own definition at agent-role-identity.ts:104, zero consumers. The accepted_risk disposition is a reasonable proportionality call at round 20 of an OPEN epoch for a low-severity, non-functional dead export with no gate impact; deferring rather than risking a full lane reset for a one-line removal is defensible engineering judgement, not concealment."
+        },
+        {
+          "findingId": "B-5a88:F-501",
+          "disposition": "verified_family",
+          "familyKey": "lattice-provider-discriminant-rename-deferred",
+          "reason": "Independently re-verified the corrected resolutions specific factual claims: packages/main/src/handlers/recover-evidence.ts contains zero provider references (the original FROZEN argument is false); tasks/validate-focused-full-layering-smoke.ts:59 and :65 do assert exact-string provider values (positive consumers confirmed); packages/main/src/handlers/done-required-validation.ts does hardcode provider: lattice-done-required-validation at 3 sites in a DONE-gate path. The RENAMED-not-FROZEN classification per brand-rename-mapping.md own test holds, and CHK-001..013 do not enumerate this literal class, making a 41-site fix genuine scope expansion. Deferring as accepted_risk with an explicit required follow-up is the correct call; this is a legitimate gap requiring a dedicated follow-up story, not a defect in this reviews handling."
+        }
+      ],
+      "createdAt": "2026-08-31T07:56:54.038Z",
+      "_hash": "493b33dd4045fc0667a27865dcc4dc471f5bf21309552751497ef108794d1ff7"
     }
   ]
 }

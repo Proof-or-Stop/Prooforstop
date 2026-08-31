@@ -22886,6 +22886,47 @@
       },
       "readDiagnostics": [],
       "_hash": "730db8b4256e60b9877e1a31d0f28026aa3efa0087efb4bf0b88b4be0117cbbb"
+    },
+    {
+      "id": "B-5a88:RP-373",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Wave 2 discovery-saturation pass: swept CHK-001..013 concept-migration surfaces (role IDs, managed markers, artifact schemas, remote-push-approval schema, package renames, bin alias) plus a broad schemaVersion literal residue check across core/*.ts and handlers/*.ts. Found no genuinely new finding family beyond already-disposed F-499/F-500/F-501 and F-078. The large set of core/rollout-check.ts, core/verdicts.ts, core/lattice-hosts.ts, core/lattice-baseline.ts schemaVersion:'lattice.*' literals is the SAME residue family already established by F-078 (resolved, narrow fix) and F-501 (resolved, deferred as unclaimed scope outside CHK-001..013 enumerated files), not a new family. CHK-002/CHK-004 dual-read markers and schemas verified correctly implemented.",
+      "createdAt": "2026-08-31T08:02:47.653Z",
+      "reviewRound": "2026-08-26T15:22:14.772Z",
+      "reviewRunId": "B-5a88:RR-941",
+      "envelopeId": "7f1ff0d5b4b28a0c8fb970fb802e7e865bb5bc2afdeca2509839a6163b685b3b",
+      "writerSessionId": "claude-b5a88-1788161424",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-autopilot.ts",
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/lattice-evidence.ts",
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/core/lattice-hosts.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/rollout-check.ts",
+          "packages/main/src/core/verdicts.ts",
+          "packages/utils/package.json"
+        ],
+        "scanEscalationReason": "Wave 2 concept-migration residue sweep; cross-checked candidate residue class (schemaVersion literal prefix) against prior-round findings F-078 and F-501 to determine novelty."
+      },
+      "_hash": "34e6a2ef2877d3444903031610c33df638862237c5a1ca308a2a457fbf6d9b55"
     }
   ]
 }
