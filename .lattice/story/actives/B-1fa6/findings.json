@@ -630,7 +630,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1053-1073,1563-1584,2062-2115,2177-2180,2214-2217 — HIGH doc-contract inconsistency: the plan now defines a signed verifier-derived gate-consumed AssessmentIntegrityState with release/convert/remain states, but isDynamicFindingBlocking neither accepts nor consumes that state; assessmentIntegrityFloorBlocks receives only raw assessmentState. The detailed L4 process-fact/registry list then omits AssessmentIntegrityState, its verifier/reader, exact REQUIRED_ASSESSMENT_INVALID semantics, and release/convert/remain mutation coverage, despite the Story 1 deliverable saying both floors receive contract-verifier coverage. A future implementation can satisfy the enumerated registry contract while never mechanically binding or consuming the signed integrity projection, letting per-consumer derivations disagree or bypass the round-3 floor. Add assessmentIntegrityState to the shared predicate contract (or explicitly make the helper the sole registered derivation and remove the unused signed artifact), and explicitly register/verifier-test its exact seven-state set and strong-non-applicable release/fresh-applicable conversion/invalid-remain transitions across every blocker consumer.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-31T08:00:49.916Z",
@@ -641,7 +641,10 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-31T08:10:43.476Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
