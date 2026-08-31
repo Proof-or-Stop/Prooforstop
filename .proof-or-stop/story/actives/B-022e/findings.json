@@ -187,7 +187,7 @@
       "desc": "doc-code-drift: [high] F-001/F-006 resolution is semantically incomplete. scripts/proof-or-stop-identity-concept-provenance.json now pins exact files, but it classifies current authority documents as provenance_bytes; isFrozenSurface then exempts every manifest path. AGENTS.md:124 and :144 explicitly name proof-admissibility-hardening-execution-plan.md, story-files-hash-material-drift.md, done-prepare-automation-execution-plan.md, and session-ownership-and-write-leases.md as current rule/design truth sources, yet all are frozen in the 108-row manifest. They still teach retired active identities: story-files-hash-material-drift.md:99 names lattice-review-delivery; session-ownership-and-write-leases.md:5-18,169-175,257-278 calls LATTICE_SESSION_ID, .lattice paths, and lattice-review-* canonical/current; done-prepare-automation-execution-plan.md:170,352,452,744 uses .lattice and LATTICE_MAX_TIMEOUT_MS; proof-admissibility-hardening-execution-plan.md:28,47,260,1583 uses .lattice/lattice.config/LATTICE; and project-vision.md:14 even says active docs do not accept proof-or-stop as an alias. The self-test passes because it tests exactness/digest drift, not whether a row is truly historical. Consequently the F-001 resolution claim that current normative docs were canonicalized, and F-006 claim that current residue is empty, overstate the actual surface. WHY: current operator truth still directs retired roles/paths/keys, and whole-file provenance pinning prevents those live documents from being corrected while reporting GREEN. Remove current truth docs from the frozen manifest, canonicalize them, and keep only genuinely historical/provenance/compatibility rows.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-08-31T03:22:15.154Z",
@@ -205,7 +205,11 @@
         "docs/requirements/decisions/project-vision.md"
       ],
       "signatureTag": "missing|json|code-drift-high",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 80ac6e1982, correcting the earlier overbroad F-001 and F-006 resolution claim: 92 mechanically referenced current truth sources are excluded from whole-file freezing and canonicalized; 45 whole-file frozen provenance or compatibility files have zero overlap; remaining current-doc legacy literals are 120 exact context-bound migration, schema, or historical references. Current semantic residue is empty and self-test rejects freezing a current truth source or adding an active retired instruction.",
+      "resolvedAt": "2026-08-31T04:21:50.456Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
