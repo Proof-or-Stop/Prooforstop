@@ -24063,6 +24063,31 @@
         "scanEscalationReason": null
       },
       "_hash": "4408dfcf549fbe5e0dcd5a53eff92679d160b5e970a80299335818a3bda964c3"
+    },
+    {
+      "id": "B-45a0:RP-510",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed at HEAD 345a80c0: verificationIntent to verificationEvidence coverage re-verified with no blocker, and the CHK-014:edge:0 deferral re-confirmed as still holding.",
+      "createdAt": "2026-08-31T20:25:30.424Z",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "reviewRunId": "B-45a0:RR-1143",
+      "envelopeId": "29d7436dd862566a0a08e5167ea284ac097c198cb4a134a85ae9c11501c54216",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1b26fc6759d07b80daf9cde1f1c9002126371616358ffd45877ca277c0e128e5"
     }
   ]
 }
