@@ -749,7 +749,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:687-693,1135-1178,1251-1298,1301-1340,1343-1403 — HIGH: The new identity contract says every signed reference must use globally unique FindingRef/recordId to prevent display-ID aliasing, but four gate-consumed signed artifacts (MandatoryRepairClassification, MaterialDriftReattestation, DeferralLineageState, and FindingDeferralDisposition) still identify the Finding only by storyId+findingId. A reused/legacy-aliased display tuple therefore has no immutable recordId in the signed bytes, while AssessmentIntegrityState and manifest use FindingRef, leaving two incompatible identity authorities across the same gate. Convert every gate-relevant Finding reference to FindingRef (and bind its exact record/version/hash as appropriate), then add alias/reuse/legacy-binding mutation tests; otherwise the advertised global identity and CAS safety are not implementable.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T08:56:04.073Z",
@@ -757,7 +757,11 @@
       "reviewRunId": "B-1fa6:RR-045",
       "_hash": "73c5842893cbe4662c7237903c2530f6b32da39b7d8d5afafae00b576d614f97",
       "signatureTag": "adversarial|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 93ab5605b4: MandatoryRepairClassification, MaterialDriftReattestation, DeferralLineageState and FindingDeferralDisposition now sign FindingRef plus required finding hash/version bindings; alias, reused display ID and legacy-binding mutation tests fail closed.",
+      "resolvedAt": "2026-08-31T09:08:06.384Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-036",
