@@ -1,0 +1,168 @@
+{
+  "storyId": "B-9a49",
+  "checkedAt": "2026-08-31T14:28:19.111Z",
+  "features": [
+    {
+      "feature": "One byte-consistent canonical Finding triage contract is delivered to all five active REVIEW lanes in full-envelope and legacy-full-context modes, exactly once and nowhere else.",
+      "covered_by": "CHK-001 + CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "review-finding-triage-prompt-change-proposal.md sections 2, 5.1, 5.2, 11, 12"
+    },
+    {
+      "feature": "Reviewer evidence protocol preserves review_run_start first, current signed reviewRunId binding, finding_add for genuine Findings, and review_pass_set only for a valid no-defect outcome.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proposal section 6 item 1; prompt consolidation exact contract"
+    },
+    {
+      "feature": "Evidence state, severity, applicability candidate, and gate impact remain independent axes, and the machine rather than prompt prose derives blocking.",
+      "covered_by": "CHK-001 + CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proposal sections 4, 4.1, 6, 10; Dynamic Finding sections 2 and 7"
+    },
+    {
+      "feature": "Current-Story regressions, checklist or user-visible contradictions, and gate-truth defects return to DEV, while otherwise-blocking unknown applicability fails closed under the current round policy, including blocking medium cases.",
+      "covered_by": "CHK-001 + CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proposal sections 2, 4, 6, 7; Dynamic Finding section 7.1"
+    },
+    {
+      "feature": "Non-current-Story routing requires current structured evidence, scope basis, impact, and a traceable owner or route; high or critical Findings may not remain unowned.",
+      "covered_by": "CHK-001 + CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proposal sections 4, 4.1, 6, 7, 13; Dynamic Finding section 7.2"
+    },
+    {
+      "feature": "Finding observation, evidence state, severity, and history are preserved; routing is not resolution, severity is never silently rewritten, and later correction uses append-only revision or supersession.",
+      "covered_by": "CHK-001 + CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proposal sections 4.1, 6, 10; Dynamic Finding sections 2 and 5.4"
+    },
+    {
+      "feature": "disproven, duplicate, and stale_or_not_reproduced remain distinct evidence outcomes with distinct proof and routing effects.",
+      "covered_by": "CHK-001 + CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proposal sections 4, 4.1, 12; Dynamic Finding section 7.2"
+    },
+    {
+      "feature": "Reviewers do not repair implementation, call finding_dismiss, call story_create, or expand Story scope merely to make the repository globally green.",
+      "covered_by": "CHK-001 + CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proposal sections 3, 5.3, 6, 10"
+    },
+    {
+      "feature": "Only the main Agent or a human may call gap_log, and only for a Proof-or-Stop framework gap; reviewers must not use it as a general backlog or defect-routing shortcut.",
+      "covered_by": "",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "proposal section 3 and section 8 item 5"
+    },
+    {
+      "feature": "Story Owner guidance inspects Findings, returns applicable blockers to DEV, rejects prose-only or ownerless routing, and describes finding_dismiss only as a temporary round/profile compatibility accounting path rather than applicability proof or repair.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proposal sections 5.3, 7, 8"
+    },
+    {
+      "feature": "Implementers preserve reproduction and impact evidence for out-of-item defects, report them to the Story Owner, and do not widen the assigned implementation scope unilaterally.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proposal sections 5.4 and 11; role separation authority contract"
+    },
+    {
+      "feature": "defect-triage-and-routing-check is declarative requiredCheckIds metadata for exactly the five active REVIEW roles and cannot prove execution or mint lifecycle evidence.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proposal sections 10 and 11; prompt modularization Role Contract boundary"
+    },
+    {
+      "feature": "Dynamic Finding schemas, commands, handlers, owner or route persistence, signatures, freshness, supersession, process-fact consumers, and blocking predicates are not implemented or changed by this Story.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-contract explicitExcludes and CHK-003 runtime-invariant verification",
+      "source": "proposal sections 1.1, 3, 9, 10, 11; Dynamic Finding section 1.2"
+    },
+    {
+      "feature": "New Agent-facing and tracked documentation slices are English-only without falsely requiring unrelated pre-existing repository documentation to be translated.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "original user intent; CHK-004 edge acceptance"
+    },
+    {
+      "feature": "A genuine pre-implementation contract failure is captured as RED and the unchanged assertions become GREEN only through production prompt and contract changes.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "original user intent; execution plan CHK-001 and CHK-004"
+    },
+    {
+      "feature": "Affected assembled prompt, role semantic or render, host-render, and baseline digests are deliberately recomputed and repinned while unchanged reviewer legacy template-body hashes remain unchanged.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proposal sections 5.2 and 12; prompt modularization sections 12 and 16"
+    },
+    {
+      "feature": "An in-flight reviewer prompt or envelope made stale by the changed selected body is not silently rebound; affected reviewers are redispatched with a fresh review_run_start.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proposal section 12 item 11; prompt modularization sections 6.4 and 9.4"
+    },
+    {
+      "feature": "Focused prompt smokes, process-fact and runtime-fact verifiers, prompt baseline verification, build or type validation, version synchronization, local CLI version output, and story-bound verify_codex run against the same final committed source.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proposal section 12; AGENTS Codex adapter and version disciplines"
+    },
+    {
+      "feature": "Absence from the current diff, stale prior outcomes, historical similarity, free text, or severity reduction cannot establish that a defect is non-applicable.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "proposal sections 3, 4.1, 7; Dynamic Finding sections 7.2 and 7.3"
+    },
+    {
+      "feature": "Future official signed applicability assessments, owner or route schemas, assessment commands, and automatic blocker reprojection remain future Dynamic Finding implementation work.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-contract explicitExcludes and accepted intent-collision interpretation",
+      "source": "proposal sections 9, 10, 13; Dynamic Finding sections 9-10"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "AGENTS.md",
+      "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 20,
+    "covered": 17,
+    "excluded": 2,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "55b99a8c3872e316625ff1c4fec2ddd6c17f7dde790de3e6d2376e1132226ef5",
+  "openQuestions": []
+}

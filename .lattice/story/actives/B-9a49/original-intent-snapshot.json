@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-9a49",
+  "sourceText": "Execute review-finding-triage-prompt-change-proposal.md by modifying the corresponding Agents so they know these behavior rules, and continue until the document is fully done. Use English for open-source content and RED/GREEN for the prompt behavior change.",
+  "normalizedOutcome": "All five active REVIEW Agent prompts expose the same bounded Finding triage behavior in both supported modes, Owner and implementer guidance is aligned, non-REVIEW prompts remain isolated, and verification proves prompt metadata is not gate evidence.",
+  "acceptanceClaim": "Freshly built prompt assembly and contract tests pass for all five REVIEW lanes and both modes, fail for leakage or semantic collapse, and story-bound verify_codex passes without Dynamic Finding runtime changes.",
+  "keyRequirementIds": [
+    "REQ-AGENT-SYSTEM-BOUNDARY",
+    "REQ-OPEN-SOURCE-ENGLISH",
+    "REQ-RED-GREEN",
+    "REQ-REVIEW-TRIAGE"
+  ],
+  "requestHash": "sha256:4cce13ffb38f808dd0f37a806945dc6edb4a32cefcd093b0b4ce9c64ca60299b",
+  "createdAt": "2026-08-31T14:19:21.131Z",
+  "updatedAt": "2026-08-31T14:19:21.131Z"
+}
