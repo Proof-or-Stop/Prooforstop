@@ -260,6 +260,25 @@
       },
       "readDiagnostics": [],
       "_hash": "ee47defbe69c4e0cf3c815deb6f08d49559ffac0baadbbfb805759202730481b"
+    },
+    {
+      "id": "B-1fa6:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 7 targeted test-coverage re-review passed for 0974481b67: F-019 is closed by explicit registry/command-policy/phase-allowlist shared-predicate mutations and all forbidden Story 3->2/1 plus Story 2->1 reverse-import fixtures; F-020 is closed by signed expiry-policy signature/authority/digest/version/effective-time/constants/binding/supersession mutations; F-022 is closed by Story 1 ownership of the read-only scorecard, Story 2/3 signed public queries, and deterministic every-row numerator/denominator/threshold/rollback/metadata/protected-storage/tamper/prerequisite refusal tests. No remaining blocker in the requested targeted scope.",
+      "createdAt": "2026-08-31T01:48:05.304Z",
+      "reviewRound": "2026-08-31T01:45:48.999Z",
+      "reviewRunId": "B-1fa6:RR-022",
+      "envelopeId": "8508420545b13da4c5a53907838ae4f1cb4c104175f6a78f9777895b52f5b2ac",
+      "writerSessionId": "sess-5887e8678fb7c0484afd1eb479f9a4a9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "scanEscalationReason": "Targeted Round 7 re-review of commit 0974481b67 and resolved findings F-019, F-020, and F-022; inspected the full commit diff and all affected contract, Story Required tests, rollout, scorecard, risk, and acceptance sections."
+      },
+      "_hash": "a64881cd86a2930e8b2a1ea0e6b1a454f5420e76f30be0c50298b4b50a0c930c"
     }
   ]
 }
