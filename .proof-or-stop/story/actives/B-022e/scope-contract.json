@@ -409,10 +409,26 @@
       "phase": "DEV",
       "headHash": "86202f0687cfdbddeda5b8b7a1f3ee1ab557485e",
       "materialHash": "0811c52999cc092ae7f3b259b542e8ad086ec824c7600e8d817ca22fd3b530e9"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Necessary main-sync carry-in from completed independent documentation work; B-022e did not modify its content and reviewers must treat it as unrelated convergence drift.",
+      "timestamp": "2026-08-31T22:49:12.570Z",
+      "paths": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "0a017306bd31b0f1c2398977276d10aee35992fe",
+      "materialHash": "5aea0338b9221e52ef914b982e674195d9425ca783012648f81dc4c25f6722e1"
     }
   ],
   "createdAt": "2026-08-30T21:48:39.503Z",
-  "updatedAt": "2026-08-31T09:02:13.078Z",
+  "updatedAt": "2026-08-31T22:49:12.570Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -585,6 +601,7 @@
     "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md": "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
     "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md": "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
     "docs/requirements/decisions/unlock-layer4-production-safety-suite.md": "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
-    ".gitattributes": ".gitattributes"
+    ".gitattributes": ".gitattributes",
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
   }
 }
