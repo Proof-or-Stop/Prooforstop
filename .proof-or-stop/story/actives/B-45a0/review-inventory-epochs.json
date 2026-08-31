@@ -10990,6 +10990,55 @@
       "waves": [],
       "receiptId": "B-45a0:RIE-135:RCP-001",
       "_hash": "d30c4a674f7611d6c480054ca5eb36e44a21f76b13199ecaed0bc4182e09dbba"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RIE-136",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-31T22:06:30.073Z",
+      "updatedAt": "2026-08-31T22:07:09.585Z",
+      "cutoff": {
+        "headHash": "aae7f87fefeb0ecbb1cbef66f57843470ebb33a4",
+        "materialHash": "6d96761e24fabeb191351d28a0fa127f81793c6c1fd5723a5fb2e50738958b10",
+        "storyFilesHash": "8c241e49512b1da79933cb51085e17e56620aa3670e4e5a3c8d3cded6569d989"
+      },
+      "scopeDigest": "3083e4c94ae1197e6f9e2f3b126422c01df100f629a0ec3fcd14dfc1da69ccf0",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-45a0:RIE-136:RCP-001",
+      "cancelledAt": "2026-08-31T22:07:09.585Z",
+      "cancelReason": "late evidence invalidated finalized receipt: the graph guard fix commit 9f5b0d96b1 and the evidence refresh commits that followed it moved storyFilesHash after the four lane passes were earned, so the finalized receipt B-45a0:RIE-136:RCP-001 no longer matches the live aggregate and story_advance to DEV rejected it with REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED. Beginning a fresh epoch so the lanes can re-attest against the current hashes.",
+      "terminalRunSequenceBoundary": 1145,
+      "_hash": "331ead3f54b8350920b42bddf2336cb4f1fffc14f53e0bb1e922f7e0b5ad4ed6"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-111",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-31T22:07:20.527Z",
+      "updatedAt": "2026-08-31T22:07:20.527Z",
+      "cutoff": {
+        "headHash": "aae7f87fefeb0ecbb1cbef66f57843470ebb33a4",
+        "materialHash": "6d96761e24fabeb191351d28a0fa127f81793c6c1fd5723a5fb2e50738958b10",
+        "storyFilesHash": "8c241e49512b1da79933cb51085e17e56620aa3670e4e5a3c8d3cded6569d989"
+      },
+      "scopeDigest": "3083e4c94ae1197e6f9e2f3b126422c01df100f629a0ec3fcd14dfc1da69ccf0",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 1145,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "5372ebfe9fdb0e04e79dc1332434f76bd1d022819e853dc7eb2f6a46fe5e8ce6"
     }
   ],
   "receipts": [
@@ -12700,6 +12749,30 @@
       "authorizesTest": false,
       "issuedAt": "2026-08-31T14:49:33.583Z",
       "_hash": "c1b08975f1ab1418119abd08324f36b7cc25daeee5c477aaadac4c8311f01334"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-45a0:RIE-136:RCP-001",
+      "epochId": "B-45a0:RIE-136",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "cutoff": {
+        "headHash": "aae7f87fefeb0ecbb1cbef66f57843470ebb33a4",
+        "materialHash": "6d96761e24fabeb191351d28a0fa127f81793c6c1fd5723a5fb2e50738958b10",
+        "storyFilesHash": "8c241e49512b1da79933cb51085e17e56620aa3670e4e5a3c8d3cded6569d989"
+      },
+      "scopeDigest": "3083e4c94ae1197e6f9e2f3b126422c01df100f629a0ec3fcd14dfc1da69ccf0",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-31T22:06:30.073Z",
+      "invalidatedAt": "2026-08-31T22:07:09.585Z",
+      "invalidationReason": "late evidence invalidated finalized receipt: the graph guard fix commit 9f5b0d96b1 and the evidence refresh commits that followed it moved storyFilesHash after the four lane passes were earned, so the finalized receipt B-45a0:RIE-136:RCP-001 no longer matches the live aggregate and story_advance to DEV rejected it with REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED. Beginning a fresh epoch so the lanes can re-attest against the current hashes.",
+      "_hash": "a10ecf6413ebb915120cde52aa87b91c87162fbfb63ef4b8c7f1d2a6d3a7ae6b"
     }
   ],
   "criticReceipts": [

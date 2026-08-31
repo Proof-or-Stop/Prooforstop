@@ -24188,6 +24188,33 @@
         "scanEscalationReason": null
       },
       "_hash": "17ecce773593b6f181ee092ff5d662a6325e3806dc19f83487727613b6e1f3c3"
+    },
+    {
+      "id": "B-45a0:RP-514",
+      "agent": "lattice-review-concept",
+      "note": "Re-attestation over prior RP-513 verdict at new HEAD aae7f87. Since RP-513 only commit 9f5b0d96b1 touched packages/graph: additive PRUNED regex alternative for validation-traces sidecar, mirrors existing exclusion at story-aware-validation.ts:725. No concept deletion/replacement. Re-confirmed all 4 prior conclusions: single-sourced path-policy fns, renamed fns zero old-name residue outside story metadata blobs, exactly 1 def+1 use for objectIdsAtRef, stray lattice-baseline-smoke.ts local unchanged/out of scope. No blocker.",
+      "createdAt": "2026-08-31T22:11:10.134Z",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "reviewRunId": "B-45a0:RR-1146",
+      "envelopeId": "df45f9b4fc4cb3868a45bd089ad4277190a6e57cacdaa60988273cfb3196b391",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9b973ba4224b2e8cf9af327827109054a9131d7cf7dcd9e549e38858ea09020f"
     }
   ]
 }
