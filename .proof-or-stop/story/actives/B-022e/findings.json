@@ -383,7 +383,7 @@
       "desc": "F-016 was resolved without rebinding its structured checklist evidence. At HEAD 685df85, evidence_inspect still reports CHK-007:pack-boundary-transcript:0 stale: the checklist evidence row remains bound to storyFilesHash 75fd57a4 while current storyFilesHash is 01b680a9. Commit 3095bc5 updates only evidence/live-smoke-transcript.json and a closeout receipt; it does not update checklist.json, and the transcript artifact itself contains current materialHash but no storyFilesHash field. WHY: transcriptRefs nonempty proves discoverability, not freshness, and the resolution claim that the artifact is present-fresh is mechanically false. The separate stale test-evidence is expected to be replaced in TEST and is nonblocking for REVIEW, but the CHK-007 supplemental pack proof must be rebound before coverage pass. Remediation: use the supported verification-evidence CLI to replace/rebind CHK-007:pack-boundary-transcript:0 to the newly captured transcript at current storyFilesHash 01b680a9, then require evidence_inspect staleRefs to contain only test-evidence, transcript freshness.status=fresh, and 29/29 verificationIntent receipts fresh before a new signed coverage run.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-31T14:25:13.664Z",
@@ -396,7 +396,11 @@
         ".proof-or-stop/story/actives/B-022e/findings.json"
       ],
       "signatureTag": "missing|json|resolved-without-rebinding",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Rebound the CHK-007 supplemental pack-boundary transcript through checklist_update in DEV after live_smoke_transcript capture. evidence_inspect at 9fbc6d8 reports staleRefs=1 with transcriptRefs=1; the only remaining stale reference is the prior TEST validation evidence, which will be replaced in TEST.",
+      "resolvedAt": "2026-08-31T14:30:31.169Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
