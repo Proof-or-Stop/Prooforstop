@@ -17425,6 +17425,91 @@
       ],
       "createdAt": "2026-08-31T12:12:17.151Z",
       "_hash": "1e4c30cb2d34e9f3d90d65696aa466857a44b4a1f051ab1a97e5d69d4057605a"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-110:CRIT-01",
+      "epochId": "B-45a0:RI-110",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "cdadcb741a63048226a4038734f3da64d5331d67",
+        "materialHash": "3e3daf6dfc97811211a29f1c8bb7d0129129fd65bc4553941ad0b1fbcbc24fe2",
+        "storyFilesHash": "aa02af10ad99dad2c2bf2d61d11a0f74682bb5fd99c9000781e908196ec5c0c4"
+      },
+      "aggregateFindingSetDigest": "6f85371467bd0e55aac52385c37c6d9585bec61bf2c306eb31b672da0bc2ac4b",
+      "requiredLaneCoverageDigest": "31c0a69a3bca34a3be90e32fd2ceda1d62b447e0e9b4a40b6e65e04fbabadb19",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-1132",
+      "terminalEvidenceIds": [
+        "B-45a0:F-462"
+      ],
+      "readEvidenceDigest": "b0f4e25837a85944d5210a941af6e8f66872bc78e5a6a16917cdb882763ff8b0",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-452",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-basis-and-pre-review-inverted-verdict-staleness",
+          "reason": "Independently reproduced: acceptance_basis reports AT_SCOPE_BINDING_MISSING and pre_review_check_read reports FAIL PR_ARTIFACT_TAMPERED at current HEAD; matches decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md Section 9 Rule 10 hazard (regenerating basis after pre_review_check moves basisDigest and decays a genuine PASS). Same defect family as F-457 and F-461 (CHK-014:edge:0 selector), duplicate restatement across review rounds."
+        },
+        {
+          "findingId": "B-45a0:F-453",
+          "disposition": "verified_family",
+          "familyKey": "docs-self-contradictory-rule-attribution",
+          "reason": "Independently reproduced: lines 1273-1294 of the decision doc attribute the never-a-silent-pass quote to Rule 9 then self-correct parenthetically to Rule 3 in the same sentence; the quote itself is at Rule 3 (line ~1256), not Rule 9. Worktree CLAUDE.md's own restatement is not contradictory. Duplicate of F-460, same family."
+        },
+        {
+          "findingId": "B-45a0:F-454",
+          "disposition": "verified_family",
+          "familyKey": "quality-unused-import-buildRevocationLedger",
+          "reason": "Independently reproduced: packages/main/src/handlers/verifier.ts:81 imports buildRevocationLedger from core/story-aware-validation.js; grep confirms exactly one occurrence in the file (the import), never referenced elsewhere; noUnusedLocals is not set in packages/main/tsconfig.json so this is a real but non-blocking low-severity defect. Duplicate of F-451/F-456/F-459, same family, restated after stale reviewRunId bindings across review rounds."
+        },
+        {
+          "findingId": "B-45a0:F-455",
+          "disposition": "verified_family",
+          "familyKey": "independent-topology-critic-wave4-surfaces-not-admissible",
+          "reason": "Does NOT belong to any of the three epoch-designated families (verbatim quality-unused-import-buildRevocationLedger / acceptance-basis-and-pre-review-inverted-verdict-staleness / docs-self-contradictory-rule-attribution) — flagging explicitly per instruction rather than silently renaming into one of them. This is my own prior-wave (RI-109) topology-critic finding: independently reproduced that acceptance_topology_check (AT_CLOSURE_FILES_STALE, AT_SCOPE_BINDING_MISSING), acceptance_basis (AT_SCOPE_BINDING_MISSING), pre_review_check_read (PR_ARTIFACT_TAMPERED+3 codes), and acceptance_rollout_check (FAIL, mode=enforce, blocking=true, AR_REPORT_STALE) are all currently non-admissible at HEAD. Duplicate of F-458 (Wave 2 re-verification of the same structural finding), same family."
+        },
+        {
+          "findingId": "B-45a0:F-456",
+          "disposition": "verified_family",
+          "familyKey": "quality-unused-import-buildRevocationLedger",
+          "reason": "Same defect as F-454/F-451/F-459 (verifier.ts:81 unused buildRevocationLedger import), restated finding after a stale reviewRunId binding on a prior instance. Duplicate, same family."
+        },
+        {
+          "findingId": "B-45a0:F-457",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-basis-and-pre-review-inverted-verdict-staleness",
+          "reason": "Same defect as F-452/F-461: CHK-014:edge:0 verificationEvidence pins a selector against pre_review_check_read's status field that inverts under the acceptance-basis staleness hazard documented at decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md Section 9 Rule 10. Independently reproduced pre_review_check_read FAIL at current HEAD. Duplicate, same family."
+        },
+        {
+          "findingId": "B-45a0:F-458",
+          "disposition": "verified_family",
+          "familyKey": "independent-topology-critic-wave4-surfaces-not-admissible",
+          "reason": "Same family as F-455 (see reasoning there) — explicitly NOT one of the three epoch-designated verbatim familyKeys, flagged rather than force-mapped. This is my own prior-wave (RI-109) Wave-2 re-verification of the same Wave-4 surface non-admissibility, independently reconfirmed by me again in this wave via direct execution of acceptance_topology_check / acceptance_basis / pre_review_check_read / acceptance_rollout_check."
+        },
+        {
+          "findingId": "B-45a0:F-459",
+          "disposition": "verified_family",
+          "familyKey": "quality-unused-import-buildRevocationLedger",
+          "reason": "Independently reproduced at current HEAD: packages/main/src/handlers/verifier.ts:81 imports buildRevocationLedger from ../core/story-aware-validation.js, confirmed unused via grep (exactly 1 occurrence, the import itself); packages/main/tsconfig.json has no noUnusedLocals so this does not fail tsc but is a genuine low-severity quality defect. This is the epoch-designated instance of the frozen family string, bound to current-latest quality lane run RR-1129."
+        },
+        {
+          "findingId": "B-45a0:F-460",
+          "disposition": "verified_family",
+          "familyKey": "docs-self-contradictory-rule-attribution",
+          "reason": "Independently reproduced at current HEAD: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md Section 9 Rule 10 (lines 1273-1294) attributes the never-a-silent-pass quote to Rule 9's language then immediately self-corrects to Rule 3 in a parenthetical within the same clause; the quoted phrase actually appears under Rule 3. All code citations in Rule 10 verified accurate against pre-review-check.ts / acceptance-coverage-basis.ts. This is the epoch-designated instance of the frozen family string, bound to current-latest docs lane run RR-1128."
+        },
+        {
+          "findingId": "B-45a0:F-461",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-basis-and-pre-review-inverted-verdict-staleness",
+          "reason": "Independently reproduced at current HEAD: acceptance_basis reports AT_SCOPE_BINDING_MISSING (evidentiary:false) and pre_review_check_read reports FAIL PR_ARTIFACT_TAMPERED,PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE,PR_CUTOFF_UNBOUND; matches the exact hazard documented in decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md Section 9 Rule 10 (regenerating the coverage basis after pre_review_check decays a genuine PASS to PR_COVERAGE_BASIS_CHANGED/PR_ARTIFACT_TAMPERED with unchanged storyFilesHash). This is the epoch-designated instance of the frozen family string, bound to current-latest test-coverage lane run RR-1130."
+        }
+      ],
+      "createdAt": "2026-08-31T12:44:09.521Z",
+      "_hash": "204dc81a2665cb148c783c29f1bd9f50405085512ec85d69b2546d26f8fb38dc"
     }
   ]
 }
