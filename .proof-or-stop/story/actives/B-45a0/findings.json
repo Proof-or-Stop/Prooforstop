@@ -23590,7 +23590,7 @@
       "desc": "Independently re-verified at fresh head 20ec99a (review run RR-1055). acceptance_topology_check now passes (Status pass, Structural pass yes, Basis status complete, zero diagnostics) and acceptance_basis is complete -- these two sub-claims in prior F-429 no longer hold. However pre_review_check_read STILL FAILs (mode=observe, blocking=false, code=PR_ARTIFACT_TAMPERED plus the same 10 PR_* codes: PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_POSITIVE_EVIDENCE_MISSING, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_CUTOFF_UNBOUND); writer pre_review_check is DEV-only and cannot be repaired from REVIEW. acceptance_rollout_check STILL FAILs with mode=enforce status=fail blocking=true code=AR_REPORT_STALE because the rollout receipt binding.headHash=aed1fe4972dd683454b4d6b337585bf62713e06f predates current HEAD 20ec99a; writer acceptance_rollout_report is DEV-only. Direct inspection of .proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json confirms the report body itself is a genuine full envelope, not degraded: all 12 sourceRecords show quorumReceipt.assuranceLevel=full-3x2, rounds=3, emittedCount=6, 3 distinct runIds (r1/r2/r3), and both claude-cli+codex-cli hostIds present in every round -- so no mislabeled-3x1 defect exists; the report's own verdict field is pass with mislabeled3x1Count=0, matching direct inspection. The blocking defect is receipt staleness (headHash drift since DEV-only writers cannot run from REVIEW), not a rounds x hosts degradation. This finding remains open and blocking; it supersedes B-45a0:F-428 (recorded under agent=main, missing readManifest/readLog, therefore correctly excluded from this epoch's raw-finding set under isEligibleBaselineFinding) and B-45a0:F-429 (same underlying reviewRunId=RR-1050, now disposed as verified_family in epoch RI-104).",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-30T17:20:06.967Z",
@@ -23618,7 +23618,11 @@
       "readDiagnostics": [],
       "_hash": "aabcc2b7204a632849330c05f7615c8b2b4166c3e8af2b6af10ae63fe71bcc91",
       "signatureTag": "missing|unknown|independently-verified-fresh",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "All four Wave-4 acceptance surfaces this finding named now pass at current HEAD, verified together. acceptance_rollout_check: mode=enforce status=pass blocking=false receipt=current quorum=full-3x2, after regenerating the report with acceptance_rollout_report (a DEV-only writer, which is exactly why this could not be repaired from REVIEW) at sampleCount=3 seededDetection=100% falseBlockRate=0% waiverDelta=0. pre_review_check: PASS with zero codes, down from ten. That repair was root-caused rather than retried: reissuing the check cleared PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED and PR_CUTOFF_UNBOUND; refreshing all 50 stale verificationEvidence rows, each re-executing its pinned command rather than re-signing, cleared PR_POSITIVE_EVIDENCE_MISSING and PR_EVIDENCE_STALE; and the final six executableProofState codes were diagnosed with PROOF_OR_STOP_DEBUG_PRE_REVIEW_PROOF=1, which printed 'receipt invalid writer=live_smoke_transcript storyFiles=cbc48e8d expected=ba1a2650', showing the live-smoke transcript was bound to a stale storyFilesHash. Capturing a fresh transcript through the same pinned producer node scripts/run-proofstory-pre-review-live-proof.mjs cleared all six at once; the check now reports executableEvidence=current mutations=biting transcript=related authority=admissible. acceptance_basis: complete, Receipt verification PASS, converged to the same receipt across two consecutive generates. acceptance_topology_check: Status pass, Structural pass yes, Diagnostics none.",
+      "resolvedAt": "2026-08-31T02:29:45.902Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
