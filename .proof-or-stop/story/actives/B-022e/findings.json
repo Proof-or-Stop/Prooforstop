@@ -284,6 +284,28 @@
       "resolvedAt": "2026-08-31T07:51:32.309Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-013",
+      "desc": "CHK-007:pack-boundary-transcript:0 is stale and not admissible at the current story-owned state. evidence_inspect reports overall status=stale because the supplemental manual transcript remains bound to storyFilesHash 24c3d188..., while current storyFilesHash is 716e81cc.... The 29 pinned mechanical receipts were correctly re-executed at product HEAD 5151f10 and their fresh identity-verifier output includes the four-tarball offline pack, so the tiny NUL-escape/.gitattributes product delta has adequate regression coverage; however, that fresh mechanical proof cannot replace the separate transcript freshness binding. WHY: REVIEW/TEST must not consume an explicitly stale structured evidence ref. Recapture the pack-boundary live-smoke transcript at the current storyFilesHash, or replace/remove the supplemental ref through the supported evidence workflow, then rerun evidence_inspect and the coverage lane.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-31T09:10:41.244Z",
+      "reviewRound": "2026-08-31T09:03:28.438Z",
+      "reviewRunId": "B-022e:RR-032",
+      "_hash": "6597c41cde2f3662a4512e2655dcbf7333121b48c2b854a32fe11201a0668a02",
+      "files": [
+        ".proof-or-stop/story/actives/B-022e/evidence/live-smoke-transcript.json",
+        ".proof-or-stop/story/actives/B-022e/checklist.json",
+        "packages/main/src/core/usage-ledger/diagnostics.ts",
+        "packages/main/src/core/usage-ledger/ids.ts",
+        ".gitattributes"
+      ],
+      "signatureTag": "missing|json|pack-boundary-transcript",
+      "signatureTagSource": "auto"
     }
   ]
 }
