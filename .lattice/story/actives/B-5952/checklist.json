@@ -348,20 +348,20 @@
           "kind": "integration_test",
           "command": "node packages/main/tests/red/red-w2d-command-readonly.mjs",
           "result": "pass",
-          "note": "Fresh mechanical receipt for the TEST-blocking baseline regression at committed HEAD.",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "919b2730e3f8fe04ea2bc5df478c6c64b67da88794d4ea3615504f26f7d3154c",
-            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nred-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 4100ms\n",
+            "outputDigest": "85854bb9817e027a16f883f50e3c27054a08a255c142895577a1b7da824c9fa9",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nred-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 3914ms\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T12:16:27.499Z",
+            "executedAt": "2026-08-31T14:54:52.273Z",
             "timeoutMs": 180000
           },
-          "headHash": "9b3e39c699e9b669a4c0f55579e69d180ed22079",
-          "materialHash": "63292a573bf3271dcc1f220f9f9172c03919d79772485d71e28d8b5f05fe8e82",
-          "storyFilesHash": "65166487f29740c1f2342fc9ec7c73b09faac4f702cfa4ec1e27c2a3714785eb",
-          "timestamp": "2026-08-31T12:16:27.630Z"
+          "headHash": "bf4ac7cc8138bd64b2388843590e68ce81924eb1",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:54:52.396Z"
         },
         {
           "intentRef": "CHK-001:adversarial:heartbeat-timeout-classification",
