@@ -22,6 +22,79 @@
           "packages/main/src/tasks/prompt-registry-smoke.ts",
           "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Assemble each of lattice-review-behavior, lattice-review-concept, lattice-review-docs, lattice-review-quality, and lattice-review-test-coverage in full-envelope mode and prove that every result contains exactly one byte-identical canonical Finding triage contract with the current review_run_start -> reviewRunId -> finding_add or review_pass_set protocol.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Assemble the same five REVIEW roles through legacy-full-context and prove that the identical canonical triage contract is appended exactly once in every result while the role-specific legacy body remains selected.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Inspect the canonical contract and prove that evidenceState, severity, applicability candidate, and gate impact are independent axes; routing requires evidence plus an owner; the machine remains authoritative for blocking; and disproven, duplicate, and stale_or_not_reproduced are separate outcomes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exercise mixed per-role rollout selections across the five REVIEW roles and prove every selected prompt receives one complete contract regardless of envelope path, with neither omission nor double injection.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Prove the fail-closed rule is expressed in terms of the current round policy: when applicability is unknown, missing, stale, or untrusted, a Finding that would otherwise block remains blocking, including medium severity in a policy round where medium blocks.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Prove a non-current-Story disposition is allowed only with structured applicability evidence and a traceable owner or route, and that high or critical Findings cannot be left unowned.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Prove the contract preserves the original Finding observation, evidence state, severity, and history: a non-blocking applicability candidate does not resolve or dismiss the Finding and any later severity correction requires append-only revision or supersession rather than silent mutation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Enumerate every active non-REVIEW, compatibility, and retired role and prove none receives the canonical REVIEW triage contract or the defect-triage routing behavior by substring coincidence or broad common-policy injection.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Delete or alter any required protocol command or ordering rule and prove the prompt contract test fails, including review_run_start first, current signed reviewRunId binding, finding_add for a Finding, and review_pass_set only for a valid no-blocker outcome.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Inject wording that lets severity alone decide Story scope, lets an applicability assessment rewrite severity, or equates deferral with finding_dismiss or resolution, and prove semantic validation rejects it.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Inject wording that permits a reviewer to repair implementation, call finding_dismiss, call story_create, or expand the Story merely to make all checks green, and prove semantic validation rejects every permission.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Replace the distinct outcomes with a generic deferred or closed result and prove validation fails unless disproven remains an evidence-truth result, duplicate identifies a canonical live owner, and stale_or_not_reproduced cites current freshness-bound counter-evidence.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Attempt to route an otherwise-blocking unknown-applicability Finding without evidence or owner, or claim that prompt prose itself changes the lifecycle gate, and prove the contract remains fail-closed and non-evidentiary.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
