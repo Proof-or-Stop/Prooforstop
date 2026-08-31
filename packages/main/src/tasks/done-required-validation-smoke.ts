@@ -26,6 +26,7 @@ import {
 } from '../core/validation-executor.js';
 import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
 import {
   effectiveValidationCommandEnvironment,
@@ -181,7 +182,9 @@ function fixture(doneRequiredCommands?: unknown, proofAdmissibility?: unknown): 
       endTime: now,
     }],
   });
-  persistSyntheticAdmittedWindowForTest({ store, storyId: STORY_ID, projectRoot: root });
+  const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+  assert.ok(causalInputHashes, 'synthetic certification fixture must derive causal input hashes');
+  persistSyntheticAdmittedWindowForTest({ store, storyId: STORY_ID, projectRoot: root, causalInputHashes });
   return { root, store };
 }
 

@@ -33,6 +33,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { stripCanonicalBrandEnvTwins } from '../core/brand-env.js';
@@ -203,16 +204,18 @@ function setupStoryAdvanceFixture(): { root: string; storyId: string; started: s
     }],
   } as ChecklistData);
   commitAll(root, 'seed heartbeat story metadata');
-  persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root });
+  persistFixtureCertificationWindow(store, storyId, root);
   return { ...fixture, storyId };
 }
 
+function persistFixtureCertificationWindow(store: StoryStore, storyId: string, root: string): void {
+  const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+  assert.ok(causalInputHashes, 'synthetic certification fixture must derive causal input hashes');
+  persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
+}
+
 function admitSyntheticWindow(root: string, storyId: string): void {
-  persistSyntheticAdmittedWindowForTest({
-    store: new StoryStore(root),
-    storyId,
-    projectRoot: root,
-  });
+  persistFixtureCertificationWindow(new StoryStore(root), storyId, root);
 }
 
 function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILING_MS, env: Record<string, string> = {}): Promise<CliResult> {
