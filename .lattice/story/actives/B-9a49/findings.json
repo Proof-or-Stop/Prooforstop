@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-9a49:F-001",
+      "desc": "doc-promise-undelivered: AGENTS.md:573 and packages/main/src/core/prompt-registry.ts:59 instruct Agents to record through or trigger an authoritative Dynamic Finding applicability/history path as if it were available now. The authoritative plan is explicitly specification-only and future implementation (dynamic-finding-system-execution-plan.md:3-6,59-68,909-967), while the approved proposal requires a compatibility-only disposition before that system exists (sections 7-9) and says historical correction/supersession is used only when available. Omitting that temporal boundary makes all five REVIEW prompts and the Story Owner guidance promise unavailable structured authority, risking fabricated fields/evidence or an impossible workflow; this directly violates CHK-002 adversarial:4 and the no-undelivered-command/field acceptance. severity=critical",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T20:42:56.711Z",
+      "reviewRound": "2026-08-31T20:39:14.724Z",
+      "reviewRunId": "B-9a49:RR-002",
+      "_hash": "06639f1f38a441c70115fab6528278eb7d98de5f686c808f478df6d9215b83a8",
+      "files": [
+        "AGENTS.md",
+        "packages/main/src/core/prompt-registry.ts",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-agents",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
