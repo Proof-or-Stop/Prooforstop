@@ -24758,7 +24758,7 @@
       "desc": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md Section 9 Rule 10 self-contradicts its own rule attribution for the quote \"never a silent pass\": it first attributes the quote to Rule 9 (per Rule 9's \"never a silent pass\") then immediately appends a parenthetical correction \"(Rule 3, not Rule 9 -- Rule 9 governs coverage-basis freshness)\" in the SAME clause instead of substituting the correction into the primary attribution. The correction is factually right: the quote is at line 1256 under Rule 3 (materialHash-only drift), not Rule 9 (coverage-basis freshness, lines 1268-1272). All underlying CODE citations in Rule 10 (core/pre-review-check.ts PR_COVERAGE_BASIS_CHANGED, acceptanceCoverageBasisSemanticDigest, verifyAcceptanceBasisReceipt) were verified accurate -- this is a prose/logic self-contradiction, not doc-vs-code drift. Family/root-cause: docs-self-contradictory-rule-attribution",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-31T12:31:52.109Z",
@@ -24788,7 +24788,11 @@
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit a756969763. Section 9 Rule 10 of docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md previously read 'correct per Rule 9's \"never a silent pass\" (Rule 3, not Rule 9 - Rule 9 governs coverage-basis freshness)', attributing the quote to Rule 9 in the primary clause and then contradicting itself in the same sentence. The correction is now substituted INTO the primary clause: it reads 'correct per Rule 3's \"never a silent pass\" (Rule 9 governs coverage-basis freshness, not this rule)'. The quote is verified to live at line 1256 under Rule 3. Family docs-self-contradictory-rule-attribution is closed.",
+      "resolvedAt": "2026-08-31T14:11:08.731Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-461",
