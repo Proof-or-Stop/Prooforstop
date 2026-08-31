@@ -24135,6 +24135,50 @@
       ],
       "signatureTag": "edge|ts|story-aware-validation",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-445",
+      "desc": "doc-code-drift: CLAUDE.md:672 and AGENTS.md:618 (new F-438 sections, commit c292cfa290) both state 'failing closed is correct per Rule 9's \"never a silent pass\"' citing docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md Section 9 Rule 10 as the source of truth. But in that same doc, Section 9 Rule 9 (lines 1268-1272) reads 'Coverage-basis freshness is stricter than evidence freshness...' -- it never mentions or implies 'never a silent pass'. That exact phrase actually lives in Rule 3 (line 1256: 'A permitted re-attestation remains explicit and auditable; it is never a silent pass.'). The mis-citation is pre-existing in the plan doc's own Rule 10 text (introduced in commit 5b2510e0a7, predates F-438's fix), but c292cfa290 copy-pasted it verbatim into 2 additional files, tripling the propagation of a wrong internal cross-reference. The headline ordering claim itself (regenerate basis BEFORE pre_review_check) and both --help strings are accurate and unaffected -- only the secondary internal rule-number citation is wrong. Fix: change the 3 occurrences of \"Rule 9's\" to \"Rule 3's\" (CLAUDE.md line 672, AGENTS.md line 618, plan doc line 1284).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-31T04:41:22.666Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1089",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/handlers/english-artifact-gate.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+      },
+      "readDiagnostics": [],
+      "_hash": "50b38b27f1b84d0c1bc4bd3c25ba7af9e3761a13c747e85fd96e611a1710ff14",
+      "files": [
+        "CLAUDE.md",
+        "AGENTS.md",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|code-drift-claude",
+      "signatureTagSource": "auto"
     }
   ]
 }
