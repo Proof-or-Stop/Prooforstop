@@ -10364,9 +10364,9 @@
       "epochId": "B-45a0:RIE-126",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-31T02:29:23.056Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-31T03:36:15.339Z",
-      "updatedAt": "2026-08-31T03:36:15.339Z",
+      "updatedAt": "2026-08-31T03:37:13.605Z",
       "cutoff": {
         "headHash": "0b1317fe9cc718b4ef2516fd09b27056d646ebbc",
         "materialHash": "3ef55149759d21499c5a6abb1c31b5eea17be3e0d8938a31f1a8f41c4c87b959",
@@ -10377,7 +10377,10 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-45a0:RIE-126:RCP-001",
-      "_hash": "45352e1f20cc4005408365c4a7c72e058ad9354e700214e9e462ce94f0b0964c"
+      "cancelledAt": "2026-08-31T03:37:13.605Z",
+      "cancelReason": "Invalidating unconsumed receipt RIE-126:RCP-001: the acceptance-subject digest moved between finalize and consume, the same begin-versus-DEV circular deadlock hit earlier on RIE-122. Re-finalizing on a clean tree so the receipt binds the settled subject.",
+      "terminalRunSequenceBoundary": 1086,
+      "_hash": "8119018e82cd8a15dd36c87ed334fd9f91790f1d29409f0412aed827585b3b50"
     }
   ],
   "receipts": [
@@ -11911,7 +11914,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-31T03:36:15.339Z",
-      "_hash": "3cb202ebd26916fb9eeef7af84172f140c6f715a149a7d7119707e12fe3a8439"
+      "invalidatedAt": "2026-08-31T03:37:13.605Z",
+      "invalidationReason": "Invalidating unconsumed receipt RIE-126:RCP-001: the acceptance-subject digest moved between finalize and consume, the same begin-versus-DEV circular deadlock hit earlier on RIE-122. Re-finalizing on a clean tree so the receipt binds the settled subject.",
+      "_hash": "3115843ee47ab11e1bafd997614118dc3fbca87ffacac7d5b0561da384d756ce"
     }
   ],
   "criticReceipts": [
