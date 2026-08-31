@@ -6,9 +6,10 @@ import { loadConfig } from './config.js';
 import { isStateDirPath, PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
 import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
 
-// B-cc10: was hardcoded '.proof-or-stop/artifact-releases.jsonl'. The ledger file itself moved with
-// CHK-003, so the constant pointed at a path that no longer holds it — the same
-// defect class as managed-assets.json and the gap-log paths.
+// B-cc10: this was hardcoded to the artifact ledger under the retired state
+// directory. The ledger file itself moved with CHK-003, so the constant pointed
+// at a path that no longer holds it — the same defect class as managed-assets.json
+// and the gap-log paths.
 export const ARTIFACT_RELEASE_LEDGER_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/artifact-releases.jsonl`;
 export const ARTIFACT_RELEASE_SCHEMA_VERSION = 'proofbound.artifact-release.v1';
 
@@ -76,8 +77,8 @@ export function isArtifactReleasePathV1(
 ): boolean {
   const path = normalizeArtifactReleasePath(rawPath);
   if (!path) return false;
-  // B-cc10 CHK-007: was `path.startsWith('.proof-or-stop/')`, which recognized ONLY the
-  // deprecated state directory. After the rename that exclusion silently stopped
+  // B-cc10 CHK-007: the old prefix check recognized ONLY the retired state
+  // directory. After the rename that exclusion silently stopped
   // firing for canonical paths, so state-dir lifecycle metadata could be admitted
   // into an artifact release. This is the F-065/F-061 shape `core/brand-paths.ts`
   // exists to prevent; `isStateDirPath` accepts both spellings by construction.

@@ -14,9 +14,10 @@ import { digestCanonicalJson } from './digest.js';
 import { readPlaybooks, writePlaybooks, withLearningStoreLock } from './learning-store.js';
 import type { Playbook, PlaybookLineage } from './experience-layer-types.js';
 
-// B-cc10: was hardcoded '.proof-or-stop/capability-releases.jsonl'. The ledger file itself moved with
-// CHK-003, so the constant pointed at a path that no longer holds it — the same
-// defect class as managed-assets.json and the gap-log paths.
+// B-cc10: this was hardcoded to the capability ledger under the retired state
+// directory. The ledger file itself moved with CHK-003, so the constant pointed
+// at a path that no longer holds it — the same defect class as managed-assets.json
+// and the gap-log paths.
 export const CAPABILITY_RELEASE_LEDGER_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/capability-releases.jsonl`;
 export const CAPABILITY_RELEASE_SCHEMA_VERSION = 'proofbound.product-capability-release.v1';
 
