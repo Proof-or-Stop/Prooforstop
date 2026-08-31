@@ -173,6 +173,31 @@
       ],
       "signatureTag": "adversarial|mjs|offline-pack-boundary",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-009",
+      "desc": "doc-code-drift: [high] F-001/F-006 resolution is semantically incomplete. scripts/proof-or-stop-identity-concept-provenance.json now pins exact files, but it classifies current authority documents as provenance_bytes; isFrozenSurface then exempts every manifest path. AGENTS.md:124 and :144 explicitly name proof-admissibility-hardening-execution-plan.md, story-files-hash-material-drift.md, done-prepare-automation-execution-plan.md, and session-ownership-and-write-leases.md as current rule/design truth sources, yet all are frozen in the 108-row manifest. They still teach retired active identities: story-files-hash-material-drift.md:99 names lattice-review-delivery; session-ownership-and-write-leases.md:5-18,169-175,257-278 calls LATTICE_SESSION_ID, .lattice paths, and lattice-review-* canonical/current; done-prepare-automation-execution-plan.md:170,352,452,744 uses .lattice and LATTICE_MAX_TIMEOUT_MS; proof-admissibility-hardening-execution-plan.md:28,47,260,1583 uses .lattice/lattice.config/LATTICE; and project-vision.md:14 even says active docs do not accept proof-or-stop as an alias. The self-test passes because it tests exactness/digest drift, not whether a row is truly historical. Consequently the F-001 resolution claim that current normative docs were canonicalized, and F-006 claim that current residue is empty, overstate the actual surface. WHY: current operator truth still directs retired roles/paths/keys, and whole-file provenance pinning prevents those live documents from being corrected while reporting GREEN. Remove current truth docs from the frozen manifest, canonicalize them, and keep only genuinely historical/provenance/compatibility rows.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-08-31T03:22:15.154Z",
+      "reviewRound": "2026-08-31T03:04:26.261Z",
+      "reviewRunId": "B-022e:RR-008",
+      "_hash": "c9d4d515e69dd6e42d480a119a948b460825f219275cbca4959b688f474577f4",
+      "files": [
+        "scripts/proof-or-stop-identity-concept-provenance.json",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs",
+        "AGENTS.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "signatureTag": "missing|json|code-drift-high",
+      "signatureTagSource": "auto"
     }
   ]
 }
