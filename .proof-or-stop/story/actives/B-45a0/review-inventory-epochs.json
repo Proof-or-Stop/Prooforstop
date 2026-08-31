@@ -10473,6 +10473,32 @@
       "cancelReason": "Receipt lacks a saturated final wave; beginning a fresh epoch to earn one against the repaired tree.",
       "terminalRunSequenceBoundary": 1086,
       "_hash": "947e11ed3632f10b00342ceb209a1a7f1f940f6d94913708961598418cad2eec"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RI-107",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-31T04:35:04.152Z",
+      "updatedAt": "2026-08-31T04:35:04.152Z",
+      "cutoff": {
+        "headHash": "01fd8ee8e4ccccf7f1a83d9be1617159da109811",
+        "materialHash": "152d285150e7eb6440ad92edd7b90c6e5ede4e36e55c477b88c2301d45ad9d47",
+        "storyFilesHash": "79a8c1edf92cfb4e2f46744a54dca22304378468fc929c0acda401a929572224"
+      },
+      "scopeDigest": "0375089ce5e5bd4b3195859e9b2599ff079e816826dbc75844f8a1e79b9bd186",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "initialRunSequenceBoundary": 1086,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "0a6c45390ec0f9d20b2c54f652fa4b84406a45294c9fd58ceb4f507f8b10ba95"
     }
   ],
   "receipts": [
