@@ -2,20 +2,19 @@
   "storyId": "B-5952",
   "expected": null,
   "actual": {
-    "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
-    "exitCode": 1,
-    "stdout": "",
-    "stderr": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nfile:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:176\n        throw new Error('--proof-scenarios requires --cohort=<path> or LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE; ' +\n              ^\n\nError: --proof-scenarios requires --cohort=<path> or LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE; scenario execution refuses to spawn the expensive registered cohort runner\n    at loadFrozenAcceptanceRolloutCohortForScenarios (file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:176:15)\n    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:918:28\n    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)\n    at async node:internal/modules/esm/loader:650:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v26.8.1\nnode:internal/errors:999\n  const err = new Error(message);\n              ^\n\nError: Command failed: /opt/homebrew/Cellar/node/26.8.1/bin/node /Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nfile:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952/packages/main/dist/tasks/proofstory-pre-review-check-smoke.js:\n...[truncated 5963 chars]"
+    "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "exitCode": 0,
+    "stdout": "retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-08-31T03:37:28.364Z",
+  "capturedAtIso": "2026-08-31T07:11:35.275Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "17719980ea7a0e703c714854fc8c7402ba58298f",
+  "headHash": "98b94f0c5da4716ae9ae4074fedc3f4e39511cbe",
   "materialHash": "6c681470d49ab185e200c43d04da9ea6a777bbe8c074f2ec2410cb9570d66d1a"
 }
