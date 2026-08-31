@@ -282,6 +282,26 @@
             "timeoutMs": 270000
           },
           "timestamp": "2026-08-31T12:15:14.476Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:canonical-root-validate-timeout",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Fresh mechanical receipt for the TEST-blocking baseline regression at committed HEAD.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4f776573168ff02989ef3df98a81b89b66c69a5a4d625ad45d5d697355a8537f",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nvalidate-command-timeout smoke passed: 46 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T12:16:09.638Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "4c14192bb353af0bfd7cf2988b93f1a9629bbf3f",
+          "materialHash": "63292a573bf3271dcc1f220f9f9172c03919d79772485d71e28d8b5f05fe8e82",
+          "storyFilesHash": "65166487f29740c1f2342fc9ec7c73b09faac4f702cfa4ec1e27c2a3714785eb",
+          "timestamp": "2026-08-31T12:16:09.773Z"
         }
       ],
       "files": {
