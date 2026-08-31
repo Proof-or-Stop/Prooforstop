@@ -539,6 +539,33 @@
         "scanEscalationReason": null
       },
       "_hash": "e0e9a6fe3792327cd89477694096f3588d020bb5dfd571eb6147b94c8d0b6c3b"
+    },
+    {
+      "id": "B-022e:RP-019",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 9 concept review found no blocker. F-014 root cause is correctly fixed: detectManagedAssetMode lowercases the root inventory and now compares with the actual lowercase canonical filename proof_or_stop.md. After rebuilding on Node v24.19.0, direct behavior probes classify PROOF_OR_STOP.md and mixed-case equivalents as full, while the distinct Proof-or-Stop.md thin guide remains global-thin; identity mutation self-test passes. The later validation-protocol failure is the separate legacy fixture that treats proofOrStop.md (missing underscores, not a casing variant) as CASE_MISMATCH and is precisely owned by medium follow-up B-b319. F-015 remains reasonable deferred harness debt: B-e5f1 owns CertificationWindow/done_prepare fixture alignment and B-5952 owns the retired-authority instrumentation bound. These deferrals do not weaken or overclaim the B-022e user-visible identity clean-break, package/role negatives, or canonical full-mode behavior.",
+      "createdAt": "2026-08-31T14:09:02.950Z",
+      "reviewRound": "2026-08-31T14:03:29.351Z",
+      "reviewRunId": "B-022e:RR-040",
+      "envelopeId": "8a72221782dd2e268ef2c8b7b1c59b59f60039edd33eceef2e638454d4e9258c",
+      "writerSessionId": "sess-c4e852e510a4581a8e47f00c9ff0ad50",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/findings.json",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a297c02ee84b1832ff70919433c98d352b25a6e89678fc71858fd40b0c0d8c70"
     }
   ]
 }
