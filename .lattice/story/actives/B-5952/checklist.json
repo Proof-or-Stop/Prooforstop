@@ -328,20 +328,20 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/red-evidence-envelope-smoke.js",
           "result": "pass",
-          "note": "Fresh mechanical receipt for the TEST-blocking baseline regression at committed HEAD.",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "fbccb675fbc470608135345d271340e02ba5a2e5ff399a2a47002f870a40a5ea",
             "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nred-evidence-envelope-smoke: OK — total-bits entropy (8 differential rows) + byte measurement, rule 2 AND-not-OR (both single-floor directions), rule 1 blocklist (8/8) + rule 3 all tagged R1-2, assertionDigest scope proven in BOTH directions, 33 tagged rejection fixtures covering R1-1/R1-2/R1-3/R1-5/R1-6 with R1-2 and R1-3 never collapsed, tag routing pinned BY CODE for the §1.3 rule-1 triple (empty + blocklisted R1-2 vs trimmed R1-3), matcher COUNT and §1.3 specificity independently reported, the count bound proven policy-resolved by a two-policy differential (8 vs 3), candidate policyDigest/assertionDigest optional-but-checked in all four cells, the ADMISSIBLE success transcript (assertionDigest + matched binding + policyDigest), a byte-identical .lattice tree with no gate verdict change — byte-identical here meaning NET across the batch of DIRECT handler invocations (one snapshot before the batch, one after, not per-invocation), over a manifest of file paths and content hashes only (empty directories, file modes and symlink identity are not recorded), and with the CLI entrypoint not exercised — and all three registry contracts pass.\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T12:16:21.645Z",
+            "executedAt": "2026-08-31T14:54:46.784Z",
             "timeoutMs": 180000
           },
-          "headHash": "a73fa223b8acad51e1cd6fdb390423082d256ef4",
-          "materialHash": "63292a573bf3271dcc1f220f9f9172c03919d79772485d71e28d8b5f05fe8e82",
-          "storyFilesHash": "65166487f29740c1f2342fc9ec7c73b09faac4f702cfa4ec1e27c2a3714785eb",
-          "timestamp": "2026-08-31T12:16:21.778Z"
+          "headHash": "df5708ad50f2df28b9e0ccc1424f887135eb3eb1",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:54:46.907Z"
         },
         {
           "intentRef": "CHK-001:edge:missing-lattice-readonly-snapshot",
