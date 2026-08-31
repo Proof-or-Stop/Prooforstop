@@ -11120,6 +11120,26 @@
       "cancelReason": "Cancelling RI-113 for the same reason as RI-112: the lanes would be attesting to a claim that is currently false. CHK-014 is titled 'Bind Wave 4 acceptance gates to executable current-head evidence' and all four of those evaluators fail when executed at this HEAD. The correct sequence is to return to DEV first, regenerate the acceptance basis, reissue pre_review_check and the acceptance rollout report so the surfaces genuinely pass, and only then open a review epoch for the lanes to attest against true state. This epoch was opened incidentally by a reviewer lane's review_run_start during lock contention rather than deliberately.",
       "terminalRunSequenceBoundary": 1165,
       "_hash": "856e1660e46b7cb308822be1c17fbda5cce2a2cf63c46b216e77fa49e78d3152"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RIE-140",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-31T22:36:53.046Z",
+      "updatedAt": "2026-08-31T22:36:53.046Z",
+      "cutoff": {
+        "headHash": "d2aeaa241832536d659b8554896a81736218afa0",
+        "materialHash": "6d96761e24fabeb191351d28a0fa127f81793c6c1fd5723a5fb2e50738958b10",
+        "storyFilesHash": "8c241e49512b1da79933cb51085e17e56620aa3670e4e5a3c8d3cded6569d989"
+      },
+      "scopeDigest": "210676234f9e93fcdd291e697de767a372a4ae1b647d48bb6738c706e5991e09",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-45a0:RIE-140:RCP-001",
+      "_hash": "420064487b8039e896b7ab66df892bd0f1f41067b04d6aabd5421cbf286308c1"
     }
   ],
   "receipts": [
@@ -12854,6 +12874,28 @@
       "invalidatedAt": "2026-08-31T22:07:09.585Z",
       "invalidationReason": "late evidence invalidated finalized receipt: the graph guard fix commit 9f5b0d96b1 and the evidence refresh commits that followed it moved storyFilesHash after the four lane passes were earned, so the finalized receipt B-45a0:RIE-136:RCP-001 no longer matches the live aggregate and story_advance to DEV rejected it with REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED. Beginning a fresh epoch so the lanes can re-attest against the current hashes.",
       "_hash": "a10ecf6413ebb915120cde52aa87b91c87162fbfb63ef4b8c7f1d2a6d3a7ae6b"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-45a0:RIE-140:RCP-001",
+      "epochId": "B-45a0:RIE-140",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "cutoff": {
+        "headHash": "d2aeaa241832536d659b8554896a81736218afa0",
+        "materialHash": "6d96761e24fabeb191351d28a0fa127f81793c6c1fd5723a5fb2e50738958b10",
+        "storyFilesHash": "8c241e49512b1da79933cb51085e17e56620aa3670e4e5a3c8d3cded6569d989"
+      },
+      "scopeDigest": "210676234f9e93fcdd291e697de767a372a4ae1b647d48bb6738c706e5991e09",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-31T22:36:53.046Z",
+      "_hash": "6666c39cc83492ec622cc35a0e402b9db7859a40abd9708b8633959ad55b4f66"
     }
   ],
   "criticReceipts": [
