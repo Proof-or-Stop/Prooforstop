@@ -380,12 +380,19 @@
           "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-003:happy:0 under RR-414.",
-          "headHash": "3e6f8b2f1100ed822189ea8b3eca41821d891e5b",
+          "headHash": "5adf95e54433b40bc5da1007dd985629afbaca24",
           "materialHash": "ec4e8e58236df1500d98b8650c413097e7049d691534c4c105831666b93ead71",
           "storyFilesHash": "38c4ba5c1614636d4788f7f96d543144a62b4e0d7495f7b4d6185ec96264986a",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T11:02:10.780Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6b44f7e96b0d39cd44ddeb03e5878e51bf6cb6e00e46059d6b15401e5bdea723",
+            "outputTail": "[0.2s] running story_get...\n[0.2s] story_get done\n[0.1s] running story_get...\n[0.1s] story_get done\n[0.1s] running init_preflight...\n[0.3s] init_preflight done\n[0.1s] running finding_list...\n[0.3s] finding_list done\nartifact-schema migration test passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T11:09:24.302Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-31T11:10:06.965Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -393,12 +400,19 @@
           "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-003:edge:0 under RR-414.",
-          "headHash": "3e6f8b2f1100ed822189ea8b3eca41821d891e5b",
+          "headHash": "5adf95e54433b40bc5da1007dd985629afbaca24",
           "materialHash": "ec4e8e58236df1500d98b8650c413097e7049d691534c4c105831666b93ead71",
           "storyFilesHash": "38c4ba5c1614636d4788f7f96d543144a62b4e0d7495f7b4d6185ec96264986a",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T11:02:10.780Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a6616346df8dae84cfcd11008e03104d2d1e12ca50966292cda2cdd9d496b979",
+            "outputTail": "[0.1s] running story_get...\n[0.1s] story_get done\n[0.1s] running story_get...\n[0.1s] story_get done\n[0.1s] running init_preflight...\n[0.2s] init_preflight done\n[0.1s] running finding_list...\n[0.3s] finding_list done\nartifact-schema migration test passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T11:09:30.109Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-31T11:10:06.965Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -406,12 +420,19 @@
           "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
           "result": "pass",
           "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-003:adversarial:0 under RR-414.",
-          "headHash": "3e6f8b2f1100ed822189ea8b3eca41821d891e5b",
+          "headHash": "5adf95e54433b40bc5da1007dd985629afbaca24",
           "materialHash": "ec4e8e58236df1500d98b8650c413097e7049d691534c4c105831666b93ead71",
           "storyFilesHash": "38c4ba5c1614636d4788f7f96d543144a62b4e0d7495f7b4d6185ec96264986a",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T11:02:10.780Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "168a9c88e224627d24a631b85d4c81b17e165a434fa04a017608f50280dc7c9a",
+            "outputTail": "[0.2s] running story_get...\n[0.2s] story_get done\n[0.1s] running story_get...\n[0.1s] story_get done\n[0.1s] running init_preflight...\n[0.2s] init_preflight done\n[0.1s] running finding_list...\n[0.3s] finding_list done\nartifact-schema migration test passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T11:09:35.869Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-31T11:10:06.965Z"
         }
       ],
       "userSeesSnapshot": {
@@ -1483,12 +1504,19 @@
           "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
           "result": "pass",
           "note": "Artifact migration test reads both named historical archives and verifies their signatures through supported CLI paths.",
-          "headHash": "3e6f8b2f1100ed822189ea8b3eca41821d891e5b",
+          "headHash": "5adf95e54433b40bc5da1007dd985629afbaca24",
           "materialHash": "ec4e8e58236df1500d98b8650c413097e7049d691534c4c105831666b93ead71",
           "storyFilesHash": "38c4ba5c1614636d4788f7f96d543144a62b4e0d7495f7b4d6185ec96264986a",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T11:02:10.780Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "168a9c88e224627d24a631b85d4c81b17e165a434fa04a017608f50280dc7c9a",
+            "outputTail": "[0.2s] running story_get...\n[0.2s] story_get done\n[0.1s] running story_get...\n[0.1s] story_get done\n[0.1s] running init_preflight...\n[0.2s] init_preflight done\n[0.1s] running finding_list...\n[0.3s] finding_list done\nartifact-schema migration test passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T11:09:41.716Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-31T11:10:06.965Z"
         },
         {
           "intentRef": "CHK-012:edge:0",
@@ -1496,12 +1524,19 @@
           "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
           "result": "pass",
           "note": "Artifact migration test covers era-specific archive artifacts, historical schema compatibility, and integrity-chain verification.",
-          "headHash": "3e6f8b2f1100ed822189ea8b3eca41821d891e5b",
+          "headHash": "5adf95e54433b40bc5da1007dd985629afbaca24",
           "materialHash": "ec4e8e58236df1500d98b8650c413097e7049d691534c4c105831666b93ead71",
           "storyFilesHash": "38c4ba5c1614636d4788f7f96d543144a62b4e0d7495f7b4d6185ec96264986a",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T11:02:10.780Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "31f04603c200eb36d44b643c9c28fbb482acf02c4f0f012e1dc43f4176e5641c",
+            "outputTail": "[0.2s] running story_get...\n[0.2s] story_get done\n[0.2s] running story_get...\n[0.2s] story_get done\n[0.2s] running init_preflight...\n[0.2s] init_preflight done\n[0.1s] running finding_list...\n[0.3s] finding_list done\nartifact-schema migration test passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T11:09:48.127Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-31T11:10:06.965Z"
         },
         {
           "intentRef": "CHK-012:adversarial:0",
@@ -1509,12 +1544,19 @@
           "command": "node packages/main/tests/artifact-schema-migration.test.mjs",
           "result": "pass",
           "note": "Artifact migration test asserts read-only archive verification and byte/signature preservation while rejecting tampered historical receipts.",
-          "headHash": "3e6f8b2f1100ed822189ea8b3eca41821d891e5b",
+          "headHash": "5adf95e54433b40bc5da1007dd985629afbaca24",
           "materialHash": "ec4e8e58236df1500d98b8650c413097e7049d691534c4c105831666b93ead71",
           "storyFilesHash": "38c4ba5c1614636d4788f7f96d543144a62b4e0d7495f7b4d6185ec96264986a",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T11:02:10.780Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "54555d87dab89e60b6aa7acba6cc5f3b464d89440df6a44e9d7065de8ac25716",
+            "outputTail": "[0.2s] running story_get...\n[0.2s] story_get done\n[0.2s] running story_get...\n[0.2s] story_get done\n[0.2s] running init_preflight...\n[0.2s] init_preflight done\n[0.2s] running finding_list...\n[0.3s] finding_list done\nartifact-schema migration test passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T11:09:54.640Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-31T11:10:06.965Z"
         }
       ],
       "userSeesSnapshot": {
@@ -1590,12 +1632,12 @@
           "command": "node --input-type=module -e \"import {execFileSync} from 'node:child_process'; const run=(name)=>execFileSync(process.execPath,['bin/proof-or-stop.js',name,'--storyId=B-5a88'],{encoding:'utf8'}); const [topology,preReview,rolloutReport,rolloutCheck]=['acceptance_topology_check','pre_review_check_read','acceptance_rollout_report_read','acceptance_rollout_check'].map(run); if (!topology.includes('Structural pass: yes') || !preReview.includes('plannedActual=complete executableEvidence=current mutations=biting transcript=related authority=admissible') || !rolloutReport.includes('Acceptance rollout report:') || !rolloutCheck.includes('Acceptance rollout policy:')) throw new Error('current Story Wave 4 acceptance reads failed'); console.log('WAVE4_CURRENT_READS_COVERED');\"",
           "result": "pass",
           "note": "Re-earn tool-executed receipt after HEAD movement re-staled the binding; regenerated the verifier-owned acceptance basis so the pinned verifier observes Structural pass yes",
-          "headHash": "3e6f8b2f1100ed822189ea8b3eca41821d891e5b",
+          "headHash": "5adf95e54433b40bc5da1007dd985629afbaca24",
           "materialHash": "ec4e8e58236df1500d98b8650c413097e7049d691534c4c105831666b93ead71",
           "storyFilesHash": "38c4ba5c1614636d4788f7f96d543144a62b4e0d7495f7b4d6185ec96264986a",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T11:02:10.780Z"
+          "timestamp": "2026-08-31T11:10:06.965Z"
         },
         {
           "intentRef": "CHK-013-EDGE-WAVE4-MUTATIONS",
