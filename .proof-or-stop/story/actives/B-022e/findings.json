@@ -426,7 +426,7 @@
       "desc": "scripts/verify-proof-or-stop-identity-cutover.mjs:1088-1131 and :1299-1303 do not mutation-test the rewritten policy SHA/order lineage required by CHK-001:adversarial:0. `--self-test` returns immediately after runSelfTest, and runSelfTest never calls verifyOrdering or constructs a history where the policy commit is non-ancestor/after production; its PASS selector therefore cannot support the intent text `place the decision after a production migration commit -> verifier fails`. The positive GREEN path does use f245fd614c (same policy tree as old 1dab23ae, with old SHA now non-ancestor), but no committed inverse proves that an incorrect rewritten SHA, non-ancestor policy, wrong one-path commit, or RED ordering mutation is rejected. WHY [medium]: current lineage is correct, yet the must adversarial evidence overclaims mutation sensitivity and could stay green if the ordering guard were weakened. Add a temporary-repository/order harness or injectable ordering inputs covering the rewritten-SHA non-ancestor and post-production cases, then bind that output to CHK-001:adversarial:0.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-31T23:00:11.395Z",
@@ -434,7 +434,11 @@
       "reviewRunId": "B-022e:RR-050",
       "_hash": "8b386aefd501f76437ab0cfd905fdabfc3117c010ea3901c3196b5df14bcf446",
       "signatureTag": "adversarial|unknown|scripts-verify-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by edc7596cfa: the committed self-test now rejects rewritten-policy wrong SHA, non-ancestor, uninspectable and post-production ordering mutations; CHK-001 adversarial verifier passes.",
+      "resolvedAt": "2026-08-31T23:37:23.228Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-020",
