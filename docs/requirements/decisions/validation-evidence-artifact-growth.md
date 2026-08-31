@@ -46,15 +46,15 @@ The bounding is real code on the executed path, not a proposal.
 
 | fixture | result |
 | --- | --- |
-| 100 commands x 12,000 chars (today's repository shape) | 2,520,038 bytes, `unmodified`, `within_budget`, output byte-identical to the pre-story serialisation |
-| 400 commands of all-quote output | 38,878,838 bytes unbounded, past the 33,554,432 read ceiling; 19,617,036 bytes after reduction, `reduced` |
+| 100 commands x 12,000 chars (today's repository shape) | 2,520,044 bytes, `unmodified`, `within_budget`, output byte-identical to the pre-story serialisation |
+| 400 commands of all-quote output | 38,878,844 bytes unbounded, past the 33,554,432 read ceiling; 19,617,042 bytes after reduction, `reduced` |
 | 300 commands x 100,000 chars | 148,987 bytes, `reduced`; 300 command outputs and 250,200 detail lines replaced by counted markers |
 | 180,000 heterogeneous detail entries | 16,029,894 bytes, `reduced`, 180,001 detail lines kept - a reducible artifact is reduced, not discarded for a stub |
 | bulk in a field the reducer does not model | 939 - 1,109 bytes, `verdict_only`, still carrying `allPass` and `status` and naming itself a replacement |
 | 200,000-entry `verificationCoverage` | 53,489,880 bytes, `refused`; nothing is written and the operator text reads as a refusal |
 | the hash-field window | 25,165,823 bytes admitted without `headHash` / `materialHash` / `storyFilesHash`, `refused` with them - the 232-byte delta is inside the number the gate reads |
 
-**The growth dimension CHK-004 names is covered.** That dimension is the NUMBER of configured `validate.commands` entries serialised into `test-evidence.json`. The incident artifact measured 1,369,692 bytes at 100 entries, after the list grew from 56 to 100 in a single day, against a 1,048,576-byte read ceiling that then blocked every REVIEW to TEST transition in the repository. The same 100-entry shape now measures 2,520,038 bytes against a 33,554,432-byte ceiling and needs no reduction; a 400-entry quote-heavy shape that would serialise at 38,878,838 is brought to 19,617,036. Raising the ceiling alone would have moved the cliff; the reduction plus the advisory at 8,388,608 bytes is what marks it.
+**The growth dimension CHK-004 names is covered.** That dimension is the NUMBER of configured `validate.commands` entries serialised into `test-evidence.json`. The incident artifact measured 1,369,692 bytes at 100 entries, after the list grew from 56 to 100 in a single day, against a 1,048,576-byte read ceiling that then blocked every REVIEW to TEST transition in the repository. The same 100-entry shape now measures 2,520,044 bytes against a 33,554,432-byte ceiling and needs no reduction; a 400-entry quote-heavy shape that would serialise at 38,878,844 is brought to 19,617,042. Raising the ceiling alone would have moved the cliff; the reduction plus the advisory at 8,388,608 bytes is what marks it.
 
 **Against the real writer.** The behaviour reviewer measured all four dispositions through the actual `StoryStore.writeTestEvidence`, and the reported byte counts match what lands on disk today: `unmodified` 277, `reduced` 667, `verdict_only` 599, `refused` 27,263,587 (with no file written). That agreement is a fact about the code as it stands today, not a property the code maintains - which is the subject of the next section.
 

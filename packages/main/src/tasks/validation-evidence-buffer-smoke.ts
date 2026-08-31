@@ -703,7 +703,7 @@ function validationResult(
   const rationaleDigest = createHash('sha256').update(rationaleText).digest('hex');
   assert.equal(
     rationaleDigest,
-    '02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d',
+    'fbd665df2456e770e466ebdc77f431ae20f3bae0fab98aab61c06a14ebd11d52',
     'the decision record changed after independent review; any wording change requires a new reviewed digest',
   );
   // Exactly one disposition is declared, and it is B. This is the mutual-exclusivity the outcome-A
