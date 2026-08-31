@@ -1245,10 +1245,28 @@
         "acceptance_discovery",
         "managed_markers"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Both are minimal and required to unblock B-5a88's own DEV to REVIEW scope gate and its CHK-003/CHK-012 DONE-required pinned test. (1) packages/main/src/core/finding-verify.ts: the B-cc10 state-dir migration orphaned the entire historical B-META gap-log provenance chain, so classifySharedLifecycleMetadata reported those shared paths as untrusted and the scope gate refused this story's merge-imported B-META change with invalid_binding_shape. Two read-only compatibility fixes: committedArtifactDigest now probes stateDirCandidates canonical-first instead of the canonical literal alone, and the per-receipt loop accepts either state-dir spelling for the signed artifactPath/ledgerPath fields, which pre-migration receipts cannot rewrite without invalidating their own HMAC. No weakening: resolved bytes must still digest to the recorded preArtifactDigest and the HMAC/sequence/digest checks are unchanged; new writes still emit only the canonical spelling. artifact-schema-migration.test.mjs already asserted this either-spelling tolerance, so this aligns the verifier with its stated contract. Verified: verifyGapLogArtifactBinding now returns valid_official_gap_log_binding, gap_log works again repo-wide after refusing every write all session, and the pinned test passes. (2) B-5a88-FOLLOWUP-STORIES.md: durable traceable record of three defects deliberately NOT fixed here, each with repro steps, evidence, blast radius and recommended handling, following the repo's existing B-3f3d-FOLLOWUP-STORIES.md precedent.",
+      "timestamp": "2026-08-31T11:20:58.415Z",
+      "paths": [
+        "B-5a88-FOLLOWUP-STORIES.md",
+        "packages/main/src/core/finding-verify.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "B-5a88-FOLLOWUP-STORIES.md",
+        "packages/main/src/core/finding-verify.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "1eb607b8c33f72f7c93f33fe2b3aaa4e7e83741b",
+      "materialHash": "61c31d7289c0623541334bbd406ba4e78198b44ff05d40dd02972897f2b590e5"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-26T05:59:44.723Z",
+  "updatedAt": "2026-08-31T11:20:58.415Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1332,6 +1350,8 @@
     "packages/main/src/cli-init.ts": "packages/main/src/cli-init.ts",
     "packages/main/src/cli/lab-entrypoint.ts": "packages/main/src/cli/lab-entrypoint.ts",
     "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
-    "packages/main/src/core/managed-markers.ts": "packages/main/src/core/managed-markers.ts"
+    "packages/main/src/core/managed-markers.ts": "packages/main/src/core/managed-markers.ts",
+    "B-5a88-FOLLOWUP-STORIES.md": "B-5a88-FOLLOWUP-STORIES.md",
+    "packages/main/src/core/finding-verify.ts": "packages/main/src/core/finding-verify.ts"
   }
 }
