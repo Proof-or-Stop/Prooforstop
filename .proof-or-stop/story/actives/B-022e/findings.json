@@ -260,6 +260,26 @@
       "resolvedAt": "2026-08-31T05:21:26.204Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-012",
+      "desc": "scripts/verify-proof-or-stop-identity-cutover.mjs:1095-1108 and docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:202-244 — canonical-non-residue coverage [medium, nonblocking/deferred]: the self-test enumerates only story-init, quality, and topology-critic, while packages/main/src/core/agent-dispatch-registry.ts:50-153,315 exposes nine accepted proof-or-stop reviewer identities; behavior, concept, delivery, docs, scope-plan, and test-coverage are untested. A detached-worktree mutation adding only `proof-or-stop-review-concept` to TOKEN_PATTERN still produced the self-test PASS selector. The documentation's required-positive regex also includes `proof-or-stop-review-channel`, although the registry excludes that retired lane, then calls the result the active reviewer set. WHY: current runtime behavior is correct and full identity/residue/pack checks pass, so this is nonblocking and may be deferred, but the claimed all-active-reviewer regression fence is not mechanically complete; derive the samples from AGENT_DISPATCH_ACCEPTED_TYPES (excluding retired channel) or enumerate the exact authoritative set.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-31T05:30:06.724Z",
+      "reviewRound": "2026-08-31T05:21:14.709Z",
+      "reviewRunId": "B-022e:RR-025",
+      "_hash": "80a4a9496a9547af18ad1b3e97f673daa4d7f36c1b92ffe31892c110b1d6efdb",
+      "files": [
+        "scripts/verify-proof-or-stop-identity-cutover.mjs",
+        "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+        "packages/main/src/core/agent-dispatch-registry.ts"
+      ],
+      "signatureTag": "adversarial|mjs|scripts-verify-proof",
+      "signatureTagSource": "auto"
     }
   ]
 }
