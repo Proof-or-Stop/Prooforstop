@@ -24402,6 +24402,42 @@
       ],
       "signatureTag": "missing|ts|quality-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-452",
+      "desc": "Re-confirmed at HEAD ee5b2fb (epoch B-45a0:RI-109): CHK-014:edge:0 pins selector \"status\": on pre_review_check_read --storyId=B-45a0 --json. Independently reproduced: \"status\": occurs 4 times (top-level=fail; two nested transcript rows=complete; embedded artifact=pass) with 3 distinct values; top-level ok:false status:fail codes:[PR_ARTIFACT_TAMPERED, PR_POSITIVE_EVIDENCE_MISSING, PR_EVIDENCE_STALE, PR_CUTOFF_UNBOUND] while the embedded artifact self-reports status:pass codes:[]. The receipt records result=pass for an intent whose stated purpose is proving the check does not silently pass. Same defect as B-45a0:F-437 (still open, unresolved); this registration binds the still-open defect to the current epoch review run RR-1115, not a new root cause. Fix (unchanged from F-437, requires DEV): re-pin selector to \"ok\": true (currently occurs 0 times at this HEAD; top-level ok is false).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T11:41:37.525Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1115",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a77604576a9a345627df4dbfa27beeedc93eaa54c34f7bea61fec3c9b4f1836b",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|json|edge-evidence-falsely",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
