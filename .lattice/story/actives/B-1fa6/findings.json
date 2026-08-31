@@ -1085,6 +1085,24 @@
       "resolvedAt": "2026-08-31T12:16:29.927Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1fa6:F-053",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1098-1102,1669-1679,2036-2067 — HIGH: the new two-stage proposal/final contract is not constructible for the plan’s own defer-with-proof path. AssessmentRouteBinding explicitly makes acceptedRoute impossible when verdict=applicable, but Path B requires a verified applicable low/medium assessment plus a target-accepted finding_route receipt, and the canonicalization paragraph says the final Story 1 assessment consumes and signs that exact receipt tuple. A conforming final applicable assessment therefore cannot carry the receipt the final verifier is required to validate; implementations must either violate the schema or silently move the route binding outside the promised final-assessment contract. Define an applicable-with-acceptedRoute variant for deferral (while retaining route-free ordinary applicable assessments), or state and test that the final applicable assessment is route-free and that only the signed deferral/manifest binds the proposal receipt tuple.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-31T12:27:25.741Z",
+      "reviewRound": "2026-08-31T12:15:56.589Z",
+      "reviewRunId": "B-1fa6:RR-054",
+      "_hash": "6e676fffa1442c8c5ffaf78f8d046e3e11527bee7a8718726bb0bc766594d63b",
+      "files": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
