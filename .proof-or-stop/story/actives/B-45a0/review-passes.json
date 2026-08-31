@@ -24151,6 +24151,43 @@
         "scanEscalationReason": null
       },
       "_hash": "cf90de2775e76490db5d65f99a14bdb114301eea76558c190b709a6bcfc747dc"
+    },
+    {
+      "id": "B-45a0:RP-513",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion residue scan at HEAD 345a80c (round 2, post-main-merge). Re-verified all RP-506 conclusions hold: isStoryMetadataPath/isMaterialExcludedPath single-sourced in core/material-path-policy.ts (re-exported by evidence-freshness.ts); old mergeBaseWithMain/changedStoryFilesBetween have zero references; renamed resolveStoryMergeBase/resolveStoryChangedFiles single-sourced in core/story-aware-validation.ts; objectIdsAtRef has exactly 1 def + 1 use. Verified the main-merge conflict resolution in lattice.config.json/proof-or-stop.config.json is byte-identical, DYN-1 fields present on red-cc10, main's 4 new commands present, command count matches main (116, zero dupes), purely additive (+56/+56). Compat wrapper files dual-revision-impact-graph.ts and story-change-resolver.ts are clean re-exports over story-aware-validation.ts. Full symbol-deletion grep across git diff main...HEAD found only same-file value updates or a documented bug fix (review-inventory-epoch.ts scopeDigest domain-mismatch fix), not concept residue. No evidence main's merged-in code reintroduced anything this story deleted. No blocking findings.",
+      "createdAt": "2026-08-31T20:30:12.263Z",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "reviewRunId": "B-45a0:RR-1142",
+      "envelopeId": "912f310cc0bc6f93fd3c0825acd01a52e007efd2bf40a7211e0f1034769a61fc",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/story-change-resolver.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "17ecce773593b6f181ee092ff5d662a6325e3806dc19f83487727613b6e1f3c3"
     }
   ]
 }
