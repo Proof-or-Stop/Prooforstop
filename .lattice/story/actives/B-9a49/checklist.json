@@ -852,7 +852,11 @@
             "desc": "Assert the change introduces no related boolean, applicability field on Finding, automatic resolve, dismiss, hide, or delete behavior, severity rewrite, owner or route gate shortcut, freshness rebind, or new Dynamic Finding command or schema; any such runtime mutation fails CHK-003 even when prompt contract tests pass.",
             "type": "docs",
             "requiredIn": "strict",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+              "selector": "review triage role metadata boundary: PASS"
+            }
           }
         ]
       },
