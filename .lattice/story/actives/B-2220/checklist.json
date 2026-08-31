@@ -109,6 +109,17 @@
           "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
           "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
           "timestamp": "2026-08-31T00:10:16.605Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const must=[\\\"B-3434 remains accepted.\\\",\\\"## What ships\\\",\\\"**The measured numbers**\\\",\\\"smokeExpected=158 measured=158 hypothetical4SpaceStore=168 smokeStillPasses=true\\\",\\\"inherited-toJSON-real-store: calls=3 reported=67 withinBound=true disk=31457342 exceedsBound=true\\\",\\\"## Known limitations\\\",\\\"B-3434:F-033\\\",\\\"B-3434:F-035\\\",\\\"B-3434:F-036\\\",\\\"B-3434:F-037\\\"];if(!must.every(x=>s.includes(x)))process.exit(1);console.log(\\\"B-2220 happy-1 PASS\\\");\"",
+          "note": "B-3434 acceptance, shipped behavior, measurements, transcripts, and retained findings remain present.",
+          "mechanical": false,
+          "headHash": "8dd3b0d8621e9eb8824ac18d679687370edf8bb7",
+          "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
+          "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
+          "timestamp": "2026-08-31T00:10:17.462Z"
         }
       ],
       "userSeesSnapshot": {
