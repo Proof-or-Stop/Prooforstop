@@ -819,6 +819,61 @@
         "scanEscalationReason": "The dispatch-listed .lattice/story/actives/B-2220/plan.md is absent; review_run_start supplied the full trusted task context, and every extant required or changed file was read fully."
       },
       "_hash": "de790df40727dc1ce1d61fa0460567ae20dc72943b747f154fa42509e7ea9d99"
+    },
+    {
+      "id": "B-2220:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Round 8 concept re-review passed: read the full B-2220 background, checklist, changed decision record, and changed compiled-smoke source; triaged the complete main...HEAD file set; independently confirmed current main is merged, F-011 receipt commit dae9be1 and resolution commit f3958cd, and reran the exact pinned build-binding plus compiled smoke command successfully. Active unassigned/work-order/follow-up mandates are absent from the product surface; remaining writer-owned-boundary references are explicitly declined, historical, conditional, or negative assertions. No concept-cleanup blocker found; the separate docs-lane F-012 is not duplicated here.",
+      "createdAt": "2026-08-31T22:41:32.688Z",
+      "reviewRound": "2026-08-31T22:36:50.515Z",
+      "reviewRunId": "B-2220:RR-034",
+      "envelopeId": "ae3c40f1cfae8f07128271e7bdbfc8f8dcd3f864bacec51a546a2b6461955581",
+      "writerSessionId": "sess-f5f2583f2921afaced06fc0292700026",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/acceptance-basis.json",
+          ".lattice/story/actives/B-2220/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-2220/dev-memory-preflight-ack.json",
+          ".lattice/story/actives/B-2220/findings.json",
+          ".lattice/story/actives/B-2220/index.json",
+          ".lattice/story/actives/B-2220/intent-collision.json",
+          ".lattice/story/actives/B-2220/original-intent-snapshot.json",
+          ".lattice/story/actives/B-2220/pre-review-check.json",
+          ".lattice/story/actives/B-2220/process-events.jsonl",
+          ".lattice/story/actives/B-2220/process-metrics.json",
+          ".lattice/story/actives/B-2220/prompt-envelopes.json",
+          ".lattice/story/actives/B-2220/proofstory.json",
+          ".lattice/story/actives/B-2220/review-passes.json",
+          ".lattice/story/actives/B-2220/review-runs.json",
+          ".lattice/story/actives/B-2220/review.json",
+          ".lattice/story/actives/B-2220/scope-check.json",
+          ".lattice/story/actives/B-2220/scope-contract.json",
+          ".lattice/story/actives/B-2220/stall-adjudication.json",
+          ".lattice/story/actives/B-2220/test-evidence.json",
+          ".lattice/story/actives/B-2220/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "3ee68a4090f41b96288a3529b9a630b3fecc5d49410e8eb30a23f8dd7284d90b"
     }
   ]
 }
