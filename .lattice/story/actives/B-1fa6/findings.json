@@ -232,7 +232,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:914-927,1203-1207,1270-1279,1426-1427,1485-1489,1790,1892,1965-1967 [high] The claimed hard TTL ceiling is only per deferral row. Renewal requires a new assessment, target acceptance, and superseding row, but the schema/policy defines no lineage-wide maximum elapsed time, renewal-count ceiling, required target progress/root-cause evidence, or escalation after repeated renewal. An applicable low/medium defect can therefore remain non-blocking forever through a chain of individually valid 7/30-day rows while all written validators and metrics pass. Add a cumulative horizon anchored to the first deferral or a bounded renewal count, plus progress evidence and fail-closed escalation/refusal, and test/score complete renewal chains rather than only each row.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T00:53:00.576Z",
@@ -243,7 +243,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 043feddaa3: severity, target, owner, Story, canonical supersession, merge, split and new deferral rows cannot reset lineage age or renewal count; renewal requires changed target-authorized progress evidence, and exhaustion or tamper fails closed into mandatory repair with exactly-once recall.",
+      "resolvedAt": "2026-08-31T01:06:31.566Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
