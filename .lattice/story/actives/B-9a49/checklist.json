@@ -1021,15 +1021,18 @@
           "packages/main/src/core/lattice-brand.ts",
           "packages/main/src/core/prompt-registry.ts",
           ".claude/agents/lattice-implementer.md",
-          ".proof-or-stop-codex/agents/lattice-implementer.md"
+          ".proof-or-stop-codex/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-channel.md",
+          ".claude/agents/lattice-review-channel.md",
+          ".proof-or-stop-codex/agents/lattice-review-channel.md"
         ],
         "create": [],
         "test": [
           "packages/main/src/tasks/prompt-registry-smoke.ts",
           "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
           "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
-          "scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "scripts/verify-runtime-fact-contract.mjs"
         ]
       },

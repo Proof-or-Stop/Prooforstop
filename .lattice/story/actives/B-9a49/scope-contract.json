@@ -14,7 +14,9 @@
     "package-lock.json",
     "packages/main/package.json",
     "packages/main/package-lock.json",
-    "packages/main/src/core/lattice-brand.ts"
+    "packages/main/src/core/lattice-brand.ts",
+    ".claude/agents/lattice-implementer.md",
+    ".proof-or-stop-codex/agents/lattice-implementer.md"
   ],
   "allowedCreate": [],
   "allowedTest": [
@@ -36,10 +38,10 @@
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/process-fact-levels.ts"
   ],
-  "scopeChangeReason": "Refresh after incorporating the scope reviewer's gap_log reviewer-prohibition requirement; implementation files and Dynamic Finding runtime exclusions are unchanged.",
+  "scopeChangeReason": "Acceptance-blocker extension: CHK-002 changed the canonical lattice-implementer prompt, so both tracked Claude and Codex Agent mirrors must be synchronized for exact host rendering and verify_codex. CHK-004 also owns the canonical prompt-registry digest pin and stale-envelope redispatch wording. Dynamic Finding runtime exclusions remain unchanged.",
   "acknowledgements": [],
   "createdAt": "2026-08-31T14:19:20.690Z",
-  "updatedAt": "2026-08-31T14:33:34.489Z",
+  "updatedAt": "2026-08-31T19:41:40.221Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -64,6 +66,8 @@
     "packages/main/src/core/advisory.ts": "packages/main/src/core/advisory.ts",
     "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
-    "packages/main/src/handlers": "packages/main/src/handlers"
+    "packages/main/src/handlers": "packages/main/src/handlers",
+    ".claude/agents/lattice-implementer.md": ".claude/agents/lattice-implementer.md",
+    ".proof-or-stop-codex/agents/lattice-implementer.md": ".proof-or-stop-codex/agents/lattice-implementer.md"
   }
 }
