@@ -329,6 +329,25 @@
       ],
       "signatureTag": "edge|ts|canonical-proof-stop",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-015",
+      "desc": "Deferred non-identity test-harness drift after the merged PRE_CERT/runtime corpus changes: after rebuilding with Node v24, done-prepare-closure-heartbeat-smoke fails because seedDoneRequiredViaCli invokes official done_required_validate without first admitting the synthetic CertificationWindow, and retired-authority-vocabulary-guard-smoke fails its exact instrumentation ceiling at 806 builds versus the pinned 800. These are reproducible but do not weaken the B-022e identity runtime or its pack boundary; align the synthetic PRE_CERT setup and re-attest the bounded instrumentation ceiling in the owning follow-up story rather than broadening either production gate.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-31T13:52:05.313Z",
+      "reviewRound": "2026-08-31T13:24:19.241Z",
+      "reviewRunId": "B-022e:RR-039",
+      "_hash": "bb1353dbfeeeec5236d958ff4d6bfef8b193f96a2cf33968a25be206fef3eec2",
+      "files": [
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|deferred-identity-test",
+      "signatureTagSource": "auto"
     }
   ]
 }
