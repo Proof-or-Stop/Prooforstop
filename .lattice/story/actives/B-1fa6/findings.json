@@ -567,6 +567,21 @@
       "resolvedAt": "2026-08-31T02:11:52.107Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1fa6:F-026",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1599-1607,1633-1657,2180-2182,2699 — Missing/stale applicability leaves a Round-3 verified high Finding able to bypass the promised fail-closed safety floor. The mandatory-repair floor is created only for a fresh `applicable` assessment, while a missing/unsigned/tampered/mismatched/stale assessment with no claimed deferral falls back to the previous predicate. That predicate makes `high` advisory from Round 3 (`packages/main/src/core/advisory.ts:52-75`; `packages/main/src/core/guard-utils.ts:50-56`). Consequently a verified open high Finding can become non-blocking precisely because classification is absent or invalid, contradicting the assertions that unknown high/critical is never downgraded and that missing required classification blocks. Make verified high/critical missing/stale/invalid assessments enter the pre-round mandatory-repair floor, or explicitly narrow and reconcile the safety contract; add a Round-3 high plus missing/stale/unsigned assessment adversarial fixture.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T07:19:38.110Z",
+      "reviewRound": "2026-08-31T02:11:41.920Z",
+      "reviewRunId": "B-1fa6:RR-028",
+      "_hash": "ebb36deaee3cebbcfbe63173ac25da1c39558ee83940734fafa2bea73024c9ec",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
