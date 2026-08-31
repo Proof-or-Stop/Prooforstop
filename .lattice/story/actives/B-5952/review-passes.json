@@ -446,6 +446,29 @@
       },
       "readDiagnostics": [],
       "_hash": "7f43d138fd60fe9edf24ce9e76fe9522db4f6fbe9153dd887a831d05574ed054"
+    },
+    {
+      "id": "B-5952:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Final clean-round scoped quality review passed for the B-5952 baseline repair. The implementation diff in scope remains limited to packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts, where the change introduces a small assertDynamicBindingBuildBudget helper plus fixed ceilings 808 and 850, and the real smoke now self-characterizes exact-bound acceptance, ceiling+1 rejection, measured-minus-one rejection, and >850 rejection before enforcing the live 804 sample. I found no unused imports or dead symbols in the changed implementation, no unnecessary any-casts, no swallowed catch, and no new shell/bridge coupling. The current dist smoke independently exits 0 at this review head with retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34. evidence_inspect at head 531de5fc0e7e44a5d26d1d715ea1e870f6ccce17 reports all 7 active must refs fresh against materialHash 6c681470d49ab185e200c43d04da9ea6a777bbe8c074f2ec2410cb9570d66d1a with staleRefs=[]. This pass is intentionally limited to the enforced B-5952 baseline-repair scope and its local evidence surface.",
+      "createdAt": "2026-08-31T08:57:37.748Z",
+      "reviewRound": "2026-08-31T08:55:38.265Z",
+      "reviewRunId": "B-5952:RR-027",
+      "envelopeId": "5498bb608e98462ca576ab832c198fd7e2fe42ab63bddba75b346b393b4fdbac",
+      "writerSessionId": "sess-99e10822ebd43f64e2e5c770e2089728",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": "Final clean-round scoped review stayed within the owner-provided B-5952 baseline-repair prompt and excluded unrelated observe-only Wave-4 diagnostics."
+      },
+      "_hash": "4636b59b86f081a1d9b11c2846658c2c84d9d60b50f02f70b8d790ce2a59d7a3"
     }
   ]
 }
