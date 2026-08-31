@@ -24058,6 +24058,40 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-commit",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-443",
+      "desc": "packages/main/src/core/story-aware-validation.ts:280,332: discoverValidationInventory calls pickProjectConfigPath(projectRoot) twice inside the same function (once to read raw config at line 280, once to derive source at line 332) instead of computing it once and reusing it. The F-441 fix's narrowing on picked.legacy (avoiding a deprecated-literal comparison) is the right construction, but the redundant second call re-opens a narrow TOCTOU-style window where source could disagree with the file raw was actually read from if the config file were renamed/deleted between the two calls, and duplicates an existsSync+readFileSync pair for no benefit. Low severity: story config files are not concurrently mutated in practice, but it undercuts the stated single-resolver intent and is a one-line fix (hoist `const picked = pickProjectConfigPath(projectRoot)` once, reuse for both raw and source).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T04:41:14.331Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1088",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2a83a6ee15f6514be9bb0c6b3ad54eb84fb5563b51ed90f4c23cb1f0faf44e53",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
