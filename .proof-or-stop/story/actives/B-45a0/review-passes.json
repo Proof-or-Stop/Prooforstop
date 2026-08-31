@@ -23510,6 +23510,44 @@
         "scanEscalationReason": null
       },
       "_hash": "5b213b4efecdc8d58a8dad6c0401e47fbe6cc326975ea93e05a739fb77fce6c4"
+    },
+    {
+      "id": "B-45a0:RP-493",
+      "agent": "lattice-review-docs",
+      "note": "Wave 3/3 final docs-code sweep: tree unchanged since wave-2 (only story metadata modified). Verified every doc file touched by this story diff (docs/CLI.md, AGENTS.md, CLAUDE.md, docs/requirements/NAV.md, docs/requirements/decisions/story-lifecycle.md) against current source. Confirmed LATTICE_VALIDATION_SHARD_ADAPTER/_DIGEST, declaredEnvironmentKeys, caseRegistryPath, PROOF_OR_STOP_CASES/PROOF_OR_STOP_SENTINEL markers, successMarker default derivation all match code exactly (F-447 fix is parked/uncommitted so docs remain accurate per epoch owner note - not filed). Verified new AGENTS.md/CLAUDE.md acceptance-basis-ordering section: acceptanceCoverageBasisSemanticDigest, verifyAcceptanceBasisReceipt, and pre_review_check allowedPhases=[DEV] all confirmed present in command-policy.ts/acceptance-basis-receipt.ts/acceptance-coverage-basis.ts. Verified EVIDENCE_COMMAND_TIMEOUT_CAP_MS=21600000 (6h) in validation-executor.ts matches updated CLAUDE.md text exactly (this is committed diff, not drift, per epoch owner). Verified new story-lifecycle.md claim about verification_evidence_refresh_stale checklist.json closeout-write-receipt retention against closeout-trust.ts canonicalWriters registration and review-run.ts closeout metadata retention check - both wired and consistent. No new present-tense docs-code inconsistency found this wave. Previously verified families F-446/F-447/F-437/F-439/F-440 not re-filed per epoch owner instruction.",
+      "createdAt": "2026-08-31T05:19:58.168Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1103",
+      "envelopeId": "4047a74394740f3060e0bcc45ea6633a24549794cb40e21361eb686ded1afd2c",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6a7a14d671751ceff83746f40a447fbdfd330957eead5b224cd3290ccb98a1f1"
     }
   ]
 }
