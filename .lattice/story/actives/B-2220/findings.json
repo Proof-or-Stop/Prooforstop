@@ -284,6 +284,21 @@
       ],
       "signatureTag": "missing|ts|adversarial-lacks-valid",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-2220:F-015",
+      "desc": "acceptance-verifier-stale-digest: .lattice/story/actives/B-2220/checklist.json:1 CHK-001:adversarial:1 still pins old decision digest 02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d, while the reviewed document and compiled smoke correctly bind fbd665df2456e770e466ebdc77f431ae20f3bae0fab98aab61c06a14ebd11d52. Reproducing the exact pinned verifier exits 1, so stale evidence cannot refresh and current REVIEW/TEST/DONE acceptance is blocked until the verification command is updated and rerun.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T23:17:58.377Z",
+      "reviewRound": "2026-08-31T23:15:27.310Z",
+      "reviewRunId": "B-2220:RR-039",
+      "_hash": "31fd440c5cc5d0e5fb8e1b9ddf30ec36f2c7c2f500d4f8efe459c9ce42da3379",
+      "signatureTag": "adversarial|unknown|acceptance-verifier-stale",
+      "signatureTagSource": "auto"
     }
   ]
 }
