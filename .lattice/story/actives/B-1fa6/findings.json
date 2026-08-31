@@ -483,6 +483,24 @@
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-024",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1374-1379,1680-1684,1894-1900,2297-2301 [high] F-018 remains internally inconsistent for materialHash-only drift. The ledger-first floor and required tests say scope/story-files/material/runtime drift makes a previously claimed lineage stale or unknown and blocks before status, severity, and round. Section 7.5 still says a materialHash mismatch with matching signed storyFilesHash remains valid with only a re-attestation advisory, while rollback text narrows invalidation to Story-owned material. An implementation can therefore preserve deferral authority across material drift and still satisfy one normative section, defeating the requested always-first drift floor. Define one lineage-specific rule: either material drift blocks until a signed, gate-consumed re-attestation/new fresh assessment is validated, or explicitly narrow every F-018 claim/test to Story-owned/relevant drift and prove shared process/runtime changes cannot affect lineage. The current advisory-versus-blocking ambiguity is not safe for enforce.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T01:49:26.201Z",
+      "reviewRound": "2026-08-31T01:45:48.999Z",
+      "reviewRunId": "B-1fa6:RR-020",
+      "_hash": "2544b371163a0f5860548219aa14666135b7d31f890b0d2392a77474fb8cd83f",
+      "files": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
