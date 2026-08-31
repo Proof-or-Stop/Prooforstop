@@ -173,6 +173,32 @@
         "scanEscalationReason": null
       },
       "_hash": "4c05c421af6cec7b614fa5fbbd552d584c6c223ab527233d0bd947274ca810ae"
+    },
+    {
+      "id": "B-5952:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality re-review passed with no new blocker. review_run_start marked this round eligible via trusted prior bindings with changedFiles=[], and current completeness surfaces show no scope/claim regression after binding refs were corrected to the seven canonical intent IDs. pre_review_check_read checked at 2026-08-31T08:18:06.466Z reports total=8, covered=6, excluded=2, gaps=0, orphanSuspect=0, drift=0, including explicit coverage that acceptance binding now references the current canonical custom verification intent ids rather than stale positional refs. evidence_inspect at head 5516fa9 reports freshness.status=fresh, staleRefs=[], and exposes the current structured commands for the seven active verification refs, including the v2 JSON scope mutation and causal baseline map. scope-check summary remains gaps=0, and no changed-file claim or scope regression is present in this round. This pass is limited to local review/completeness assurance and does not claim production authority or release readiness beyond the recorded local evidence surfaces.",
+      "createdAt": "2026-08-31T08:20:45.490Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-015",
+      "envelopeId": "42d9389707218d9635240ac1ea528266003b295db16bf05c21cf7ad8b78d97b9",
+      "writerSessionId": "sess-99e10822ebd43f64e2e5c770e2089728",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/pre-review-check.json",
+          ".lattice/story/actives/B-5952/scope-check.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/acceptance-basis.json",
+          ".lattice/story/actives/B-5952/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "25b32898c0e0f98b56d4ef83b529ad78ca67f8c4eebe1db4d50671aa7a0b6618"
     }
   ]
 }
