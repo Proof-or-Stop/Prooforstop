@@ -116,6 +116,21 @@
       "_hash": "8688cfb96794ecbb157faad2327093d4c93ff0892f75ab9f70921f2e3bde31fa",
       "signatureTag": "edge|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-008",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:699-704,831-836,1009-1010,1468-1471 [high] CandidateRoute and deferral require only that expiresAt is present/non-expired; no maximum TTL, policy binding, ordering constraint, or periodic next-check cadence is specified. expiresAt=9999-12-31 therefore passes the written completeness metric and can turn defer-with-proof into the effectively permanent waiver the plan forbids when no event trigger fires. Bind expiry to a reviewed policy digest with a finite maximum TTL, validate createdAt < expiresAt <= policy ceiling, and add boundary/clock/overdue tests plus exactly-once recall.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T00:34:41.337Z",
+      "reviewRound": "2026-08-31T00:31:14.768Z",
+      "reviewRunId": "B-1fa6:RR-008",
+      "_hash": "1ddcd8a65325d148249d58f3442b179033a0e25d9e47e8dbd1fd0abae98b41d8",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
