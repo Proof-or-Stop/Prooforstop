@@ -231,7 +231,7 @@
       "desc": "packages/main/src/core/prompt-registry.ts:69 doc-promise-undelivered (high): the temporal fix is incomplete. Lines 39-43 correctly say Dynamic Finding applicability/supersession is future authority and unavailable fields/receipts must not be fabricated, but the unconditional final rule still says new evidence must append a traceable revision or superseding Finding and trigger fresh applicability and gate-impact evaluation. The current CLI exposes finding_add/list/resolve/dismiss/cluster but no applicability assessment, supersession/revision, or fresh-applicability command, and the authoritative plan marks those records/commands as future Stories. All five REVIEW lanes therefore still receive an impossible current instruction unless this sentence is explicitly conditioned on the official system becoming available or replaced with a current-compatibility action. This falsifies the temporal-boundary portion of F-001/F-005 resolution. severity=high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T21:31:06.618Z",
@@ -239,7 +239,11 @@
       "reviewRunId": "B-9a49:RR-008",
       "_hash": "c68a650a1f540545ef785a1c68b4b30a8b2d132684461754091ba6080cdbc3b6",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 2181a509601320bad2f7a10a254b2d1c404c3219. The current compatibility path now preserves the original observation and reports new evidence to the Story Owner without fabricating revision, supersession, applicability, or gate recalculation; only the future official Dynamic Finding System is allowed to append signed revision or superseding Finding and recalculate applicability and gate impact. Focused semantic smoke passes.",
+      "resolvedAt": "2026-08-31T22:18:09.948Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-012",
