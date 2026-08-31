@@ -24452,7 +24452,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1283-1284 Rule 10 citation-correction sentence is self-contradictory prose (facts/code citations are accurate, only the sentence logic is broken). It reads: \"failing closed is correct per Rule 9's 'never a silent pass' (Rule 3, not Rule 9 — Rule 9 governs coverage-basis freshness).\" This first attributes the quoted phrase to Rule 9, then in the same breath says \"Rule 3, not Rule 9\" without rewriting the primary clause. Verified: the exact phrase \"never a silent pass\" appears only in Rule 3 (line 1256, materialHash-only drift clause); Rule 9 (line 1268) covers coverage-basis freshness recomputation triggers and contains no such phrase. The parenthetical correction is factually right but was appended instead of used to fix the sentence, leaving a self-contradiction for readers. All other Rule 10 code claims verified accurate: core/pre-review-check.ts:342 PR_COVERAGE_BASIS_CHANGED compares basis.priorPlanBasisDigest !== input.planArtifact.basis.basisDigest; acceptanceCoverageBasisSemanticDigest exists at packages/main/src/core/acceptance-coverage-basis.ts:250.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-31T11:42:16.019Z",
@@ -24492,7 +24492,11 @@
         "packages/main/src/core/acceptance-coverage-basis.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit a756969763. Section 9 Rule 10 of docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md previously read 'correct per Rule 9's \"never a silent pass\" (Rule 3, not Rule 9 - Rule 9 governs coverage-basis freshness)', attributing the quote to Rule 9 in the primary clause and then contradicting itself in the same sentence. The correction is now substituted INTO the primary clause: it reads 'correct per Rule 3's \"never a silent pass\" (Rule 9 governs coverage-basis freshness, not this rule)'. The quote is verified to live at line 1256 under Rule 3. Family docs-self-contradictory-rule-attribution is closed.",
+      "resolvedAt": "2026-08-31T14:11:07.309Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-454",
