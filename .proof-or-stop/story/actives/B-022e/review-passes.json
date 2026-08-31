@@ -58,6 +58,28 @@
       },
       "readDiagnostics": [],
       "_hash": "25cac26e984b6531732a615d030c02426f870bf3df885a4a7c6358f2c30701c8"
+    },
+    {
+      "id": "B-022e:RP-002",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: F-003 is resolved by a replayable four-tarball network-disabled verifier covering the exact package/bin/role/dependency negatives; all 29 intent receipts are fresh and mechanical, the linked transcript is visible, cache mutation/concurrency self-test and stale-refresh dedupe counterexamples pass. Open F-002 remains medium/non-blocking and is deferred per operator policy.",
+      "createdAt": "2026-08-31T03:14:20.922Z",
+      "reviewRound": "2026-08-31T03:04:26.261Z",
+      "reviewRunId": "B-022e:RR-007",
+      "envelopeId": "6e75ddf15987ab0ad539ccfdb28c3fd15f2a11f838b9710ccc8860c944286ddc",
+      "writerSessionId": "sess-7e9eac50d15b4e6186c393729457a89c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "scripts/verify-proof-or-stop-pack-boundary.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e7af0c160f3c7eba682cd7521f4d0c89e89d429c27e896808bcbd9a8bb8cf7a5"
     }
   ]
 }
