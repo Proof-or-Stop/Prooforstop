@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Restore a bounded instrumentation ceiling for the current source inventory",
       "context": "The first full TEST run proved seven bounded baseline blockers: the 804 dynamic-binding ceiling plus six clean-main failures in canonical config root discovery, legacy red-evidence fixture storyDir, and Codex heartbeat timeout classification. Keep the existing 808/850 finite guard, repair only those six failures, preserve legacy fixture compatibility, and limit production behavior change to the Codex adapter path packages/main/src/core/codex-adapter-checks.ts using non-login Unix command discovery so caller PATH is honored. Because this touches the Codex adapter, fresh node bin/proof-or-stop.js verify_codex evidence is mandatory before REVIEW. The Dynamic Finding decision document, handlers, CLI sources, and unrelated diagnostics remain out of scope.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-31T12:44:07.208Z",
       "verificationIntent": {
         "happy": [
           {
@@ -450,6 +450,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "All 13 must intents now have fresh tool-executed passing receipts at committed HEAD f7c9d374c8; the six TEST-blocking baseline failures and the original instrumentation ceiling regression are covered."
+    },
+    {
+      "timestamp": "2026-08-31T12:44:07.208Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Formal INIT reopen reset status only. The corrected 13-intent set retains 13 fresh passing tool-owned receipts, scope is re-approved, and required Codex adapter verification now passes."
     }
   ]
 }
