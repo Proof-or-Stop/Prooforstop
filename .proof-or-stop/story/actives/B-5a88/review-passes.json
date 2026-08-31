@@ -23852,6 +23852,32 @@
         "scanEscalationReason": null
       },
       "_hash": "be68a62b41d3ce62e6e0955567c17dd72b6ad7a528e64c6cd92aac701133b739"
+    },
+    {
+      "id": "B-5a88:RP-405",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-anchor after dev-memory finish-decision write moved storyFilesHash; verified git diff --stat 5b4c29beae..HEAD -- packages/ scripts/ bin/ .githooks/ is empty, no source change since prior pass. Concept scope (role/schema/marker/package identity migration CHK-001..013) unchanged; no new concept findings.",
+      "createdAt": "2026-08-31T17:34:22.505Z",
+      "reviewRound": "2026-08-31T17:28:40.980Z",
+      "reviewRunId": "B-5a88:RR-977",
+      "envelopeId": "ccfac0a3caf1de364a2ba487efacd565aad751c7f6732186cab91833b2a243cd",
+      "writerSessionId": "claude-b5a88-1788161424",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/decision.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d4fa61fe23860182ea758145cc225493c46cf0e9f5d61598b66ea21fc52d0029"
     }
   ]
 }
