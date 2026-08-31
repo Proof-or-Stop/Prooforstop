@@ -586,6 +586,31 @@
         "scanEscalationReason": null
       },
       "_hash": "5661669b1fa4cb0bf033fb29bf7e078c44dfbacb1cc033d6503e2ce11098177d"
+    },
+    {
+      "id": "B-022e:RP-021",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 10 coverage passed at HEAD 60edd8a. evidence_inspect shows all 29 verificationIntent receipts fresh and the structured CHK-007 pack-boundary transcript present and fresh at current storyFilesHash 01b680a95b167ec139f87052b72f7cb731173fcd75d6f9baa5523382a14561ed. staleRefs contains only the prior TEST validation evidence, which is correctly replaced by routine validation in TEST and is not a REVIEW coverage blocker. F-017 is reasonably resolved: commit 9fbc6d8 rebounded the checklist evidence row to the captured transcript. Open F-002 and F-015 remain verified medium non-blocking deferred advisories. No product code was modified.",
+      "createdAt": "2026-08-31T14:32:41.389Z",
+      "reviewRound": "2026-08-31T14:30:13.313Z",
+      "reviewRunId": "B-022e:RR-046",
+      "envelopeId": "cc69838014ebbc07b95aa7baf58344f10296a0a6d9f03b9fdab375f5105c5ac0",
+      "writerSessionId": "sess-7e9eac50d15b4e6186c393729457a89c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/evidence/live-smoke-transcript.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "85f6b0a35ca4c9ba38fc89f9b7b5f04d31176f1f754bf68aacc525a731e59af7"
     }
   ]
 }
