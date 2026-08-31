@@ -140,7 +140,7 @@
       "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:664-914 [high] The current canonical pre-review evidence is not a PASS. pre_review_check_read at this review HEAD returns status=inconclusive/ok=false with PR_NEW_PATH_UNMAPPED, PR_COVERAGE_BASIS_CHANGED, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, and PR_EVIDENCE_STALE; its executableProof has no command digests, cases, provenance, or binding proofs. Observe mode makes this nonblocking at transition but does not convert it into verifier-owned proof, so resolving F-002/F-003 as strong and treating local checklist receipts as closure is premature. Regenerate the coverage basis, capture registered verifier-owned executable/mutation evidence, and obtain a current signed pre_review_check PASS before re-resolving or passing review.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T03:31:12.310Z",
@@ -151,7 +151,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The canonical runner was invoked with LATTICE_ACTIVE_STORY_ID=B-5952. Its production/mutation scenarios passed, but artifact issuance is blocked by a separate current-main runner defect: proofstory-pre-review-check-smoke hard-reads missing legacy .lattice-codex/agents/lattice-implementer.md. pre_review_check is configured observe, not enforce, for this story. Per the user's explicit no-scope-expansion direction, B-5952 does not repair that unrelated adapter path; closure relies only on the targeted rebuilt smoke, committed hard-cap control, exact JSON scope mutation, and detached causal comparison, without claiming canonical pre_review_check PASS.",
+      "resolvedAt": "2026-08-31T07:33:12.930Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-5952:F-007",
