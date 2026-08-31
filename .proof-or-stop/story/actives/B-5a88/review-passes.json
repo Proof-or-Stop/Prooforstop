@@ -23742,6 +23742,33 @@
         "scanEscalationReason": null
       },
       "_hash": "88f3abcb377342bcd5ea23dbe7340a12ef5320128fb17fe0e1b86d81ec11168f"
+    },
+    {
+      "id": "B-5a88:RP-401",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Pure re-anchor for RI-095, round 2026-08-31T15:07:11.080Z, head 5b4c29b. Confirmed via git diff --stat 59ecc092c1..HEAD -- packages/ scripts/ bin/ .githooks/ that no source changed since prior pass at de8b75e0cb (RP-398/RR-971). No new quality findings; all prior findings (F-499..F-502) remain settled.",
+      "createdAt": "2026-08-31T15:11:31.902Z",
+      "reviewRound": "2026-08-31T15:07:11.080Z",
+      "reviewRunId": "B-5a88:RR-974",
+      "envelopeId": "c4593b4b361f7dd5c3b34fdc7cff033605a8e1ae5bdd1d88913e43c93d0b3d47",
+      "writerSessionId": "claude-b5a88-1788161424",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "background.md",
+          "checklist.json",
+          "plan.md"
+        ],
+        "filesTriagedByName": [
+          "decision.json",
+          "delivery-check.json",
+          "scope-check.json",
+          "understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "45082aa527e228282cd4adc13b5f2775eae1d7130146c2f94f49ed6913c15dc9"
     }
   ]
 }
