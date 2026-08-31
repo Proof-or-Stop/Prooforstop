@@ -44,7 +44,7 @@
       "desc": "scripts/verify-global-lab-entrypoint.mjs:7-37 and :60-115 invoke the repository-local bin and local Lab dist; they never npm pack/install the four tarballs or disable registry/network fallback. packages/main/src/tasks/proof-or-stop-only-absence-smoke.ts:28-66 only checks generated bootstrap text and config loading; it never enumerates installed bins, invokes lattice, resolves @lattice/core|lab|utils, or resolves the 13 retired roles. Yet CHK-003:edge:0/adversarial:0, CHK-004:happy:0/adversarial:0, CHK-005:adversarial:0, and CHK-007:happy:0/edge:0 are mapped to those commands, and evidence_inspect reports transcriptRefs=[] with no pack/install command. WHY: this is a false-green product-boundary gap; a packed manifest/bin/dependency/role regression can pass all recorded receipts even though the cutover decision requires network-disabled clean-install positives and negatives.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-31T01:41:44.948Z",
@@ -57,7 +57,11 @@
         "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
       ],
       "signatureTag": "missing|mjs|scripts-verify-global",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 75a231165a and 485269ad2f: committed pack-boundary verifier performs actual four-product-tarball network-disabled clean install and package, bin, and 13+13 role boundaries. Final CLI-captured transcript is linked in evidence_inspect and all 29 mechanical receipts are fresh after d7187db.",
+      "resolvedAt": "2026-08-31T03:05:04.168Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-004",
