@@ -310,6 +310,21 @@
       "_hash": "0901f14b53df4965a27979880fa58f67c41d82cd15cab940577eda2c0fa4eef9",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5952:F-015",
+      "desc": ".lattice/story/actives/B-5952/understanding.json:12 and plan.md:5 — HIGH scope/compatibility contradiction: the accepted Story facts still require `Do not change production command behavior`, limit touchpoints to the retired-authority smoke, and say to change only that ceiling, while packages/main/src/core/codex-adapter-checks.ts:813 changes production global-CLI discovery from a login shell to the caller PATH and seven additional smoke/regression files were added for six TEST blockers. The code expansion is bounded to those proven blockers, but the authoritative understanding/plan/rollback were never reconciled, so REVIEW cannot truthfully establish root-cause fidelity or the user’s no-scope-expansion boundary. Update the Story understanding/plan to enumerate the six proven blockers, justify the one production PATH change, and state rollback/compatibility boundaries before re-review; do not add further implementation scope.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T12:23:12.045Z",
+      "reviewRound": "2026-08-31T12:18:00.095Z",
+      "reviewRunId": "B-5952:RR-035",
+      "_hash": "1aded255b03785f21c217f28ee44430906e33339acab36e63b6100a1066ad602",
+      "signatureTag": "missing|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
