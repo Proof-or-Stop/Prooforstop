@@ -1119,4 +1119,62 @@ see story/B-5a28
 - 测试统一通过 `proof-or-stop validate` 执行
 - `proof-or-stop validate` 全绿 = 可以提交
 - 调用出错时先 `proof-or-stop <command> --help`，不要靠记忆猜参数
+
+### Defect triage: fix, defer, or decline (scope discipline)
+
+Three rules govern what you do with a defect found mid-story. They are ordered: classify first, then act.
+
+1. **Fix major or acceptance-blocking defects on the spot.** If a defect blocks a gate, blocks
+   acceptance, or is major in its own right, repair it in this story rather than deferring it. A
+   blocking defect is not a follow-up candidate — deferring it just moves the blockage.
+2. **Record non-major, non-blocking defects with evidence and defer them.** A real defect that is
+   neither major nor blocking for *this* story is deferred, but only *with durable evidence*: file it
+   (`finding_add`) or resolve it with the full analysis recorded (`finding_resolve --resolutionType=accepted_risk`),
+   citing file:line, why it is out of this story's claimed scope, and what a follow-up must do.
+   "Deferred" never means "silently dropped" — a deferral with no written evidence is a dropped defect.
+3. **Never expand scope without bound in pursuit of all-green.** Do not widen a story to fix
+   everything a reviewer can find. If a defect is not claimed by any checklist item and is not
+   blocking, it belongs to a dedicated story. A green gate bought by unbounded scope creep is worse
+   than an honest deferral, because it destroys the story's reviewability and its scope contract.
+
+**Decision procedure (run it in this order, on every new defect found mid-story):**
+
+1. **Classify first.** Before touching anything, decide whether the defect is a major risk to the
+   current Story or blocks its acceptance. Do not start fixing and classify afterwards.
+2. **Must fix in the current Story** if ANY of these holds:
+   - severity is `critical` or `high`; or
+   - it touches **security**, **data integrity**, or **destructive/compatibility** behavior; or
+   - it would block this Story's acceptance, REVIEW, TEST, or DONE.
+3. **Record and defer** if ALL of these hold: severity is `medium`/`low`, AND it is not a direct
+   regression of the current acceptance scope, AND it does not affect the user's core outcome, AND it
+   cannot distort a lifecycle gate. Then capture, at minimum: **reproduction steps, evidence, blast
+   radius, and recommended handling**, into a finding / gap / backlog entry with the follow-up owner
+   named. The current Story does not expand scope.
+4. **Deferral is never a verbal judgement.** It must leave a traceable record. And it is revisable: if
+   later evidence shows the severity was underestimated, or the defect becomes an acceptance blocker,
+   pull it back into the current Story immediately.
+
+**How to tell major/blocking from deferrable** — decide on mechanical signals, not vibes:
+
+| Signal | Reading |
+|---|---|
+| A gate reports it `BLOCKED` / `blocking=true` | Blocking → rule 1, fix now |
+| `blocking=false` / `diagnostic_only` / advisory | Not blocking → rule 2 is available |
+| Severity `critical` | Always fix; never dismissable in any round |
+| Claimed by a checklist item's `Files`/scope | In scope → fix now |
+| Not enumerated by any CHK item | Unclaimed scope → rule 2 + rule 3 |
+| Fix requires coordinated edits beyond the story's files | Strong deferral signal; needs its own review |
+| Touches security / data integrity / destructive compat | Fix now regardless of nominal severity |
+| Would make a gate report a false PASS | Gate distortion → fix now, never defer |
+| Deferred item's severity later escalates | Pull back into the current story immediately |
+
+**Why:** a story that fixes every defect it happens to notice stops being reviewable — its diff no
+longer corresponds to its checklist, and reviewers can no longer judge whether the claimed work was
+done. Conversely, a story that defers a *blocking* defect ships a known-broken gate. The evidence
+requirement in rule 2 is what keeps the middle case honest: a deferral that is written down is a
+handoff, while a deferral that is only reasoned about in a session transcript is an untracked
+regression. Precedent: B-5a88 fixed its acceptance-blocking evidence-binding defect in place, deferred
+a confirmed-but-unclaimed `lattice-*` provider-discriminant rename (41 occurrences across 9 files,
+including a DONE-gate path) with the full analysis recorded on the finding, and deliberately left 282
+already-readable persisted `schemaVersion: 'lattice.*'` literals alone rather than chase all-green.
 <!-- lattice:end -->
