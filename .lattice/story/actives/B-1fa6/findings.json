@@ -188,7 +188,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:906-931,1190-1207,1270-1279,1485-1489,1790,1892,1965-1967 — finite-expiry/root-cause contract has an indefinite-renewal loophole. V1 caps each medium row at 7 days and each low row at 30 days, but renewal merely requires a fresh assessment, target acceptance, and superseding deferral; the schema and validators define no cumulative age from the first deferral, renewal-count ceiling, target progress/root-cause evidence, or escalation to mandatory repair. A target can therefore accept a new 7/30-day row forever while every per-row timestamp, policy, freshness, and scorecard check passes. This contradicts the risk claim that the hard 30-day ceiling prevents an open applicable defect staying advisory forever and leaves rootCauseEvidenceRefs optional without any time-linked strengthening. Define a lineage-wide cumulative ceiling or bounded renewal count and require progress/root-cause evidence (with explicit escalation to mandatory repair or refusal when absent) before renewal; add deterministic chain tests and a cumulative scorecard denominator. Per-row immutable supersession alone does not make deferral finite.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-31T00:51:23.838Z",
@@ -199,7 +199,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 043feddaa3: the canonical deferral lineage has an immutable earliest firstDeferredAt, strictest observed severity, cumulative horizon and renewal count; medium is capped at seven cumulative days with zero renewals, low at thirty days with at most one target-authorized progressed renewal, after which mandatory repair is emitted.",
+      "resolvedAt": "2026-08-31T01:06:29.454Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-011",
