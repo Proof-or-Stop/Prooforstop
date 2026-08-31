@@ -120,6 +120,19 @@ const frozenReviewerLegacyReconstructionDigests = {
   'lattice-review-quality': '1f023f75aeab93b6d08e4ec1261a867e43ebd638f6d5ec18e1407cad7c90f58b',
   'lattice-review-test-coverage': 'e433ed9bded50288388fff6447142555e412756137461d841ca7724848458753',
 } as const;
+// Independent approval for the complete modular reviewer body that precedes the
+// injected contract. Terminal-contract validation alone cannot see contradictory
+// prose inserted before the marker, and generated registry/baseline digests are
+// refreshable. These pins make any prefix change require deliberate semantic-test
+// review instead of allowing a baseline refresh to approve it implicitly.
+const approvedReviewerModularPrefixDigests = {
+  'lattice-review-behavior': '3b25cf83e1b38ce805762736875afe013b6dfcab277e9a15fa3ee314909d1ec4',
+  'lattice-review-concept': 'ae1de41de7a5f2db42279ca68c148741f85e0711a7eeeeaeae5797c18c175430',
+  'lattice-review-docs': 'cc5fe34377ce4dcb3caf186311394b80350db697252d4929aeeee151838bbd0f',
+  'lattice-review-quality': 'b1f40fddd5bcc2962398a042f9575c239fa835dcebc829f9d9c3bb6e3d96cc0b',
+  'lattice-review-test-coverage': '45ece5b7d75d0543317107bc1713285f400c75b74e115d8f06077543d222a73b',
+} as const;
+const approvedEmptyReviewerPrefixSha256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 const requiredReviewFindingTriagePhrases = [
   'The Dynamic Finding System execution plan is the future authority',
   'use only commands and fields exposed by the current CLI compatibility path',
@@ -231,13 +244,21 @@ function assertReviewFindingTriageSemantics(
   content: string,
   sourceLabel: string,
   approvedDigest = approvedReviewFindingTriageContractSha256,
+  approvedPrefixDigest = approvedEmptyReviewerPrefixSha256,
 ): void {
   assert.equal(
     occurrenceCount(content, reviewFindingTriageContractMarker),
     1,
     `${sourceLabel} contains exactly one canonical REVIEW triage contract`,
   );
-  const deliveredContract = content.slice(content.indexOf(reviewFindingTriageContractMarker)).trimEnd();
+  const markerIndex = content.indexOf(reviewFindingTriageContractMarker);
+  const deliveredPrefix = content.slice(0, markerIndex).trimEnd();
+  assert.equal(
+    createHash('sha256').update(deliveredPrefix).digest('hex'),
+    approvedPrefixDigest,
+    `${sourceLabel} keeps the independently approved pre-contract reviewer body`,
+  );
+  const deliveredContract = content.slice(markerIndex).trimEnd();
   assert.equal(
     createHash('sha256').update(deliveredContract).digest('hex'),
     approvedDigest,
@@ -319,12 +340,20 @@ function assertReviewFindingTriageMutationFailures(): void {
     );
   }
   for (const [index, mutation] of digestRefreshedParaphraseMutations.entries()) {
-    const changedContract = `${REVIEW_FINDING_TRIAGE_CONTRACT}\n${mutation}`;
-    const refreshedDigest = createHash('sha256').update(changedContract).digest('hex');
+    const changedTerminalContract = `${REVIEW_FINDING_TRIAGE_CONTRACT}\n${mutation}`;
+    const refreshedDigest = createHash('sha256').update(changedTerminalContract).digest('hex');
     assert.throws(
-      () => assertReviewFindingTriageSemantics(changedContract, `digest-refreshed mutation ${index + 1}`, refreshedDigest),
+      () => assertReviewFindingTriageSemantics(changedTerminalContract, `post-marker digest-refreshed mutation ${index + 1}`, refreshedDigest),
       /normative-clause manifest|heading manifest|rejects contradictory/,
-      `digest-refreshed semantic mutation ${index + 1} must fail independently of the approval digest`,
+      `post-marker digest-refreshed semantic mutation ${index + 1} must fail independently of the approval digest`,
+    );
+    assert.throws(
+      () => assertReviewFindingTriageSemantics(
+        `${mutation}\n${REVIEW_FINDING_TRIAGE_CONTRACT}`,
+        `pre-marker digest-refreshed mutation ${index + 1}`,
+      ),
+      /independently approved pre-contract reviewer body/,
+      `pre-marker digest-refreshed semantic mutation ${index + 1} must fail independently of the terminal contract digest`,
     );
   }
 }
@@ -353,11 +382,23 @@ function assertReviewFindingTriageDelivery(): void {
       frozenReviewerLegacyReconstructionDigests[roleId],
       `${roleId} frozen legacy reconstruction digest remains byte-for-byte unchanged`,
     );
+    const frozenLegacyPrefixDigest = createHash('sha256').update(frozenLegacyReconstruction.trimEnd()).digest('hex');
+    const modularSource = readFileSync(entry.sourcePath, 'utf8');
+    assert.equal(
+      createHash('sha256').update(modularSource.trimEnd()).digest('hex'),
+      approvedReviewerModularPrefixDigests[roleId],
+      `${roleId} modular reviewer prefix requires independent semantic approval`,
+    );
     for (const mode of ['legacy-full-context', 'full-envelope'] as const) {
       const body = resolvePromptTemplateBody(entry, mode);
       assert.equal(occurrenceCount(body, reviewFindingTriageContractMarker), 1, `${roleId}/${mode} receives one contract`);
       assert.ok(body.endsWith(`${REVIEW_FINDING_TRIAGE_CONTRACT}\n`), `${roleId}/${mode} receives canonical contract bytes`);
-      assertReviewFindingTriageSemantics(body, `${roleId}/${mode}`);
+      assertReviewFindingTriageSemantics(
+        body,
+        `${roleId}/${mode}`,
+        approvedReviewFindingTriageContractSha256,
+        mode === 'legacy-full-context' ? frozenLegacyPrefixDigest : approvedReviewerModularPrefixDigests[roleId],
+      );
     }
   }
   for (const entry of registry.agents) {
@@ -535,8 +576,18 @@ for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
   assert.equal(occurrenceCount(modularSourceBody, reviewFindingTriageContractMarker), 0, `${roleId} package asset does not duplicate the injected contract`);
   assert.equal(occurrenceCount(modular.body, reviewFindingTriageContractMarker), 1, `${roleId} full-envelope path appends one triage contract`);
   assert.ok(modular.body.endsWith(`${REVIEW_FINDING_TRIAGE_CONTRACT}\n`), `${roleId} full-envelope path appends canonical contract bytes`);
-  assertReviewFindingTriageSemantics(legacy.body, `${roleId} legacy path`);
-  assertReviewFindingTriageSemantics(modular.body, `${roleId} full-envelope path`);
+  assertReviewFindingTriageSemantics(
+    legacy.body,
+    `${roleId} legacy path`,
+    approvedReviewFindingTriageContractSha256,
+    createHash('sha256').update(frozenLegacyBody.trimEnd()).digest('hex'),
+  );
+  assertReviewFindingTriageSemantics(
+    modular.body,
+    `${roleId} full-envelope path`,
+    approvedReviewFindingTriageContractSha256,
+    approvedReviewerModularPrefixDigests[roleId],
+  );
   assert.equal(extractLatticeBlock(modular.body), null, `${roleId} modular body contains no legacy Runtime Guide`);
   assert.ok(modular.body.includes('proofbound:modular-role-body:v1'), `${roleId} keeps the legacy reconstruction anchor`);
   for (const host of ['claude', 'codex'] as const) {
