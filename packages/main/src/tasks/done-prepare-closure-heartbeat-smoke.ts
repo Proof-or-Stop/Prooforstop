@@ -318,16 +318,15 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
 }
 
 function runCli(root: string, args: string[], env: Record<string, string> = {}): CliResult {
+  const inheritedEnv = stripCanonicalBrandEnvTwins(
+    { ...process.env },
+    ['IDLE_TIMEOUT_MS', 'MAX_TIMEOUT_MS', 'VALIDATE_HEARTBEAT_MS'],
+  );
   const result = spawnSync(process.execPath, [cliPath, '--root', root, ...args], {
     cwd: root,
-    // B-cdf6:F-071 — a PROOF_OR_STOP_* value exported by whoever runs this suite
-    // outranks the PROOF_OR_STOP_*-only pins the call sites below pass in, because
-    // readBrandEnv resolves the canonical name first. Neutralize the canonical
-    // twins of the knobs this smoke controls so its pins are authoritative.
-    env: stripCanonicalBrandEnvTwins(
-      { ...process.env, ...env },
-      ['IDLE_TIMEOUT_MS', 'MAX_TIMEOUT_MS', 'VALIDATE_HEARTBEAT_MS'],
-    ),
+    // Strip caller-owned canonical knobs first, then install this scenario's
+    // canonical pins. Stripping after composition would erase the fixture itself.
+    env: { ...inheritedEnv, ...env },
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
     timeout: 10_000,

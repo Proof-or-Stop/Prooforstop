@@ -87,7 +87,7 @@ function runDistCliProbe(args: string[]): { status: number | null; stdout: strin
 const duplicateNames = toolNames.filter((name, index) => toolNames.indexOf(name) !== index);
 assert.deepEqual([...new Set(duplicateNames)], [], 'MAIN_TOOLS must not contain duplicate commands');
 
-assert.deepEqual(toolNames.slice(0, 9), [
+assert.deepEqual(toolNames.slice(0, 10), [
   'story_create',
   'story_advance',
   'story_update',
@@ -96,6 +96,7 @@ assert.deepEqual(toolNames.slice(0, 9), [
   'story_list',
   'story_resolve',
   'story_reconcile',
+  'identity_state_migrate',
   'story_discard',
 ], 'MAIN_TOOLS leading command order changed');
 

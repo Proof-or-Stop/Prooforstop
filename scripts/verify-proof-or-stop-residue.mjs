@@ -682,8 +682,8 @@ const BRAND_PROSE_CASES = [
   // bin wrapper paths (deprecated alias retained)
   ['node bin/proofOrStop.js verify_codex', false],
   ['node bin/proof-or-stop-codex.js session_brief', false],
-  // managed-block markers (FROZEN)
-  ['<!-- proofOrStop:start -->', false],
+  // canonical managed-block markers
+  ['<!-- proof-or-stop:start -->', false],
   // runtime discovery file (FROZEN)
   ['reads .proof-or-stop-serve.json for the port', false],
   // brand-name PROSE proper noun — a different mapping row, not an invocation

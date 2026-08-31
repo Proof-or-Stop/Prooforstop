@@ -701,7 +701,7 @@ try {
   const deciderRun = runNode([DECIDER_ABS]);
   const deciderCounts = new RegExp(
     'all (\\d+) entries of (\\S+) found ON DISK are accounted for: (\\d+) registered in '
-    + 'proofOrStop\\.config\\.json validate\\.commands and (\\d+) excluded with a stated reason',
+    + 'proof-or-stop\\.config\\.json validate\\.commands and (\\d+) excluded with a stated reason',
   ).exec(deciderRun.out);
   let deciderRecordBlock = '';
   try {

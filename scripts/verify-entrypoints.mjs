@@ -160,8 +160,8 @@ function assertInitHelpDocumentsStarterAsOptional(help, label) {
 }
 
 function assertManagedMarkerSync(content, expectedNeedle, staleNeedle, label) {
-  assertIncludes(content, '<!-- proofOrStop:start -->', label);
-  assertIncludes(content, '<!-- proofOrStop:end -->', label);
+  assertIncludes(content, '<!-- proof-or-stop:start -->', label);
+  assertIncludes(content, '<!-- proof-or-stop:end -->', label);
   assertIncludes(content, expectedNeedle, label);
   if (staleNeedle) assertNotIncludes(content, staleNeedle, label);
 }
@@ -627,11 +627,11 @@ checks.push(() => {
     writeFileSync(join(tempDir, 'CLAUDE.md'), [
       '# CLAUDE.md',
       '',
-      '<!-- proofOrStop:start -->',
+      '<!-- proof-or-stop:start -->',
       '## Local Project Rule',
       '',
       'Preserve this locally edited Claude instruction.',
-      '<!-- proofOrStop:end -->',
+      '<!-- proof-or-stop:end -->',
       '',
     ].join('\n'));
     const checkLocalReview = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--review-local-edits', '--json'], { cwd: tempDir }));
@@ -957,9 +957,9 @@ checks.push(() => {
 checks.push(() => {
   const tempDir = mkdtempSync(join(tmpdir(), 'proof-or-stop-entrypoints-managed-sync-'));
   try {
-    writeFileSync(join(tempDir, 'AGENTS.md'), '# AGENTS.md\n\nbefore-agents\n<!-- proofOrStop:start -->\nold agents section\n<!-- proofOrStop:end -->\nafter-agents\n');
-    writeFileSync(join(tempDir, 'CLAUDE.md'), '# CLAUDE.md\n\nbefore-claude\n<!-- proofOrStop:start -->\nold claude section\n<!-- proofOrStop:end -->\nafter-claude\n');
-    writeFileSync(join(tempDir, 'PROOF_OR_STOP.md'), '# PROOF_OR_STOP.md\n\nbefore-proofOrStop\n<!-- proofOrStop:start -->\nold proof-or-stop section\n<!-- proofOrStop:end -->\nafter-proofOrStop\n');
+    writeFileSync(join(tempDir, 'AGENTS.md'), '# AGENTS.md\n\nbefore-agents\n<!-- proof-or-stop:start -->\nold agents section\n<!-- proof-or-stop:end -->\nafter-agents\n');
+    writeFileSync(join(tempDir, 'CLAUDE.md'), '# CLAUDE.md\n\nbefore-claude\n<!-- proof-or-stop:start -->\nold claude section\n<!-- proof-or-stop:end -->\nafter-claude\n');
+    writeFileSync(join(tempDir, 'PROOF_OR_STOP.md'), '# PROOF_OR_STOP.md\n\nbefore-proof-or-stop\n<!-- proof-or-stop:start -->\nold proof-or-stop section\n<!-- proof-or-stop:end -->\nafter-proof-or-stop\n');
 
     run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
 
@@ -974,8 +974,8 @@ checks.push(() => {
     assertIncludes(claude, 'after-claude', 'CLAUDE.md suffix preservation');
     assertManagedMarkerSync(claude, 'PROOF_OR_STOP.md', 'old claude section', 'CLAUDE.md managed sync');
     assertNotIncludes(claude, '正常通道：', 'CLAUDE.md managed sync should not copy root lifecycle table');
-    assertIncludes(proofOrStop, 'before-proofOrStop', 'PROOF_OR_STOP.md prefix preservation');
-    assertIncludes(proofOrStop, 'after-proofOrStop', 'PROOF_OR_STOP.md suffix preservation');
+    assertIncludes(proofOrStop, 'before-proof-or-stop', 'PROOF_OR_STOP.md prefix preservation');
+    assertIncludes(proofOrStop, 'after-proof-or-stop', 'PROOF_OR_STOP.md suffix preservation');
     assertManagedMarkerSync(proofOrStop, 'host-neutral', 'old proof-or-stop section', 'PROOF_OR_STOP.md managed sync');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

@@ -119,7 +119,7 @@ try {
   assert.equal(requiredFailure.commands[0].failureKind, 'validation_failure');
   const requiredFailureDetails = requiredFailure.details.join('\n');
   assert.doesNotMatch(requiredFailureDetails, /timeout diagnostic/i);
-  assert.doesNotMatch(requiredFailureDetails, /timeoutMs|raise proofOrStop\.config\.json validate\.commands\[\]\.timeoutMs/i);
+  assert.doesNotMatch(requiredFailureDetails, /timeoutMs|raise proof-or-stop\.config\.json validate\.commands\[\]\.timeoutMs/i);
 
   const optionalFailure = await executeValidationPlan({
     provider: 'smoke-optional-fail',
@@ -157,7 +157,7 @@ try {
   assert.equal(timeout.commands[0].timedOut, true);
   assert.equal(timeout.commands[0].failureKind, 'infra_failure');
   assert.match(timeout.details.join('\n'), /configured timeoutMs=100ms/);
-  assert.match(timeout.details.join('\n'), /proofOrStop\.config\.json validate\.commands\[\]\.timeoutMs/);
+  assert.match(timeout.details.join('\n'), /proof-or-stop\.config\.json validate\.commands\[\]\.timeoutMs/);
 
   writeFileSync(join(tmp, 'proof-or-stop.config.json'), JSON.stringify({
     validate: {
@@ -1005,12 +1005,12 @@ try {
   const projectLocalRuntimeRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-runtime-mode-local-'));
   try {
     mkdirSync(join(projectLocalRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
-    const localBin = join(projectLocalRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'proofOrStop.cmd' : 'proof-or-stop');
+    const localBin = join(projectLocalRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'proof-or-stop.cmd' : 'proof-or-stop');
     writeFileSync(localBin, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(projectLocalRuntimeRoot, {
       commandResolver: () => localBin,
       globalNpmRootResolver: () => null,
-      corePackageRoot: join(projectLocalRuntimeRoot, 'node_modules', '@proofOrStop', 'core'),
+      corePackageRoot: join(projectLocalRuntimeRoot, 'node_modules', '@proof-or-stop', 'core'),
     });
     assertRuntimeModeShape(report.runtimeMode);
     assert.equal(report.runtimeMode.mode, 'project-local-package');
@@ -1046,14 +1046,14 @@ try {
   const proofOrStopConflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-runtime-mode-proof-or-stop-conflict-'));
   try {
     mkdirSync(join(proofOrStopConflictRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
-    const localBin = join(proofOrStopConflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'proofOrStop.cmd' : 'proof-or-stop');
-    const otherCli = join(proofOrStopConflictRuntimeRoot, 'other-proofOrStop');
+    const localBin = join(proofOrStopConflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'proof-or-stop.cmd' : 'proof-or-stop');
+    const otherCli = join(proofOrStopConflictRuntimeRoot, 'other-proof-or-stop');
     writeFileSync(localBin, '#!/usr/bin/env node\n');
     writeFileSync(otherCli, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(proofOrStopConflictRuntimeRoot, {
       commandResolver: () => otherCli,
       globalNpmRootResolver: () => null,
-      corePackageRoot: join(proofOrStopConflictRuntimeRoot, 'node_modules', '@proofOrStop', 'core'),
+      corePackageRoot: join(proofOrStopConflictRuntimeRoot, 'node_modules', '@proof-or-stop', 'core'),
     });
     assertRuntimeModeShape(report.runtimeMode);
     assert.equal(report.runtimeMode.mode, 'diagnostic-only');
@@ -1061,7 +1061,7 @@ try {
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
     assert.equal((report.projectLocalBin.actual as any).path, localBin, 'project-local-bin must report the proof-or-stop bin that shadows the active CLI');
     assert.equal((report.projectLocalBin.actual as any).shadowsEntrypoint, true);
-    assert.match(report.projectLocalBin.warnings?.join('\n') ?? '', /node_modules\/\.bin\/proofOrStop/);
+    assert.match(report.projectLocalBin.warnings?.join('\n') ?? '', /node_modules\/\.bin\/proof-or-stop/);
     const runtimeSummary = renderRuntimeFootprintSummary(report.runtimeMode);
     assert.match(
       runtimeSummary,
@@ -1089,7 +1089,7 @@ try {
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
     assert.equal(
       (report.projectLocalBin.actual as any).path,
-      join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'proofOrStop.cmd' : 'proof-or-stop'),
+      join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'proof-or-stop.cmd' : 'proof-or-stop'),
       'project-local-bin must ignore stale legacy local bins',
     );
     assert.equal((report.projectLocalBin.actual as any).present, false);
@@ -1184,7 +1184,7 @@ try {
 
   const staleLocalAssetRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-managed-stale-local-'));
   try {
-    writeFileSync(join(staleLocalAssetRoot, 'PROOF_OR_STOP.md'), '<!-- proofOrStop:start -->\n# Local Proof-or-Stop Notes\ncustom text\n<!-- proofOrStop:end -->\n');
+    writeFileSync(join(staleLocalAssetRoot, 'PROOF_OR_STOP.md'), '<!-- proof-or-stop:start -->\n# Local Proof-or-Stop Notes\ncustom text\n<!-- proof-or-stop:end -->\n');
     const before = readFileSync(join(staleLocalAssetRoot, 'PROOF_OR_STOP.md'), 'utf-8');
     const plainCheck = createCheckHandlers({
       root: staleLocalAssetRoot,
@@ -1260,7 +1260,7 @@ try {
   const wrapperRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-wrapper-cjs-'));
   try {
     mkdirSync(join(wrapperRoot, 'bin'), { recursive: true });
-    const proofOrStopWrapperPath = join(wrapperRoot, 'bin', 'proofOrStop.js');
+    const proofOrStopWrapperPath = join(wrapperRoot, 'bin', 'proof-or-stop.js');
     const codexWrapperPath = join(wrapperRoot, 'bin', 'proof-or-stop-codex.js');
     writeFileSync(proofOrStopWrapperPath, renderProofOrStopBootstrapScript(packageRoot));
     writeFileSync(codexWrapperPath, renderProofOrStopCodexWrapperScript());

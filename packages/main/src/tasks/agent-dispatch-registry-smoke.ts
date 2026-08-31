@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -415,11 +415,24 @@ try {
     scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
   }));
   execFileSync('git', ['init', '-q'], { cwd: root });
+  execFileSync('git', ['checkout', '-qB', 'main'], { cwd: root });
   execFileSync('git', ['config', 'user.email', 'smoke@example.com'], { cwd: root });
   execFileSync('git', ['config', 'user.name', 'Smoke'], { cwd: root });
   execFileSync('git', ['add', 'proof-or-stop.config.json'], { cwd: root });
   execFileSync('git', [
     'commit', '-qm', 'smoke baseline',
+    '--author=proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>',
+  ], { cwd: root });
+  // Topology-authority dispatch is intentionally fail-closed on an empty
+  // story-owned diff. Exercise the complete registry on a real story branch
+  // with one committed production delta instead of weakening that gate for a
+  // synthetic HEAD==main fixture.
+  execFileSync('git', ['checkout', '-qb', 'story/B-dispatch-consumer'], { cwd: root });
+  mkdirSync(join(root, 'packages/main/src'), { recursive: true });
+  writeFileSync(join(root, 'packages/main/src/example.ts'), 'export const dispatchConsumerSmoke = true;\n', 'utf8');
+  execFileSync('git', ['add', 'packages/main/src/example.ts'], { cwd: root });
+  execFileSync('git', [
+    'commit', '-qm', 'seed story-owned dispatch delta',
     '--author=proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>',
   ], { cwd: root });
   const store = new StoryStore(root);

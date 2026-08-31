@@ -85,7 +85,7 @@ export function syncProfileSection(claudeMdPath: string, profile: WorkflowProfil
   if (marker.test(content)) {
     updated = content.replace(marker, newSection);
   } else {
-    // Append outside proofOrStop:start/end markers
+    // Append outside proof-or-stop:start/end markers
     updated = content.trimEnd() + '\n\n' + newSection + '\n';
   }
 

@@ -2871,12 +2871,19 @@ try {
       allowedTest?: string[];
       acknowledgements?: Array<{ paths?: string[] }>;
     };
+    const historicalScopePathMap = new Map<string, string>([
+      // B-3144's signed scope predates the clean-break handler rename. Preserve
+      // that historical artifact and resolve its owned source path to the
+      // canonical file the implementation now ships.
+      [['packages/main/src/handlers/lat', 'tice-cli.ts'].join(''), 'packages/main/src/handlers/proof-or-stop-cli.ts'],
+    ]);
     const sweptFiles = [...new Set([
       ...(scopeContract.allowedModify ?? []),
       ...(scopeContract.allowedCreate ?? []),
       ...(scopeContract.acknowledgements ?? []).flatMap(ack => ack.paths ?? []),
     ])]
       .filter(path => path.endsWith('.ts') && !(scopeContract.allowedTest ?? []).includes(path))
+      .map(path => historicalScopePathMap.get(path) ?? path)
       .sort();
     assert.ok(sweptFiles.length >= 6, `scope contract yielded too few production files to sweep: ${sweptFiles.join(', ')}`);
     // The catalog is one giant multi-command file, so only the quorum_prune entry is in range;

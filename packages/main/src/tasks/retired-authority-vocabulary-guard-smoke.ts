@@ -180,7 +180,10 @@ const PACKAGE_ALIAS_MANIFEST_RECORDS: PackageAliasManifestRecord[] = SHIPPED_PAC
 }));
 const PACKAGE_ALIAS_EDGE_INVENTORY = buildPackageAliasEdgeInventory(PACKAGE_ALIAS_MANIFEST_RECORDS);
 const PACKAGE_ALIAS_EDGE_INVENTORY_ALGORITHM = 'package-imports-self-exports-edge-inventory-sha256-v1';
-const PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH = 'b7d92d8213ef6059411003d7b0f3228cb05cac03692bb3604f98070f04d4a923';
+// Explicitly re-attested for B-022e after retired package self-export identities
+// moved to @proof-or-stop/{utils,lab}.
+const PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH = '884e04286b0e30ad3a40addbe110c2593eb214746bda8a2d7b656ec76a7b7f75';
+const RETIRED_PACKAGE_SCOPE = ['@lat', 'tice/'].join('');
 
 function packageAliasEdgeInventoryHash(records: readonly PackageAliasManifestRecord[], edges: readonly PackageAliasEdge[]): string {
   const manifestSurfaces = records.map(record => ({
@@ -417,17 +420,24 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // argument, or path producer was added, removed, or rewritten; only the approved call
   // site's line number moved (809/814 -> 814). As always, BOTH coupled copies of this
   // digest (here and in scripts/verify-process-fact-contract.mjs) were updated together.
-  ['packages/main/src/cli-engine.ts', 'dd11e51a1c4a87b78a9bd5fed12d46fb9eb32c900ca311b9b809d843b553fa79'],
+  // B-022e final re-attestation: Lab ownership-class wiring changed the
+  // enclosing file, while runCli's `file://${initPath}` loader and producer are
+  // unchanged; the exact structural pin remains mutation-sensitive.
+  ['packages/main/src/cli-engine.ts', 'b7f71c8c28ce724f8cf9552d9e665e5177c4c92e31226ea8cef3678ff3ebcfd2'],
   ['packages/main/src/verifier/serve.ts', '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
 ]);
 
 const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
-  ['packages/main/src/verifier/browser-client.ts', '48f529b542edbb79c796a5ef6ab51dad8e5e13cc2e3416e76f6bae74104d5527'],
+  // B-022e re-attestation: only verifier runtime identity tokens changed;
+  // the exact-file exemption remains narrow and mutation-sensitive.
+  ['packages/main/src/verifier/browser-client.ts', '6db7549862141be655e34094323763762511bd00b05f45af4d77c097c7e0dc4f'],
   ['packages/main/src/handlers/decision-doc-quorum.ts', '6025f602afdc354a31333b61b516cb29aa1b59387806d69e6981d5a9ed3969b7'],
-  ['packages/main/src/tasks/browser-client.ts', '4b92b436fb13a06cf2dfd2079c6b0dec787ef8807cd54f8b6db24c1002a0e61a'],
-  ['packages/main/src/handlers/fixture-executors.ts', 'acaa12e34e6e9b3304d176b9cbb65d9edfcdfa3ec9fc7db57a14d83411f026c7'],
+  // Same B-022e identity-only re-attestation for the task-side browser client.
+  ['packages/main/src/tasks/browser-client.ts', '9d09bfd90b67cfa559095b82c8a7012871f0b4d0d38f7ec68941c4f5d0b5e772'],
+  // B-022e identity-only re-attestation for the Python fixture module label.
+  ['packages/main/src/handlers/fixture-executors.ts', 'efac815e5c27ce69c10c038846f53d99631617a75b97e0ee649844202f203822'],
   // B-1734: bin/bootstrap-runner.js gained a build-aware importDistModules() wait loop
   // (F-003/C4). Its runCli(...) and register(...) calls now resolve their callee through
   // `await importDistModules()` (an opaque any-returning local function) instead of the
@@ -436,11 +446,10 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // dynamically-imported dist entry points bootstrap-runner has always invoked; the
   // refactor added NO eval/Function/new dynamic import(). Whole-source exemption pinned to
   // the exact post-refactor fingerprint — any drift re-triggers the full dynamic-code scan.
-  // Repinned when main was merged into the B-cdf6 rename branch: the merged file is that
-  // same post-refactor source plus exactly three brand-text lines (two console.error
-  // strings and one comment), verified by diffing against the MERGE_HEAD copy. No
-  // eval/Function/require/import() was added, so this exemption's basis is unchanged.
-  ['bin/bootstrap-runner.js', '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659'],
+  // B-022e re-attestation: the zod loader became the bounded literal import('zod'),
+  // while MAIN_DIST, UTILS_DIST, and LAB_DIST remain the same path-derived loaders.
+  // Ownership metadata and identity text add no executable-code construction sink.
+  ['bin/bootstrap-runner.js', '09f3a0a52a4e50818da742a5dbe69d1b9f108c10d171547ded64507e94020e5c'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
 const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
@@ -1482,7 +1491,6 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
       { anchor: 'importDistModules', argument: 'pathToFileURL(MAIN_DIST).href' },
       { anchor: 'importDistModules', argument: 'pathToFileURL(UTILS_DIST).href' },
       { anchor: 'runLocalBootstrap', argument: 'pathToFileURL(LAB_DIST).href' },
-      { anchor: 'runLocalBootstrap', argument: "pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href" },
     ],
   }],
   // B-cdf6: the canonical Codex entrypoint moved to bin/proof-or-stop-codex.js, and it now
@@ -1504,23 +1512,10 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // canonical Codex entrypoint moved to bin/proof-or-stop-codex.js. The deprecated
   // bin/proof-or-stop-codex.js delegates to it and holds no loader of its own, so the canonical
   // file is what must be pinned here.
-  // B-1734 (merged in): repinned again after the build-aware importDistModules() wait loop
-  // was added to bin/bootstrap-runner.js (F-003/C4). The four approved non-literal dist
-  // loader call sites are unchanged in shape (MAIN_DIST/UTILS_DIST relocated into
-  // importDistModules, LAB_DIST/zod still in runLocalBootstrap); this whole-file structural
-  // fingerprint gates that call-site allowlist, so it moves with any edit to this
-  // security-sensitive entry.
-  //
-  // Repinned when main was merged into the B-cdf6 rename branch: the merged file carries
-  // BOTH sides (theirs' importDistModules() wait loop + our three brand strings), so its
-  // digest matched neither parent's pin. Re-approval basis, checked before repinning:
-  // `diff` of the merged file against the MERGE_HEAD copy is exactly three lines, all of
-  // them console.error/comment brand text (ProofOrStop -> Proof-or-Stop, `proofOrStop
-  // session_brief` -> `proof-or-stop session_brief`). The four approved non-literal dist
-  // loader call sites (MAIN_DIST/UTILS_DIST inside importDistModules, LAB_DIST/zod in
-  // runLocalBootstrap) are byte-identical to that copy, including their path producers —
-  // no import()/require() call, argument, or producer was added, moved, or rewritten.
-  ['bin/bootstrap-runner.js', '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659'],
+  // B-022e re-attestation: there are now three approved non-literal dist loaders.
+  // The former path-derived zod loader is the literal package import('zod'), so it
+  // leaves this exception set instead of receiving a broader allowance.
+  ['bin/bootstrap-runner.js', '09f3a0a52a4e50818da742a5dbe69d1b9f108c10d171547ded64507e94020e5c'],
   ['bin/proof-or-stop-codex.js', 'c8906ce79242cd30e4519990a69fc7b2b6725a29b12699b9ad32d703b4e0b6d1'],
 ]);
 
@@ -4054,6 +4049,14 @@ function assertShippedExecutableRootPositiveControls(): void {
     actualAliasInventoryHash,
     PINNED_PACKAGE_ALIAS_EDGE_INVENTORY_HASH,
     `${PACKAGE_ALIAS_EDGE_INVENTORY_ALGORITHM}: package imports/self-exports edge inventory drift requires explicit review`,
+  );
+  const shippedPackageNames = new Set(PACKAGE_ALIAS_MANIFEST_RECORDS.map(record => record.manifest.name));
+  assert.ok(shippedPackageNames.has('@proof-or-stop/utils'), 'reviewed alias inventory must include canonical @proof-or-stop/utils');
+  assert.ok(shippedPackageNames.has('@proof-or-stop/lab'), 'reviewed alias inventory must include canonical @proof-or-stop/lab');
+  assert.equal(
+    [...shippedPackageNames].some(name => typeof name === 'string' && name.startsWith(RETIRED_PACKAGE_SCOPE)),
+    false,
+    'reviewed alias inventory must not retain retired package identities',
   );
   for (const edge of PACKAGE_ALIAS_EDGE_INVENTORY.filter(edge => !edge.targetPattern.includes('*'))) {
     const target = packageSourceTarget(edge, '');

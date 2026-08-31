@@ -1154,7 +1154,7 @@ function assertManagedAssetExpandedDocsAndTrueDrift(): void {
   ): void => {
     const badRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-managed-drift-'));
     try {
-      const badSection = '<!-- proofOrStop:start -->\n# Locally edited guide\nThis is not a Proof-or-Stop-owned alternate contract.\n<!-- proofOrStop:end -->\n';
+      const badSection = '<!-- proof-or-stop:start -->\n# Locally edited guide\nThis is not a Proof-or-Stop-owned alternate contract.\n<!-- proof-or-stop:end -->\n';
       for (const doc of docs) write(badRoot, doc.relPath, badSection);
       const drift = runManagedAssetCheck(badRoot, { profile: 'all', assetMode });
       const driftById = new Map(drift.items.map(item => [item.id, item]));

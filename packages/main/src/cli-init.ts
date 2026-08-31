@@ -71,7 +71,7 @@ const HOOK_FILES = ['log-tools.cjs', PROOF_OR_STOP_SCOPE_PRETOOL_HOOK_FILE, ENGL
 
 // 通过 proof-or-stop init 调用时 argv[2]='init'，跳过；直接运行 init entrypoint 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
-const INIT_DOC_SECTION_RE = /<!--\s*proofOrStop:start\s*-->[\s\S]*?<!--\s*proofOrStop:end\s*-->/;
+const INIT_DOC_SECTION_RE = /<!--\s*proof-or-stop:start\s*-->[\s\S]*?<!--\s*proof-or-stop:end\s*-->/;
 const GITIGNORE_RUNTIME_BLOCK_RE = new RegExp(
   `${escapeRegExp(PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_START)}[\\s\\S]*?${escapeRegExp(PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_END)}`,
 );

@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { accessSync, constants, existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
+import { delimiter, isAbsolute, join, relative, resolve } from 'node:path';
 import {
   PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST,
   CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
@@ -807,24 +807,31 @@ function pathContains(parent: string, child: string): boolean {
  * Locate the canonical globally installed CLI on PATH.
  */
 function resolveGlobalCliCommandPath(root: string): string | null {
-  for (const bin of [PROOF_OR_STOP_PRIMARY_BIN]) {
-    const command = process.platform === 'win32' ? 'where' : 'sh';
-    const args = process.platform === 'win32' ? [bin] : ['-lc', `command -v ${bin}`];
-    try {
-      const out = execFileSync(command, args, {
-        cwd: root,
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-        timeout: 2_000,
-        env: process.env,
-      }).trim();
-      const found = out.split(/\r?\n/).find(Boolean);
-      if (found) return found;
-    } catch {
-      // probe: the canonical bin name is not on PATH.
+  const pathValue = process.platform === 'win32'
+    ? process.env.Path ?? process.env.PATH ?? ''
+    : process.env.PATH ?? '';
+  const extensions = process.platform === 'win32'
+    ? (process.env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean)
+    : [''];
+  const names = process.platform === 'win32'
+    ? [PROOF_OR_STOP_PRIMARY_BIN, ...extensions.map(extension => `${PROOF_OR_STOP_PRIMARY_BIN}${extension}`)]
+    : [PROOF_OR_STOP_PRIMARY_BIN];
+  for (const rawDir of pathValue.split(delimiter)) {
+    const dir = rawDir || '.';
+    const absoluteDir = isAbsolute(dir) ? dir : resolve(root, dir);
+    for (const name of names) {
+      const candidate = resolve(absoluteDir, name);
+      try {
+        if (!statSync(candidate).isFile()) continue;
+        if (process.platform !== 'win32') accessSync(candidate, constants.X_OK);
+        return candidate;
+      } catch {
+        // Continue through the inherited PATH in order; the first runnable
+        // canonical command wins without a login shell rewriting PATH.
+      }
     }
   }
-  // No global CLI under any known name; heartbeat execution reports the real failure.
+  // No canonical global CLI on PATH; heartbeat execution reports the real failure.
   return null;
 }
 

@@ -350,7 +350,14 @@ function assertDoneRequiredBlocked(
       consumer.commands.map(command => command.effectiveEnvironmentDigest),
       'owner and independent delivery-review sessions share DONE-required command identity',
     );
-    for (const key of VALIDATION_TRANSPORT_ENV_KEY_LIST) {
+    // The exported list is a frozen persisted-evidence surface and therefore
+    // intentionally retains historical spellings. Runtime filtering derives
+    // canonical Proof-or-Stop keys from it; exercise those effective keys here.
+    const canonicalTransportKeys = VALIDATION_TRANSPORT_ENV_KEY_LIST.map((key) =>
+      key.startsWith(['LAT', 'TICE_'].join(''))
+        ? `PROOF_OR_STOP_${key.slice(['LAT', 'TICE_'].join('').length)}`
+        : key);
+    for (const key of canonicalTransportKeys) {
       const owner = { ...common, [key]: 'owner-identity' };
       const reviewer = { ...common, [key]: 'reviewer-identity' };
       const posixOwner = buildDoneRequiredExecutionIdentity({

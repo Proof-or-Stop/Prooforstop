@@ -203,7 +203,7 @@ interface ManagedAssetPathInfo {
 // reappeared on every CLI invocation and repeatedly tripped the half-done
 // detector. Route it through the resolver like every other state path.
 const MANIFEST_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/managed-assets.json`;
-const INIT_DOC_SECTION_RE = /<!--\s*proofOrStop:start\s*-->[\s\S]*?<!--\s*proofOrStop:end\s*-->/;
+const INIT_DOC_SECTION_RE = /<!--\s*proof-or-stop:start\s*-->[\s\S]*?<!--\s*proof-or-stop:end\s*-->/;
 
 function packageRoot(): string {
   return join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -401,7 +401,7 @@ function collectApplyWarnings(root: string): string[] {
 
 function isManagedPrompt(actual: string, file: string): boolean {
   const base = file.replace(/\.md$/, '');
-  return actual.includes('<!-- proofOrStop:start -->')
+  return actual.includes('<!-- proof-or-stop:start -->')
     || actual.includes(`name: ${base}`)
     || actual.includes('name: proof-or-stop-');
 }

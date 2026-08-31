@@ -1910,7 +1910,7 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-    'dd11e51a1c4a87b78a9bd5fed12d46fb9eb32c900ca311b9b809d843b553fa79',
+    'b7f71c8c28ce724f8cf9552d9e665e5177c4c92e31226ea8cef3678ff3ebcfd2',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -2007,21 +2007,21 @@ function assertCloseoutTrustBoundary() {
     'global property eval',
     'window eval property',
     'any executable drift must invalidate the dynamic-code exemption',
-    '48f529b542edbb79c796a5ef6ab51dad8e5e13cc2e3416e76f6bae74104d5527',
+    '6db7549862141be655e34094323763762511bd00b05f45af4d77c097c7e0dc4f',
     '6025f602afdc354a31333b61b516cb29aa1b59387806d69e6981d5a9ed3969b7',
-    '4b92b436fb13a06cf2dfd2079c6b0dec787ef8807cd54f8b6db24c1002a0e61a',
+    '9d09bfd90b67cfa559095b82c8a7012871f0b4d0d38f7ec68941c4f5d0b5e772',
     "'packages/main/src/handlers/fixture-executors.ts'",
-    'acaa12e34e6e9b3304d176b9cbb65d9edfcdfa3ec9fc7db57a14d83411f026c7',
-    '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659',
+    'efac815e5c27ce69c10c038846f53d99631617a75b97e0ee649844202f203822',
+    '09f3a0a52a4e50818da742a5dbe69d1b9f108c10d171547ded64507e94020e5c',
     'bin/bootstrap-runner.js is pinned in both the benign-loader and dynamic-code exemption maps, making seven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
-    '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659',
+    '09f3a0a52a4e50818da742a5dbe69d1b9f108c10d171547ded64507e94020e5c',
     'c8906ce79242cd30e4519990a69fc7b2b6725a29b12699b9ad32d703b4e0b6d1',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
     'PACKAGE_ALIAS_EDGE_INVENTORY',
     'package-imports-self-exports-edge-inventory-sha256-v1',
-    'b7d92d8213ef6059411003d7b0f3228cb05cac03692bb3604f98070f04d4a923',
+    '884e04286b0e30ad3a40addbe110c2593eb214746bda8a2d7b656ec76a7b7f75',
     'resolvePackageAlias',
     'unresolved package import/self-reference alias',
     'package imports alias',
