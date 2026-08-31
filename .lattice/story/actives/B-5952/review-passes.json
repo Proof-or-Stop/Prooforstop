@@ -728,6 +728,41 @@
         "scanEscalationReason": null
       },
       "_hash": "e97bf36f4b615a0980c6db217f5d4036c13f2e8ee503bdf542bd63d1c5b5c213"
+    },
+    {
+      "id": "B-5952:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Round 10 incremental concept re-attestation after TEST anchor reset and merge-main only: the trusted basis reports no changed implementation files, affected contracts, claims, intents, finding deltas, or unresolved findings since RP-021. Required story files and the integrated diff remain coherent; repository scans found no source residue of the retired inline 800 budget, canonical config checks intentionally preserve explicitly named legacy fixtures, and the Codex adapter PATH change is still bounded to its declared production path. Intervening commits contain only merge-main and review/certification metadata. No promised-but-undelivered part, critical/high or acceptance/lifecycle blocker, or evidence-backed medium/low B-5952 issue was found. F-012 remains a strongly dismissed false positive because Wave-4 rollout is observe-only, diagnostic, and outside this Story claim/scope.",
+      "createdAt": "2026-08-31T13:36:07.396Z",
+      "reviewRound": "2026-08-31T13:28:41.780Z",
+      "reviewRunId": "B-5952:RR-042",
+      "envelopeId": "b14557b763891213eac5c8bcd7adaf3069ab6e8699d6257bb79a4fd336711936",
+      "writerSessionId": "sess-8a586f39a0cd9c9ad3a7bf160a956595",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/core/codex-adapter-checks.js",
+          "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b04e8b0bb2072be976b54d38cd65950bd54e52aa3606202597fe83b5aaef9f29"
     }
   ]
 }
