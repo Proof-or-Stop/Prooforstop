@@ -1080,6 +1080,37 @@
         "scanEscalationReason": "Fresh post-main-merge re-review compared the candidate spec and every related decision-doc path against the prior reviewed anchor; all decision-doc blobs were unchanged, so review focused on merge-owned public code/package deltas plus canonical-name residue evidence."
       },
       "_hash": "c60fe74a04e10e270e759d03bdf36e60e7a11e84c1d3fed6ddfb741cb24b4ad8"
+    },
+    {
+      "id": "B-1fa6:RP-031",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge-main test-coverage PASS: all 40 must intents still have exactly one valid docs_check PASS (0 gaps, extras, duplicates, failures, or waivers). Read-only evidence_inspect on CLI 0.3.268 classifies all 40 checklist evidence refs fresh at the current anchor because storyFilesHash remains 1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2; whole-tree material drift is explicitly a re-attestation advisory. Merge-main ancestry, checklist read, evidence freshness, target-document byte stability since 4849288280, and historical/canonical core-name pairing smoke checks PASS. The separately stale legacy routine test-evidence artifact remains for TEST routine validate and is not a verificationIntent coverage gap.",
+      "createdAt": "2026-08-31T22:44:46.189Z",
+      "reviewRound": "2026-08-31T21:15:39.856Z",
+      "reviewRunId": "B-1fa6:RR-065",
+      "envelopeId": "23cb35c319b09033f2ad5c407733a9895e1a89639a387a3306a60c96d0cee128",
+      "writerSessionId": "sess-9fa7784355cfbfea1a36f9e70e0881e6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "2e0acfde85c84c42808abb1e151ad4bfc651520a56f8b3dcc10816d8e39948da"
     }
   ]
 }
