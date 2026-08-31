@@ -23961,6 +23961,33 @@
         "scanEscalationReason": null
       },
       "_hash": "dab8e7ffeb780cd21797d0f8831d2e672d1256d90e8b90f4509c71d6b0b8bead"
+    },
+    {
+      "id": "B-45a0:RP-506",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion residue scan at HEAD 462e0e7 (only material commit a756969763): 0 remaining buildRevocationLedger refs in verifier.ts, symbol single-sourced live in story-aware-validation.ts, tsc clean. Rule 10 docs fix is prose-only. Re-verified RP-499/RP-500/RP-502 conclusions unchanged. No blocking residue.",
+      "createdAt": "2026-08-31T14:16:38.241Z",
+      "reviewRound": "2026-08-31T14:10:34.153Z",
+      "reviewRunId": "B-45a0:RR-1138",
+      "envelopeId": "4e73c1cdf698a61e8f8513153cc24c0e52a894ce8075ded531a071dd98973bb9",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9de8386a7c4d8fef8ae4fa514d1c77ff42e48061820f9f8e8ea43a7cd126c613"
     }
   ]
 }
