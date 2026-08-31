@@ -234,9 +234,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-5a15:CW-012",
       "storyId": "B-5a15",
-      "state": "RUNNING",
+      "state": "INVALIDATED",
       "createdAt": "2026-08-25T07:56:02.741Z",
-      "updatedAt": "2026-08-25T07:56:19.570Z",
+      "updatedAt": "2026-08-31T19:55:14.425Z",
       "frozen": {
         "headHash": "a74d3571cd9c3fafa135350a6bbd53ea8954354a",
         "materialHash": "20ffa1d8bce0e5aba8d0c70d32f32cce39d83bc241928f8164e7f75af2c05b09",
@@ -252,7 +252,31 @@
         "authorizesTest": false
       },
       "receiptId": "B-5a15:PRECERT-004",
-      "_hash": "3fc600e9d662a5374ea4ee8dfbb9deda219046e00204f5e07206799a1b6e5add"
+      "blockerCode": "pre_cert_window_invalidated",
+      "blockerDetail": "dependency input-hash identity is missing or contains unknown keys; strict refusal applies",
+      "invalidation": {
+        "detectedAt": "2026-08-31T19:55:14.425Z",
+        "oldHeadHash": "a74d3571cd9c3fafa135350a6bbd53ea8954354a",
+        "currentHeadHash": "d937a5c8d4bdcc8111dec7f6aacfcca5c74c762e",
+        "oldMaterialHash": "20ffa1d8bce0e5aba8d0c70d32f32cce39d83bc241928f8164e7f75af2c05b09",
+        "currentMaterialHash": "6d1ff7dcd6d03e382ddeecd9947b457e1d15122db53341de1f01e74308b26a5a",
+        "oldStoryFilesHash": "e15c317b440b82e00101249b9fd8143a3bbcdbfffd2932e7f73bc02bd6788b88",
+        "currentStoryFilesHash": "9a49bfb8dd86493a088c679c1c3c3dab11583d171d618e3d36adb75adfceb4f6",
+        "blockerCode": "pre_cert_window_invalidated"
+      },
+      "_hash": "44659d5fc21e9e44a90626b30cd489bea92a370a5397dd0b980334a64b4489e7"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5a15:CW-013",
+      "storyId": "B-5a15",
+      "state": "BLOCKED",
+      "createdAt": "2026-08-31T19:55:44.609Z",
+      "updatedAt": "2026-08-31T19:55:44.609Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "2eee5137ad0b8837c40a7bcdecb6683d513a17a1ead16c41eced1ec2172f32e3"
     }
   ],
   "receipts": [
