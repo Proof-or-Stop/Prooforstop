@@ -240,7 +240,7 @@
       "desc": "doc-code-drift: [high] docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:74-90,133-153,170-184 remains semantically inverted after the identity rewrite. The document first says active surfaces must use only proof-or-stop-* roles, but then calls `spawn proof-or-stop-review-quality` an unlabelled instruction that must not remain and tells implementers to remove active `proof-or-stop-review-*` aliases. Its advertised post-cleanup command also treats canonical `proof_or_stop_metadata` and `proof-or-stop-verifier` strings as residue, so it currently returns many production hits although the Expected Results promise a clean active-role search. The three active Agent roots and runtime correctly use proof-or-stop-review-story-init / proof-or-stop-review-*; the documentation is the outlier. WHY: an operator following this current truth source is directed to remove or reject canonical reviewer identities and cannot reproduce the documented verification result. This also makes the F-009 resolvedReason claim that all 92 mechanically referenced current truth sources were canonicalized too broad; d3e4823931 correctly fixes F-010 token mechanics but does not repair these prose inversions.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-08-31T05:03:24.530Z",
@@ -255,7 +255,11 @@
         ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md"
       ],
       "signatureTag": "missing|md|code-drift-high",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 7e01c0f575 and 6255338c1d: corrected the current-truth inversion so all canonical proof-or-stop-review-* identities (including proof-or-stop-review-story-init and proof-or-stop-review-topology-critic), proof_or_stop_metadata_changes, and proof-or-stop-verifier-* are positive identities rather than removal/residue targets; preserved the historical migration mappings; split retired inventory from canonical positive search; synchronized exact context hashes; and added canonical non-residue self-test coverage. Identity/residue self-tests, empty residue, full identity, and four-package offline pack boundary pass.",
+      "resolvedAt": "2026-08-31T05:21:26.204Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
