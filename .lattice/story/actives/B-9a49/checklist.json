@@ -1142,31 +1142,51 @@
             "id": "CHK-004:adversarial:test-weakening",
             "desc": "Remove, skip, invert, or weaken an assertion between RED and GREEN, or update expected text to whatever the implementation emits, and prove review rejects the result; GREEN must come from production prompt and contract changes plus deliberate reviewed pins, not from disabling the original failing requirement.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+              "selector": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS"
+            }
           },
           {
             "id": "CHK-004:adversarial:delivery-leak-or-duplication",
             "desc": "Inject the contract through a broad common policy, append it in both a template and resolver, or key delivery by a name substring; prove tests fail on leakage into any non-REVIEW role, two copies in a REVIEW prompt, omission from one of the five lanes, or divergence between the two supported envelope modes.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "id": "CHK-004:adversarial:semantic-collapse",
             "desc": "Change compatibility wording so dismissal appears to prove out-of-scope status, collapse disproven, duplicate, and stale_or_not_reproduced into a generic deferred or closed outcome, or omit current evidence and owner requirements; prove the focused semantic contract test fails even when all digest pins are refreshed.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "id": "CHK-004:adversarial:stale-envelope-replay",
             "desc": "Replay an old in-flight reviewer prompt, envelope, reviewRunId, pass, or Finding write after the selected REVIEW body or host-render digest changes and prove it cannot gain current evidence authority; deleting the redispatch warning, accepting the old binding, or claiming that prose refreshes it must fail.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke: PASS"
+            }
           },
           {
             "id": "CHK-004:adversarial:authority-boundary-and-local-cli",
             "desc": "Attempt to make requiredCheckIds, prompt text, a passing baseline verifier, or verify_codex output substitute for signed lifecycle evidence, or run verification only through a stale global binary; process-fact and runtime-fact checks plus the local build must prove prompt metadata remains non-evidentiary and final adapter verification exercised the committed local implementation.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:process-fact-contract",
+              "selector": "Process Fact Contract"
+            }
           }
         ]
       },
@@ -1371,6 +1391,111 @@
           "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
           "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
           "timestamp": "2026-08-31T20:08:25.024Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:test-weakening",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
+          "result": "pass",
+          "note": "Measurement smoke retains the original delivery, semantic, role-boundary, digest, and adversarial assertions on final source.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2179fe491400714b20b765e9702738a53c62facbd5bbfac1aa3ca2ac297b42bd",
+            "outputTail": "prompt-contract-measurement-smoke CHK-001/CHK-002/CHK-003/CHK-004 PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T20:09:05.456Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "d87fa79e98ce4b7c78de28357a8f906edef18678",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:09:09.453Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:delivery-leak-or-duplication",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Registry-driven assertions fail on broad-policy leakage, duplicate injection, lane omission, or envelope-mode divergence.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T20:09:05.707Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "d87fa79e98ce4b7c78de28357a8f906edef18678",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:09:09.453Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:semantic-collapse",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Semantic assertions reject dismissal-as-applicability, outcome collapse, missing evidence/owner, or reviewer gap_log routing.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T20:09:05.964Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "d87fa79e98ce4b7c78de28357a8f906edef18678",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:09:09.453Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:stale-envelope-replay",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Envelope binding assertions reject replay after selected-body or host-render drift and require a fresh run.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3593bd04fc88df30c33dcdb2c8c62f259e3cc54871b1849fc6158d66e82f5d94",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ session identity degraded: derived-ppid; export LATTICE_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T20:09:06.658Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "d87fa79e98ce4b7c78de28357a8f906edef18678",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:09:09.453Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:authority-boundary-and-local-cli",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process-fact verification proves prompt metadata remains non-evidentiary; separate story-bound verify_codex L4 evidence passed against the local worktree implementation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3f809fb62ff8fee30b3fe2fd9307347fc8676c900b33fcdec052a6e05a5dfe07",
+            "outputTail": "nly; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission artifact=prompt-envelopes.json\n- artifact:proofstory.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=proofstory.json\n- artifact:red-evidence.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=red-evidence.json\n- artifact:review-inventory-epochs.json [L4/signed-artifact] producer=handlers/review-inventory gate=certification_window_begin artifact=review-inventory-epochs.json:signed\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\n- artifact:review-runs.json [L4/signed-artifact] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed\n- artifact:review.json [L4/signed-artifact] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed\n- artifact:scope-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed\n- artifact:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed\n- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json\n- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed\n- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed\n- artifact:scope-shrinkage-decision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=scope-shrinkage-decision.json\n- artifact:slice-plan.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json\n- artifact:spike.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json\n- artifact:story-evidence-binding [L4/artifact] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding\n- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- artifact:topology-critic-receipt.json [L3/signed-artifact] producer=handlers/proofstory.topology_critic_receipt_set gate=topology_critic_receipt_check CLI verification only artifact=topology-critic-receipt.json:signed\n- artifact:topology-exclusion-approvals.json [L3/signed-artifact] producer=handlers/proofstory.topology_exclusion_approval_set gate=topology_critic_receipt_set and topology_critic_receipt_check artifact=topology-exclusion-approvals.json:signed\n- audit [L2/command] producer=handlers/audit\n- autopilot_cancel [L1/command] producer=handlers/lattice-autopilot\n- autopilot_doctor [L0/command] producer=handlers/autopilot\n- autopilot\n...[truncated 42536 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T20:09:09.315Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "d87fa79e98ce4b7c78de28357a8f906edef18678",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:09:09.453Z"
         }
       ]
     }
