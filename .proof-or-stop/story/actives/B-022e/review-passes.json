@@ -330,6 +330,38 @@
         "scanEscalationReason": null
       },
       "_hash": "30e07ab598469b060585dee7a42695f998e03c067399eec2596a1f81bd7f8bb8"
+    },
+    {
+      "id": "B-022e:RP-012",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Incremental concept re-sign after F-012 terminal accepted-risk transition. Current SAFE_INCREMENTAL basis has changedFiles=[], affectedContracts=[], findingDeltas=[], and carries only F-002 medium/adversarial as unresolved. F-012 is no longer unresolved because it is terminal accepted_risk. Git diff from RP-010 metadata base to current HEAD contains only Proof-or-Stop story metadata and no product/document drift. Completed Round 5 concept product conclusion remains unchanged.",
+      "createdAt": "2026-08-31T08:03:05.716Z",
+      "reviewRound": "2026-08-31T05:21:14.709Z",
+      "reviewRunId": "B-022e:RR-029",
+      "envelopeId": "155d1c8040c1ccbac8da60f58872b590bab774d94412c060fa4aeeb8f60ce729",
+      "writerSessionId": "sess-c4e852e510a4581a8e47f00c9ff0ad50",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "17350d90813802d6a83f5a3f8ec434bcb7bfbae7d7cd8ff55d8e6f6f3f9bf218"
+      },
+      "readDiagnostics": [],
+      "_hash": "78e5bb5b1247a4d7cc15027a9115e7259e62e8243e6c11a49a8295379871056e"
     }
   ]
 }
