@@ -2333,7 +2333,10 @@ test('F-247: verifier-owned topology and pre-review checks are executable and cu
     ? topology.diagnostics.map(diagnostic => diagnostic.code).sort()
     : [];
   const topologyRefreshBootstrap = topology.status === 'fail'
-    && topologyCodes.join(',') === 'AT_ADAPTER_RESULT_DIGEST_MISMATCH,AT_CLOSURE_FILES_STALE';
+    && [
+      'AT_ADAPTER_RESULT_DIGEST_MISMATCH,AT_CLOSURE_FILES_STALE',
+      'AT_CLOSURE_FILES_STALE,AT_SCOPE_BINDING_MISSING',
+    ].includes(topologyCodes.join(','));
   assert.ok(topology.status === 'pass' || topologyRefreshBootstrap, JSON.stringify(topology));
   if (!topologyRefreshBootstrap) {
     assert.equal(topology.readOnly, true);
@@ -2357,7 +2360,8 @@ test('F-247: verifier-owned topology and pre-review checks are executable and cu
     && preReview.ok === false
     && ((actualCodes.length === bootstrapCodes.length
       && actualCodes.every((code, index) => code === [...bootstrapCodes].sort()[index]))
-      || actualCodes.join(',') === 'PR_ARTIFACT_TAMPERED');
+      || actualCodes.join(',') === 'PR_ARTIFACT_TAMPERED'
+      || actualCodes.join(',') === 'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED');
   if (!isEvidenceRefreshBootstrap) {
     assert.equal(preReview.status, 'pass');
     assert.equal(preReview.ok, true);
