@@ -7,6 +7,9 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const SCRIPT_PATH = 'scripts/verify-proof-or-stop-identity-cutover.mjs';
+const CONCEPT_PROVENANCE_MANIFEST_PATH = 'scripts/proof-or-stop-identity-concept-provenance.json';
+const CONCEPT_PROVENANCE_MANIFEST_SHA256 = 'b770f90b416184ee90bfed4cbaf8fa7bc5d1c82cb4e40eb83c86c16eac71969b';
+const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 108;
 const POLICY_PATH = 'docs/requirements/decisions/proof-or-stop-identity-cutover.md';
 const POLICY_COMMIT = '1dab23ae287fb9364244a3a73156f62f1abdb6e8';
 const EXPECTED_PACKAGE_SCRIPT = 'node scripts/verify-proof-or-stop-identity-cutover.mjs';
@@ -265,6 +268,17 @@ const FROZEN_FILE_BASELINES = [
 ];
 const FROZEN_FILE_BASELINE_PATHS = new Set(FROZEN_FILE_BASELINES.map((row) => row.path));
 const EXPECTED_FROZEN_FILE_BASELINE_COUNT = 35;
+
+const CONCEPT_PROVENANCE_ROWS = JSON.parse(readFileSync(
+  new URL('./proof-or-stop-identity-concept-provenance.json', import.meta.url),
+  'utf8',
+)).map(([className, path, gitBlobOid, byteSha256]) => ({
+  class: className,
+  path,
+  gitBlobOid,
+  byteSha256,
+}));
+const CONCEPT_PROVENANCE_PATHS = new Set(CONCEPT_PROVENANCE_ROWS.map((row) => row.path));
 
 // Generated once at the RED commit. Every row is one exact tracked file pinned by
 // both Git blob identity and sha256. Runtime exclusion is by this exact path set;
@@ -691,6 +705,50 @@ function verifyFrozenFiles(root, tracked, baselines = FROZEN_FILE_BASELINES) {
   return errors;
 }
 
+function isConceptProvenancePath(path) {
+  return path.startsWith('docs/requirements/decisions/')
+    || path.startsWith('.proof-or-stop/dev-memory/')
+    || path.includes('/tests/fixtures/')
+    || path.startsWith('tests/fixtures/');
+}
+
+function verifyConceptProvenance(root, tracked, rows = CONCEPT_PROVENANCE_ROWS) {
+  const errors = [];
+  const manifestBytes = readFileSync(resolve(root, CONCEPT_PROVENANCE_MANIFEST_PATH));
+  if (sha256(manifestBytes) !== CONCEPT_PROVENANCE_MANIFEST_SHA256) {
+    errors.push('concept provenance: manifest byte digest changed');
+  }
+  if (rows.length !== EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT) {
+    errors.push(`concept provenance: row count ${rows.length}, expected ${EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT}`);
+  }
+  const paths = new Set();
+  for (const row of rows) {
+    if (!['provenance_bytes', 'compatibility_fixture'].includes(row.class)) {
+      errors.push(`concept provenance ${row.path || '<missing>'}: invalid class`);
+    }
+    if (!row.path || isAbsolute(row.path) || row.path.endsWith('/') || row.path.includes('..') || /[*?\[\]{}]/u.test(row.path)
+      || !isConceptProvenancePath(row.path)) {
+      errors.push(`concept provenance ${row.path || '<missing>'}: path must be one exact eligible file`);
+      continue;
+    }
+    if (paths.has(row.path)) errors.push(`concept provenance ${row.path}: duplicate exact path`);
+    paths.add(row.path);
+    if (!tracked.has(row.path) || statSync(resolve(root, row.path)).isDirectory()) {
+      errors.push(`concept provenance ${row.path}: stale/missing tracked file`);
+      continue;
+    }
+    if (!/^[a-f0-9]{40}$/u.test(row.gitBlobOid || '') || !/^[a-f0-9]{64}$/u.test(row.byteSha256 || '')) {
+      errors.push(`concept provenance ${row.path}: invalid exact digest`);
+      continue;
+    }
+    const actualOid = git(['hash-object', '--', row.path], { cwd: root }).trim();
+    const actualSha = sha256(readFileSync(resolve(root, row.path)));
+    if (actualOid !== row.gitBlobOid) errors.push(`concept provenance ${row.path}: Git blob digest changed`);
+    if (actualSha !== row.byteSha256) errors.push(`concept provenance ${row.path}: byte sha256 changed`);
+  }
+  return errors;
+}
+
 function isProtectedExperimentPath(path) {
   return path.startsWith('experiments/baselines/') || path.startsWith('experiments/recovery-runner/');
 }
@@ -731,7 +789,7 @@ const SCHEMA_PATTERN = /(?:^|[^A-Za-z0-9_.-])((?:lattice|Lattice)[A-Za-z0-9_.-]*
 function schemaRows(root, files) {
   const rows = [];
   for (const path of files) {
-    if (!isActiveTextPath(path) || isFrozenSurface(path)) continue;
+    if (!isActiveTextPath(path) || isPersistedSchemaExcludedSurface(path)) continue;
     const text = readFileSync(resolve(root, path), 'utf8');
     const tokens = new Set();
     for (const match of text.matchAll(SCHEMA_PATTERN)) tokens.add(match[1]);
@@ -751,7 +809,11 @@ function schemaBaselineDigest(rows) {
   return sha256(rows.map((row) => `${row.path}\0${row.token}\0${row.count}\0${row.contextSha256}`).join('\n'));
 }
 
-function isFrozenSurface(path) {
+// Persisted-schema inventory predates the concept-cleanup scan. Keep its exact
+// baseline population stable while allowing concept cleanup to inspect current
+// decision docs, fixtures, and dev-memory below. This function does not exempt a
+// token from active-residue scanning.
+function isPersistedSchemaExcludedSurface(path) {
   return path === SCRIPT_PATH
     || path === 'CHANGELOG.md'
     || path.startsWith('.proof-or-stop/story/')
@@ -760,6 +822,21 @@ function isFrozenSurface(path) {
     || path.includes('/tests/fixtures/')
     || path.startsWith('tests/fixtures/')
     || path.startsWith('docs/requirements/decisions/')
+    || EXPERIMENT_PROVENANCE_PATHS.has(path);
+}
+
+// Active-residue exemptions are deliberately exact. Story metadata remains a
+// separate protected store that this verifier never parses; everywhere else a
+// file is exempt only when a byte-pinned baseline/manifest names that exact
+// path. In particular, decision docs, fixtures, and dev-memory receive no
+// directory-wide exemption.
+function isFrozenSurface(path) {
+  return path === SCRIPT_PATH
+    || path === CONCEPT_PROVENANCE_MANIFEST_PATH
+    || path.startsWith('.proof-or-stop/story/')
+    || path.startsWith('.lattice/story/')
+    || FROZEN_FILE_BASELINE_PATHS.has(path)
+    || CONCEPT_PROVENANCE_PATHS.has(path)
     || EXPERIMENT_PROVENANCE_PATHS.has(path);
 }
 
@@ -901,6 +978,16 @@ function runSelfTest(root, files) {
   for (const [expected, path, token, line] of injections) {
     expect(classifyToken(path, token, line) === expected, `injected active residue was not classified as ${expected}`);
   }
+  for (const path of [
+    'docs/requirements/decisions/injected-current.md',
+    'packages/main/tests/fixtures/injected-current.json',
+    '.proof-or-stop/dev-memory/injected-current.jsonl',
+  ]) {
+    expect(!isFrozenSurface(path), `broad directory exemption survived for ${path}`);
+  }
+  expect(isFrozenSurface(FROZEN_FILE_BASELINES[0].path), 'exact frozen-file baseline was not exempted');
+  expect(isFrozenSurface(EXPERIMENT_PROVENANCE_ROWS[0].path), 'exact provenance-manifest file was not exempted');
+  expect(isFrozenSurface(CONCEPT_PROVENANCE_ROWS[0].path), 'exact concept-provenance file was not exempted');
 
   const tracked = new Set(files);
   const first = EXACT_ALLOWLIST[0];
@@ -937,13 +1024,27 @@ function runSelfTest(root, files) {
     verifyExperimentProvenance(root, files, experimentMutation).some((error) => error.includes('byte sha256 changed')),
     'experiment provenance byte mutation did not fail',
   );
+  const conceptMutation = CONCEPT_PROVENANCE_ROWS.map((row, index) => index === 0
+    ? { ...row, byteSha256: '0'.repeat(64) }
+    : row);
+  expect(
+    verifyConceptProvenance(root, tracked, conceptMutation).some((error) => error.includes('byte sha256 changed')),
+    'concept provenance byte mutation did not fail',
+  );
+  const broadConceptRow = CONCEPT_PROVENANCE_ROWS.map((row, index) => index === 0
+    ? { ...row, path: 'docs/requirements/decisions/' }
+    : row);
+  expect(
+    verifyConceptProvenance(root, tracked, broadConceptRow).some((error) => error.includes('one exact eligible file')),
+    'concept provenance broad-directory mutation did not fail',
+  );
 
   if (failures.length > 0) {
     for (const failure of failures) console.error(`SELF-TEST FAIL: ${failure}`);
     process.exitCode = 1;
     return;
   }
-  console.log('PASS identity-cutover self-test: active residue plus missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed');
+  console.log('PASS identity-cutover self-test: active residue, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact frozen rows remain accepted');
 }
 
 function main() {
@@ -975,6 +1076,7 @@ function main() {
   const structuralErrors = [
     ...validateExactRows(EXACT_ALLOWLIST, new Set(files), root),
     ...verifyFrozenFiles(root, new Set(files)),
+    ...verifyConceptProvenance(root, new Set(files)),
     ...verifyExperimentProvenance(root, files),
     ...verifyOrdering(root),
   ];
@@ -1011,7 +1113,12 @@ function main() {
   console.log('PASS identity-cutover');
   console.log(`PASS unchanged: ${FROZEN_SALTS.length} signature salts at ${EXACT_ALLOWLIST.length} exact source rows`);
   console.log(`PASS unchanged: ${FROZEN_FILE_BASELINES.length} named historical/provenance byte baselines`);
+  console.log(`PASS unchanged: ${CONCEPT_PROVENANCE_ROWS.length} exact concept-cleanup provenance/fixture rows`);
   console.log(`PASS unchanged: ${schemas.length} exact persisted-schema rows`);
+  execFileSync(process.execPath, [resolve(root, 'scripts/verify-proof-or-stop-pack-boundary.mjs'), '--quiet'], {
+    cwd: root,
+    stdio: 'inherit',
+  });
 }
 
 main();
