@@ -181,6 +181,27 @@
       "resolvedAt": "2026-08-31T21:25:57.856Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9a49:F-009",
+      "desc": "F-008 resolution exceeds current CLI evidence (high): the attempted five-record recovery in checklist.json updated commands/notes and freshness hashes, and commit 9dd098a made the immutable CHK-002 pinned command satisfiable, but CHK-002:happy:0, CHK-002:edge:2, CHK-002:adversarial:4, CHK-003:adversarial:no-dynamic-schema-expansion, and CHK-004:edge:english-only-slices still each have result absent, receipt absent, and mechanical=false. Current signed `proof-or-stop pre_review_check_read --storyId=B-9a49 --json` remains status=inconclusive, ok=false, executableEvidence=missing, authority=inadmissible, with those five intentRefs absent from its evidenceRefs. F-008 is marked resolved without resolution evidence, so the closure is broader than the machine result. Execute the recovered pinned commands through verification_evidence_add/batch_add with selectors to mint five current passing receipts, then regenerate the signed pre-review artifact before resolving this blocker.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T21:29:27.916Z",
+      "reviewRound": "2026-08-31T21:25:00.925Z",
+      "reviewRunId": "B-9a49:RR-009",
+      "_hash": "68334eef7376ecfee80df3d3cebfcb1c3e3c02292f9d90b41458defeaaa7f49c",
+      "files": [
+        ".lattice/story/actives/B-9a49/checklist.json",
+        ".lattice/story/actives/B-9a49/pre-review-check.json",
+        ".lattice/story/actives/B-9a49/findings.json",
+        "AGENTS.md"
+      ],
+      "signatureTag": "missing|json|resolution-exceeds-current",
+      "signatureTagSource": "auto"
     }
   ]
 }
