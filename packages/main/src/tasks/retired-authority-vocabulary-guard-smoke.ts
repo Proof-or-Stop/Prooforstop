@@ -906,6 +906,14 @@ function assertTypeProgramInstrumentation(): void {
     new RegExp(`bounded at ${typeProgramInstrumentation.dynamicBindingBuilds - 1}, got ${typeProgramInstrumentation.dynamicBindingBuilds}`),
     'a ceiling below the measured build count must remain rejected',
   );
+  assert.throws(
+    () => assertDynamicBindingBuildBudget(
+      typeProgramInstrumentation.dynamicBindingBuilds,
+      MAX_DYNAMIC_BINDING_BUILD_CEILING + 1,
+    ),
+    new RegExp(`finite integer between 1 and ${MAX_DYNAMIC_BINDING_BUILD_CEILING}, got ${MAX_DYNAMIC_BINDING_BUILD_CEILING + 1}`),
+    'a ceiling above the absolute hard cap must remain rejected',
+  );
   try {
     assertDynamicBindingBuildBudget(typeProgramInstrumentation.dynamicBindingBuilds, DYNAMIC_BINDING_BUILD_CEILING);
   } catch (error) {
