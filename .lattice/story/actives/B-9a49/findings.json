@@ -164,7 +164,7 @@
       "desc": ".lattice/story/actives/B-9a49/checklist.json and pre-review-check.json coverage-gap (high): 45 must verificationIntents are declared, but five mapped logic_test records (CHK-002:happy:0, CHK-002:edge:2, CHK-002:adversarial:4, CHK-003:adversarial:no-dynamic-schema-expansion, CHK-004:edge:english-only-slices) have no result, no receipt, and mechanical=false. The current read-only signed pre_review_check_read reports status=inconclusive, ok=false, executableEvidence=missing, authority=inadmissible and includes only 40 evidenceRefs. Notes saying Tool-executed or verifies are prose, not executable or gate evidence. Re-execute these exact current-material checks and record passing receipts (or a valid waiver) before claiming complete verificationIntent coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-31T20:55:10.567Z",
@@ -176,7 +176,11 @@
         ".lattice/story/actives/B-9a49/pre-review-check.json"
       ],
       "signatureTag": "missing|json|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by adding tool-executed receipts for the five originally missing intents, restoring execution of seven immutable CHK-002 pins without weakening their semantics, and refreshing all evidence after final material change. CLI accepted REVIEW entry with all 45 required intents mechanically covered.",
+      "resolvedAt": "2026-08-31T21:25:57.856Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
