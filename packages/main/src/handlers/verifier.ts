@@ -78,7 +78,7 @@ import {
 } from '../core/done-prepare-generated-metadata.js';
 import { normalizeRelPath } from '../core/lattice-paths.js';
 import { readBrandEnv } from '../core/brand-env.js';
-import { appendReceiptRevocation, buildRevocationLedger, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry } from '../core/story-aware-validation.js';
+import { appendReceiptRevocation, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate, type DynamicValidationMode, type ValidationSelectionManifest, type ValidationCatalogEntry } from '../core/story-aware-validation.js';
 import { persistCanonicalFullBaseline, persistStoryAwareValidationArtifacts, prepareStoryAwareValidation, readStoryAwareValidationArtifacts, runStoryAwareDynamicValidation, runtimeTraceForResult } from './story-aware-validation.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
