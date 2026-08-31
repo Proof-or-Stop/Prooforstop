@@ -329,15 +329,14 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
   // B-45a0 F-441: same resolver, so `source` reports the filename that actually
   // satisfied the lookup rather than re-deriving it from a second existsSync
   // probe. `legacy` (not a filename comparison) is what narrows to the union,
-  // keeping the deprecated literal out of the decision — the point of the
-  // resolver. No config file at all reports the canonical name, matching the
-  // prior behaviour where a missing file fell through to the legacy branch only
-  // because existsSync on the canonical path failed.
-  // B-45a0 F-444: with NO config file at all, pickProjectConfigPath returns null.
-  // Reporting the canonical name there would silently flip behaviour: the old
-  // ternary chain fell through to the deprecated name when the canonical file was
-  // absent. Preserve that exactly rather than changing an unrelated edge case
-  // while fixing the duplication.
+  // keeping the deprecated literal out of the decision — the point of the resolver.
+  // B-45a0 F-444: when there is NO config file at all, pickProjectConfigPath
+  // returns null, and this reports the DEPRECATED name. That is deliberate: the
+  // old ternary chain fell through to the legacy branch whenever existsSync on
+  // the canonical path failed, so reporting the canonical name here would have
+  // silently flipped an unrelated edge case while fixing the duplication.
+  // (F-446: an earlier draft of this comment claimed the opposite. The code
+  // below, and the temp-dir probe in the commit message, are the truth.)
   const source = injected
     ? 'injected' as const
     : picked ? (picked.legacy ? DEPRECATED_CONFIG_FILENAME : PROOF_OR_STOP_CONFIG_FILENAME)

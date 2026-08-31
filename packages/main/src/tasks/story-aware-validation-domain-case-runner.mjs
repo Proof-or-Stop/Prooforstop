@@ -32,7 +32,9 @@ const execution = spawnSync(process.execPath, [resolve(process.cwd(), smoke)], {
     return childEnv;
   })(),
   encoding: 'utf8',
-  timeout: Number(process.env.LATTICE_VALIDATION_CASE_TIMEOUT_MS || 120000),
+  // B-45a0 F-447: canonical name preferred, deprecated spelling still read.
+  timeout: Number(process.env.PROOF_OR_STOP_VALIDATION_CASE_TIMEOUT_MS
+    ?? process.env.LATTICE_VALIDATION_CASE_TIMEOUT_MS ?? 120000),
 });
 const output = `${execution.stdout || ''}${execution.stderr || ''}`;
 const marker = `PROOF_OR_STOP_DOMAIN_CASE:${caseId}`;

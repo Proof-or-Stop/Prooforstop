@@ -571,7 +571,7 @@ async function executeShardedEntry(args: {
   // adapter replaces its command boundary.  This is the unchanged complete
   // domain test required by DYN-5 aggregate equivalence.
   const oracleEnv = Object.fromEntries(Object.entries(baseCommand.env || {})
-    .filter(([key]) => !key.startsWith('LATTICE_VALIDATION_SHARD_')));
+    .filter(([key]) => !key.startsWith('LATTICE_VALIDATION_SHARD_') && !key.startsWith('PROOF_OR_STOP_VALIDATION_SHARD_')));
   const oracle = await executeValidationPlan({
     provider: `story-aware-dynamic-${domain}-original-oracle`,
     commands: [{ ...baseCommand, ...(Object.keys(oracleEnv).length ? { env: oracleEnv } : { env: undefined }) }],
@@ -613,7 +613,12 @@ async function executeShardedEntry(args: {
   const receipts: ValidationShardReceipt[] = [];
   const results: ValidationResult[] = [];
   const residue: string[] = [];
-  const shardAdapter = baseCommand.env?.LATTICE_VALIDATION_SHARD_ADAPTER;
+  // B-45a0 F-447: read BOTH names, preferring the canonical one, per
+  // brand-rename-mapping.md's rule for LATTICE_* env vars. The writer below emits
+  // the canonical PROOF_OR_STOP_* names; the deprecated spelling stays readable so
+  // an existing caller that already exports it keeps working.
+  const shardAdapter = baseCommand.env?.PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER
+    ?? baseCommand.env?.LATTICE_VALIDATION_SHARD_ADAPTER;
   const adapter = registeredShardAdapter(args.projectRoot, baseCommand, shardAdapter);
   if (!adapter) {
     const rejectedResults: ValidationShardResult[] = shards.map((shard) => ({
@@ -624,7 +629,7 @@ async function executeShardedEntry(args: {
       result: {
         provider: `story-aware-dynamic-${domain}-unwired`, status: 'fail', allPass: false,
         summary: `DYN-5 ${domain} adapter is not configured; dynamic sharding failed closed`,
-        details: ['Configure a registered case-aware adapter and LATTICE_VALIDATION_SHARD_ADAPTER before enabling this command.'],
+        details: ['Configure a registered case-aware adapter and PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER before enabling this command.'],
         warnings: [], timestamp: new Date().toISOString(), headSha: args.head, commands: [], commandExecutions: 0, disposition: 'executed',
       },
       artifact: { commandId: args.entry.id, domain, shards, receipts: [], aggregation, residue: [], originalOracle },
@@ -644,15 +649,15 @@ async function executeShardedEntry(args: {
       } : baseCommand),
       env: {
         ...(baseCommand.env || {}),
-        LATTICE_VALIDATION_SHARD_ID: shard.shardId,
-        LATTICE_VALIDATION_SHARD_DOMAIN: domain,
-        LATTICE_VALIDATION_SHARD_SENTINEL: shard.sentinelCaseId,
-        LATTICE_VALIDATION_SHARD_CASE_IDS: shard.caseIds.join(','),
-        LATTICE_VALIDATION_SHARD_CASE_REGISTRY: registry.path,
-        LATTICE_VALIDATION_SHARD_CASE_REGISTRY_DIGEST: registry.digest,
-        LATTICE_VALIDATION_SHARD_ADAPTER_DIGEST: adapter.digest,
-        LATTICE_VALIDATION_SHARD_DIR: shardDir,
-        LATTICE_VALIDATION_PROJECT_ROOT: args.projectRoot,
+        PROOF_OR_STOP_VALIDATION_SHARD_ID: shard.shardId,
+        PROOF_OR_STOP_VALIDATION_SHARD_DOMAIN: domain,
+        PROOF_OR_STOP_VALIDATION_SHARD_SENTINEL: shard.sentinelCaseId,
+        PROOF_OR_STOP_VALIDATION_SHARD_CASE_IDS: shard.caseIds.join(','),
+        PROOF_OR_STOP_VALIDATION_SHARD_CASE_REGISTRY: registry.path,
+        PROOF_OR_STOP_VALIDATION_SHARD_CASE_REGISTRY_DIGEST: registry.digest,
+        PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER_DIGEST: adapter.digest,
+        PROOF_OR_STOP_VALIDATION_SHARD_DIR: shardDir,
+        PROOF_OR_STOP_VALIDATION_PROJECT_ROOT: args.projectRoot,
       },
     };
     const result = await executeValidationPlan({
