@@ -1,0 +1,818 @@
+{
+  "findings": [
+    {
+      "id": "B-3e16:F-001",
+      "desc": "doc-promise-undelivered: packages/graph/README.md (lines 1-8, 51, 122-133) still documents the DELETED standalone-binary concept as current: it tells a reader to invoke `proof-or-stop-graph` directly (package.json has no `bin` field anymore, and packages/main/src/handlers/graph.ts never calls packages/graph/src/shells/cli/main.ts -- it imports dist/index.js as a library), the Architecture section still labels shells/cli/main.ts as \"the proof-or-stop-graph command\", the \"Migration into Proof-or-Stop\" section speaks of the migration in the future tense with the wrong tentative command name `proof_graph` (the chosen name is bare `graph`) even though the migration is this story, and the Development section instructs `npm start` to \"run the CLI from dist/\" even though no `start` script exists in packages/graph/package.json. CHK-006 explicitly promised \"grep for stale wording afterwards\"; scripts/verify-docs.mjs only checks CLAUDE.md and the decisions doc, never packages/graph/README.md, so this stale content shipped uncaught. The file is shipped in the published package (package.json files: [\"dist\",\"assets\",\"README.md\"]) and is the first thing a developer opens under packages/graph.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-28T10:04:14.526Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-001",
+      "_hash": "64b6476fa77b3a3ae1709ca59a5958134b5f2aab2698f6881671d49188a61dee",
+      "signatureTag": "missing|unknown|promise-undelivered-packages",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Rewrote packages/graph/README.md in commit 235a98f8a8. The usage block now shows proof-or-stop graph and states the package has no binary of its own; the architecture table no longer labels the shell as the command; the migration section is rewritten as How the CLI reaches this package, describing the completed runtime-resolution design and pointing at docs/requirements/decisions/graph-command-migration.md; the removed npm start reference is replaced with npm run check plus the Node >= 22.5 floor. Verified: grep for proof-or-stop-graph, npm start and proof_graph in that README now returns only the cache directory name, which the reviewer separately confirmed is a legitimate internal cache key rather than binary branding.",
+      "resolvedAt": "2026-08-28T10:08:26.014Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-002",
+      "desc": "packages/graph/src/shells/cli/main.ts is now dead code: packages/main/src/handlers/graph.ts (the actual CLI entrypoint) resolves and imports packages/graph dist/index.js as a pure library and never invokes shells/cli/main.ts, and the package.json bin field was deliberately removed. But tsconfig.json includes src/**/* with no exclusion, so this file still compiles into dist/shells/cli/main.js, and package.json files:[\"dist\",...] ships it inside the package tree unreachable and unreferenced. Its content (lines 3, 35-38, 57, 71) still hardcodes the removed standalone-binary name proof-or-stop-graph in its help text and error prefix (e.g. `proof-or-stop-graph: ${probe.reason}`), so if anyone stumbles on this file or its compiled output they see instructions for a binary that no longer exists. This is unreachable duplicate logic left over from the pre-migration standalone tool, not intentionally-retained back-compat (no back-compat comment present).",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-28T10:04:25.955Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-001",
+      "_hash": "0c84be38d15bb37fd3d0ef8552665564bba0658a42a6fcec2ab89c98a7d9449c",
+      "signatureTag": "missing|unknown|packages-graph-shells",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Deleted packages/graph/src/shells/cli/main.ts and its stale compiled output dist/shells/cli in commit 235a98f8a8, after confirming nothing references it: the handler consumes the package as a library through dist/index.js, the bin field was dropped, and a repo-wide grep found no caller. The user was asked and chose deletion over retaining a corrected-but-unused second entry point. The provenance comment in packages/main/src/handlers/graph.ts that cited the deleted path now points at git history and the pre-migration repository instead.",
+      "resolvedAt": "2026-08-28T10:08:36.271Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-003",
+      "desc": "doc-code-drift: packages/graph/README.md:1-134 still documents this package as a standalone tool invoked via bin `proof-or-stop-graph` (usage block at line 7, shells/cli description at line 51) and its \"Migration into Proof-or-Stop\" section (lines 121-124) frames the migration as still-future work (\"would call\", speculating the command would be named `proof_graph`), but this story already performed that migration: the actual entrypoint is the bare `proof-or-stop graph` command registered in packages/main/src/handlers/graph.ts, packages/graph/package.json has no `bin` field so `proof-or-stop-graph` cannot be invoked at all in this repo, and packages/main now does depend on this package's library surface (createApp/startServer) via runtime resolution. A reader of this README post-migration would try the wrong command and get a wrong mental model of the naming/dependency direction that the decisions doc and CLAUDE.md correctly state. This is the exact kind of promised-vs-delivered drift the docs-review closing self-check calls out, just inverted (pre-migration prose left stale rather than a promise never implemented).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T10:05:09.337Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-004",
+      "_hash": "51afb5ff746158f015178df74c7760497eb41697c302c985120b97a61bb22626",
+      "files": [
+        "packages/graph/README.md",
+        "packages/main/src/handlers/graph.ts",
+        "docs/requirements/decisions/graph-command-migration.md"
+      ],
+      "signatureTag": "missing|md|code-drift-packages",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-3e16:F-001, which the concept reviewer filed earlier in run RR-001 against the same file and the same substance (standalone bin usage plus stale future-tense migration framing). The docs reviewer noted the duplication itself. Fixed by the same README rewrite in commit 235a98f8a8; see the F-001 resolution for the verification detail.",
+      "resolvedAt": "2026-08-28T10:08:37.434Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-004",
+      "desc": "doc-promise-undelivered: packages/graph/README.md:54-56 Architecture tree still lists shells/cli/main.ts as an existing file (\"standalone entry, retained from the pre-migration package (unused here -- proof-or-stop graph is the entrypoint)\"), but that file was deleted in commit 235a98f8a8 (F-002 fix) and packages/graph/src/shells/ now contains only web/. This directly contradicts the same README top-of-file claim (\"This package has no binary of its own\", \"The migration into Proof-or-Stop is complete\") and the deletion commit message (\"Deleted, along with its stale compiled output\"). Root cause matches the note already left in that commit: verify-docs.mjs (packages/graph/scripts/verify-docs.mjs) only scans CLAUDE.md and the decisions doc, so this file is structurally outside the check meant to catch exactly this drift.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-28T10:13:09.309Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-005",
+      "_hash": "e0b5df76c2bab74e7d247896133e3134dc12fae7abde4e7603e4e8e8aa02d364",
+      "signatureTag": "missing|unknown|promise-undelivered-packages",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 2a2d2de82a. Removed the deleted src/shells/cli/main.ts entry from the README architecture tree, and closed the root cause the reviewer identified: verify-docs now scans the README as well, asserting both that no removed-binary vocabulary returns and that every architecture-tree path exists on disk. Verified by negative control against the committed README rather than a synthetic one: at the prior HEAD the new check reported this exact defect, and it also fails on a re-injected stale path, an emptied tree, a reintroduced standalone-binary invocation, and a reintroduced npm start. The first version of the path check was itself broken (its description-column regex ate the indentation, so it resolved zero paths and passed on the defect it targeted); it was replaced with an indent-stack parser plus a fail-closed floor that errors if fewer than ten paths resolve.",
+      "resolvedAt": "2026-08-28T10:16:15.493Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-005",
+      "desc": "packages/graph/scripts/verify-docs.mjs README standalone-binary check: the .cache exemption is line-wide (!line.includes(\".cache\")), not scoped to the matched occurrence, so a line that both keeps a legitimate ~/.cache/proof-or-stop-graph/ mention and reintroduces a real standalone-binary invocation on the same line (e.g. \"run proof-or-stop-graph --help, then check ~/.cache/proof-or-stop-graph/ for the index.\") is silently exempted and the check passes on exactly the regression class it was written to catch. Reproduced locally: the regex+includes combo flags the invocation alone (flagged:true) but not when a .cache substring co-occurs on the same line (flagged:false). Narrow scope (only reachable if a future doc edit places both phrases on one line) but same failure shape as the bug this commit already fixed once (an over-broad match silently passing on its target defect).",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-28T10:18:25.271Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-011",
+      "_hash": "4ae973b7641150f5360b656b9dcf8f875836991dc78c79f00ad58fc3a716fda4",
+      "signatureTag": "missing|unknown|packages-graph-scripts",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 108d4cc287. The reviewer was right and the hole was reproduced before fixing: the guard reported DOCS_OK on a line that mixed a legitimate ~/.cache/proof-or-stop-graph/ mention with a real proof-or-stop-graph --help invocation. The exemption is now match-local rather than whole-line: each occurrence is judged on its own surrounding characters, where a path-like context (slash or tilde immediately before, or slash immediately after) is the cache path and anything else is an invocation, with substring matches inside longer tokens also skipped. Verified by three controls: the mixed line is now caught, a legitimate cache path alone still passes, and a plain invocation is still caught. The reviewer also correctly identified this as the same over-broad-match shape as the indentation bug fixed one commit earlier.",
+      "resolvedAt": "2026-08-28T10:19:39.088Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-006",
+      "desc": "packages/graph/scripts/verify-docs.mjs:91 the `.cache` exemption for the standalone-binary vocabulary scan is per-line, not per-token: `!line.includes(\".cache\")` exempts the ENTIRE line from the bare `proof-or-stop-graph` invocation check whenever any substring `.cache` appears anywhere on that same line. Demonstrated: changing the current README line to `worktree, so the index cache lives under `~/.cache/`. Run proof-or-stop-graph to start.` still reports DOCS_OK -- a real reintroduction of the removed standalone binary invocation is silently missed because it shares a line with an unrelated .cache mention. Low severity: requires the specific coincidence of both substrings on one line, does not affect the current committed README, and is a guard-of-a-guard (doc-check tooling, not production code). Fix would be to scope the exemption to the specific `.cache/proof-or-stop-graph` match rather than the whole line, e.g. only skip a match when it is immediately preceded by `.cache/`.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-28T10:18:48.076Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-010",
+      "_hash": "8d2780880e5d73ba2f2bd333fdf192293f3bef9c7f77b42924c24ac38cdb5213",
+      "signatureTag": "edge|unknown|packages-graph-scripts",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of B-3e16:F-005, which the concept lane filed independently against the same line of verify-docs.mjs with the same diagnosis (the .cache exemption was whole-line rather than match-local). Two lanes finding it separately is a good signal the defect was real. Already fixed in commit 108d4cc287, which is exactly the fix this finding recommends: the exemption is now scoped per match rather than per line. Verified against THIS finding own repro case before resolving: the README line reading index cache lives under ~/.cache/. Run proof-or-stop-graph to start. now reports DOCS_INCOMPLETE and names the offending line, where before the fix it reported DOCS_OK.",
+      "resolvedAt": "2026-08-28T10:20:18.144Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-007",
+      "desc": "concept-cleanup: packages/graph/.gitignore:6 has a dead entry `.proof-or-stop-graph/` (a project-local dotdir) that nothing in the migrated code ever writes -- the search index cache is correctly written to `~/.cache/proof-or-stop-graph/` outside the repo (packages/graph/src/core/app.ts:38), per CHK-005's explicit no-project-writes requirement. This ignore-list entry is inert noise left over from migration and could mislead a future reader into thinking a project-local cache directory was once written here and later relocated. Low severity: no functional harm, cosmetic residue only.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-28T10:25:26.285Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/graph/.gitignore",
+          "packages/graph/package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/graph/src/core/app.ts",
+          "packages/graph/src/core/machine.ts",
+          "packages/graph/src/io/find-root.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/package-lock.json",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/scripts/copy-assets.mjs",
+          "packages/graph/scripts/verify-assets-ignored.mjs",
+          "packages/graph/scripts/verify-clean-tree.mjs",
+          "packages/graph/scripts/verify-engines-floor.mjs",
+          "packages/graph/scripts/verify-json-no-listener.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/graph/scripts/verify-serves.mjs",
+          "packages/graph/tsconfig.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/registry.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bdd21896fa1897adbcd1f94601b2052826d491fa18c73d1fdc2a1b402e63b027",
+      "signatureTag": "missing|unknown|concept-cleanup-packages",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 00a2592925. Removed the dead .proof-or-stop-graph/ entry from packages/graph/.gitignore after verifying nothing in packages/graph/src, packages/graph/scripts or packages/main/src writes that dotdir; the real cache path is the user cache directory outside the repo, as CHK-005 requires. Confirmed assets/ is still gitignored afterwards via git check-ignore, so removing the line did not weaken the build-output protection.",
+      "resolvedAt": "2026-08-28T10:26:57.664Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-008",
+      "desc": "forward-risk: packages/main/src/handlers/graph.ts resolveGraphPackage() (lines ~90-138) currently does TWO jobs bundled together: (1) module resolution -- locate dist/index.js to build the file:// URL for the dynamic import(), and (2) filesystem-path derivation -- assetDir=join(packageRoot,\"assets\") and vendorDir=join(packageRoot,\"node_modules\"), both derived from packageRoot which is itself derived from the resolved entry path. The planned fix (convert the runtime import() at line ~318 into a static import from a file:../graph dependency) only removes the need for job (1) -- a static import gives bound function values, not a filesystem path. packages/graph/package.json has no exports map and no dedicated export for its own root/assets path, so there is no existing seam that hands the handler assetDir/vendorDir once resolveGraphPackage is deleted wholesale. startServer(...) at line ~365 is called with assetDir and vendorDir every time graph serves (CHK-004 core requirement), so deleting job (2) alongside job (1) would break asset/vendor serving (blank page or 404s on vendor bundles) with no compile-time signal, since the GraphLibrary/GraphApp interfaces disappearing removes the only place those fields were type-checked. Recommend: keep a package-root-and-asset-path resolution function (via createRequire(...).resolve on the package.json itself, or import.meta.resolve, not on the now-removed entry-file import) even after the import() becomes static, and add a regression test asserting startServer still receives a real assetDir/vendorDir after the conversion.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-28T10:57:35.734Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/.gitignore",
+          "packages/graph/package.json",
+          "packages/graph/scripts/verify-docs.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          "CLAUDE.md",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "15c86a47181285cfad782a4fb0083b9e7e35cbf86f407efb4fcb2d36fca3d95a",
+      "signatureTag": "missing|unknown|forward-risk-packages",
+      "signatureTagSource": "auto",
+      "resolvedReason": "The forward-risk this described cannot occur: resolveGraphPackage() is not being split, because both the static-import conversion and the graph-runtime.ts extraction were abandoned. The dynamic import is permanent (Decision 5 in the migration doc records why, with the Node v20.19.6 probe results), so the seam keeps both halves and the assetDir/vendorDir derivation the finding protected is untouched. Verified: packages/main/package.json has no @proof-or-stop/graph dependency and handlers/graph.ts has no static import of it.",
+      "resolvedAt": "2026-08-28T16:05:10.543Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-009",
+      "desc": "forward-risk (planned fix): the plan to make packages/graph a real file:../graph dependency of packages/main has no working precedent in this repo to model it on. This repo has NO npm workspaces field (verified: workspaces key absent from root package.json) and package-lock.json (lockfileVersion 3) tracks zero entries for packages/main, packages/utils, or packages/graph as local packages. The only existing analog -- packages/main/package.json declaring \"@lattice/lab\": \"0.3.65\" -- resolves today ONLY via a manually-created symlink at packages/main/node_modules/@lattice/lab -> ../../../lab that is gitignored (node_modules is in .gitignore) and NOT reproduced by npm install (no workspaces, no file: protocol, no postinstall/prepare script anywhere in the repo creates it); grep confirms @lattice/lab is not even statically imported anywhere in packages/main/src, so this precedent has never been exercised live. The reverse case -- packages/utils/package.json declaring \"@proof-or-stop/core\": \"0.3.65\" -- does not resolve at all (require.resolve fails) and is likewise never imported in packages/utils/src. Recommend the plan explicitly specify how file:../graph will be installed/verified reproducibly (npm install of a file: spec does create a real symlink and IS lockfile-tracked, unlike the current bare-version @lattice/lab entry, so this is fixable -- but the plan should say so and a fresh-clone-then-npm-install smoke test should be added, since the only sibling-package wiring precedent in this repo today is silently unreproducible).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-28T10:59:13.315Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-020",
+      "readManifest": {
+        "filesReadFully": [
+          "package-lock.json",
+          "package.json",
+          "packages/graph/package.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/graph.ts",
+          "packages/utils/package.json"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/index.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c45dc911d6bc77761800de61b81e16720dff533c244edc1c89aee6b40badab58",
+      "signatureTag": "missing|unknown|forward-risk-planned",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Moot for the same reason as F-008: no file: dependency was ever added, so the missing-precedent risk cannot materialise. The reviewer was right that packages/utils @proof-or-stop/core does not resolve and that @lattice/lab works only through a gitignored manual symlink npm install does not reproduce; that research is what made the file: route look unattractive before the Node-floor argument settled it.",
+      "resolvedAt": "2026-08-28T16:05:11.740Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-010",
+      "desc": "forward-risk (planned fix): converting the runtime import() in packages/main/src/handlers/graph.ts:292 to a static top-level import from a file:../graph dependency has two compounding structural problems, both verified against current code. (1) BUILD-ORDER INVERSION: the root package.json build script is `npm --prefix packages/main run build && npm --prefix packages/utils run build && npm --prefix packages/graph run build` -- packages/main is built BEFORE packages/graph. A static import requires packages/graph/dist to already exist (both for packages/main tsc to type-check the import and for the compiled packages/main/dist/handlers/graph.js to resolve the module at runtime), so this order must be reversed (graph before main) or main tsc/module resolution will fail on a clean build. (2) STATIC IMPORT DEFEATS THE DELIBERATE GUARD ORDERING DOCUMENTED IN THE SAME FILE: graph.ts lines ~224-230 explicitly say check-first-then-import is load-bearing because packages/graph pulls in node:sqlite transitively and an import after the check cannot produce a good error message. Verified: packages/graph/src/index.ts (the package entry, line 10) statically re-exports from ./core/search/fn.ts, which has a top-level `import { DatabaseSync } from \"node:sqlite\"` (fn.ts line 10). ESM static imports are hoisted and evaluated eagerly at module-load time, before any function body (including assertGraphRuntimeSupported) can run. So converting the dynamic import() to a static import moves the node:sqlite load out of the currently-guarded, on-demand `graph` command path and into packages/main module evaluation itself -- meaning EVERY invocation of the proof-or-stop CLI (not just the graph command) would throw a raw ERR_UNKNOWN_BUILTIN_MODULE on any Node < 22.5, regressing the entire CLI rather than just gracefully degrading the graph feature, unless the static import is deliberately isolated behind a separate lazily-loaded module boundary. Recommend the migration plan explicitly address both: reorder the root build script, and either keep the node:sqlite-importing code behind a dynamic import/lazy boundary even after packages/graph becomes a real dependency, or accept and document the new hard Node >=22.5 floor for the whole packages/main / CLI (not just the graph feature) with a corresponding root engines field.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-28T10:59:30.835Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-020",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/graph/src/core/search/fn.ts",
+          "packages/graph/src/index.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/graph/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b9f1c6238276d6da1dc1e2f1381caf6be15c8e91b5795de73500cbd4537d28ce",
+      "signatureTag": "missing|unknown|forward-risk-planned",
+      "signatureTagSource": "auto",
+      "resolvedReason": "This is the finding that changed the outcome, and it was correct. I verified the predicted regression empirically on a real Node v20.19.6: importing packages/graph/dist/index.js AND dist/core/app.js each throw ERR_UNKNOWN_BUILTIN_MODULE, because core/app.ts statically imports search/fn.js which top-level imports node:sqlite. Since the handler must call createApp, no reorganisation of index.ts could have avoided it, and the CLI works on Node 20 today only because the import is dynamic. The static-import plan was abandoned and the build-order inversion never happened. Decision 5 in docs/requirements/decisions/graph-command-migration.md now records the binding reason with those probe results so a future reader cannot undo it by accident.",
+      "resolvedAt": "2026-08-28T16:05:12.946Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-011",
+      "desc": "doc-code-drift: docs/requirements/decisions/graph-command-migration.md:138-139 claims one missing process-fact-levels.ts entry produced \"eight separate complaints across seven phases\" from test:process-fact-contract. Reproduced via negative control (removed the graph entry from packages/main/src/core/process-fact-levels.ts in an isolated /tmp copy, rebuilt, ran node scripts/verify-process-fact-contract.mjs): the failure output has 9 distinct complaint lines (1x MAIN_TOOLS command(s) missing from registry: graph, 7x DEFAULT_PHASE_TOOLS phase allowlist drift one per phase DEV/DONE/INIT/INIT_CHECK/PLAN/REVIEW/TEST, 1x MAIN_TOOLS command missing from PROCESS_FACT_REGISTRY), not 8. The seven-phases part is accurate; the complaint count is off by one. Positive control (fix restored) reproduces the documented pass. Fix the number to nine.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T11:02:09.947Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "cfc2faa4b8a8bf588b33e61c48efbe664a0e948d8ccd0e6af7011297f415fc86"
+      },
+      "readDiagnostics": [],
+      "_hash": "eb1e353a97c89c2c1b5b0fdf48cf213304eef38c889f0aea0e910e60b2d7543f",
+      "files": [
+        "docs/requirements/decisions/graph-command-migration.md",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 1bea73b55a. The paragraph claimed eight separate complaints where the true figure is nine, which the docs lane and the topology critic each reproduced independently in isolated copies. I had typed it from an implementer report without counting: exactly the never-restate-a-measured-number-in-prose trap this repo dev-memory warns about. Rather than substituting a corrected digit I took the reviewer own recommendation and stated the derivation (three assertion sites in verify-process-fact-contract.mjs, one firing once per phase in ALL_PHASES, so ALL_PHASES.length + 2), so it cannot drift again. verify-docs asserts the derivation string is present, confirmed by negative control: reverting it to a hand-typed digit makes the check fail. Note the same hazard bit again later in this story, in a pinned count string shared between the guard file and the process-fact contract (commit 2aeb29a508).",
+      "resolvedAt": "2026-08-28T16:05:39.747Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-012",
+      "desc": "doc-code-drift: docs/requirements/decisions/graph-command-migration.md:134-139 names six contract tasks (command-ownership-contract, command-catalog-smoke, cli-surface-smoke, verify-orphan-surface, lifecycle-registry-contract, test:process-fact-contract) as authoritative and instructs the reader to Run them all and fix what they report. Verified each ones actual wiring: command-catalog-smoke and lifecycle-registry-contract are in proof-or-stop.config.jsons validate.commands (run by proof-or-stop validate); test:process-fact-contract is a member of test:serial-reference consumed by full-suite-runner.ts (run by npm test); command-ownership-contract is separately embedded as a sub-invocation inside red-evidence-target-binding-smoke.ts (which IS in validate.commands), so it too is transitively covered. But cli-surface-smoke (packages/main/package.json test:cli-surface-smoke) and verify-orphan-surface (packages/main/package.json test:orphan-surface, root package.json test:orphan-surface) exist ONLY as standalone npm scripts -- grepped proof-or-stop.config.json, root package.json test:serial-reference, and full-suite-runner.ts RESOURCE_POLICY: no caller. They are not run by proof-or-stop validate or npm test, so registering a new command and skipping them produces no automatic failure signal; a developer must remember to invoke both by hand. The doc should either say so explicitly (2 of 6 are manual-only, not mechanically enforced) or the follow-up should wire them into validate/test:serial-reference so Run them all is actually true of one command.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T11:02:26.631Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "package.json",
+          "packages/main/package.json",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/red-evidence-target-binding-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "cfc2faa4b8a8bf588b33e61c48efbe664a0e948d8ccd0e6af7011297f415fc86"
+      },
+      "readDiagnostics": [],
+      "_hash": "7f613f1b0285b46828d1d5ce046533df8fd8ee3afb0ad558bdc50a08283bf260",
+      "files": [
+        "docs/requirements/decisions/graph-command-migration.md",
+        "packages/main/package.json",
+        "package.json",
+        "proof-or-stop.config.json",
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/red-evidence-target-binding-smoke.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same defect as F-014, found independently by a second lane; fixed together in commit 1bea73b55a. cli-surface-smoke, verify-orphan-surface and command-ownership-contract are now entries in validate.commands in both config filenames, and each was verified to pass standalone before being wired, rather than added blind to a gate that blocks every story. The decisions doc also now records that the six contract tasks run through two separately-maintained mechanisms and neither list derives from the other, which was your own wording suggestion.",
+      "resolvedAt": "2026-08-28T16:05:40.975Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-013",
+      "desc": "forward-risk (advisory, not a defect in the current merged state): the planned follow-up fix for retired-authority-vocabulary-guard-smoke -- making packages/graph a file:../graph dependency of packages/main and converting the runtime import() in resolveGraphPackage() to a static import -- will make several currently-accurate doc passages describing runtime resolution stale. Enumerated every passage that asserts this design, verified each is currently accurate against packages/main/src/handlers/graph.ts:19-26 (the MODULE RESOLUTION header comment, which itself explains why: no npm workspaces, packages/graph not a dependency of packages/main, tsc cannot resolve it statically, rootDir:src forbids compiling files from outside the package): (1) packages/graph/README.md lines 124-133, section \"## How the CLI reaches this package\" -- states resolveGraphPackage() resolves this package at RUNTIME rather than importing it statically because packages/graph is not a dependency of packages/main; becomes false once it is a file: dependency and the import is static. (2) docs/requirements/decisions/graph-command-migration.md Decision 1 (lines 24-48), specifically lines 17-19 (createApp/startServer are the seams... so the migration is a copy plus a thin handler) and line 48 (packages/main holds only a handler that calls the exported library surface) -- these describe the handler calling into the package generically and do not name the runtime-import mechanism explicitly, so they likely survive, but the doc has no section discussing the switch from hand-written GraphLibrary interface types to real imported types, which the follow-up explicitly intends as a benefit; that gain will be undocumented unless added. (3) CLAUDE.md lines 348-349, section Story graph, states packages/main only has a thin handler that calls its library surface (createApp/startServer) -- this sentence survives the fix (still true), but the packages/main/src/handlers/graph.ts MODULE RESOLUTION header comment (lines 19-26) explaining the runtime-import rationale will be flatly false and must be rewritten alongside the code change, not left as a stale rationale for a mechanism that no longer exists. Recommend the implementer of the follow-up fix update packages/graph/README.md How the CLI reaches this package section and the graph.ts header comment in the same commit as the import() to static-import conversion, per this storys own established discipline of updating docs+code+tests together (this story already resolved F-001/F-003/F-004 for exactly this drift class).",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T11:02:46.973Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-022",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "cfc2faa4b8a8bf588b33e61c48efbe664a0e948d8ccd0e6af7011297f415fc86"
+      },
+      "readDiagnostics": [],
+      "_hash": "2f4798533d5bd0579e9c4a051fabd44cae7585a77b4d84388e0d228deb03a75c",
+      "files": [
+        "packages/graph/README.md",
+        "docs/requirements/decisions/graph-command-migration.md",
+        "CLAUDE.md",
+        "packages/main/src/handlers/graph.ts"
+      ],
+      "signatureTag": "missing|md|forward-risk-advisory",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Premise removed rather than fixed. The finding enumerated doc passages that would go stale once the static-import follow-up landed; that follow-up is abandoned, so the runtime-resolution passages in packages/graph/README.md and the handlers/graph.ts header remain TRUE and were deliberately left unedited. Both the docs lane (wave 2) and the topology critic independently reached the same conclusion. Decision 5 was added alongside them to state the stronger Node-floor reason those passages omit.",
+      "resolvedAt": "2026-08-28T16:05:14.143Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-014",
+      "desc": "concept-completeness: cli-surface-smoke (packages/main/src/tasks/cli-surface-smoke.ts, npm script test:cli-surface-smoke) and verify-orphan-surface (scripts/verify-orphan-surface.mjs, npm script test:orphan-surface) are the two checks CHK-003 names as acceptance evidence for the eight-surface command registration (checklist.json CHK-003 userSees: the command-ownership-contract, command-catalog-smoke, cli-surface-smoke and orphan-surface checks all pass), but neither is wired into proof-or-stop.config.json validate.commands (grep: zero matches) nor into root package.json test:serial-reference (grep: zero matches). They exist only as standalone npm scripts a human or CI step must remember to invoke by name; nothing currently fails if graph (or a future command) silently regresses either check. Pre-existing gap (matches wave-1 docs-lane F-012), but B-3e16 is exactly the kind of change these two guards exist to catch (eight command-surface touchpoints), so leaving them unwired while citing their pass as CHK-003 acceptance evidence is a concept-completeness defect on the current tree: a guard that exists but nothing calls is close to dead code. Recommendation: wire both into validate.commands or test:serial-reference in this story or a narrowly-scoped fast-follow.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-28T13:50:08.333Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-029",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/handlers/graph.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "1ebf6b1d6a1f49c6a2bef45e63cc8e0e01f3ba78d17dc60e862c4bbda7a19218"
+      },
+      "readDiagnostics": [],
+      "_hash": "f6adf3d4da0634389822dd65244a0313f55de060a5fb162fad151121e595f743",
+      "signatureTag": "missing|unknown|concept-completeness-surface",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 1bea73b55a. I confirmed the finding and it was slightly worse than reported: three of the four checks CHK-003 userSees promises as acceptance evidence were unwired, not two. cli-surface-smoke had no npm script at all, verify-orphan-surface had one that nothing called, and command-ownership-contract ran only transitively embedded inside red-evidence-target-binding-smoke.ts. All three now run in validate.commands, each verified passing standalone first. The sharpest part of this finding was framing it as a promise gap in the checklist item own userSees rather than a wiring nit.",
+      "resolvedAt": "2026-08-28T16:05:42.206Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-015",
+      "desc": "doc-code-drift: docs/requirements/decisions/graph-command-migration.md never records WHY packages/main/src/handlers/graph.ts uses a runtime dynamic import() rather than a static import, even though the doc explicitly frames itself (lines 21-22) as recording every place the obvious alternative is wrong in a way that is not obvious later. The handler header comment documents one reason (no npm workspaces, packages/graph is not a package.json dependency of packages/main, so tsc cannot resolve it statically), but the stronger reason -- verified empirically on Node v20.19.6, that packages/graph/src/core/app.ts statically imports ./search/fn.js which top-level imports node:sqlite, so any static import chain into the graph library is unavoidably reachable through node:sqlite regardless of how index.ts re-exports are organised, meaning static import would raise the Node floor for the whole proof-or-stop CLI entrypoint -- appears nowhere in the decisions doc. A future reader who only sees the workspace-dependency reason may reasonably conclude that wiring packages/graph as a proper workspace or file: dependency removes the obstacle and makes static import safe, silently breaking the CLI on Node less than 22.5. Recommend adding a short passage (Decision 5, or an amendment to Decision 3) stating the dynamic import is retained specifically because node:sqlite is unavoidably reachable through any static import chain into the graph library, and that this is why the loader is registered as an approved benign non-literal call in retired-authority-vocabulary-guard-smoke.ts rather than converted to static.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-28T13:50:21.779Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "cfc2faa4b8a8bf588b33e61c48efbe664a0e948d8ccd0e6af7011297f415fc86"
+      },
+      "readDiagnostics": [],
+      "_hash": "d24bdbc646b5f176c31535247116acdf8c917da6cdd6a6aee86ca73ad48d5d72",
+      "files": [
+        "docs/requirements/decisions/graph-command-migration.md",
+        "packages/main/src/handlers/graph.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 1bea73b55a by adding Decision 5 to docs/requirements/decisions/graph-command-migration.md. You called this the most valuable doc addition this story could make and that was right: the README and handler header gave only the REMOVABLE reason (no npm workspaces), so a future reader could add the dependency, convert to a static import and break the CLI on Node < 22.5. Decision 5 records the binding reason (core/app.ts statically imports search/fn.js which imports node:sqlite, and createApp is unavoidable, so a static import hoists node:sqlite into the module graph evaluated for every command) together with the Node v20.19.6 probe table that demonstrates it. verify-docs now asserts that rationale is present, confirmed by negative control.",
+      "resolvedAt": "2026-08-28T16:05:43.425Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-016",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts: the planned graph.ts allowlist entry (whole-file AST fingerprint pin gating the import() at handlers/graph.ts:292 plus 5 downstream unresolved-nested-member violations on lib.findRoot/createApp/startServer/openBrowser) relies entirely on a human-written re-approval-basis comment at each future repin to prove the approved call site is still narrow (verified this is the existing convention for cli-engine.ts and bin/bootstrap-runner.js pins -- multiple real repin comments read in the guard smoke file). The fingerprint mechanism (verified via scanConcealedCompatibilityLoads tests at guard-smoke.ts lines ~4951-4977) only proves the whole file has not changed since the last approval; it has no assertion that the import target argument, location.entry provenance, or reachable-input surface of the call site is still the specific narrow shape (packages/graph/dist/index.js resolved from packageRoot, not caller-influenced) that was originally approved. A future edit could widen what is imported (e.g. accept partially caller-controlled input) while keeping the same anchor function name and general call shape, and a rushed re-pin comment could pass review without anyone re-verifying narrowness -- the AST-fingerprint pass proves the entry exists and the file changed, not that the approval still holds. Recommend adding a mechanical assertion (e.g. a dedicated check on handlers/graph.ts asserting the import argument is derived only from resolveGraphPackage()/packageRoot and not from args/env/network input) alongside the whole-file fingerprint, so the guard does not depend solely on comment discipline for this narrow-shape invariant going forward.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-28T13:51:28.805Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-028",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-engines-floor.mjs",
+          "packages/graph/scripts/verify-serves.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          "packages/graph/package.json",
+          "packages/graph/README.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "66f27e5c118d64542d27cb04ed777eb0b82a692c136dfad501315c963cae9b04",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/handlers/graph.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 9906b0072d. assertLoaderArgumentProvenance now pins {anchor, argument, rootIdentifier, producer, producerParameters} and resolves the argument root identifier through the TYPE CHECKER rather than by name, requiring a same-scope const inside the anchor initialized by a direct call to resolveGraphPackage with an exactly-matching parameter list, failing closed on anything unresolvable. It is wired into the live scan as its own violation label evaluated BEFORE the allowlist check, so a guard pass now means more than an entry exists. Crucially the four self-test mutants are scanned with the MUTANT own fingerprint as the expected pin, proving the check works independently of the fingerprint. I verified it is load-bearing by neutering the detector: the guard then failed naming the caller-influenced rebinding, and restoring made it pass.",
+      "resolvedAt": "2026-08-28T16:05:15.344Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-017",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (planned approval site) + packages/main/src/handlers/graph.ts:292-365: the KEEP-dynamic-import decision is directionally correct (F-010 is real and unavoidable), but two points need to be recorded before the approval entry lands. (1) SECURITY: I independently traced ctx.root end to end -- cli-engine.ts:740-741 strips a GLOBAL --root flag from argv into rootOverride, cli/runtime-root.ts:7-8 resolveRoot(explicit) returns it VERBATIM with zero sanitization for any command other than story_discard, and cli-engine.ts:928 stamps it into ctx.root, which graph.ts:279 hands to resolveGraphPackage(ctx.root). I empirically confirmed on this tree (clean before/after, no source files touched) that `proof-or-stop graph --root <attacker-dir> --json` executes arbitrary code the instant a caller-controlled directory contains packages/graph/dist/index.js, with zero markers required (no .git, no .proof-or-stop) -- because node module resolution genuinely misses in this unlinked-workspace layout, so the sibling-path fallback in resolveGraphPackage is the live path today, not theoretical. location.entry IS attacker-influenceable through --root, gated only by needing a writable directory plus that one relative file. HOWEVER this is not a NEW risk class: verifier/serve.ts startCircuitServe (already in the same knownBenignNonLiteralLoaderCalls allowlist) does the identical thing -- findMachineFiles(projectRoot) walks a --root-derived directory and dynamically imports whatever machine.ts it finds there. The precedent for accepting this trust model already exists and applies with equal force; graph.ts extends an already-accepted pattern rather than introducing a new one. This reasoning should be stated explicitly in the approval entry's comment (mirroring the existing BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS precedent style) so a future reader does not have to re-derive it -- silently omitting it would look like attacker-controllability was never checked, when the correct conclusion is that it was checked and matches an existing accepted pattern. (2) MAINTENANCE COST is larger than described: running the guard confirms 6 violations split across TWO independent mechanisms, not one -- the `file://${location.entry}` import (graph.ts:292) needs an entry in knownBenignNonLiteralLoaderCalls + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS, AND the five lib.findRoot/lib.createApp/lib.startServer/lib.openBrowser calls at lines 298/312/336/345/365 are separately flagged 'unapproved dynamic code generation' and need their own whole-file entry in DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS. Both maps hash the SAME whole 414-line, multi-CHK, actively-evolving file (this story's own plan still has CHK-005/CHK-006 touching this area), so every future edit needs two re-pins, not one; the existing exemption comments in this guard file document a real repin cadence (13 repinned/re-pinned occurrences across current entries) for exactly this class of file. Recommendation: extract the `await import(...)` call plus the four `lib.X(...)` call sites into a small dedicated module (e.g. handlers/graph-runtime.ts, roughly 30 lines, changed only when the loader shape itself changes) so both pinned fingerprints stay small and stable, and the frequently-edited CLI-argument/serving logic in graph.ts stops forcing re-pins unrelated to the loader. This is a design suggestion, not a blocker -- the whole-file pin as currently planned is workable, just costlier and less explicit about the security precedent than necessary.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-28T13:52:56.699Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-025",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/runtime-root.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/verifier/serve.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e493db3e2e9525213be434d5534ad20d053219e7f30b2a2f99b56f3716d483f7",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 9906b0072d, and the exploit was real. I independently reproduced it before accepting the finding: a directory containing only packages/graph/dist/index.js, with no .git or .proof-or-stop marker, had its planted createApp and findRoot executed by graph --root=<dir> --json, and the planted values appeared in the output. The reviewer trace was accurate end to end (cli-engine strips --root, runtime-root resolveRoot returns it verbatim for every command but story_discard, the handler passes it to resolveGraphPackage). The approval entry records all three required facts: that location.entry is --root-influenceable, that this matches the trust model already accepted in the same allowlist for verifier/serve.ts startCircuitServe, and that DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS is a whole-file early return so a future sixth pattern would inherit the exemption silently. The recommended graph-runtime.ts extraction was NOT taken, because F-018 showed the scope contract would deny the new file and F-016 showed extraction adds no provenance check; the two-re-pins-per-edit cost is accepted and documented instead.",
+      "resolvedAt": "2026-08-28T16:05:16.534Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-018",
+      "desc": "scope-contract-gap: the DEV remediation directed for F-016/F-017 (extract the dynamic-import loader plus the four lib.findRoot/createApp/startServer/openBrowser call sites out of packages/main/src/handlers/graph.ts into a new dedicated module handlers/graph-runtime.ts, so both AST-fingerprint allowlist maps in retired-authority-vocabulary-guard-smoke.ts pin a small stable file instead of the whole 414-line evolving handler) creates a NEW file at a path the current scope-contract.json does not authorize. allowedCreate is exactly [\"docs/requirements/decisions/graph-command-migration.md\",\"packages/graph/**\",\"packages/main/src/handlers/graph.ts\"] -- the graph.ts entry is an exact-rule literal (scope-path-classifier.ts pathRule(): no glob chars -> exact), not a packages/main/src/handlers/** subtree/glob. allowedModify carries the identical exact literal, nothing broader. A new sibling file packages/main/src/handlers/graph-runtime.ts therefore matches none of allowedModify/allowedCreate/allowedTest/explicitExcludes and falls through scope-path-classifier.ts classifyScopePath into the default deny path, i.e. out-of-scope creation, which scope-anti-expansion / DEV-time scope enforcement is designed to catch. This is a direct, mechanical consequence of the extraction plan stated for this remediation, not a hypothetical: confirmed by reading the live scope-contract.json and the assembled task-context JSON emitted by review_run_start (scope.allowedCreate is byte-identical to the file). None of the four wave-2 lanes flagged this because none examined the interaction between the F-016/F-017 remediation plan and the scope contract; it is a gap in the plan, not in the merged tree today. Recommend: before DEV creates graph-runtime.ts, amend scope-contract.json (scope_contract handler) to add the new path to allowedCreate/allowedModify -- either the literal path or a narrow glob such as packages/main/src/handlers/graph*.ts -- so the extraction does not trip scope enforcement mid-remediation.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-28T13:59:25.371Z",
+      "reviewRound": "2026-08-28T10:02:05.350Z",
+      "reviewRunId": "B-3e16:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/README.md",
+          "packages/main/src/core/scope-path-classifier.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-3e16/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-3e16/checklist.json",
+          ".proof-or-stop/story/actives/B-3e16/findings.json",
+          ".proof-or-stop/story/actives/B-3e16/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-3e16/scope-check.json",
+          ".proof-or-stop/story/actives/B-3e16/scope-contract.json",
+          "CLAUDE.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7b3748d5fa419270009fb0a73d9c3058eb583405e3d429d120fc44bfce64e4d1",
+      "files": [
+        "packages/main/src/handlers/graph.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|scope-contract-remediation",
+      "signatureTagSource": "auto",
+      "resolvedReason": "The finding did its job before any code was written, which is the ideal outcome for a forward-risk. I verified the claim: scope-contract.json allowedCreate lists packages/main/src/handlers/graph.ts as an exact literal with no glob, so a graph-runtime.ts sibling would have been default-deny. The extraction was consequently dropped in favour of whole-file pinning, so the blocker cannot materialise and no scope amendment was needed. Without this finding I would have hit the denial mid-DEV.",
+      "resolvedAt": "2026-08-28T16:05:17.759Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3e16:F-019",
+      "desc": "acceptance_basis receiptVerification.ok=false (AT_ADAPTER_RESULT_DIGEST_MISMATCH): the PLAN acceptance-basis receipt is bound to headHash 5d12ee45b5d3379297f1dec8fe907a75f8375749 / storyFilesHash f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9, neither of which matches the current story-owned file state at frozen cutoff head 0bea278926109e9c4b0740e548622540d07671b8 (materialHash 715e737dfdcac359f73bac5895d88ad73067adfc8aec7d0b26e1bfefdf7cc2ac). Diagnostics report basis semantic discovery digest mismatch, closure files hash mismatch, snapshot seal digest mismatch, and freshness mismatch. blindSpots additionally list snapshot_missing / source-file-unreadable-or-disappeared for packages/graph/**, packages/graph/src/tasks/**, and packages/main/src/tasks/** -- the exact packages this story created -- so the basis cannot mechanically account for the delivered surface. acceptance_topology_check independently corroborates this with Basis status: partial and structuralPass: no, and pre_review_check_read independently reports PR_ARTIFACT_MISSING (plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, authority=inadmissible). Per role mandate a pass is forbidden when the basis is missing, partial, unsupported, or stale; this basis is stale and partially unsupported on all three counts simultaneously. Separately, acceptance_rollout_check independently reports mode=enforce; status=fail; blocking=true; receipt=stale; codes=AR_REPORT_STALE at the same frozen cutoff -- a genuine full-envelope (quorum=full-3x2, not a degraded 3x1) receipt that has gone stale due to head drift since it was minted, not a fabricated or degraded quorum.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-29T05:52:33.739Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "RR-060",
+      "_hash": "b18ebf711430261d5a5b051856a33e4292e92ad15392d1d4debfa97d601db2c9",
+      "files": [
+        "docs/story/actives/B-3e16/acceptance-basis.json",
+        "docs/story/actives/B-3e16/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|acceptance-basis-receiptverification",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-020",
+      "desc": "acceptance_basis receiptVerification.ok=false (AT_ADAPTER_RESULT_DIGEST_MISMATCH): the PLAN acceptance-basis receipt is bound to headHash 5d12ee45b5d3379297f1dec8fe907a75f8375749 / storyFilesHash f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9, neither of which matches the current story-owned file state at frozen cutoff head 0bea278926109e9c4b0740e548622540d07671b8 (materialHash 715e737dfdcac359f73bac5895d88ad73067adfc8aec7d0b26e1bfefdf7cc2ac). Diagnostics report basis semantic discovery digest mismatch, closure files hash mismatch, snapshot seal digest mismatch, and freshness mismatch. blindSpots additionally list snapshot_missing / source-file-unreadable-or-disappeared for packages/graph/**, packages/graph/src/tasks/**, and packages/main/src/tasks/** -- the exact packages this story created -- so the basis cannot mechanically account for the delivered surface. acceptance_topology_check independently corroborates this with Basis status: partial and structuralPass: no, and pre_review_check_read independently reports PR_ARTIFACT_MISSING (plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, authority=inadmissible). Per role mandate a pass is forbidden when the basis is missing, partial, unsupported, or stale; this basis is stale and partially unsupported on all three counts simultaneously. Separately, acceptance_rollout_check independently reports mode=enforce; status=fail; blocking=true; receipt=stale; codes=AR_REPORT_STALE at the same frozen cutoff -- a genuine full-envelope (quorum=full-3x2, not a degraded 3x1) receipt that has gone stale due to head drift since it was minted, not a fabricated or degraded quorum.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-29T05:53:39.170Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-060",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/story/actives/B-3e16/acceptance-basis.json",
+          "docs/story/actives/B-3e16/acceptance-rollout-report.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "af4654d7f6b8ec425fda405f69c15b08e03127c7450e5374a0228ef5a7625d7f",
+      "files": [
+        "docs/story/actives/B-3e16/acceptance-basis.json",
+        "docs/story/actives/B-3e16/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|acceptance-basis-receiptverification",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-021",
+      "desc": "acceptance_basis receiptVerification.ok=false (AT_ADAPTER_RESULT_DIGEST_MISMATCH): the PLAN acceptance-basis receipt is bound to headHash 5d12ee45b5d3379297f1dec8fe907a75f8375749 / storyFilesHash f929fcc4838fce21858de1196d11dd09c67bc5a8b498a2dc3600ab826ae6b3b9, which does not match current story-owned file state. Diagnostics: basis semantic discovery digest mismatch, closure files hash mismatch, snapshot seal digest mismatch, freshness mismatch. blindSpots list snapshot_missing / source-file-unreadable-or-disappeared for packages/graph/**, packages/graph/src/tasks/**, and packages/main/src/tasks/** -- the exact packages this story created -- so the basis cannot mechanically account for the delivered surface. acceptance_topology_check independently corroborates with Basis status: partial, structuralPass: no. pre_review_check_read independently reports PR_ARTIFACT_MISSING (plannedActual=incomplete, executableEvidence=missing, mutations=missing, transcript=missing, authority=inadmissible). Per role mandate a pass is forbidden when the basis is missing, partial, unsupported, or stale; this basis is stale and partially unsupported simultaneously. Separately, acceptance_rollout_check independently reports mode=enforce; status=fail; blocking=true; receipt=stale; codes=AR_REPORT_STALE -- a genuine full-envelope (quorum=full-3x2, not degraded 3x1) receipt that went stale from head drift after being minted fresh at the DEV to REVIEW transition (verified: rollout report commit f88093cda9 at 13:15:11 preceded REVIEW-transition commit f1db62055d at 13:15:29, so the gate correctly passed on fresh evidence then; staleness is REVIEW-phase auto-commit drift since, not a gate hole).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-29T05:55:39.994Z",
+      "reviewRound": "2026-08-29T05:15:28.576Z",
+      "reviewRunId": "B-3e16:RR-061",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/story/actives/B-3e16/acceptance-basis.json",
+          "docs/story/actives/B-3e16/acceptance-rollout-report.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8a2d3a7c648488c865aa49c381347eea856c93f3627f1569f5e4451c158e3f33",
+      "files": [
+        "docs/story/actives/B-3e16/acceptance-basis.json",
+        "docs/story/actives/B-3e16/acceptance-rollout-report.json"
+      ],
+      "signatureTag": "missing|json|acceptance-basis-receiptverification",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3e16:F-022",
+      "desc": "proof-metadata-integrity: .proof-or-stop/story/actives/B-3e16/acceptance-basis.json (generated by commit 88d4d87e17 at head 2ddebbc5d5, receipt headHash=2ddebbc5d5) records provenanceRefs source-file:packages/main/src/handlers/graph.ts:sha256:34c9b262e404cb149b04a9224603a711eb1fcc9813deac39df662fff7a2b84be. I independently recomputed sha256 of graph.ts at every commit in its git history on this branch (c000f9ae48, 98fa8ef821, 235a98f8a8, a1564dfed2, f26f92536a) and at the current working tree; none produces 34c9b262... -- the actual hash at f26f92536a (the last commit touching this file, and an ancestor of the basis-generation commit) and at current HEAD is e737c3ddc75395c9e658e8edfd5b7d0907882ae7aeaf3329c809c0537a8b95bd. So this is not ordinary head-drift staleness (which would show a hash that WAS real at an earlier commit) -- the recorded hash never existed for this file on this branch, i.e. fabricated/corrupted provenance in a receipt-bearing PLAN acceptance-basis artifact. This corroborates already-open B-3e16:F-019/F-020/F-021 (receiptVerification.ok=false, AT_ADAPTER_RESULT_DIGEST_MISMATCH) with independent first-hand verification rather than re-litigating them. Separately confirmed current .proof-or-stop/story/actives/B-3e16/pre-review-check.json (cutoffAt 2026-08-29T08:18:07Z, inside the current review round) is status=inconclusive with codes including PR_AUTHORITY_INADMISSIBLE, PR_TRANSCRIPT_MISSING, PR_MUTATION_EVIDENCE_MISSING, PR_POSITIVE_EVIDENCE_MISSING, and an executableProof block with empty commandDigests/caseRecords/runnerPath/runnerDigest -- i.e. no admissible executable evidence backs this pre-review gate artifact right now. Per this role Wave 4 boundary (acceptance_topology_check / pre_review_check_read / acceptance_rollout_report_read / acceptance_rollout_check must remain verifier/gate-owned with a current signed PASS and genuine evidence), this is a live blocker, not resolved by the DEV->REVIEW round that re-minted only the acceptance-rollout-report (which is a separate artifact from acceptance-basis.json). Scope note: separately verified git diff --name-status 1594b47(RP-031 binding)..HEAD -- \\x27:!.proof-or-stop\\x27 \\x27:!docs/story\\x27 is empty, so no product/quality-lane regression exists in this window; this finding is scoped to the acceptance-basis/pre-review-check artifact integrity, not code quality proper.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-29T08:31:35.406Z",
+      "reviewRound": "2026-08-29T08:18:34.466Z",
+      "reviewRunId": "B-3e16:RR-063",
+      "_hash": "a41d14dc7f318807c1ff11e6b5ff9081efc808bb2a5b225c51b2c1d3a8eff559",
+      "files": [
+        ".proof-or-stop/story/actives/B-3e16/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-3e16/pre-review-check.json"
+      ],
+      "signatureTag": "missing|json|proof-metadata-integrity",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Central provenance-hash claim REFUTED after author-provided counter-evidence, independently re-verified. sourceProvenance() in acceptance-discovery-adapters.ts:1305-1314 hashes via digestCanonicalJson(read.text) = sha256(JSON.stringify(text)), NOT raw file bytes (digestText is the unused raw-bytes variant). Recomputing graph.ts sha256(JSON.stringify(readFileSync(...,\"utf8\"))) = 34c9b262e404cb149b04a9224603a711eb1fcc9813deac39df662fff7a2b84be, byte-exact match to the recorded provenanceRef. Checked all 16 sha256 provenanceRefs in acceptance-basis.json under the correct algorithm: 15/16 match exactly against current working tree (command-catalog.ts, cli-engine.ts, activity-policy.ts, help-renderer.ts, acceptance-topology.ts, command-policy.ts, config.ts, proofstory.ts, transition-orchestrator.ts, registry.ts, CLAUDE.md, graph-command-migration.md, package.json, scripts/verify-process-fact-contract.mjs all confirmed). This refutes not just the graph.ts allegation but the general fabrication/corruption theory this finding rested on -- a tampered record would not self-consistently match under one specific alternate algorithm across 15 independent files. One residual anomaly: proof-or-stop.config.json provenanceRef (d79e2c0e...) does not match under either raw-bytes or canonical-JSON hashing in the working tree or any of the last 8 commits touching that file, in both acceptance-basis.json and the current-cutoff pre-review-check.json. Root cause not established (possibly a different read path e.g. env override or merged-config object rather than raw file text); too narrow/unexplained to re-file standalone without a mechanism. Second half of original finding (pre-review-check.json executableProof.commandDigests=[]/caseRecords=\"\") independently reconfirmed real (status=inconclusive, PR_ARTIFACT_MISSING codes present) but is non-actionable here: pre_review_check is mode=observe/blocking=false, wired only to the DEV->REVIEW transition (transition-orchestrator.ts:1004-1003, runPreReviewCheckGate throws only if report.blocking), and this story already passed that transition (currently in REVIEW). This fact is also already substantively captured by currently-open B-3e16:F-019/F-020/F-021 (topology-critic lane), each of which already states pre_review_check_read independently reports PR_ARTIFACT_MISSING (plannedActual=incomplete, executableEvidence=missing, ...). Re-filing standalone would duplicate those open findings rather than add new information. Resolving F-022 as refuted/superseded; the surviving substantive concern remains tracked under F-019/F-020/F-021.",
+      "resolvedAt": "2026-08-29T08:35:34.137Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

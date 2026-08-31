@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-0b50",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:97f84355ba8ac67c57b1690f286dea655c84f1c058b2c8b1ded2e497d88e0f22",
+  "acceptanceBindings": [
+    {
+      "id": "B-0b50-recovery",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:happy:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "done_prepare and certification-window blocked output both show review_inventory_finalize as the missing inventory next step",
+      "note": "Binds the user-visible recovery claim to both implementation and certification choke regressions."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "B-0b50 ProofStory contract: missing PRE_CERT inventory recovery must remain TEST-local, fail-closed, and direct.",
+  "createdAt": "2026-08-25T19:39:55.737Z",
+  "updatedAt": "2026-08-25T19:39:55.737Z"
+}
