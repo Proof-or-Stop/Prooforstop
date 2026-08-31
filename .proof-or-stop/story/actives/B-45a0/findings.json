@@ -24003,7 +24003,7 @@
       "desc": "concept-cleanup: commit b3f5379f64 (fix: add story-aware validation compatibility modules) added 14 one-line export-star re-export shim files under packages/main/src/core/ that each just re-export story-aware-validation.js (dynamic-validation-enforcement/observer/report/scheduling/selection/shadow, dual-revision-impact-graph, story-change-resolver, validation-baseline-epoch, validation-build-proof, validation-catalog, validation-closure-certificate, validation-command-receipt, validation-revocation-ledger). Verified zero of these 14 shim paths are imported anywhere in packages/main/src, packages/main/scripts, scripts/, or packages/utils (checked via relative-import grep across the whole tree): no relative-import reference exists for any of them. The matching package.json test:dynamic-validation-* script names route through scripts/run-dynamic-validation-audit.mjs, which also does not import any of these 14 paths -- the name match is coincidental (topic label, not a file reference). No decision doc under docs/requirements/decisions/ documents this bridge as an intentional external-compat contract. These are unconsumed re-export residue: real logic lives solely in story-aware-validation.ts; the 14 shims add filesystem/API surface with zero callers and no documented rationale, misleadingly implying a load-bearing compatibility layer that does not exist. Recommend either deleting the 14 files (concept cleanup) or, if an external consumer genuinely depends on the old paths, documenting that contract in a decisions doc and adding a smoke test that imports through the shim path to make the dependency mechanically verifiable.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T03:29:02.902Z",
@@ -24061,7 +24061,11 @@
         "packages/main/src/core/validation-revocation-ledger.ts"
       ],
       "signatureTag": "missing|ts|concept-cleanup-commit",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a89e174746. Deleted 12 orphaned one-line export-star shim files under packages/main/src/core that had zero importers anywhere in the tree. The raw finding said 14; the real count is 12 - dual-revision-impact-graph.ts (56 lines) and story-change-resolver.ts (16 lines) are real consumed modules with active importers and were kept. The topology critic independently re-derived the same 12/2 split. Verified: tsc --noEmit clean after deletion, historical-replay-artifact smoke PASS, and lattice-review-concept confirmed in RI-108 that every remaining grep hit is a schema string literal or an unrelated doc filename, not a dangling reference.",
+      "resolvedAt": "2026-08-31T05:31:25.045Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-443",
