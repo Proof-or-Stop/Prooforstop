@@ -273,7 +273,7 @@
     {
       "id": "CHK-004",
       "title": "Prove prompt delivery, isolation, digest integrity, and adapter compatibility",
-      "context": "Use RED then GREEN. Add adversarial tests covering all five REVIEW roles, both full-envelope and legacy-full-context assembly, non-REVIEW isolation, compatibility-dismissal wording, distinct disproven/duplicate/stale routing, English-only prose, and stale in-flight reviewer redispatch guidance. Update approved digest pins, then run focused prompt tests, process/runtime contract checks, prompt baselines, type/build validation, and verify_codex.",
+      "context": "Use RED then GREEN. Add adversarial tests covering all five REVIEW roles, both full-envelope and legacy-full-context assembly, non-REVIEW isolation, compatibility-dismissal wording, reviewer prohibition on gap_log as product-defect routing, distinct disproven/duplicate/stale routing, English-only prose, and stale in-flight reviewer redispatch guidance. Update approved digest pins, then run focused prompt tests, process/runtime contract checks, prompt baselines, type/build validation, and verify_codex.",
       "relatedDocs": [
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
