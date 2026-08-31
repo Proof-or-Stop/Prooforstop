@@ -275,7 +275,7 @@
       "desc": "CHK-001:adversarial:1 lacks valid current mechanical coverage: its pinned verifier still expects obsolete decision digest 02bb788f..., while the current document digest and executable smoke binding are fbd665df2456e770e466ebdc77f431ae20f3bae0fab98aab61c06a14ebd11d52 (packages/main/src/tasks/validation-evidence-buffer-smoke.ts:706). Executing the exact intent command exits 1, and the recorded docs_check receipt is bound to pre-change storyFilesHash eb45a53f... rather than current 6ab6bae5.... WHY/high: this is the acceptance intent specifically intended to detect post-review document drift; with a failing pinned command and stale receipt, the current reviewed decision is not mechanically attested, so REVIEW/TEST coverage is incomplete.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-31T23:17:28.409Z",
@@ -287,7 +287,11 @@
         "docs/requirements/decisions/validation-evidence-artifact-growth.md"
       ],
       "signatureTag": "missing|ts|adversarial-lacks-valid",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same root cause as F-013: the formal adversarial exact-digest verifier now binds fbd665df and its tool-owned refresh passed.",
+      "resolvedAt": "2026-08-31T23:22:43.291Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-2220:F-015",
