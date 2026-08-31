@@ -595,6 +595,41 @@
       },
       "readDiagnostics": [],
       "_hash": "7dbd2fe69bdd5e68eddede48a426040c8ff863c8a066cd31b0bbce4fc756c191"
+    },
+    {
+      "id": "B-2220:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Final docs review PASS after F-010 fix 101513dc32. Step 1 extracted 1 changed local symbol (rationaleDigest); Step 2 found 0 README/CLAUDE/docs reference paragraphs, so fallback compared the full decision document and full smoke source, including the F-010 patch and candidate/check-time, writer/disk limitation, disposition, retained-history, and reopen paragraphs. Source now explicitly limits fileBytes to the returned candidate at check time and says later StoryStore bytes are not guaranteed; the four stale file-bound phrases are absent. Decision still declines the follow-up, keeps B-3434 accepted, preserves limitations/evidence, and requires explicit risk triggers plus a new human-approved story. Exact decision digest matches and build-bound compiled smoke passed.",
+      "createdAt": "2026-08-31T00:14:01.664Z",
+      "reviewRound": "2026-08-31T00:10:59.937Z",
+      "reviewRunId": "B-2220:RR-026",
+      "envelopeId": "9b3a830b651d4c5f5f36b1561e45f4835cd21404fc4a953b6d0a1b9ebf10951b",
+      "writerSessionId": "sess-f5249dffe0b7825d61d6e87b79603faa",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "75a2333575bf60896b6ac93343a886cba974d3ba229f85a2539d8abed3af659f"
     }
   ]
 }
