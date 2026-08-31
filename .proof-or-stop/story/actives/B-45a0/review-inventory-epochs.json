@@ -10358,6 +10358,26 @@
       "cancelReason": "Wave budget exhausted at 3/3 with 5 verified finding families, none repairable from REVIEW. The three carried families (pre_review_check exit-code and value-blind selector desync; Rule-10 doc-fix landing in only 1 of 4 required locations; acceptance rollout and topology re-staling from pure review-inventory metadata churn) plus the two surfaced in wave 3 (config-resolution duplication bypassing pickProjectConfigPath, and 12 genuinely orphaned one-line re-export shims) all require DEV-only writers: acceptance_rollout_report and pre_review_check are both allowedPhases DEV, and no rollout-report generator exists in the REVIEW tool list. Three independent lanes plus the completeness critic each re-ran the five CHK-014 surfaces at different HEADs and reproduced identical diagnostics, and git log --name-only over 41 commits confirmed every change was story metadata or decision docs with zero touches under packages/main/src, establishing the re-staling as review churn rather than code regression. Cancelling to return to DEV, repair all five families with the writers that can actually run, and open a fresh epoch against settled output.",
       "terminalRunSequenceBoundary": 1086,
       "_hash": "a20f11ffd9d5e449f1348a865e2f01d9b1f8a7244f7e2f2757bc0efff85ef7a2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RIE-126",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-31T03:36:15.339Z",
+      "updatedAt": "2026-08-31T03:36:15.339Z",
+      "cutoff": {
+        "headHash": "0b1317fe9cc718b4ef2516fd09b27056d646ebbc",
+        "materialHash": "3ef55149759d21499c5a6abb1c31b5eea17be3e0d8938a31f1a8f41c4c87b959",
+        "storyFilesHash": "473418728956538b08fefded663b4357221166e9fa5f702c2f99e5c3176c38b4"
+      },
+      "scopeDigest": "4ff4de774c23ecc47b8c9e5573dda65a4090cdfa116210f99df47a58445c8e23",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-45a0:RIE-126:RCP-001",
+      "_hash": "45352e1f20cc4005408365c4a7c72e058ad9354e700214e9e462ce94f0b0964c"
     }
   ],
   "receipts": [
@@ -11870,6 +11890,28 @@
       "issuedAt": "2026-08-30T17:37:19.584Z",
       "consumedAt": "2026-08-31T02:07:07.457Z",
       "_hash": "cfb4909e96fcf16151a5d62732eb224ee8766be782cb9f470519627672c26cdd"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-45a0:RIE-126:RCP-001",
+      "epochId": "B-45a0:RIE-126",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "cutoff": {
+        "headHash": "0b1317fe9cc718b4ef2516fd09b27056d646ebbc",
+        "materialHash": "3ef55149759d21499c5a6abb1c31b5eea17be3e0d8938a31f1a8f41c4c87b959",
+        "storyFilesHash": "473418728956538b08fefded663b4357221166e9fa5f702c2f99e5c3176c38b4"
+      },
+      "scopeDigest": "4ff4de774c23ecc47b8c9e5573dda65a4090cdfa116210f99df47a58445c8e23",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-31T03:36:15.339Z",
+      "_hash": "3cb202ebd26916fb9eeef7af84172f140c6f715a149a7d7119707e12fe3a8439"
     }
   ],
   "criticReceipts": [
