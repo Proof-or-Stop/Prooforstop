@@ -610,6 +610,61 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-024",
+      "desc": "doc-code-drift: docs/CLI.md:5 presents Proof-or-Stop CLI 0.3.5 as the current product entry point, while package.json:3, packages/main/package.json:10, packages/main/src/core/proof-or-stop-brand.ts:12, and live proof-or-stop --version all report 0.3.268. The explicitly historical 0.3.5 migration section may remain when labeled as history, but the top-level current-version statement is stale and contradicts CHK-008 user-visible version convergence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-08-31T23:07:22.408Z",
+      "reviewRound": "2026-08-31T22:53:47.816Z",
+      "reviewRunId": "B-022e:RR-051",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-022e/scope-contract.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/artifact-release.ts",
+          "packages/main/src/core/capability-release.ts",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "README.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "scripts/verify-proof-or-stop-pack-boundary.mjs"
+        ],
+        "scanEscalationReason": "Story-level identity cutover required all checklist relatedDocs plus focused canonical-role, historical provenance, rewritten Git-policy pin, append-only release-ledger, and acknowledged main-sync documentation review."
+      },
+      "_hash": "2386a9170dc7c827dcf20cb0158bf0e6f349c729fce2dc08fd5ab359e6130c0c",
+      "files": [
+        "docs/CLI.md",
+        "package.json",
+        "packages/main/package.json",
+        "packages/main/src/core/proof-or-stop-brand.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
