@@ -150,7 +150,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:699-704,831-836,1009-1010,1468-1471 [high] CandidateRoute and deferral require only that expiresAt is present/non-expired; no maximum TTL, policy binding, ordering constraint, or periodic next-check cadence is specified. expiresAt=9999-12-31 therefore passes the written completeness metric and can turn defer-with-proof into the effectively permanent waiver the plan forbids when no event trigger fires. Bind expiry to a reviewed policy digest with a finite maximum TTL, validate createdAt < expiresAt <= policy ceiling, and add boundary/clock/overdue tests plus exactly-once recall.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T00:34:41.337Z",
@@ -158,7 +158,11 @@
       "reviewRunId": "B-1fa6:RR-008",
       "_hash": "1ddcd8a65325d148249d58f3442b179033a0e25d9e47e8dbd1fd0abae98b41d8",
       "signatureTag": "adversarial|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f741bf8754: signed DeferralExpiryPolicy V1 caps medium at 7 days and low/hard ceiling at 30 days, validates timestamps, forbids in-place renewal, and requires boundary/overdue/exactly-once recall tests.",
+      "resolvedAt": "2026-08-31T00:48:17.999Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
