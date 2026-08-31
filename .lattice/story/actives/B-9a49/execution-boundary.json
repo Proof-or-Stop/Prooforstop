@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-9a49",
+  "allowedCommands": [
+    "agy *",
+    "claude *",
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git log*",
+    "git rev-parse*",
+    "git status*",
+    "node *",
+    "npm *",
+    "npx *",
+    "proof-or-stop *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "docs/requirements/decisions",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/tasks",
+    "packages/main/templates/agents/lattice-implementer.md",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset --hard*",
+    "git restore*",
+    "rm -rf*"
+  ],
+  "excludedTools": [
+    "remote publish",
+    "web mutation"
+  ],
+  "excludedPaths": [
+    ".git",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Read-only inspection may cover the repository. Writes remain bounded to Agent prompt assembly, Owner/implementer guidance, prompt contracts/tests/baselines, required tracked English decision documentation, and version metadata. Dynamic Finding runtime/gates are excluded.",
+  "createdAt": "2026-08-31T14:02:28.903Z",
+  "updatedAt": "2026-08-31T14:02:28.903Z",
+  "_hash": "b3b17481bf7010023f4f74c826213aaea4f622d91fc3707dbddaf469c0ffa8ab"
+}

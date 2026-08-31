@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-b0fe",
+  "records": [
+    {
+      "id": "RED-CANONICAL-ADAPTER-PATH",
+      "trigger": "The registered pre-review live-proof producer reads the retired .lattice-codex adapter path on the canonical repository layout.",
+      "acceptanceTargetRef": "CHK-001",
+      "baselineHeadHash": "eae8f57e76c71dd3849674d927ab63113403a3bf",
+      "baselineMaterialHash": "22c039b66848ddda5837188023ad27825e20a6d07b1b952fd765579443ed6fa6",
+      "observedFailure": "node scripts/run-proofstory-pre-review-live-proof.mjs exits nonzero with ENOENT for .lattice-codex/agents/lattice-implementer.md while .proof-or-stop-codex/agents/lattice-implementer.md is tracked.",
+      "failingCommand": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+      "expectedGreenCommand": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-001",
+        "relation": "same_acceptance",
+        "command": "node scripts/run-proofstory-pre-review-live-proof.mjs"
+      },
+      "note": "Observed in the B-5952 worktree without any legacy alias; the path is a clean-current-main source baseline and is unrelated to the retired-authority instrumentation diff.",
+      "createdAt": "2026-08-31T03:43:31.171Z"
+    },
+    {
+      "id": "RED-INTERNAL-VERIFIER-ACTOR",
+      "trigger": "The registered acceptance rollout cohort assigns the exact internal acceptance-rollout-verifier identity, which the nested review_run_start mutation guard rejects as unknown.",
+      "acceptanceTargetRef": "CHK-002",
+      "baselineHeadHash": "eae8f57e76c71dd3849674d927ab63113403a3bf",
+      "baselineMaterialHash": "22c039b66848ddda5837188023ad27825e20a6d07b1b952fd765579443ed6fa6",
+      "observedFailure": "With a temporary adapter compatibility alias used only to expose the next layer, acceptance_rollout_report exits nonzero: review_run_start refused actor acceptance-rollout-verifier as agent_dispatch_actor_unknown.",
+      "failingCommand": "node bin/proof-or-stop.js acceptance_rollout_report --storyId=B-b0fe --json",
+      "expectedGreenCommand": "node bin/proof-or-stop.js acceptance_rollout_report --storyId=B-b0fe --json",
+      "greenRelation": {
+        "targetRef": "CHK-002",
+        "relation": "same_acceptance",
+        "command": "node bin/proof-or-stop.js acceptance_rollout_report --storyId=B-b0fe --json"
+      },
+      "note": "The temporary alias was removed immediately after diagnosis. Green must run on the canonical adapter layout and retain denial for unknown actor spellings/lookalikes.",
+      "createdAt": "2026-08-31T03:43:39.470Z"
+    }
+  ],
+  "createdAt": "2026-08-31T03:43:31.171Z",
+  "updatedAt": "2026-08-31T03:43:39.470Z"
+}

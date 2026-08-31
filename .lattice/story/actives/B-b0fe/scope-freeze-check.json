@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-b0fe",
+  "checkedAt": "2026-08-31T03:44:08.347Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "7ccd5e3c5bdc12fde89a454bc1b1d51e637fee388500ac86db1416c0ecabf8f0",
+  "executionBoundaryHash": "6b8bfd48448605511d4b0f08a2c5bac00bf3244e66d11e5a40fc1df704fd2da7",
+  "freshnessHash": "420e36a9c6ec37c7c74f671386dc79dbf5d8778364b1c172003844e21f8583df",
+  "effectiveExcludedKeywords": [
+    "Any change to B-5952 retired-authority instrumentation source, ceiling, or evidence.",
+    "Any change to docs/requirements/decisions/dynamic-finding-system-execution-plan.md.",
+    "Broadly trusting acceptance-rollout-verifier as a human/main host actor or relaxing unknown-actor fail-closed behavior.",
+    "Unrelated brand-path cleanup, public reviewer role changes, CLI command semantics, or production handler behavior."
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any change to B-5952 retired-authority instrumentation source, ceiling, or evidence.",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to B-5952 retired-authority instrumentation source, ceiling, or evidence.",
+      "excluded": true
+    },
+    {
+      "keyword": "Any change to docs/requirements/decisions/dynamic-finding-system-execution-plan.md.",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to docs/requirements/decisions/dynamic-finding-system-execution-plan.md.",
+      "excluded": true
+    },
+    {
+      "keyword": "Broadly trusting acceptance-rollout-verifier as a human/main host actor or relaxing unknown-actor fail-closed behavior.",
+      "source": "scopeBoundary.excluded",
+      "text": "Broadly trusting acceptance-rollout-verifier as a human/main host actor or relaxing unknown-actor fail-closed behavior.",
+      "excluded": true
+    },
+    {
+      "keyword": "Unrelated brand-path cleanup, public reviewer role changes, CLI command semantics, or production handler behavior.",
+      "source": "scopeBoundary.excluded",
+      "text": "Unrelated brand-path cleanup, public reviewer role changes, CLI command semantics, or production handler behavior.",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "380b1a4b59138828731966c49562a758ee54b50dd61c4845c7ce34bed3b08fce"
+}

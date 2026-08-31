@@ -1,0 +1,60 @@
+{
+  "storyId": "B-5952",
+  "checkedAt": "2026-08-31T22:21:29.176Z",
+  "headHash": "dc94c5bd87e0e1586a5e6fd392ed0739f294da11",
+  "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+  "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+  "reviewRound": "2026-08-31T21:58:54.586Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "promise": "The historical @lattice/core mention remains explicitly paired with canonical @proof-or-stop/core so the repository package-rename contract is satisfied.",
+      "status": "verified",
+      "verifiedBy": "Independent delivery diff inspection and current real-machine scripts/verify-core-package-rename.mjs execution",
+      "evidence": "The changed sentence pairs @lattice/core with @proof-or-stop/core; the current verifier exited 0 with deprecatedCoreNameWithoutCanonical=0 and core package rename verified."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "promise": "The package-name annotation is historical migration context only and does not alter Dynamic Finding or B-3434 decision semantics.",
+      "status": "verified",
+      "verifiedBy": "Independent reverse diff and surrounding-section inspection",
+      "evidence": "The only hunk adds the parenthetical canonical replacement to the historical-scope sentence; no schemas, commands, gates, implementation promises, or B-3434 decision semantics change."
+    },
+    {
+      "docPath": "docs/requirements/decisions/testing-infra.md",
+      "promise": "Canonical project-config documentation should identify proof-or-stop.config.json as canonical and lattice.config.json as the legacy read-compatible fallback.",
+      "status": "waived",
+      "waiverReason": "F-021 records this pre-existing medium documentation drift; the operator explicitly deferred it as non-blocking and outside B-5952 story scope."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001:bounded-current-inventory",
+      "transcript": "Two independent current-machine runs of node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js both exited 0 with identical PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34."
+    },
+    {
+      "featureId": "CHK-001:canonical-root-and-legacy-fixtures",
+      "transcript": "Current-machine validate-command-timeout smoke passed 46 assertions; red-b3434-blob-buffer-ceiling PASS; red-evidence-envelope-smoke OK; red-w2d-command-readonly PASS; red-b8df9 signature regression finished 0 RED / 0 BROKEN / 24 rows and emitted the GREEN signature-domain conclusion."
+    },
+    {
+      "featureId": "CHK-001:heartbeat-and-package-pairing",
+      "transcript": "Current-machine codex-heartbeat-timeout smoke exited 0 with timeout distinctly attributed and broken fallback still failing; scripts/verify-core-package-rename.mjs exited 0 with deprecatedCoreNameWithoutCanonical=0."
+    },
+    {
+      "featureId": "CHK-001:mechanical-assurance",
+      "transcript": "Current TEST evidence is PASS with 120/120 required commands and 13/13 must intents covered; current DONE-required evidence is PASS with packages/main build plus full-suite 58/58, retries=0, both bound to materialHash 3754272f and storyFilesHash da09395."
+    },
+    {
+      "featureId": "CHK-001:adversarial-causality",
+      "transcript": "Existing fresh mechanical receipts on unchanged story material prove comparator and 900-ceiling mutants rejected, package-pairing removal rejected with exact restoration, and detached baseline mapping 796 to 804 solely from repository entries 377 to 385 with synthetic 419 unchanged."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": true,
+    "summary": "Scoped delivery PASS: bounded 808 ceiling with hard cap 850 accepts the causal 804 inventory; canonical-root, legacy-fixture, heartbeat, rename, TEST, and DONE-required checks pass. F-021 remains an explicit open medium documentation drift, waived and deferred by operator rule as non-blocking and outside B-5952."
+  },
+  "_hash": "607295eb1ac6ac62ed4f9458ec8870a5509e1755a2b81191875fe659d480107b"
+}
