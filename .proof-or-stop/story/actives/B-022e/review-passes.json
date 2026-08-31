@@ -444,6 +444,32 @@
         "scanEscalationReason": null
       },
       "_hash": "50c46a4b758f1c96d976bb5d870c1918761ae43573427d1cbbaa4d763667f124"
+    },
+    {
+      "id": "B-022e:RP-016",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Serial concept re-sign for the current diff pack after concurrent reviewer metadata invalidated RP-014. Incremental basis is SAFE_INCREMENTAL with changedFiles=[], affectedContracts=[], findingDeltas=[], and prior pass RP-014; no product, evidence, or concept change occurred. The completed NUL source-escape/.gitattributes concept review remains unchanged and found no blocker. Existing F-002 medium debt remains explicitly included in the basis.",
+      "createdAt": "2026-08-31T09:28:47.164Z",
+      "reviewRound": "2026-08-31T09:21:04.599Z",
+      "reviewRunId": "B-022e:RR-036",
+      "envelopeId": "fcefaf420796ccfddfaedc5f9070f7b7f3e1c91894bcb2e9edde443962cd2351",
+      "writerSessionId": "sess-c4e852e510a4581a8e47f00c9ff0ad50",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitattributes",
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "packages/main/src/core/usage-ledger/diagnostics.ts",
+          "packages/main/src/core/usage-ledger/ids.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ce38a13263ca3f4101cc031ab62b8a38a2f78e85f878fb13b123da1bd15a5ad5"
     }
   ]
 }
