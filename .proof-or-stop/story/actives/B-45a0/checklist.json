@@ -1596,12 +1596,19 @@
           "command": "node scripts/run-dynamic-validation-replay.mjs --verify-threshold",
           "result": "pass",
           "note": "verification_run executed the pinned verifier for CHK-011:happy:0",
-          "headHash": "5bfdf91025b6f4e0b7b1d65c5f521cb86d7bcd4a",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9151aac06b9b547421291b538be910aa207f69d3fb984aef9afa3a40dbd9b982",
+            "outputTail": "historical replay artifact admission PASS\ndynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\nhistorical replay assurance PASS\nhistorical replay discovery threshold PASS\nhistorical replay threshold PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:09:36.018Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "a88233b42c019712b0cf18d94ab666789ea5c3c8",
           "materialHash": "68a4c3f8845c80c55fa19947d44a9846b68144134d66ab2d5c584a9a61062e5d",
           "storyFilesHash": "c67b3014b21c74b35e9b4e985384fc427f275977cf6c4c79f8682c0ffb64ca7f",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T13:32:25.768Z"
+          "timestamp": "2026-08-31T14:09:36.253Z"
         },
         {
           "intentRef": "CHK-011:edge:0",
