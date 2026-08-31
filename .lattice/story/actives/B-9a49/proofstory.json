@@ -45,7 +45,146 @@
         "CHK-004:happy:delivery-matrix"
       ],
       "milestoneIds": [],
-      "note": "Binds canonical five-lane/two-mode prompt delivery and genuine RED-to-GREEN proof to the original acceptance claim."
+      "acceptanceClaim": "Freshly built prompt assembly and contract tests pass for all five REVIEW lanes and both modes, fail for leakage or semantic collapse, and story-bound verify_codex passes without Dynamic Finding runtime changes.",
+      "note": "Binds canonical five-lane/two-mode prompt delivery and genuine RED-to-GREEN proof to the original acceptance claim.",
+      "verificationTopology": {
+        "schemaVersion": "proofstory.acceptance_topology.v1",
+        "producerRefs": [
+          {
+            "id": "P-DELIVERY-BASIS-GENERATOR",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:acceptance_basis_generate"
+            }
+          }
+        ],
+        "consumerRefs": [
+          {
+            "id": "C-DELIVERY-TOPOLOGY-CHECK",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:acceptance_topology_check"
+            },
+            "producerRefs": [
+              "P-DELIVERY-BASIS-GENERATOR"
+            ]
+          }
+        ],
+        "positiveAssertionRefs": [
+          {
+            "id": "PA-DELIVERY-FULL-ENVELOPE",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-001:happy:0"
+            },
+            "producerRefs": [
+              "P-DELIVERY-BASIS-GENERATOR"
+            ],
+            "consumerRefs": [
+              "C-DELIVERY-TOPOLOGY-CHECK"
+            ]
+          },
+          {
+            "id": "PA-DELIVERY-LEGACY-FULL-CONTEXT",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-001:happy:1"
+            },
+            "producerRefs": [
+              "P-DELIVERY-BASIS-GENERATOR"
+            ],
+            "consumerRefs": [
+              "C-DELIVERY-TOPOLOGY-CHECK"
+            ]
+          },
+          {
+            "id": "PA-DELIVERY-RED-GREEN",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:happy:red-green-same-contract"
+            },
+            "producerRefs": [
+              "P-DELIVERY-BASIS-GENERATOR"
+            ],
+            "consumerRefs": [
+              "C-DELIVERY-TOPOLOGY-CHECK"
+            ]
+          },
+          {
+            "id": "PA-DELIVERY-MATRIX",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:happy:delivery-matrix"
+            },
+            "producerRefs": [
+              "P-DELIVERY-BASIS-GENERATOR"
+            ],
+            "consumerRefs": [
+              "C-DELIVERY-TOPOLOGY-CHECK"
+            ]
+          }
+        ],
+        "mutationCaseRefs": [
+          {
+            "id": "MUT-DELIVERY-RED-GREEN-CONTROL",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:happy:red-green-same-contract"
+            },
+            "producerRefs": [
+              "P-DELIVERY-BASIS-GENERATOR"
+            ],
+            "consumerRefs": [
+              "C-DELIVERY-TOPOLOGY-CHECK"
+            ]
+          }
+        ],
+        "transcriptAssertionRefs": [
+          {
+            "id": "TR-DELIVERY-RED-GREEN-ORDER",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:happy:red-green-same-contract"
+            },
+            "producerRefs": [
+              "P-DELIVERY-BASIS-GENERATOR"
+            ],
+            "consumerRefs": [
+              "C-DELIVERY-TOPOLOGY-CHECK"
+            ]
+          }
+        ],
+        "commandRefs": [
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_basis->consumer:<audit-only>"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate"
+          }
+        ]
+      }
     },
     {
       "id": "ACCEPT-AGENT-SYSTEM-BOUNDARY",
@@ -61,21 +200,137 @@
         "CHK-004:adversarial:authority-boundary-and-local-cli"
       ],
       "milestoneIds": [],
-      "note": "Binds bounded Owner/implementer behavior and declarative non-evidentiary REVIEW metadata to the original acceptance claim."
+      "acceptanceClaim": "Freshly built prompt assembly and contract tests pass for all five REVIEW lanes and both modes, fail for leakage or semantic collapse, and story-bound verify_codex passes without Dynamic Finding runtime changes.",
+      "note": "Binds bounded Owner/implementer behavior and declarative non-evidentiary REVIEW metadata to the original acceptance claim.",
+      "verificationTopology": {
+        "schemaVersion": "proofstory.acceptance_topology.v1",
+        "producerRefs": [
+          {
+            "id": "P-BOUNDARY-PRE-REVIEW-CHECK",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check"
+            }
+          }
+        ],
+        "consumerRefs": [
+          {
+            "id": "C-BOUNDARY-PRE-REVIEW-READER",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:pre_review_check_read"
+            },
+            "producerRefs": [
+              "P-BOUNDARY-PRE-REVIEW-CHECK"
+            ]
+          }
+        ],
+        "positiveAssertionRefs": [
+          {
+            "id": "PA-BOUNDARY-REVIEW-ONLY-REGISTRATION",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-003:happy:review-only-registration"
+            },
+            "producerRefs": [
+              "P-BOUNDARY-PRE-REVIEW-CHECK"
+            ],
+            "consumerRefs": [
+              "C-BOUNDARY-PRE-REVIEW-READER"
+            ]
+          }
+        ],
+        "mutationCaseRefs": [
+          {
+            "id": "MUT-BOUNDARY-PROMPT-NON-AUTHORITY",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-002:adversarial:4"
+            },
+            "producerRefs": [
+              "P-BOUNDARY-PRE-REVIEW-CHECK"
+            ],
+            "consumerRefs": [
+              "C-BOUNDARY-PRE-REVIEW-READER"
+            ]
+          },
+          {
+            "id": "MUT-BOUNDARY-NO-AUTHORITY-DATAFLOW",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-003:adversarial:no-authority-dataflow"
+            },
+            "producerRefs": [
+              "P-BOUNDARY-PRE-REVIEW-CHECK"
+            ],
+            "consumerRefs": [
+              "C-BOUNDARY-PRE-REVIEW-READER"
+            ]
+          },
+          {
+            "id": "MUT-BOUNDARY-LOCAL-CLI-AUTHORITY",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:adversarial:authority-boundary-and-local-cli"
+            },
+            "producerRefs": [
+              "P-BOUNDARY-PRE-REVIEW-CHECK"
+            ],
+            "consumerRefs": [
+              "C-BOUNDARY-PRE-REVIEW-READER"
+            ]
+          }
+        ],
+        "transcriptAssertionRefs": [
+          {
+            "id": "TR-BOUNDARY-LOCAL-CLI",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:adversarial:authority-boundary-and-local-cli"
+            },
+            "producerRefs": [
+              "P-BOUNDARY-PRE-REVIEW-CHECK"
+            ],
+            "consumerRefs": [
+              "C-BOUNDARY-PRE-REVIEW-READER"
+            ]
+          }
+        ],
+        "commandRefs": [
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_basis->consumer:<audit-only>"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate"
+          }
+        ]
+      }
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "missing_red_evidence",
-      "severity": "warn",
-      "artifact": "red-evidence.json",
-      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
-      "triggeredBy": [
-        "red_evidence_required"
-      ]
-    }
-  ],
+  "diagnosticGaps": [],
   "note": "Acceptance bindings for the approved REVIEW Finding triage Agent-behavior projection.",
   "createdAt": "2026-08-31T14:38:19.652Z",
-  "updatedAt": "2026-08-31T14:38:19.652Z"
+  "updatedAt": "2026-08-31T23:47:49.291Z"
 }
