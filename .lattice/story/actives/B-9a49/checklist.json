@@ -1096,7 +1096,11 @@
             "id": "CHK-004:edge:english-only-slices",
             "desc": "Extract the newly added canonical REVIEW contract, Story Owner guidance, implementer escalation guidance, compatibility note, and redispatch guidance and prove those new public or Agent-facing slices are English-only, allowing code identifiers and command syntax but rejecting accidental Chinese prose or encoded HTML artifacts; do not falsely require pre-existing unrelated repository documentation to be English.",
             "type": "docs",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "id": "CHK-004:edge:compatibility-and-outcomes",
