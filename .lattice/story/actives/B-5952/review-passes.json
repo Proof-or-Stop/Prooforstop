@@ -763,6 +763,46 @@
         "scanEscalationReason": null
       },
       "_hash": "b04e8b0bb2072be976b54d38cd65950bd54e52aa3606202597fe83b5aaef9f29"
+    },
+    {
+      "id": "B-5952:RP-027",
+      "agent": "lattice-review-quality",
+      "note": "Round 11 quality re-review found no blocker: the protected-doc change is one truthful historical rename annotation, the explicit scope re-plan admits only that document while preserving Dynamic Finding/B-3434 semantics, git diff --check passes, and node scripts/verify-core-package-rename.mjs passes with deprecatedCoreNameWithoutCanonical=0. No dead code, type-safety, I/O isolation, proof-metadata, or promised-but-undelivered issue is introduced by this repair.",
+      "createdAt": "2026-08-31T14:00:53.286Z",
+      "reviewRound": "2026-08-31T13:56:26.777Z",
+      "reviewRunId": "B-5952:RR-045",
+      "envelopeId": "7378f17f7be44913dfae88bf34fed699fd79b4d9e66782450f205c687391ddf3",
+      "writerSessionId": "sess-5db2634a9aa0d8d6e037d03673cf4298",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 17909
+        },
+        "digest": "eb4e41c3f8f0f4f39d4d536ee170849e5da241867edb81816ac9d2ea2415635e"
+      },
+      "readDiagnostics": [],
+      "_hash": "4b8df6c02a775ea497eebf3c947e0957fe1377a8753e00671044f4feeb4851e7"
     }
   ]
 }
