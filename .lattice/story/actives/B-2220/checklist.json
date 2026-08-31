@@ -138,6 +138,17 @@
           "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
           "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
           "timestamp": "2026-08-31T00:10:31.601Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const must=[\\\"production path begins accepting stateful or untrusted record objects\\\",\\\"store serialisation format changes independently\\\",\\\"normal validation evidence repeatedly approaches the configured advisory or bound\\\",\\\"a real measure/write mismatch occurs\\\",\\\"release, compliance or threat-model requirement demands a hard on-disk byte bound\\\",\\\"Reconsideration requires a new human-approved story\\\"];if(!must.every(x=>s.includes(x)))process.exit(1);console.log(\\\"B-2220 edge-1 PASS\\\");\"",
+          "note": "All concrete evidence-based reopen triggers and the new human-approved-story requirement are present.",
+          "mechanical": false,
+          "headHash": "4a8189e5d39f36a6bc4fd92d421483912386f18d",
+          "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
+          "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
+          "timestamp": "2026-08-31T00:10:32.478Z"
         }
       ],
       "userSeesSnapshot": {
