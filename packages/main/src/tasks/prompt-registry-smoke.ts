@@ -78,13 +78,40 @@ const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage
 // contract requires a deliberate semantic-test review, and `--write` baseline
 // refreshes cannot approve extra or contradictory reviewer instructions.
 const approvedReviewFindingTriageContractSha256 = '66c3b113d98c127db56b8b3315d91d5e05ab8eea8e94444ad1ac6820f7a6cce9';
-const ownerTriageImmutablePhrases = [
-  'not applicability',
-  'repair, or resolution proof',
-  'does not prove applicability, repair, or resolution',
-  'does not prove `out_of_scope`',
-  'is not mechanically enforced by prompt text alone',
-  'prompt text does not mechanically enforce this discipline',
+const approvedReviewFindingTriageHeadings = [
+  reviewFindingTriageContractMarker,
+  '## REVIEW Finding Triage and Routing Contract',
+  '### Current compatibility boundary',
+  '### Record evidence before disposition',
+  '### Decide current-Story responsibility without widening scope',
+  '### Respect reviewer authority',
+] as const;
+// Independent normative-clause proof. This deliberately duplicates the approved
+// contract semantics instead of deriving them from REVIEW_FINDING_TRIAGE_CONTRACT
+// or its digest. Refreshing the digest alone therefore cannot approve additional
+// or contradictory prose; changing this manifest requires an explicit test review.
+const approvedReviewFindingTriageNormativeLines = [
+  'Apply this contract while reviewing. It governs reviewer behavior; it does not replace the CLI, handler, or gate as the authority for lifecycle state.',
+  '- The Dynamic Finding System execution plan is the future authority for signed applicability, ownership, routing, freshness, and supersession. Until its official CLI and artifacts exist, use only commands and fields exposed by the current CLI compatibility path. Never fabricate an unavailable assessment field, verdict, owner, route, signature, freshness result, or command receipt, and never claim that a target-state mechanism ran.',
+  '- In the current compatibility path, a reviewer records the observation through `finding_add` with the current `reviewRunId` and returns disposition to the Story Owner. Only the Owner may use a currently available compatibility disposition when current mechanical policy permits it. `finding_dismiss` is compatibility accounting; it is not applicability proof, `out_of_scope` proof, repair, or resolution.',
+  '- When the Dynamic Finding CLI becomes available, request or consume its official signed assessment and follow its fail-closed result. Prompt prose and compatibility records never substitute for that assessment.',
+  '- Start the current lane with `proof-or-stop review_run_start`. Carry its current `reviewRunId` on every `finding_add` or `review_pass_set` submission.',
+  '- A role-body or policy change makes an already assembled in-flight reviewer envelope stale. Stop, start a fresh current-material run with `review_run_start`, and redispatch the reviewer; never submit evidence from the older envelope.',
+  '- Keep four axes separate: `evidenceState` says whether the observation is suspected, verified, or disproven; severity says how harmful it is; applicability reports whether it belongs to this Story; gate impact is computed by the current lifecycle policy. Severity does not determine scope by itself.',
+  '- Preserve reproduction steps, source or command evidence, observed impact, and uncertainty. Report an applicability candidate in the evidence supported by the current command; do not invent unsupported fields or present the candidate as a gate decision.',
+  '- The machine-owned handler and gate derive the actual blocking result from structured facts. Reviewer prose, a routing proposal, or a claimed deferral is not gate evidence.',
+  '- Require repair in the current Story when a verified issue was introduced or worsened by the Story, directly violates its acceptance or public compatibility promise, threatens security or data integrity, or would make REVIEW, TEST, DONE, or their evidence misleading.',
+  '- If an issue would otherwise block under the current review round and policy but its applicability is unknown, fail closed and keep it in the current Story until evidence resolves applicability. This rule applies regardless of severity, including medium findings when the current round treats them as blocking.',
+  '- Evidence may support a `pre_existing_unaffected` or `out_of_scope` routing candidate only when the issue is not a direct Story regression, does not prevent the user-visible outcome, and cannot distort lifecycle evidence. Preserve the original Finding and attach reproduction, evidence, impact, recommended action, explicit owner, and route. Critical or high findings must never be left without an owner.',
+  '- A `pre_existing_unaffected` candidate requires deterministic base and head reproduction receipts for the same defect, proof that the Story did not worsen severity or impact, confirmation that Story scope does not promise its repair, and a valid owner or route.',
+  '- An `out_of_scope` candidate requires signed scope or decision evidence naming the excluded contract, no contradictory checklist or acceptance promise, and a valid owner or route; critical or high Findings cannot be left unowned.',
+  '- A `duplicate` candidate requires a signature-valid live canonical Finding, its live owner or route, and proof that the duplicate chain is not circular. Similar text or a matching signature tag is insufficient.',
+  '- A `stale_or_not_reproduced` candidate requires current command receipts bound to fresh source and runtime evidence and must never be inferred from an old DONE outcome. If the current CLI cannot provide the required proof for any candidate, applicability remains unknown and fails closed.',
+  '- Do not expand the Story merely to make the repository globally green. A bounded, evidence-backed route is not dismissal, resolution, or proof that the problem disappeared.',
+  '- Reviewers audit and record; they do not repair implementation, rewrite scope, or create follow-up Stories. Do not call `finding_dismiss`, `story_create`, or `gap_log` from a REVIEW lane. Return repair work to the Story Owner and propose routing for non-applicable work.',
+  '- If no finding remains to report, record the lane result with `review_pass_set`; never encode a pass as a synthetic Finding.',
+  '- Distinguish `disproven` (evidence refutes the observation), `duplicate` (another tracked Finding owns the same defect), and `stale_or_not_reproduced` (current evidence cannot reproduce an older claim). Do not collapse any of them into resolved.',
+  '- Never delete the original observation, silently rewrite its severity, or overwrite history. In the current compatibility path, preserve the original observation and report the new evidence to the Story Owner; do not fabricate a revision, superseding Finding, applicability recalculation, or gate-impact recalculation. Only the future official Dynamic Finding System may append a signed revision or superseding Finding and recalculate applicability and gate impact through its official artifacts.',
 ] as const;
 const frozenReviewerLegacyReconstructionDigests = {
   'lattice-review-behavior': '45efbfe90d7705408ed95f0111b2108b5e39fc9397aeb7d99eda600db2ea3fe0',
@@ -189,12 +216,22 @@ const forbiddenReviewFindingTriagePermissions = [
   },
 ] as const;
 
-function assertReviewFindingTriageSemantics(content: string, sourceLabel: string): void {
-  assert.equal(
-    createHash('sha256').update(REVIEW_FINDING_TRIAGE_CONTRACT).digest('hex'),
-    approvedReviewFindingTriageContractSha256,
-    'production REVIEW triage contract matches the independently approved canonical contract',
-  );
+function extractReviewFindingTriageStructure(contract: string): {
+  headings: string[];
+  normativeLines: string[];
+} {
+  const lines = contract.split('\n').map(line => line.trim()).filter(Boolean);
+  return {
+    headings: lines.filter(line => line === reviewFindingTriageContractMarker || line.startsWith('#')),
+    normativeLines: lines.filter(line => line !== reviewFindingTriageContractMarker && !line.startsWith('#')),
+  };
+}
+
+function assertReviewFindingTriageSemantics(
+  content: string,
+  sourceLabel: string,
+  approvedDigest = approvedReviewFindingTriageContractSha256,
+): void {
   assert.equal(
     occurrenceCount(content, reviewFindingTriageContractMarker),
     1,
@@ -203,8 +240,19 @@ function assertReviewFindingTriageSemantics(content: string, sourceLabel: string
   const deliveredContract = content.slice(content.indexOf(reviewFindingTriageContractMarker)).trimEnd();
   assert.equal(
     createHash('sha256').update(deliveredContract).digest('hex'),
-    approvedReviewFindingTriageContractSha256,
+    approvedDigest,
     `${sourceLabel} ends at the independently approved canonical REVIEW triage contract`,
+  );
+  const structure = extractReviewFindingTriageStructure(deliveredContract);
+  assert.deepEqual(
+    structure.headings,
+    approvedReviewFindingTriageHeadings,
+    `${sourceLabel} matches the independently approved REVIEW triage heading manifest`,
+  );
+  assert.deepEqual(
+    structure.normativeLines,
+    approvedReviewFindingTriageNormativeLines,
+    `${sourceLabel} matches the independently approved REVIEW triage normative-clause manifest`,
   );
   for (const phrase of requiredReviewFindingTriagePhrases) {
     assert.ok(content.includes(phrase), `${sourceLabel} keeps triage phrase: ${phrase}`);
@@ -245,13 +293,38 @@ function assertReviewFindingTriageMutationFailures(): void {
     'Disjoint files are sufficient to establish `pre_existing_unaffected`.',
     'A canonical duplicate target may be an unsigned, stale, unowned Finding.',
   ];
+  const digestRefreshedParaphraseMutations = [
+    'The review team has authority to invoke `gap_log` or `finding_dismiss`.',
+    '`finding_dismiss` establishes Story exclusion.',
+    'Scope is governed by severity unless applicability is disproved.',
+    "The superseded envelope's reviewRunId remains accepted.",
+    'The audit lane may patch product code before filing.',
+    '`story_create` is available during REVIEW.',
+    'Reviewers can broaden the Story until all repository checks pass.',
+    'Applicability evidence can revise the original severity downward.',
+    'A routed Finding counts as closed once it ceases to block.',
+    'Proof and ownership are optional when routing a blocker.',
+    'These instructions establish lifecycle blocking.',
+    'A non-overlapping diff proves the defect is inherited and unaffected.',
+    'A stale unowned canonical record is a valid duplicate destination.',
+  ];
   assert.equal(originalMutations.length, 13, 'the original semantic mutation inventory remains complete');
   assert.equal(paraphraseMutations.length, 13, 'the independent reviewer paraphrase mutation inventory remains complete');
+  assert.equal(digestRefreshedParaphraseMutations.length, 13, 'the digest-refreshed reviewer paraphrase inventory remains complete');
   for (const [index, mutation] of [...originalMutations, ...paraphraseMutations].entries()) {
     assert.throws(
       () => assertReviewFindingTriageSemantics(`${REVIEW_FINDING_TRIAGE_CONTRACT}\n${mutation}`, `mutation ${index + 1}`),
-      /independently approved canonical REVIEW triage contract|rejects contradictory/,
+      /independently approved canonical REVIEW triage contract|normative-clause manifest|rejects contradictory/,
       `semantic mutation ${index + 1} must fail validation`,
+    );
+  }
+  for (const [index, mutation] of digestRefreshedParaphraseMutations.entries()) {
+    const changedContract = `${REVIEW_FINDING_TRIAGE_CONTRACT}\n${mutation}`;
+    const refreshedDigest = createHash('sha256').update(changedContract).digest('hex');
+    assert.throws(
+      () => assertReviewFindingTriageSemantics(changedContract, `digest-refreshed mutation ${index + 1}`, refreshedDigest),
+      /normative-clause manifest|heading manifest|rejects contradictory/,
+      `digest-refreshed semantic mutation ${index + 1} must fail independently of the approval digest`,
     );
   }
 }
@@ -319,10 +392,9 @@ function assertOwnerAndImplementerTriageGuidance(): void {
     'use only fields and commands exposed by the current CLI compatibility path',
     'never fabricate an assessment field, verdict, owner, route, signature, freshness result, or receipt',
     '`finding_dismiss` is temporary compatibility accounting for a round or profile',
-    'does not prove applicability, repair, or resolution',
-    'does not prove `out_of_scope`',
-    'is not mechanically enforced by prompt text alone',
-    'prompt text does not mechanically enforce this discipline',
+    'proves neither applicability nor `out_of_scope`',
+    'is not proof of repair or resolution',
+    'Prompt text alone does not mechanically enforce this discipline',
   ]) {
     assert.ok(ownerGuide.includes(phrase), `Story Owner guidance keeps triage phrase: ${phrase}`);
   }
@@ -339,10 +411,15 @@ function assertOwnerAndImplementerTriageGuidance(): void {
     .filter(line => /REVIEW Finding handling|Bounded current-Story repair|Evidence-backed routing|Compatibility boundary and dismissal/.test(line));
   assert.deepEqual(claudeTriageLines, ownerTriageLines, 'Claude and Codex Story Owner guidance is byte-identical');
   assert.doesNotMatch(claudeTriageLines.join('\n'), /[\u3400-\u9fff]/u, 'the Claude Story Owner triage slice is English-only');
-  for (const [file, slice] of [['AGENTS.md', ownerTriageSlice], ['CLAUDE.md', claudeTriageLines.join('\n')]] as const) {
-    for (const phrase of ownerTriageImmutablePhrases) {
-      assert.ok(slice.includes(phrase), `${file} Owner triage slice retains immutable phrase: ${phrase}`);
+  for (const [file, lines] of [['AGENTS.md', ownerTriageLines], ['CLAUDE.md', claudeTriageLines]] as const) {
+    const compatibilityLine = lines.find(line => line.includes('**Compatibility boundary and dismissal**')) ?? '';
+    assert.match(compatibilityLine, /`finding_dismiss` is temporary compatibility accounting for a round or profile;/u, `${file} keeps bounded compatibility accounting`);
+    assert.match(compatibilityLine, /it proves neither applicability nor `out_of_scope`, and it is not proof of repair or resolution\./u, `${file} keeps each non-proof conclusion once`);
+    assert.match(compatibilityLine, /Prompt text alone does not mechanically enforce this discipline\./u, `${file} keeps the prompt-enforcement limitation once`);
+    for (const term of ['applicability', '`out_of_scope`', 'repair', 'resolution'] as const) {
+      assert.equal(occurrenceCount(compatibilityLine, term), 1, `${file} states the ${term} compatibility conclusion once`);
     }
+    assert.equal(occurrenceCount(compatibilityLine, 'mechanically enforce'), 1, `${file} states the prompt-enforcement limitation once`);
   }
 
   const implementerGuide = readFileSync(join(registry.root, 'lattice-implementer.md'), 'utf8');
