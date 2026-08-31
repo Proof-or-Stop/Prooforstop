@@ -282,13 +282,20 @@
           "kind": "logic_test",
           "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import * as assets from '/private/tmp/proof-or-stop-b5a88-init-build/init-assets.js'; const names=['AGENTS_MD_TEMPLATE','LATTICE_MD_TEMPLATE','CLAUDE_MD_TEMPLATE','LATTICE_DOT_DIR_MD_TEMPLATE','AGENTS_MD_GLOBAL_THIN_TEMPLATE']; for (const name of names) { const value=assets[name]; assert.match(value,/<!-- proof-or-stop:start -->/); assert.match(value,/<!-- proof-or-stop:end -->/); assert.doesNotMatch(value,/<!-- lattice:start -->|<!-- lattice:end -->/); } console.log('CHK-002-TEMPLATE-PASS');\"",
           "result": "pass",
-          "note": "RI-039 wave 2/3 coverage reviewer rerun of CHK-002:adversarial:0 under RR-414.",
-          "headHash": "aa4f9e2461d4a7241faa3d6eed0a083712f5aa83",
+          "note": "Re-earn tool-executed receipt after verification_evidence_refresh_stale invalidated it; the pinned command's module paths were restored so the unmodified pinned verifier executes and prints its selector",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b5fb3386837e216fcb067e17caa16af975d48e6f8a572393ef41cfb02ecff25c",
+            "outputTail": "CHK-002-TEMPLATE-PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T09:15:44.261Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "3fc5ab960df88750538d330cfec1a1ce17c305ee",
           "materialHash": "db6bc28792c31834a0cd12aac3232c99df51b79995daf43300413d82bc272484",
           "storyFilesHash": "949a7107e9f1646cc032477d0119da869aec3f2d1374f8a9770b687785d10984",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T08:58:23.118Z"
+          "timestamp": "2026-08-31T09:15:44.464Z"
         }
       ],
       "userSeesSnapshot": {
