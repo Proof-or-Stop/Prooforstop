@@ -118,7 +118,7 @@
       "desc": "doc-code-drift: CLAUDE.md:782-784 still instructs the Story Owner not to leave medium findings for a later Story, not to say out of scope, and to fix cross-Story infrastructure bugs together. AGENTS.md:571-573 now establishes the opposite bounded current-Story/evidence-backed routing policy. Because CLAUDE.md is the active Claude host guide, Claude and Codex owners receive contradictory scope behavior, so the Agent projection is not cross-host consistent. severity=critical",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-31T20:54:29.639Z",
@@ -130,7 +130,11 @@
         "AGENTS.md"
       ],
       "signatureTag": "missing|md|code-drift-claude",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by the CLAUDE.md bounded-scope synchronization in 8baacb207e and pinned-language compatibility follow-up 9dd098a003; current tool-executed CHK-002 receipts pass.",
+      "resolvedAt": "2026-08-31T21:25:55.598Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-007",
