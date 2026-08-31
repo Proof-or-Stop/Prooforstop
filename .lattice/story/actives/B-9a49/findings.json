@@ -370,6 +370,21 @@
       "resolvedAt": "2026-08-31T22:46:43.666Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9a49:F-018",
+      "desc": "AGENTS.md:574 and CLAUDE.md:785 F-016 resolution regression (medium): the current compatibility sentence still repeats both conclusions F-016 required consolidating. It says finding_dismiss is `not applicability, repair, or resolution proof` and immediately repeats `it does not prove applicability, repair, or resolution`; it then says the discipline is `not mechanically enforced by prompt text alone` and repeats `prompt text does not mechanically enforce this discipline`. Commits 467d8852b8 and ed7dfe2adb reintroduced these duplicates to satisfy immutable phrase pins, and packages/main/src/tasks/prompt-registry-smoke.ts:81-88 now mechanically requires both copies, so the focused smoke passes by locking in the prose-quality defect. Consolidate each conclusion once and pin semantics without requiring duplicate surface phrases before treating F-016 as fixed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T22:48:47.342Z",
+      "reviewRound": "2026-08-31T22:45:56.798Z",
+      "reviewRunId": "B-9a49:RR-016",
+      "_hash": "2cd2e8ba03b0bbfe3c445f5e5f060a2593cd5145926deb487393aba85f7f5787",
+      "signatureTag": "missing|unknown|agents-claude-resolution",
+      "signatureTagSource": "auto"
     }
   ]
 }
