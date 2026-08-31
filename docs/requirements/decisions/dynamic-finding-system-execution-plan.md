@@ -1023,6 +1023,7 @@ interface AssessmentEnvelope {
   findingHash: string;
   findingVersion: string;
   assessmentProposalDigest: string;
+  proposalSignature: string;
   evaluationScope: 'target_story' | 'canonical_owner' | 'repository_release';
   owner: 'current_story' | 'meta' | 'other_story' | 'unowned';
   acceptedRoute?: {
@@ -1382,7 +1383,7 @@ interface FindingDeferralDisposition {
     routeReceiptId: string;
     routeReceiptHash: string;
     routeReceiptProfile: 'finding_route';
-    routeReceiptSourceAssessmentHash: string;
+    routeReceiptSourceAssessmentProposalDigest: string;
     targetSnapshotDigest: string;
   };
   initialProgressBaselineSetId: string;
@@ -1479,7 +1480,7 @@ interface FindingDispositionManifest {
     expectedRouteReceiptId?: string;
     expectedRouteReceiptHash?: string;
     expectedRouteReceiptProfile?: 'candidate_route' | 'finding_route';
-    expectedRouteReceiptSourceAssessmentHash?: string;
+    expectedRouteReceiptSourceAssessmentProposalDigest?: string;
     expectedInitialProgressBaselineSetId?: string;
     expectedInitialProgressBaselineSetHash?: string;
   }>;
@@ -1567,7 +1568,14 @@ interface GateEvaluationSnapshot {
   evaluatedAt: string;
   trustedClockDigest: string;
   clockPolicyDigest: string;
-  earliestBoundExpiryAt?: string;
+  expiryClosure: {
+    expiringInputIds: string[];
+    earliestBoundExpiryAt: string;
+  } | {
+    expiringInputIds: [];
+    noExpiry: true;
+  };
+  commitDeadlineAt: string;
   snapshotHash: string;
   signature: string;
 }
@@ -1585,10 +1593,11 @@ interface LegacyFindingIdentityBinding {
 
 For a `defer_with_proof` action, all four `expectedRouteReceipt*` fields are
 required and `expectedRouteReceiptProfile` must equal `finding_route`.
-`expectedRouteReceiptSourceAssessmentHash` must equal both
-`expectedAssessmentHash` and the exact receipt source's `subjectHash`.
+`expectedRouteReceiptSourceAssessmentProposalDigest` must equal the exact
+receipt source's `subjectHash`; `expectedAssessmentHash` separately binds the
+final signed assessment and never flows back into the receipt.
 `routeReceiptId`, `routeReceiptHash`, `routeReceiptProfile`, and
-`routeReceiptSourceAssessmentHash` are canonical inputs to
+`routeReceiptSourceAssessmentProposalDigest` are canonical inputs to
 `FindingDeferralDisposition.dispositionHash` and its signature; the matching
 manifest action fields are canonical inputs to `manifestDigest` and its
 signature. Omitting, reordering, or changing any member changes the applicable
@@ -1609,8 +1618,9 @@ receipt or error but no new deferral/manifest records.
 
 Route acceptance uses a two-stage, immutable assessment construction to avoid a
 hash fixed point. First the assessor signs `assessmentProposalDigest`, which
-canonically covers every assessment input except `acceptedRoute`, `assessmentHash`,
-and signature. Story 2 accepts a `finding_route` receipt whose source
+canonically covers every proposal field except `assessmentProposalDigest` itself,
+`proposalSignature`, `acceptedRoute`, final `assessmentHash`, and final signature.
+`proposalSignature` signs that digest only. Story 2 accepts a `finding_route` receipt whose source
 `subjectHash` is exactly that proposal digest. The final assessment then
 canonically includes the accepted receipt ID/hash/profile and that proposal
 digest, producing `assessmentHash`; the receipt does not require or contain the
@@ -1635,8 +1645,13 @@ ID aliasing. A finding/assessment/integrity/route/owner/canonical/supersession/
 scope/ledger/process-policy/runtime/material/story-files mutation aborts the
 transition; it is never accepted on a stale preflight result. Commit-time CAS
 also obtains the trusted clock, verifies its policy digest, and rejects a
-snapshot at or after `earliestBoundExpiryAt`; replay and expiry-between-preflight-
-and-commit mutations must abort even with unchanged record bytes. The
+snapshot at or after `expiryClosure.earliestBoundExpiryAt` or after
+`commitDeadlineAt`; replay and expiry-between-preflight-and-commit mutations
+must abort even with unchanged record bytes. The reader mechanically enumerates
+every expiring assessment, receipt, policy and runtime input: a non-empty set
+uses its canonical minimum, while only an empty set may use signed `noExpiry`.
+Missing, optional, forged-late, clock-drift, boundary, or replay-race expiry
+closures fail closed. The
 snapshot's `evaluationScope` is mandatory: `target_story` decides responsibility
 for that target only, `canonical_owner` preserves its open applicable obligation,
 and `repository_release` independently aggregates open high/critical (and any
@@ -1983,7 +1998,7 @@ following are mandatory:
   freshness binding, and a valid owner are present. The target must already
   exist as another Story or a B-META gap. The target binds both
   `routeReceiptId` and `routeReceiptHash`, plus the `finding_route` profile and
-  exact source-assessment hash, to prove the target/owner accepted this
+  exact source-assessment proposal digest, to prove the target/owner accepted this
   assessment. A promise to create a target later is insufficient.
 - The initial accepted route and initial deferral bind the exact target-signed
   `InitialProgressBaselineSet` ID/hash containing all four eligible kinds; a
@@ -1992,7 +2007,7 @@ following are mandatory:
 - `recheckTriggers` and `expiresAt` are present. Story 1 applies the deferral and
   its manifest/action atomically in a transaction separate from Story 2's
   earlier standalone receipt transaction. Under the same lock/transaction it
-  compares the expected receipt ID/hash/profile/source-assessment hash and
+  compares the expected receipt ID/hash/profile/source-assessment proposal digest and
   expected baseline-set ID/hash to the latest receipt-chain/baseline bytes, then
   rechecks freshness and absence of revocation or supersession. Any mismatch or
   state change aborts with neither a deferral nor manifest/action written.
@@ -2099,7 +2114,7 @@ may atomically persist a standalone candidate/renewal receipt or the initial
 finding-route receipt plus baseline set through Story 3 without calling Story 1.
 Story 1 later opens a separate ledger CAS transaction, reads the latest
 route-receipt chain and initial baseline-set bytes under the transaction lock,
-validates the expected ID/hash/`finding_route` profile/source-assessment hash,
+validates the expected ID/hash/`finding_route` profile/source-assessment proposal digest,
 baseline-set ID/hash/completeness/signatures, freshness, and absence of
 revocation or supersession, and atomically writes the signed L4
 `FindingDeferralDisposition` plus its matching manifest/action. Story 1 does not
@@ -2320,7 +2335,7 @@ from the non-gate `progress_baseline` entry/set capture, sign, verify, and read
 handlers/artifacts, and all of those must be separate
 from Story 1's L4 mandatory-repair classify/close and deferral create/supersede
 handlers. It must register Story 1's exact receipt-hash/profile dependency,
-source-assessment hash, CAS apply handler, `DeferralLineageState`,
+source-assessment proposal digest, CAS apply handler, `DeferralLineageState`,
 `MaterialDriftReattestation`, initial-baseline ID/hash CAS,
 `MandatoryRepairClassification`, `DeferralExpiryPolicy`, cumulative-lineage
 reader, `AssessmentIntegrityState` reader dependency, every shared-predicate
@@ -2443,7 +2458,7 @@ authoritative artifacts and cannot alter lifecycle output.
   Red/repro, root-cause, fix, Green, and closure evidence.
 - Consumer/adapter for Story 2's non-gate `FindingRouteReceipt` and
   `progress_baseline` entry/set artifacts; validate the receipt's latest-chain
-  ID/hash, `finding_route` profile, source-assessment hash, freshness, and non-
+  ID/hash, `finding_route` profile, source-assessment proposal digest, freshness, and non-
   revoked/non-superseded state, plus the initial set's exact ID/hash, marker,
   entry completeness, and signatures before consuming them inside the L4
   deferral without redefining its signer, verifier, baseline
@@ -3138,7 +3153,7 @@ merged-state dependency review.
 | Suspected-candidate route completeness and isolation | Low/medium candidate routes with explicit uncertainty, current evidence, live existing target/owner, signed receipt, expiry/triggers, and zero gate delta / all proposed suspected routes | Candidate/route ledger join, target validation, and frozen-gate before/after comparison | 100% complete and 100% zero gate delta; no promotion/root-cause/Green prerequisite | Any incomplete route accepted, any candidate promoted implicitly, or any gate delta |
 | Route-receipt authority, isolation, and freshness | Story 2 receipts accepted by the exact target-authorized owner/policy actor with matching source/target/hash/scope and live lease/policy, while producing zero standalone gate delta / all acceptance proposals and adversarial receipts | Story 2 authority lookup/command log/signature-freshness suite plus Story 1 exact ID/hash/profile/source integration and frozen-gate comparison | 100% valid, 100% zero standalone gate delta; source Story self-sign rejected | Any wrong signer/owner/target/hash, stale/closed target, revocation, tamper, standalone gate delta, or Story 2 -> Story 1 import |
 | Initial progress-baseline integrity and isolation | Initial finding-route receipts with one target-authorized CLI/server-derived signed present-or-absent baseline for each eligible progress kind, exact signed non-gate authority marker, subject/route/defect binding, and zero standalone gate delta / all initial finding-route proposals and injected baseline/consumer mutations | Story 2 baseline capture/verifier rows joined to Story 3 atomic receipt-plus-set commit; mutate kind/subject/state/digest/authority/producer/signature, remove/flip marker fields, impersonate receipt/L4 profiles, and inject registry/command-policy/phase-allowlist blocker/pass/unblock consumers | 100% complete/valid, 100% marker mutation rejection, and 100% zero direct gate delta; only exact-CAS-derived Story 1 L4 state may affect the gate | Any missing/duplicate/wrong-kind or wrong-subject entry, fabricated caller baseline, partial receipt/set, invalid signature/hash/marker, profile impersonation, or direct baseline gate dependency accepted |
-| Exact receipt/baseline CAS and deferral atomicity | Applies whose existing latest receipt exact ID/hash/profile/source-assessment and baseline-set ID/hash/bytes are revalidated with freshness and no revocation/supersession, then deferral plus manifest/action commit together / all deferral applies and injected races | Story 1 transaction/CAS log joined to immutable Story 2 receipt/baseline chain and Story 3 commit receipt; mutate every expected tuple field and interleave revoke/supersede/baseline change | 100% valid commits; 100% mismatches/races write neither deferral nor manifest/action; receipt/baseline records alone remain legal/non-gate | Any stale/non-latest tuple or wrong baseline accepted, any partial deferral/manifest commit, any failed CAS mutation, or any receipt/baseline-alone gate delta |
+| Exact receipt/baseline CAS and deferral atomicity | Applies whose existing latest receipt exact ID/hash/profile/source-assessment proposal digest and baseline-set ID/hash/bytes are revalidated with freshness and no revocation/supersession, then deferral plus manifest/action commit together / all deferral applies and injected races | Story 1 transaction/CAS log joined to immutable Story 2 receipt/baseline chain and Story 3 commit receipt; mutate every expected tuple field and interleave revoke/supersede/baseline change | 100% valid commits; 100% mismatches/races write neither deferral nor manifest/action; receipt/baseline records alone remain legal/non-gate | Any stale/non-latest tuple or wrong baseline accepted, any partial deferral/manifest commit, any failed CAS mutation, or any receipt/baseline-alone gate delta |
 | Deferral route completeness | Deferred rows with a live existing target, owner, exact accepted signed route receipt tuple, expiry, and complete recheck triggers / all proposed deferred rows | Deferral/manifest atomic ledger join plus latest receipt-chain and target existence/owner validation | 100% | Any orphan, missing/mismatched receipt, deferral-alone/manifest-alone commit, or closed-unfixed target accepted as valid |
 | False deferral | Independently adjudicated deferred rows that require current repair or touch a protected surface / all system-proposed deferrals | Current reproducible failure evidence, acceptance/verificationIntent diff, introduced/worsened analysis, protected-surface campaign, and independent disposition review | **0**; critical/high proposals are mechanically ineligible; root cause may remain for the target Story | Any one event or any protected-surface risk deferred |
 | Stale/overdue/reopened deferral handling | Triggered, expired, owner-invalid, or target-closed-unfixed deferrals recalled as candidates and made non-authoritative / all such deferrals injected or observed | Freshness/expiry evaluator events joined to candidate recall and gate decisions | 100%, exactly-once candidate recall per trigger set | Any stale/overdue row remains non-blocking, any missed recall, or duplicate recall changes gate state |
