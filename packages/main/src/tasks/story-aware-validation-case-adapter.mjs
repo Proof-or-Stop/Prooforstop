@@ -12,15 +12,22 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const env = process.env;
-const registryPath = env.LATTICE_VALIDATION_SHARD_CASE_REGISTRY;
-const shardDir = env.LATTICE_VALIDATION_SHARD_DIR;
-const domain = env.LATTICE_VALIDATION_SHARD_DOMAIN;
-const shardId = env.LATTICE_VALIDATION_SHARD_ID;
-const sentinelCaseId = env.LATTICE_VALIDATION_SHARD_SENTINEL;
-const registryDigest = env.LATTICE_VALIDATION_SHARD_CASE_REGISTRY_DIGEST;
-const adapterDigest = env.LATTICE_VALIDATION_SHARD_ADAPTER_DIGEST;
-const requestedIds = (env.LATTICE_VALIDATION_SHARD_CASE_IDS || '').split(',').filter(Boolean);
-const projectRoot = env.LATTICE_VALIDATION_PROJECT_ROOT;
+// B-45a0 F-447: read BOTH spellings, preferring the canonical PROOF_OR_STOP_*
+// name, per brand-rename-mapping.md's rule for LATTICE_* env vars ("Read both
+// names, preferring the new one. Never require the new name."). The producer in
+// handlers/story-aware-validation.ts now emits the canonical names; the
+// deprecated spelling stays readable so an already-exported env keeps working.
+const readShardEnv = (suffix) =>
+  env[`PROOF_OR_STOP_VALIDATION_${suffix}`] ?? env[`LATTICE_VALIDATION_${suffix}`];
+const registryPath = readShardEnv('SHARD_CASE_REGISTRY');
+const shardDir = readShardEnv('SHARD_DIR');
+const domain = readShardEnv('SHARD_DOMAIN');
+const shardId = readShardEnv('SHARD_ID');
+const sentinelCaseId = readShardEnv('SHARD_SENTINEL');
+const registryDigest = readShardEnv('SHARD_CASE_REGISTRY_DIGEST');
+const adapterDigest = readShardEnv('SHARD_ADAPTER_DIGEST');
+const requestedIds = (readShardEnv('SHARD_CASE_IDS') || '').split(',').filter(Boolean);
+const projectRoot = readShardEnv('PROJECT_ROOT');
 
 if (!registryPath || !shardDir || !domain || !shardId || !sentinelCaseId || !registryDigest || !adapterDigest || !projectRoot) {
   throw new Error('DYN-5 adapter environment is incomplete');
@@ -59,7 +66,7 @@ for (const caseId of requestedIds) {
     cwd: runnerCwd,
     env: runnerEnv,
     encoding: 'utf8',
-    timeout: Number(env.LATTICE_VALIDATION_CASE_TIMEOUT_MS || 120000),
+    timeout: Number(readShardEnv('CASE_TIMEOUT_MS') || 120000),
   });
   const output = `${execution.stdout || ''}${execution.stderr || ''}`;
   const successMarker = runner.successMarker || `PROOF_OR_STOP_CASE_EXECUTED:${caseId}`;
