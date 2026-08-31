@@ -23840,7 +23840,7 @@
       "desc": "doc-code-drift: commit 5b2510e0a7 adds Rule 10 to Section 9 of docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md (lines 1273-1293). I independently verified against packages/main/src/core/pre-review-check.ts:342 (priorPlanBasisDigest raw comparison), packages/main/src/core/acceptance-coverage-basis.ts:245-251/348 (basisDigest covers binding+receiptRef; acceptanceCoverageBasisSemanticDigest strips exactly those three), and packages/main/src/core/command-policy.ts:439 (pre_review_check allowedPhases DEV-only) -- every mechanism claim in Rule 10 is accurate and does not contradict Section 16's mutation matrix (whose PR_COVERAGE_BASIS_CHANGED row only covers the DEV-adds/removes-consumer scenario, a distinct trigger path from the plain regenerate-after-check case). This closes the doc-mechanism gap that was the crux of F-435. However F-435 named FOUR missing locations (Section 9, Section 16 matrix, CLAUDE.md/AGENTS.md, and --help for acceptance_basis_generate/pre_review_check) and only the first is fixed. Repo-wide grep of CLAUDE.md and AGENTS.md for priorPlanBasisDigest/basisDigest/pre_review_check ordering terms: zero hits, still absent. node bin/proof-or-stop.js pre_review_check --help and acceptance_basis_generate --help: neither mentions the ordering constraint, hazard, or PR_COVERAGE_BASIS_CHANGED. An operator running these two commands back-to-back is most likely to consult --help, not a requirements decision doc, so this remains a real undelivered gap.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-31T02:58:14.167Z",
@@ -23880,7 +23880,11 @@
         "packages/main/src/core/command-catalog.ts"
       ],
       "signatureTag": "missing|md|code-drift-commit",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in c292cfa290. The ordering constraint now appears in all four locations F-435 named: the plan doc Section 9 Rule 10, CLAUDE.md, AGENTS.md, and the --help text for both acceptance_basis_generate and pre_review_check. Verified after rebuild: grep hits 1/1/1 in the three docs and both --help outputs render 'ORDERING (B-45a0)'. verify-lattice-residue.mjs passes all four checks. lattice-review-docs confirmed in RI-108 wave 3 and additionally traced that the --help strings never cited a rule number, so they were unaffected by the F-445 citation defect.",
+      "resolvedAt": "2026-08-31T05:31:29.653Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-439",
