@@ -89,6 +89,24 @@
       "resolvedAt": "2026-08-31T03:24:23.919Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5952:F-004",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:895-914 [high] The committed control smoke does not execute the promised hard-cap self-characterization. It calls the helper for exact 808, actual 809 against ceiling 808, and measured 804 against ceiling 803, but never calls it with a ceiling above MAX_DYNAMIC_BINDING_BUILD_CEILING. Nevertheless CHK-001:edge:finite-bound-actual says the control receipt covers the absolute 850 cap, and the F-002/F-003 resolutions say commit f8d635f74e self-characterizes >850 before PASS. The separate sentinel-900 mutant proves the helper rejects a changed artifact; it does not make those claims about the unmodified control true. Add an explicit assert.throws for MAX_DYNAMIC_BINDING_BUILD_CEILING+1 before PASS, rebuild dist, rerun the edge receipt, and correct both resolution texts.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T03:30:48.590Z",
+      "reviewRound": "2026-08-31T03:23:55.455Z",
+      "reviewRunId": "B-5952:RR-004",
+      "_hash": "3e21107dd8b032663049ce001b91353831aad9472878c0641ca90902de41ce20",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
