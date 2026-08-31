@@ -316,6 +316,26 @@
       ],
       "signatureTag": "missing|md|code-drift-claude",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-016",
+      "desc": "doc-code-drift: AGENTS.md:573 and CLAUDE.md:785 open-source prose-quality defect (medium): the compatibility paragraph repeats both conclusions instead of stating each once (\"not applicability ... proof\" is immediately restated as \"It does not prove ...\"; \"not mechanically enforced by prompt text alone\" is immediately restated as \"prompt text does not mechanically enforce ...\"). The duplicated wording is identical in both public guides, is materially harder to read than the canonical contract, and appears to preserve test tokens rather than publish polished English. Consolidate each claim into one grammatical sentence while retaining the required semantics and keep both guides synchronized.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-31T22:27:41.768Z",
+      "reviewRound": "2026-08-31T22:17:16.706Z",
+      "reviewRunId": "B-9a49:RR-014",
+      "_hash": "73cfb012761cd5a7593ce1347dbbd45859f9ad1284f96b4fc5bfe976df7f064f",
+      "files": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "packages/main/src/core/prompt-registry.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-agents",
+      "signatureTagSource": "auto"
     }
   ]
 }
