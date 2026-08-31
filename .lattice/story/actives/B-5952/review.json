@@ -179,6 +179,35 @@
         }
       ],
       "_hash": "5b4a7d3c467e5b6714df594b2c8a551acc20be9dc1b66b6c5a6c10906c76a549"
+    },
+    {
+      "timestamp": "2026-08-31T07:53:37.536Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-31T02:52:42.602Z) does not match the current review round (2026-08-31T07:32:26.785Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "084fca837cbe007a4b51e862181fd35540df62360f52419e91e6e984166941af"
     }
   ]
 }

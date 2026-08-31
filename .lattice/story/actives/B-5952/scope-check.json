@@ -1,48 +1,62 @@
 {
   "storyId": "B-5952",
-  "checkedAt": "2026-08-31T03:22:05.463Z",
+  "checkedAt": "2026-08-31T07:56:16.535Z",
   "features": [
     {
-      "feature": "Use the measured fixed ceiling 808 based on historical 796/800 and current 804, preserving four-build headroom.",
+      "feature": "At a committed B-5952 green HEAD, the rebuilt retired-authority vocabulary smoke must exit 0 for the current 804-build inventory under a finite ceiling no greater than 850.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-5952/decision.json"
+      "source": ".lattice/story/actives/B-5952/proofstory.json"
     },
     {
-      "feature": "Modify only the retired-authority smoke TypeScript assertion source and regenerate its dist JavaScript from source.",
+      "feature": "The 808 ceiling must be justified by a detached baseline/current causal map proving 796->804 comes only from synthetic 419 staying flat and repository entries growing 377->385 through the exact eight expected +1 files with no removals or duplicate counts.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-5952/checklist.json"
+    },
+    {
+      "feature": "The repair stays limited to the retired-authority smoke TypeScript source plus regenerated dist output; dist is rebuilt from source rather than edited independently.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-5952/plan.md"
     },
     {
-      "feature": "Execute the actual finite-bound self-characterization and causal comparator/unbounded/sentinel guard mutants with substitution checks and a restored passing control.",
+      "feature": "The committed finite-bound helper must self-characterize the exact boundary and actual smoke must reject comparator weakening or a sentinel ceiling above the absolute 850 cap with restored passing control.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-5952/checklist.json"
     },
     {
-      "feature": "Execute source-only, dist-only, and protected Dynamic Finding document mutations through the bound logic harness; require each mutation to be detected, restore all original bytes in finally, then rerun clean binding and scope controls.",
+      "feature": "Source-only, dist-only, and protected decision-document mutations must be detected via build-binding and exact JSON scope-contract checks, restore exact bytes, and finish with clean binding/scope controls.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-5952/checklist.json"
     },
     {
-      "feature": "Production handlers, core, CLI, and unrelated runtime behavior changes.",
+      "feature": "Production handlers, core, CLI, and unrelated runtime behavior changes are outside this repair story.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "The enforce contract explicitly excludes handlers/**, core/**, and cli/**, and understanding forbids production behavior changes.",
+      "excluded_by": "understanding.json forbids production behavior changes, and scope-contract.json explicitly excludes packages/main/src/handlers/**, packages/main/src/core/**, and packages/main/src/cli/**.",
       "source": ".lattice/story/actives/B-5952/scope-contract.json"
     },
     {
-      "feature": "Persistent changes to docs/requirements/decisions/dynamic-finding-system-execution-plan.md or contamination of B-1fa6.",
+      "feature": "Persistent edits to docs/requirements/decisions/dynamic-finding-system-execution-plan.md or contamination of B-1fa6 are outside scope; only verification-time protected-document mutation is allowed and must be byte-restored.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "The document remains in both protectedFiles and explicitExcludes; its temporary mutation is verification-only, detected by the scope gate, and byte-restored in finally.",
+      "excluded_by": "background.md and understanding.json keep this as an independent repair story, and scope-contract.json lists the Dynamic Finding decision in protectedFiles plus explicitExcludes.",
       "source": ".lattice/story/actives/B-5952/scope-contract.json"
+    },
+    {
+      "feature": "The acceptance binding should reference the repaired CHK-001 verification-intent surface, including the renamed finite-bound and guard-mutant checks and the new causal-baseline-map intent.",
+      "covered_by": "CHK-001",
+      "status": "drift",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-5952/proofstory.json"
     }
   ],
   "readManifest": {
@@ -51,23 +65,23 @@
       ".lattice/story/actives/B-5952/checklist.json",
       ".lattice/story/actives/B-5952/decision.json",
       ".lattice/story/actives/B-5952/plan.md",
+      ".lattice/story/actives/B-5952/proofstory.json",
       ".lattice/story/actives/B-5952/scope-contract.json",
-      ".lattice/story/actives/B-5952/understanding.json"
-    ],
-    "filesTriagedByName": [
+      ".lattice/story/actives/B-5952/understanding.json",
       "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
     ],
+    "filesTriagedByName": [],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 6,
-    "covered": 4,
+    "total": 8,
+    "covered": 5,
     "excluded": 2,
     "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 0
+    "drift": 1
   },
-  "reviewRound": "2026-08-31T02:52:42.602Z",
-  "_hash": "00d4215a8ad6b64477ec8f9ba1bdecb49f36d84f9a4d44ab4e65f1b96c43b27e",
+  "reviewRound": "2026-08-31T07:32:26.785Z",
+  "_hash": "ed07604cdbb2d632a5b756564ba0bee9d4bbe39a9656501e61fd76f4bd36138d",
   "openQuestions": []
 }
