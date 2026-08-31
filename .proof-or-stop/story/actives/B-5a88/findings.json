@@ -22684,7 +22684,7 @@
       "desc": "packages/main/src/cli-engine.ts:37 imports PROOF_OR_STOP_BIN_NAMES but no longer references it after commit 562be4b841 swapped the sole usage site (~line 755) to STRIPPABLE_BIN_TOKENS. Dead import, not caught by tsc (noUnusedLocals unset in packages/main/tsconfig.json) or any lint gate (no eslint config in repo). No functional impact; cosmetic residue from the bin-token tolerance fix.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-31T13:33:54.465Z",
@@ -22717,7 +22717,11 @@
         "packages/main/src/cli-engine.ts"
       ],
       "signatureTag": "cleanup|ts|packages-main-engine",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit de8b75e0cb. The concept lane was correct: commit 562be4b841 swapped cli-engine.ts's sole PROOF_OR_STOP_BIN_NAMES usage to STRIPPABLE_BIN_TOKENS and left the import specifier behind. Verified before fixing: grep showed exactly one occurrence in the file, the import at line 37, with zero usage sites. Removed the specifier; grep now returns 0 and the package builds clean. Also correct that no existing gate would catch it: noUnusedLocals is unset in packages/main/tsconfig.json and the repo has no ESLint config. Fixed rather than deferred because it is a one-line loose end inside this story's own diff, not unclaimed scope. Removing it changed cli-engine.ts again, so the whole-file dynamic-load fingerprint was repinned in BOTH coupled copies (retired-authority-vocabulary-guard-smoke.ts and scripts/verify-process-fact-contract.mjs) with the re-approval basis checked first: the diff is a single deleted import specifier line, zero import()/require() calls, arguments or path producers changed, dynamic-load surface still exactly await import(file://initPath) with the same runCli anchor and cli-init initPath producer plus await import('./dashboard.js'). Verified after: retired-authority-vocabulary-guard PASS builds=809, verify-process-fact-contract verified, cli-surface-smoke PASS.",
+      "resolvedAt": "2026-08-31T13:37:14.931Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
