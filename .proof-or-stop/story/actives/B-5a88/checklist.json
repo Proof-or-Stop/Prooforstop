@@ -1631,13 +1631,20 @@
           "kind": "integration_test",
           "command": "node --input-type=module -e \"import {execFileSync} from 'node:child_process'; const run=(name)=>execFileSync(process.execPath,['bin/proof-or-stop.js',name,'--storyId=B-5a88'],{encoding:'utf8'}); const [topology,preReview,rolloutReport,rolloutCheck]=['acceptance_topology_check','pre_review_check_read','acceptance_rollout_report_read','acceptance_rollout_check'].map(run); if (!topology.includes('Structural pass: yes') || !preReview.includes('plannedActual=complete executableEvidence=current mutations=biting transcript=related authority=admissible') || !rolloutReport.includes('Acceptance rollout report:') || !rolloutCheck.includes('Acceptance rollout policy:')) throw new Error('current Story Wave 4 acceptance reads failed'); console.log('WAVE4_CURRENT_READS_COVERED');\"",
           "result": "pass",
-          "note": "Re-earn tool-executed receipt after refresh invalidated it; regenerated the verifier-owned acceptance basis so acceptance_topology_check reports Structural pass yes and the unmodified pinned verifier prints WAVE4_CURRENT_READS_COVERED",
-          "headHash": "3eba6afeb1c841956bbfdf3be42da5e25d3dce29",
+          "note": "Re-earn tool-executed receipt after HEAD movement re-staled the binding; regenerated the verifier-owned acceptance basis so the pinned verifier observes Structural pass yes",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d71cccad04ab9114114ea677c8e5199946632753dbba77b938212995ccf289d7",
+            "outputTail": "[0.1s] running acceptance_topology_check...\n[2.3s] acceptance_topology_check done\n[0.2s] running pre_review_check_read...\n[5.1s] pre_review_check_read done\n[0.1s] running acceptance_rollout_report_read...\n[0.6s] acceptance_rollout_report_read done\n[0.1s] running acceptance_rollout_check...\n[0.6s] acceptance_rollout_check done\nWAVE4_CURRENT_READS_COVERED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T09:51:48.742Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "b33d3b134cfdf81c85ba42e58a000c3e712d867f",
           "materialHash": "8715f55ffc0beae8be6e19947c4033d56880d9f2514e9432df6bd9be599a668d",
           "storyFilesHash": "1f0dc4ef73e9d8232679dfb42358ddfd94b73f835d97bd82afd4e5643a6591af",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T09:51:06.553Z"
+          "timestamp": "2026-08-31T09:51:48.924Z"
         },
         {
           "intentRef": "CHK-013-EDGE-WAVE4-MUTATIONS",
