@@ -93,7 +93,7 @@
       "desc": "migration-atomicity: packages/main/src/handlers/identity-state-migrate.ts:108-132 publishes destinationRoot and recursively deletes sourceRoot before creating the required receipt with flag wx. If the receipt already exists or lines 124-132 fail, the catch at lines 134-136 cannot roll back because tempRoot has already been renamed: the command reports failure with the source gone, destination live, and receipt missing/stale. This violates the cutover decision atomic-move-plus-receipt contract and can strand an unverifiable one-shot migration. Preflight the receipt path and make destination publication/source removal/receipt commit recoverable as one bounded transaction, with an adversarial test for receipt collision/write failure.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-31T01:43:41.296Z",
@@ -105,7 +105,11 @@
         "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
       ],
       "signatureTag": "adversarial|ts|migration-atomicity-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 74bdc315f7: receipt is exclusively written and fsynced before publish; publish or source-delete failures restore source or retain canonical state plus receipt. The atomicity smoke passes eight success and fault-injection scenarios.",
+      "resolvedAt": "2026-08-31T03:05:06.054Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-006",
