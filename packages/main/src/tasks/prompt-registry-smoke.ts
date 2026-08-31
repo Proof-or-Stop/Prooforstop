@@ -314,6 +314,7 @@ function assertOwnerAndImplementerTriageGuidance(): void {
     'does not prove applicability, repair, or resolution',
     'does not prove `out_of_scope`',
     'is not mechanically enforced by prompt text alone',
+    'prompt text does not mechanically enforce this discipline',
   ]) {
     assert.ok(ownerGuide.includes(phrase), `Story Owner guidance keeps triage phrase: ${phrase}`);
   }
