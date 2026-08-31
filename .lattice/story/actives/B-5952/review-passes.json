@@ -230,6 +230,37 @@
       },
       "readDiagnostics": [],
       "_hash": "6c1953ccc158bf8a101b34b3e608c7c9d506e3625a081e009ceddd7b78b6fb31"
+    },
+    {
+      "id": "B-5952:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage re-attestation passed: I reread the current story files and checklist, evidence_inspect is fresh at head d6360851819eca8abb8c7c3eb15175f3a0b97a92 with staleRefs=0, proofstory_review_completeness_check reports PASS with 0 gaps, and CHK-001 still has 7 must intents covered by 7 passing mechanical evidence rows including binding-scope-mutants-v2 and B5952_CAUSAL.",
+      "createdAt": "2026-08-31T08:42:35.833Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-019",
+      "envelopeId": "0bf4ef750a16e1112229c172336eaa65b0d13fb38dfb80aabb516801ca6da984",
+      "writerSessionId": "sess-2f0c0618963446d2f37d4c68b98cd519",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "validate --json remained owner-gated under the active foreign lease, so re-attestation used current story_get/checklist_get/evidence_inspect/proofstory_review_completeness_check outputs as the authoritative review basis."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d688f74605dad752b06450244a226e77583099f9ed70d0b3d56c1c9599096cb7"
     }
   ]
 }
