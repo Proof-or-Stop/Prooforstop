@@ -23588,6 +23588,58 @@
       },
       "readDiagnostics": [],
       "_hash": "f2c55a132ffb63a62a5ec520f2657d67a0388aebac62837152110ed39eae0bd0"
+    },
+    {
+      "id": "B-45a0:RP-495",
+      "agent": "lattice-review-quality",
+      "note": "Wave 3/3 final quality sweep on the frozen tree, no new finding beyond registered families F-446/F-447/F-437/F-439/F-440",
+      "createdAt": "2026-08-31T05:21:09.634Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1104",
+      "envelopeId": "c22c8b3f74c9fbdbc76ba43873df0791d3ce48aa894459ef24266e958df31db9",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/dual-revision-impact-graph.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/historical-replay-artifact.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/story-change-resolver.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-artifact-signing.ts",
+          "packages/main/src/core/validation-selection-manifest.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5a0434e38257bba974a512ce9d5404985c2f5e954c064fd1fa614ee58799c860"
     }
   ]
 }
