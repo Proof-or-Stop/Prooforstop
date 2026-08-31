@@ -24548,7 +24548,7 @@
       "desc": "Independent topology-critic verification confirms Wave 4 acceptance surfaces are not admissible at current HEAD 38cae53fc4f8d7f255c46de5183418adac116353. acceptance_basis reports top-level status=invalid with receiptVerification.ok=false code=AT_SCOPE_BINDING_MISSING (diagnostics: basis semantic discovery digest mismatch, scope-contract digest mismatch, closure files hash mismatch, snapshot seal digest mismatch, freshness mismatch on storyFilesHash) because the persisted receipt is bound to a stale PLAN-phase snapshot (headHash=4448ecbf0d427710504c01b0b79a45b90c8eab14) rather than current HEAD. acceptance_topology_check independently reports status=fail structuralPass=false with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING, matching the same stale binding. pre_review_check_read reports top-level status=fail ok=false codes=[PR_ARTIFACT_TAMPERED,PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE,PR_CUTOFF_UNBOUND] while its embedded nested artifact self-reports status=pass codes=[] -- corroborates B-45a0:F-452 (inverted receipt semantics) and additionally shows the outer wrapper is fail-closed and correctly overrides the embedded pass. acceptance_rollout_report_read and acceptance_rollout_check both report ok=false status=fail mode=enforce blocking=true diagnostics=[AR_REPORT_STALE] receipt=stale; the embedded report.binding.headHash=f101e24c164544f7e70653b0fd20908f166fc103 belongs to a different, older paired-replay campaign (stories B-cb0x/B-cc0x, issuedAt 2026-07-23) and does not match this story current HEAD, so its embedded verdict=pass full-3x2 (codex-cli+claude-cli) cannot be treated as current rollout evidence for B-45a0. None of the four Wave 4 checks is currently admissible; the acceptance topology basis must be regenerated at current HEAD/materialHash before this epoch can finalize.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-31T11:52:34.326Z",
@@ -24586,7 +24586,11 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|ts|independent-topology-critic",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: all four Wave-4 acceptance surfaces are now admissible at current HEAD, verified by direct command execution. acceptance_topology_check: status=pass, codes=[] (AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING both cleared by regenerating the acceptance basis, which reports complete with a verified receipt). acceptance_rollout_check and acceptance_rollout_report_read: ok=true, status=pass, codes=[] (AR_REPORT_STALE cleared by running acceptance_rollout_report, which executed the real Story cohort and produced a freshly signed report: seededDetection=100%, falseBlockRate=0%, waiverDelta=0, quorum=full-3x2). pre_review_check_read: ok=true, status=pass, codes=[] (the PR_* set cleared by recapturing the live-smoke transcript and reissuing pre_review_check in DEV; all sub-verdicts are now executableEvidence=current, mutations=biting, transcript=related, authority=admissible). Family independent-topology-critic-wave4-surfaces-not-admissible is closed.",
+      "resolvedAt": "2026-08-31T14:11:22.402Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-456",
