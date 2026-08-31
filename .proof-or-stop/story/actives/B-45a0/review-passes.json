@@ -23205,6 +23205,43 @@
       },
       "readDiagnostics": [],
       "_hash": "51dd948a2fcf63dc0efdf6cf9880d8722096b61da78b0e1f3405278909bea7e3"
+    },
+    {
+      "id": "B-45a0:RP-484",
+      "agent": "lattice-review-docs",
+      "note": "Independently re-verified F-445 and F-438 after commit 8d605caeba. Confirmed Rule 3 owns never a silent pass and Rule 9 does not; all 3 prose locations now cite Rule 3 correctly; the 4th location (--help strings) never cited a rule number so was unaffected. Zero live stale hits remain repo-wide. F-437/F-439/F-440 left OPEN, out of scope (DEV-only).",
+      "createdAt": "2026-08-31T04:51:50.678Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1094",
+      "envelopeId": "9d7f22477a361f6b99b49088079380b67a0f65b08482234fcf71c2eca4b5157a",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+      },
+      "readDiagnostics": [],
+      "_hash": "e914893d100de64f33e32aa1d735c1e1735e297eefd25f3d81aec3a905b542cc"
     }
   ]
 }
