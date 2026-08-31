@@ -126,6 +126,24 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5952:F-006",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:664-914 [high] The current canonical pre-review evidence is not a PASS. pre_review_check_read at this review HEAD returns status=inconclusive/ok=false with PR_NEW_PATH_UNMAPPED, PR_COVERAGE_BASIS_CHANGED, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, and PR_EVIDENCE_STALE; its executableProof has no command digests, cases, provenance, or binding proofs. Observe mode makes this nonblocking at transition but does not convert it into verifier-owned proof, so resolving F-002/F-003 as strong and treating local checklist receipts as closure is premature. Regenerate the coverage basis, capture registered verifier-owned executable/mutation evidence, and obtain a current signed pre_review_check PASS before re-resolving or passing review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T03:31:12.310Z",
+      "reviewRound": "2026-08-31T03:23:55.455Z",
+      "reviewRunId": "B-5952:RR-004",
+      "_hash": "18205873c917b9df3acb6dc2822583e2516e66c5c41501b2f0434e2fbb65ddaf",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
