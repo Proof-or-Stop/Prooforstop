@@ -23325,6 +23325,38 @@
       },
       "readDiagnostics": [],
       "_hash": "e1c0e6ad8f22489c338b314673f0782355957920664b3087097d9cf941c8e8b6"
+    },
+    {
+      "id": "B-45a0:RP-488",
+      "agent": "lattice-review-concept",
+      "note": "Wave sweep at frozen HEAD 849a28421e (no commit landed since RR-1096 review_run_start). Independently re-verified F-446 is genuine and still present (story-aware-validation.ts:329-335 self-contradictory F-441/F-444 comment residue, unchanged) -- not re-filed. Confirmed the 12 orphaned dynamic-validation-*/validation-* shim files (F-442 target) are already deleted by a89e174746 and grepped repo-wide: zero residue, all substring matches are unrelated legitimate files or historical story-tracking JSON. Checked other deleted/relocated exports (isMaterialExcludedPath, isStoryMetadataPath, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, DEFAULT_STORY_METADATA_PREFIXES): all relocated intact into material-path-policy.ts, not orphaned. mergeBaseWithMain/changedStoryFilesBetween deleted with zero remaining callers, superseded by changedFileStatusesBetweenRenameAware -- clean refactor not residue. Checked plan.md/checklist.json for stray shim-filename references as deliverables: none. Doc-drift at CLAUDE.md:660/AGENTS.md:606 is the already-registered F-445 family (lattice-review-docs), not re-filed. No new concept-residue finding this wave beyond already-registered F-437/F-439/F-440/F-446.",
+      "createdAt": "2026-08-31T05:05:04.616Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1096",
+      "envelopeId": "7bceb1b45ea99e2cb6bf3498c2f8e102d36f188f7e93d0f6a22507f733d18e8f",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "abb14722a9607b406910680397fd1881aa4722a4accf4ac567fee801505ddc2d"
     }
   ]
 }
