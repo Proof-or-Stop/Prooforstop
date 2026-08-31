@@ -281,6 +281,24 @@
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-015",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:723-776,1293-1294,1324-1333 [medium] progressEvidence is not mechanically replay-resistant. Its schema contains only previousDeferralId, free-form evidenceRefs, and progressDigest; it has no admissible evidence kind, referenced evidence hash/signature, producedAt, target/head/material binding, or predecessor baseline digest. Consequently the requirement that evidence be created after the predecessor and materially changed cannot be proven from the receipt: stale or cross-target refs, reordered refs, or a newly signed digest over unchanged bytes can satisfy the shape. Define canonical server/CLI-derived progress input tuples and digest comparison against the predecessor target snapshot, require referenced signed target evidence newer than the predecessor and current at renewal, and add replay/reorder/cross-target/stale-evidence negative tests.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T01:09:42.458Z",
+      "reviewRound": "2026-08-31T01:06:09.081Z",
+      "reviewRunId": "B-1fa6:RR-013",
+      "_hash": "b7a2dbf3780ac37df0e135aa42e793816cf144e2cc080de7bdfc0c68fbcb0e75",
+      "files": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
