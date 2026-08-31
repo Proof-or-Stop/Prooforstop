@@ -182,6 +182,26 @@
           "materialHash": "6c681470d49ab185e200c43d04da9ea6a777bbe8c074f2ec2410cb9570d66d1a",
           "storyFilesHash": "0a810d9ec23f5da95a914068afc3fb1a0ae6450c1f286365fd2487b0f25849aa",
           "timestamp": "2026-08-31T08:01:25.822Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:binding-scope-mutants",
+          "kind": "logic_test",
+          "command": "node -e \"const fs=require('fs'),cp=require('child_process');const source='packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts';const dist='packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js';const doc='docs/requirements/decisions/dynamic-finding-system-execution-plan.md';const originals=new Map([[source,fs.readFileSync(source,'utf8')],[dist,fs.readFileSync(dist,'utf8')],[doc,fs.readFileSync(doc,'utf8')]]);const run=(args)=>cp.spawnSync(process.execPath,args,{encoding:'utf8',maxBuffer:20*1024*1024});const scope=()=>{const r=run(['bin/proof-or-stop.js','scope_contract_check','--storyId=B-5952','--json']);if(r.status!==0)throw new Error('scope process failed: '+r.stderr);return JSON.parse(r.stdout)};let sourceRejected=false,distRejected=false,docExact=false;try{const sourceMut=originals.get(source).replace('DYNAMIC_BINDING_BUILD_CEILING = 808','DYNAMIC_BINDING_BUILD_CEILING = 809');if(sourceMut===originals.get(source))throw new Error('source substitution did not apply');fs.writeFileSync(source,sourceMut);sourceRejected=run(['scripts/verify-full-suite-build-binding.mjs']).status!==0;fs.writeFileSync(source,originals.get(source));const distMut=originals.get(dist).replace('DYNAMIC_BINDING_BUILD_CEILING = 808','DYNAMIC_BINDING_BUILD_CEILING = 809');if(distMut===originals.get(dist))throw new Error('dist substitution did not apply');fs.writeFileSync(dist,distMut);distRejected=run(['scripts/verify-full-suite-build-binding.mjs']).status!==0;fs.writeFileSync(dist,originals.get(dist));fs.writeFileSync(doc,originals.get(doc)+'\\nB-5952 exact protected mutation probe\\n');const report=scope();docExact=report.status==='fail'&&Array.isArray(report.violations)&&report.violations.some(v=>v.path===doc&&v.rule==='protected'&&v.acknowledged===false);}finally{for(const [p,b] of originals)fs.writeFileSync(p,b);}const binding=run(['scripts/verify-full-suite-build-binding.mjs']);const clean=scope();const restored=[...originals].every(([p,b])=>fs.readFileSync(p,'utf8')===b);if(!sourceRejected||!distRejected||!docExact||!restored||binding.status!==0||clean.status!=='pass')throw new Error(JSON.stringify({sourceRejected,distRejected,docExact,restored,binding:binding.status,clean:clean.status}));console.log('binding-scope-mutants-v2 PASS sourceRejected=true distRejected=true docStatus=fail exactProtectedRule=true restored=true control=pass');\"",
+          "result": "pass",
+          "note": "Fresh fail-closed JSON scope and source/dist binding mutation receipt.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "cb9f17fa1a7f4ff8615638d4e3156d8eb43a2976240d1474793f44a27404a9f6",
+            "outputTail": "binding-scope-mutants-v2 PASS sourceRejected=true distRejected=true docStatus=fail exactProtectedRule=true restored=true control=pass\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T08:01:39.220Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "10c08542f2bb04d44ad2376bf21a4c23a1078a5c",
+          "materialHash": "6c681470d49ab185e200c43d04da9ea6a777bbe8c074f2ec2410cb9570d66d1a",
+          "storyFilesHash": "0a810d9ec23f5da95a914068afc3fb1a0ae6450c1f286365fd2487b0f25849aa",
+          "timestamp": "2026-08-31T08:01:39.357Z"
         }
       ]
     }
