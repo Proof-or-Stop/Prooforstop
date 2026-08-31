@@ -24335,6 +24335,26 @@
       ],
       "signatureTag": "acceptance-rollout-and-topology-basis-restaling-from-review-churn",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-449",
+      "desc": "quality: lattice.config.json:173-174,788-789 declaredEnvironmentKeys for review-pass-discard-smoke and its quorum sibling list only the deprecated LATTICE_VALIDATION_SHARD_ADAPTER. The F-447 fix (story-aware-validation-case-adapter.mjs:19-21) now reads env[`PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER`] first via the readShardEnv helper, and the runtime tracer (validation-runtime-tracer.cjs get trap) records every process.env key access into trace.environmentKeys. verifyValidationClosureCertificate (story-aware-validation.ts:462-467) requires undeclaredObservedEnvironmentKeys.length===0. Since the canonical PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER key is now observed but not declared, these two DYN-5 commands closure-certify as status=unverified whenever traced, breaking CHK-004s closure certification for exactly the commands F-447 touched. Fix: add the canonical PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER (and ideally the 9 other PROOF_OR_STOP_VALIDATION_SHARD_* keys the handler now emits) to declaredEnvironmentKeys in both lattice.config.json entries.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T10:50:46.621Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1108",
+      "_hash": "bd64ff148b1ca92343bad50f1825852d8c64b03e65e7d21985a6a0cf038bf905",
+      "files": [
+        "lattice.config.json",
+        "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+        "packages/main/src/core/story-aware-validation.ts"
+      ],
+      "signatureTag": "missing|json|quality-lattice-config",
+      "signatureTagSource": "auto"
     }
   ]
 }
