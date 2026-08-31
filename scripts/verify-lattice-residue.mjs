@@ -259,7 +259,7 @@ export const isBrandDecisionResidue = makeBrandDecisionDetector(DEPRECATED_BRAND
 // ---------------------------------------------------------------------------
 
 /** Product runtime source — the koala zero-tolerance surface (check 1). */
-const SRC_SCAN_ROOTS = ['packages/main/src', 'packages/lab/src', 'packages/utils/src'];
+const SRC_SCAN_ROOTS = ['packages/main/src', 'packages/lab/src', 'packages/utils/src', 'packages/graph/src'];
 
 /**
  * The npm package may keep old filesystem/read fallbacks, but it must not publish

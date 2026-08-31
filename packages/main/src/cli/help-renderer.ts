@@ -254,6 +254,9 @@ export function printHelp(options: GlobalHelpOptions) {
     validate: 'Validate',
     status: 'Status',
     serve: 'Serve',
+    // B-3e16: a bare command name has no `_` prefix to derive a group from, so
+    // `graph` needs an explicit mapping or it lands in its own junk group.
+    graph: 'Graph',
     aux: 'Aux',
     evaluate: 'Evaluate',
     dashboard: 'Session',
@@ -271,7 +274,7 @@ export function printHelp(options: GlobalHelpOptions) {
     conduit: 'Conduit',
   };
   // Display order for known groups; groups not in the list (from extras) are appended alphabetically.
-  const KNOWN_ORDER = ['Host', 'Proof-or-Stop', 'Authority', 'Conduit', 'Story', 'Review', 'Checklist', 'Grill', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Check', 'Serve', 'Session', 'Aux', 'Audit'];
+  const KNOWN_ORDER = ['Host', 'Proof-or-Stop', 'Authority', 'Conduit', 'Story', 'Review', 'Checklist', 'Grill', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Check', 'Serve', 'Graph', 'Session', 'Aux', 'Audit'];
 
   const groups: Record<string, ToolDef[]> = {};
   for (const t of tools) {

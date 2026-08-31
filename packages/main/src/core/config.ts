@@ -358,6 +358,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'truth_*', 'gap_*', 'convergence_check',
     'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
     'status',        // 全局：项目全貌（story 进度 + 代码验证）
+    'graph',         // B-3e16: read-only story + evidence graph visualizer; reads story state in any phase, writes its index cache outside the repo
     'doctor',        // 全局：health 巡检，任何阶段都可以查
     'done_recover',  // 全局：显式恢复 partial-DONE（先检查 main clean / merge-tree）
     'check',         // 全局：Proof-or-Stop 管理资产/模板漂移检查；--apply/--upgrade 显式同步安全项

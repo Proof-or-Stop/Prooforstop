@@ -660,6 +660,25 @@
         "packages/main/src/handlers/validate.ts"
       ],
       "_hash": "0909836e7105d94bc51abc25007dd68f492ead0a2d6ac92697a42e1eace00156"
+    },
+    {
+      "id": "B-META-framework-audit:F-036",
+      "desc": "proof-or-stop serve is killed by its own CLI watchdog after 5 minutes of quiet. cli-engine.ts:1059 sets a 5-minute IDLE_TIMEOUT that is reset only by ctx.log (cli-engine.ts:1066 wraps log to update lastActivity), and packages/main/src/handlers/verifier.ts serve emits no periodic output: grep for setInterval or heartbeat in that file returns nothing. So a long serve session with no requests hits the idle watchdog and exits, which reads as a crash rather than a timeout. Found while implementing B-3e16 CHK-004, where the new long-running graph command hit the same bound; graph fixed it for itself with a one-minute ctx.log heartbeat (packages/main/src/handlers/graph.ts), so the pattern for a fix already exists in-tree. Not fixed here because serve is outside B-3e16 scope.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The watchdog bound and the absence of a serve heartbeat were both read directly from source, but a real multi-minute idle serve session was not run to observe the kill, so the practical impact is inferred rather than reproduced.",
+      "agent": "main-agent",
+      "createdAt": "2026-08-28T09:50:14.551Z",
+      "reviewRound": "",
+      "_hash": "d6929ec793b44de7bf4a04f3da4c85a71ea798e81d5291a65008b70c925e134a",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "edge|ts|proof-stop-serve",
+      "signatureTagSource": "auto"
     }
   ]
 }

@@ -1155,6 +1155,24 @@ function parseValidateOutput(text: string, next = 'proof-or-stop validate --stor
   }
 }
 
+export function safeDoneRequiredRecoveryCommand(storyId: string, text: string, fallback: string): string {
+  const next = text.match(/^Next:\s*(proof-or-stop\s+[^\r\n]+)$/m)?.[1]?.trim();
+  if (!next || /[;&|`$()<>'"]/.test(next)) return fallback;
+
+  const allowed = new Set([
+    `proof-or-stop review_inventory_finalize --storyId=${storyId}`,
+    `proof-or-stop done_prepare --storyId=${storyId}`,
+    `proof-or-stop done_prepare --storyId=${storyId} --mergeMain`,
+    `proof-or-stop finding_list --storyId=${storyId}`,
+    `proof-or-stop validate --story=${storyId}`,
+    `proof-or-stop certification_window_begin --storyId=${storyId}`,
+    `proof-or-stop certification_window_status --storyId=${storyId}`,
+    `proof-or-stop done_required_validate --storyId=${storyId}`,
+    `proof-or-stop story_advance --storyId=${storyId} --phase=REVIEW`,
+  ]);
+  return allowed.has(next) ? next : fallback;
+}
+
 function classifyStaleEvidence(ctx: HandlerContext, storyId: string, gitCwd: string): StaleEvidencePlan {
   // B-1507 CHK-002: metadata-only DRY preview (no command execution) — done_prepare
   // refuses / reruns command-backed rows on its own path, so it must never take the
@@ -2064,11 +2082,14 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           return blocked({
             blockedAt: 'validate',
             reason: `${err?.message || 'DONE-required validation failed'}; disposition=executed result=blocked existingEvidenceBasis=${reuse.existingEvidenceBasis} refusalReasons=${reuse.refusalReasons.join(',') || 'execution-failed'}`,
-            next: command,
+            next: safeDoneRequiredRecoveryCommand(storyId, err?.message || '', command),
             steps,
           });
         }
-        const parsedDoneRequired = parseValidateOutput(doneRequiredText, command);
+        const parsedDoneRequired = parseValidateOutput(
+          doneRequiredText,
+          safeDoneRequiredRecoveryCommand(storyId, doneRequiredText, command),
+        );
         if (!parsedDoneRequired.ok) {
           setStep(steps, 'validate', 'blocked', parsedDoneRequired.summary, command);
           return blocked({

@@ -441,6 +441,26 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // strings and one comment), verified by diffing against the MERGE_HEAD copy. No
   // eval/Function/require/import() was added, so this exemption's basis is unchanged.
   ['bin/bootstrap-runner.js', '194106a85a463a660100ab1006b2515dfdc56032cbe0c34fc7eadb3fcacf71b6'],
+  // B-3e16 CHK-003: the graph handler invokes five members on the module object returned by
+  // its approved runtime import — lib.findRoot, lib.createApp (x2), lib.startServer,
+  // lib.openBrowser. Because that module object comes from a non-literal import(), the
+  // callee provenance classifies as 'unresolved-nested-member', which this scan treats as
+  // dynamic code generation. These are ordinary typed calls into a first-party sibling
+  // package (typed here by the GraphLibrary interface); the handler adds NO
+  // eval/Function/vm/new import().
+  //
+  // (a) WHY THE LOAD ITSELF CANNOT BE STATIC and why its argument IS `--root`-influenceable
+  // are recorded in full on the knownBenignNonLiteralLoaderCalls entry for this file; read
+  // that before re-approving here. (b) The same trust model is already accepted in this
+  // codebase for verifier/serve.ts startCircuitServe.
+  //
+  // (c) SCOPE COST, ACCEPTED KNOWINGLY: this map is consumed by a single whole-file early
+  // return at the top of scanDynamicCodeGeneration(). Once pinned it suppresses ALL
+  // dynamic-code-generation findings in graph.ts, not merely the five named call sites — a
+  // future sixth pattern in this file inherits the exemption SILENTLY until some unrelated
+  // code edit moves the fingerprint and forces a re-pin. That is the same cost already
+  // assertLoaderArgumentProvenance(), not the breadth of this entry.
+  ['packages/main/src/handlers/graph.ts', 'e3d27511d3a7da22184e1b950d44473987ad34b3c14f700481ff27a4a7cccfd6'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
 const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
@@ -1498,6 +1518,46 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
   ['bin/proof-or-stop-codex.js', {
     calls: [{ anchor: 'main', argument: 'pathToFileURL(candidate).href' }],
   }],
+  // B-3e16 CHK-003: the `graph` handler must load packages/graph's dist entry at RUNTIME
+  // rather than statically, and the anchor is the handler method itself.
+  //
+  // WHY THE LOAD CANNOT BE STATIC. packages/graph/src/core/app.ts statically imports
+  // ./search/fn.js, which top-level imports node:sqlite. Verified on a real Node
+  // v20.19.6: importing packages/graph/dist/core/app.js by itself throws
+  // ERR_UNKNOWN_BUILTIN_MODULE. A static import here would therefore hoist node:sqlite
+  // into packages/main's always-evaluated module graph and break EVERY proof-or-stop
+  // command on Node < 22.5, not just `graph`. The CLI runs on Node 20 today only
+  // because this load is deferred. assertGraphRuntimeSupported() runs immediately
+  // before the import and converts that runtime floor into a readable error.
+  //
+  // (a) THIS ARGUMENT IS `--root`-INFLUENCEABLE — approved with eyes open, not assumed
+  // inert. cli-engine.ts (~740) strips `--root` into rootOverride; cli/runtime-root.ts
+  // resolveRoot(explicit) returns it verbatim with NO sanitization for any command
+  // except story_discard; cli-engine.ts (~928) stamps it into ctx.root; the handler
+  // passes ctx.root to resolveGraphPackage(), whose sibling-path branch joins
+  // <root>/packages/graph/dist/index.js. Live code execution from an unmarked
+  // directory containing only packages/graph/dist/index.js was reproduced twice
+  // (reviewer + main agent). So the pin below is not "the path is a constant"; it is
+  // "this exact producer, unwidened".
+  //
+  // (b) SAME TRUST MODEL ALREADY ACCEPTED IN THIS MAP. verifier/serve.ts
+  // startCircuitServe (entry above) dynamically imports whatever machine.ts it finds
+  // under a `--root`-derived path. This entry extends an accepted pattern for a
+  // first-party sibling package; it does not introduce a new risk class.
+  //
+  // Anchor+argument text alone would not keep this narrow, so
+  // assertLoaderArgumentProvenance() additionally pins where `location`'s VALUE comes
+  // from (a same-scope const initialized by resolveGraphPackage) and that the producer's
+  // signature was not widened with an override parameter.
+  //
+  // ANCHOR NOTE: the load sits inside the object-literal method `async graph(...)`, but
+  // enclosingFunctionName() only recognizes FunctionDeclarations, so the computed anchor
+  // is the exported factory `createGraphHandlers` that returns the handler map. The
+  // anchor is therefore coarser than the call site, which is exactly why the provenance
+  // assertion below binds the argument's producer instead of trusting the anchor.
+  ['packages/main/src/handlers/graph.ts', {
+    calls: [{ anchor: 'createGraphHandlers', argument: 'pathToFileURL(location.entry).href' }],
+  }],
 ]);
 
 const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
@@ -1526,6 +1586,12 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // no import()/require() call, argument, or producer was added, moved, or rewritten.
   ['bin/bootstrap-runner.js', '194106a85a463a660100ab1006b2515dfdc56032cbe0c34fc7eadb3fcacf71b6'],
   ['bin/proof-or-stop-codex.js', 'c8906ce79242cd30e4519990a69fc7b2b6725a29b12699b9ad32d703b4e0b6d1'],
+  // B-3e16 CHK-003: gates the graph handler's runtime load of packages/graph's dist entry
+  // (see the knownBenignNonLiteralLoaderCalls entry for why it cannot be static, and for
+  // the `--root` reachability this approval accepts). Whole-file structural fingerprint, so
+  // ANY edit to this handler revokes the approval until a human re-approves it. Note the
+  // fingerprint is comment-stripped: prose edits do not move it, code edits do.
+  ['packages/main/src/handlers/graph.ts', 'e3d27511d3a7da22184e1b950d44473987ad34b3c14f700481ff27a4a7cccfd6'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {
@@ -1537,19 +1603,300 @@ function enclosingFunctionName(node: ts.Node): string | undefined {
   return undefined;
 }
 
-function isKnownBenignNonLiteralLoaderCall(file: string, call: ts.CallExpression, source: ts.SourceFile): boolean {
+/**
+ * Value-provenance pins for approved non-literal loader arguments.
+ *
+ * WHY THIS EXISTS. isKnownBenignNonLiteralLoaderCall() compares only three things:
+ * whole-file fingerprint, enclosing-anchor NAME, and argument TEXT. It never inspects
+ * where the argument's VALUE comes from. So the approval as written proves "an allowlist
+ * entry exists", not "this call is still narrow". An edit can keep the anchor name and the
+ * argument text byte-identical while rebinding the root identifier to a caller-influenced
+ * or override-widened source — for graph.ts that means swapping `location`'s producer, or
+ * widening resolveGraphPackage() with an extra/override parameter that lets a caller name
+ * the entry file outright.
+ *
+ * WHY THE FINGERPRINT IS NOT ALREADY ENOUGH. It is a real backstop but a coarse one: it
+ * says "something in this file changed", so a re-pin is a judgement call made by whoever is
+ * staring at a red guard and wants it green. These pins turn the specific dangerous
+ * mutation class into a NAMED failure that survives re-pinning, so a future re-approver
+ * cannot make it green by refreshing a digest.
+ *
+ * Keyed by file. `rootIdentifier` is the root of the pinned argument expression
+ * (`location` in `` `file://${location.entry}` ``); `producer` is the function whose call
+ * must initialize it; `producerParameters` is that producer's exact pinned parameter list.
+ */
+const APPROVED_LOADER_ARGUMENT_PROVENANCE = new Map<string, {
+  readonly anchor: string;
+  readonly argument: string;
+  readonly rootIdentifier: string;
+  readonly producer: string;
+  readonly producerParameters: readonly string[];
+  /** Parameter TYPES, positionally. Names and arity alone let `string` widen to
+      `string | { entry: string }`, which lets a caller name the loaded file outright. */
+  readonly producerParameterTypes: readonly string[];
+  /** Allowlisted URL helper wrapping the value expression; must be a 'node:url' import. */
+  readonly urlHelper?: string;
+}>([
+  // B-3e16 CHK-003: `location` must be a same-scope const initialized by
+  // resolveGraphPackage(ctx.root), and resolveGraphPackage must keep its single
+  // projectRoot parameter. Widening it (e.g. an `entryOverride` second parameter) would let
+  // a caller choose the imported file directly rather than only influencing the root that
+  // the producer's own resolution order consumes — a strictly larger surface than what the
+  // allowlist entry approved.
+  ['packages/main/src/handlers/graph.ts', {
+    anchor: 'createGraphHandlers',
+    argument: 'pathToFileURL(location.entry).href',
+    rootIdentifier: 'location',
+    producer: 'resolveGraphPackage',
+    producerParameters: ['projectRoot'],
+    producerParameterTypes: ['string'],
+    urlHelper: 'pathToFileURL',
+  }],
+]);
+
+/** Root identifier of an expression: `location` for `location.entry`, `a` for `a.b.c`. */
+function rootIdentifierOf(node: ts.Node): ts.Identifier | undefined {
+  let current: ts.Node = node;
+  for (;;) {
+    if (ts.isIdentifier(current)) return current;
+    if (ts.isPropertyAccessExpression(current) || ts.isElementAccessExpression(current)) {
+      current = current.expression;
+      continue;
+    }
+    if (ts.isParenthesizedExpression(current) || ts.isNonNullExpression(current) || ts.isAsExpression(current)) {
+      current = current.expression;
+      continue;
+    }
+    return undefined;
+  }
+}
+
+/** The template's first interpolated expression, i.e. `location.entry`. */
+/**
+ * The value-bearing expression inside a pinned loader argument.
+ *
+ * Handles a raw template (`file://${x}`) and a URL built by an ALLOWLISTED helper
+ * (`pathToFileURL(x).href`). The helper is not merely name-matched: `allowedUrlHelper`
+ * must resolve, through the type checker, to an import of that name from 'node:url'.
+ * Codex (independent review host, B-3e16 round 3) showed that following any call's first
+ * argument let an attacker-supplied helper of the same name pass while keeping the pinned
+ * text identical. Anything else returns undefined so the caller fails closed.
+ */
+function loaderArgumentValueExpression(
+  node: ts.Node,
+  allowedUrlHelper: string | undefined,
+  checker: ts.TypeChecker,
+): ts.Expression | undefined {
+  if (ts.isTemplateExpression(node)) return node.templateSpans[0]?.expression;
+  if (allowedUrlHelper
+    && ts.isPropertyAccessExpression(node)
+    && node.name.text === 'href'
+    && ts.isCallExpression(node.expression)
+    && ts.isIdentifier(node.expression.expression)
+    && node.expression.expression.text === allowedUrlHelper
+    && isNodeUrlHelperImport(node.expression.expression, allowedUrlHelper, checker)) {
+    const inner = node.expression.arguments[0];
+    if (inner) return loaderArgumentValueExpression(inner, allowedUrlHelper, checker) ?? inner;
+  }
+  return ts.isIdentifier(node) || ts.isPropertyAccessExpression(node) ? node as ts.Expression : undefined;
+}
+
+/**
+ * True only when `id` resolves to a NAMED import of exactly `expected` from 'node:url'.
+ *
+ * Checking the module alone is not enough: codex (round 4) showed that
+ * `import { parse as pathToFileURL } from 'node:url'` yields an ImportSpecifier from the
+ * right module while the real export is something else entirely, so the pinned helper name
+ * would be satisfied by a different function. When an alias is used, `propertyName` holds
+ * the true export name and must equal `expected`.
+ */
+function isNodeUrlHelperImport(id: ts.Identifier, expected: string, checker: ts.TypeChecker): boolean {
+  const declaration = checker.getSymbolAtLocation(id)?.declarations?.[0];
+  if (!declaration || !ts.isImportSpecifier(declaration)) return false;
+  const specifier = declaration.parent.parent.parent.moduleSpecifier;
+  if (!ts.isStringLiteral(specifier) || specifier.text !== 'node:url') return false;
+  // `propertyName` is set only for `{ real as local }`; otherwise the local name IS the export.
+  const exported = declaration.propertyName?.text ?? declaration.name.text;
+  return exported === expected;
+}
+
+/**
+ * Given a pinned loader call, prove the argument's VALUE provenance still matches the pin.
+ *
+ * Returns a reason string when the pin is violated, or undefined when provenance holds.
+ * Fails CLOSED: anything it cannot resolve (missing binding, non-const, indirect producer,
+ * unresolvable producer declaration) is a violation, never a pass.
+ */
+function loaderArgumentProvenanceFailure(
+  file: string,
+  call: ts.CallExpression,
+  source: ts.SourceFile,
+  checker: ts.TypeChecker,
+): string | undefined {
+  const pin = APPROVED_LOADER_ARGUMENT_PROVENANCE.get(file);
+  if (!pin) return undefined;
+  const argumentNode = call.arguments[0];
+  if (!argumentNode || argumentNode.getText(source) !== pin.argument) return undefined;
+
+  const interpolated = loaderArgumentValueExpression(argumentNode, pin.urlHelper, checker);
+  const root = interpolated && rootIdentifierOf(interpolated);
+  if (!root || root.text !== pin.rootIdentifier) {
+    return `pinned loader argument root identifier must be ${pin.rootIdentifier}, got ${interpolated?.getText(source) ?? '<none>'}`;
+  }
+
+  // Resolve the root identifier to its declaration through the type checker, so an
+  // identically-spelled shadow or a re-exported alias cannot pass by name alone.
+  const symbol = checker.getSymbolAtLocation(root);
+  const declaration = symbol?.declarations?.[0];
+  if (!declaration || !ts.isVariableDeclaration(declaration) || !ts.isIdentifier(declaration.name)) {
+    return `pinned loader argument ${pin.rootIdentifier} must resolve to a variable declaration`;
+  }
+  if (!ts.isVariableDeclarationList(declaration.parent) || (declaration.parent.flags & ts.NodeFlags.Const) === 0) {
+    return `pinned loader argument ${pin.rootIdentifier} must be a const binding`;
+  }
+  // Same scope as the load: a binding hoisted to module scope, or lifted into a caller's
+  // parameter, is a different (wider) trust story than the approved one.
+  if (enclosingFunctionName(declaration) !== pin.anchor) {
+    return `pinned loader argument ${pin.rootIdentifier} must be bound inside ${pin.anchor}, got ${enclosingFunctionName(declaration) ?? '<module scope>'}`;
+  }
+
+  const initializer = declaration.initializer;
+  if (!initializer || !ts.isCallExpression(initializer) || !ts.isIdentifier(initializer.expression)) {
+    return `pinned loader argument ${pin.rootIdentifier} must be initialized by a direct call to ${pin.producer}`;
+  }
+  if (initializer.expression.text !== pin.producer) {
+    return `pinned loader argument ${pin.rootIdentifier} must be produced by ${pin.producer}, got ${initializer.expression.text}`;
+  }
+
+  // The producer's signature must not have been widened. An extra/override parameter would
+  // let a caller name the loaded file directly instead of only influencing the root that
+  // the producer's own resolution order consumes.
+  const producerSymbol = checker.getSymbolAtLocation(initializer.expression);
+  /* EVERY function declaration of the symbol, not just the first. `.find(...)` returned
+     the overload SIGNATURE, so an exact-matching overload could hide a widened
+     implementation and satisfy the parameter check below — the second bypass codex found
+     as an independent review host (B-3e16). Checking all declarations means an overload
+     set only passes when no member widens the signature. */
+  const producerDeclarations = (producerSymbol?.declarations ?? [])
+    .filter((node): node is ts.FunctionDeclaration => ts.isFunctionDeclaration(node));
+  const producerDeclaration = producerDeclarations[0];
+  if (!producerDeclaration) {
+    return `producer ${pin.producer} must resolve to a function declaration`;
+  }
+  /* The producer must be the MODULE-LEVEL declaration, not a same-named local.
+     Codex (independent review host, B-3e16) found this bypass: a nested function with
+     the identical name AND identical parameter list shadows the export and can return
+     caller-controlled data, while `const location = resolveGraphPackage(ctx.root)` and
+     the pinned import text stay byte-identical. The name check above and the parameter
+     check below both pass, so without declaration-identity checking the provenance pin
+     is defeated by a re-approver who merely refreshes the fingerprint. Covered by the
+     'nested producer shadow' control in assertLoaderArgumentProvenance. */
+  for (const candidate of producerDeclarations) {
+    if (!ts.isSourceFile(candidate.parent)) {
+      return `producer ${pin.producer} must be the module-level declaration, got one nested inside ${enclosingFunctionName(candidate) ?? '<non-module scope>'}`;
+    }
+    /* Codex round 3: a bodyless `declare function resolveGraphPackage(projectRoot: string)`
+       satisfied the module-level and parameter checks, and Node ESM can resolve that free
+       identifier from an attacker-installed globalThis property. Require a concrete body,
+       reject ambient/declare, and require the declaration to live in the SAME source file
+       as the pinned call so a same-named export elsewhere cannot stand in. */
+    if (!candidate.body) {
+      return `producer ${pin.producer} must have a concrete body; a bodyless or ambient declaration can resolve to an attacker-installed global`;
+    }
+    if ((ts.getCombinedModifierFlags(candidate) & ts.ModifierFlags.Ambient) !== 0
+      || candidate.getSourceFile().isDeclarationFile) {
+      return `producer ${pin.producer} must not be an ambient declaration`;
+    }
+    if (candidate.getSourceFile().fileName !== source.fileName) {
+      return `producer ${pin.producer} must be declared in the same source file as the pinned loader call, got ${candidate.getSourceFile().fileName}`;
+    }
+  }
+  for (const candidate of producerDeclarations) {
+    const parameters = candidate.parameters.map(parameter => parameter.name.getText(candidate.getSourceFile()));
+    if (parameters.length !== pin.producerParameters.length
+      || parameters.some((name, index) => name !== pin.producerParameters[index])) {
+      return `producer ${pin.producer} signature was widened: expected (${pin.producerParameters.join(', ')}), got (${parameters.join(', ')})`;
+    }
+    /* Names and arity are not the whole signature. A DEFAULT INITIALIZER smuggles an
+       attacker-influenceable value in without changing the name list:
+         resolveGraphPackage(projectRoot: string = String(globalThis.__evil))
+       Found by claude as an independent review host (B-3e16 round 5) — the same class as
+       codex's `entryOverride` and overload findings, whose fixes closed the arity and
+       overload paths but not this one. Optional and rest markers are rejected for the same
+       reason: both change what a caller can supply while leaving the names identical. */
+    /* Types, not just names. claude (independent review host, B-3e16 round 6) escaped the
+       pin with `resolveGraphPackage(projectRoot: string | { entry: string })` plus a branch
+       returning describeLocation from `projectRoot.entry` — arity 1, name list unchanged, no
+       initializer/optional/rest, so every earlier check passed while a caller could name the
+       loaded file outright. That is the closest analogue to codex's original entryOverride
+       finding. The pin claims the producer's signature must not widen, so it has to compare
+       types for that claim to be true.
+
+       This comparison is the SOLE catcher for that mutant: deleting it outright leaves the
+       type-widened mutant producing zero violations while all other mutants still produce
+       'approved loader argument provenance drift'. Verified by the reviewing host, which
+       also caught that an earlier neuter of this check was a PRECEDENCE bug -- prefixing
+       `cond &&` into a compound `... || ...` disabled only the first disjunct, leaving the
+       positional comparison live, so the check appeared redundant when it was not. When
+       probing a compound condition, delete the branch rather than prefixing a guard onto
+       it. Type aliases and `import('...').T` forms are compared textually and will trip
+       this check: that is deliberate fail-closed behaviour, not a false positive -- a
+       reviewer must re-pin deliberately rather than have an equivalent-looking rewrite
+       pass silently. */
+    const parameterTypes = candidate.parameters.map(parameter => parameter.type?.getText(candidate.getSourceFile()) ?? '<inferred>');
+    if (parameterTypes.length !== pin.producerParameterTypes.length
+      || parameterTypes.some((text, index) => text !== pin.producerParameterTypes[index])) {
+      return `producer ${pin.producer} parameter types were widened: expected (${pin.producerParameterTypes.join(', ')}), got (${parameterTypes.join(', ')})`;
+    }
+    for (const parameter of candidate.parameters) {
+      if (parameter.initializer) {
+        return `producer ${pin.producer} parameter ${parameter.name.getText(candidate.getSourceFile())} must not have a default initializer; a default can carry caller- or globally-influenced input while the parameter name list stays identical`;
+      }
+      if (parameter.questionToken) {
+        return `producer ${pin.producer} parameter ${parameter.name.getText(candidate.getSourceFile())} must not be optional`;
+      }
+      if (parameter.dotDotDotToken) {
+        return `producer ${pin.producer} parameter ${parameter.name.getText(candidate.getSourceFile())} must not be a rest parameter`;
+      }
+    }
+  }
+  return undefined;
+}
+
+function isKnownBenignNonLiteralLoaderCall(
+  file: string,
+  call: ts.CallExpression,
+  source: ts.SourceFile,
+  checker: ts.TypeChecker,
+  fingerprintOverride?: string,
+): boolean {
   const approved = knownBenignNonLiteralLoaderCalls.get(file);
-  const expectedFingerprint = PINNED_EXECUTABLE_SOURCE_FINGERPRINTS.get(file)
+  const expectedFingerprint = fingerprintOverride
+    ?? PINNED_EXECUTABLE_SOURCE_FINGERPRINTS.get(file)
     ?? BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.get(file);
   if (!approved || !expectedFingerprint || canonicalAstFingerprint(file, source.text) !== expectedFingerprint) return false;
   const anchor = enclosingFunctionName(call);
   const argument = call.arguments[0]?.getText(source);
-  return Boolean(anchor && argument && approved.calls.some(entry => (
-    entry.anchor === anchor && entry.argument === argument
-  )));
+  if (!anchor || !argument) return false;
+  if (!approved.calls.some(entry => entry.anchor === anchor && entry.argument === argument)) return false;
+  // Anchor + argument text matched. The approval only holds if the argument's VALUE
+  // provenance also still matches its pin.
+  return loaderArgumentProvenanceFailure(file, call, source, checker) === undefined;
 }
 
-function scanConcealedCompatibilityLoads(file: string, text: string): Violation[] {
+/**
+ * @param fingerprintOverride CONTROLS ONLY. Substitutes the expected whole-file pin so a
+ *   positive control can scan a mutant AS IF a future re-approver had refreshed the digest,
+ *   which is what makes the provenance controls prove the provenance check rather than
+ *   fingerprint drift. The live scan never passes it, so the real pin always comes from the
+ *   fingerprint maps; and it can only ever RE-TIGHTEN a mutant back under the allowlist —
+ *   the provenance check below runs first and is not gated by it.
+ */
+function scanConcealedCompatibilityLoads(
+  file: string,
+  text: string,
+  fingerprintOverride?: string,
+): Violation[] {
   const { source, checker } = typeAnalysisFor(file, text);
   const constStrings = collectConstStringValues(source, checker);
   const loaderBindings = collectLoaderBindings(source, checker);
@@ -1558,15 +1905,27 @@ function scanConcealedCompatibilityLoads(file: string, text: string): Violation[
     if (ts.isCallExpression(node) && node.arguments.length >= 1) {
       const loaderKind = loaderCallKind(node, checker, loaderBindings);
       const kind = loaderKind === 'dynamic-import' ? 'import()' : loaderKind === 'require' ? 'require()' : undefined;
-      if (kind
-        && staticModuleText(node.arguments[0], checker, constStrings) === undefined
-        && !isKnownBenignNonLiteralLoaderCall(file, node, source)) {
-        violations.push({
-          file,
-          line: lineNumberAt(text, node.arguments[0].getStart(source)),
-          label: 'unapproved non-literal dynamic module load',
-          text: `${kind} ${node.arguments[0].getText(source)}; ${CANONICAL_AST_FINGERPRINT_ALGORITHM}=${canonicalAstFingerprint(file, text)}`,
-        });
+      if (kind && staticModuleText(node.arguments[0], checker, constStrings) === undefined) {
+        // Report a provenance break under its own label so the diagnostic names the
+        // mutation class (rebound/widened argument producer) instead of only saying the
+        // call is unapproved. Emitted even when the anchor/argument text still match,
+        // which is precisely the mutation this pin exists to catch.
+        const provenanceFailure = loaderArgumentProvenanceFailure(file, node, source, checker);
+        if (provenanceFailure !== undefined) {
+          violations.push({
+            file,
+            line: lineNumberAt(text, node.arguments[0].getStart(source)),
+            label: 'approved loader argument provenance drift',
+            text: `${provenanceFailure}; ${CANONICAL_AST_FINGERPRINT_ALGORITHM}=${canonicalAstFingerprint(file, text)}`,
+          });
+        } else if (!isKnownBenignNonLiteralLoaderCall(file, node, source, checker, fingerprintOverride)) {
+          violations.push({
+            file,
+            line: lineNumberAt(text, node.arguments[0].getStart(source)),
+            label: 'unapproved non-literal dynamic module load',
+            text: `${kind} ${node.arguments[0].getText(source)}; ${CANONICAL_AST_FINGERPRINT_ALGORITHM}=${canonicalAstFingerprint(file, text)}`,
+          });
+        }
       }
     }
     ts.forEachChild(node, visit);
@@ -4167,8 +4526,8 @@ function assertNormalizedSpecifierPositiveControls(): void {
 function assertDynamicCodeGenerationPositiveControls(): void {
   assert.equal(
     DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size,
-    7,
-    'bin/bootstrap-runner.js is pinned in both the benign-loader and dynamic-code exemption maps, making seven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
+    9,
+    'bin/bootstrap-runner.js and packages/main/src/handlers/graph.ts are each pinned in BOTH the benign-loader and dynamic-code exemption maps, making nine exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
   );
   const cases = [
     ['direct eval', "eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
@@ -4794,6 +5153,147 @@ function assertDynamicCodeGenerationPositiveControls(): void {
   }
 }
 
+/**
+ * Proves the value-provenance pins actually bite.
+ *
+ * The mutation class under test keeps the anchor NAME and the argument TEXT byte-identical
+ * while changing where the argument's value comes from. Each mutant below is scanned with
+ * its OWN fingerprint supplied as the expected pin, i.e. as if a future re-approver had
+ * refreshed the digest to make the guard green. That is the whole point: if these controls
+ * relied on fingerprint drift they would prove nothing about the provenance check.
+ */
+function assertLoaderArgumentProvenance(): void {
+  for (const [file, pin] of APPROVED_LOADER_ARGUMENT_PROVENANCE) {
+    const original = readRel(file);
+    assert.ok(original.includes(pin.argument), `provenance pin argument must exist verbatim in ${file}`);
+    assert.deepEqual(
+      scanConcealedCompatibilityLoads(file, original),
+      [],
+      `the exact approved loader call site must remain allowed: ${file}`,
+    );
+
+    const mutants: Array<[string, string]> = [
+      // Rebound to a caller-influenced value: anchor and argument text unchanged, but
+      // `location` no longer comes from the pinned producer at all.
+      ['caller-influenced rebinding', original.replace(
+        `const location = ${pin.producer}(ctx.root);`,
+        'const location = (args as unknown as { location: GraphPackageLocation }).location;',
+      )],
+      // Producer kept by name but reached indirectly, so the pinned call shape is gone.
+      ['indirect producer alias', original.replace(
+        `const location = ${pin.producer}(ctx.root);`,
+        `const resolveLocation = ${pin.producer};\n      const location = resolveLocation(ctx.root);`,
+      )],
+      // Signature widened with an override: a caller can now name the imported file
+      // outright rather than only influencing the root the producer resolves from.
+      ['producer signature widened with override', original.replace(
+        `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
+        `export function ${pin.producer}(projectRoot: string, entryOverride?: string): GraphPackageLocation {\n  if (entryOverride) return describeLocation(dirname(dirname(entryOverride)), entryOverride);`,
+      )],
+      // PROBE (codex round 3a): an attacker-supplied helper of the same name replaces the
+      // node:url import, keeping the pinned argument text byte-identical.
+      ['attacker-supplied url helper', original
+        .replace("import { pathToFileURL } from 'node:url';", '')
+        .replace(
+          `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
+          'function pathToFileURL(p: string): { href: string } {\n'
+          + '  return { href: String((globalThis as { __evil?: string }).__evil ?? p) };\n'
+          + '}\n'
+          + `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
+        )],
+      /* PROBES (codex round 4): the independent review host wrote these four while
+         attempting further bypasses. It labelled them review-only, but the fourth found a
+         REAL hole (a different node:url export aliased to the pinned helper name), so all
+         four are kept permanently -- they are exactly the mutation classes a future editor
+         of this pin would need to stay honest about. */
+      ['aliased node:url import followed by local helper shadow', original.replace(
+        "import { pathToFileURL } from 'node:url';",
+        "import { pathToFileURL as p } from 'node:url';\n"
+        + 'function pathToFileURL(value: string): { href: string } {\n'
+        + '  return { href: String((globalThis as { __evil?: string }).__evil ?? p(value).href) };\n'
+        + '}',
+      )],
+      ['namespace node:url import followed by destructuring', original.replace(
+        "import { pathToFileURL } from 'node:url';",
+        "import * as url from 'node:url';\nconst { pathToFileURL } = url;",
+      )],
+      ['url helper shadowed inside anchor', original.replace(
+        'export function createGraphHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {',
+        'export function createGraphHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {\n'
+        + '  function pathToFileURL(value: string): { href: string } {\n'
+        + '    return { href: String((globalThis as { __evil?: string }).__evil ?? value) };\n'
+        + '  }',
+      )],
+      ['different node:url export aliased as pinned helper', original.replace(
+        "import { pathToFileURL } from 'node:url';",
+        "import { parse as pathToFileURL } from 'node:url';",
+      )],
+      // PROBE (claude round 6): the parameter TYPE widened to accept an entry object, so a
+      // caller can name the loaded file outright. Arity, names and markers all unchanged.
+      ['producer parameter type widened', original.replace(
+        `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
+        `export function ${pin.producer}(projectRoot: string | { entry: string }): GraphPackageLocation {\n`
+        + `  if (typeof projectRoot !== 'string') return describeLocation(dirname(dirname(projectRoot.entry)), projectRoot.entry);`,
+      )],
+      // PROBE (claude round 5): a DEFAULT INITIALIZER on the pinned parameter. The name list
+      // stays exactly ['projectRoot'], so the arity/name check alone was satisfied while the
+      // producer gained a globally-influenced default.
+      ['producer parameter default initializer', original.replace(
+        `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
+        `export function ${pin.producer}(projectRoot: string = String((globalThis as { __evil?: string }).__evil ?? '')): GraphPackageLocation {`,
+      )],
+      // PROBE (codex round 3b): a bodyless ambient producer declaration, which Node ESM can
+      // resolve from an attacker-installed globalThis property.
+      ['ambient bodyless producer', original.replace(
+        `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
+        `declare function ${pin.producer}(projectRoot: string): GraphPackageLocation;\n`
+        + `function __unusedRealProducer(projectRoot: string): GraphPackageLocation {`,
+      )],
+      // PROBE (codex, 2nd finding): an exact-matching OVERLOAD signature hiding a widened
+      // implementation. `.find(isFunctionDeclaration)` used to select the overload and pass.
+      ['overload hides widened implementation', original.replace(
+        `export function ${pin.producer}(projectRoot: string): GraphPackageLocation {`,
+        `export function ${pin.producer}(projectRoot: string): GraphPackageLocation;\n`
+        + `export function ${pin.producer}(projectRoot: string, entryOverride?: string): GraphPackageLocation {\n`
+        + `  if (entryOverride) return describeLocation(dirname(dirname(entryOverride)), entryOverride);`,
+      )],
+      // PROBE (codex F-019): a NESTED producer with the same name AND the same signature,
+      // shadowing the module-level export. The pinned line and the import argument text are
+      // byte-identical, so only real declaration-identity checking can catch it.
+      ['nested producer shadow', original.replace(
+        `      const location = ${pin.producer}(ctx.root);`,
+        `      function ${pin.producer}(projectRoot: string): GraphPackageLocation {\n`
+        + `        const injected = String((args as { root?: string }).root ?? projectRoot);\n`
+        + `        return { packageRoot: injected, entry: injected + '/evil.js', assetDir: injected, vendorDir: injected };\n`
+        + `      }\n      const location = ${pin.producer}(ctx.root);`,
+      )],
+      // Hoisted out of the approved scope, widening the binding's lifetime/visibility.
+      // Hoisted to module scope while KEEPING the pinned producer call verbatim, so the
+      // scope half of the pin is what has to reject it (a module-scope const resolved once
+      // at import time is a different trust story from a per-invocation binding).
+      ['binding hoisted out of the approved scope', original.replace(
+        `      const location = ${pin.producer}(ctx.root);\n`,
+        '',
+      ).replace(
+        `export function createGraphHandlers(ctx: HandlerContext)`,
+        `const location = ${pin.producer}(process.cwd());\nexport function createGraphHandlers(ctx: HandlerContext)`,
+      )],
+    ];
+
+    for (const [label, mutated] of mutants) {
+      assert.notEqual(mutated, original, `${label} control must actually mutate ${file}`);
+      assert.ok(mutated.includes(pin.argument), `${label} control must keep the pinned argument text byte-identical`);
+      const mutantFingerprint = canonicalAstFingerprint(file, mutated);
+      assert.notEqual(mutantFingerprint, canonicalAstFingerprint(file, original), `${label} control must be a real code change`);
+      const violations = scanConcealedCompatibilityLoads(file, mutated, mutantFingerprint);
+      assert.ok(
+        violations.some(violation => violation.label === 'approved loader argument provenance drift'),
+        `${label} must break the loader argument provenance pin even when the fingerprint is re-pinned to the mutant: ${file}`,
+      );
+    }
+  }
+}
+
 function assertLegacyDeliveryCompatibilityPositiveControls(): void {
   const controlFile = 'packages/main/src/core/unapproved-delivery-emitter.ts';
   const control = [
@@ -5153,6 +5653,7 @@ assertHermeticTraversalPositiveControls();
 assertShippedExecutableRootPositiveControls();
 assertNormalizedSpecifierPositiveControls();
 assertDynamicCodeGenerationPositiveControls();
+assertLoaderArgumentProvenance();
 assertLegacyDeliveryCompatibilityPositiveControls();
 assertContract();
 violations.push(...assertCommandCatalog());
