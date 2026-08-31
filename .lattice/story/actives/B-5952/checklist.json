@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Restore a bounded instrumentation ceiling for the current source inventory",
       "context": "The isolated command node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js fails identically on main and B-1fa6 with dynamicBindingBuilds=804 (synthetic=419, repo=385) against a stale absolute ceiling of 800. Adjust the source-of-truth assertion with documented headroom, rebuild dist, and prove the smoke still enforces boundedness.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-31T02:49:32.722Z",
-      "endTime": "2026-08-31T02:51:44.910Z",
+      "endTime": "2026-08-31T12:17:34.856Z",
       "verificationIntent": {
         "happy": [
           {
@@ -441,6 +441,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "The first accepted REVIEW-to-TEST run exposed six reproducible clean-main validation blockers. Per the user rule, TEST blockers stay in the current story; scope expands only to the six failing regression tests and generated dist counterparts."
+    },
+    {
+      "timestamp": "2026-08-31T12:17:34.856Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "All 13 must intents now have fresh tool-executed passing receipts at committed HEAD f7c9d374c8; the six TEST-blocking baseline failures and the original instrumentation ceiling regression are covered."
     }
   ]
 }
