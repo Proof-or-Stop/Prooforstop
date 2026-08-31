@@ -24380,6 +24380,24 @@
       ],
       "signatureTag": "missing|json|happy-evidence-gone",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-451",
+      "desc": "quality-cleanup: packages/main/src/handlers/verifier.ts:81 imports buildRevocationLedger from core/story-aware-validation.js but never uses it (only 1 occurrence in the file, the import itself; appendReceiptRevocation/createValidationClosureCertificate/etc on the same line are all used). Newly introduced by this diff (import line did not exist before B-45a0). Dead import, no functional impact, tsc does not flag it because noUnusedLocals is not enabled in this tsconfig.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T11:13:57.381Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1113",
+      "_hash": "26eaf419b47d68bed3f352963754cf46ee8254e643bc359cf1a07a6aa40cc897",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
