@@ -1595,13 +1595,20 @@
           "kind": "logic_test",
           "command": "node scripts/run-dynamic-validation-replay.mjs --verify-threshold",
           "result": "pass",
-          "note": "Refresh the exact persisted-replay admission evidence after the bounded consumer-policy repair.",
-          "headHash": "14b15d952874955f3469b55e8b5d597afa2f9055",
-          "materialHash": "ccdf403f1c14020b29f0253f7772af49cb8a06fea1761fd82a62bb1c78a85eb3",
-          "storyFilesHash": "dd843c645570a08ce0ce1b3ee97fdb3852ed6e94ce8792826f0bd7755493c1a5",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T05:51:02.227Z"
+          "note": "verification_run executed the pinned verifier for CHK-011:happy:0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9151aac06b9b547421291b538be910aa207f69d3fb984aef9afa3a40dbd9b982",
+            "outputTail": "historical replay artifact admission PASS\ndynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\nhistorical replay assurance PASS\nhistorical replay discovery threshold PASS\nhistorical replay threshold PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T10:32:15.239Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "2c8ada46a5671a2e36fd5eb0606066549aa9cade",
+          "materialHash": "277d5434151b5d23a24d11c30b2627f17b12331e9bfcb5402219ad12466f1f62",
+          "storyFilesHash": "b75384812377d3d16f7cbafe38e66e4a2880c79a68672ad942a30c6049151698",
+          "timestamp": "2026-08-31T10:32:15.496Z"
         },
         {
           "intentRef": "CHK-011:edge:0",
