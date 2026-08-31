@@ -958,7 +958,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1543-1571,1628-1640,2625-2628 — HIGH: The F-032 repair adds trusted-clock fields but leaves earliestBoundExpiryAt optional and never states that the verifier must derive it as the minimum expiry of every assessment/route/deferral/policy input or reject omission/mismatch when any bound input expires. The required gate-snapshot fixtures still cover only digest/scope races and do not mutate evaluatedAt, trustedClockDigest, clockPolicyDigest, omitted/late/forged earliest expiry, clock rollback, or expiry between preflight and commit. A snapshot can therefore omit the boundary and pass unchanged-byte CAS after expiry. Make expiry presence/derivation fail-closed and add the full clock/expiry race matrix to Story 1 acceptance and rollout qualification.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T09:13:13.325Z",
@@ -966,7 +966,11 @@
       "reviewRunId": "B-1fa6:RR-047",
       "_hash": "67a85768083f8bca31cd4da16d8241b99e0000a4c1c21f83e179948aff108e9f",
       "signatureTag": "adversarial|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d26fb86fe9 and d260eccd08: expiry closure cannot be omitted; nonempty inputs require the mechanically derived minimum, empty inputs require signed noExpiry, and Story 1 tests mutate enumeration, forged minimum, clock/policy drift, exact boundary, preflight-to-commit expiry and replay.",
+      "resolvedAt": "2026-08-31T09:31:48.682Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-047",
