@@ -162,7 +162,7 @@
       "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:654-665 [high] F-001 was resolved with resolveEvidenceStrength=strong using prose-only causal measurements that are absent from the Story evidence surface. finding_list claims detached 0abf3d859d produced 796 and that a per-file map proved exactly eight +1 repository entries, but checklist_get/evidence_inspect contain no command, output digest, per-file map, source ref, or signed receipt for that comparison; the current source only stores the resulting 808 constant. Because F-001 specifically required causal known-good/current evidence before accepting a higher budget, an unauditable resolvedReason cannot establish its accuracy. Record a reproducible tool receipt bound to both commits with the full map/diff and no duplicate-build increase, or leave F-001 open/weak until that evidence exists.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T03:31:24.527Z",
@@ -173,7 +173,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "A reproducible detached-worktree harness built exact baseline 0abf3d859dada2286870025b7093715d261855d4 and current 6e733e0bf22be3e4c2222239cdd121a008252ab6, instrumented each generated smoke to emit the full dynamicBindingBuildFiles map, normalized repository paths, and diffed counts. Result: 796=419 synthetic+377 repo versus 804=419 synthetic+385 repo; baseline repo-map SHA256 591bef628309b659ea34d68240772e3b3bb76d35ab0dd39d2489fa35539ea627; current 61c8d77e3ce0dc5110cc36d2049e4d8897f9c36311785a94f378015a9f3dd23b. Full diff had exactly eight +1 entries: core/brand-paths.ts, core/certification-window.ts, core/review-inventory-epoch.ts, handlers/certification-window.ts, tasks/adapter-session-env.ts, tasks/brand-path-resolver-smoke.ts, tasks/certification-window-smoke.ts, tasks/signing-guard-mutation-proof-smoke.ts; removed=[]; duplicateCounts=[]. Harness emitted B5952_CAUSAL PASS baseline=796 current=804 synthetic=419/419 repo=377/385 delta=8 exactAdded=true removed=0 duplicateCounts=0.",
+      "resolvedAt": "2026-08-31T07:33:13.876Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
