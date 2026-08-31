@@ -255,6 +255,18 @@
       "cancelledAt": "2026-08-31T10:54:17.296Z",
       "cancelReason": "CW-013 is a stale snapshot from 2026-08-26T15:15 bound to the long-cancelled inventory epoch RIE-112; its recorded blockerDetail cites F-450/F-451 as open, but both are now status=resolved (verified) and the underlying defect is fixed in code - packages/main/src/cli.ts:17 calls loadCanonicalLabEntrypoint() and node packages/main/dist/cli.js lab_create --help succeeds, with scripts/verify-global-lab-entrypoint.mjs passing all 5 checks. A fresh window must be begun against current facts.",
       "_hash": "f2c88d068084c32bdd59432bd155152c680cb349cf8ab73f131e9cc60118bc63"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5a88:CW-014",
+      "storyId": "B-5a88",
+      "state": "BLOCKED",
+      "createdAt": "2026-08-31T15:01:23.052Z",
+      "updatedAt": "2026-08-31T15:01:23.052Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "e2eabb25fbdde012c5ece22e7ee5c44616b130c91942450e5d51460421c2e438"
     }
   ],
   "receipts": [
