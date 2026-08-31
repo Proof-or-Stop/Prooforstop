@@ -1905,7 +1905,7 @@ mandatory-repair floor; they may clear/resolve only after that closure validator
 passes. This closure-only rule does not apply to the assessment-integrity floor,
 which has not confirmed applicability and follows the transitions above. A
 fresh strong non-applicable verdict (`pre_existing_unaffected`, `out_of_scope`,
-or `duplicate`) does not create a mandatory-repair floor. In warn/rollback mode
+`duplicate`, or target-bound strong `not_reproduced_under_current_witness`) does not create a mandatory-repair floor. In warn/rollback mode
 the new classification is advisory and the exact previous predicate is restored.
 
 For `state='required'`, `closure` must be absent. For
@@ -2542,7 +2542,7 @@ authoritative artifacts and cannot alter lifecycle output.
   temporary assessment-integrity floor; warn rollback reproduces the exact old
   predicate.
 - A Story 2 route receipt alone produces no gate delta. Story 1 accepts only the
-  latest `finding_route` profile with exact ID/hash/source assessment hash and
+  latest `finding_route` profile with exact ID/hash/source assessment proposal digest and
   binds that tuple into `FindingDeferralDisposition.dispositionHash` and the
   manifest action/digest; candidate-profile or mismatched receipts fail closed.
 - Receipt creation and deferral apply are separate transactions. The apply CAS
@@ -2566,8 +2566,8 @@ authoritative artifacts and cannot alter lifecycle output.
 - Out-of-scope requires signed scope proof and valid route.
 - Duplicate requires a live valid canonical owner.
 - File disjointness/history/model confidence alone cannot unblock.
-- A required assessment in exactly `missing`, `stale`, `unsigned`, `tampered`,
-  `mismatched`, `incomplete`, or `unknown` fails closed for a verified open
+- A required assessment in exactly `missing`, `re_attestation_required`, `stale`,
+  `unsigned`, `tampered`, `mismatched`, `incomplete`, `expired`, or `unknown` fails closed for a verified open
   high/critical Finding. Scope-, story-files-, and runtime-stale inputs project
   into that same exact state set rather than creating uncounted aliases.
 - Unknown high/critical is never downgraded by applicability.
@@ -2639,6 +2639,10 @@ authoritative artifacts and cannot alter lifecycle output.
   stale receipt revokes and recalls.
 - Gate snapshot fixtures cover REVIEW->TEST, TEST->DONE, certification and
   release CAS races over every bound digest and all three evaluation scopes.
+  They reject incomplete expiry enumeration, a forged-late minimum, `noExpiry`
+  for a nonempty expiring set, trusted clock or verifier-policy drift, the exact
+  expiry boundary, expiry between preflight and commit, and replay against a
+  reused snapshot/clock receipt.
   A target-only strong non-applicable verdict may not release canonical-owner or
   repository-release high/critical aggregation.
 - Deterministic scorecard fixtures cover every Section 11 row and assert exact
@@ -3144,7 +3148,7 @@ merged-state dependency review.
 | --- | --- | --- | --- | --- |
 | False non-blocking high/critical | Adjudicated high/critical verdicts classified non-blocking by the system but applicable by independent qualification / all system-proposed non-blocking high/critical verdicts | Scorecard join of signed proposal, reviewer adjudication, and current repro receipt | **0**, including adversarial set | Any one event |
 | Stale/tampered rejection | Stale/tampered/mismatched test cases rejected / all injected stale/tampered/mismatched cases | Deterministic negative suite plus receipt-verifier events | 100% | Any accepted case |
-| Required-assessment integrity fail-closed | Signature-valid `AssessmentIntegrityState` rows for verified open high/critical cases in `REQUIRED_ASSESSMENT_INVALID` that remain blocked by the assessment-integrity floor / all injected verified open high/critical required-assessment cases in exactly `{missing, re_attestation_required, stale, unsigned, tampered, mismatched, incomplete, expired, unknown}`; fresh-valid controls are reported separately and excluded from this denominator | Shared-predicate and live-warn Cartesian fixtures for both severities at round 3 across all nine states; signer/verifier/reader and story/finding/assessment/head/material/story-files/scope/runtime/process-policy binding mutations; missing-state, state/assessment mismatch, raw/caller bypass, and direct-consumer registry mutations; transition fixtures for missing -> fresh-strong-non-applicable release, missing -> fresh-applicable conversion to mandatory repair, and missing -> weak/invalid non-applicable continued blocking; separate clean-initial fresh-valid-strong `pre_existing_unaffected`/`out_of_scope`/`duplicate` controls | 100% of the exact invalid-set denominator blocks; 100% of valid strong controls release or start outside the integrity floor; 100% of fresh applicable transitions enter mandatory repair; 100% of state/binding/registry mutations refuse enforce | Any invalid-set cell becomes non-blocking, any missing/forged/mismatched state or raw/caller/direct-consumer bypass is accepted, any weak/invalid non-applicable transition releases, any fresh applicable transition fails to enter mandatory repair, or any clean/transitioned fresh-valid-strong non-applicable control is rejected |
+| Required-assessment integrity fail-closed | Signature-valid `AssessmentIntegrityState` rows for verified open high/critical cases in `REQUIRED_ASSESSMENT_INVALID` that remain blocked by the assessment-integrity floor / all injected verified open high/critical required-assessment cases in exactly `{missing, re_attestation_required, stale, unsigned, tampered, mismatched, incomplete, expired, unknown}`; fresh-valid controls are reported separately and excluded from this denominator | Shared-predicate and live-warn Cartesian fixtures for both severities at round 3 across all nine states; signer/verifier/reader and story/finding/assessment/head/material/story-files/scope/runtime/process-policy binding mutations; missing-state, state/assessment mismatch, raw/caller bypass, and direct-consumer registry mutations; transition fixtures for missing -> fresh-strong-non-applicable (including target-bound strong `not_reproduced_under_current_witness`) release, missing -> fresh-applicable conversion to mandatory repair, and missing -> weak/invalid non-applicable continued blocking; separate clean-initial fresh-valid-strong `pre_existing_unaffected`/`out_of_scope`/`duplicate`/target-bound `not_reproduced_under_current_witness` controls | 100% of the exact invalid-set denominator blocks; 100% of valid strong controls, including current-witness controls, release or start outside the integrity floor; 100% of fresh applicable transitions enter mandatory repair; 100% of state/binding/registry mutations refuse enforce | Any invalid-set cell becomes non-blocking, any missing/forged/mismatched state or raw/caller/direct-consumer bypass is accepted, any weak/invalid non-applicable transition releases, any fresh applicable transition fails to enter mandatory repair, or any clean/transitioned fresh-valid-strong control is rejected |
 | Mandatory-repair floor and closure integrity | Applicable high/critical and known/unknown protected-surface obligations that remain blocked until complete Red/root-cause/fix/Green closure, plus ledger-derived claimed lineages with missing/stale/expired/exhausted/tampered/unknown state that remain blocked until their separate strong lineage release or complete repair closure / all injected confirmed mandatory-repair and claimed-lineage cases | Shared-predicate, ledger claim scan, no-replacement/omitted-lineage, scope/story-files/material/runtime drift, exact-boundary clock, classification-write failure, reader/writer race, stale/tamper, lineage strong-release, and mandatory-repair closure mutation suite | 100%; zero assessment-omission, direct-status, audit-write, or lineage bypasses; zero confirmed repair obligation released without complete closure | Any claimed lineage erased by assessment state, any confirmed mandatory-repair obligation accepted with only a non-applicable verdict, any decayed/bypassed floor, any audit-write failure that opens the gate, or any weak/incomplete lineage release or repair closure accepted |
 | Non-blocking classification precision | Independently confirmed correct non-blocking verdicts / all reviewed non-blocking verdicts | Stratified reviewer gold set; disclose severity and verdict mix | >=98% overall and 100% high/critical safety | <98% overall or any high/critical safety miss |
 | Candidate-to-verified conversion | Candidates promoted to verified Findings / all terminally adjudicated candidates, per detector/version | Candidate ledger and promotion receipts | Descriptive, not maximized; each detector preregisters a baseline band before warn | Absolute drift >10 percentage points without an explained corpus/version change pauses promotion |
