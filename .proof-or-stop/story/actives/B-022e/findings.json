@@ -352,6 +352,27 @@
       ],
       "signatureTag": "edge|ts|deferred-identity-test",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-016",
+      "desc": ".proof-or-stop/story/actives/B-022e/evidence/live-smoke-transcript.json is stale after the F-014 product delta: evidence_inspect at HEAD 55ec542 reports CHK-007:pack-boundary-transcript:0 bound to storyFilesHash 75fd57a4 while current storyFilesHash is 01b680a9. WHY: this transcript is the explicit executable four-tarball/network-disabled/sole-bin/package-and-role-negative proof supplementing CHK-003/004/005/007, and 2e9d9bb changes managed-assets code shipped inside the core tarball; a reviewer-only rerun (which currently exits 0) does not rebind the structured acceptance evidence. Remediation: recapture node scripts/verify-proof-or-stop-pack-boundary.mjs through proof-or-stop live_smoke_transcript --capture/--write, rebind CHK-007:pack-boundary-transcript:0 to the current storyFilesHash, then require evidence_inspect freshness=fresh, staleRefs excluding that intent, transcriptRefs nonempty, and a fresh signed coverage run.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-31T14:20:51.883Z",
+      "reviewRound": "2026-08-31T14:03:29.351Z",
+      "reviewRunId": "B-022e:RR-042",
+      "_hash": "e4d5c864b23f13b863fe4420743a52eb3783e120158378bc07b78ec1e7afb16b",
+      "files": [
+        ".proof-or-stop/story/actives/B-022e/evidence/live-smoke-transcript.json",
+        ".proof-or-stop/story/actives/B-022e/checklist.json",
+        "packages/main/src/core/managed-assets.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ],
+      "signatureTag": "missing|json|proof-stop-story",
+      "signatureTagSource": "auto"
     }
   ]
 }
