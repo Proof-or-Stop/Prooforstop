@@ -24072,7 +24072,7 @@
       "desc": "packages/main/src/core/story-aware-validation.ts:280,332: discoverValidationInventory calls pickProjectConfigPath(projectRoot) twice inside the same function (once to read raw config at line 280, once to derive source at line 332) instead of computing it once and reusing it. The F-441 fix's narrowing on picked.legacy (avoiding a deprecated-literal comparison) is the right construction, but the redundant second call re-opens a narrow TOCTOU-style window where source could disagree with the file raw was actually read from if the config file were renamed/deleted between the two calls, and duplicates an existsSync+readFileSync pair for no benefit. Low severity: story config files are not concurrently mutated in practice, but it undercuts the stated single-resolver intent and is a one-line fix (hoist `const picked = pickProjectConfigPath(projectRoot)` once, reuse for both raw and source).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T04:41:14.331Z",
@@ -24099,7 +24099,11 @@
       "readDiagnostics": [],
       "_hash": "2a83a6ee15f6514be9bb0c6b3ad54eb84fb5563b51ed90f4c23cb1f0faf44e53",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 8d605caeba. discoverValidationInventory called pickProjectConfigPath twice in one function - once for the config read and once to derive source - duplicating an existsSync+readFileSync pair and opening a narrow TOCTOU window where source could name a different file than raw was actually read from. The resolver is now called once at function scope and the single result reused for both. Verified by lattice-review-quality in RI-108 wave 1: pickProjectConfigPath appears exactly once at line 278, and the remaining existsSync/readFileSync pair at 323-324 resolves an unrelated per-command runnerSourcePath.",
+      "resolvedAt": "2026-08-31T05:31:26.191Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-444",
