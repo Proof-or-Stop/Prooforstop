@@ -24386,6 +24386,37 @@
         "scanEscalationReason": null
       },
       "_hash": "8457927bb1f7721f25da564541fae6bb33797b60ce57f1b07074cd617d212ffd"
+    },
+    {
+      "id": "B-45a0:RP-521",
+      "agent": "lattice-review-topology-critic",
+      "note": "Independently re-ran acceptance_topology_check, pre_review_check_read, acceptance_rollout_check, acceptance_rollout_report_read at current HEAD; all four fail exactly as this waves lanes reported (AT_SCOPE_BINDING_MISSING; PR_ARTIFACT_TAMPERED/PR_POSITIVE_EVIDENCE_MISSING/PR_EVIDENCE_STALE/PR_CUTOFF_UNBOUND; AR_REPORT_STALE blocking twice). Traced root cause to stale storyFilesHash/headHash bindings in acceptance-basis.json and acceptance-rollout-report.json. No additional topology, closure, or exclusion defect found beyond F-465/F-466/F-467, which I independently verified accurate; see my critic dispositions.",
+      "createdAt": "2026-08-31T23:14:51.583Z",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "reviewRunId": "B-45a0:RR-1171",
+      "envelopeId": "b2a82bf0677a62f6a2f57814ac180bfc94e9e80907d52a9cafddb834c534fa21",
+      "writerSessionId": "sess-49b42b6f7ee801447a79a9d1a04a8f7d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/topology-critic-receipt.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-45a0/scope-check.json",
+          "scripts/verify-validation-inventory.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2a986583210c0076ce755bcd50f6e4e24afb298a2a30a3d276fec006e2f906e3"
     }
   ]
 }
