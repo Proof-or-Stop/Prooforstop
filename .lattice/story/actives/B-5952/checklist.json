@@ -228,20 +228,20 @@
           "kind": "logic_test",
           "command": "node -e \"const fs=require('fs'),cp=require('child_process');const p='packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js';const original=fs.readFileSync(p,'utf8');const run=()=>cp.spawnSync(process.execPath,[p],{encoding:'utf8',maxBuffer:20*1024*1024});let unboundedRejected=false,sentinelRejected=false;try{const unbounded=original.replace('actualBuilds <= ceiling,','true,');if(unbounded===original)throw new Error('unbounded substitution did not apply');fs.writeFileSync(p,unbounded);unboundedRejected=run().status!==0;const sentinel=original.replace('const DYNAMIC_BINDING_BUILD_CEILING = 808;','const DYNAMIC_BINDING_BUILD_CEILING = 900;');if(sentinel===original)throw new Error('sentinel substitution did not apply');fs.writeFileSync(p,sentinel);const result=run();sentinelRejected=result.status!==0&&(result.stderr+result.stdout).includes('finite integer between 1 and 850');}finally{fs.writeFileSync(p,original);}const restored=fs.readFileSync(p,'utf8')===original;const control=run();if(!unboundedRejected||!sentinelRejected||!restored||control.status!==0||!control.stdout.includes('PASS builds=804'))throw new Error(JSON.stringify({unboundedRejected,sentinelRejected,restored,control:control.status}));console.log('actual-guard-mutants PASS unboundedRejected=true sentinelRejected=true restored=true control=804');\"",
           "result": "pass",
-          "note": "Fresh real-artifact comparator and sentinel-ceiling mutation receipt.",
-          "headHash": "f7c9d374c8d470e954fc4fdaec43319a60e17173",
-          "materialHash": "63292a573bf3271dcc1f220f9f9172c03919d79772485d71e28d8b5f05fe8e82",
-          "storyFilesHash": "65166487f29740c1f2342fc9ec7c73b09faac4f702cfa4ec1e27c2a3714785eb",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "724b65f25eb55b5a1ba5949d57061b52f08f382b37e00e250deed0af845016f6",
             "outputTail": "actual-guard-mutants PASS unboundedRejected=true sentinelRejected=true restored=true control=804\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T12:13:57.988Z",
+            "executedAt": "2026-08-31T14:57:05.400Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T12:15:14.476Z"
+          "headHash": "1ebdae382c118b1f8aff17d8168a5a539bdb38de",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:57:05.577Z"
         },
         {
           "intentRef": "CHK-001:adversarial:binding-scope-mutants",
