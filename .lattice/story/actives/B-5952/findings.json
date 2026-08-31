@@ -419,7 +419,7 @@
       "desc": "CHK-001:happy:1 acceptance contradiction (high): this priority=must intent still requires that the diff show no change to docs/requirements/decisions/dynamic-finding-system-execution-plan.md, but candidate commit 2cb7bbe456 changes line 1210 to repair the DONE-required blocker. The repair itself already has adequate executable regression coverage: scripts/verify-core-package-rename.mjs exits non-zero at exact pre-fix commit 70dc39feba with deprecatedCoreNameWithoutCanonical=1 and the stranded document, exits 0 at current d4f4edf with deprecatedCoreNameWithoutCanonical=0, and is included in root test:serial-reference. No additional test file is necessary, but the current must intent is impossible and no intent/evidence maps the approved one-line repair. Revise the intent to permit only the paired historical/canonical package-name wording and bind a current mechanical verifier receipt before REVIEW can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-31T14:02:58.799Z",
@@ -431,7 +431,11 @@
         "scripts/verify-core-package-rename.mjs"
       ],
       "signatureTag": "missing|md|happy-acceptance-contradiction",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Formal INIT/PLAN reopen aligned checklist context, files, understanding, decision, plan, scope boundary, ProofStory acceptance, and the two affected must intents with the exact one-line historical package-name pairing. CHK-001:happy:1 now uses a single argv-safe Node wrapper and has a fresh tool-owned PASS receipt for build plus scripts/verify-core-package-rename.mjs. CHK-001:adversarial:binding-scope-mutants has a fresh tool-owned PASS receipt proving pairing removal fails and exact-byte restoration passes. The complete 13/13 must set was re-executed at the current material binding; scope-plan reports 0 gaps and 0 drift.",
+      "resolvedAt": "2026-08-31T15:00:46.071Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
