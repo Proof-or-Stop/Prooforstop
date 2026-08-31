@@ -11068,9 +11068,9 @@
       "epochId": "B-45a0:RI-112",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-31T20:19:23.055Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-31T22:19:06.254Z",
-      "updatedAt": "2026-08-31T22:19:06.254Z",
+      "updatedAt": "2026-08-31T22:32:58.280Z",
       "cutoff": {
         "headHash": "b487d38b5cb70fe6ada9e7cf886cdd7c15b6b9d2",
         "materialHash": "6d96761e24fabeb191351d28a0fa127f81793c6c1fd5723a5fb2e50738958b10",
@@ -11087,7 +11087,10 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "454bae3b1d8ad9f1db89cae8361afafbd638d41e11461215d38cc2defab4c1a7"
+      "cancelledAt": "2026-08-31T22:32:58.280Z",
+      "cancelReason": "Cancelling RI-112 because the lanes were being asked to attest to a claim that is currently false. The test-coverage lane refused to pass and was right: CHK-014 is titled 'Bind Wave 4 acceptance gates to executable current-head evidence', and three of those four evaluators fail when executed right now (acceptance_topology_check AT_SCOPE_BINDING_MISSING, pre_review_check_read PR_ARTIFACT_TAMPERED/PR_POSITIVE_EVIDENCE_MISSING/PR_EVIDENCE_STALE/PR_CUTOFF_UNBOUND, acceptance_rollout_check and acceptance_rollout_report_read AR_REPORT_STALE). I had argued these were non-blocking because runReviewToTestPreflightGate does not re-invoke them, which is mechanically true but answers the wrong question: it establishes that the story can pass the next gate, not that the checklist item's own claim is honest. Correct order is to return to DEV, regenerate the acceptance basis, reissue pre_review_check and the rollout report so the surfaces genuinely pass, and only then have the lanes attest. Reopening a review epoch before that would produce a pass resting on a false claim.",
+      "terminalRunSequenceBoundary": 1163,
+      "_hash": "c8efa214faf752d1d8474207b8f6e779d40d4138bccc409f79b3136d889d9766"
     }
   ],
   "receipts": [
