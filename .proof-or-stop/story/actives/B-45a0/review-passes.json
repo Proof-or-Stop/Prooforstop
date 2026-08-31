@@ -23357,6 +23357,50 @@
         "scanEscalationReason": null
       },
       "_hash": "abb14722a9607b406910680397fd1881aa4722a4accf4ac567fee801505ddc2d"
+    },
+    {
+      "id": "B-45a0:RP-489",
+      "agent": "lattice-review-docs",
+      "note": "Wave 2/3 saturation sweep (epoch RI-108). Extracted changed symbols from git diff main...HEAD; working tree unchanged since wave-1 pass RP-484/RR-1094, only story-metadata dirty. Verified docs/CLI.md lines 917-949 (story-aware dynamic validation section this story added) line-by-line against code: DYNAMIC_MODES, catalog policy fields, env var names, marker prefixes, success-marker default derivation, artifact directory path, and linked doc file existence all match. Verified Wave-4 acceptance gate commands referenced by CHK-014 are registered handlers. No NEW doc-code inconsistency found beyond already-registered F-435 through F-447. Zero new findings filed this wave, supporting epoch saturation.",
+      "createdAt": "2026-08-31T05:07:15.541Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1099",
+      "envelopeId": "277c2b6e62af2f716bc121f7b45073c06715ae63925c57e07f6e2c0ab6c6faff",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "69faf1afd1a5f2c72f1552b86bbccbb3a975bf2b13dcd2c471872fc08e6c950c"
+      },
+      "readDiagnostics": [],
+      "_hash": "fc3c942b5697c8939868fc6d84af68dc162197e04a32bc765ad043b2dd9a2fa0"
     }
   ]
 }
