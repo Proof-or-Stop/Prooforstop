@@ -1,62 +1,76 @@
 {
   "storyId": "B-5952",
-  "checkedAt": "2026-08-31T08:18:06.466Z",
+  "checkedAt": "2026-08-31T14:23:33.515Z",
   "features": [
     {
-      "feature": "At a committed B-5952 green HEAD, the rebuilt retired-authority vocabulary smoke must exit 0 for the current 804-build inventory under a finite ceiling no greater than 850.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-5952/proofstory.json"
-    },
-    {
-      "feature": "The 808 ceiling must be causally justified by a detached baseline/current comparison that reproduces the 796 to 804 delta as synthetic 419 remaining unchanged and repository entries growing 377 to 385 through the exact eight expected +1 files, with no removals or duplicate counts.",
+      "feature": "Accept the causally measured 804 dynamic-binding builds under a finite ceiling of 808 and absolute hard cap 850, with rebuilt source/dist binding and executable mutation proof.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-5952/checklist.json"
     },
     {
-      "feature": "The acceptance binding must reference the current canonical custom verification intent ids for the finite-bound control, guard mutants, protected-document scope mutants, and causal baseline map, rather than stale positional refs.",
+      "feature": "Repair only the six reproduced clean-main TEST blockers in canonical root discovery, legacy fixture storyDir setup, and non-login Unix Codex heartbeat discovery, with fresh verify_codex evidence.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-5952/proofstory.json"
+      "source": ".lattice/story/actives/B-5952/understanding.json"
     },
     {
-      "feature": "The repair stays limited to the retired-authority smoke TypeScript source plus regenerated dist output; dist is rebuilt from source rather than edited independently.",
+      "feature": "Admit exactly the one-line historical pairing of @lattice/core with its later canonical @proof-or-stop/core replacement in the Dynamic Finding decision document, and require the existing package-rename verifier plus pairing-removal mutation to prove the boundary.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
+      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Changes to Dynamic Finding or B-3434 decision semantics remain outside B-5952.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "understanding.json, decision.json, checklist.json, and scope-contract.json admit only the historical package-name annotation; the candidate decision document remains a specification-only B-1fa6 plan.",
+      "source": ".lattice/story/actives/B-5952/decision.json"
+    },
+    {
+      "feature": "Changes to packages/main/src/handlers/** and packages/main/src/cli/** remain outside B-5952.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The enforce-mode scope contract explicitly excludes both path families, and the current branch diff contains neither.",
+      "source": ".lattice/story/actives/B-5952/scope-contract.json"
+    },
+    {
+      "feature": "Unrelated medium/low diagnostics and nonblocking defects remain outside B-5952 and require evidence-backed follow-up rather than scope expansion.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md applies the operator defect rule: only critical/high or acceptance/lifecycle blockers return to the current repair.",
       "source": ".lattice/story/actives/B-5952/plan.md"
     },
     {
-      "feature": "The committed finite-bound helper must self-characterize the exact boundary and reject comparator weakening or a sentinel ceiling above the absolute 850 cap with a restored passing control.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-5952/checklist.json"
-    },
-    {
-      "feature": "Source-only, dist-only, and protected decision-document mutations must be detected via build-binding and exact JSON scope-contract checks, restore exact bytes, and finish with clean binding/scope controls.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-5952/checklist.json"
-    },
-    {
-      "feature": "Production handlers, core, CLI, and unrelated runtime behavior changes are outside this repair story.",
+      "feature": "Broader package or identity migration, including @lattice/lab, @lattice/utils, the root package, signature salts, agent IDs, or archived evidence, remains outside B-5952.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "understanding.json forbids production behavior changes, and scope-contract.json explicitly excludes packages/main/src/handlers/**, packages/main/src/core/**, and packages/main/src/cli/**.",
-      "source": ".lattice/story/actives/B-5952/scope-contract.json"
+      "excluded_by": "The identity-migration decision limits the completed rename to @lattice/core and the Dynamic Finding example explicitly rejects sibling-package expansion.",
+      "source": "docs/requirements/decisions/proof-or-stop-identity-migration.md"
     },
     {
-      "feature": "Persistent edits to docs/requirements/decisions/dynamic-finding-system-execution-plan.md or contamination of B-1fa6 are outside scope; only verification-time protected-document mutation is allowed and must be byte-restored.",
+      "feature": "PLAN step 7 says the entire Dynamic Finding decision document remains outside the Story, but the current understanding, decision, checklist, scope contract, exact diff, and verifier admit one narrowly bounded line.",
       "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "background.md and understanding.json keep this as an independent repair story, and scope-contract.json lists the Dynamic Finding decision in protectedFiles plus explicitExcludes.",
-      "source": ".lattice/story/actives/B-5952/scope-contract.json"
+      "status": "drift",
+      "excluded_by": "Update the PLAN wording to exclude all Dynamic Finding decision semantics and all document edits except the exact historical core-package pairing.",
+      "source": ".lattice/story/actives/B-5952/plan.md"
+    },
+    {
+      "feature": "The original scope boundary excludes any modification of the Dynamic Finding decision document, while the later enforce-mode scope contract explicitly admits the exact one-line package-name annotation.",
+      "covered_by": null,
+      "status": "drift",
+      "excluded_by": "Supersede or refresh the stale original boundary so it records the one-line exception without admitting broader document semantics.",
+      "source": ".lattice/story/actives/B-5952/scope-boundary.json"
+    },
+    {
+      "feature": "The ProofStory acceptance claim still requires the Dynamic Finding decision document to remain outside the change, contradicting CHK-001:happy:1 and the admitted one-line diff.",
+      "covered_by": null,
+      "status": "drift",
+      "excluded_by": "Refresh the acceptance claim/binding to require only the exact paired historical annotation and continued exclusion of Dynamic Finding/B-3434 semantics.",
+      "source": ".lattice/story/actives/B-5952/proofstory.json"
     }
   ],
   "readManifest": {
@@ -66,24 +80,28 @@
       ".lattice/story/actives/B-5952/decision.json",
       ".lattice/story/actives/B-5952/plan.md",
       ".lattice/story/actives/B-5952/proofstory.json",
-      ".lattice/story/actives/B-5952/review.json",
-      ".lattice/story/actives/B-5952/scope-check.json",
+      ".lattice/story/actives/B-5952/scope-boundary.json",
       ".lattice/story/actives/B-5952/scope-contract.json",
       ".lattice/story/actives/B-5952/understanding.json",
-      "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-identity-migration.md"
     ],
-    "filesTriagedByName": [],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/brand-rename-mapping.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md"
+    ],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 8,
-    "covered": 6,
-    "excluded": 2,
+    "total": 10,
+    "covered": 3,
+    "excluded": 4,
     "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 0
+    "drift": 3
   },
-  "reviewRound": "2026-08-31T08:07:59.883Z",
-  "_hash": "130ea3af4033b55b2d14cfed03c13ec251379db382b82816b19efbd91689e554",
+  "reviewRound": "2026-08-31T13:56:26.777Z",
+  "_hash": "ab5ecc79ccdf71274d2b9297720afd5724260f802e608b148ddf3ec614a4fc71",
   "openQuestions": []
 }

@@ -309,6 +309,78 @@
         }
       ],
       "_hash": "00a9aad2a9599bfa0edfa9f21e3512f46636a1502f291139fccd8f8b951f8bc0"
+    },
+    {
+      "timestamp": "2026-08-31T14:13:12.795Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-31T08:07:59.883Z) does not match the current review round (2026-08-31T13:56:26.777Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "6649d2b76262ab1e0c4c780044e03b156384cb25fc633827a243ea09c3f81a26"
+    },
+    {
+      "timestamp": "2026-08-31T14:13:33.453Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-31T08:07:59.883Z) does not match the current review round (2026-08-31T13:56:26.777Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "d9800d4358ad5f417ab324b0ef3b94b1826f065f3b3912860055219fd416f9d1"
+    },
+    {
+      "timestamp": "2026-08-31T14:13:52.538Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-31T08:07:59.883Z) does not match the current review round (2026-08-31T13:56:26.777Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "b4d8c8f0695c026b2bd4344ad766e144c725fa0ab6831854ee97ac6594533185"
     }
   ]
 }

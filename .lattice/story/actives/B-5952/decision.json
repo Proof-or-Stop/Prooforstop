@@ -2,12 +2,13 @@
   "principles": [
     "Preserve the instrumentation guard as a finite fail-closed budget.",
     "Base the ceiling change on measured historical and current repository inventory.",
-    "Keep the Dynamic Finding document and unrelated runtime behavior outside this corrective Story."
+    "Constrain the Dynamic Finding document change to the exact historical core-package canonical pairing required by the existing rename verifier; keep unrelated runtime behavior outside this corrective Story."
   ],
   "drivers": [
     "The clean main baseline now produces 804 builds while the existing ceiling is 800.",
     "Historical measurement at commit 0abf3d859d produced 796 builds with ceiling 800.",
-    "Synthetic builds remain 419; repository-backed builds increased from 377 to 385 through eight identified source files."
+    "Synthetic builds remain 419; repository-backed builds increased from 377 to 385 through eight identified source files.",
+    "DONE-required root testing fails when a historical @lattice/core token is stranded and passes when the same sentence names its @proof-or-stop/core replacement."
   ],
   "options": [
     {
@@ -43,7 +44,7 @@
     }
   ],
   "chosen": "Measured fixed headroom at 808",
-  "rationale": "The current count is 804 and the last known-good baseline was 796 under an 800 ceiling. Eight identified repository files account exactly for the increase while synthetic work is unchanged, so 808 preserves the original four-build safety margin without hiding future growth.",
+  "rationale": "The current count is 804 and the last known-good baseline was 796 under an 800 ceiling. Eight identified repository files account exactly for the increase while synthetic work is unchanged, so 808 preserves the original four-build safety margin without hiding future growth. The separate one-line decision-document annotation is admitted only because the existing root verifier proves it removes the stranded legacy package token without changing decision semantics.",
   "preMortem": [
     {
       "scenario": "The measured count grows again for a legitimate source addition.",
@@ -64,11 +65,11 @@
       "mitigation": "Require clean rebuild and fail-closed source/dist binding mutation checks."
     },
     {
-      "scenario": "The corrective Story changes the Dynamic Finding decision document.",
-      "trigger": "The protected document appears in the diff.",
-      "consequence": "The audit-only Story scope and evidence are contaminated.",
-      "mitigation": "Keep the document protected in scope contract and execute a protected-document mutation probe."
+      "scenario": "The one-line decision-document exception broadens into a semantic rewrite or leaves the legacy package name stranded.",
+      "trigger": "The diff changes more than the historical package-name annotation, or removing the canonical pairing no longer fails verification.",
+      "consequence": "The corrective Story changes decision authority or ships a false-green package rename baseline.",
+      "mitigation": "Review the exact hunk and require the existing package-rename verifier to fail on pairing removal and pass after exact-byte restoration."
     }
   ],
-  "timestamp": "2026-08-31T03:12:55.010Z"
+  "timestamp": "2026-08-31T14:15:22.196Z"
 }
