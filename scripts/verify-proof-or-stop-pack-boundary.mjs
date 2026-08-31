@@ -1,16 +1,22 @@
 #!/usr/bin/env node
 
-import { execFileSync, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { isDeepStrictEqual } from 'node:util';
 import {
   existsSync,
+  appendFileSync,
   cpSync,
+  lstatSync,
   mkdtempSync,
   mkdirSync,
   readFileSync,
   readdirSync,
+  readlinkSync,
   realpathSync,
+  renameSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -23,6 +29,11 @@ const RETIRED_PRODUCT = ['lat', 'tice'].join('');
 const RETIRED_SCOPE = `@${RETIRED_PRODUCT}`;
 const EXPECTED_EXTENSION_VERSION = '0.3.65';
 const EXPECTED_CORE_PEER_RANGE = '^0.3.65';
+const CACHE_FORMAT_VERSION = 'proof-or-stop.pack-boundary-offline-cache.v1';
+const CACHE_MANIFEST_FILE = 'cache-manifest.json';
+const CACHE_LOCK_STALE_MS = 10 * 60_000;
+const CACHE_LOCK_WAIT_MS = 50;
+const CACHE_LOCK_TIMEOUT_MS = 3 * 60_000;
 const CANONICAL_ROLES = Object.freeze([
   'proof-or-stop-evaluator',
   'proof-or-stop-evaluator-cli',
@@ -56,6 +67,22 @@ function readJson(path) {
 
 function assert(condition, message) {
   if (!condition) fail(message);
+}
+
+function sha256(value) {
+  return createHash('sha256').update(value).digest('hex');
+}
+
+function sha256File(path) {
+  return sha256(readFileSync(path));
+}
+
+function heartbeat(message) {
+  process.stderr.write(`[pack-boundary] ${message}\n`);
+}
+
+function sleepSync(milliseconds) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
 }
 
 function sortedObject(value) {
@@ -172,6 +199,7 @@ function verifyLocks(manifests) {
 }
 
 function packOne(row, tarballDir) {
+  heartbeat(`packing product artifact ${row.id}`);
   const stdout = execFileSync('npm', [
     'pack', '--json', '--ignore-scripts', '--pack-destination', tarballDir, '.',
   ], {
@@ -205,11 +233,33 @@ function resolveInstalledPackageDir(packageName, fromDir) {
   fail(`installed dependency ${packageName} is unavailable from ${fromDir}`);
 }
 
-function prepareOfflineDependencyOverrides(manifests, tempRoot) {
-  const packDir = join(tempRoot, 'offline-dependencies');
-  const stageRoot = join(tempRoot, 'offline-dependency-staging');
-  mkdirSync(packDir, { recursive: true });
-  mkdirSync(stageRoot, { recursive: true });
+function directoryContentDigest(root) {
+  const hash = createHash('sha256');
+  function visit(directory) {
+    const entries = readdirSync(directory, { withFileTypes: true })
+      .filter((entry) => entry.name !== 'node_modules')
+      .sort((a, b) => a.name.localeCompare(b.name));
+    for (const entry of entries) {
+      const absolute = join(directory, entry.name);
+      const rel = relative(root, absolute).split(sep).join('/');
+      const stat = lstatSync(absolute);
+      if (stat.isSymbolicLink()) {
+        hash.update(`L\0${rel}\0${readlinkSync(absolute)}\0`);
+      } else if (stat.isDirectory()) {
+        hash.update(`D\0${rel}\0`);
+        visit(absolute);
+      } else if (stat.isFile()) {
+        hash.update(`F\0${rel}\0${stat.mode & 0o777}\0`);
+        hash.update(readFileSync(absolute));
+        hash.update('\0');
+      }
+    }
+  }
+  visit(root);
+  return hash.digest('hex');
+}
+
+function resolveOfflineDependencyGraph(manifests) {
   const seedRequests = [];
   for (const manifest of Object.values(manifests)) {
     for (const [name, range] of Object.entries(manifest.dependencies || {})) {
@@ -251,49 +301,257 @@ function prepareOfflineDependencyOverrides(manifests, tempRoot) {
     seedKeys.set(request.name, key);
   }
 
-  function expectedTarballPath(node) {
-    const stem = node.manifest.name.replace(/^@/, '').replaceAll('/', '-');
-    return join(packDir, `${stem}-${node.manifest.version}.tgz`);
-  }
+  for (const node of packages.values()) node.sourceDigest = directoryContentDigest(node.packageDir);
+  return { packages, seedKeys };
+}
 
-  const overrides = {};
-  const summary = [];
-  for (const node of [...packages.values()].sort((a, b) => a.key.localeCompare(b.key))) {
-    const { packageDir, manifest } = node;
-    const stageDir = join(stageRoot, Buffer.from(node.key).toString('hex'));
-    cpSync(packageDir, stageDir, {
-      recursive: true,
-      filter: (source) => source === packageDir
-        || !relative(packageDir, source).split(sep).includes('node_modules'),
-    });
-    const stagedManifest = readJson(join(stageDir, 'package.json'));
-    stagedManifest.dependencies = Object.fromEntries([...node.edges.entries()].map(([name, childKey]) => [
-      name,
-      `file:${expectedTarballPath(packages.get(childKey))}`,
-    ]));
-    delete stagedManifest.optionalDependencies;
-    delete stagedManifest.peerDependencies;
-    delete stagedManifest.peerDependenciesMeta;
-    delete stagedManifest.devDependencies;
-    delete stagedManifest.bundleDependencies;
-    delete stagedManifest.bundledDependencies;
-    writeFileSync(join(stageDir, 'package.json'), `${JSON.stringify(stagedManifest, null, 2)}\n`);
-    const stdout = execFileSync('npm', [
-      'pack', '--json', '--ignore-scripts', '--pack-destination', packDir, '.',
-    ], {
-      cwd: stageDir,
-      encoding: 'utf8',
-      maxBuffer: 64 * 1024 * 1024,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-    const records = JSON.parse(stdout);
-    assert(Array.isArray(records) && records.length === 1, `offline dependency ${manifest.name} did not pack exactly once`);
-    const tarball = join(packDir, records[0].filename);
-    assert(tarball === expectedTarballPath(node), `offline dependency tarball filename drifted for ${node.key}`);
-    summary.push({ name: manifest.name, version: manifest.version });
+function offlineCacheInput(manifests, graph) {
+  const lockDigests = PACKAGE_ROWS.map((row) => {
+    const path = join(row.directory, 'package-lock.json');
+    return { path, sha256: sha256File(join(ROOT, path)) };
+  });
+  const manifestDigest = sha256(JSON.stringify(Object.fromEntries(
+    Object.entries(manifests).sort(([a], [b]) => a.localeCompare(b)).map(([id, manifest]) => [id, manifestProjection(manifest)]),
+  )));
+  const packages = [...graph.packages.values()].sort((a, b) => a.key.localeCompare(b.key)).map((node) => ({
+    key: node.key,
+    name: node.manifest.name,
+    version: node.manifest.version,
+    sourceDigest: node.sourceDigest,
+    edges: [...node.edges.entries()].sort(([a], [b]) => a.localeCompare(b)),
+  }));
+  const seeds = [...graph.seedKeys.entries()].sort(([a], [b]) => a.localeCompare(b));
+  const npmVersion = execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim();
+  const material = { cacheFormat: CACHE_FORMAT_VERSION, manifestDigest, lockDigests, packages, seeds, npmVersion, nodeVersion: process.version };
+  return { ...material, cacheKey: sha256(JSON.stringify(material)) };
+}
+
+function cacheRootPath() {
+  return resolve(process.env.PROOF_OR_STOP_PACK_BOUNDARY_CACHE_DIR
+    || join(tmpdir(), 'proof-or-stop-pack-boundary-cache-v1'));
+}
+
+function ensureSafeCacheRoot(cacheRoot) {
+  mkdirSync(cacheRoot, { recursive: true, mode: 0o700 });
+  const fromRepo = relative(realpathSync(ROOT), realpathSync(cacheRoot));
+  const insideRepository = fromRepo === '' || (fromRepo !== '..' && !fromRepo.startsWith(`..${sep}`));
+  assert(!insideRepository, 'pack-boundary cache must be outside the repository');
+  const stat = lstatSync(cacheRoot);
+  assert(stat.isDirectory() && !stat.isSymbolicLink(), 'pack-boundary cache root must be a real directory');
+  if (typeof process.getuid === 'function') assert(stat.uid === process.getuid(), 'pack-boundary cache root must be owned by the current user');
+  assert((stat.mode & 0o022) === 0, 'pack-boundary cache root must not be group/world writable');
+}
+
+function processAlive(pid) {
+  if (!Number.isInteger(pid) || pid <= 0) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return error?.code === 'EPERM';
   }
-  for (const [name, key] of seedKeys) overrides[name] = `file:${expectedTarballPath(packages.get(key))}`;
-  return { overrides, summary };
+}
+
+function acquireCacheLock(lockDir) {
+  const started = Date.now();
+  let lastHeartbeat = 0;
+  while (true) {
+    try {
+      mkdirSync(lockDir, { mode: 0o700 });
+      writeFileSync(join(lockDir, 'owner.json'), `${JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() })}\n`, { flag: 'wx' });
+      return () => rmSync(lockDir, { recursive: true, force: true });
+    } catch (error) {
+      if (error?.code !== 'EEXIST') throw error;
+      let owner = null;
+      try { owner = readJson(join(lockDir, 'owner.json')); } catch {}
+      let age = 0;
+      try { age = Date.now() - statSync(lockDir).mtimeMs; } catch {}
+      if (age > CACHE_LOCK_STALE_MS && !processAlive(Number(owner?.pid))) {
+        const stale = `${lockDir}.stale-${process.pid}-${Date.now()}`;
+        try {
+          renameSync(lockDir, stale);
+          rmSync(stale, { recursive: true, force: true });
+          continue;
+        } catch (staleError) {
+          if (staleError?.code !== 'ENOENT') throw staleError;
+        }
+      }
+      if (Date.now() - started > CACHE_LOCK_TIMEOUT_MS) fail(`timed out waiting for pack-boundary cache lock ${lockDir}`);
+      if (Date.now() - lastHeartbeat > 5_000) {
+        heartbeat(`waiting for cache lock ${lockDir}`);
+        lastHeartbeat = Date.now();
+      }
+      sleepSync(CACHE_LOCK_WAIT_MS);
+    }
+  }
+}
+
+function expectedTarballFilename(node) {
+  const stem = node.manifest.name.replace(/^@/, '').replaceAll('/', '-');
+  return `${stem}-${node.manifest.version}.tgz`;
+}
+
+function validateOfflineCache(cacheDir, input, graph, publishedCacheDir = cacheDir) {
+  try {
+    const cacheStat = lstatSync(cacheDir);
+    if (!cacheStat.isDirectory() || cacheStat.isSymbolicLink()) return { ok: false, reason: 'cache directory is not a real directory' };
+    const manifestPath = join(cacheDir, CACHE_MANIFEST_FILE);
+    const manifestStat = lstatSync(manifestPath);
+    if (!manifestStat.isFile() || manifestStat.isSymbolicLink()) return { ok: false, reason: 'cache manifest is not a regular file' };
+    const manifest = readJson(manifestPath);
+    if (manifest.schemaVersion !== CACHE_FORMAT_VERSION || manifest.cacheKey !== input.cacheKey) return { ok: false, reason: 'cache identity mismatch' };
+    if (!isDeepStrictEqual(manifest.lockDigests, input.lockDigests) || manifest.manifestDigest !== input.manifestDigest) {
+      return { ok: false, reason: 'cache lock or manifest digest mismatch' };
+    }
+    if (!Array.isArray(manifest.packages) || manifest.packages.length !== graph.packages.size) return { ok: false, reason: 'cache package count mismatch' };
+    const cachedByKey = new Map(manifest.packages.map((row) => [row.key, row]));
+    const overrides = {};
+    const summary = [];
+    for (const node of [...graph.packages.values()].sort((a, b) => a.key.localeCompare(b.key))) {
+      const row = cachedByKey.get(node.key);
+      if (!row || row.name !== node.manifest.name || row.version !== node.manifest.version || row.sourceDigest !== node.sourceDigest) {
+        return { ok: false, reason: `cache package identity mismatch for ${node.key}` };
+      }
+      if (row.filename !== expectedTarballFilename(node) || row.filename !== row.filename.split('/').pop()) {
+        return { ok: false, reason: `cache filename mismatch for ${node.key}` };
+      }
+      const tarball = join(cacheDir, 'tarballs', row.filename);
+      const tarballStat = lstatSync(tarball);
+      if (!tarballStat.isFile() || tarballStat.isSymbolicLink()) return { ok: false, reason: `cache tarball is not regular for ${node.key}` };
+      if (sha256File(tarball) !== row.tarballSha256) return { ok: false, reason: `cache tarball digest mismatch for ${node.key}` };
+      const packedManifestText = execFileSync('tar', ['-xOf', tarball, 'package/package.json'], { encoding: 'utf8' });
+      const packedManifest = JSON.parse(packedManifestText);
+      const expectedDependencies = Object.fromEntries([...node.edges.entries()].map(([name, childKey]) => {
+        const child = graph.packages.get(childKey);
+        return [name, `file:${join(publishedCacheDir, 'tarballs', expectedTarballFilename(child))}`];
+      }));
+      if (sha256(packedManifestText) !== row.packedManifestSha256
+        || packedManifest.name !== node.manifest.name
+        || packedManifest.version !== node.manifest.version
+        || !isDeepStrictEqual(packedManifest.dependencies || {}, expectedDependencies)) {
+        return { ok: false, reason: `cache packed manifest mismatch for ${node.key}` };
+      }
+      summary.push({ name: node.manifest.name, version: node.manifest.version });
+    }
+    for (const [name, key] of graph.seedKeys) {
+      const node = graph.packages.get(key);
+      overrides[name] = `file:${join(cacheDir, 'tarballs', expectedTarballFilename(node))}`;
+    }
+    return { ok: true, overrides, summary, manifest };
+  } catch (error) {
+    return { ok: false, reason: `cache read failed: ${error.message}` };
+  }
+}
+
+function buildOfflineCache(cacheRoot, cacheDir, input, graph) {
+  const stageDir = mkdtempSync(join(cacheRoot, `.${input.cacheKey}.tmp-${process.pid}-`));
+  const packDir = join(stageDir, 'tarballs');
+  const sourceStageRoot = join(stageDir, 'sources');
+  mkdirSync(packDir, { recursive: true });
+  mkdirSync(sourceStageRoot, { recursive: true });
+  const packageRows = [];
+  try {
+    const sortedNodes = [...graph.packages.values()].sort((a, b) => a.key.localeCompare(b.key));
+    sortedNodes.forEach((node, index) => {
+      if (index % 10 === 0) heartbeat(`building offline dependency cache ${index}/${sortedNodes.length}`);
+      const { packageDir, manifest } = node;
+      const sourceStage = join(sourceStageRoot, Buffer.from(node.key).toString('hex'));
+      cpSync(packageDir, sourceStage, {
+        recursive: true,
+        filter: (source) => source === packageDir
+          || !relative(packageDir, source).split(sep).includes('node_modules'),
+      });
+      const stagedManifest = readJson(join(sourceStage, 'package.json'));
+      stagedManifest.dependencies = Object.fromEntries([...node.edges.entries()].map(([name, childKey]) => {
+        const child = graph.packages.get(childKey);
+        return [name, `file:${join(cacheDir, 'tarballs', expectedTarballFilename(child))}`];
+      }));
+      delete stagedManifest.optionalDependencies;
+      delete stagedManifest.peerDependencies;
+      delete stagedManifest.peerDependenciesMeta;
+      delete stagedManifest.devDependencies;
+      delete stagedManifest.bundleDependencies;
+      delete stagedManifest.bundledDependencies;
+      writeFileSync(join(sourceStage, 'package.json'), `${JSON.stringify(stagedManifest, null, 2)}\n`);
+      const stdout = execFileSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', packDir, '.'], {
+        cwd: sourceStage,
+        encoding: 'utf8',
+        maxBuffer: 64 * 1024 * 1024,
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+      const records = JSON.parse(stdout);
+      assert(Array.isArray(records) && records.length === 1, `offline dependency ${manifest.name} did not pack exactly once`);
+      const filename = records[0].filename;
+      assert(filename === expectedTarballFilename(node), `offline dependency tarball filename drifted for ${node.key}`);
+      const tarball = join(packDir, filename);
+      const packedManifestText = execFileSync('tar', ['-xOf', tarball, 'package/package.json'], { encoding: 'utf8' });
+      const packedManifest = JSON.parse(packedManifestText);
+      assert(packedManifest.name === manifest.name && packedManifest.version === manifest.version, `offline dependency packed identity drifted for ${node.key}`);
+      packageRows.push({
+        key: node.key,
+        name: manifest.name,
+        version: manifest.version,
+        sourceDigest: node.sourceDigest,
+        filename,
+        tarballSha256: sha256File(tarball),
+        packedManifestSha256: sha256(packedManifestText),
+      });
+    });
+    if (process.env.PROOF_OR_STOP_PACK_BOUNDARY_TEST_BUILD_DELAY_MS) {
+      sleepSync(Number(process.env.PROOF_OR_STOP_PACK_BOUNDARY_TEST_BUILD_DELAY_MS));
+    }
+    writeFileSync(join(stageDir, CACHE_MANIFEST_FILE), `${JSON.stringify({
+      schemaVersion: CACHE_FORMAT_VERSION,
+      cacheKey: input.cacheKey,
+      manifestDigest: input.manifestDigest,
+      lockDigests: input.lockDigests,
+      packages: packageRows,
+    }, null, 2)}\n`, { flag: 'wx' });
+    const current = validateOfflineCache(stageDir, input, graph, cacheDir);
+    assert(current.ok, `new offline cache failed validation: ${current.reason}`);
+    let quarantine = null;
+    if (existsSync(cacheDir)) {
+      quarantine = `${cacheDir}.stale-${process.pid}-${Date.now()}`;
+      renameSync(cacheDir, quarantine);
+    }
+    renameSync(stageDir, cacheDir);
+    if (quarantine) rmSync(quarantine, { recursive: true, force: true });
+  } catch (error) {
+    if (existsSync(stageDir)) rmSync(stageDir, { recursive: true, force: true });
+    throw error;
+  }
+}
+
+function ensureOfflineDependencyCacheForGraph(manifests, graph, cacheRoot) {
+  ensureSafeCacheRoot(cacheRoot);
+  const input = offlineCacheInput(manifests, graph);
+  const cacheDir = join(cacheRoot, input.cacheKey);
+  const initial = existsSync(cacheDir) ? validateOfflineCache(cacheDir, input, graph) : { ok: false, reason: 'cache missing' };
+  if (initial.ok) {
+    heartbeat(`offline dependency cache hit ${input.cacheKey.slice(0, 12)}`);
+    return { ...initial, cacheStatus: 'hit', cacheKey: input.cacheKey };
+  }
+  const release = acquireCacheLock(`${cacheDir}.lock`);
+  try {
+    const afterLock = existsSync(cacheDir) ? validateOfflineCache(cacheDir, input, graph) : { ok: false, reason: 'cache missing' };
+    if (afterLock.ok) return { ...afterLock, cacheStatus: 'hit-after-wait', cacheKey: input.cacheKey };
+    heartbeat(`offline dependency cache ${existsSync(cacheDir) ? 'invalid' : 'miss'}; rebuilding (${afterLock.reason})`);
+    buildOfflineCache(cacheRoot, cacheDir, input, graph);
+    const built = validateOfflineCache(cacheDir, input, graph);
+    assert(built.ok, `published offline cache failed validation: ${built.reason}`);
+    return { ...built, cacheStatus: initial.reason === 'cache missing' ? 'built' : 'rebuilt-after-invalid', cacheKey: input.cacheKey };
+  } finally {
+    release();
+  }
+}
+
+function ensureOfflineDependencyCache(manifests, cacheRoot = cacheRootPath()) {
+  return ensureOfflineDependencyCacheForGraph(manifests, resolveOfflineDependencyGraph(manifests), cacheRoot);
+}
+
+function prepareOfflineDependencyOverrides(manifests) {
+  const cache = ensureOfflineDependencyCache(manifests);
+  return { overrides: cache.overrides, summary: cache.summary, cacheStatus: cache.cacheStatus, cacheKey: cache.cacheKey };
 }
 
 function verifyPackedArtifacts(packed, sources) {
@@ -371,7 +629,7 @@ function runBoundary() {
     const packed = PACKAGE_ROWS.map((row) => packOne(row, tarballDir));
     verifyPackedArtifacts(packed, sources);
 
-    const offlineDependencies = prepareOfflineDependencyOverrides(sources, tempRoot);
+    const offlineDependencies = prepareOfflineDependencyOverrides(sources);
 
     writeFileSync(join(projectDir, 'package.json'), JSON.stringify({
       name: 'proof-or-stop-pack-boundary-consumer',
@@ -392,6 +650,7 @@ function runBoundary() {
       '--install-strategy=nested',
       ...packed.map((artifact) => artifact.tarball),
     ];
+    heartbeat(`installing exactly ${packed.length} product tarballs with npm --offline`);
     execFileSync('npm', installArgs, {
       cwd: projectDir,
       encoding: 'utf8',
@@ -437,6 +696,7 @@ function runBoundary() {
       assert(result.status !== 0, `retired package ${packageName} unexpectedly resolved`);
     }
 
+    heartbeat('checking canonical and retired role lookup boundary');
     for (const role of CANONICAL_ROLES) {
       const result = runInstalledCli(cli, projectDir, ['agent_prompt', `--role=${role}`]);
       assert(result.stdout.includes(`name: ${role}`), `canonical role lookup did not render ${role}`);
@@ -460,6 +720,7 @@ function runBoundary() {
       networkPolicy: 'npm-offline-with-unreachable-http-and-https-proxies',
       installInput: 'exactly-four-product-tarballs',
       offlineDependencySource: 'source-resolved-runtime-dependency-tarballs-via-overrides',
+      offlineDependencyCache: { status: offlineDependencies.cacheStatus, key: offlineDependencies.cacheKey },
       offlineDependencyPackages: offlineDependencies.summary,
       packages: packed.map(stablePackageSummary),
       assertions: {
@@ -479,7 +740,54 @@ function runBoundary() {
   }
 }
 
-function runSelfTest() {
+function cacheProbeGraph(packageDir) {
+  const manifest = readJson(join(packageDir, 'package.json'));
+  const key = `${manifest.name}@${manifest.version}`;
+  const node = {
+    key,
+    packageDir,
+    manifest,
+    edges: new Map(),
+    sourceDigest: directoryContentDigest(packageDir),
+  };
+  return { packages: new Map([[key, node]]), seedKeys: new Map([[manifest.name, key]]) };
+}
+
+function runCacheWorker(payload) {
+  const manifests = sourceManifests();
+  const result = ensureOfflineDependencyCacheForGraph(
+    manifests,
+    cacheProbeGraph(payload.packageDir),
+    payload.cacheRoot,
+  );
+  console.log(JSON.stringify({ cacheStatus: result.cacheStatus, cacheKey: result.cacheKey }));
+}
+
+function spawnCacheWorker(payload) {
+  return new Promise((resolvePromise, rejectPromise) => {
+    const encoded = Buffer.from(JSON.stringify(payload)).toString('base64url');
+    const child = spawn(process.execPath, [fileURLToPath(import.meta.url), `--cache-self-test-worker=${encoded}`], {
+      cwd: ROOT,
+      encoding: 'utf8',
+      env: { ...process.env, PROOF_OR_STOP_PACK_BOUNDARY_TEST_BUILD_DELAY_MS: '500' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => { stdout += chunk; });
+    child.stderr.on('data', (chunk) => { stderr += chunk; });
+    child.on('error', rejectPromise);
+    child.on('exit', (code) => {
+      if (code !== 0) rejectPromise(new Error(`cache worker exited ${code}: ${stderr || stdout}`));
+      else {
+        try { resolvePromise(JSON.parse(stdout.trim().split('\n').at(-1))); }
+        catch (error) { rejectPromise(new Error(`cache worker returned invalid output: ${error.message}: ${stdout}`)); }
+      }
+    });
+  });
+}
+
+async function runSelfTest() {
   const sources = sourceManifests();
   assert(validateManifestCohort(sources).length === 0, 'real source manifests must satisfy the pack graph before mutation tests');
 
@@ -499,11 +807,52 @@ function runSelfTest() {
   retiredDependency.root.dependencies[`${RETIRED_SCOPE}/core`] = sources.core.version;
   assert(validateManifestCohort(retiredDependency).some((error) => error.includes('retired package')), 'retired dependency mutation did not fail');
 
-  console.log('PASS pack-boundary self-test: stale exact pin, unsatisfied peer, extra bin, and retired dependency mutations fail closed');
+  const temp = mkdtempSync(join(tmpdir(), 'proof-or-stop-pack-cache-self-test-'));
+  try {
+    const packageDir = join(temp, 'dependency');
+    const cacheRoot = join(temp, 'cache');
+    mkdirSync(packageDir, { recursive: true });
+    writeFileSync(join(packageDir, 'package.json'), JSON.stringify({ name: 'proof-or-stop-cache-probe', version: '1.0.0', main: 'index.js' }));
+    writeFileSync(join(packageDir, 'index.js'), 'export const cacheProbe = true;\n');
+    const graph = cacheProbeGraph(packageDir);
+
+    const cold = ensureOfflineDependencyCacheForGraph(sources, graph, cacheRoot);
+    assert(cold.cacheStatus === 'built', `cache cold build status was ${cold.cacheStatus}`);
+    const warm = ensureOfflineDependencyCacheForGraph(sources, cacheProbeGraph(packageDir), cacheRoot);
+    assert(warm.cacheStatus === 'hit', `cache warm status was ${warm.cacheStatus}`);
+
+    const cacheDir = join(cacheRoot, cold.cacheKey);
+    const cacheManifest = readJson(join(cacheDir, CACHE_MANIFEST_FILE));
+    const cachedTarball = join(cacheDir, 'tarballs', cacheManifest.packages[0].filename);
+    appendFileSync(cachedTarball, 'tamper');
+    const afterTamper = ensureOfflineDependencyCacheForGraph(sources, cacheProbeGraph(packageDir), cacheRoot);
+    assert(afterTamper.cacheStatus === 'rebuilt-after-invalid', `tampered cache status was ${afterTamper.cacheStatus}`);
+
+    const staleManifest = readJson(join(cacheDir, CACHE_MANIFEST_FILE));
+    staleManifest.lockDigests[0].sha256 = '0'.repeat(64);
+    writeFileSync(join(cacheDir, CACHE_MANIFEST_FILE), `${JSON.stringify(staleManifest, null, 2)}\n`);
+    const afterStale = ensureOfflineDependencyCacheForGraph(sources, cacheProbeGraph(packageDir), cacheRoot);
+    assert(afterStale.cacheStatus === 'rebuilt-after-invalid', `stale manifest cache status was ${afterStale.cacheStatus}`);
+
+    const concurrentRoot = join(temp, 'concurrent-cache');
+    const concurrentResults = await Promise.all([
+      spawnCacheWorker({ cacheRoot: concurrentRoot, packageDir }),
+      spawnCacheWorker({ cacheRoot: concurrentRoot, packageDir }),
+    ]);
+    const statuses = concurrentResults.map((result) => result.cacheStatus).sort();
+    assert(statuses.includes('built') && statuses.includes('hit-after-wait'), `concurrent cache statuses were ${statuses.join(', ')}`);
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+
+  console.log('PASS pack-boundary self-test: manifest mutations fail closed; cache hit, tamper/stale rebuild, and concurrent publication verified');
 }
 
-if (process.argv.includes('--self-test')) {
-  runSelfTest();
+const cacheWorkerArg = process.argv.find((arg) => arg.startsWith('--cache-self-test-worker='));
+if (cacheWorkerArg) {
+  runCacheWorker(JSON.parse(Buffer.from(cacheWorkerArg.slice('--cache-self-test-worker='.length), 'base64url').toString('utf8')));
+} else if (process.argv.includes('--self-test')) {
+  await runSelfTest();
 } else {
   const transcript = runBoundary();
   const transcriptArg = process.argv.find((arg) => arg.startsWith('--transcript='));
