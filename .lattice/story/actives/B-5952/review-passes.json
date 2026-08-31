@@ -150,6 +150,29 @@
       },
       "readDiagnostics": [],
       "_hash": "52efe509f0e8fc07cacafbfda6540610db02b49b81dd6d799149ec5423508583"
+    },
+    {
+      "id": "B-5952:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "No concept blocker this round. The ProofStory contract now binds to the seven existing canonical CHK-001 intent ids already present on the checklist evidence surface, so the causal 796/804 and 377/385 claim remains tied to the detached causal-baseline-map receipt rather than stale positional refs. Scope also remains unchanged and narrow: only the smoke source plus rebuilt dist are in scope, while persistent Dynamic Finding document edits and core/handlers/cli changes remain excluded.",
+      "createdAt": "2026-08-31T08:20:05.411Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-016",
+      "envelopeId": "a420e59c7e6938a04ccb89344e07058de269f255af7e4eabfecf521d28802da0",
+      "writerSessionId": "sess-3ffde344b0dce95a551651f8a3e90c31",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/proofstory.json",
+          ".lattice/story/actives/B-5952/scope-contract.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "4c05c421af6cec7b614fa5fbbd552d584c6c223ab527233d0bd947274ca810ae"
     }
   ]
 }
