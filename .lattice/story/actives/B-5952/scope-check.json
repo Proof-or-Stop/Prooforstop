@@ -1,6 +1,6 @@
 {
   "storyId": "B-5952",
-  "checkedAt": "2026-08-31T02:40:51.909Z",
+  "checkedAt": "2026-08-31T02:43:33.989Z",
   "features": [
     {
       "feature": "Raise only the retired-authority dynamic-binding instrumentation assertion to a finite documented ceiling strictly above the observed 804 and no greater than 850.",
@@ -14,7 +14,7 @@
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-5952/checklist.json"
+      "source": ".lattice/story/actives/B-5952/plan.md"
     },
     {
       "feature": "Preserve a real absolute bound with ceiling and ceiling+1 characterization, adversarial mutation rejection, deterministic rebuild-and-smoke evidence, and an operator-visible PASS at the current inventory.",
@@ -24,31 +24,33 @@
       "source": ".lattice/story/actives/B-5952/checklist.json"
     },
     {
-      "feature": "Changes to production command behavior.",
+      "feature": "A frozen enforce execution boundary allows exactly packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts and packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-5952/scope-contract.json"
+    },
+    {
+      "feature": "Changes to production command behavior or runtime handlers/core/CLI.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "The Story description and understanding constraints explicitly limit the repair to validation instrumentation and forbid production-command behavior changes.",
-      "source": ".lattice/story/actives/B-5952/understanding.json"
+      "excluded_by": "Understanding and plan limit the repair to validation instrumentation; enforce scope explicitly excludes packages/main/src/handlers/**, packages/main/src/core/**, and packages/main/src/cli/**.",
+      "source": ".lattice/story/actives/B-5952/scope-contract.json"
     },
     {
       "feature": "Changes to docs/requirements/decisions/dynamic-finding-system-execution-plan.md.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Understanding explicitly says do not edit the Dynamic Finding plan, and CHK-001 adversarial verification requires its fork/base diff to remain unchanged.",
-      "source": ".lattice/story/actives/B-5952/understanding.json"
-    },
-    {
-      "feature": "A frozen execution boundary mechanically allows only packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts and its rebuilt packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js while rejecting Dynamic Finding documentation changes.",
-      "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
-      "source": "scope_contract_show and plan_get CLI results"
+      "excluded_by": "The enforce scope names the document in both protectedFiles and explicitExcludes; plan and verificationIntent also require a zero fork/base diff.",
+      "source": ".lattice/story/actives/B-5952/scope-contract.json"
     }
   ],
   "readManifest": {
     "filesReadFully": [
       ".lattice/story/actives/B-5952/background.md",
       ".lattice/story/actives/B-5952/checklist.json",
+      ".lattice/story/actives/B-5952/plan.md",
+      ".lattice/story/actives/B-5952/scope-contract.json",
       ".lattice/story/actives/B-5952/understanding.json"
     ],
     "filesTriagedByName": [],
@@ -56,27 +58,13 @@
   },
   "summary": {
     "total": 6,
-    "covered": 3,
+    "covered": 4,
     "excluded": 2,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "d740ef0df132c6c5d9032b04e3d814bf303b11553fe690be1eed37ae5660fb17",
-  "openQuestions": [
-    {
-      "id": "Q-SCOPE-001",
-      "q": "Where is the frozen PLAN execution boundary that permits exactly the assertion source plus rebuilt dist and mechanically excludes the Dynamic Finding document?",
-      "evidence": "plan_get reports plan.md not found; scope_contract_show reports no scope contract configured. Textual understanding and verificationIntent exclusions are present but are not the frozen path gate requested for DEV.",
-      "sourcePointers": [
-        "CHK-001",
-        "scope-contract.json",
-        "plan.md",
-        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
-      ],
-      "resolution": "The frozen mechanical boundary now exists in the enforce-mode scope contract: exactly the retired-authority assertion source and generated dist may change, while the Dynamic Finding decision document and runtime implementation directories are protected or excluded. The complete CHK-001 execution order is persisted in plan.md.",
-      "resolvedAt": "2026-08-31T02:41:55.266Z"
-    }
-  ]
+  "_hash": "9dc40b7c0c360edda4d1000ead6edeba3ffbfa6e87b64a688e30e48fbb8ed0f7",
+  "openQuestions": []
 }
