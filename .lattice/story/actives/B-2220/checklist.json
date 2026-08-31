@@ -127,6 +127,17 @@
           "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
           "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
           "timestamp": "2026-08-31T00:10:17.462Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const exact=\\\"it does not establish input consistency, semantic consistency or evidence truth\\\";if(!s.includes(exact))process.exit(1);console.log(\\\"B-2220 edge-0 PASS\\\");\"",
+          "note": "The decision explicitly limits byte identity and rejects input/semantic/evidence-truth overclaims.",
+          "mechanical": false,
+          "headHash": "d7990086093d4c929f2b2cf882747f490981c9bf",
+          "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
+          "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
+          "timestamp": "2026-08-31T00:10:31.601Z"
         }
       ],
       "userSeesSnapshot": {
