@@ -384,6 +384,43 @@
         "scanEscalationReason": null
       },
       "_hash": "56388964bdef654682d7e3b7be820b36c543b8111b92ee0bb7be61ea8ec0dfd8"
+    },
+    {
+      "id": "B-022e:RP-014",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Fresh concept re-sign at exact HEAD b37423eb04 after F-013 resolution. Relative to the completed incremental product review, changes are confined to story checklist/transcript/finding/review metadata: the product delta remains exactly the two NUL-to-source-escape edits and two exact .gitattributes text/diff declarations. Prior independent checks remain applicable: old blobs each had one literal NUL, current source has none, runtime separator charCode is 0, the 61-check usage-ledger foundation smoke passes, and identity full verifier/self-test/offline four-tarball boundary pass. F-013 is now resolved after recapturing and rebinding the live-smoke transcript with fresh evidence; no product or concept drift and no concept blocker found.",
+      "createdAt": "2026-08-31T09:26:00.244Z",
+      "reviewRound": "2026-08-31T09:21:04.599Z",
+      "reviewRunId": "B-022e:RR-035",
+      "envelopeId": "8976023e2adfa4c6335fa82ade9714f42b6cb8f7f9bf42c4c64b0cc6a6aab61c",
+      "writerSessionId": "sess-c4e852e510a4581a8e47f00c9ff0ad50",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitattributes",
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "packages/main/src/core/usage-ledger/diagnostics.ts",
+          "packages/main/src/core/usage-ledger/ids.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9bb87544f87a6ef7149b1b1f5bae7e60cdd4a08b3a943349b556c294b506a99f"
     }
   ]
 }
