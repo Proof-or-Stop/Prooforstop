@@ -22822,6 +22822,45 @@
         "scanEscalationReason": null
       },
       "_hash": "3f1dc20a6746cbd0843d854edab01ac75a3880d4bdef4266e0a44ae2c9c6893e"
+    },
+    {
+      "id": "B-45a0:RP-474",
+      "agent": "lattice-review-quality",
+      "note": "Verified commit 5b2510e0a7 (Rule 10, Section 9 of proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md) is accurate and non-overclaiming on all three points requested. (a) core/pre-review-check.ts:342 does a raw equality PR_COVERAGE_BASIS_CHANGED check; verifyPreReviewCheckArtifact (lines 417-424) independently recomputes the expected artifact from current basis and pushes PR_ARTIFACT_TAMPERED on digest mismatch, explaining the doc's 'usually alongside PR_ARTIFACT_TAMPERED' framing; confirmed against B-45a0:F-431/F-432/F-433/F-436 which reproduce codes=[PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED] together. (b) acceptanceCoverageBasisSemanticDigest (acceptance-coverage-basis.ts:250-253) strips basisDigest/binding/receiptRef before hashing, matching the doc's parenthetical; priorPlanBasisDigest is typed as a plain string (types.ts:459) -- raw hash only -- so wiring the semantic digest into PR_COVERAGE_BASIS_CHANGED genuinely needs new persistence, as claimed. (c) command-policy.ts:439 pre_review_check has allowedPhases:['DEV'] vs pre_review_check_read allowedPhases:'all' -- so a REVIEW-phase decay cannot self-repair and must return to DEV, exactly as claimed. issuePreReviewCheckArtifact status derivation never yields a silent pass when PR_COVERAGE_BASIS_CHANGED fires, correctly matching Rule 9 item 3's 'never a silent pass' framing as operator-hazard not code defect. All claims verified against B-45a0's own F-431 through F-436 which independently reproduced the same mechanism and 82-second timing. No overclaiming found; docs-only change confirmed via git show --stat. Scope limited to Rule 10/Section 9 accuracy per dispatcher instructions; F-431/F-432/F-433/F-434/F-435/F-436 remain OPEN and unresolved by this pass.",
+      "createdAt": "2026-08-31T02:56:26.294Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1072",
+      "envelopeId": "2056c597a130f6820eac1751d3f5d2fb2daee12fa923320e20db85e0da125935",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          "packages/main/src/core/types.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+      },
+      "readDiagnostics": [],
+      "_hash": "d2d3f05187c8723d378deba06e04ec521024a251eacd501219fff6b0538f53e7"
     }
   ]
 }
