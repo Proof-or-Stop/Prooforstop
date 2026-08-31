@@ -493,7 +493,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1374-1379,1680-1684,1894-1900,2297-2301 [high] F-018 remains internally inconsistent for materialHash-only drift. The ledger-first floor and required tests say scope/story-files/material/runtime drift makes a previously claimed lineage stale or unknown and blocks before status, severity, and round. Section 7.5 still says a materialHash mismatch with matching signed storyFilesHash remains valid with only a re-attestation advisory, while rollback text narrows invalidation to Story-owned material. An implementation can therefore preserve deferral authority across material drift and still satisfy one normative section, defeating the requested always-first drift floor. Define one lineage-specific rule: either material drift blocks until a signed, gate-consumed re-attestation/new fresh assessment is validated, or explicitly narrow every F-018 claim/test to Story-owned/relevant drift and prove shared process/runtime changes cannot affect lineage. The current advisory-versus-blocking ambiguity is not safe for enforce.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T01:49:26.201Z",
@@ -504,7 +504,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "spec-boundary|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 210da4b610: every raw materialHash mismatch on a claimed lineage enters pending_re_attestation and the first blocking floor even when storyFilesHash matches; only current signed L4 proof that Story files and all bound runtime, process-policy, route and canonical dependencies are unaffected restores valid, while host self-classification or invalid/related/unknown proof remains blocked.",
+      "resolvedAt": "2026-08-31T02:03:40.675Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
