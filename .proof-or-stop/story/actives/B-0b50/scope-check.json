@@ -1,0 +1,55 @@
+{
+  "storyId": "B-0b50",
+  "checkedAt": "2026-08-25T19:35:28.237Z",
+  "features": [
+    {
+      "feature": "Done_prepare propagates the blocker-specific review_inventory_finalize command when PRE_CERT inventory is missing",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/handlers/done-prepare.ts"
+    },
+    {
+      "feature": "Certification-window blocked TEST recovery renders review_inventory_finalize for missing inventory",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/core/certification-window.ts"
+    },
+    {
+      "feature": "Recovery stays fail-closed and does not grant inventory completeness PRE_CERT or TEST authority",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+    },
+    {
+      "feature": "No unrelated lifecycle, fixture, or remote-publish changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-0b50 scope boundary",
+      "source": "AGENTS.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "AGENTS.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d22333cb234b4e4995702ca7d48a5c83c23796ea8ce1091ffa7f10bd9ab40819",
+  "openQuestions": []
+}

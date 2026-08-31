@@ -1,0 +1,122 @@
+{
+  "storyId": "B-3e16",
+  "checkedAt": "2026-08-29T09:30:31.763Z",
+  "headHash": "1466a680b3518f93fe2d359f4ebe003d906ffb0b",
+  "materialHash": "715e737dfdcac359f73bac5895d88ad73067adfc8aec7d0b26e1bfefdf7cc2ac",
+  "storyFilesHash": "7ea223d5557f9d66a3960162cd66a3f8e77d8feb8c0dd83d22f89397e6bd1574",
+  "reviewRound": "2026-08-29T08:18:34.466Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#graph-section",
+      "promise": "proof-or-stop graph exists with four flags: --root, --port, --no-open, --json; default port 8731",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "packages/main/src/handlers/graph.ts GraphArgs interface declares root/port/open/json; GRAPH_DEFAULT_PORT=8731 exported and consumed as args.port ?? GRAPH_DEFAULT_PORT; registered in cli/command-catalog.ts (name: graph). Reproduced fresh in this review: node bin/proof-or-stop.js graph --json returned stories 369, edges 426, indexRows 24009 at current HEAD 1466a680b3."
+    },
+    {
+      "docPath": "CLAUDE.md#graph-section",
+      "promise": "worktree precedence: from PLAN onward story artifacts live in the linked worktree; reading only the main checkout misreports all in-flight stories as INIT_CHECK",
+      "verifiedBy": "diff/grep",
+      "evidence": "Identical wording appears verbatim in packages/graph/README.md under What it reads, matching the CLAUDE.md graph section; consistent with the store/fn.ts worktree-precedence resolution logic."
+    },
+    {
+      "docPath": "CLAUDE.md#graph-section",
+      "promise": "clean-worktree property: graph writes nothing into the inspected repo; index cache lives in a user cache dir keyed by sha256 of the repo root path, so no runtime-artifact-registry entry is needed",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "Reproduced fresh: npm --prefix packages/graph run verify-clean-tree printed index db resolved OUTSIDE the inspected repo and CLEAN_TREE_OK; npm --prefix packages/graph run verify-no-project-writes run in isolation (per the caution about concurrent writers) printed repository byte-identical across a full scan (14560 paths hashed) and NO_PROJECT_WRITES_OK; git status --porcelain was empty before and after."
+    },
+    {
+      "docPath": "CLAUDE.md#graph-section",
+      "promise": "code location: packages/graph subpackage; packages/main has only a thin handler calling its library surface createApp/startServer; packages/graph/assets/ is gitignored build output, not committed",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/handlers/graph.ts GraphLibrary interface consumes only createApp, startServer, findRoot, openBrowser. packages/graph/.gitignore contains assets/ and vendor/ with explanatory comment. git ls-files confirms packages/graph has 39 tracked files and no assets/ entries."
+    },
+    {
+      "docPath": "CLAUDE.md#graph-section",
+      "promise": "Node >= 22.5 floor because the full-text index uses node:sqlite; packages/graph is this repo's first package declaring an engines field",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "packages/graph/package.json declares engines.node as >=22.5.0. Reproduced fresh: npm --prefix packages/graph run verify-engines-floor printed a negative control (unguarded import on v20.19.6 throws ERR_UNKNOWN_BUILTIN_MODULE), then a readable diagnostic naming node:sqlite, the running version and the required range sourced from the manifest, then ENGINES_FLOOR_OK."
+    },
+    {
+      "docPath": "docs/requirements/decisions/graph-command-migration.md#Decision-1",
+      "promise": "packages/graph as its own subpackage, not merged into packages/main",
+      "verifiedBy": "diff/grep",
+      "evidence": "Section present verbatim (Decision 1). packages/graph exists as an independent package.json/tsconfig.json tree with its own build/typecheck/check scripts, confirmed by direct read."
+    },
+    {
+      "docPath": "docs/requirements/decisions/graph-command-migration.md#Decision-2",
+      "promise": "vendored browser bundles are build output and stay out of source control",
+      "verifiedBy": "diff/grep",
+      "evidence": "Section present verbatim. packages/graph/.gitignore (read directly) ignores assets/ and vendor/ with rationale comment; scripts/build-web.mjs and scripts/copy-assets.mjs exist and regenerate them per the npm --prefix packages/graph run build output observed in this review (assets: app.html, d3.min.js, mermaid.min.js, gsap.min.js, mediabunny.min.mjs, gifenc.esm.js)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/graph-command-migration.md#Decision-3",
+      "promise": "an explicit Node engines floor for node:sqlite",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "Section present verbatim; engines.node is >=22.5.0 in packages/graph/package.json; verify-engines-floor.mjs reproduced fresh in this review, proving the failure message and floor value both derive from the manifest declaration, not a duplicated literal."
+    },
+    {
+      "docPath": "docs/requirements/decisions/graph-command-migration.md#Decision-4",
+      "promise": "the index cache lives outside the inspected repository",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "Section present verbatim; matches README cache-location claim; verify-no-project-writes and verify-clean-tree both reproduced fresh and passed in this review (see clean-worktree promise above for exact output)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/graph-command-migration.md#Decision-5",
+      "promise": "the runtime dynamic import in handlers/graph.ts is permanent, not a workspace-linking artifact to be tidied later, because a static import would pull node:sqlite into every CLI command's always-evaluated module graph",
+      "verifiedBy": "diff/grep",
+      "evidence": "Section present verbatim with a probe table. Direct read of packages/main/src/handlers/graph.ts confirms an await import(pathToFileURL(location.entry).href) call with an explanatory comment about pathToFileURL avoiding bare file url path issues, and resolveGraphPackage() resolves the path at runtime. Matches an approval entry keyed by content hash for handlers/graph.ts in packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts, confirming the dynamic-import exemption is registered, not undocumented."
+    },
+    {
+      "docPath": "docs/requirements/decisions/graph-command-migration.md#Test-surface-placement",
+      "promise": "validate.commands and test:serial-reference are two separately maintained lists, neither a subset of the other; packages/graph needed its own explicit entries in both because the root build chain and verify-lattice-residue.mjs SRC_SCAN_ROOTS do not cover it automatically",
+      "verifiedBy": "diff/grep",
+      "evidence": "Section present verbatim. Direct read confirms scripts/verify-lattice-residue.mjs SRC_SCAN_ROOTS includes packages/graph/src; package.json root build script chains npm --prefix packages/graph run build; proof-or-stop.config.json and lattice.config.json each have an explicit npm --prefix packages/graph run check entry in validate.commands."
+    },
+    {
+      "docPath": "docs/requirements/decisions/graph-command-migration.md#registration-surface-set",
+      "promise": "registering a new top-level command touches a set of fail-closed surfaces discovered by running the contract tasks, not a fixed hand-counted number",
+      "verifiedBy": "diff/grep + real-machine run",
+      "evidence": "Section present verbatim, explicitly warns against trusting a hand-typed count. Diff touches packages/main/src/core/process-fact-levels.ts, core/command-policy.ts, cli/command-catalog.ts, cli-engine.ts, registry.ts -- multiple independent registration surfaces. Reproduced fresh in this review: root npm test 58/58 passed in 289.9s, exit code 0, covering command-ownership-contract, command-catalog-smoke, cli-surface-smoke, verify-orphan-surface, lifecycle-registry-contract, test:process-fact-contract (that task shows as its own passing line in the run log)."
+    },
+    {
+      "docPath": "packages/graph/README.md",
+      "promise": "README rewritten to describe the proof-or-stop graph command rather than the deleted standalone binary; states the package has no binary of its own",
+      "verifiedBy": "diff/grep",
+      "evidence": "README.md (read directly) opens with proof-or-stop graph usage and states verbatim that this package has no binary of its own, that it is the library behind the proof-or-stop graph command, whose handler lives in packages/main/src/handlers/graph.ts. No stray standalone-binary vocabulary found on inspection."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Checklist verificationEvidence (previously refreshed at current material by the main agent, spot-checked here): npm --prefix packages/graph run build produced assets/app.html and vendor bundles; npm --prefix packages/graph run typecheck exited via GRAPH_TSC_CLEAN selector; npm --prefix packages/graph run verify-assets-ignored confirmed git check-ignore covers assets/. Root npm test 58/58 reproduced fresh in this review confirms the recursive tsc gate and orphan-surface checks still pass with packages/graph present."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Reproduced fresh in this review: npm --prefix packages/graph run verify-engines-floor. Negative control on simulated Node 20.19.6 throws ERR_UNKNOWN_BUILTIN_MODULE unguarded; guard produces a readable message naming node:sqlite, the running version, and the required range sourced from the manifest; final line ENGINES_FLOOR_OK."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Reproduced fresh in this review: root npm test 58/58 passed in 289.9s exit code 0, including the process-fact-contract task, exercising command-ownership-contract, command-catalog-smoke, cli-surface-smoke, verify-orphan-surface, lifecycle-registry-contract at current material (HEAD 1466a680b3)."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Reproduced fresh in this review: npm --prefix packages/graph run verify-serves printed root path returns an HTML document (400500 bytes), /api/graph returns 369 stories and 426 edges, /api/status returns 369 stories and 24009 indexed rows, /api/search returns 80 hits for graph, then SERVES_OK. Matches node bin/proof-or-stop.js graph --json output in this same review session (369 stories, 426 edges)."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Reproduced fresh in this review, each run in isolation: npm --prefix packages/graph run verify-clean-tree printed index db resolved OUTSIDE the inspected repo and CLEAN_TREE_OK; npm --prefix packages/graph run verify-no-project-writes printed repository byte-identical across a full scan (14560 paths hashed) and NO_PROJECT_WRITES_OK. git status --porcelain was empty immediately before and after both runs."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Reproduced a representative subset fresh in this review: verify-engines-floor and verify-serves (above) both printed their OK selectors at current material; root npm test 58/58 exit 0 covers the cross-cutting contract tasks this item wires in. The full npm --prefix packages/graph run check chain including audit and bench was not independently re-run beyond what checklist evidence already recorded, since the constituent guards were reproduced individually in this pass."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Fresh-context re-verification at current material (HEAD 1466a680b3, materialHash 715e737d). All 13 docs promises independently re-read from current CLAUDE.md, graph-command-migration.md and packages/graph/README.md and cross-checked against handler and package source; nothing under packages/graph, packages/main, CLAUDE.md or the decisions doc changed since the prior now-superseded delivery-check signature, confirmed via a git diff between the two head hashes. Reproduced real-machine evidence directly: graph --json (369 stories, 426 edges, 24009 rows), verify-engines-floor (ENGINES_FLOOR_OK with a genuine negative control), verify-serves (SERVES_OK), verify-clean-tree (CLEAN_TREE_OK), verify-no-project-writes run in isolation (NO_PROJECT_WRITES_OK, 14560 paths byte-identical), and root npm test 58 of 58 passing with exit code 0 in 289.9 seconds. Independently investigated the three open topology-critic findings F-019, F-020 and F-021 rather than trusting their text or any other party's characterization of them: ran acceptance_topology_check and acceptance_rollout_check directly and found acceptance_rollout_check currently reports ok true, status pass, receipt current, quorum full-3x2, empty diagnostics, contradicting the findings' claim of a stale rollout receipt; the rollout report was regenerated at commit 48a3da9600 timestamped 2026-08-29T08:17:04Z, which is after the findings were filed at 05:52 to 05:55Z, so the findings describe a transient prior state that has since been repaired rather than a currently live defect. acceptance_topology_check independently reports mode observe, authority diagnostic only, blocking false; its packages/graph blind spots are glob-pattern scope references being stat-checked as literal filesystem paths, confirmed because the literal glob string is not a valid path while the three cited package roots are git-tracked with 39, 3 and 362 real readable files respectively -- a framework discovery-adapter limitation, not missing or undelivered source. lifecycle_check for target TEST independently scores the no-open-blocking-review-findings check as pass with an empty next-actions list. No TODO, FIXME or HACK was found in product source during this pass. All promises hold; no waiver is needed."
+  },
+  "_hash": "9bf524cd76b315c0c910a9e477a60dcbeceff1799ea413b8f43374323ee6375a"
+}

@@ -112,6 +112,14 @@ const ALLOWLIST_EXACT = new Set<string>([
   // Static-scan audit task that contains git-call literal STRINGS in its
   // assertion fixtures (the strings themselves are part of the audit).
   'packages/main/src/tasks/main-write-lock-coverage.ts',
+  // B-3e16 listWorktrees(root) in the `proof-or-stop graph` visualizer: enumerates
+  // worktrees under a caller-supplied `--root` so story state is read with worktree
+  // precedence. No storyId exists at the site to key resolveGitCwd on -- discovering
+  // which worktrees exist is the call's whole purpose -- and the command is strictly
+  // read-only, writing only its index cache outside the inspected repo. A non-repo or
+  // wrapper root degrades gracefully already: the surrounding `catch { list = [] }`
+  // falls back to reading the main checkout only.
+  'packages/graph/src/core/store/fn.ts',
 ]);
 
 // ── B-6666 / B-75f0 NEW-RULES EXEMPTION ALLOWLISTS (split into two sets) ──────

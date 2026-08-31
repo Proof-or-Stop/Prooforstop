@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-0b50",
+  "sourceText": "实现 story B-0b50：将缺失 PRE_CERT inventory 的恢复路径直接指向 TEST-safe review_inventory_finalize，并补充回归验证。",
+  "normalizedOutcome": "TEST 中缺少 PRE_CERT inventory 时，终端明确显示 review_inventory_finalize，且不要求回 DEV 或重新 REVIEW。",
+  "acceptanceClaim": "done_prepare 与 certification-window blocked output 都显示 review_inventory_finalize 作为缺失 inventory 的下一步命令。",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:97f84355ba8ac67c57b1690f286dea655c84f1c058b2c8b1ded2e497d88e0f22",
+  "createdAt": "2026-08-25T19:38:02.493Z",
+  "updatedAt": "2026-08-25T19:38:02.493Z"
+}
