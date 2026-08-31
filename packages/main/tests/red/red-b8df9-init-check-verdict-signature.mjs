@@ -103,7 +103,7 @@
  *
  * That waiver is exactly the kind of temporary prose that outlives its reason,
  * so nothing here relies on someone remembering: once every row goes GREEN this
- * file re-reads its own entry in `lattice.config.json` and FAILS while the
+ * file re-reads its own entry in the canonical project config and FAILS while the
  * `optional` declaration is still there. The waiver cannot survive the fix, and
  * after the fix a regression fails `validate` for real.
  *
@@ -116,7 +116,7 @@
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -580,7 +580,9 @@ const SELF_REL = relative(REPO, fileURLToPath(import.meta.url)).split(sep).join(
 function registrationState() {
   let config;
   try {
-    config = JSON.parse(readFileSync(join(REPO, 'lattice.config.json'), 'utf8'));
+    const canonical = join(REPO, 'proof-or-stop.config.json');
+    const legacy = join(REPO, 'lattice.config.json');
+    config = JSON.parse(readFileSync(existsSync(canonical) ? canonical : legacy, 'utf8'));
   } catch {
     return { readable: false, found: false, optional: false };
   }
@@ -608,7 +610,7 @@ for (const { id, claim, verdict, observed } of rows) {
 }
 console.log(`\n  ${redCount} RED / ${brokenCount} BROKEN / ${rows.length} rows`);
 console.log(
-  `  registration in lattice.config.json: readable=${registration.readable} found=${registration.found} `
+  `  registration in project config: readable=${registration.readable} found=${registration.found} `
   + `optional=${registration.optional} → waiverWithdrawn=${waiverWithdrawn} `
   + '(a surviving waiver is reported while the defect stands and becomes FATAL once every row is GREEN)',
 );
@@ -653,9 +655,9 @@ if (!waiverWithdrawn) {
     '',
     '  Every row is GREEN, so the defect this artifact was written for is fixed —',
     '  but its registration is still in its pre-fix shape:',
-    `    lattice.config.json readable=${registration.readable} entry found=${registration.found} optional=${registration.optional}`,
+    `    project config readable=${registration.readable} entry found=${registration.found} optional=${registration.optional}`,
     '',
-    '  Withdraw the waiver: register this file in lattice.config.json validate.commands',
+    '  Withdraw the waiver: register this file in project config validate.commands',
     '  WITHOUT `optional`, so that a regression of the signature domain fails validate',
     '  instead of printing a warning nobody reads. Until then this exits non-zero.',
     '',

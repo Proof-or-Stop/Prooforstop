@@ -3,23 +3,36 @@
   "mode": "enforce",
   "allowedModify": [
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+    "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+    "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+    "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/dist/core/codex-adapter-checks.js",
+    "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+    "packages/main/dist/tasks/red-evidence-envelope-smoke.js"
   ],
   "allowedCreate": [],
-  "allowedTest": [],
+  "allowedTest": [
+    "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+    "packages/main/tests/red/red-w2d-command-readonly.mjs",
+    "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+  ],
   "protectedFiles": [
     "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
   ],
   "explicitExcludes": [
     "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
     "packages/main/src/handlers/**",
-    "packages/main/src/core/**",
     "packages/main/src/cli/**"
   ],
-  "scopeChangeReason": "Freeze B-5952 to the one instrumentation assertion source and its generated dist; keep the parent Dynamic Finding document and runtime implementation outside this repair.",
+  "scopeChangeReason": "The first full TEST run exposed six reproducible baseline blockers. Expand only to their exact source/test/generated files; retain the Dynamic Finding decision document plus all handlers and CLI sources as protected or excluded.",
   "acknowledgements": [],
   "createdAt": "2026-08-31T02:41:54.893Z",
-  "updatedAt": "2026-08-31T02:41:54.893Z",
+  "updatedAt": "2026-08-31T12:09:40.600Z",
+  "fileRules": [],
+  "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -28,6 +41,17 @@
     "docs/requirements/decisions/dynamic-finding-system-execution-plan.md": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
     "packages/main/src/handlers/**": "packages/main/src/handlers/**",
     "packages/main/src/core/**": "packages/main/src/core/**",
-    "packages/main/src/cli/**": "packages/main/src/cli/**"
+    "packages/main/src/cli/**": "packages/main/src/cli/**",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts": "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/dist/tasks/validate-command-timeout-smoke.js": "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+    "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts": "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+    "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js": "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+    "packages/main/src/core/codex-adapter-checks.ts": "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/dist/core/codex-adapter-checks.js": "packages/main/dist/core/codex-adapter-checks.js",
+    "packages/main/src/tasks/red-evidence-envelope-smoke.ts": "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+    "packages/main/dist/tasks/red-evidence-envelope-smoke.js": "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+    "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs": "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+    "packages/main/tests/red/red-w2d-command-readonly.mjs": "packages/main/tests/red/red-w2d-command-readonly.mjs",
+    "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs": "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
   }
 }
