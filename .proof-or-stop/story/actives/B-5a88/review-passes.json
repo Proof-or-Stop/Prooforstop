@@ -23087,6 +23087,28 @@
       },
       "readDiagnostics": [],
       "_hash": "acae6d82ecb4af69b368621e9b4dcb34454dbe91eb77727dc1e6332d9af8fd3a"
+    },
+    {
+      "id": "B-5a88:RP-379",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Re-confirmation for RI-091 remediation round (NO_MATERIAL_REMEDIATION): all 13 checklist items done with 39/39 verificationIntent must-items each holding mechanical=true evidence with a receipt (exitCode=0, selectorMatched=true), zero waivers, zero non-pass results. Diffed prior-PASS head 5a08509e..HEAD and confirmed only .proof-or-stop/story/actives/B-5a88 metadata changed, no source/test/script files touched; dist/ is gitignored. Re-ran 2 pinned commands not previously re-run this round (CHK-001 happy canonical role smoke, CHK-008 happy reviewer identity normalization, CHK-011 happy gate artifact registry) against current dist output: all 3 passed.",
+      "createdAt": "2026-08-31T08:20:53.707Z",
+      "reviewRound": "2026-08-31T08:14:01.165Z",
+      "reviewRunId": "B-5a88:RR-945",
+      "envelopeId": "f2f635b06b226d52fc3fae38e7ede94d75c7fdee35add117162f5a9654ba82d1",
+      "writerSessionId": "claude-b5a88-1788161424",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "099674801273dad6b2f90c5eb0623a86b838e176be4aff2ca5f3055a295e7380"
     }
   ]
 }
