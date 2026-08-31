@@ -195,7 +195,7 @@
       "desc": "doc-promise-undelivered: packages/main/src/tasks/validation-evidence-buffer-smoke.ts:20-23,269-275,323 [critical] still says the smoke protects a bound over the SERIALISED FILE, labels its duplicate-formula count the PERSISTED FILE, and states that the writer measures the file. The shipped writer at packages/main/src/core/store.ts:181-188 only JSON.stringify/writes; packages/main/src/core/validation-executor.ts:731-740 and 809-813 explicitly say this measurement does not follow the value to disk and does not establish equality with StoryStore bytes. This also conflicts with docs/requirements/decisions/validation-evidence-artifact-growth.md:3,13,59,63. Therefore the smoke can PASS while its operator-facing assertions overstate the exact byte-identity property this story declines; narrow these residual claims to the pre-write model/current duplicated format and keep the later writer serialisation limitation explicit.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T00:04:51.750Z",
@@ -203,7 +203,11 @@
       "reviewRunId": "B-2220:RR-024",
       "_hash": "6b48cca7c8bf6ff3a602ed3202b3a6d087b70c3ca1ec8c123fce46526f38d255",
       "signatureTag": "missing|unknown|promise-undelivered-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 101513dc32 with a full-file boundary-claim audit: top-level F-014 text, sections 5-10b comments/assertions/PASS output, and helper diagnostics now describe only the check-time candidate record. Actual StoryStore byte identity remains explicitly unguaranteed. Build binding plus complete compiled smoke re-ran successfully in receipt d799008.",
+      "resolvedAt": "2026-08-31T00:11:11.653Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
