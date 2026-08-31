@@ -9,9 +9,9 @@
         "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-31T14:39:46.472Z",
-      "endTime": null,
+      "endTime": "2026-08-31T14:51:56.842Z",
       "userSees": "Generated prompts for all five active REVIEW lanes visibly contain the same complete triage behavior in both supported envelope modes, while non-REVIEW prompts do not.",
       "files": {
         "modify": [
@@ -422,7 +422,14 @@
           "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
           "timestamp": "2026-08-31T14:51:48.052Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "e6ae4a5776881e66822ca28db93c511309223d3d7ee01564c185eb50f668d6f8",
+        "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+        "headHash": "ca07f5015f3d739f31737c5fd16f2ad88e6f2046",
+        "attestedAt": "2026-08-31T14:51:57.015Z",
+        "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5"
+      }
     },
     {
       "id": "CHK-002",
