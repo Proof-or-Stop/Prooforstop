@@ -86,8 +86,9 @@ teaching active role invocation:
 
 When a remaining Lattice-name reference is kept, the surrounding prose should make the
 reason clear: historical archive, runtime compatibility, or old data migration.
-Do not leave an unlabelled active instruction such as "spawn
-`proof-or-stop-review-quality`" in current docs or prompts.
+Do not leave an unlabelled retired-role invocation in current docs or prompts.
+A current instruction such as "spawn `proof-or-stop-review-quality`" is canonical
+and must remain valid.
 
 ## Explicit Non-Goals
 
@@ -124,10 +125,13 @@ changes begin.
 
 ### CHK-002 - templates and mirrored host assets
 
-Rename prompt asset filenames and frontmatter from `legacy-*` to `lattice-*` in
-the package templates and any materialized `.claude` / `.proof-or-stop-codex` full-mode
-mirrors. Update prompt prose, examples, author strings, and registry tests in
-the same pass. Leave unrelated roles such as `product-reviewer`,
+Story B-ffa2 historically renamed prompt asset filenames and frontmatter from
+`legacy-*` to the then-current `lattice-*` identities. Preserve that migration
+record, but treat those outputs as retired inputs to the later Proof-or-Stop
+cutover. Current package templates and materialized `.claude` /
+`.proof-or-stop-codex` full-mode mirrors use canonical `proof-or-stop-*`
+filenames, frontmatter, prompt prose, examples, author strings, and registry
+expectations. Leave unrelated roles such as `product-reviewer`,
 `implementation-reviewer`, `test-intent`, and `test-case-reviewer` unchanged.
 
 ### CHK-003 - runtime contracts and CLI strings
@@ -135,8 +139,10 @@ the same pass. Leave unrelated roles such as `product-reviewer`,
 Update dispatch defaults, allowed `agentType` values, reviewer lane resolution,
 reviewer prefix checks, process-fact registry rows, handler/gate text, and
 command help/schema examples. Runtime gates should count `proof-or-stop-review-*` as
-canonical reviewer evidence. Remove active `proof-or-stop-review-*` aliases unless a
-specific read-only legacy migration path requires explicit normalization.
+canonical reviewer evidence. Remove aliases keyed by the old-role column in the
+rename map unless a specific read-only legacy migration path requires explicit
+normalization. Never remove or reject canonical `proof-or-stop-review-*` IDs,
+including `proof-or-stop-review-story-init`.
 
 ### CHK-004 - active docs, audits, and tests
 
@@ -149,8 +155,10 @@ data migration paths.
 ### CHK-005 - verification and final validation
 
 Run focused searches first, then build/test/runtime verifiers. Any remaining
-`lattice-*` role-ID, `proof_or_stop_metadata`, or `proof-or-stop-verifier` hit must be either
-fixed or documented as a legacy/archive/signed-artifact exception.
+retired `lattice-*` role-ID hit must be either fixed or documented as a
+legacy/archive/signed-artifact exception. Canonical `proof-or-stop-review-*`,
+`proof_or_stop_metadata_changes`, and `proof-or-stop-verifier-*` hits are expected
+positive evidence and must not be classified as residue.
 
 ## Verification Commands
 
@@ -164,10 +172,10 @@ rg -n --hidden \
   --glob '!.worktrees/**' \
   '\blattice-(implementer|review|evaluator)' \
   packages/main/src packages/main/templates .claude .proof-or-stop-codex \
-  CLAUDE.md README.md docs/requirements docs/audits scripts bin
+  CLAUDE.md README.md docs/requirements scripts bin
 ```
 
-Post-cleanup active-surface search, excluding this execution plan and archive
+Post-cleanup retired-role search, excluding this execution plan and archive
 trees:
 
 ```bash
@@ -178,9 +186,30 @@ rg -n --hidden \
   --glob '!.worktrees/**' \
   --glob '!docs/lattice/**' \
   --glob '!docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md' \
-  '\blattice-(implementer|review|evaluator)|proof_or_stop_metadata|proof-or-stop-verifier' \
+  '\blattice-(implementer|review|evaluator)' \
   packages/main/src packages/main/templates .claude .proof-or-stop-codex \
-  CLAUDE.md README.md docs/requirements docs/audits scripts bin
+  CLAUDE.md README.md docs/requirements scripts bin
+```
+
+Canonical-identity positive search (these hits are required, not residue):
+
+```bash
+rg -n --hidden \
+  --glob '!docs/story/**' \
+  --glob '!tests/fixtures/**' \
+  --glob '!.git/**' \
+  --glob '!.worktrees/**' \
+  '\bproof-or-stop-review-(story-init|scope-plan|concept|quality|test-coverage|behavior|docs|channel|delivery)\b|proof_or_stop_metadata_changes|proof-or-stop-verifier-' \
+  packages/main/src packages/main/templates .claude .proof-or-stop-codex \
+  CLAUDE.md README.md docs/requirements scripts bin
+```
+
+The raw retired-role search is an inventory and may print exact historical,
+migration-input, or signature-salt rows. The authoritative active-surface result
+comes from the context-aware classifier and must be empty:
+
+```bash
+node scripts/verify-proof-or-stop-identity-cutover.mjs --print-residue
 ```
 
 Prompt asset filename check:
@@ -207,8 +236,12 @@ proof-or-stop validate --story=B-ffa2
 
 Expected results:
 
-- Active role-ID searches return no hits outside this plan or explicitly
-  labelled legacy/archive/compatibility text.
+- The retired-role inventory contains only exact labelled
+  legacy/archive/compatibility or signature rows, and the context-aware residue
+  command prints `[]`.
+- The canonical-identity search returns the active reviewer set including
+  `proof-or-stop-review-story-init`, plus the canonical metadata category and
+  verifier identifiers; those positive hits are never reported as residue.
 - CLI help no longer suggests `lattice-*` role IDs.
 - Build, tests, Codex adapter verification, and `proof-or-stop validate` pass with
   fresh evidence for `B-ffa2`.

@@ -11,7 +11,7 @@ const CONCEPT_PROVENANCE_MANIFEST_PATH = 'scripts/proof-or-stop-identity-concept
 const CONCEPT_PROVENANCE_MANIFEST_SHA256 = '2e7b3d5e5c2925748c1651aec42715997930cca764120c5679ff34ebe9717412';
 const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 45;
 const CURRENT_LEGACY_CONTEXT_MANIFEST_PATH = 'scripts/proof-or-stop-identity-current-legacy-contexts.json';
-const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'f7bb7a46bfc4a2b2efe516dde32e8903a20d87d17380895cf4fa4b4962c62723';
+const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = '4b57856dec08f4bc46dfc86d98647b1f71eabcbec9ad531f3284fe83fe1fc475';
 const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 163;
 const POLICY_PATH = 'docs/requirements/decisions/proof-or-stop-identity-cutover.md';
 const POLICY_COMMIT = '1dab23ae287fb9364244a3a73156f62f1abdb6e8';
@@ -1091,6 +1091,17 @@ function runSelfTest(root, files) {
   ];
   for (const [expected, path, token, line] of injections) {
     expect(classifyToken(path, token, line) === expected, `injected active residue was not classified as ${expected}`);
+  }
+  for (const canonicalIdentity of [
+    'proof-or-stop-review-story-init',
+    'proof-or-stop-review-quality',
+    'proof_or_stop_metadata_changes',
+    'proof-or-stop-verifier-pass',
+  ]) {
+    expect(
+      [...canonicalIdentity.matchAll(TOKEN_PATTERN)].length === 0,
+      `canonical identity was misclassified as legacy residue: ${canonicalIdentity}`,
+    );
   }
   for (const path of [
     'docs/requirements/decisions/injected-current.md',
