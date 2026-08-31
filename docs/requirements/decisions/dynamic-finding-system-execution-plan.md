@@ -39,7 +39,7 @@ The implementation is deliberately decomposed into three future Stories:
 3. **Finding Ledger and Runtime Evidence Integrity**
 
 Those numbers are product-facing labels, not execution order. Safe execution is
-**Story 3 -> Story 2 -> Story 1 enforcement**. Story 1 may prototype read-only
+**Story 3A -> Story 3B and Story 2; Story 3A + 3B + Story 2 -> Story 1 enforcement**. Story 1 may prototype read-only
 observe output earlier, but it may not influence a lifecycle outcome until both
 prerequisites are accepted in the merged state.
 
@@ -781,7 +781,7 @@ interface FindingRouteReceipt {
   source: {
     subjectKind: 'candidate_finding' | 'finding_assessment';
     subjectId: string;
-    subjectHash: string;
+    subjectHash: string; // candidate hash or immutable assessmentProposalDigest
     storyId: string;
   };
   target: {
@@ -1022,13 +1022,14 @@ interface AssessmentEnvelope {
   findingRef: FindingRef;
   findingHash: string;
   findingVersion: string;
+  assessmentProposalDigest: string;
   evaluationScope: 'target_story' | 'canonical_owner' | 'repository_release';
   owner: 'current_story' | 'meta' | 'other_story' | 'unowned';
   acceptedRoute?: {
     receiptId: string;
     receiptHash: string;
     profile: 'finding_route';
-    sourceAssessmentHash: string;
+    sourceAssessmentProposalDigest: string;
     targetResponsibilityRef: FindingRef | { workItemRef: string; workItemHash: string };
     routeChainDigest: string;
   };
@@ -1071,7 +1072,7 @@ type FindingApplicabilityAssessment =
   | (AssessmentEnvelope & { verdict: 'pre_existing_unaffected'; basis: 'base_head_reproduction'; owner: 'meta' | 'other_story'; acceptedRoute: NonNullable<AssessmentEnvelope['acceptedRoute']>; baseHead: { baseRef: string; baseResult: 'reproduced'; headRef: string; headResult: 'reproduced'; worsenedByStory: false; receiptIds: string[] } })
   | (AssessmentEnvelope & { verdict: 'out_of_scope'; basis: 'decision_scope'; owner: 'meta' | 'other_story'; acceptedRoute: NonNullable<AssessmentEnvelope['acceptedRoute']>; excludedScopeProofDigest: string })
   | (AssessmentEnvelope & { verdict: 'duplicate'; basis: 'canonical_duplicate'; owner: 'meta' | 'other_story'; acceptedRoute: NonNullable<AssessmentEnvelope['acceptedRoute']>; canonicalDefectRef: { canonicalDefectId: string; identityDigest: string; currentCanonicalFinding: FindingRef & { hash: string }; canonicalOwner: string } })
-  | (AssessmentEnvelope & { verdict: 'not_reproduced_under_current_witness'; basis: 'counter_evidence'; currentWitness: { receiptIds: string[]; reproduced: false } })
+  | (AssessmentEnvelope & { verdict: 'not_reproduced_under_current_witness'; basis: 'counter_evidence'; owner: 'meta' | 'other_story'; acceptedRoute: NonNullable<AssessmentEnvelope['acceptedRoute']>; currentWitness: { receiptIds: string[]; reproduced: false; commandPolicyDigest: string; runtimeEvidenceDigest: string; negativeWitnessDigest: string } })
   | (AssessmentEnvelope & { verdict: 'unknown'; basis: 'direct_scope' | 'counter_evidence'; nonBlockingProof?: never; acceptedRoute?: never });
 
 type DeferredProtectedSurface =
@@ -1135,8 +1136,9 @@ interface AssessmentIntegrityState {
 interface MandatoryRepairClassification {
   schemaVersion: 1;
   mandatoryRepairId: string;
-  storyId: string;
-  findingId: string;
+  findingRef: FindingRef;
+  findingHash: string;
+  findingVersion: string;
   assessmentId: string;
   state: 'required' | 'closure_proven';
   reasons: Array<
@@ -1251,8 +1253,9 @@ interface DeferralLineageRelease {
 interface MaterialDriftReattestation {
   schemaVersion: 1;
   reattestationId: string;
-  storyId: string;
-  findingId: string;
+  findingRef: FindingRef;
+  findingHash: string;
+  findingVersion: string;
   canonicalDefectId: string;
   deferralId: string;
   priorMaterialHash: string;
@@ -1300,8 +1303,9 @@ interface MaterialDriftReattestation {
 
 interface DeferralLineageState {
   schemaVersion: 1;
-  storyId: string;
-  findingId: string;
+  findingRef: FindingRef;
+  findingHash: string;
+  findingVersion: string;
   assessmentId?: string;
   canonicalDefectId: string;
   hasHistoricalClaim: boolean;
@@ -1343,8 +1347,9 @@ interface DeferralLineageState {
 interface FindingDeferralDisposition {
   schemaVersion: 1;
   deferralId: string;
-  storyId: string;
-  findingId: string;
+  findingRef: FindingRef;
+  findingHash: string;
+  findingVersion: string;
   assessmentId: string;
   canonicalDefectId: string;
   lineageCanonicalDefectIds: string[];
@@ -1495,6 +1500,7 @@ interface FindingLedgerReceipt {
   idempotencyKey: string;
   operation:
     | 'append_finding'
+    | 'append_legacy_identity_binding'
     | 'append_detector_signal'
     | 'append_candidate_route'
     | 'append_candidate'
@@ -1558,6 +1564,10 @@ interface GateEvaluationSnapshot {
   headHash: string;
   materialHash: string;
   storyFilesHash: string;
+  evaluatedAt: string;
+  trustedClockDigest: string;
+  clockPolicyDigest: string;
+  earliestBoundExpiryAt?: string;
   snapshotHash: string;
   signature: string;
 }
@@ -1597,6 +1607,18 @@ names both the deferral and manifest/action and records the exact route-receipt
 CAS binding. A failed conditional predicate produces an explicit conflict/refusal
 receipt or error but no new deferral/manifest records.
 
+Route acceptance uses a two-stage, immutable assessment construction to avoid a
+hash fixed point. First the assessor signs `assessmentProposalDigest`, which
+canonically covers every assessment input except `acceptedRoute`, `assessmentHash`,
+and signature. Story 2 accepts a `finding_route` receipt whose source
+`subjectHash` is exactly that proposal digest. The final assessment then
+canonically includes the accepted receipt ID/hash/profile and that proposal
+digest, producing `assessmentHash`; the receipt does not require or contain the
+final hash. The manifest/deferral binds both final assessment hash and proposal
+digest/receipt tuple. A verifier rejects a proposal mismatch, a receipt bound to
+a final assessment hash, or any final assessment whose immutable inputs differ
+from its proposal, so the final relationship remains exact without self-reference.
+
 `FindingDispositionManifest` is a transaction envelope, not a second gate
 authority: its actions are the verifier's deterministic derivation from the
 signed assessment verdict and the versioned `derivationPolicyDigest`. The
@@ -1611,7 +1633,10 @@ the ledger snapshot, canonical-sorts immutable FindingRefs, signs every input
 and `blockerSetDigest`, and rejects omission, addition, reordering, or display-
 ID aliasing. A finding/assessment/integrity/route/owner/canonical/supersession/
 scope/ledger/process-policy/runtime/material/story-files mutation aborts the
-transition; it is never accepted on a stale preflight result. The
+transition; it is never accepted on a stale preflight result. Commit-time CAS
+also obtains the trusted clock, verifies its policy digest, and rejects a
+snapshot at or after `earliestBoundExpiryAt`; replay and expiry-between-preflight-
+and-commit mutations must abort even with unchanged record bytes. The
 snapshot's `evaluationScope` is mandatory: `target_story` decides responsibility
 for that target only, `canonical_owner` preserves its open applicable obligation,
 and `repository_release` independently aggregates open high/critical (and any
@@ -1826,7 +1851,8 @@ projection is permanent or that Red/root-cause/fix/Green is required to release
 it. The verifier recomputes and signs it from the validated assessment reader:
 
 - a later fresh, signed, strongly proven `pre_existing_unaffected`,
-  `out_of_scope`, or `duplicate` verdict that passes its independent proof
+  `out_of_scope`, `duplicate`, or `not_reproduced_under_current_witness` verdict
+  that passes its independent proof
   contract releases the assessment-integrity floor and is non-blocking when no
   independent lineage or mandatory-repair obligation exists;
 - a later fresh signed `applicable` verdict removes the integrity floor but, for
@@ -2151,7 +2177,7 @@ fails or races another writer.
 | `pre_existing_unaffected` | Deterministic base and head reproduction receipts; same defect exists at base and head; Story does not worsen severity/impact; Story scope does not promise its repair; valid owner/route |
 | `out_of_scope` | Signed scope/decision evidence naming the excluded contract; no contradictory checklist/acceptance promise; route to a valid owner; high/critical cannot be left unowned |
 | `duplicate` | Reviewer-confirmed canonical defect; referenced canonical Finding exists and is signature-valid; live owning Story/Finding is named; no circular duplicate chain |
-| `not_reproduced_under_current_witness` | Current commands/receipts showing non-reproduction; this is a proof verdict, never an assessment freshness state, and is not inferred from an old DONE outcome |
+| `not_reproduced_under_current_witness` | Current target-bound negative command/runtime receipts, signed command-policy and witness digest, plus a live receipted owner/route; it releases the transient integrity floor under the same strong-proof contract, never a mandatory-repair or claimed-lineage floor, and is not inferred from an old DONE outcome |
 | `unknown` | Never a non-blocking reason for an otherwise blocking Finding |
 
 File disjointness, model confidence, historical similarity, a signature tag,
@@ -2331,9 +2357,10 @@ or caller-provided assessment data, an
 advisory/candidate data as blocker, pass, or unblock evidence, and independently
 inject a consumer that bypasses `isDynamicFindingBlocking`; every mutation must
 fail. Dependency
-fixtures must separately make Story 3 import Story 2, Story 3 import Story 1,
-and Story 2 import Story 1; every mutation fails, while the delivery DAG
-`Story 3 -> Story 2 -> Story 1` passes. Enforce entry also registers the
+fixtures must permit only `3B -> 3A`, `Story 2 -> 3A`, and
+`Story 1 -> {3A,3B,Story 2}`; they separately reject `3A -> 3B`, `3A -> Story 2/1`,
+`3B -> Story 2/1`, `Story 2 -> 3B/Story 1`, and every Story 1 reverse edge.
+Every mutation fails while that exact edge matrix passes. Enforce entry also registers the
 read-only scorecard artifact/command and must refuse when either mutation suite
 or dependency contract, including the integrity-state registry contract, is not
 green.
@@ -2355,6 +2382,13 @@ state-to-assessment correspondence. They also remove the state, forge a
 release/convert/remain transition, or inject a direct registry/command-policy/
 phase-allowlist consumer. Every mutation must refuse enforce; only the registered
 reader's state may reach the one shared predicate.
+
+The same suite aliases a Story-local display ID, substitutes a `FindingRef.recordId`,
+or changes a bound Finding hash/version or `LegacyFindingIdentityBinding`. Every
+gate-consumed L4 artifact—`AssessmentIntegrityState`,
+`MandatoryRepairClassification`, `MaterialDriftReattestation`,
+`DeferralLineageState`, and `FindingDeferralDisposition`—must reject it before
+predicate evaluation or CAS.
 
 ## 8. Seven-problem ownership matrix
 
@@ -2455,8 +2489,9 @@ authoritative artifacts and cannot alter lifecycle output.
   decay; changing `effectiveBlockingSeverities` or `isAdvisoryThisRound` cannot
   clear it.
 - The adversarial matrix crosses verified open `high` and `critical` at round 3
-  with exactly `missing`, `stale`, `unsigned`, `tampered`, `mismatched`,
-  `incomplete`, and `unknown` required assessments. Every cell remains blocking
+  with exactly `missing`, `re_attestation_required`, `stale`, `unsigned`,
+  `tampered`, `mismatched`, `incomplete`, `expired`, and `unknown` required
+  assessments. Every cell remains blocking
   in the pre-round assessment-integrity floor.
 - Integrity-state signer/verifier/reader fixtures bind signature, Finding, Story,
   assessment ID/hash, head, material, story-files, scope, runtime evidence, and
@@ -2464,8 +2499,9 @@ authoritative artifacts and cannot alter lifecycle output.
   release/convert/remain transition, raw/caller assessment bypass, and every
   direct consumer outside `isDynamicFindingBlocking`.
 - Transition fixtures start from the same missing-assessment state and prove:
-  missing -> fresh signed strong `pre_existing_unaffected`, `out_of_scope`, or
-  `duplicate` releases the temporary integrity floor and becomes non-blocking;
+  missing -> fresh signed strong `pre_existing_unaffected`, `out_of_scope`,
+  `duplicate`, or target-bound `not_reproduced_under_current_witness` releases
+  the temporary integrity floor and becomes non-blocking;
   missing -> fresh signed `applicable` leaves the integrity floor and enters the
   mandatory-repair floor; missing -> weakly proven non-applicable or any state
   in `REQUIRED_ASSESSMENT_INVALID` remains blocking. Separate clean-initial
@@ -2809,6 +2845,10 @@ path may bypass that order.
 **Required tests.**
 
 - 100 concurrent unique Finding appends -> exactly 100 unique durable rows.
+- Concurrent/replayed/crashed `append_legacy_identity_binding` first reads use
+  the same idempotency/CAS receipt path: one immutable legacy tuple/hash maps to
+  exactly one record ID; collision, changed hash, or a second record ID fails
+  closed without rewriting the legacy Finding.
 - Concurrent mixed Finding/candidate-route/assessment/mandatory-repair/
   expiry-policy/deferral/route/baseline-set/material-re-attestation/manifest
   writes lose nothing and preserve referential integrity.
@@ -2881,9 +2921,9 @@ Story 1: Dynamic Finding Applicability ------> enforce gate
 Safe sequence:
 
 1. Implement and accept Story 3A.
-2. Implement and accept Story 3B on the ledger foundation and Story 2 on 3A;
-   their read-only work may overlap, but both authoritative contracts must pass.
-3. Implement and accept Story 2's authoritative identity/lineage contract,
+2. Implement and accept Story 3B on the ledger foundation. Story 2 and Story 1
+   may prototype read-only work against 3A/3B public query contracts only.
+3. Implement and accept Story 2's single authoritative identity/lineage contract,
    including its
    target-side non-gate route and initial-baseline signer/verifier, standalone
    receipt transaction, and atomic initial receipt-plus-baseline transaction,
@@ -2930,10 +2970,12 @@ forbidden reverse import independently.
   current CLI/gate compatibility rule.
 - On first read or ledger-mediated backfill, append a signed
   `LegacyFindingIdentityBinding` from immutable `{storyId,findingId,findingHash}`
-  to `recordId`; do not rewrite old Finding bytes. A collision, changed legacy
+  to `recordId` through atomic `append_legacy_identity_binding`; do not rewrite old Finding bytes. A collision, changed legacy
   hash, or two record IDs for one legacy tuple fails closed. The human Finding ID
-  remains only the Story-local display ID. The binding is commit metadata: it
-  does not recursively request a receipt for itself.
+  remains only the Story-local display ID. Its tuple/hash CAS and idempotency key
+  make concurrent first-read/backfill, retry, and crash recovery return one
+  receipted record ID or fail closed. Only `FindingLedgerReceipt` itself is
+  exempt from receipt recursion.
 - Legacy missing assessment projects to unknown; it cannot downgrade an old
   blocker.
 - Legacy text that says "deferred", `accepted_risk`, or `superseded` is not a
@@ -3104,7 +3146,7 @@ merged-state dependency review.
 | Deferral lineage horizon and renewal compliance | Canonical lineages with correct immutable `firstDeferredAt`, digest, strictest severity, cumulative horizon, renewal count, and target-authorized kind-specific progress projection semantically changed from the verifier-selected same-kind signed baseline for the same defect/route / all proposed deferrals and renewals | Signed policy plus canonical/deferral graph/baseline-set join; absent-to-present test/delivery/status and source-contract projections; unrelated-repo/wrong-subject/wrong-kind/reorder/replay/cross-target/stale/re-sign/no-op/regressive mutations; exactly-once recall | 100%; medium total <=7 days and 0 renewals; low total <=30 days and <=1 renewal; genuine absent-to-present unchanged-code test/delivery/status progress accepted | Any reset, over-horizon/count advisory, caller-selected or invalid predecessor baseline, hash-only/no-op/regressive or unrelated change counted as progress, wrong subject accepted, stale/replayed renewal, chain tamper, missed recall, or duplicate recall gate delta |
 | Claimed-lineage material-drift re-attestation | Raw material mismatches that enter pending/unknown and remain blocking until current signed L4 proof establishes unchanged Story files plus unaffected runtime/process-policy/route/canonical dependencies / all claimed-lineage material-drift cases | Lineage verifier and shared-predicate events joined to signed re-attestation/new-assessment evidence; raw drift, valid unrelated, relevant dependency, missing/stale/tampered proof, and host-label mutations | 100% raw drift enters the floor; 100% valid complete unrelated proofs restore valid; 100% related/unknown/invalid proofs remain blocking | Any host self-classification, raw mismatch left valid, incomplete/tampered proof accepted, relevant dependency drift released, or valid complete proof refused indefinitely |
 | Scorecard contract completeness | Metric rows with exact deterministic numerator/denominator/threshold/rollback result and complete HEAD/window/retry/exclusion/hardware/Story-class metadata / every versioned metric row declared in this table | Story 1 aggregator over Story 2/3 public signed queries; golden JSON plus missing/tampered/incomplete evidence mutations | 100% rows and metadata; zero protected-storage reads; refusal on any safety/prerequisite failure | Any omitted/miscomputed row, silent missing evidence, protected-storage parse, unstable JSON, or false enforce eligibility |
-| Manual Finding-operation reduction | Avoided classification, reproduction, routing, assessment, and repair-related operations / matched baseline operations for the same Story class; resolve/dismiss alone is insufficient | Process events; matched before/after or randomized warn cohort | >=50% on Finding-heavy cohort with safety floor intact | Safety breach, or no reduction after two windows |
+| Manual Finding-workflow-operation reduction | Avoided classification, triage, adjudication, reproduction, routing, and assessment operations / matched baseline workflow operations for the same Story class; genuine repair and resolve/dismiss are excluded | Process events; matched before/after or randomized warn cohort | >=50% on Finding-heavy cohort with safety floor intact | Safety breach, or no reduction after two windows |
 | Review convergence | Median change in genuine review rounds and process-event elapsed time split into candidate classification, triage, adjudication, repair, and re-review convergence | Phase/process events; runs/lanes reported separately; repair is reported but never credited as a Dynamic Finding saving | >=30% reduction in classification/triage/adjudication/re-review convergence, with simple-Story regression <=10% | >10% simple-Story regression for two windows or any safety breach |
 | Triage latency | p50/p95 system proposal latency from candidate-set freeze to system-signed proposal; reviewer adjudication latency is a separate series | Monotonic timing in scorecard, fixed qualification corpus/hardware | p50 <=2s and p95 <=5s for the 2,273-Finding-scale qualification corpus | p95 >10s for two windows or timeouts >1% |
 
@@ -3207,7 +3249,7 @@ operator's lab request is not authority to rename utils.
 | Source Story self-signs target acceptance | Receipt signer/owner/target authority is not checked or a ledger writer is treated as semantic authority | Work is exported to a target that never accepted it | Target-authorized Story actor or canonical B-META/main-write authority only; exact source/target/lease/policy binding; rejection/revocation/freshness tests |
 | Route loops or a closed target hides an obligation | Route has no exact responsibility ref/chain digest, target closes or owner changes without revocation | An issue is endlessly rerouted or silently orphaned | Target responsibility ref/hash, visited-target chain check, B-META canonical authority only, and target/owner/closure revocation plus recall mutations |
 | Lifecycle commits evaluate stale gate data | A consumer preflights one blocker set and commits after assessment/route/policy/material drift | REVIEW/TEST/DONE or release passes a different state | Signed scope-specific `GateEvaluationSnapshot`; same-transaction evaluation or exact commit-time CAS; every digest race and scope mismatch aborts |
-| Delivery dependency reverses or a new gate bypass appears | Story 3 imports Story 2/1, Story 2 imports Story 1, or a new registry/policy/allowlist consumer reads advisory data or bypasses the shared predicate | Prerequisites cycle or a new lifecycle path silently defeats non-authority/floor rules | Story 3 -> Story 2 -> Story 1 delivery DAG; mutation fixtures for every forbidden import and direct advisory/shared-predicate bypass; any surviving mutation stops enforce |
+| Delivery dependency reverses or a new gate bypass appears | 3A imports 3B/Story 2/1, 3B imports Story 2/1, Story 2 imports 3B/Story 1, or a new registry/policy/allowlist consumer reads advisory data or bypasses the shared predicate | Prerequisites cycle or a new lifecycle path silently defeats non-authority/floor rules | Only `3B -> 3A`, `Story 2 -> 3A`, and `Story 1 -> {3A,3B,Story 2}` are allowed; mutation fixtures reject every other edge and direct advisory/shared-predicate bypass |
 | Receipt/baseline-to-deferral TOCTOU or partial apply | Story 1 validates a receipt/baseline before the transaction, binds only IDs, or writes deferral and manifest separately while receipt or baseline bytes change | A deferral becomes authoritative against stale target consent or a different progress before-state | Persist the target-authorized receipt plus baseline set standalone/non-gate; later same-transaction CAS of latest receipt ID/hash/profile/source/freshness and exact baseline-set ID/hash/bytes; atomic deferral+manifest/action; any mismatch writes neither |
 | A progress baseline is promoted directly into gate authority | Its non-gate marker is missing/flipped, it impersonates a receipt/L4 profile, or a new registry/policy/allow-list consumer reads it directly | Advisory target before-state blocks, passes, or unblocks lifecycle without an applicability disposition | Signed/hash-covered `progress_baseline` marker on entry and set; distinct non-gate registration; mutation tests for marker/profile and blocker/pass/unblock consumers; only exact-CAS-derived Story 1 L4 state may gate |
 | Initial progress baseline is absent, fabricated, or caller-selected | The initial route captures no semantic before-state, a later caller supplies the predecessor digest, or only hash inequality is checked | Unrelated, no-op, or regressive target activity renews an applicable defect indefinitely | Target-authorized CLI/server capture of all four signed present/absent baselines with exact subject binding; deferral/manifest CAS the set ID/hash; verifier selects the same-kind predecessor; any invalid baseline or non-semantic transition fails closed |
@@ -3333,7 +3375,8 @@ The program is complete only when all of the following are true in merged state:
   then atomically writes deferral plus manifest/action. A mismatch writes
   neither, receipt/baseline-alone is legal/non-gate, and deferral-alone is
   invalid. There is no Story 2 -> Story 1 dependency.
-- Story 3 imports neither Story 2 nor Story 1, and Story 2 never imports Story 1.
+- 3A imports neither 3B nor Story 2/1; 3B imports only 3A; Story 2 imports
+  only 3A; Story 1 may import 3A, 3B, and Story 2, never the reverse.
   Dependency fixtures and registry/command-policy/phase-allowlist mutations
   reject every forbidden import, direct CandidateRoute/standalone-receipt/
   individual-baseline/baseline-set/historical-advisory gate consumer, or shared-
