@@ -587,7 +587,7 @@ not an in-place invented cause.
 | Inputs | One verified/open Finding, target Story, signed scope contract/digest, base/head evidence, current diff/touchpoints, protected-surface risk classification, canonical owner, routing candidates, review run, freshness verdicts |
 | Records | Signed `FindingApplicabilityAssessment`, `MandatoryRepairClassification`, ledger-derived `DeferralLineageState`, gate-consumed `MaterialDriftReattestation`, Story 1's exact receipt/baseline CAS L4 profile over Story 2's `FindingRouteReceipt`, `FindingDeferralDisposition`, versioned `DeferralExpiryPolicy`, signed batch disposition manifest, read-only rollout scorecard, reviewer override/adjudication with reason |
 | Authority | Advisory in observe/warn. In enforce, only the designated CLI writer plus eligible current reviewer may mint signed L4 assessments/dispositions; the registered verifier derives signed `DeferralLineageState` directly for the shared predicate. |
-| Outputs | `applicable`, `pre_existing_unaffected`, `out_of_scope`, `duplicate`, `stale_or_not_reproduced`, or `unknown`; non-decaying mandatory-repair floor for applicable high/critical, protected-surface risk, or ledger-derived invalid claimed lineage; optional defer-with-proof after eligible low/medium; exact-CAS consumption of Story 2 target acceptance/revocation; checked-in scorecard JSON/refusal; evidence references; gate projection |
+| Outputs | `applicable`, `pre_existing_unaffected`, `out_of_scope`, `duplicate`, `stale_or_not_reproduced`, or `unknown`; non-decaying mandatory-repair floor for applicable high/critical, verified open high/critical with missing or invalid required assessment, protected-surface risk, or ledger-derived invalid claimed lineage; optional defer-with-proof after eligible low/medium; exact-CAS consumption of Story 2 target acceptance/revocation; checked-in scorecard JSON/refusal; evidence references; gate projection |
 | Non-responsibilities | Changing Finding truth/severity/status, declaring semantic identity from similarity, proving bytes were stored, producing runtime receipts, or deleting the underlying issue |
 
 Applicability is target-specific and expiring. A Finding may be applicable to
@@ -1597,11 +1597,16 @@ proof digest. Advisory history, a replacement `applicable`/`unknown` assessment,
 or a new assessment that omits the old deferral cannot release the floor.
 
 The mandatory-repair classification check is also before ordinary policy. For
-a verified Finding with a fresh `applicable` assessment, `critical`/`high`
-severity, any known or unknown
-protected-surface risk, a missing protected-surface evaluation, or an exhausted/
-invalid deferral lineage creates a non-decaying floor. The floor remains blocking
-even when severity would fall out of `effectiveBlockingSeverities`,
+an open verified Finding, a fresh strong non-applicable verdict
+(`pre_existing_unaffected`, `out_of_scope`, or `duplicate`) is an explicit
+exception and continues through its independent proof contract. Otherwise,
+`critical`/`high` severity with a fresh `applicable` assessment, or with a
+missing, stale, unsigned, tampered, mismatched, incomplete, or `unknown`
+required assessment, creates a non-decaying floor. The same applies to any
+known or unknown protected-surface risk, a missing protected-surface evaluation,
+or an exhausted/invalid deferral lineage. Thus an invalid or absent assessment
+cannot fall through to round/advisory policy. The floor remains blocking even
+when severity would fall out of `effectiveBlockingSeverities`,
 `isAdvisoryThisRound` would return true, or an invalid direct write marked the
 Finding resolved. A missing, stale, unsigned, tampered, or incomplete required
 classification/closure also blocks. For an invalid deferral lineage,
@@ -1635,9 +1640,14 @@ fresh applicable assessment + valid low/medium deferral    -> false
 fresh signed unknown assessment                            -> true if the
                                                                Finding would
                                                                otherwise block
-missing, unsigned, tampered, mismatched, or stale assessment,
-with no claimed deferral                                    -> previous predicate
-                                                               remains authoritative
+missing, unsigned, tampered, mismatched, stale, or unknown
+assessment on verified open high/critical                  -> mandatory floor
+                                                               before round/advisory
+                                                               policy; blocks
+fresh strong non-applicable verdict on high/critical       -> no mandatory floor;
+                                                               independent proof
+                                                               determines whether
+                                                               it is non-blocking
 claimed missing/stale/expired/exhausted/tampered/unknown
 lineage, independent of current assessment                 -> first safety floor
 claimed lineage + fresh strong superseding release         -> released only by
@@ -1648,14 +1658,18 @@ fresh non-blocking verdict with all required proof          -> false
 Thus applicability can remove a blocker only with stronger structured proof.
 It cannot create a shortcut around the current evidence/severity/round policy.
 In particular, an unknown high or critical Finding never becomes non-blocking
-merely because classification failed. Outside the mandatory floor, current
-round-decay semantics continue to apply; unknown does not create an extra
-downgrade.
+merely because classification failed: missing/invalid assessment enters the
+mandatory floor before round decay. A fresh, strongly proven non-applicable
+high/critical verdict remains the deliberate exception and is evaluated by its
+own proof contract. Outside the mandatory floor, current round-decay semantics
+continue to apply; unknown does not create an extra downgrade.
 
 Legacy Findings with no assessment remain readable. In enforce mode, a missing
-assessment projects to `unknown`; any Finding blocked by the previous predicate
-continues to block. Legacy missing `evidenceState` keeps the current compatibility
-projection to verified. No bulk rewrite is needed.
+assessment projects to `unknown`; a verified open high/critical Finding enters
+the mandatory floor before the previous round/advisory predicate, while a fresh
+strong non-applicable assessment may independently prove it non-blocking.
+Legacy missing `evidenceState` keeps the current compatibility projection to
+verified. No bulk rewrite is needed.
 
 ### 7.2 Candidate routing and defer-with-proof disposition
 
@@ -2134,6 +2148,12 @@ authoritative artifacts and cannot alter lifecycle output.
   protected-surface evaluation create a mandatory floor before severity/round
   decay; changing `effectiveBlockingSeverities` or `isAdvisoryThisRound` cannot
   clear it.
+- The adversarial fixture includes a verified open high Finding at round 3 with
+  each missing, stale, unsigned, tampered, mismatched, and unknown assessment;
+  every variant remains blocking in the pre-round mandatory floor. A paired
+  round-3 verified open high with a fresh, signed, strongly proven
+  `pre_existing_unaffected`, `out_of_scope`, or `duplicate` assessment remains
+  non-blocking only when that verdict's independent proof contract passes.
 - Missing/stale/tampered classification and a direct resolved/dismissed write
   without a fresh closure remain blocking; closure requires non-empty current
   Red/repro, root-cause, fix, Green, and closure evidence.
@@ -2696,7 +2716,7 @@ merged-state dependency review.
 | --- | --- | --- | --- | --- |
 | False non-blocking high/critical | Adjudicated high/critical verdicts classified non-blocking by the system but applicable by independent qualification / all system-proposed non-blocking high/critical verdicts | Scorecard join of signed proposal, reviewer adjudication, and current repro receipt | **0**, including adversarial set | Any one event |
 | Stale/tampered rejection | Stale/tampered/mismatched test cases rejected / all injected stale/tampered/mismatched cases | Deterministic negative suite plus receipt-verifier events | 100% | Any accepted case |
-| Unknown high/critical fail-closed | Otherwise-blocking high/critical unknown cases that remain blocking / all such unknown cases | Shared predicate fixture and live warn comparison | 100% | Any downgrade caused by unknown |
+| Unknown high/critical fail-closed | Otherwise-blocking high/critical unknown cases that remain blocking / all such unknown cases | Shared predicate fixture and live warn comparison, including round-3 verified open high with missing, stale, unsigned, tampered, mismatched, and unknown assessments plus a fresh-valid non-applicable high control | 100% | Any downgrade caused by unknown or invalid assessment, or rejection of the fresh-valid non-applicable control |
 | Mandatory-repair floor and closure integrity | Applicable high/critical, known/unknown protected-surface, or ledger-derived claimed lineage with missing/stale/expired/exhausted/tampered/unknown state that remains blocking through missing/omitting replacement assessment, drift, severity/round decay and classification-audit append failure/race, then clears only with a fresh strong release or complete closure / all injected mandatory cases | Shared-predicate, ledger claim scan, no-replacement/omitted-lineage, scope/story-files/material/runtime drift, exact-boundary clock, classification-write failure, reader/writer race, stale/tamper, strong-release, and closure mutation suite | 100%; zero assessment-omission, direct-status, audit-write, or lineage bypasses | Any claimed lineage erased by assessment state, any decayed/bypassed floor, any audit-write failure that opens the gate, or any weak/incomplete release accepted |
 | Non-blocking classification precision | Independently confirmed correct non-blocking verdicts / all reviewed non-blocking verdicts | Stratified reviewer gold set; disclose severity and verdict mix | >=98% overall and 100% high/critical safety | <98% overall or any high/critical safety miss |
 | Candidate-to-verified conversion | Candidates promoted to verified Findings / all terminally adjudicated candidates, per detector/version | Candidate ledger and promotion receipts | Descriptive, not maximized; each detector preregisters a baseline band before warn | Absolute drift >10 percentage points without an explained corpus/version change pauses promotion |
