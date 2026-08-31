@@ -10152,7 +10152,7 @@
       "reviewRound": "2026-08-31T02:29:23.056Z",
       "state": "OPEN",
       "begunAt": "2026-08-31T02:51:13.643Z",
-      "updatedAt": "2026-08-31T03:04:18.832Z",
+      "updatedAt": "2026-08-31T03:23:02.193Z",
       "cutoff": {
         "headHash": "5b2510e0a7818c9616f23a49f3b65ab8164e88c7",
         "materialHash": "3ef55149759d21499c5a6abb1c31b5eea17be3e0d8938a31f1a8f41c4c87b959",
@@ -10227,10 +10227,71 @@
           "criticDigest": "21f866f488d8fa3b47b4225e8a18d2464dbfb278e1166895a150619293d0c55d",
           "saturated": false,
           "nextRunSequenceBoundary": 1075
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-31T03:04:18.832Z",
+          "completedAt": "2026-08-31T03:23:02.193Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-1076",
+              "terminal": "pass",
+              "hostIdentity": "0f2ab0ae6c2804c6ab6d14226629d1a887a2eede7f1ddd833596fc63290b2d43",
+              "promptIdentity": "2d7416a9f37c64bc096d3c0a8266cef7eb45a98091b57856634b93e4a2979f49",
+              "evidenceIds": [
+                "B-45a0:RP-477"
+              ],
+              "coverageDigest": "e2133cfa22401db97d36459bd7fa05c4930c7caac170c32b5146190a9749702c"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-1077",
+              "terminal": "pass",
+              "hostIdentity": "0f2ab0ae6c2804c6ab6d14226629d1a887a2eede7f1ddd833596fc63290b2d43",
+              "promptIdentity": "5fc6a7a0c63bcc1ffadc2946150639a540fb7713147b38ae27ef88b496757f86",
+              "evidenceIds": [
+                "B-45a0:RP-476"
+              ],
+              "coverageDigest": "f40b13034b62ea9155e7cd126275ba42fcacd14fa261bf7f43a34019061ffd8f"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-1078",
+              "terminal": "finding",
+              "hostIdentity": "0f2ab0ae6c2804c6ab6d14226629d1a887a2eede7f1ddd833596fc63290b2d43",
+              "promptIdentity": "37f06bdb52983d0ef088ffcc54e73a742aae9d410f8156ef511d97a1b35c6529",
+              "evidenceIds": [
+                "B-45a0:F-439"
+              ],
+              "coverageDigest": "a0cecea95f1aa00aa1563e5efd3d0fd4d87cca727d23b41f9a5f64c331a6cfff"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-1079",
+              "terminal": "pass",
+              "hostIdentity": "0f2ab0ae6c2804c6ab6d14226629d1a887a2eede7f1ddd833596fc63290b2d43",
+              "promptIdentity": "ce0c347b178de633d4597d1d9d41d3f29cd5bd5c89a1c202b40598ce7d93c94c",
+              "evidenceIds": [
+                "B-45a0:RP-478"
+              ],
+              "coverageDigest": "ecad3ec1972a5e329446263a8cad74fa99ab7a7ec41518e2d8a456a9b8287674"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-rollout-and-topology-basis-restaling-from-review-churn",
+            "pre-review-read-exit-code-value-blind-selector",
+            "rule-10-doc-fix-partial-propagation"
+          ],
+          "verifiedFindingSetDigest": "6ff7e63d6e29b51cc12b622b4830bf31e539cefea26715ecec6c471b47994884",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "15d54035d42c4af73efd315e1465cac99692375fb809fc3634a71dd8067151b7",
+          "saturated": false,
+          "nextRunSequenceBoundary": 1080
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "90909330366e8feb415318065c6f0ed85f039c7890aaff5523b0da0ee6db2070"
+      "_hash": "ec1425ef44ce99b78b0b28d18578940f5cc61cd88d4fa92e471498efd3ddb697"
     }
   ],
   "receipts": [
@@ -16430,6 +16491,37 @@
       ],
       "createdAt": "2026-08-31T03:03:44.529Z",
       "_hash": "cf305556959dd327e55a6cbd8dd22bd21f7ec13a898e23b9eae07dc2e87b30c3"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-106:CRIT-02",
+      "epochId": "B-45a0:RI-106",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "5b2510e0a7818c9616f23a49f3b65ab8164e88c7",
+        "materialHash": "3ef55149759d21499c5a6abb1c31b5eea17be3e0d8938a31f1a8f41c4c87b959",
+        "storyFilesHash": "473418728956538b08fefded663b4357221166e9fa5f702c2f99e5c3176c38b4"
+      },
+      "aggregateFindingSetDigest": "6ff7e63d6e29b51cc12b622b4830bf31e539cefea26715ecec6c471b47994884",
+      "requiredLaneCoverageDigest": "37699ca3a2a5656259fa2f098379082c578d3192222d5cd5a8e388e8e67cbd8d",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-1080",
+      "terminalEvidenceIds": [
+        "B-45a0:F-440"
+      ],
+      "readEvidenceDigest": "eae40edfa14da73e24ef205972982fc31a02bb019a7c8dcb1e2a39d82aef1e81",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-439",
+          "disposition": "verified_family",
+          "familyKey": "acceptance-rollout-and-topology-basis-restaling-from-review-churn",
+          "reason": "Independently reproduced at current HEAD (own review_run_start RR-1080, own finding_add F-440): acceptance_topology_check status=fail structuralPass=false mode=observe blocking=false AT_COVERAGE_BASIS_STALE; acceptance_rollout_check ok=false status=fail mode=enforce blocking=true receipt=stale AR_REPORT_STALE; acceptance_rollout_report_read identical ok=false/fail/enforce/blocking=true/AR_REPORT_STALE; acceptance_basis status=invalid. Confirmed via git log that all commits since the prior repair touch only .proof-or-stop/story/actives/B-45a0 metadata plus one decisions doc and one evidence file, zero touches to packages/main/src/core or packages/main/src/handlers, so this is pure reviewer-driven storyFilesHash churn re-staling freshness bindings, not a code regression. Confirmed pre_review_check is DEV-only and no rollout-report write/generate command exists in the REVIEW phase tool list, so this wave cannot self-heal from REVIEW. Distinct family from wave-1 verified families pre-review-read-exit-code-value-blind-selector and rule-10-doc-fix-partial-propagation (those were pre_review_check_read-specific); F-439 additionally covers acceptance_rollout_check, acceptance_rollout_report_read, and acceptance_topology_check going stale together on the same underlying re-staling mechanism, a wider surface of the same structural class rather than a new unexercised modality. A further wave would predictably reproduce identical re-staling churn since every review_run_start/finding_add/review_pass_set call itself advances storyFilesHash and cannot be suppressed while REVIEW evidence-gathering continues; my own finding_add for this wave (F-440) itself moved HEAD again, directly demonstrating the treadmill. Recommend epoch closure to DEV so pre_review_check and the rollout-report writer can be re-run once against a settled basis."
+        }
+      ],
+      "createdAt": "2026-08-31T03:21:48.276Z",
+      "_hash": "a0c8d38e860084629d929aec09104e5354188566dd406d5c9ca6c3f69cec3ef6"
     }
   ]
 }

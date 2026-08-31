@@ -23956,6 +23956,43 @@
       "_hash": "04110745240e2c280fa2d973d32d6bca93b3400319ffcaf5cbbd33a721b0dabe",
       "signatureTag": "acceptance-rollout-and-topology-basis-restaling-from-review-churn",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-441",
+      "desc": "packages/main/src/core/story-aware-validation.ts:273-276,320: discoverValidationInventory reimplements the canonical/legacy config-file read-both fallback as a raw join()+existsSync ternary (canonicalPath/legacyPath/configPath at lines 273-276, repeated at line 320 for the source field) instead of reusing core/config.ts pickProjectConfigPath(dir), which already returns {path, filename, legacy} for exactly this canonical-first read-both lookup and is documented at config.ts:764-770 as the fix for the B-cdf6 F-065/F-061/F-068 regression shape (a deprecated literal embedded in a comparison). Both filenames remain supported today so this is not a correctness break, but it duplicates a hardened resolver in a codebase that has paid for this exact duplication pattern multiple times; a future rename or third config filename only needs pickProjectConfigPath updated, and this call site will silently drift. Recommend replacing the local ternary with pickProjectConfigPath(projectRoot).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T03:26:37.887Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1082",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1b20d78b134b41c0eccce16b8c40bc4e11985865f3d0a247074c79d4747aff80",
+      "files": [
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/core/config.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
