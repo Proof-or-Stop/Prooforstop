@@ -23548,6 +23548,46 @@
         "scanEscalationReason": null
       },
       "_hash": "6a7a14d671751ceff83746f40a447fbdfd330957eead5b224cd3290ccb98a1f1"
+    },
+    {
+      "id": "B-45a0:RP-494",
+      "agent": "lattice-review-test-coverage",
+      "note": "Wave 3/3 final sweep: reproduced live at current HEAD c52a8b4, matches review_run_start head; only proof-or-stop metadata commits since RR-1098/RP-490 (git log, review_incremental_context isFirstPass=true changedFiles=none scopeChanged=false). CHK-014 all 5 evidence rows still bound to stale headHash 9a87c4b1, matching filed F-437. Live reruns of pre_review_check_read/acceptance_topology_check/acceptance_rollout_check/acceptance_rollout_report_read/acceptance_basis reproduce exactly what F-439/F-440 already documented, no new diagnostic codes. No new evidence-coverage gap found; this is a pass not a retraction of F-437/F-439/F-440/F-446/F-447 which remain open verified.",
+      "createdAt": "2026-08-31T05:20:01.629Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1102",
+      "envelopeId": "b917e3d6633b5d9027e13be707f68d8dc32e0b793248c2fb73e55da94b077e1e",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1482e5939aa9f4255b6fc4a96bd4cac2a8be8a1b9d99aa5a48f74d6d56b023b8"
+      },
+      "readDiagnostics": [],
+      "_hash": "f2c55a132ffb63a62a5ec520f2657d67a0388aebac62837152110ed39eae0bd0"
     }
   ]
 }
