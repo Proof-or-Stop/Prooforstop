@@ -24092,6 +24092,49 @@
       "_hash": "2a83a6ee15f6514be9bb0c6b3ad54eb84fb5563b51ed90f4c23cb1f0faf44e53",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-444",
+      "desc": "story-aware-validation.ts discoverValidationInventory (F-441 fix, a89e174746): the no-config-file-at-all case now reports the wrong source filename. New code: picked = pickProjectConfigPath(projectRoot); source = picked?.legacy ? DEPRECATED_CONFIG_FILENAME : PROOF_OR_STOP_CONFIG_FILENAME. pickProjectConfigPath returns null when neither proof-or-stop.config.json nor lattice.config.json exists (verified live via node -e against compiled dist on an empty temp dir -> null). null?.legacy is undefined/falsy, so source resolves to the CANONICAL name in that branch. OLD code (pre-fix): source: existsSync(join(projectRoot, \"proof-or-stop.config.json\")) ? canonical : legacy -- when neither file exists, existsSync(canonical) is false, so the OLD ternary fell through to the LEGACY name (lattice.config.json). So the no-config-file case flipped which filename is reported (legacy before the fix, canonical after) -- a genuine behavior discrepancy from the fix, not covered by the original F-441 text (which only addressed the join()+existsSync ternary and the second existsSync probe, not this specific neither-file-exists edge). Impact assessed as low: grepped all consumers of ValidationInventory.source across packages/main/src and packages/main/tests -- zero call sites branch on inventory.source; it is purely informational metadata in the returned object. Unreachable in this repo today since proof-or-stop.config.json is always present at project root. No existing test exercises the non-injected file-lookup branch at all (story-aware-validation-smoke.ts and friends all pass injected commands, short-circuiting source to the injected literal), so this was never guarded either before or after the fix. Recommend: either document source=canonical-on-no-config-file as the new intended default, or add an explicit no-config-file branch preserving legacy semantics for parity, plus a regression test for the neither-file-exists case.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T04:41:19.266Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1087",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "74703733d88a1fe167d4f136c22c1d56cbaf36203766f27dd1ee93e1c3cfdffa",
+      "files": [
+        "packages/main/src/core/story-aware-validation.ts"
+      ],
+      "signatureTag": "edge|ts|story-aware-validation",
+      "signatureTagSource": "auto"
     }
   ]
 }
