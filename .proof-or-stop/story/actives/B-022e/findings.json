@@ -555,6 +555,61 @@
       ],
       "signatureTag": "adversarial|mjs|append-residue-bypass",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-023",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/proof-or-stop-identity-cutover.md:43-45 and 160-177 promise that every tracked retired-identity occurrence receives an exact disposition and that every new unlisted token fails. scripts/verify-proof-or-stop-identity-cutover.mjs:719-760 validates post-freeze release-ledger suffixes only as UTF-8 JSON objects with the expected schemaVersion, while lines 1055-1060 skip both whole ledger paths from active-residue scanning. Post-freeze records currently contain retired identities, so the verifier can print PASS although the documented fail-closed clean-break contract is undelivered. Preserve the immutable ledger prefix, but validate real ledger invariants and residue-scan or exact-pin every suffix occurrence; add a retired-token suffix mutation. Existing concept/quality findings F-020 and F-022 independently corroborate the implementation gap.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-08-31T23:07:20.192Z",
+      "reviewRound": "2026-08-31T22:53:47.816Z",
+      "reviewRunId": "B-022e:RR-051",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-022e/scope-contract.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/artifact-release.ts",
+          "packages/main/src/core/capability-release.ts",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "README.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "scripts/verify-proof-or-stop-pack-boundary.mjs"
+        ],
+        "scanEscalationReason": "Story-level identity cutover required all checklist relatedDocs plus focused canonical-role, historical provenance, rewritten Git-policy pin, append-only release-ledger, and acknowledged main-sync documentation review."
+      },
+      "_hash": "c34f8fafb7b5ca8d12060b89dec47d5baf07cbca19232ebbe864b30fb24a56d3",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs",
+        "packages/main/src/core/artifact-release.ts",
+        "packages/main/src/core/capability-release.ts"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
