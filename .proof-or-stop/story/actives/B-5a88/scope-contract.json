@@ -1281,10 +1281,26 @@
       "phase": "REVIEW",
       "headHash": "3ed2ae95128c792f57beef0e84b88252396a0ca1",
       "materialHash": "25e0f0d20105007001c8eb4ccaef93a92c8676e7ad08d325a90e9bce06c8d718"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Shared dev-memory experience log, written by the framework's own dev_memory_capture command whose output the DONE gate requires: story_advance DONE refuses with [missing_dev_memory_finish_decision] until a finish decision exists, and this story honestly recorded decision=captured rather than taking the no-reusable-lesson exit, because the convergence produced two genuinely reusable lessons. Entry 12f5957 (failure-mode) records that a DONE-required receipt written by a separate process self-invalidates through its own metadata auto-commit, so only done_prepare's single-process write-and-consume converges; it also lists the three hypotheses that were disproven by test so the next reader does not repeat them. Entry d9398e6 (tool-quirk) records that the CertificationWindow needs a FINALIZED UNCONSUMED review-inventory receipt while story_advance --phase=DEV consumes it, which is why three receipts were spent before the pattern was seen. Content is append-only lesson text with no product-runtime effect; the file is a cross-story shared log, not B-5a88-owned source, so it falls outside the story's declared path set by construction rather than by scope creep.",
+      "timestamp": "2026-08-31T17:28:21.667Z",
+      "paths": [
+        ".proof-or-stop/dev-memory/experience.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/dev-memory/experience.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "7dfe114e46ca677852bb9a1187e75c37bd59bdb4",
+      "materialHash": "2fac880039ac361d91f02df17766115d341f02ac3c1a2f6198a5bfcf82f70f87"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-31T13:44:04.013Z",
+  "updatedAt": "2026-08-31T17:28:21.667Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1372,6 +1388,7 @@
     "B-5a88-FOLLOWUP-STORIES.md": "B-5a88-FOLLOWUP-STORIES.md",
     "packages/main/src/core/finding-verify.ts": "packages/main/src/core/finding-verify.ts",
     "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts",
-    "packages/main/src/cli/alias-normalizer.ts": "packages/main/src/cli/alias-normalizer.ts"
+    "packages/main/src/cli/alias-normalizer.ts": "packages/main/src/cli/alias-normalizer.ts",
+    ".proof-or-stop/dev-memory/experience.jsonl": ".proof-or-stop/dev-memory/experience.jsonl"
   }
 }
