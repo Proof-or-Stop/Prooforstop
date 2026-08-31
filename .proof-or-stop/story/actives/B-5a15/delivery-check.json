@@ -1,75 +1,118 @@
 {
   "storyId": "B-5a15",
-  "checkedAt": "2026-08-21T12:38:45.804Z",
-  "headHash": "3a535d432d12667986df414442fef2799cf1c787",
-  "materialHash": "b38de9f6b3c247c94a667f92756c974ca4541e2b76f7b2aaaae09d6d9e7fd8fb",
-  "storyFilesHash": "985eb4c7aa5d9de6bd8f232e1f41be9be8e5f72d21f688ec1acc1692ba3d5c0a",
-  "reviewRound": "2026-08-21T11:29:50.266Z",
+  "checkedAt": "2026-08-31T19:33:43.780Z",
+  "headHash": "e9b8a899da0adc3a5498295ca2fbde449d3d6259",
+  "materialHash": "6d1ff7dcd6d03e382ddeecd9947b457e1d15122db53341de1f01e74308b26a5a",
+  "storyFilesHash": "9a49bfb8dd86493a088c679c1c3c3dab11583d171d618e3d36adb75adfceb4f6",
+  "reviewRound": "2026-08-26T09:37:09.709Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
-      "docPath": "checklist.json#CHK-001.userSees",
-      "promise": "The terminal prints `CausalEvidence: intentCount=58 uniqueExecutionKeys=10 commandExecutions=10 cacheHitRate=82%` and 58 selector verdicts, including explicit `selectorMismatch` where applicable.",
-      "status": "verified",
-      "verifiedBy": "lattice-review-delivery",
-      "evidence": "Current TEST validation is PASS at HEAD cf54def8278e52decd89b400460834f2c98a2c1a. The canonical causal-evidence test passed CHK-001 with the 58-intent, 10-unique-key, 10-command-execution ledger and selector verdict assertions."
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#U-03a",
+      "promise": "createCausalExecutionKey builds a content-addressed identity from realpath cwd, structured command/bootstrap, explicit inputs and storyFilesHash, redacted effective environment, runtime/tool version, and selector-policy digest.",
+      "verifiedBy": "read/grep",
+      "evidence": "packages/main/src/core/causal-evidence.ts createCausalExecutionKey (cwd via realpathSync, normalizeCommand, inputs/storyFilesHash completeness, redactEnvironment, selectorPolicyDigest) returns ce:v1:<sha256> and marks incomplete identities non-reusable."
     },
     {
-      "docPath": "checklist.json#CHK-002.userSees",
-      "promise": "The terminal prints `receiptPersistedBeforeCanonicalImport` and, after a simulated commit failure, `importRetry commandRerun=0 receiptHash=<unchanged>`.",
-      "status": "verified",
-      "verifiedBy": "lattice-review-delivery",
-      "evidence": "The current causal-evidence validation transcript passed CHK-002 and the receipt-first import/retry assertions, including commandRerun=0 and stable receiptHash after simulated commit failure."
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#U-03a",
+      "promise": "createCausalEvidenceBatch groups exact execution keys, executes each unique key once, and evaluates each intent selector independently against bounded redacted output.",
+      "verifiedBy": "read/test",
+      "evidence": "executeCausalEvidence reuses only verifyCausalEvidenceReceipt-valid PASS receipts, records per-intent selectorVerdicts, and independent node --test packages/main/tests/causal-evidence.test.mjs emitted CHK-001:happy:0 PASS for 58 intents / 10 keys / commandExecutions=10."
     },
     {
-      "docPath": "checklist.json#CHK-003.userSees",
-      "promise": "The terminal prints `causalDecision=advisory specializedRerun=0` for unrelated drift and `affectedNodeRerun=100% falseFresh=0` for related drift; DONE-required validation remains `strict`.",
-      "status": "verified",
-      "verifiedBy": "lattice-review-delivery",
-      "evidence": "The current causal-evidence validation transcript passed CHK-003 and its dependency-domain, unrelated-versus-related drift, falseFresh, and strict CertificationWindow assertions."
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#U-03a",
+      "promise": "A PASS receipt is reusable only when identity, schema, status, and causal fields verify; failed, timed-out, cancelled, partial, skipped, or incomplete receipts are not upgraded into reusable PASS evidence.",
+      "verifiedBy": "read/test",
+      "evidence": "verifyCausalEvidenceReceipt requires status===pass && exitCode===0 for reusable; executeFresh persists only reusable receipts; F-007 asserts fail/timeout/cancelled/partial never occupy the CAS key."
     },
     {
-      "docPath": "checklist.json#CHK-004.userSees",
-      "promise": "The terminal prints `preflight REFUSED: <failed_check_reason> commandExecutions=0` and no child-launch event when CLI, worktree, index, lease, capability, resources, or evidence target is invalid.",
-      "status": "verified",
-      "verifiedBy": "lattice-review-delivery",
-      "evidence": "The current causal-evidence validation transcript passed CHK-004 and CHK-006 preflight refusal assertions with zero execution and zero evidence-write counters; the verifier preflight regression also covers changed-snapshot refusal and same-owner lease refresh."
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#U-03a",
+      "promise": "The CAS receipt is written before canonical checklist import; importCausalEvidenceReceipt validates key, receipt hash, material identity, writer lease, and current facts, and retries only the import transaction.",
+      "verifiedBy": "read/test",
+      "evidence": "importCausalEvidenceReceipt returns commandReruns:0 and retries commit only; handlers/checklist.ts persist-then-import with snapshot invalidation on commit failure; CHK-002 markers all PASS on independent run."
     },
     {
-      "docPath": "checklist.json#CHK-005.userSees",
-      "promise": "The closeout metrics block prints `uniqueExecutionKeys`, `commandExecutions`, `cacheHitRate`, `commitFailureReruns=0`, `unrelatedSpecializedRerun=0`, `affectedNodeRerun=100%`, and `falseFresh=0` without a DONE claim while gates remain open.",
-      "status": "verified",
-      "verifiedBy": "lattice-review-delivery",
-      "evidence": "The current causal-evidence validation transcript passed CHK-005, including zero-safe canonical metrics, tamper resistance, commandReruns=0, unrelatedSpecializedRerun=0, affectedNodeRerun=100%, falseFresh=0, and assurance-preserving gate assertions."
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#U-03a",
+      "promise": "Story-scoped causal receipt/index paths are registered in runtime-artifact-registry.ts as runtime artifacts excluded from behavioral materialHash.",
+      "verifiedBy": "grep",
+      "evidence": "RUNTIME_ARTIFACT_REGISTRY id runtime-causal-evidence-receipts matchers cover .lattice/.proof-or-stop/docs story causal-evidence paths with materialHash:'exclude' and ignorePatterns **/causal-evidence/."
+    },
+    {
+      "docPath": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md#4",
+      "promise": "carryForwardOnDiskProvenance and evidenceHashesForPersistence in checklist.ts keep freshness hashes server-owned: exact same-semantic re-persist may retain prior binding; a changed semantic field receives current hashes and cannot inherit caller-supplied receipt authority.",
+      "verifiedBy": "read",
+      "evidence": "packages/main/src/handlers/checklist.ts strips caller mechanical/receipt/nonMechanicalReason, carries on-disk provenance only after sameEvidenceSemantics, and evidenceHashesForPersistence returns current hashes unless the prior row is semantically identical."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#U-03b",
+      "promise": "evaluateCausalDependencies computes the affected transitive closure; missing, ambiguous, legacy, or uncomputable identity fails closed to strict material freshness.",
+      "verifiedBy": "read/test",
+      "evidence": "causal-evidence.ts evaluateCausalDependencies sets causalDecision='strict' and gateAdmissible=false on missing material or incomplete input hashes; CHK-003:edge:1 and adversarial:0 PASS independently."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#U-03b",
+      "promise": "storyFilesHash is secondary evidence, not a replacement for materialHash; CertificationWindow consumes the signed causal decision and rejects stale affected-node bypasses; DONE-required build/full-suite evidence remains strict on whole-tree drift.",
+      "verifiedBy": "read/test",
+      "evidence": "handlers/certification-window.ts buildCertificationDecision calls evaluateCausalDependencies; CHK-003:happy:2, adversarial:2, and adversarial:3 PASS (CertificationWindow reject + DONE-required strict)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md#invariants",
+      "promise": "Metrics are diagnostic facts, not waivers and not substitutes for review, coverage, validation, or DONE-required evidence.",
+      "verifiedBy": "read/test",
+      "evidence": "deriveCausalMetrics projects only ledger fields; CHK-005:adversarial:1/2 PASS showing no elapsed/reviewer/coverage/waiver fields and evaluateCertificationWindowAdmit still refuses open findings, missing coverage, dirty tree, and strict DONE-required drift."
+    },
+    {
+      "docPath": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md#1",
+      "promise": "The last-moment verifier callback in verifier.ts refreshes a lease only when the existing lease belongs to the current session, then rechecks signed causal preflight facts before launching a child; it refuses a missing or foreign lease.",
+      "verifiedBy": "read/test",
+      "evidence": "handlers/verifier.ts refreshSameOwnerLease returns false unless lease.sessionId===getSessionId(); beforeLaunch throws causal_preflight_refused; verifier-causal-preflight.test.mjs F-012 same-owner refresh and snapshot-change refusal PASS independently."
+    },
+    {
+      "docPath": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md#5",
+      "promise": "Declared dependency domains are source, test, build-input, manifest-semantic, integration, and review-subject.",
+      "verifiedBy": "grep",
+      "evidence": "CAUSAL_DEPENDENCY_DOMAINS in packages/main/src/core/causal-evidence.ts is exactly those six values; certification-window.ts maps story-owned paths onto the same domains."
+    },
+    {
+      "docPath": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md#2",
+      "promise": "The execution ledger is the source for intentCount, uniqueExecutionKeys, commandExecutions, cacheHitRate, commandReruns, commitFailureReruns, unrelatedSpecializedRerun, affectedNodeRerun, and falseFresh.",
+      "verifiedBy": "read/test",
+      "evidence": "deriveCausalMetrics/renderCausalMetrics in causal-evidence.ts; independent CHK-005:happy:0 emitted intentCount=58 uniqueExecutionKeys=10 commandExecutions=10 cacheHitRate>=80%."
+    },
+    {
+      "docPath": "Wave4-independent-read#acceptance_commands",
+      "promise": "acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check remain independently executable; observe/warn keep diagnostics without blocking; enforce alone blocks; quorum is genuine full-3x2 (codex-cli + claude-cli), never degraded 3x1.",
+      "verifiedBy": "independent CLI read",
+      "evidence": "Independently ran all four for B-5a15. topology: mode=observe status=fail blocking=false diagnostics=AT_CLOSURE_FILES_STALE,AT_SCOPE_BINDING_MISSING. pre_review_check_read: mode=observe status=fail ok=false blocking=false codes=PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED,PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE,PR_CUTOFF_UNBOUND. rollout report/check: receipt=stale quorum=full-3x2 mode=enforce status=fail blocking=true diagnostics=AR_REPORT_STALE. Commands executed; enforce blocked; quorum field is full-3x2 not 3x1. Current signed PASS receipt is not present (stale/fail-closed artifacts)."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "node --test packages/main/tests/causal-evidence.test.mjs passed in the current TEST validation; CHK-001 assertions verify exact identity binding, 58-intent to 10-key fan-out, 10 child executions, selector verdicts, selectorMismatch, and incomplete-identity non-reuse."
+      "transcript": "Independent node --test packages/main/tests/causal-evidence.test.mjs PASS for CHK-001: keys bind cwd/env/inputs/runtime/selector-policy; 58 intents fan out from 10 exact keys with commandExecutions=10 cacheHitRate>=80%; replay reuses receipts commandReruns=0; selectorMismatch stays non-PASS; tampered/collision receipts fail closed; oversized 12001-char probe bounds to 12000 with <causal-output-gap> and reuses."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "node --test packages/main/tests/causal-evidence.test.mjs passed in the current TEST validation; CHK-002 assertions verify receipt persistence before canonical import, import retry without command rerun, stable receiptHash, orphan recovery, and fail-closed tamper paths."
+      "transcript": "Independent causal-evidence.test.mjs CHK-002 PASS: receipt-persist precedes canonical-import; Git/metadata failure retry reports commandRerun=0 and stable receiptHash; idempotent re-import; expired lease/changed index fail closed; tampered receipt, wrong key, overwrite, and partial import all fail closed without command rerun. Concurrency tests also PASS (single-flight exact keys; shared retry flight; StoryStore index writes)."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "node --test packages/main/tests/causal-evidence.test.mjs passed in the current TEST validation; CHK-003 assertions verify dependency-domain closure, unrelated and related drift decisions, falseFresh=0, shadow comparison, and strict stale affected-node rejection."
+      "transcript": "Independent causal-evidence.test.mjs CHK-003 PASS: unrelated merge specializedRerun=0 with explicit advisory; related material invalidates transitive closure; six domains have distinct boundaries; missing identity is strict; forged hashes rejected; CertificationWindow rejects stale affected PASS; DONE-required whole-tree drift remains strict. F-314/F-318/F-320 domain and CertificationWindow handler tests PASS."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "node --test packages/main/tests/causal-evidence.test.mjs passed in the current TEST validation; CHK-004 and CHK-006 assertions verify CLI, worktree, index, lease, capability, resource, evidence-target, and changed-snapshot refusals before child launch with zero counters."
+      "transcript": "Independent causal-evidence.test.mjs CHK-004 core PASS: ready preflight launches once; all eight readiness failures refuse with commandExecutions=0 (cli, worktree, gitIndex, writer, lease, provider, resources, evidenceTarget); race and forged preflight refuse before child launch. verifier-causal-preflight.test.mjs F-012 PASS. F-250 validate-file causal preflight PASS. F-247/F-249 currently FAIL independently: pre_review_check_read status=fail with codes PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED,PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE,PR_CUTOFF_UNBOUND (outside the test's allowed fail-closed set), so CHK-004:happy:2/3 current topology/pre-review PASS markers were not re-emitted. Independently read Wave 4 commands: topology observe fail blocking=false (AT_CLOSURE_FILES_STALE,AT_SCOPE_BINDING_MISSING); rollout enforce fail blocking=true AR_REPORT_STALE quorum=full-3x2."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "node --test packages/main/tests/causal-evidence.test.mjs passed in the current TEST validation; CHK-005 assertions verify canonical zero-safe and mixed metrics, tamper resistance, commandReruns=0, unrelatedSpecializedRerun=0, affectedNodeRerun=100%, falseFresh=0, and assurance-preserving gates."
+      "transcript": "Independent causal-evidence.test.mjs CHK-005 PASS: empty plan is zero-safe; 58/10/10 cacheHitRate>=80% from the ledger; mixed reuse counts from actual executions; import retry commitFailureReruns=1 commandReruns=0; incomplete identity cannot improve cacheHitRate/falseFresh; incomplete rerun makes affectedNodeRerun<100%; mixed correctness unrelatedSpecializedRerun=0 affectedNodeRerun=100% falseFresh=0; metrics fields exclude elapsed/reviewer/coverage/waiver; metrics PASS cannot bypass open findings, missing coverage, dirty tree, or strict whole-tree causal drift; ledger tamper is detected."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "The post-merge implementation diff, five checklist items, 50 passing verification-intent evidence rows, current PASS validation snapshot, and user-visible promises were reviewed. Each promise is mapped to assertion-backed real-machine evidence; no unresolved delivery TODO remains, and this signature makes no claim that separate DONE assurance gates are already satisfied."
+    "summary": "U-03 CausalEvidence docs promises are implemented in causal-evidence.ts, checklist/verifier/certification-window handlers, runtime-artifact-registry, and process-fact L4 gates. Independent node --test of the causal-evidence, concurrency, checklist-preflight, and verifier-preflight suites passed 25/27 tests: CHK-001..CHK-003 and CHK-005 markers all PASS with happy+edge+adversarial coverage; CHK-004 core preflight PASS. Two Wave 4 integration tests (F-247/F-249) currently fail because pre_review_check_read is not a current signed PASS and its fail-closed code set is broader than the test allow-list; independently read rollout remains full-3x2 (not 3x1) but receipt=stale and enforce blocking=true. No unresolved TODOs in this story's non-test code. I did not consume test-evidence.json and did not re-run mutating validate --story=B-5a15."
   },
-  "_hash": "51ca72b1f1df0bb452b564d105b14e9c73c282ecb156710815778f5cbdaccb18"
+  "_hash": "9b6848d14eac3bbbca0bb1b287d88d6c92844412b59f52050ccb0ad58c49b60e"
 }
