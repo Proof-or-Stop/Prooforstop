@@ -116,7 +116,7 @@
       "desc": "doc-code-drift: [high] scripts/verify-proof-or-stop-identity-cutover.mjs:754-763 blanket-classifies every docs/requirements/decisions file as frozen, although the approved clean-break policy permits exact provenance rows rather than a directory exemption. That hides live normative drift: testing-infra.md:5-10,141,151,160 still teaches lattice-review-test-coverage/lattice-review-*; story-lifecycle.md:3-7,68,101-103,303,335,343 still teaches lattice-review-story-init and lattice-review-test-coverage; and the explicitly active lifecycle-artifact-scope.md:3-16,201-223,260-305 advertises .lattice state/manifest paths, a lattice binary alias, and lattice-* subagent types. Runtime code is canonical-only: agent-dispatch-registry.ts has aliases=[] for proof-or-stop-review-* and brand-paths.ts accepts only .proof-or-stop. WHY: operators following current authority docs invoke retired roles/paths that now fail, while the GREEN verifier cannot detect the incomplete docs cutover. This independently corroborates concept F-001 without treating the exact frozen B-cdf6/B-cc10 provenance or the cutover mapping itself as defects.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-08-31T01:46:05.885Z",
@@ -132,7 +132,11 @@
         "packages/main/src/core/brand-paths.ts"
       ],
       "signatureTag": "missing|md|code-drift-high",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 04e818f46d: story-lifecycle, testing-infra, and lifecycle-artifact-scope current docs are canonical while exact frozen provenance remains byte-bound; current residue is empty and prompt, residue, and identity self-tests pass.",
+      "resolvedAt": "2026-08-31T03:05:06.994Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
