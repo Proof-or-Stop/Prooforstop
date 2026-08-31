@@ -22766,6 +22766,34 @@
         "scanEscalationReason": null
       },
       "_hash": "4a793a3230be814e73f83ef11ab388ef9364cfedb5246737093453c4a3aa5e92"
+    },
+    {
+      "id": "B-5a88:RP-369",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality review completed for the current published-core and repository-bootstrap lab boundary. docs/CLI.md, package metadata, both entrypoints, and the focused published-core verifier agree at the current material and story-files bindings; F-450 is fixed, F-451 is its duplicate, and this quality lane found no blocker.",
+      "createdAt": "2026-08-26T15:34:17.922Z",
+      "reviewRound": "2026-08-26T15:22:14.772Z",
+      "reviewRunId": "B-5a88:RR-932",
+      "envelopeId": "b78db3d801409747d7f7c20afbe0ca7369e3d4dbf3315f05872f59e6f6483e38",
+      "writerSessionId": "sess-9672e9c19aa9ef5f3e316dc3f6a9a445",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/bootstrap-runner.js",
+          "packages/main/src/cli.ts",
+          "packages/main/src/cli/lab-entrypoint.ts",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/lab/package.json",
+          "packages/main/dist/cli-engine.js",
+          "packages/main/dist/cli.js",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": "No decisions-directory escalation; this quality review covered the changed CLI lab boundary, package publication metadata, bootstrap loader, and focused verifier."
+      },
+      "_hash": "e006cf9ce7e1c8b7b041de2ba6da5f3705d2da2d08964864d430b54ea3a95be6"
     }
   ]
 }
