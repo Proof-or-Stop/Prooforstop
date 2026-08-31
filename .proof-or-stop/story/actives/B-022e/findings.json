@@ -143,7 +143,7 @@
       "desc": "Offline pack-boundary proof can false-pass an unsatisfied external dependency range. resolveOfflineDependencyGraph carries request.range from every product/transitive manifest (lines 263-290) but visit never compares that range with the resolved installed manifest.version; it keys solely by name@version. buildOfflineCache then rewrites all dependency edges to file: tarballs (lines 464-475), and the consumer installs with root overrides built from those tarballs (lines 632-668). Thus a coordinated manifest+lock mutation such as zod:^99.0.0 while the workspace still resolves zod 4.4.3 is not rejected by graph resolution and can be forced through npm by the override, so the claimed clean offline closed-graph proof is not fail-closed. Add a semver satisfaction check for every request edge (including product seeds, dependencies, and required peers), bind requested ranges/edge provenance into the cache graph/manifest, and add an inverse self-test that mutates an external range to reject the installed version and proves refusal before cache/install.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-31T03:14:53.112Z",
@@ -154,7 +154,11 @@
         "scripts/verify-proof-or-stop-pack-boundary.mjs"
       ],
       "signatureTag": "adversarial|mjs|offline-pack-boundary",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 5aca69cae5: verifier validates each external dependency, optional dependency, and peer dependency request against resolved name and version before creating file overrides; unsupported specs fail closed. The incompatible ^2.0.0 request to installable 1.0.0 mutation is rejected, and range semantics are cache and transcript bound.",
+      "resolvedAt": "2026-08-31T04:21:49.540Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-008",
