@@ -1,9 +1,9 @@
 {
   "storyId": "B-45a0",
   "action": "override_budget",
-  "reason": "User explicitly approved one current-evidence review-budget override after final evidence refresh, acceptance quorum, and scope receipt completed.",
-  "reviewRound": "2026-08-28T04:45:06.194Z",
-  "approvedBy": "user",
-  "recordedAt": "2026-08-28T06:53:14.701Z",
-  "_hash": "c113ac1989971a92640dc6ca30aef7ec81d4cd5e99e1268bc059a1c07f09ca9a"
+  "reason": "Authorizing exactly one further ordinary REVIEW round to re-attest the two Wave-4 surfaces just repaired in DEV. The high round count is historical, from this story's long remediation, not from unresolved churn: every blocking finding is now closed on real evidence. acceptance_rollout_check reports mode=enforce status=pass blocking=false receipt=current quorum=full-3x2 after regenerating the report with its DEV-only writer. pre_review_check reports PASS with zero codes, down from ten, after refreshing all 50 stale verificationEvidence rows by re-executing their pinned commands and capturing a fresh live-smoke transcript bound to the current storyFilesHash. acceptance_basis is complete with Receipt verification PASS and converged across two consecutive generates to the same receipt. acceptance_topology_check reports Status pass, Structural pass yes, Diagnostics none. The remaining work in REVIEW is bounded and mechanical: resolve findings F-428, F-429 and F-430 against this verified state, then earn fresh reviewer receipts. No code change is outstanding.",
+  "reviewRound": "2026-08-30T15:57:31.479Z",
+  "approvedBy": "stall-adjudication",
+  "recordedAt": "2026-08-31T02:29:10.629Z",
+  "_hash": "6d2d94a35f36e344a759decd26dc40ea56289cd34e46efcd05f6d397de57dc4d"
 }
