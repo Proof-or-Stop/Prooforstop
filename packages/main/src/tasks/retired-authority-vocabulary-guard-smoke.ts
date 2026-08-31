@@ -417,7 +417,19 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // argument, or path producer was added, removed, or rewritten; only the approved call
   // site's line number moved (809/814 -> 814). As always, BOTH coupled copies of this
   // digest (here and in scripts/verify-process-fact-contract.mjs) were updated together.
-  ['packages/main/src/cli-engine.ts', 'dd11e51a1c4a87b78a9bd5fed12d46fb9eb32c900ca311b9b809d843b553fa79'],
+  // B-5a88: repinned after the retired-bin PARSE-tolerance fix. Re-approval basis,
+  // checked before repinning rather than after: `git diff` on cli-engine.ts since the
+  // previous pin is exactly TWO lines — one static named import added
+  // (STRIPPABLE_BIN_TOKENS from ./cli/alias-normalizer.js) and one identifier swapped
+  // inside a boolean test (PROOF_OR_STOP_BIN_NAMES -> STRIPPABLE_BIN_TOKENS on the
+  // redundant-bin `version` fast path). ZERO import()/require() calls, arguments, or
+  // path producers were added, removed, or rewritten: the dynamic-load surface is still
+  // exactly `await import(`file://${initPath}`)` (line 815, same runCli anchor and same
+  // cli-init initPath producer) and `await import('./dashboard.js')` (line 827). The
+  // digest moved solely because this algorithm fingerprints the whole enclosing file.
+  // BOTH coupled copies of this digest (here and in
+  // scripts/verify-process-fact-contract.mjs) were updated together.
+  ['packages/main/src/cli-engine.ts', 'ecf5cfec2f6156d4d49fb18bc7fdd63a537adc2e4325d78b701b95b53421dcf6'],
   ['packages/main/src/verifier/serve.ts', '03a8ffa356ad17e46e04ad5622fa7a49d4f08528fdd8d9525b6cc2add5bba527'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '5a263419aa715dfec4d45e35a81b887c8aafb2c57344f5b4b9d8de284ce1503e'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
