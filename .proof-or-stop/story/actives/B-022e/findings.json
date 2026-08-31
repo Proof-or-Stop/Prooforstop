@@ -750,6 +750,26 @@
       "resolvedAt": "2026-08-31T23:37:29.237Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-026",
+      "desc": "packages/main/src/core/acceptance-topology.ts:147-156 and packages/main/tests/acceptance-topology-provenance.test.mjs:25-34 leave the Round-11 F-021 historical producer gap partially unresolved. The parser now accepts the retired basename lattice and the extensionless path bin/lattice, but ACCEPTANCE_WRAPPER_SCRIPTS does not include the actually recorded bin/lattice.js form named by F-021; the focused regression likewise tests only lattice acceptance_matrix and bin/lattice acceptance_matrix. Reproduction against current dist: acceptanceMatrixEvidenceProvenance({kind:\"logic_test\",command:\"node bin/lattice.js acceptance_matrix\"}) returns null, as does /usr/bin/node ./bin/lattice.js --root=/tmp/x acceptance_matrix, while F-021 resolution claims four retired command forms. WHY [high]: historical L0 acceptance_matrix output produced through the retired JS wrapper can escape the non-evidentiary provenance guard and be counted as independent verification; the green focused test is a false-negative because it omits the failing forms. Restore bin/lattice.js only in this bounded provenance parser (not as an executable alias) and add direct + node/path/root-option positive regressions plus non-producer negatives.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-31T23:41:32.035Z",
+      "reviewRound": "2026-08-31T23:37:04.185Z",
+      "reviewRunId": "B-022e:RR-052",
+      "_hash": "a8474bc20c4533c95e53866d5da7ff3422abdc20c97e12fd536b4da717efd9b7",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/tests/acceptance-topology-provenance.test.mjs",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
