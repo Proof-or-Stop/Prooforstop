@@ -22,6 +22,7 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import semver from 'semver';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(SCRIPT_DIR, '..');
@@ -29,7 +30,7 @@ const RETIRED_PRODUCT = ['lat', 'tice'].join('');
 const RETIRED_SCOPE = `@${RETIRED_PRODUCT}`;
 const EXPECTED_EXTENSION_VERSION = '0.3.65';
 const EXPECTED_CORE_PEER_RANGE = '^0.3.65';
-const CACHE_FORMAT_VERSION = 'proof-or-stop.pack-boundary-offline-cache.v1';
+const CACHE_FORMAT_VERSION = 'proof-or-stop.pack-boundary-offline-cache.v2';
 const CACHE_MANIFEST_FILE = 'cache-manifest.json';
 const CACHE_LOCK_STALE_MS = 10 * 60_000;
 const CACHE_LOCK_WAIT_MS = 50;
@@ -259,50 +260,212 @@ function directoryContentDigest(root) {
   return hash.digest('hex');
 }
 
-function resolveOfflineDependencyGraph(manifests) {
-  const seedRequests = [];
-  for (const manifest of Object.values(manifests)) {
-    for (const [name, range] of Object.entries(manifest.dependencies || {})) {
-      if (!name.startsWith('@proof-or-stop/')) seedRequests.push({ name, range, fromDir: ROOT });
-    }
+function unsupportedDependencySpecKind(rawSpec) {
+  if (rawSpec.startsWith('file:')) return 'file';
+  if (rawSpec.startsWith('workspace:')) return 'workspace';
+  if (rawSpec.startsWith('link:')) return 'link';
+  if (/^https?:/i.test(rawSpec)) return 'url';
+  if (/^(?:git(?:\+[^:]+)?:|github:|gitlab:|bitbucket:)/i.test(rawSpec)) return 'git';
+  if (/^(?:\.{0,2}\/|\/)/.test(rawSpec)) return 'path';
+  return 'tag-or-unsupported';
+}
+
+function parseAliasSpec(rawSpec) {
+  const body = rawSpec.slice('npm:'.length);
+  const separator = body.startsWith('@')
+    ? body.indexOf('@', body.indexOf('/') + 1)
+    : body.lastIndexOf('@');
+  assert(separator > 0 && separator < body.length - 1, `invalid npm alias dependency spec ${rawSpec}`);
+  const packageName = body.slice(0, separator);
+  const range = body.slice(separator + 1);
+  assert(/^(?:@[^/@\s]+\/)?[^/@\s]+$/.test(packageName), `invalid npm alias target ${packageName}`);
+  return { packageName, range };
+}
+
+function classifyDependencySpec(requestedName, rawSpec) {
+  assert(typeof rawSpec === 'string', `dependency ${requestedName} has a non-string spec`);
+  let kind = 'semver';
+  let packageName = requestedName;
+  let range = rawSpec;
+  if (rawSpec.startsWith('npm:')) {
+    kind = 'npm-alias';
+    ({ packageName, range } = parseAliasSpec(rawSpec));
+  }
+  const normalizedRange = semver.validRange(range, { loose: false });
+  if (normalizedRange === null) {
+    const unsupportedKind = kind === 'npm-alias' ? `npm-alias-${unsupportedDependencySpecKind(range)}` : unsupportedDependencySpecKind(rawSpec);
+    fail(`dependency ${requestedName}@${rawSpec} uses unsupported non-semver spec (${unsupportedKind})`);
+  }
+  return { kind, requestedName, packageName, rawSpec, range, normalizedRange };
+}
+
+function validateResolvedDependencyRequest(request, spec, manifest) {
+  assert(manifest.name === spec.packageName,
+    `dependency ${request.name}@${request.range} resolved package name ${manifest.name}, expected ${spec.packageName}`);
+  assert(semver.valid(manifest.version, { loose: false }),
+    `dependency ${request.name}@${request.range} resolved invalid version ${manifest.version}`);
+  assert(semver.satisfies(manifest.version, spec.range, { loose: false, includePrerelease: false }),
+    `dependency ${request.name}@${request.range} rejects resolved ${manifest.name}@${manifest.version}`);
+  return {
+    edgeType: request.edgeType,
+    optional: Boolean(request.optional),
+    requestedName: request.name,
+    rawSpec: request.range,
+    specKind: spec.kind,
+    packageName: spec.packageName,
+    normalizedRange: spec.normalizedRange,
+    resolvedName: manifest.name,
+    resolvedVersion: manifest.version,
+    resolved: true,
+  };
+}
+
+function manifestDependencyRequests(manifest, fromDir, source) {
+  const requests = [];
+  const optionalDependencies = manifest.optionalDependencies || {};
+  for (const [name, range] of Object.entries(manifest.dependencies || {})) {
+    if (Object.hasOwn(optionalDependencies, name)) continue;
+    requests.push({ name, range, fromDir, source, edgeType: 'dependency', optional: false });
+  }
+  for (const [name, range] of Object.entries(optionalDependencies)) {
+    requests.push({ name, range, fromDir, source, edgeType: 'optionalDependency', optional: true });
+  }
+  for (const [name, range] of Object.entries(manifest.peerDependencies || {})) {
+    const optional = manifest.peerDependenciesMeta?.[name]?.optional === true;
+    requests.push({ name, range, fromDir, source, edgeType: 'peerDependency', optional });
+  }
+  return requests;
+}
+
+function edgeSemanticProjection(edge) {
+  return {
+    source: edge.source,
+    edgeType: edge.edgeType,
+    optional: edge.optional,
+    requestedName: edge.requestedName,
+    rawSpec: edge.rawSpec,
+    specKind: edge.specKind,
+    packageName: edge.packageName,
+    normalizedRange: edge.normalizedRange,
+    resolved: edge.resolved,
+    resolvedName: edge.resolvedName || null,
+    resolvedVersion: edge.resolvedVersion || null,
+    childKey: edge.childKey || null,
+  };
+}
+
+function compareEdgeSemantics(a, b) {
+  return JSON.stringify(edgeSemanticProjection(a)).localeCompare(JSON.stringify(edgeSemanticProjection(b)));
+}
+
+function resolveOfflineDependencyGraphForRequests(seedRequests) {
+  const packages = new Map();
+  const packagesByLocation = new Map();
+
+  function packageCopyProjection(node) {
+    return {
+      sourceDigest: node.sourceDigest,
+      edges: [...node.edges, ...node.omittedEdges].sort(compareEdgeSemantics).map(edgeSemanticProjection),
+    };
   }
 
-  const packages = new Map();
   function visit(request) {
+    const spec = classifyDependencySpec(request.name, request.range);
     let packageDir;
     try {
       packageDir = resolveInstalledPackageDir(request.name, request.fromDir);
     } catch (error) {
-      if (request.optional) return null;
+      if (request.optional) {
+        return {
+          edge: {
+            source: request.source,
+            edgeType: request.edgeType,
+            optional: true,
+            requestedName: request.name,
+            rawSpec: request.range,
+            specKind: spec.kind,
+            packageName: spec.packageName,
+            normalizedRange: spec.normalizedRange,
+            resolved: false,
+          },
+          key: null,
+        };
+      }
       throw error;
     }
     const manifest = readJson(join(packageDir, 'package.json'));
+    const edge = validateResolvedDependencyRequest(request, spec, manifest);
     const key = `${manifest.name}@${manifest.version}`;
-    if (packages.has(key)) return key;
-    const node = { key, packageDir, manifest, edges: new Map() };
-    packages.set(key, node);
-    for (const [name, range] of Object.entries(manifest.dependencies || {})) {
-      const childKey = visit({ name, range, fromDir: packageDir });
-      if (childKey) node.edges.set(name, childKey);
+    edge.childKey = key;
+    const existingLocation = packagesByLocation.get(packageDir);
+    if (existingLocation) {
+      assert(existingLocation.key === key, `installed package identity changed while resolving ${packageDir}`);
+      return { edge, key };
     }
-    for (const [name, range] of Object.entries(manifest.peerDependencies || {})) {
-      if (manifest.peerDependenciesMeta?.[name]?.optional) continue;
-      const childKey = visit({ name, range, fromDir: packageDir });
-      if (childKey) node.edges.set(name, childKey);
+    const node = {
+      key,
+      packageDir,
+      manifest,
+      edges: [],
+      omittedEdges: [],
+      sourceDigest: directoryContentDigest(packageDir),
+    };
+    packagesByLocation.set(packageDir, node);
+    for (const childRequest of manifestDependencyRequests(manifest, packageDir, key)) {
+      const child = visit(childRequest);
+      if (child.key) node.edges.push(child.edge);
+      else node.omittedEdges.push(child.edge);
     }
-    return key;
+    const existing = packages.get(key);
+    if (existing) {
+      assert(isDeepStrictEqual(packageCopyProjection(existing), packageCopyProjection(node)),
+        `dependency ${key} has non-equivalent installed copies; cache rewrite would be ambiguous`);
+    } else {
+      packages.set(key, node);
+    }
+    return { edge, key };
   }
 
   const seedKeys = new Map();
+  const seedEdges = [];
   for (const request of seedRequests) {
-    const key = visit(request);
+    const result = visit(request);
+    seedEdges.push(result.edge);
+    if (!result.key) continue;
     const previous = seedKeys.get(request.name);
-    assert(!previous || previous === key, `product manifests require multiple offline versions of ${request.name}`);
-    seedKeys.set(request.name, key);
+    assert(!previous || previous === result.key, `product manifests require multiple offline versions of ${request.name}`);
+    seedKeys.set(request.name, result.key);
   }
+  return { packages, seedKeys, seedEdges };
+}
 
-  for (const node of packages.values()) node.sourceDigest = directoryContentDigest(node.packageDir);
-  return { packages, seedKeys };
+function resolveOfflineDependencyGraph(manifests) {
+  const seedRequests = [];
+  for (const [id, manifest] of Object.entries(manifests)) {
+    for (const request of manifestDependencyRequests(manifest, ROOT, `product:${id}`)) {
+      if (!request.name.startsWith('@proof-or-stop/')) seedRequests.push(request);
+    }
+  }
+  return resolveOfflineDependencyGraphForRequests(seedRequests);
+}
+
+function packedDependencyKeys(node) {
+  const dependencies = new Map();
+  for (const edge of node.edges) {
+    const previous = dependencies.get(edge.requestedName);
+    assert(!previous || previous === edge.childKey,
+      `${node.key} resolves ${edge.requestedName} to incompatible dependency identities`);
+    dependencies.set(edge.requestedName, edge.childKey);
+  }
+  return dependencies;
+}
+
+function packedDependencies(node, graph, cacheDir) {
+  return Object.fromEntries([...packedDependencyKeys(node).entries()].sort(([a], [b]) => a.localeCompare(b)).map(([name, childKey]) => {
+    const child = graph.packages.get(childKey);
+    assert(child, `${node.key} references missing dependency node ${childKey}`);
+    return [name, `file:${join(cacheDir, 'tarballs', expectedTarballFilename(child))}`];
+  }));
 }
 
 function offlineCacheInput(manifests, graph) {
@@ -318,17 +481,30 @@ function offlineCacheInput(manifests, graph) {
     name: node.manifest.name,
     version: node.manifest.version,
     sourceDigest: node.sourceDigest,
-    edges: [...node.edges.entries()].sort(([a], [b]) => a.localeCompare(b)),
+    edges: [...node.edges, ...node.omittedEdges].sort(compareEdgeSemantics).map(edgeSemanticProjection),
   }));
-  const seeds = [...graph.seedKeys.entries()].sort(([a], [b]) => a.localeCompare(b));
+  const seeds = [...graph.seedEdges].sort(compareEdgeSemantics).map(edgeSemanticProjection);
+  const requestSemanticsDigest = sha256(JSON.stringify({
+    packages: packages.map(({ key, edges }) => ({ key, edges })),
+    seeds,
+  }));
   const npmVersion = execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim();
-  const material = { cacheFormat: CACHE_FORMAT_VERSION, manifestDigest, lockDigests, packages, seeds, npmVersion, nodeVersion: process.version };
+  const material = {
+    cacheFormat: CACHE_FORMAT_VERSION,
+    manifestDigest,
+    lockDigests,
+    requestSemanticsDigest,
+    packages,
+    seeds,
+    npmVersion,
+    nodeVersion: process.version,
+  };
   return { ...material, cacheKey: sha256(JSON.stringify(material)) };
 }
 
 function cacheRootPath() {
   return resolve(process.env.PROOF_OR_STOP_PACK_BOUNDARY_CACHE_DIR
-    || join(tmpdir(), 'proof-or-stop-pack-boundary-cache-v1'));
+    || join(tmpdir(), 'proof-or-stop-pack-boundary-cache-v2'));
 }
 
 function ensureSafeCacheRoot(cacheRoot) {
@@ -400,8 +576,10 @@ function validateOfflineCache(cacheDir, input, graph, publishedCacheDir = cacheD
     if (!manifestStat.isFile() || manifestStat.isSymbolicLink()) return { ok: false, reason: 'cache manifest is not a regular file' };
     const manifest = readJson(manifestPath);
     if (manifest.schemaVersion !== CACHE_FORMAT_VERSION || manifest.cacheKey !== input.cacheKey) return { ok: false, reason: 'cache identity mismatch' };
-    if (!isDeepStrictEqual(manifest.lockDigests, input.lockDigests) || manifest.manifestDigest !== input.manifestDigest) {
-      return { ok: false, reason: 'cache lock or manifest digest mismatch' };
+    if (!isDeepStrictEqual(manifest.lockDigests, input.lockDigests)
+      || manifest.manifestDigest !== input.manifestDigest
+      || manifest.requestSemanticsDigest !== input.requestSemanticsDigest) {
+      return { ok: false, reason: 'cache lock, manifest, or request-semantics digest mismatch' };
     }
     if (!Array.isArray(manifest.packages) || manifest.packages.length !== graph.packages.size) return { ok: false, reason: 'cache package count mismatch' };
     const cachedByKey = new Map(manifest.packages.map((row) => [row.key, row]));
@@ -421,10 +599,7 @@ function validateOfflineCache(cacheDir, input, graph, publishedCacheDir = cacheD
       if (sha256File(tarball) !== row.tarballSha256) return { ok: false, reason: `cache tarball digest mismatch for ${node.key}` };
       const packedManifestText = execFileSync('tar', ['-xOf', tarball, 'package/package.json'], { encoding: 'utf8' });
       const packedManifest = JSON.parse(packedManifestText);
-      const expectedDependencies = Object.fromEntries([...node.edges.entries()].map(([name, childKey]) => {
-        const child = graph.packages.get(childKey);
-        return [name, `file:${join(publishedCacheDir, 'tarballs', expectedTarballFilename(child))}`];
-      }));
+      const expectedDependencies = packedDependencies(node, graph, publishedCacheDir);
       if (sha256(packedManifestText) !== row.packedManifestSha256
         || packedManifest.name !== node.manifest.name
         || packedManifest.version !== node.manifest.version
@@ -462,10 +637,7 @@ function buildOfflineCache(cacheRoot, cacheDir, input, graph) {
           || !relative(packageDir, source).split(sep).includes('node_modules'),
       });
       const stagedManifest = readJson(join(sourceStage, 'package.json'));
-      stagedManifest.dependencies = Object.fromEntries([...node.edges.entries()].map(([name, childKey]) => {
-        const child = graph.packages.get(childKey);
-        return [name, `file:${join(cacheDir, 'tarballs', expectedTarballFilename(child))}`];
-      }));
+      stagedManifest.dependencies = packedDependencies(node, graph, cacheDir);
       delete stagedManifest.optionalDependencies;
       delete stagedManifest.peerDependencies;
       delete stagedManifest.peerDependenciesMeta;
@@ -505,6 +677,7 @@ function buildOfflineCache(cacheRoot, cacheDir, input, graph) {
       cacheKey: input.cacheKey,
       manifestDigest: input.manifestDigest,
       lockDigests: input.lockDigests,
+      requestSemanticsDigest: input.requestSemanticsDigest,
       packages: packageRows,
     }, null, 2)}\n`, { flag: 'wx' });
     const current = validateOfflineCache(stageDir, input, graph, cacheDir);
@@ -551,7 +724,13 @@ function ensureOfflineDependencyCache(manifests, cacheRoot = cacheRootPath()) {
 
 function prepareOfflineDependencyOverrides(manifests) {
   const cache = ensureOfflineDependencyCache(manifests);
-  return { overrides: cache.overrides, summary: cache.summary, cacheStatus: cache.cacheStatus, cacheKey: cache.cacheKey };
+  return {
+    overrides: cache.overrides,
+    summary: cache.summary,
+    cacheStatus: cache.cacheStatus,
+    cacheKey: cache.cacheKey,
+    requestSemanticsDigest: cache.manifest.requestSemanticsDigest,
+  };
 }
 
 function verifyPackedArtifacts(packed, sources) {
@@ -720,7 +899,11 @@ function runBoundary() {
       networkPolicy: 'npm-offline-with-unreachable-http-and-https-proxies',
       installInput: 'exactly-four-product-tarballs',
       offlineDependencySource: 'source-resolved-runtime-dependency-tarballs-via-overrides',
-      offlineDependencyCache: { status: offlineDependencies.cacheStatus, key: offlineDependencies.cacheKey },
+      offlineDependencyCache: {
+        status: offlineDependencies.cacheStatus,
+        key: offlineDependencies.cacheKey,
+        requestSemanticsDigest: offlineDependencies.requestSemanticsDigest,
+      },
       offlineDependencyPackages: offlineDependencies.summary,
       packages: packed.map(stablePackageSummary),
       assertions: {
@@ -743,14 +926,33 @@ function runBoundary() {
 function cacheProbeGraph(packageDir) {
   const manifest = readJson(join(packageDir, 'package.json'));
   const key = `${manifest.name}@${manifest.version}`;
+  const seedEdge = {
+    source: 'self-test',
+    edgeType: 'dependency',
+    optional: false,
+    requestedName: manifest.name,
+    rawSpec: manifest.version,
+    specKind: 'semver',
+    packageName: manifest.name,
+    normalizedRange: manifest.version,
+    resolved: true,
+    resolvedName: manifest.name,
+    resolvedVersion: manifest.version,
+    childKey: key,
+  };
   const node = {
     key,
     packageDir,
     manifest,
-    edges: new Map(),
+    edges: [],
+    omittedEdges: [],
     sourceDigest: directoryContentDigest(packageDir),
   };
-  return { packages: new Map([[key, node]]), seedKeys: new Map([[manifest.name, key]]) };
+  return {
+    packages: new Map([[key, node]]),
+    seedKeys: new Map([[manifest.name, key]]),
+    seedEdges: [seedEdge],
+  };
 }
 
 function runCacheWorker(payload) {
@@ -787,6 +989,33 @@ function spawnCacheWorker(payload) {
   });
 }
 
+function expectFailure(callback, expectedMessage) {
+  let error = null;
+  try { callback(); } catch (caught) { error = caught; }
+  assert(error, `expected failure containing ${expectedMessage}`);
+  assert(error.message.includes(expectedMessage), `failure did not contain ${expectedMessage}: ${error.message}`);
+}
+
+function writeInstalledProbe(parentDir, installedName, manifest) {
+  const packageDir = join(parentDir, 'node_modules', ...installedName.split('/'));
+  mkdirSync(packageDir, { recursive: true });
+  writeFileSync(join(packageDir, 'package.json'), `${JSON.stringify({ main: 'index.js', ...manifest }, null, 2)}\n`);
+  writeFileSync(join(packageDir, 'index.js'), 'export const probe = true;\n');
+  return packageDir;
+}
+
+function dependencyRequest(name, range, fromDir, overrides = {}) {
+  return {
+    name,
+    range,
+    fromDir,
+    source: 'self-test',
+    edgeType: 'dependency',
+    optional: false,
+    ...overrides,
+  };
+}
+
 async function runSelfTest() {
   const sources = sourceManifests();
   assert(validateManifestCohort(sources).length === 0, 'real source manifests must satisfy the pack graph before mutation tests');
@@ -809,6 +1038,127 @@ async function runSelfTest() {
 
   const temp = mkdtempSync(join(tmpdir(), 'proof-or-stop-pack-cache-self-test-'));
   try {
+    const incompatibleSource = join(temp, 'incompatible-source');
+    const incompatiblePackDir = join(temp, 'incompatible-pack');
+    const incompatibleConsumer = join(temp, 'incompatible-consumer');
+    mkdirSync(incompatibleSource, { recursive: true });
+    mkdirSync(incompatiblePackDir, { recursive: true });
+    mkdirSync(incompatibleConsumer, { recursive: true });
+    writeFileSync(join(incompatibleSource, 'package.json'), JSON.stringify({ name: 'range-probe', version: '1.0.0', main: 'index.js' }));
+    writeFileSync(join(incompatibleSource, 'index.js'), 'export const rangeProbe = true;\n');
+    const packedProbe = JSON.parse(execFileSync('npm', [
+      'pack', '--json', '--ignore-scripts', '--pack-destination', incompatiblePackDir, '.',
+    ], { cwd: incompatibleSource, encoding: 'utf8' }))[0];
+    const packedProbePath = join(incompatiblePackDir, packedProbe.filename);
+    writeFileSync(join(incompatibleConsumer, 'package.json'), JSON.stringify({
+      name: 'incompatible-file-override-consumer',
+      version: '1.0.0',
+      private: true,
+      dependencies: { 'range-probe': `file:${packedProbePath}` },
+    }));
+    execFileSync('npm', [
+      'install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund', '--package-lock=false',
+    ], {
+      cwd: incompatibleConsumer,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        NPM_CONFIG_OFFLINE: 'true',
+        HTTP_PROXY: 'http://127.0.0.1:9/',
+        HTTPS_PROXY: 'http://127.0.0.1:9/',
+      },
+    });
+    expectFailure(
+      () => resolveOfflineDependencyGraphForRequests([dependencyRequest('range-probe', '^2.0.0', incompatibleConsumer)]),
+      'range-probe@^2.0.0 rejects resolved range-probe@1.0.0',
+    );
+    const validRangeGraph = resolveOfflineDependencyGraphForRequests([
+      dependencyRequest('range-probe', '^1.0.0', incompatibleConsumer),
+    ]);
+    assert(validRangeGraph.packages.has('range-probe@1.0.0'), 'valid semver range did not retain the resolved package');
+    const equivalentRangeGraph = resolveOfflineDependencyGraphForRequests([
+      dependencyRequest('range-probe', '>=1.0.0 <2.0.0', incompatibleConsumer),
+    ]);
+    assert(
+      offlineCacheInput(sources, validRangeGraph).cacheKey !== offlineCacheInput(sources, equivalentRangeGraph).cacheKey,
+      'cache key did not bind the original dependency range semantics',
+    );
+
+    const prereleaseRoot = join(temp, 'prerelease-root');
+    writeInstalledProbe(prereleaseRoot, 'prerelease-probe', { name: 'prerelease-probe', version: '2.0.0-beta.2' });
+    const prereleaseGraph = resolveOfflineDependencyGraphForRequests([
+      dependencyRequest('prerelease-probe', '^2.0.0-beta.1', prereleaseRoot),
+    ]);
+    assert(prereleaseGraph.packages.has('prerelease-probe@2.0.0-beta.2'), 'explicit prerelease range did not pass');
+    expectFailure(
+      () => resolveOfflineDependencyGraphForRequests([dependencyRequest('prerelease-probe', '^2.0.0', prereleaseRoot)]),
+      'rejects resolved prerelease-probe@2.0.0-beta.2',
+    );
+
+    const nestedRoot = join(temp, 'nested-root');
+    const parentOne = writeInstalledProbe(nestedRoot, 'parent-one', {
+      name: 'parent-one', version: '1.0.0', dependencies: { 'repeated-probe': '^1.0.0' },
+    });
+    const parentTwo = writeInstalledProbe(nestedRoot, 'parent-two', {
+      name: 'parent-two', version: '1.0.0', dependencies: { 'repeated-probe': '^2.0.0' },
+    });
+    writeInstalledProbe(parentOne, 'repeated-probe', { name: 'repeated-probe', version: '1.4.0' });
+    writeInstalledProbe(parentTwo, 'repeated-probe', { name: 'repeated-probe', version: '2.3.0' });
+    const repeatedGraph = resolveOfflineDependencyGraphForRequests([
+      dependencyRequest('parent-one', '^1.0.0', nestedRoot),
+      dependencyRequest('parent-two', '^1.0.0', nestedRoot),
+    ]);
+    assert(repeatedGraph.packages.has('repeated-probe@1.4.0'), 'nested first repeated version was omitted');
+    assert(repeatedGraph.packages.has('repeated-probe@2.3.0'), 'nested second repeated version was omitted');
+
+    const peerRoot = join(temp, 'peer-root');
+    writeInstalledProbe(peerRoot, 'peer-host', {
+      name: 'peer-host',
+      version: '1.0.0',
+      optionalDependencies: { 'installed-optional': '^2.0.0', 'missing-optional': '^2.0.0' },
+      peerDependencies: { 'installed-peer': '^1.0.0', 'missing-peer': '^1.0.0' },
+      peerDependenciesMeta: { 'installed-peer': { optional: true }, 'missing-peer': { optional: true } },
+    });
+    writeInstalledProbe(peerRoot, 'installed-peer', { name: 'installed-peer', version: '1.2.0' });
+    writeInstalledProbe(peerRoot, 'installed-optional', { name: 'installed-optional', version: '2.1.0' });
+    const peerGraph = resolveOfflineDependencyGraphForRequests([
+      dependencyRequest('peer-host', '^1.0.0', peerRoot),
+    ]);
+    const peerHost = peerGraph.packages.get('peer-host@1.0.0');
+    assert(peerHost.edges.some((edge) => edge.requestedName === 'installed-peer' && edge.optional), 'installed optional peer was not validated/included');
+    assert(peerHost.omittedEdges.some((edge) => edge.requestedName === 'missing-peer' && !edge.resolved), 'missing optional peer semantics were not recorded');
+    assert(peerHost.edges.some((edge) => edge.requestedName === 'installed-optional' && edge.edgeType === 'optionalDependency'), 'installed optional dependency was not validated/included');
+    assert(peerHost.omittedEdges.some((edge) => edge.requestedName === 'missing-optional' && !edge.resolved), 'missing optional dependency semantics were not recorded');
+
+    const aliasRoot = join(temp, 'alias-root');
+    writeInstalledProbe(aliasRoot, 'alias-slot', { name: 'real-probe', version: '3.1.0' });
+    const aliasGraph = resolveOfflineDependencyGraphForRequests([
+      dependencyRequest('alias-slot', 'npm:real-probe@^3.0.0', aliasRoot),
+    ]);
+    assert(aliasGraph.packages.has('real-probe@3.1.0'), 'valid npm alias range did not resolve its target identity');
+    expectFailure(
+      () => resolveOfflineDependencyGraphForRequests([dependencyRequest('alias-slot', 'npm:real-probe@^4.0.0', aliasRoot)]),
+      'alias-slot@npm:real-probe@^4.0.0 rejects resolved real-probe@3.1.0',
+    );
+    for (const [rawSpec, kind] of [
+      ['file:../probe', 'file'],
+      ['workspace:*', 'workspace'],
+      ['git+https://example.invalid/probe.git', 'git'],
+      ['https://example.invalid/probe.tgz', 'url'],
+      ['latest', 'tag-or-unsupported'],
+    ]) {
+      expectFailure(
+        () => resolveOfflineDependencyGraphForRequests([dependencyRequest('unsupported-probe', rawSpec, aliasRoot)]),
+        `unsupported non-semver spec (${kind})`,
+      );
+    }
+    expectFailure(
+      () => resolveOfflineDependencyGraphForRequests([
+        dependencyRequest('alias-slot', 'npm:real-probe@latest', aliasRoot),
+      ]),
+      'unsupported non-semver spec (npm-alias-tag-or-unsupported)',
+    );
+
     const packageDir = join(temp, 'dependency');
     const cacheRoot = join(temp, 'cache');
     mkdirSync(packageDir, { recursive: true });
@@ -834,6 +1184,12 @@ async function runSelfTest() {
     const afterStale = ensureOfflineDependencyCacheForGraph(sources, cacheProbeGraph(packageDir), cacheRoot);
     assert(afterStale.cacheStatus === 'rebuilt-after-invalid', `stale manifest cache status was ${afterStale.cacheStatus}`);
 
+    const staleSemanticsManifest = readJson(join(cacheDir, CACHE_MANIFEST_FILE));
+    staleSemanticsManifest.requestSemanticsDigest = '0'.repeat(64);
+    writeFileSync(join(cacheDir, CACHE_MANIFEST_FILE), `${JSON.stringify(staleSemanticsManifest, null, 2)}\n`);
+    const afterStaleSemantics = ensureOfflineDependencyCacheForGraph(sources, cacheProbeGraph(packageDir), cacheRoot);
+    assert(afterStaleSemantics.cacheStatus === 'rebuilt-after-invalid', `stale request semantics cache status was ${afterStaleSemantics.cacheStatus}`);
+
     const concurrentRoot = join(temp, 'concurrent-cache');
     const concurrentResults = await Promise.all([
       spawnCacheWorker({ cacheRoot: concurrentRoot, packageDir }),
@@ -845,7 +1201,7 @@ async function runSelfTest() {
     rmSync(temp, { recursive: true, force: true });
   }
 
-  console.log('PASS pack-boundary self-test: manifest mutations fail closed; cache hit, tamper/stale rebuild, and concurrent publication verified');
+  console.log('PASS pack-boundary self-test: semver/alias/prerelease/nested/optional closure and cache hit, tamper/stale rebuild, concurrent publication verified');
 }
 
 const cacheWorkerArg = process.argv.find((arg) => arg.startsWith('--cache-self-test-worker='));
