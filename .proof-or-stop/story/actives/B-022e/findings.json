@@ -823,6 +823,25 @@
       ],
       "signatureTag": "doc-promise-undelivered|mjs|promise-undelivered-scripts",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-030",
+      "desc": "doc-promise-undelivered: scripts/verify-proof-or-stop-identity-cutover.mjs:1236 implements TOKEN_PATTERN with case-sensitive alternatives for only lattice/Lattice/LATTICE, while the approved inventory contract at docs/requirements/decisions/proof-or-stop-identity-cutover.md:37-45 explicitly requires both case-sensitive and case-insensitive searches and every tracked occurrence classified. Repro against the exact regex: LaTtIcE and .LaTtIcE/story both produced [] while lattice, Lattice, and LATTICE matched. The self-test injections at lines 1418-1427 cover only the three accepted casings, so a mixed-case active product/command/path/role residue can pass the claimed zero-residue GREEN gate. Make legacy identity detection case-insensitive without weakening exact allowlist matching, and add mixed-case active-file/path mutations that must fail.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-31T23:43:13.072Z",
+      "reviewRound": "2026-08-31T23:37:04.185Z",
+      "reviewRunId": "B-022e:RR-054",
+      "_hash": "a4c52ea5cd650ad729c8220773ef6c7947867b9779606f7dd4689de84cf54770",
+      "files": [
+        "scripts/verify-proof-or-stop-identity-cutover.mjs",
+        "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+      ],
+      "signatureTag": "doc-promise-undelivered|mjs|promise-undelivered-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
