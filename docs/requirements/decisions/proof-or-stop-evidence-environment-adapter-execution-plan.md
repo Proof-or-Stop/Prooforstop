@@ -394,7 +394,7 @@ are semantic requirements.
 The sketches reuse `SubjectBinding` from
 `packages/main/src/core/evidence/types.ts` and `ProofProducerBoundary` from
 `packages/main/src/core/proof-admissibility.ts`. New schemas deliberately use the
-`proof-or-stop.*` namespace; existing `lattice.*` schemas remain versioned
+`proof-or-stop.*` namespace; existing compatibility `lattice.*` schemas remain versioned
 compatibility inputs and are not silently renamed.
 
 ```ts

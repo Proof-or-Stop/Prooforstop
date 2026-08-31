@@ -146,7 +146,7 @@ Formal Layer 4 execution must not start until all of these are true:
 | Layer 1 proof | Fresh Development proof is bound to the selected target. | `LOCKED: stale lower-layer proof` |
 | Layer 2 proof | Formal Engineering claim is `UNLOCKED` for the selected target. | `LOCKED: stale lower-layer proof` |
 | Layer 3 proof | Formal Loop Engineering claim is `UNLOCKED` for the selected target. | `LOCKED: stale lower-layer proof` |
-| Artifact root | Formal artifacts are under `.lattice/artifacts/baseline/layer4-production-safety-unlock`. | `BLOCKED: wrong artifact root` |
+| Artifact root | Formal artifacts are under `.proof-or-stop/artifacts/baseline/layer4-production-safety-unlock`. | `BLOCKED: wrong artifact root` |
 | Authority server | Real Authority URL is configured and classified as production-capable or staging-production-capable for this run. | `BLOCKED: no live Authority` |
 | Server key trust | Trusted Authority public key material is pinned or otherwise verified by the approved profile. | `BLOCKED: untrusted Authority key` |
 | Customer credential | Customer API key is available through approved secret loading and is not committed. | `BLOCKED: missing customer credential` |
@@ -160,13 +160,13 @@ Formal Layer 4 execution must not start until all of these are true:
 All formal Layer 4 artifacts must be under:
 
 ```text
-.lattice/artifacts/baseline/layer4-production-safety-unlock
+.proof-or-stop/artifacts/baseline/layer4-production-safety-unlock
 ```
 
 Every baseline run must write:
 
 ```text
-.lattice/artifacts/baseline/layer4-production-safety-unlock/production-safety/<baseline-id>/<run-id>/
+.proof-or-stop/artifacts/baseline/layer4-production-safety-unlock/production-safety/<baseline-id>/<run-id>/
 ```
 
 Required files:
@@ -446,7 +446,7 @@ Actions:
 2. Confirm no material-producing session is still running against the same
    target.
 3. Confirm this plan is the only Layer 4 unlock scope.
-4. Confirm `.lattice` is the only formal artifact root.
+4. Confirm `.proof-or-stop` is the only formal artifact root.
 
 Success criteria:
 

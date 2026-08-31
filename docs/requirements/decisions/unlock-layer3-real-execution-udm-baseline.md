@@ -149,7 +149,7 @@ Actions:
 2. Confirm no material-producing session is expected to merge during the run.
 3. If other sessions are still active, either wait or explicitly mark this as a
    provisional run.
-4. Confirm `.lattice` is the only artifact root.
+4. Confirm `.proof-or-stop` is the only artifact root.
 
 Success criteria:
 
@@ -157,7 +157,7 @@ Success criteria:
 targetHead selected
 targetMaterialHash selected
 suiteRunId selected
-artifactRoot=.lattice/artifacts/baseline/real-execution-udm/<suiteRunId>
+artifactRoot=.proof-or-stop/artifacts/baseline/real-execution-udm/<suiteRunId>
 provisional=false
 ```
 
@@ -519,7 +519,7 @@ Production Safety and global claim remain locked
 The coordinator must write a report under:
 
 ```text
-.lattice/artifacts/baseline/real-execution-udm/<suiteRunId>/real-execution-udm-report.json
+.proof-or-stop/artifacts/baseline/real-execution-udm/<suiteRunId>/real-execution-udm-report.json
 ```
 
 Required fields:
@@ -612,7 +612,7 @@ Required fields:
       "childStoryIds": [],
       "targetHead": "<git-head>",
       "targetMaterialHash": "<material-hash>",
-      "artifactRoot": ".lattice/artifacts/baseline/real-execution-udm/<suiteRunId>",
+      "artifactRoot": ".proof-or-stop/artifacts/baseline/real-execution-udm/<suiteRunId>",
       "claimBoundary": "Layer3 real execution UDM only; Production Safety, global Capability Claim, productionDone, and fullAuthorityDone remain locked.",
       "claimBoundaryDigest": "<sha256>",
       "principles": [],

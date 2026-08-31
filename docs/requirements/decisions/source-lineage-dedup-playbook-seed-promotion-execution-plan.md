@@ -12,7 +12,7 @@ proposal -> inert candidate ingestion.
 
 Naming note: public project naming is Proof-or-Stop, and `proof-or-stop` is the
 primary CLI command. The legacy `lattice` command name is retained as a
-deprecated alias, and storage paths plus internal identifiers (`.lattice/`,
+deprecated alias, and storage paths plus internal identifiers (`.proof-or-stop/`,
 `LATTICE_*`, signature salts, agent role IDs) intentionally keep the legacy name
 so already-persisted state and signatures stay valid.
 
@@ -23,9 +23,9 @@ connected to the playbook promotion loop in a complete and auditable way.
 
 Current state:
 
-- `.lattice/dev-memory/experience.jsonl` exists and is consumed as
+- `.proof-or-stop/dev-memory/experience.jsonl` exists and is consumed as
   non-authoritative runtime memory.
-- `.lattice/learning/finding-signals.json` exists and contains historical
+- `.proof-or-stop/learning/finding-signals.json` exists and contains historical
   finding-derived signals.
 - `playbook_propose` can create a proposal directly from a raw finding.
 - `playbook_promotion_observe` can report candidate, consumption, and

@@ -28,8 +28,8 @@ Observed project layout:
 
 ```text
 /Users/jek/Documents/ClawCreek
-  lattice.config.json
-  .lattice/story/actives/...
+  proof-or-stop.config.json
+  .proof-or-stop/story/actives/...
   clawcreek/                  # configured gitRoot and actual git repository
 ```
 
@@ -39,7 +39,7 @@ Relevant config:
 {
   "scanRoot": ".",
   "testsDir": "tests",
-  "storyDir": ".lattice/story/actives",
+  "storyDir": ".proof-or-stop/story/actives",
   "requirementsDir": "docs/requirements",
   "storyPrefix": "S",
   "gitRoot": "clawcreek"
@@ -138,7 +138,7 @@ Decision:
 - Do not change the normal PLAN expectation that intent is written before DEV.
 - Do not repair DONE stories automatically.
 - Do not change ClawCreek PR-A application code.
-- Do not directly edit story JSON files in `.lattice/story` or `docs/story`.
+- Do not directly edit story JSON files in `.proof-or-stop/story` or `docs/story`.
 - Do not fix the already-verified `sourceManifestDigest` help import issue
   unless it is reproduced again.
 
@@ -358,14 +358,14 @@ plain repository root. Use a temporary layout equivalent to:
 
 ```text
 tmp-root/
-  lattice.config.json        # metadata root, not a git repository
-  .lattice/story/actives/... # story metadata under wrapper root
+  proof-or-stop.config.json        # metadata root, not a git repository
+  .proof-or-stop/story/actives/... # story metadata under wrapper root
   clawcreek/                 # configured gitRoot and actual git repository
     .git/
     package.json or minimal tracked file
 ```
 
-The fixture `lattice.config.json` must set `gitRoot: "clawcreek"` and a story
+The fixture `proof-or-stop.config.json` must set `gitRoot: "clawcreek"` and a story
 store path under the wrapper root. The smoke passes only if
 `session_brief` resolves the material repo and `story_advance INIT_CHECK`
 creates the story branch/worktree by running git operations from
@@ -420,7 +420,7 @@ Allowed:
 Not allowed:
 
 - `docs/story/**`
-- `.lattice/story/**`
+- `.proof-or-stop/story/**`
 - `tests/fixtures/**`
 - `packages/main/tests/fixtures/**`
 

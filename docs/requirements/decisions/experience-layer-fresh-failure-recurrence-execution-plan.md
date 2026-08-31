@@ -79,7 +79,7 @@ tasks), eliminating the authored-difficulty guess that sank rev 2.
 
 | Term | Definition |
 |---|---|
-| Failure mode / failure class | A set of observed host failures sharing one normalized root-cause signature (same trigger condition, same failure shape), keyed in the style of the learning-store signature registry (`.lattice/learning/signature-registry.json`). "Class" is the unit of clustering and of the split. |
+| Failure mode / failure class | A set of observed host failures sharing one normalized root-cause signature (same trigger condition, same failure shape), keyed in the style of the learning-store signature registry (`.proof-or-stop/learning/signature-registry.json`). "Class" is the unit of clustering and of the split. |
 | Fresh failure | A failure mode produced by the CURRENT pinned host model, confirmed reproducible under that model during the harvest phase of this study. |
 | Capture loop | The harvest -> reproduce -> lessonize -> surface pipeline that turns a just-observed failure into a surfaced lesson within the same model window. The study manipulates only its LAST step — surfacing a freshly captured lesson — under study-idealized batch conditions; operational loop viability is not measured (sections 5, 11). |
 | Archival store | The pre-existing long-lived lesson store measured (and found inert) by rev 2. NOT under test here. |
@@ -162,10 +162,10 @@ Candidate failure modes come from TWO sources, both restricted to failures
 attributable to the current host generation:
 
 **Source A — findings-corpus mining.** Mine the learning store's structured
-findings corpus: `.lattice/learning/finding-signals.json` (signature-keyed
+findings corpus: `.proof-or-stop/learning/finding-signals.json` (signature-keyed
 signal rows with per-signature counts, anchor files, and example finding
 ids; 1,511 findings over 333 stories at the time of writing) and
-`.lattice/learning/signature-registry.json` (the canonical signature tag
+`.proof-or-stop/learning/signature-registry.json` (the canonical signature tag
 registry). Selection rule, pre-registered:
 
 - Recency window: only signatures whose most recent contributing finding was
@@ -459,12 +459,12 @@ Reused verbatim from the committed chain: full-factorial matched pairs
 (every variant runs under BOTH arms; `pair-ledger.mjs` with seeded run
 order and immutability guard), the `run-pilot.mjs` per-cell execution
 contract (fresh mkdtemp non-git isolated root; frozen-snapshot
-materialization into `<workspace>/.lattice/` on BOTH arms with pre/post hash
+materialization into `<workspace>/.proof-or-stop/` on BOTH arms with pre/post hash
 verification; store-isolation assertion via `observability_snapshot`
 resolving the learning root INSIDE the isolated root; experience-delivery
 prelude via the real gated `session_brief` entrypoint so
-`experience_pack_surfaced` fires on both arms; `LATTICE_EXPERIMENT_ID` /
-`LATTICE_EXPERIMENT_ARM` env contract; `LATTICE_GLOBAL_MEMORY_DIR` pinned to
+`experience_pack_surfaced` fires on both arms; `PROOF_OR_STOP_EXPERIMENT_ID` /
+`PROOF_OR_STOP_EXPERIMENT_ARM` env contract; `PROOF_OR_STOP_GLOBAL_MEMORY_DIR` pinned to
 an empty dir; control host prompt byte-identical to raw prompt.md;
 RUN-RECORD.md terminal run.json), and the `score.mjs` deterministic scorer
 (purity contract, structured-artifact outcomes, storeRoot voiding). The
@@ -939,7 +939,7 @@ Artifacts live under the rev 2 experiment root family with a fresh
 experiment id (`expfresh-*`):
 
 ```text
-.lattice/experiments/experience-ablation/<experimentId>/
+.proof-or-stop/experiments/experience-ablation/<experimentId>/
   protocol.json              # + hostModelId (dated snapshot id), hostCliVersion, hostCmdHash, split seal, similarity allowlist, calibration/coverage/analysis bootstrap seeds, staleness cap, auto-update-disabled record
   harvest-ledger.jsonl       # + harvest budget accounting, family-cap drops
   repro-refs.json            # repro_probe / repro_review_set artifact ids per class

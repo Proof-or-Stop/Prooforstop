@@ -131,7 +131,7 @@ The healthiest combination is not "who replaces whom," but:
 
 - **Claude Code / Codex** provides the runtime
 - **Superpowers** provides the workflow
-- **Lattice-era state artifacts** provide the historical state substrate
+- **Proof-or-Stop-era state artifacts** provide the historical state substrate
 - **Proof-or-Stop CLI 0.3.5** is the active product entry point of this substrate
 
 That is:
@@ -155,7 +155,7 @@ A more plain-spoken version:
 ## Mac App Boundary
 
 Proof-or-Stop CLI 0.3.5 moves provider/config status into CLI-first surfaces:
-`host_list`, `host_probe`, `host_install`, `lattice_config_doctor`,
+`host_list`, `host_probe`, `host_install`, `proof_or_stop_config_doctor`,
 `authority_status`, `conduit_status`, and `conduit_explain`. The Mac App is not
 the required project-state or provider/config layer. It may remain an optional
 dashboard/archive surface, but the CLI owns the cold-readable migration status.
@@ -258,7 +258,7 @@ Proof-or-Stop prioritizes being observable, recoverable, and diagnosable, and th
 - `status`: read-only display of story / phase / worktree / reviewer / artifact / dirty risk
 - `next`: read-only output of the currently most trustworthy next step
 - `doctor`: diagnoses the health of the Proof-or-Stop flow and local state
-- the optional future `.lattice/state`: can only be a deletable, rebuildable projection cache, and must not become a second source of truth
+- the optional future `.proof-or-stop/state`: can only be a deletable, rebuildable projection cache, and must not become a second source of truth
 
 The hard boundary is: story, checklist, fixture, requirements, and git are still the sources of truth; all gates are still judged by the deterministic CLI / fixture / review record, not by the LLM's on-the-spot judgment.
 
@@ -269,8 +269,8 @@ Looking at the current repository, you can already see this layering starting to
 ### Claude Code / Codex Layer
 
 - `.claude/agents/*`
-- `.lattice-codex/agents/*`
-- `bin/lattice-codex.js`
+- `.proof-or-stop-codex/agents/*`
+- `bin/proof-or-stop-codex.js`
 - runtime tool calling, subagents, interactive entry points
 
 ### Superpowers Layer (external methodology reference)

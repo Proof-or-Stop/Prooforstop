@@ -120,7 +120,7 @@ by a corpus self-check).
 Fault-bearing traps are split into two predeclared groups:
 
 **Group 1 — in-store traps.** Failure modes whose lessons exist in the runtime
-memory store (`.lattice/learning/runtime-memory-pack-cache`) and are surfaced
+memory store (`.proof-or-stop/learning/runtime-memory-pack-cache`) and are surfaced
 by Treatment B:
 
 | Trap class | Example failure | Expected treatment behavior |
@@ -290,7 +290,7 @@ phase, where each real story can run once.
 | Scorers know arm assignment. | The deterministic scorer (section 10) consumes structured artifacts that do not encode the arm; arm labels live only in the ledger and score records. |
 | Control host manually searches memory. | Control-arm isolation must be mechanical, not instruction-only: the control run executes against an isolated store root with memory/playbook retrieval disabled; any retrieval attempt is recorded and counted as a protocol violation. |
 | Treatment receives extra proof. | Pack must render `authority=non_authoritative` and `gateEvidence=false`. |
-| In-tree answer sources leak the lesson to either arm. | Per trap class, enumerate and strip or neutralize the specific in-tree answer sources from the fixture workspace — runbook prose (CLAUDE.md / AGENTS.md convergence sections), decision docs, and executable oracles (e.g. `scripts/verify-lattice-residue.mjs` literally computes the brand-residue answer) — while keeping both arms' fixture trees byte-identical. A fixture-leakage audit (mechanically verifying that neither arm can reconstruct the trap answer from the fixture tree without the pack) is an M6 pilot exit criterion. |
+| In-tree answer sources leak the lesson to either arm. | Per trap class, enumerate and strip or neutralize the specific in-tree answer sources from the fixture workspace — runbook prose (CLAUDE.md / AGENTS.md convergence sections), decision docs, and executable oracles (e.g. `scripts/verify-proof-or-stop-residue.mjs` literally computes the brand-residue answer) — while keeping both arms' fixture trees byte-identical. A fixture-leakage audit (mechanically verifying that neither arm can reconstruct the trap answer from the fixture tree without the pack) is an M6 pilot exit criterion. |
 
 Note the last row replaces rev 1's "keep task fixtures balanced" hedge, which
 mandated the leakage instead of removing it: blocking retrieval commands does
@@ -415,12 +415,12 @@ Allowed early stops:
 ## 12. Evidence Artifacts, Store Isolation, And Memory Freeze
 
 Artifacts live under an experiment-specific evidence root inside the actual
-runtime metadata root `.lattice/` (rev 1's `.proof-or-stop/` path does not
+runtime metadata root `.proof-or-stop/` (rev 1's `.proof-or-stop/` path does not
 exist in the implementation; "Proof-or-Stop" names the lifecycle-readiness
 concept in this repo, not a directory or command set):
 
 ```text
-.lattice/experiments/experience-ablation/<experimentId>/
+.proof-or-stop/experiments/experience-ablation/<experimentId>/
   protocol.json
   fixture-manifest.jsonl
   pair-ledger.jsonl
@@ -440,7 +440,7 @@ Store isolation (mandatory, mechanical):
   store root. Git worktrees are NOT sufficient isolation:
   `packages/main/src/core/learning-store.ts` `resolveLearningRoot()`
   canonicalizes linked worktrees back to the single shared main-repo
-  `.lattice/learning/` store, so lifecycle writes from experiment tasks would
+  `.proof-or-stop/learning/` store, so lifecycle writes from experiment tasks would
   contaminate production analytics (finding-signals, playbook-outcomes,
   signature-registry) and production activity would leak into the experiment.
 - Every score record asserts its resolved `storeRoot` is the experiment root;
@@ -465,7 +465,7 @@ pieces are built new.
 | Milestone | Goal | Reuses | Exit criteria |
 |---|---|---|---|
 | M0 Protocol freeze | Machine-validated `protocol.json` with task classes, per-population sample-size config, trap-group membership, memory-snapshot hash, and no-overclaim boundary. | Per-run sha256 hash mechanics (`checks.mjs`, `live-engine.mjs`); pre-registration discipline of `lattice-experiment-protocol.md`. | `protocol.json` validates; no task runs without protocol hash; memory snapshot hash frozen. |
-| M1 Task fixture generator | Seeded fixtures for the six in-store trap classes + held-out negative-control traps + clean tasks, each with a hidden deterministic oracle and stripped in-tree answer sources. | Corpus pattern of `experiments/recovery-runner/tasks/` (prompt/task.json/acceptance/ground-truth/corpus-selfcheck); production detectors as oracle components (`final_response_check` ParentRollupResult, `verify-lattice-residue.mjs` relocated INTO the oracle, never the fixture tree). | Generator emits deterministic fixtures with oracle labels; per-trap answer-source strip list documented. |
+| M1 Task fixture generator | Seeded fixtures for the six in-store trap classes + held-out negative-control traps + clean tasks, each with a hidden deterministic oracle and stripped in-tree answer sources. | Corpus pattern of `experiments/recovery-runner/tasks/` (prompt/task.json/acceptance/ground-truth/corpus-selfcheck); production detectors as oracle components (`final_response_check` ParentRollupResult, `verify-proof-or-stop-residue.mjs` relocated INTO the oracle, never the fixture tree). | Generator emits deterministic fixtures with oracle labels; per-trap answer-source strip list documented. |
 | M2 Pair ledger | Immutable fixture manifest + pair ledger + committed run-order seed. | Seeded PRNG + Fisher-Yates (`run-driver.mjs` xmur3/mulberry32); append-only sidecar pattern (exclusions/voids jsonl). | Same seed reproduces the run order; ledger immutable once the first score exists. |
 | M3 Arm switch for the full pack | Extend the EXISTING render-gate (`experience-hint-surface.ts` + `hint-mode.ts`) from review-entrypoint hints to the full runtime memory pack at all lifecycle entrypoints, under an `experimentId` override; add mechanical control-arm retrieval blocking. | Production arm switch + both-arms `experience_hint_surfaced` logging + `experience-layer-ab-shadow-gate-smoke.ts`. | Control hides+logs pack; treatment shows+logs pack; retrieval attempts on control are blocked and recorded. |
 | M4 Deterministic scoring oracle | Structured scoring from validation evidence, DONE rows, `final_response_check`, ground-truth oracles, and lane-provenance facts. No live reviewer in the seeded-phase primary. | `adjudicate.mjs` outcome state machine; `checks.mjs`; `packages/lab` scoring core; `ground-truth.mjs` pattern. | Known positive/negative fixtures score correctly, deterministically, on replay. |
@@ -486,9 +486,9 @@ pieces are built new.
 | Superseded memory | Suppressed by default and recorded as suppressed. |
 | Memory pack authority | Always `non_authoritative`. |
 | Memory pack gate evidence | Always `false`. |
-| Store isolation | Resolved learning root for every arm-run is the experiment temp root, never the production `.lattice/learning/`; violation voids the run. |
+| Store isolation | Resolved learning root for every arm-run is the experiment temp root, never the production `.proof-or-stop/learning/`; violation voids the run. |
 | Memory snapshot | Snapshot hash identical before and after the powered run. |
-| Fixture leakage | Leakage audit proves neither arm can derive the trap answer from the fixture tree (e.g. no in-tree `verify-lattice-residue.mjs`, no runbook answer prose). |
+| Fixture leakage | Leakage audit proves neither arm can derive the trap answer from the fixture tree (e.g. no in-tree `verify-proof-or-stop-residue.mjs`, no runbook answer prose). |
 | Held-out trap | Its lesson is absent from the frozen memory snapshot. |
 | False-DONE task | Scorer detects the false-DONE attempt from structured DONE rows deterministically. |
 | Parent-roadmap trap | Treatment pack nudges parent rollup check; score still relies on current structured facts. |
@@ -592,7 +592,7 @@ The plan is complete only when:
   reproducible;
 - control/treatment arm behavior (compute-and-log both, render-gate one) is
   mechanically verified;
-- store isolation is asserted per run (no production `.lattice/learning/`
+- store isolation is asserted per run (no production `.proof-or-stop/learning/`
   reads or writes) and the fixture-leakage audit passed;
 - per-population sample size calculation is recorded before the powered run,
   with the seeded baseline validated in the pilot;

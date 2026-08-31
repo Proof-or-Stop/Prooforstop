@@ -46,7 +46,7 @@ arbitrary source-aligned cross-language redevelopment -> equivalent DONE
 ```
 
 Those broader claims require the baseline suite and success-rate reporting
-defined in `docs/lattice/legacy/root-markdown/Lattice-baseline.md` (archived from repository root).
+defined in `docs/lattice/legacy/root-markdown/Proof-or-Stop-baseline.md` (archived from repository root).
 
 ## Non-Negotiable Boundaries
 
@@ -75,7 +75,7 @@ Recommended concurrent topology: 2 hosts, 8 agents total.
 | Codex CLI | C3 Report and metric validator | Checks baseline success-rate math, Wilson lower bound, and report consistency. | No. | Can block capability claim. |
 | Claude CLI | L1 Worktree closure executor | Prepares the worktree-only commit package and evidence bundle references. | Yes, only scoped fixes. | Can block if files are missing. |
 | Claude CLI | L2 Remote Authority validator | Runs or replays remote Authority live checks with redacted keys and pinned server key. | No, unless fixing a real live correctness issue. | Can block Authority claim. |
-| Claude CLI | L3 Natural-language baseline executor | Runs Track A scenarios from the archived `Lattice-baseline.md`. | Yes, only scenario-owned outputs. | Can block NL capability claim. |
+| Claude CLI | L3 Natural-language baseline executor | Runs Track A scenarios from the archived `Proof-or-Stop-baseline.md`. | Yes, only scenario-owned outputs. | Can block NL capability claim. |
 | Claude CLI | L4 Redevelopment baseline executor | Runs Track B source-aligned redevelopment scenarios. | Yes, only scenario-owned outputs. | Can block redevelopment claim. |
 
 Optional expansion within the same two hosts:
@@ -100,7 +100,7 @@ Inputs:
 
 - current git diff;
 - `docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md`;
-- `docs/lattice/legacy/root-markdown/Lattice-baseline.md` (archived from repository root);
+- `docs/lattice/legacy/root-markdown/Proof-or-Stop-baseline.md` (archived from repository root);
 - current package scripts.
 
 Required commands:
@@ -134,7 +134,7 @@ Purpose: prepare a reviewable commit in the worktree without merging to main.
 Required output:
 
 ```text
-.lattice/artifacts/baseline-execution/<run-id>/commit-scope.md
+.proof-or-stop/artifacts/baseline-execution/<run-id>/commit-scope.md
 ```
 
 The commit scope must include:
@@ -193,9 +193,9 @@ baseline authority runs.
 Required environment:
 
 ```bash
-LATTICE_AUTHORITY_LIVE_URL='https://staging.hostneutral.net/'
-LATTICE_AUTHORITY_LIVE_PUBLIC_KEY='<formal staging server public key pin>'
-LATTICE_AUTHORITY_CUSTOMER_API_KEY='<redacted live bearer key>'
+PROOF_OR_STOP_AUTHORITY_LIVE_URL='https://staging.hostneutral.net/'
+PROOF_OR_STOP_AUTHORITY_LIVE_PUBLIC_KEY='<formal staging server public key pin>'
+PROOF_OR_STOP_AUTHORITY_CUSTOMER_API_KEY='<redacted live bearer key>'
 ```
 
 Required commands:
@@ -231,7 +231,7 @@ Owner: Claude L3 with Codex C3 report audit.
 Purpose: measure natural-language unattended development capability for the
 specific baseline classes, not arbitrary projects.
 
-Baseline scenarios from the archived `Lattice-baseline.md`:
+Baseline scenarios from the archived `Proof-or-Stop-baseline.md`:
 
 | Scenario | Mode coverage | Expected outcome |
 | --- | --- | --- |
@@ -245,7 +245,7 @@ Baseline scenarios from the archived `Lattice-baseline.md`:
 Required artifacts per scenario:
 
 ```text
-.lattice/artifacts/baseline/<baseline-id>/<run-id>/
+.proof-or-stop/artifacts/baseline/<baseline-id>/<run-id>/
   input.md
   story.json
   checklist.json
@@ -274,7 +274,7 @@ Owner: Claude L4 with Codex C3 report audit.
 Purpose: measure source-aligned redevelopment capability for the specific
 baseline classes, not arbitrary language migrations.
 
-Baseline scenarios from the archived `Lattice-baseline.md`:
+Baseline scenarios from the archived `Proof-or-Stop-baseline.md`:
 
 | Scenario | Required proof | Expected outcome |
 | --- | --- | --- |
@@ -286,7 +286,7 @@ Baseline scenarios from the archived `Lattice-baseline.md`:
 
 Required artifacts per scenario: every redevelopment run must first satisfy the
 common baseline artifact schema from M4, then add these exact
-archived `Lattice-baseline.md` redevelopment files:
+archived `Proof-or-Stop-baseline.md` redevelopment files:
 
 ```text
 source-manifest.json
@@ -314,8 +314,8 @@ Purpose: calculate measured success rates from actual runs.
 Required output:
 
 ```text
-.lattice/artifacts/baseline/baseline-suite-report.json
-.lattice/artifacts/baseline/baseline-suite-report.md
+.proof-or-stop/artifacts/baseline/baseline-suite-report.json
+.proof-or-stop/artifacts/baseline/baseline-suite-report.md
 ```
 
 Required calculations:
@@ -410,9 +410,9 @@ any file included in the M7 material hash.
 Required outputs:
 
 ```text
-.lattice/artifacts/baseline-execution/<run-id>/final-handoff.md
-.lattice/artifacts/baseline-execution/<run-id>/host-verdict-summary.md
-.lattice/artifacts/baseline-execution/<run-id>/command-index.md
+.proof-or-stop/artifacts/baseline-execution/<run-id>/final-handoff.md
+.proof-or-stop/artifacts/baseline-execution/<run-id>/host-verdict-summary.md
+.proof-or-stop/artifacts/baseline-execution/<run-id>/command-index.md
 ```
 
 Pass criteria:

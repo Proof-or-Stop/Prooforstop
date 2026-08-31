@@ -8,12 +8,52 @@ import { fileURLToPath } from 'node:url';
 
 const SCRIPT_PATH = 'scripts/verify-proof-or-stop-identity-cutover.mjs';
 const CONCEPT_PROVENANCE_MANIFEST_PATH = 'scripts/proof-or-stop-identity-concept-provenance.json';
-const CONCEPT_PROVENANCE_MANIFEST_SHA256 = 'b770f90b416184ee90bfed4cbaf8fa7bc5d1c82cb4e40eb83c86c16eac71969b';
-const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 108;
+const CONCEPT_PROVENANCE_MANIFEST_SHA256 = '2e7b3d5e5c2925748c1651aec42715997930cca764120c5679ff34ebe9717412';
+const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 45;
+const CURRENT_LEGACY_CONTEXT_MANIFEST_PATH = 'scripts/proof-or-stop-identity-current-legacy-contexts.json';
+const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'b0f3f515313903cd2d245b293ecdd558d2ba35d63efd89f2b71b9e35f0dc7450';
+const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 120;
 const POLICY_PATH = 'docs/requirements/decisions/proof-or-stop-identity-cutover.md';
 const POLICY_COMMIT = '1dab23ae287fb9364244a3a73156f62f1abdb6e8';
 const EXPECTED_PACKAGE_SCRIPT = 'node scripts/verify-proof-or-stop-identity-cutover.mjs';
-
+const TRUTH_SOURCE_ENTRYPOINTS = ['AGENTS.md', 'CLAUDE.md', 'README.md', 'docs/requirements/NAV.md'];
+const EXPLICIT_HISTORICAL_DECISION_DOCS = new Set([
+  'docs/requirements/decisions/authority-client-role.md',
+  'docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md',
+  'docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md',
+  'docs/requirements/decisions/authority-runner-session-evidence-envelope.md',
+  'docs/requirements/decisions/authority-session-receipt-gate-execution.md',
+  'docs/requirements/decisions/lattice-authority-customer-api-key-access.md',
+  'docs/requirements/decisions/lattice-authority-live-integration.md',
+  'docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md',
+  'docs/requirements/decisions/lattice-authority-receipt-contract.md',
+  'docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md',
+  'docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md',
+  'docs/requirements/decisions/lifecycle-gate-receipt-consumption.md',
+]);
+const HISTORICAL_DECISION_FILENAME_PATHS = new Set([
+  'docs/requirements/decisions/lattice-authority-customer-api-key-access.md',
+  'docs/requirements/decisions/lattice-authority-live-integration.md',
+  'docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md',
+  'docs/requirements/decisions/lattice-authority-receipt-contract.md',
+  'docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md',
+  'docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md',
+  'docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md',
+  'docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md',
+  'docs/requirements/decisions/lattice-console-demo-mvp-requirements.md',
+  'docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md',
+  'docs/requirements/decisions/lattice-experience-layer-execution-plan.md',
+  'docs/requirements/decisions/lattice-experiment-protocol.md',
+  'docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md',
+  'docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md',
+  'docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md',
+  'docs/requirements/decisions/lattice-parallel-wave.md',
+  'docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md',
+  'docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md',
+  'docs/requirements/decisions/lattice-unattended-completion-plan.md',
+  'docs/requirements/decisions/lattice-workflow-efficiency-baseline.md',
+  'docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md',
+]);
 const LEGACY_WORD = 'lattice';
 const LEGACY_TITLE = 'Lattice';
 const LEGACY_UPPER = 'LATTICE';
@@ -145,7 +185,6 @@ const EXACT_FROZEN_ROWS = [
   ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_OWNER_SESSION_ADAPTER_SESSION', 1, 'c09043e6c49514c606d0e9bf8f277633d1859ebd494cfed1f43b40bc106460c3'],
   ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_OWNER_SESSION_ADAPTER_TASK', 1, 'f54c46b498f1d1647014a5c7584bf4bf9aac76c43af1aaffb7de6db62abf811c'],
   ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_SESSION_ID', 1, '95c69d3e9bd3b405a5e8a7a28b3b7d15da63b4dbb615d1dbf643717244552ef0'],
-  ['provenance_bytes', 'scripts/verify-proof-or-stop-residue.mjs', 'legacy-to-lattice-role-naming-execution-plan.md', 1, 'a53aad5b0e9ee43fba59f8a00bdc49f7b193a49142ce0683de33cc5b3df1dcef'],
 ].map(([className, path, token, expectedOccurrences, contextSha256], index) => ({
   id: `frozen-current-${String(index + 1).padStart(2, '0')}`,
   class: className, path, token, expectedOccurrences, contextSha256,
@@ -161,7 +200,12 @@ const EXACT_FROZEN_ROWS = [
   expectedVerification: 'PASS exact frozen occurrence and context',
 }));
 EXACT_ALLOWLIST.push(...EXACT_FROZEN_ROWS);
-const EXPECTED_EXACT_ALLOWLIST_COUNT = 83;
+const CURRENT_LEGACY_CONTEXT_ROWS = JSON.parse(readFileSync(
+  new URL('./proof-or-stop-identity-current-legacy-contexts.json', import.meta.url),
+  'utf8',
+));
+EXACT_ALLOWLIST.push(...CURRENT_LEGACY_CONTEXT_ROWS);
+const EXPECTED_EXACT_ALLOWLIST_COUNT = 202;
 
 const FROZEN_SALTS = [
   'lattice-review-integrity-v1',
@@ -626,7 +670,8 @@ function validateExactRows(rows, tracked, root, readText = (path) => readFileSyn
     } else if (statSync(resolve(root, row.path)).isDirectory()) {
       errors.push(`allowlist ${row.id}: directory exemptions are forbidden`);
     }
-    if (!row.token || hasBroadToken(row.token) || /[*?\[\]{}]/u.test(row.token)) {
+    const isSemanticContextRow = CURRENT_LEGACY_CONTEXT_ROWS.includes(row);
+    if (!row.token || (hasBroadToken(row.token) && !isSemanticContextRow) || /[*?\[\]{}]/u.test(row.token)) {
       errors.push(`allowlist ${row.id}: token is empty, wildcarded, or a forbidden broad identity`);
     }
     if (!Number.isInteger(row.expectedOccurrences) || row.expectedOccurrences <= 0) {
@@ -712,8 +757,60 @@ function isConceptProvenancePath(path) {
     || path.startsWith('tests/fixtures/');
 }
 
+function currentTruthSourcePaths(root) {
+  const paths = new Set();
+  const decisionRef = /(?:docs\/requirements\/decisions\/)?([A-Za-z0-9._-]+\.md)/gu;
+  for (const entrypoint of TRUTH_SOURCE_ENTRYPOINTS) {
+    const text = readFileSync(resolve(root, entrypoint), 'utf8');
+    for (const match of text.matchAll(decisionRef)) {
+      const path = `docs/requirements/decisions/${match[1]}`;
+      if (existsSync(resolve(root, path)) && !EXPLICIT_HISTORICAL_DECISION_DOCS.has(path)) paths.add(path);
+    }
+  }
+  return paths;
+}
+
+function isHistoricalLegacyContext(line) {
+  return /\b(?:legacy|retired|historical|pre-cutover|predecessor|superseded|compatibility|frozen|persisted schema|signature salt|migration input|old (?:name|path|command|identifier)|negative (?:case|fixture|example)|must reject|is rejected)\b/iu.test(line);
+}
+
+function isHistoricalFilenameToken(token) {
+  if (token.length <= 'lattice-'.length) return false;
+  return [...HISTORICAL_DECISION_FILENAME_PATHS].some((path) => {
+    const basename = path.slice(path.lastIndexOf('/') + 1).replace(/\.md$/u, '');
+    return token === basename || token === `${basename}.md` || token === `<path:${basename}>`;
+  }) || token === 'lattice-lifecycle-readiness-check-flow';
+}
+
+function isPersistedLegacySchemaToken(token) {
+  return /^(?:lattice|Lattice)[A-Za-z0-9_.-]*\.v[0-9]+(?:[A-Za-z0-9_.-]*)$/u.test(token);
+}
+
+function isRetiredActiveInstruction(path, token, line, currentTruthSources) {
+  if (!currentTruthSources.has(path)) return false;
+  if (isHistoricalFilenameToken(token) || isPersistedLegacySchemaToken(token)) return false;
+  return !isHistoricalLegacyContext(line);
+}
+
+function verifyCurrentLegacyContextManifest(root, bytes = readFileSync(resolve(root, CURRENT_LEGACY_CONTEXT_MANIFEST_PATH))) {
+  const errors = [];
+  if (sha256(bytes) !== CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256) {
+    errors.push('current legacy contexts: manifest byte digest changed');
+  }
+  try {
+    const rows = JSON.parse(bytes.toString('utf8'));
+    if (!Array.isArray(rows) || rows.length !== EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT) {
+      errors.push(`current legacy contexts: row count ${Array.isArray(rows) ? rows.length : '<not-array>'}, expected ${EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT}`);
+    }
+  } catch {
+    errors.push('current legacy contexts: manifest is not valid JSON');
+  }
+  return errors;
+}
+
 function verifyConceptProvenance(root, tracked, rows = CONCEPT_PROVENANCE_ROWS) {
   const errors = [];
+  const currentTruthSources = currentTruthSourcePaths(root);
   const manifestBytes = readFileSync(resolve(root, CONCEPT_PROVENANCE_MANIFEST_PATH));
   if (sha256(manifestBytes) !== CONCEPT_PROVENANCE_MANIFEST_SHA256) {
     errors.push('concept provenance: manifest byte digest changed');
@@ -733,6 +830,9 @@ function verifyConceptProvenance(root, tracked, rows = CONCEPT_PROVENANCE_ROWS) 
     }
     if (paths.has(row.path)) errors.push(`concept provenance ${row.path}: duplicate exact path`);
     paths.add(row.path);
+    if (currentTruthSources.has(row.path)) {
+      errors.push(`concept provenance ${row.path}: current truth source cannot be frozen as whole-file provenance`);
+    }
     if (!tracked.has(row.path) || statSync(resolve(root, row.path)).isDirectory()) {
       errors.push(`concept provenance ${row.path}: stale/missing tracked file`);
       continue;
@@ -815,6 +915,7 @@ function schemaBaselineDigest(rows) {
 // token from active-residue scanning.
 function isPersistedSchemaExcludedSurface(path) {
   return path === SCRIPT_PATH
+    || path === CURRENT_LEGACY_CONTEXT_MANIFEST_PATH
     || path === 'CHANGELOG.md'
     || path.startsWith('.proof-or-stop/story/')
     || path.startsWith('.proof-or-stop/dev-memory/')
@@ -833,6 +934,7 @@ function isPersistedSchemaExcludedSurface(path) {
 function isFrozenSurface(path) {
   return path === SCRIPT_PATH
     || path === CONCEPT_PROVENANCE_MANIFEST_PATH
+    || path === CURRENT_LEGACY_CONTEXT_MANIFEST_PATH
     || path.startsWith('.proof-or-stop/story/')
     || path.startsWith('.lattice/story/')
     || FROZEN_FILE_BASELINE_PATHS.has(path)
@@ -869,8 +971,8 @@ function lineAt(text, index) {
   return text.slice(start, endIndex === -1 ? text.length : endIndex);
 }
 
-function isExactAllowedOccurrence(path, token) {
-  return EXACT_ALLOWLIST.some((row) => row.path === path && row.token === token);
+function exactAllowedRow(path, token) {
+  return EXACT_ALLOWLIST.find((row) => row.path === path && row.token === token);
 }
 
 function classifyToken(path, token, line) {
@@ -891,6 +993,7 @@ function classifyToken(path, token, line) {
 function scanActiveResidue(root, files) {
   const hits = [];
   const schemaSet = new Set(schemaRows(root, files).map((row) => `${row.path}\0${row.token}`));
+  const currentTruthSources = currentTruthSourcePaths(root);
   for (const path of files) {
     if (!isActiveTextPath(path) || isFrozenSurface(path) || FROZEN_FILE_BASELINE_PATHS.has(path)) continue;
     const absolute = resolve(root, path);
@@ -902,12 +1005,16 @@ function scanActiveResidue(root, files) {
     }
     for (const match of text.matchAll(TOKEN_PATTERN)) {
       const token = match[0];
-      if (schemaSet.has(`${path}\0${token}`) || isExactAllowedOccurrence(path, token)) continue;
       const line = lineAt(text, match.index);
+      if (schemaSet.has(`${path}\0${token}`)) continue;
+      const exactRow = exactAllowedRow(path, token);
+      const activeInstruction = isRetiredActiveInstruction(path, token, line, currentTruthSources);
+      if (exactRow && (!activeInstruction || exactRow.class === 'migration_input')) continue;
       hits.push({ class: classifyToken(path, token, line), path, line: lineNumberAt(text, match.index), token });
     }
     for (const match of path.matchAll(TOKEN_PATTERN)) {
       const token = match[0];
+      if (HISTORICAL_DECISION_FILENAME_PATHS.has(path)) continue;
       hits.push({ class: classifyToken(path, token, path), path, line: 0, token: `<path:${token}>` });
     }
   }
@@ -988,6 +1095,20 @@ function runSelfTest(root, files) {
   expect(isFrozenSurface(FROZEN_FILE_BASELINES[0].path), 'exact frozen-file baseline was not exempted');
   expect(isFrozenSurface(EXPERIMENT_PROVENANCE_ROWS[0].path), 'exact provenance-manifest file was not exempted');
   expect(isFrozenSurface(CONCEPT_PROVENANCE_ROWS[0].path), 'exact concept-provenance file was not exempted');
+  const currentTruthSources = currentTruthSourcePaths(root);
+  expect(currentTruthSources.has('docs/requirements/decisions/story-lifecycle.md'), 'mechanical current-truth-source extraction missed story-lifecycle.md');
+  expect(
+    isRetiredActiveInstruction('docs/requirements/decisions/story-lifecycle.md', 'lattice', 'Run lattice validate now.', currentTruthSources),
+    'retired active instruction in a current truth source was not classified as active residue',
+  );
+  expect(
+    !isRetiredActiveInstruction('docs/requirements/decisions/story-lifecycle.md', 'lattice', 'The retired legacy command `lattice validate` is rejected.', currentTruthSources),
+    'explicit historical legacy context was misclassified as an active instruction',
+  );
+  expect(
+    isRetiredActiveInstruction('docs/requirements/decisions/root-document-migration-guide.md', 'lattice', 'Run lattice validate now.', currentTruthSources),
+    'active retired instruction inside a migration-context document was not classified as active',
+  );
 
   const tracked = new Set(files);
   const first = EXACT_ALLOWLIST[0];
@@ -1008,6 +1129,19 @@ function runSelfTest(root, files) {
   const missingOccurrenceText = source.replace(first.token, `proof-or-stop-review-integrity-v1`);
   const missingRead = (path) => (path === first.path ? missingOccurrenceText : readFileSync(resolve(root, path), 'utf8'));
   expect(validateExactRows(EXACT_ALLOWLIST, tracked, root, missingRead).some((error) => error.includes('occurrence count')), 'missing frozen occurrence did not fail');
+  const migrationRow = CURRENT_LEGACY_CONTEXT_ROWS.find((row) => row.class === 'migration_input' && row.token === LEGACY_WORD);
+  expect(Boolean(migrationRow), 'self-test requires an exact migration-input row for the retired command token');
+  if (migrationRow) {
+    const migrationSource = readFileSync(resolve(root, migrationRow.path), 'utf8');
+    const activeMigrationRead = (path) => path === migrationRow.path
+      ? `${migrationSource}\nRun ${LEGACY_WORD} validate now.\n`
+      : readFileSync(resolve(root, path), 'utf8');
+    expect(
+      validateExactRows(EXACT_ALLOWLIST, tracked, root, activeMigrationRead)
+        .some((error) => error.includes('occurrence count') || error.includes('bounded context digest changed')),
+      'active retired instruction added inside an exact migration context did not fail closed',
+    );
+  }
   const frozen = FROZEN_FILE_BASELINES[0];
   const mutatedBytes = Buffer.concat([readFileSync(resolve(root, frozen.path)), Buffer.from('\nmutation')]);
   expect(sha256(mutatedBytes) !== frozen.byteSha256, 'frozen-byte mutation did not change digest');
@@ -1038,13 +1172,26 @@ function runSelfTest(root, files) {
     verifyConceptProvenance(root, tracked, broadConceptRow).some((error) => error.includes('one exact eligible file')),
     'concept provenance broad-directory mutation did not fail',
   );
+  const currentTruthSourceRow = CONCEPT_PROVENANCE_ROWS.map((row, index) => index === 0
+    ? { ...row, path: 'docs/requirements/decisions/story-lifecycle.md' }
+    : row);
+  expect(
+    verifyConceptProvenance(root, tracked, currentTruthSourceRow).some((error) => error.includes('current truth source cannot be frozen')),
+    'current truth source inserted into concept provenance did not fail',
+  );
+  const contextManifestBytes = readFileSync(resolve(root, CURRENT_LEGACY_CONTEXT_MANIFEST_PATH));
+  expect(
+    verifyCurrentLegacyContextManifest(root, Buffer.concat([contextManifestBytes, Buffer.from('\n')]))
+      .some((error) => error.includes('manifest byte digest changed')),
+    'current legacy context manifest byte mutation did not fail',
+  );
 
   if (failures.length > 0) {
     for (const failure of failures) console.error(`SELF-TEST FAIL: ${failure}`);
     process.exitCode = 1;
     return;
   }
-  console.log('PASS identity-cutover self-test: active residue, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact frozen rows remain accepted');
+  console.log('PASS identity-cutover self-test: current truth sources and active retired instructions fail closed; broad-directory and missing/stale/broadened/token/path/context/digest/byte allowlist mutations fail closed; exact historical rows remain accepted');
 }
 
 function main() {
@@ -1074,6 +1221,7 @@ function main() {
   }
 
   const structuralErrors = [
+    ...verifyCurrentLegacyContextManifest(root),
     ...validateExactRows(EXACT_ALLOWLIST, new Set(files), root),
     ...verifyFrozenFiles(root, new Set(files)),
     ...verifyConceptProvenance(root, new Set(files)),
@@ -1112,6 +1260,7 @@ function main() {
 
   console.log('PASS identity-cutover');
   console.log(`PASS unchanged: ${FROZEN_SALTS.length} signature salts at ${EXACT_ALLOWLIST.length} exact source rows`);
+  console.log(`PASS unchanged: ${CURRENT_LEGACY_CONTEXT_ROWS.length} exact current-doc legacy token/context rows`);
   console.log(`PASS unchanged: ${FROZEN_FILE_BASELINES.length} named historical/provenance byte baselines`);
   console.log(`PASS unchanged: ${CONCEPT_PROVENANCE_ROWS.length} exact concept-cleanup provenance/fixture rows`);
   console.log(`PASS unchanged: ${schemas.length} exact persisted-schema rows`);

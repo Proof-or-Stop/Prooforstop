@@ -390,12 +390,6 @@ const EXEMPT_PROSE_FILES = new Map([
     'The approved B-022e clean-break policy is hash-bound provenance and must quote the ' +
       'retired identity as the subject of the no-alias rule.',
   ],
-  [
-    'docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md',
-    'Self-declared documented exception (see its own header: "This file is the handoff ' +
-      'document for story B-ffa2. It intentionally contains the old role IDs as the ' +
-      'canonical rename map; post-migration searches should exclude this file").',
-  ],
 ]);
 
 /**

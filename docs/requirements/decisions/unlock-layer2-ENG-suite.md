@@ -114,7 +114,7 @@ The formal Layer 2 unlock requires the complete Engineering baseline suite.
 For this unlock run, the selected proof artifact root is:
 
 ```text
-.lattice/artifacts/baseline/layer2-engineering-unlock
+.proof-or-stop/artifacts/baseline/layer2-engineering-unlock
 ```
 
 The unlock proof pack must use that selected root.

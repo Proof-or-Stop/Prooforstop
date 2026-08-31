@@ -49,7 +49,7 @@ expectation, and next required action.
 The product/material deliverable of B-b5c0 was only this document repair. The
 B-997b wave is deliberately narrower than the whole roadmap: it ships M1-M3
 scope boundary behavior and keeps local-assurance Layer 4/customer key work out of
-scope. Any `.lattice/story/actives/<storyId>/*` lifecycle metadata is
+scope. Any `.proof-or-stop/story/actives/<storyId>/*` lifecycle metadata is
 story-scoped provenance produced by the Proof-or-Stop workflow, not proof of later
 roadmap milestones.
 
@@ -153,9 +153,9 @@ B-e781 closure ledger:
 | M7 | Baseline suite formalization | `closed` | `node packages/main/dist/tasks/baseline-suite-smoke.js`; `node packages/main/dist/tasks/baseline-suite-report-smoke.js` | Local baseline-suite/report contract evidence; no formal capability unlock is implied. |
 | M8 | Host identity, review-run, and 3x2 quorum strengthening | `closed` | `node packages/main/dist/tasks/reviewer-quorum-smoke.js`; `node packages/main/dist/tasks/quorum-submit-smoke.js`; `node packages/main/dist/tasks/review-escalation-smoke.js` | Local reviewer quorum and escalation predicates, including degraded/fail-closed handling. |
 | M9 | Preflight command center | `closed` | `node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js` | Local lifecycle orchestration projection and preflight row composition. |
-| M10 | Parallel collaboration scheduling | `closed` | `node packages/main/dist/tasks/lattice-parallel-wave-smoke.js` | Read-only local parallel-wave scheduling evidence; advisory output is not lifecycle completion evidence. |
+| M10 | Parallel collaboration scheduling | `closed` | `node packages/main/dist/tasks/proof-or-stop-parallel-wave-smoke.js` | Read-only local parallel-wave scheduling evidence; advisory output is not lifecycle completion evidence. |
 | M11 | Rollout, migration, and operator guidance | `closed` | `node packages/main/dist/tasks/rollout-check-smoke.js` | Local rollout-check policy and operator guidance evidence. |
-| M12 | Cross-track certification and handoff | `closed` | `node packages/main/dist/tasks/parent-roadmap-totality-smoke.js`; `node packages/main/dist/tasks/lattice-handoff-smoke.js` | Local parent-roadmap totality and handoff closure evidence for M4-M12. |
+| M12 | Cross-track certification and handoff | `closed` | `node packages/main/dist/tasks/parent-roadmap-totality-smoke.js`; `node packages/main/dist/tasks/proof-or-stop-handoff-smoke.js` | Local parent-roadmap totality and handoff closure evidence for M4-M12. |
 
 Post-closure maintenance order:
 
@@ -186,7 +186,7 @@ This roadmap story does not:
   delivery, validation, summary, or DONE semantics;
 - directly edit story JSON by hand, or change product/runtime metadata outside
   the Proof-or-Stop workflow (story-scoped provenance under
-  `.lattice/story/actives/B-b5c0/*` is allowed);
+  `.proof-or-stop/story/actives/B-b5c0/*` is allowed);
 - claim that any future baseline has passed;
 - claim `authorityDone`, `fullAuthorityDone`, `productionDone`,
   `receiptVerified`, or formal capability unlock;
@@ -376,7 +376,7 @@ B-997b ships the hard-scope slice only:
   `blocking=false`; it still cannot satisfy summary, delivery, review,
   validation, or DONE gates by itself.
 - Registered runtime artifacts are accepted only through the runtime artifact
-  registry row family `scope.runtime_artifact:*`. Unknown `.lattice`, `.lattice`,
+  registry row family `scope.runtime_artifact:*`. Unknown `.proof-or-stop`, `.proof-or-stop`,
   story metadata, source, or fixture paths continue to fall through normal scope
   enforcement and fail closed when undeclared.
 - A valid DEV/REVIEW acknowledgement does not convert a scope expansion into a
@@ -443,7 +443,7 @@ Expected evidence:
 
 Blockers:
 
-- Scope model exempts a whole directory such as `.lattice/`, `.lattice/`, or
+- Scope model exempts a whole directory such as `.proof-or-stop/`, `.proof-or-stop/`, or
   `docs/` without filename-aware classification.
 - Scope gate and renderer duplicate rules instead of sharing one classifier.
 - Missing exclusions are treated as advisory for high-risk stories.
@@ -1436,12 +1436,12 @@ allows enforcement.
 
 | Stage | Milestones | Policy version binding | Enforcement mode | In-flight story treatment | Operator-visible evidence |
 |---|---|---|---|---|---|
-| 0 Documentation And Classification | M0; M11 drafts | `lattice-strengthening-roadmap.v0-docs` | Documentation only | No existing story requirements change. | `git diff --name-only main...HEAD`, `git diff --check`, source/status mapping. |
-| 1 Read-Only Diagnostics | M1-M4 prototypes; M9 read-only projections; M11 runbook drafts | `lattice-strengthening-roadmap.v1-diagnostic` | Read-only/advisory | Stories already past PLAN receive diagnostics only unless they opt in. Stories before PLAN may use the new guidance. | `session_brief`, `status`, `doctor`, dry-run reports, registry verifier output. |
-| 2 Advisory Gate Rows | M2, M4-M6, M8 diagnostics, M10 scheduling projections | `lattice-strengthening-roadmap.v2-advisory` | Advisory rows; no new blockers | DEV/REVIEW/TEST stories show rows and remediation. DONE should not be newly blocked unless an older gate already blocks. | Oracle rows with `blocking=false`, `review_escalation_status`, `autopilot_review_status`, `decision_doc_quorum_check`. |
-| 3 Fail-Closed For New Stories | Tested M1-M8 rows; M9 renderers | `lattice-strengthening-roadmap.v3-new-story-enforce` | Fail-closed for stories created after policy activation and explicitly opted-in high-risk milestones | In-flight stories continue under their creation policy unless they replan, opt in, or an audited emergency/operator decision changes treatment. | Gate rows with `blocking=true`, validation evidence, policy-version report. |
-| 4 Legacy Migration And Compatibility Tightening | M3 repairs; M6 negative controls; M8 identity migration; M11 repairs | `lattice-strengthening-roadmap.v4-legacy-tighten` | Audited migration plus selected blockers after dry-run success | Legacy stories get dry-run repair reports first; mutation requires explicit command, reason, owner lease, and policy version. Completed DONE stories are not reopened. | Migration dry-run report, repair audit event, stale/compatibility matrix. |
-| 5 Formal Baseline And Capability Claims | M7 and M12 after required implementation milestones land | `lattice-strengthening-roadmap.v5-certification` | Formal proof and claim boundary | Only fresh implementation stories participate; old diagnostics are inputs, not proof. | Baseline reports, cross-track certification, host verdict summary, receipt refs where required. |
+| 0 Documentation And Classification | M0; M11 drafts | `proof-or-stop-strengthening-roadmap.v0-docs` | Documentation only | No existing story requirements change. | `git diff --name-only main...HEAD`, `git diff --check`, source/status mapping. |
+| 1 Read-Only Diagnostics | M1-M4 prototypes; M9 read-only projections; M11 runbook drafts | `proof-or-stop-strengthening-roadmap.v1-diagnostic` | Read-only/advisory | Stories already past PLAN receive diagnostics only unless they opt in. Stories before PLAN may use the new guidance. | `session_brief`, `status`, `doctor`, dry-run reports, registry verifier output. |
+| 2 Advisory Gate Rows | M2, M4-M6, M8 diagnostics, M10 scheduling projections | `proof-or-stop-strengthening-roadmap.v2-advisory` | Advisory rows; no new blockers | DEV/REVIEW/TEST stories show rows and remediation. DONE should not be newly blocked unless an older gate already blocks. | Oracle rows with `blocking=false`, `review_escalation_status`, `autopilot_review_status`, `decision_doc_quorum_check`. |
+| 3 Fail-Closed For New Stories | Tested M1-M8 rows; M9 renderers | `proof-or-stop-strengthening-roadmap.v3-new-story-enforce` | Fail-closed for stories created after policy activation and explicitly opted-in high-risk milestones | In-flight stories continue under their creation policy unless they replan, opt in, or an audited emergency/operator decision changes treatment. | Gate rows with `blocking=true`, validation evidence, policy-version report. |
+| 4 Legacy Migration And Compatibility Tightening | M3 repairs; M6 negative controls; M8 identity migration; M11 repairs | `proof-or-stop-strengthening-roadmap.v4-legacy-tighten` | Audited migration plus selected blockers after dry-run success | Legacy stories get dry-run repair reports first; mutation requires explicit command, reason, owner lease, and policy version. Completed DONE stories are not reopened. | Migration dry-run report, repair audit event, stale/compatibility matrix. |
+| 5 Formal Baseline And Capability Claims | M7 and M12 after required implementation milestones land | `proof-or-stop-strengthening-roadmap.v5-certification` | Formal proof and claim boundary | Only fresh implementation stories participate; old diagnostics are inputs, not proof. | Baseline reports, cross-track certification, host verdict summary, receipt refs where required. |
 
 Policy-version binding rules:
 

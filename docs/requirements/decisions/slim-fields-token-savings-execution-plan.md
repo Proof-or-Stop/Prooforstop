@@ -126,20 +126,20 @@ The wording must be advisory, not a hard replacement for full output.
 
 Update the templates that routinely query story state:
 
-- `packages/main/templates/agents/lattice-implementer.md`
-- `packages/main/templates/agents/lattice-review-concept.md`
-- `packages/main/templates/agents/lattice-review-quality.md`
-- `packages/main/templates/agents/lattice-review-docs.md`
-- `packages/main/templates/agents/lattice-review-behavior.md`
-- `packages/main/templates/agents/lattice-review-delivery.md`
-- `packages/main/templates/agents/lattice-review-story-init.md`
-- `packages/main/templates/agents/lattice-review-scope-plan.md`
-- `packages/main/templates/agents/lattice-review-test-coverage.md`
+- `packages/main/templates/agents/proof-or-stop-implementer.md`
+- `packages/main/templates/agents/proof-or-stop-review-concept.md`
+- `packages/main/templates/agents/proof-or-stop-review-quality.md`
+- `packages/main/templates/agents/proof-or-stop-review-docs.md`
+- `packages/main/templates/agents/proof-or-stop-review-behavior.md`
+- `packages/main/templates/agents/proof-or-stop-review-delivery.md`
+- `packages/main/templates/agents/proof-or-stop-review-story-init.md`
+- `packages/main/templates/agents/proof-or-stop-review-scope-plan.md`
+- `packages/main/templates/agents/proof-or-stop-review-test-coverage.md`
 
 If the repository is in full-asset mode, regenerate or synchronize:
 
 - `.claude/agents/*.md`
-- `.lattice-codex/agents/*.md`
+- `.proof-or-stop-codex/agents/*.md`
 
 The rendered mirrors must continue to match the package templates.
 
@@ -168,7 +168,7 @@ Extend `prompt-token-cost-smoke` or add a focused smoke that checks:
 
 - the compact-query guidance exists in package templates;
 - `.claude` mirrors match package templates;
-- `.lattice-codex` mirrors match Codex-rendered package templates;
+- `.proof-or-stop-codex` mirrors match Codex-rendered package templates;
 - default `story_get` and `checklist_get` output is unchanged;
 - slim output remains smaller than default output;
 - the guidance includes a full-output fallback for evidence-sensitive work.
@@ -186,7 +186,7 @@ If Codex adapter assets are touched in the final implementation branch, also
 run:
 
 ```bash
-node bin/lattice.js verify_codex --json
+node bin/proof-or-stop.js verify_codex --json
 ```
 
 ## Expected Savings

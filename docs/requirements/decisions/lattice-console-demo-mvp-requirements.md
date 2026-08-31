@@ -2,7 +2,7 @@
 
 > Status: proposal for Story B-0414
 > Date: 2026-06-16
-> Prototype input: `/Users/jek/Documents/lattice-console-demo.html`
+> Historical prototype input: `/Users/jek/Documents/lattice-console-demo.html`
 > Existing source-of-truth anchor: `docs/requirements/decisions/host-neutral-observability-console.md`
 > Positioning: this document is a productization addendum for the static HTML prototype. It does not replace the host-neutral observability console design.
 
@@ -85,13 +85,13 @@ The MVP must not:
 
 - implement a new authority path;
 - bypass decision-doc quorum, delivery-check, evidence freshness, reviewer quorum, or receipt gates;
-- read `.lattice/story/**` or process-event files directly from the UI adapter;
+- read `.proof-or-stop/story/**` or process-event files directly from the UI adapter;
 - parse `session_brief` Markdown as a stable API;
 - create a background daemon unless a later story proves it is required;
 - drive Claude, Codex, Gemini, or any host automatically;
 - submit local host verdicts or Authority verdicts;
 - turn local DONE into `productionDone`;
-- move, rewrite, or depend on `/Users/jek/Documents/lattice-console-demo.html` as a production asset.
+- move, rewrite, or depend on the historical prototype `/Users/jek/Documents/lattice-console-demo.html` as a production asset.
 
 ## 6. Data Source Contract
 
@@ -428,7 +428,7 @@ The first implementation story should be accepted only when:
 3. The displayed lifecycle totals match `story_list` or an explicitly documented aggregate.
 4. The displayed DONE pre-check state matches the CLI's machine-readable gate state.
 5. Every failed or warning gate includes a recovery command or a reason no safe command exists.
-6. The console never reads `.lattice/story/**` directly.
+6. The console never reads `.proof-or-stop/story/**` directly.
 7. The console never mutates story state.
 8. The console marks local workflow evidence separately from Authority receipt evidence.
 9. The console marks `productionDone=false` unless a verified receipt is present.
@@ -442,7 +442,7 @@ The first implementation story should be accepted only when:
 Minimum verification for the implementation story:
 
 - Unit test the adapter against saved JSON fixtures for `story_list`, `host_runtime_list`, `authority_status`, and `convergence_check`.
-- Integration test the adapter against real `node bin/lattice.js ... --json` commands in this repository.
+- Integration test the adapter against real `node bin/proof-or-stop.js ... --json` commands in this repository.
 - Browser smoke test the console with at least:
   - one active story;
   - one DONE story;
@@ -451,7 +451,7 @@ Minimum verification for the implementation story:
   - one authority local-evidence-only state.
 - Browser interaction test every clickable prototype selector and assert that it opens the expected drawer/page or a documented disabled-state explanation.
 - Visual QA at desktop and narrow widths for spacing, symmetry, row alignment, drawer alignment, and non-overlapping text.
-- Snapshot test that no `.lattice/story/**` direct reads are used.
+- Snapshot test that no `.proof-or-stop/story/**` direct reads are used.
 - Manual transcript proving that the console's next action matches `session_brief`.
 
 ## 13. Risks and Mitigations
@@ -489,6 +489,6 @@ Initial checklist:
 3. Replace prototype hard-coded metrics with adapter snapshots.
 4. Render DONE pre-check gates with recovery commands.
 5. Add a click-target inventory and browser test proving every clickable demo element opens a valid detail/page/disabled explanation.
-6. Add tests proving no direct `.lattice/story/**` reads and no mutating commands.
+6. Add tests proving no direct `.proof-or-stop/story/**` reads and no mutating commands.
 
 This sequence follows the Proof-or-Stop host-neutral direction and avoids optimization for its own sake: it fixes live-state correctness, recovery clarity, and authority-boundary clarity first.

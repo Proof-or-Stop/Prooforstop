@@ -79,7 +79,7 @@ Related migration diagnostics are also L0/read-only:
 - `host_list` / `proof-or-stop host list`
 - `host_probe` / `proof-or-stop host probe`
 - `host_install` / `proof-or-stop host install` (dry-run guidance only)
-- `lattice_config_doctor` / `proof-or-stop config doctor`
+- `proof_or_stop_config_doctor` / `proof-or-stop config doctor`
 - `authority_status` / `proof-or-stop authority status`
 - `conduit_status` and `conduit_explain` / `proof-or-stop conduit ...`
 
@@ -160,11 +160,11 @@ or block parallel DEV recommendations even when a story declares
 
 Parallel dispatch and report projections may include dev-memory refs only when
 `includeExperience=true`. The implementation reads project memory from the
-single canonical store `<projectRoot>/.lattice/dev-memory/experience.jsonl` (the
+single canonical store `<projectRoot>/.proof-or-stop/dev-memory/experience.jsonl` (the
 legacy pre-rename read fallback was removed in B-a4e3, so legacy-path entries are
 now ignored). Global reads use
-`~/.lattice/dev-memory/experience.jsonl` by default, overridable via the
-`LATTICE_GLOBAL_MEMORY_DIR` env var (useful in tests). Missing files are
+`~/.proof-or-stop/dev-memory/experience.jsonl` by default, overridable via the
+`PROOF_OR_STOP_GLOBAL_MEMORY_DIR` env var (useful in tests). Missing files are
 tolerated as an empty list. Results are de-duplicated by
 id, searched through the existing dev-memory search routine, and capped by
 `maxExperienceRefs`.

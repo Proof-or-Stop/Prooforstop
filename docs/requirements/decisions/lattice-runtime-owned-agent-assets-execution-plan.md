@@ -52,9 +52,9 @@ However, older projects may already contain materialized prompt assets such as:
 
 ```text
 .claude/agents/*.md
-.lattice-codex/agents/*.md
-.lattice-codex/lattice.json
-.lattice/lattice.json with assetMode prompt settings
+.proof-or-stop-codex/agents/*.md
+.proof-or-stop-codex/proof-or-stop.json
+.proof-or-stop/proof-or-stop.json with assetMode prompt settings
 ```
 
 Those files are project-owned copies. They do not automatically become
@@ -66,7 +66,7 @@ Project-local agent prompt copies cause three real correctness and cost issues.
 
 ### 1. Stale Prompt Copies
 
-If a project has materialized `.claude/agents/*.md` or `.lattice-codex/agents/*.md`, the
+If a project has materialized `.claude/agents/*.md` or `.proof-or-stop-codex/agents/*.md`, the
 host may read those files instead of the current package registry. That can
 reintroduce:
 
@@ -108,9 +108,9 @@ Expected default:
 
 ```text
 business project
-  lattice.config.json          project structure and story/runtime config
+  proof-or-stop.config.json          project structure and story/runtime config
   AGENTS.md / requirements     project instructions and source of truth
-  .lattice/story/...           story metadata
+  .proof-or-stop/story/...           story metadata
 
 local Proof-or-Stop CLI runtime
   prompt registry
@@ -122,9 +122,9 @@ No default requirement for:
 
 ```text
 .claude/agents/*.md
-.lattice-codex/agents/*.md
-.lattice-codex/lattice.json
-.lattice/lattice.json only to say assetMode=global-thin
+.proof-or-stop-codex/agents/*.md
+.proof-or-stop-codex/proof-or-stop.json
+.proof-or-stop/proof-or-stop.json only to say assetMode=global-thin
 ```
 
 ### Explicit Exceptions
@@ -215,7 +215,7 @@ Questions to answer mechanically:
 
 - When does Proof-or-Stop read package registry prompts?
 - When does Proof-or-Stop materialize `.claude/agents`?
-- When does Proof-or-Stop materialize `.lattice-codex/agents`?
+- When does Proof-or-Stop materialize `.proof-or-stop-codex/agents`?
 - Which config file forces `global-thin` today?
 - Which commands currently write prompt assets?
 - Which commands merely inspect prompt assets?
@@ -237,7 +237,7 @@ config means:
 use local Proof-or-Stop CLI package prompt registry
 ```
 
-Do not require `.lattice/lattice.json` or `.lattice-codex/lattice.json` solely to say
+Do not require `.proof-or-stop/proof-or-stop.json` or `.proof-or-stop-codex/proof-or-stop.json` solely to say
 `assetMode=global-thin`.
 
 Project config remains valid for project structure facts such as:
@@ -254,7 +254,7 @@ Those are project facts, not prompt asset ownership facts.
 
 Acceptance:
 
-- A project with no `.claude/agents`, no `.lattice-codex/agents`, and no prompt asset
+- A project with no `.claude/agents`, no `.proof-or-stop-codex/agents`, and no prompt asset
   config still runs Proof-or-Stop host/reviewer commands through the runtime registry.
 - `proof-or-stop doctor` or the relevant adapter doctor reports
   `mode=runtime-owned`.
@@ -269,7 +269,7 @@ Preferred surfaces:
 proof-or-stop doctor
 proof-or-stop codex_doctor
 proof-or-stop verify_codex
-proof-or-stop lattice_config_doctor
+proof-or-stop proof_or_stop_config_doctor
 ```
 
 Only add a new command if the existing surfaces cannot express the result
@@ -279,7 +279,7 @@ Detection rules:
 
 - If `.claude/agents/*.md` exists and the project is not explicitly in
   full-asset/debug mode, warn or fail with a clear migration path.
-- If `.lattice-codex/agents/*.md` exists and the project is not explicitly in
+- If `.proof-or-stop-codex/agents/*.md` exists and the project is not explicitly in
   full-asset/debug mode, warn or fail with a clear migration path.
 - If project-local prompt assets exist but hashes differ from the runtime
   registry, report `stale`.
@@ -303,7 +303,7 @@ commands.
 Candidate command:
 
 ```text
-proof-or-stop lattice_config_repair --agent-assets=runtime-owned
+proof-or-stop proof_or_stop_config_repair --agent-assets=runtime-owned
 ```
 
 If existing command flags are preferred, add the smallest clear flag to the
@@ -321,15 +321,15 @@ Deletion candidates:
 
 ```text
 .claude/agents/*.md
-.lattice-codex/agents/*.md
-.lattice-codex/lattice.json when it only expresses runtime-owned default
-.lattice/lattice.json prompt asset fields when they only express runtime-owned default
+.proof-or-stop-codex/agents/*.md
+.proof-or-stop-codex/proof-or-stop.json when it only expresses runtime-owned default
+.proof-or-stop/proof-or-stop.json prompt asset fields when they only express runtime-owned default
 ```
 
 Files that must not be removed by this migration:
 
 ```text
-lattice.config.json
+proof-or-stop.config.json
 AGENTS.md
 CLAUDE.md if it is project guidance rather than a generated prompt snapshot
 requirements / docs / story metadata
@@ -358,7 +358,7 @@ But it must require an explicit action such as:
 
 ```text
 proof-or-stop init --asset-mode=full
-proof-or-stop lattice_config_repair --agent-assets=full
+proof-or-stop proof_or_stop_config_repair --agent-assets=full
 ```
 
 Full-asset mode output must say:
@@ -394,7 +394,7 @@ business project by default.
 
 Acceptance:
 
-- `verify_codex` still passes without `.lattice-codex/agents/*.md`.
+- `verify_codex` still passes without `.proof-or-stop-codex/agents/*.md`.
 - Claude/Codex adapters can explain where prompts were resolved from.
 - The report does not claim Authority Server completion.
 
@@ -405,7 +405,7 @@ Add or extend smokes to cover:
 ```text
 runtime-owned project with no project prompt assets
 stale project-local .claude/agents detection
-stale project-local .lattice-codex/agents detection
+stale project-local .proof-or-stop-codex/agents detection
 explicit full-asset mode remains supported
 repair migration is idempotent
 verify_codex passes in runtime-owned mode
@@ -463,7 +463,7 @@ If local assets are found, classify:
 Use an explicit repair command once implemented:
 
 ```bash
-proof-or-stop lattice_config_repair --agent-assets=runtime-owned
+proof-or-stop proof_or_stop_config_repair --agent-assets=runtime-owned
 ```
 
 Until that exists, do not manually delete assets in bulk unless a human has
@@ -499,7 +499,7 @@ The capability is complete only when all of these are true:
 
 ## Non-Goals
 
-- Do not remove project structure config such as `lattice.config.json`.
+- Do not remove project structure config such as `proof-or-stop.config.json`.
 - Do not remove legitimate project guidance such as `AGENTS.md`.
 - Do not auto-delete project files during ordinary Proof-or-Stop commands.
 - Do not introduce network dependency for offline prompt rendering.
@@ -609,8 +609,8 @@ template/adapter rewrites outside its declared scope.
 ## Implementation Status
 
 - **Codex side — landed (B-4ee0).** Global-thin default; Codex resolves prompts
-  from the package registry via the `.lattice-codex/lattice.json` manifest
-  (`promptMode: 'registry'`). No `.lattice-codex/agents` materialization in global-thin/thin
+  from the package registry via the `.proof-or-stop-codex/proof-or-stop.json` manifest
+  (`promptMode: 'registry'`). No `.proof-or-stop-codex/agents` materialization in global-thin/thin
   mode.
 - **Claude side — landed (B-097f), host-neutral.** Claude Code cannot resolve a
   subagent from a single manifest (it discovers subagents only from on-disk

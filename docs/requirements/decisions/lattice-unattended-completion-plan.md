@@ -113,11 +113,11 @@ Goal: prove the CLI talks to a real local Python Proof-or-Stop Authority server.
 Deliverables:
 
 - Python Authority source is the existing local server project at
-  `/Users/jek/Documents/Work/Lattice/cord-team` unless a later Story explicitly
+  `/Users/jek/Documents/Work/Proof-or-Stop/cord-team` unless a later Story explicitly
   replaces the server source;
 - documented startup command for Python Proof-or-Stop Authority on
   `http://localhost:6789/`;
-- canonical local `.lattice/authority.md` profile;
+- canonical local `.proof-or-stop/authority.md` profile;
 - generated local test customer API key, actor key, runner id, project id, and
   pinned server public key;
 - live test command that fails if the server is missing or responses are mocked.
@@ -131,7 +131,7 @@ Acceptance:
 
 Blockers:
 
-- `/Users/jek/Documents/Work/Lattice/cord-team` cannot start a Python Authority
+- `/Users/jek/Documents/Work/Proof-or-Stop/cord-team` cannot start a Python Authority
   server and no replacement source is named;
 - tests use stubs while claiming live evidence;
 - server public key is not pinned or verified.

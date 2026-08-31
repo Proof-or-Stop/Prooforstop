@@ -11,11 +11,7 @@ not an optimization story by itself. It freezes what must be measured before and
 after future changes so a later story can prove that it fixed a real process
 problem instead of merely changing the workflow shape.
 
-The baseline is recorded in:
-
-```text
-experiments/baselines/lattice-workflow-efficiency-baseline-v1.json
-```
+The frozen historical baseline is `experiments/baselines/lattice-workflow-efficiency-baseline-v1.json`.
 
 Future optimization stories should compare their result against that file and
 update only a new derived result file, not rewrite the original baseline.

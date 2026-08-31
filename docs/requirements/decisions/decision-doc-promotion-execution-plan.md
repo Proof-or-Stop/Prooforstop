@@ -33,7 +33,7 @@ Proof-or-Stop currently has two decision layers:
 
 | Layer | Current artifact | Lifetime |
 | --- | --- | --- |
-| Story-scoped structured decision | `.lattice/story/actives/<storyId>/decision.json` | Evidence for one story |
+| Story-scoped structured decision | `.proof-or-stop/story/actives/<storyId>/decision.json` | Evidence for one story |
 | Project-level durable decision | `docs/requirements/decisions/*.md` | Long-lived project policy |
 
 The gap is the promotion path between those layers.
@@ -129,7 +129,7 @@ docs/requirements/decisions/decision-doc-promotion.md
 
 Nested directories and alternate paths are out of scope for the first version.
 If future projects need custom decision-doc paths, add an explicit
-`lattice.config.json` setting in a separate story.
+`proof-or-stop.config.json` setting in a separate story.
 
 ## Proposed CLI Surface
 
@@ -197,7 +197,7 @@ Expected behavior:
 - Writes a story-local artifact, for example:
 
 ```text
-.lattice/story/actives/<storyId>/decision-doc-proposals.json
+.proof-or-stop/story/actives/<storyId>/decision-doc-proposals.json
 ```
 
 - Does not write `docs/requirements/decisions/*.md`.
