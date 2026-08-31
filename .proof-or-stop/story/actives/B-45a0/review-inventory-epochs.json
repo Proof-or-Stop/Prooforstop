@@ -11097,9 +11097,9 @@
       "epochId": "B-45a0:RI-113",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-31T20:19:23.055Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-31T22:34:07.858Z",
-      "updatedAt": "2026-08-31T22:34:07.858Z",
+      "updatedAt": "2026-08-31T22:36:42.652Z",
       "cutoff": {
         "headHash": "56c05add08e13e654720b6f4f74d0688badcd3ea",
         "materialHash": "6d96761e24fabeb191351d28a0fa127f81793c6c1fd5723a5fb2e50738958b10",
@@ -11116,7 +11116,10 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "cdbd8e7b463682f600e8696a0e9e7b1fac2c32c11462f5cf30819d28af47a3cb"
+      "cancelledAt": "2026-08-31T22:36:42.652Z",
+      "cancelReason": "Cancelling RI-113 for the same reason as RI-112: the lanes would be attesting to a claim that is currently false. CHK-014 is titled 'Bind Wave 4 acceptance gates to executable current-head evidence' and all four of those evaluators fail when executed at this HEAD. The correct sequence is to return to DEV first, regenerate the acceptance basis, reissue pre_review_check and the acceptance rollout report so the surfaces genuinely pass, and only then open a review epoch for the lanes to attest against true state. This epoch was opened incidentally by a reviewer lane's review_run_start during lock contention rather than deliberately.",
+      "terminalRunSequenceBoundary": 1165,
+      "_hash": "856e1660e46b7cb308822be1c17fbda5cce2a2cf63c46b216e77fa49e78d3152"
     }
   ],
   "receipts": [
