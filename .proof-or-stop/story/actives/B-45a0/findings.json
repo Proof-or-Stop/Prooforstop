@@ -24499,7 +24499,7 @@
       "desc": "quality-cleanup: packages/main/src/handlers/verifier.ts:81 imports buildRevocationLedger from story-aware-validation.js but never uses it in this file (grep count=1, the import itself, verified this round). Deliberately deferred: fixing would touch source under the frozen review-inventory epoch cutoff mid-4h paired replay campaign. Re-confirmed unchanged this round (was B-45a0:F-451, still open, low, correctly deferred).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T11:47:39.677Z",
@@ -24533,7 +24533,11 @@
         "packages/main/src/handlers/verifier.ts"
       ],
       "signatureTag": "missing|ts|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit a756969763. The unused buildRevocationLedger symbol was removed from the import list at packages/main/src/handlers/verifier.ts:81. Verified: grep for buildRevocationLedger in that file now returns 0 occurrences, and npx tsc --noEmit -p packages/main exits 0, proving the symbol was genuinely unused and its removal does not break compilation. Family quality-unused-import-buildRevocationLedger is closed.",
+      "resolvedAt": "2026-08-31T14:10:53.857Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-45a0:F-455",
