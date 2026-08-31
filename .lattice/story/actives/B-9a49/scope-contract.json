@@ -20,13 +20,15 @@
     ".proof-or-stop-codex/agents/lattice-implementer.md",
     "packages/main/templates/agents/lattice-review-channel.md",
     ".claude/agents/lattice-review-channel.md",
-    ".proof-or-stop-codex/agents/lattice-review-channel.md"
+    ".proof-or-stop-codex/agents/lattice-review-channel.md",
+    "packages/main/src/core/acceptance-topology.ts"
   ],
   "allowedCreate": [],
   "allowedTest": [
     "packages/main/src/tasks/prompt-registry-smoke.ts",
     "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
     "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
     "scripts/verify-process-fact-contract.mjs",
     "scripts/verify-proof-or-stop-prompt-baseline.mjs",
     "scripts/verify-runtime-fact-contract.mjs"
@@ -42,10 +44,10 @@
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/process-fact-levels.ts"
   ],
-  "scopeChangeReason": "REVIEW blocker extension: add CLAUDE.md only to replace the superseded unbounded-scope guidance with the same bounded current-Story triage contract already accepted for AGENTS.md. Findings B-9a49:F-003 and F-006 prove cross-host behavioral divergence. No Dynamic Finding runtime or handler change.",
+  "scopeChangeReason": "REVIEW blocker extension for B-9a49:F-020: allow only the acceptance-topology reconciler and its smoke test to correct the proven canonical-path mismatch that makes a truthful existing process-fact topology impossible to reconcile with the verifier-owned basis. Dynamic Finding handlers, advisory gate logic, and process-fact registries remain protected and excluded.",
   "acknowledgements": [],
   "createdAt": "2026-08-31T14:19:20.690Z",
-  "updatedAt": "2026-08-31T20:58:59.580Z",
+  "updatedAt": "2026-08-31T23:35:09.479Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -76,6 +78,8 @@
     "packages/main/templates/agents/lattice-review-channel.md": "packages/main/templates/agents/lattice-review-channel.md",
     ".claude/agents/lattice-review-channel.md": ".claude/agents/lattice-review-channel.md",
     ".proof-or-stop-codex/agents/lattice-review-channel.md": ".proof-or-stop-codex/agents/lattice-review-channel.md",
-    "CLAUDE.md": "CLAUDE.md"
+    "CLAUDE.md": "CLAUDE.md",
+    "packages/main/src/core/acceptance-topology.ts": "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
   }
 }

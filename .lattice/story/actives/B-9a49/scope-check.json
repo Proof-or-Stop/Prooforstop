@@ -1,299 +1,101 @@
 {
   "storyId": "B-9a49",
-  "checkedAt": "2026-08-31T22:15:36.197Z",
+  "checkedAt": "2026-08-31T23:39:07.089Z",
   "features": [
     {
-      "feature": "Project one canonical Finding-triage behavior contract into exactly the five current active REVIEW lanes.",
+      "feature": "Deliver one canonical English Finding-triage contract to all five active REVIEW lanes in both full-envelope and legacy-full-context modes, with non-REVIEW isolation.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "description"
+      "source": "background.md; plan.md CHK-001; checklist CHK-001"
     },
     {
-      "feature": "Deliver the same canonical contract exactly once through both full-envelope and legacy-full-context assembly.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:role-prompt-modularization-and-budget-execution-plan.md"
-    },
-    {
-      "feature": "Keep the triage contract out of every non-REVIEW, compatibility, and retired role, including the retired channel reviewer.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:role-prompt-modularization-and-budget-execution-plan.md"
-    },
-    {
-      "feature": "Require REVIEW reviewers to start a current signed review run and bind finding_add or review_pass_set to its reviewRunId.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
-    },
-    {
-      "feature": "Keep evidenceState, severity, target-Story applicability, and gate impact as independent axes.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:dynamic-finding-system-execution-plan.md"
-    },
-    {
-      "feature": "Fail closed when applicability is missing, unknown, stale, unsigned, tampered, or otherwise untrusted for a Finding that would block under the current round policy.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:dynamic-finding-system-execution-plan.md"
-    },
-    {
-      "feature": "Require current-Story repair for defects introduced or worsened by the Story, direct acceptance or core-user-result blockers, and defects that would make gate evidence or gate truth misleading.",
+      "feature": "Give the Story Owner and implementer bounded evidence-preserving routing guidance without unilateral scope expansion or machine-authority claims.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "description"
+      "source": "understanding.json constraints; plan.md CHK-002; checklist CHK-002"
     },
     {
-      "feature": "Permit non-current-Story routing only with current structured evidence and a traceable owner or route; critical and high Findings may not be left unowned.",
-      "covered_by": "CHK-001; CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:dynamic-finding-system-execution-plan.md"
-    },
-    {
-      "feature": "Preserve the original Finding observation, evidence truth, severity, status, and append-only history; routing or non-blocking applicability must not masquerade as resolution or dismissal.",
-      "covered_by": "CHK-001; CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:dynamic-finding-system-execution-plan.md"
-    },
-    {
-      "feature": "Keep disproven, duplicate, and stale_or_not_reproduced as distinct outcomes with verdict-specific evidence and ownership requirements.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:dynamic-finding-system-execution-plan.md"
-    },
-    {
-      "feature": "Forbid reviewers from repairing implementation, calling finding_dismiss, creating follow-up Stories, using gap_log as product-defect routing, rewriting severity, or widening Story scope to make checks green.",
-      "covered_by": "CHK-001; CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Require implementers to preserve reproduction and impact evidence, report out-of-item defects to the Story Owner, and avoid unilateral item or Story expansion.",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "State that the Dynamic Finding System is future authority; current compatibility handling must not fabricate assessment verdicts, owners, routes, signatures, freshness results, receipts, or applicability proof.",
-      "covered_by": "CHK-002; CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:dynamic-finding-system-execution-plan.md"
-    },
-    {
-      "feature": "Register the triage check declaratively for exactly the five REVIEW roles while keeping prompt text and requiredCheckIds non-evidentiary and outside lifecycle gate authority.",
+      "feature": "Register REVIEW-only declarative triage metadata without turning prompt text or requiredCheckIds into lifecycle evidence.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+      "source": "understanding.json facts/constraints; plan.md CHK-003; checklist CHK-003"
     },
     {
-      "feature": "Implement Dynamic Finding schemas, commands, persistence, applicability assessments, shared blocking predicates, runtime receipts, supersession, or historical migration in this Story.",
+      "feature": "Retain genuine RED-to-GREEN, semantic-mutation, English/open-source, baseline, process/runtime-fact, build, and verify_codex verification.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md CHK-004; checklist CHK-004; B-9a49:F-021"
+    },
+    {
+      "feature": "Repair F-020 by reconciling truthful existing producer-to-consumer topology edges with verifier-owned basis paths, without weakening structural validation.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "B-9a49:F-020; packages/main/src/core/acceptance-coverage-basis.ts:141-166,482-558; packages/main/src/core/acceptance-topology.ts:430-537"
+    },
+    {
+      "feature": "Do not fabricate plannedPathDeclarations for already-existing process-fact paths merely to make acceptance coverage green.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "The signed B-9a49 understanding and decision preserve Dynamic Finding runtime authority unchanged, and CHK-003 explicitly limits this Story to declarative Agent/System-boundary work.",
-      "source": "decisions:dynamic-finding-system-execution-plan.md"
+      "excluded_by": "The authoritative acceptance-topology plan reserves planned declarations for frozen genuinely new paths bound to declared checklist files; existing verifier-discovered paths must reconcile truthfully.",
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:363-400,770-818"
     },
     {
-      "feature": "Invalidate stale reviewer Prompt Envelopes after selected-body or host-render digest changes and require a fresh review_run_start plus redispatch.",
-      "covered_by": "CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:role-prompt-modularization-and-budget-execution-plan.md"
-    },
-    {
-      "feature": "Keep all newly added public and Agent-facing triage slices English-only without requiring unrelated pre-existing documentation to be translated.",
-      "covered_by": "CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Use genuine RED then GREEN and verify prompt delivery, semantic isolation, digest baselines, process/runtime fact boundaries, build output, and Codex adapter compatibility.",
-      "covered_by": "CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:proof-or-stop-agent-prompt-consolidation-execution-plan.md"
-    },
-    {
-      "feature": "Classify the same five pinned must intents as executable logic so their unchanged command and selector definitions can mint mechanical receipts, without changing requirement descriptions, priorities, verification definitions, checklist scope, or source-file scope.",
-      "covered_by": "CHK-002; CHK-003; CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Keep the replan metadata-only: do not change checklist scope, implementation files, test-file scope, or protected Dynamic Finding runtime paths.",
-      "covered_by": "CHK-003; CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
+      "feature": "Do not expand into Dynamic Finding handlers, advisory gate predicates, process-fact registries, schemas, freshness, supersession, or applicability authority.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The current understanding and enforce-mode scope contract explicitly protect advisory.ts, process-fact-registry.ts, process-fact-levels.ts, and packages/main/src/handlers; the current diff contains no protected-path hunks.",
+      "source": "understanding.json constraints; scope_contract_show; dynamic-finding-system-execution-plan.md"
     }
   ],
   "readManifest": {
     "filesReadFully": [
-      "AGENTS.md",
-      "CLAUDE.md",
-      "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
-      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
-      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ".lattice/story/actives/B-9a49/background.md",
+      ".lattice/story/actives/B-9a49/checklist.json",
+      ".lattice/story/actives/B-9a49/decision.json",
+      ".lattice/story/actives/B-9a49/plan.md",
+      ".lattice/story/actives/B-9a49/understanding.json",
+      "packages/main/src/core/acceptance-coverage-basis.ts",
+      "packages/main/src/core/acceptance-topology.ts",
+      "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
     ],
     "filesTriagedByName": [
-      "docs/requirements/decisions/annotation-system.md",
-      "docs/requirements/decisions/authority-client-role.md",
-      "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
-      "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
-      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
-      "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
-      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
-      "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
-      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
-      "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
-      "docs/requirements/decisions/brand-rename-mapping.md",
-      "docs/requirements/decisions/cc-learnings.md",
-      "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
-      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
-      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
-      "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
-      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
-      "docs/requirements/decisions/closeout-convergence-and-burn-alert-root-cause.md",
-      "docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md",
-      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
-      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
-      "docs/requirements/decisions/dev-memory.md",
-      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
-      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
-      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
-      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
-      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
-      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
-      "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
-      "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
-      "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
-      "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
-      "docs/requirements/decisions/framework.md",
-      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
-      "docs/requirements/decisions/host-neutral-observability-console.md",
-      "docs/requirements/decisions/host-overflow.md",
-      "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
-      "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
-      "docs/requirements/decisions/lattice-authority-live-integration.md",
-      "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
-      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
-      "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
-      "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
-      "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
-      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
-      "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
-      "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
-      "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
-      "docs/requirements/decisions/lattice-experiment-protocol.md",
-      "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
-      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
-      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
-      "docs/requirements/decisions/lattice-parallel-wave.md",
-      "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
-      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
-      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
-      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
-      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
-      "docs/requirements/decisions/lifecycle-artifact-scope.md",
-      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
-      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
-      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
-      "docs/requirements/decisions/milestone-not-applicable-justification.md",
-      "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
-      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
-      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
-      "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
-      "docs/requirements/decisions/multi-model-ablation-replication.md",
-      "docs/requirements/decisions/orchestrate-retirement.md",
-      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
-      "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
-      "docs/requirements/decisions/plan-init-reopen.md",
-      "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
-      "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
-      "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
-      "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
-      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
-      "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
-      "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
-      "docs/requirements/decisions/project-vision.md",
-      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
-      "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
-      "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
-      "docs/requirements/decisions/proof-or-stop-identity-migration.md",
-      "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
-      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
-      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
       "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
-      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
-      "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
-      "docs/requirements/decisions/red-evidence-subsystem-spec.md",
-      "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
-      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
-      "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
-      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
-      "docs/requirements/decisions/review-run-binding-race.md",
-      "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
-      "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
-      "docs/requirements/decisions/role-separation.md",
-      "docs/requirements/decisions/root-document-migration-guide.md",
-      "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
-      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
-      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
-      "docs/requirements/decisions/session-ownership-and-write-leases.md",
-      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
-      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
-      "docs/requirements/decisions/stack-layering.md",
-      "docs/requirements/decisions/stash-split-execution-plan.md",
-      "docs/requirements/decisions/story-files-hash-material-drift.md",
-      "docs/requirements/decisions/story-lifecycle.md",
-      "docs/requirements/decisions/test-fixture-spec.md",
-      "docs/requirements/decisions/test-intent-review.md",
-      "docs/requirements/decisions/test-runner-consolidation-plan.md",
-      "docs/requirements/decisions/testing-completeness.md",
-      "docs/requirements/decisions/testing-infra.md",
-      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
-      "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
-      "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
-      "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
-      "docs/requirements/decisions/truth-source.md",
-      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
-      "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
-      "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
-      "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
-      "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
-      "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md",
-      "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
-      "docs/requirements/decisions/validation-evidence-artifact-growth.md",
-      "docs/requirements/decisions/verification-context-pack.md",
-      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
     ],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 20,
-    "covered": 19,
-    "excluded": 1,
-    "gaps": 0,
+    "total": 7,
+    "covered": 4,
+    "excluded": 2,
+    "gaps": 1,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-08-31T21:25:00.925Z",
-  "_hash": "db975d15339470ca2ca201356ce38c5d229fabec1d2007772b2915f723f63e90",
-  "openQuestions": []
+  "reviewRound": "2026-08-31T23:13:35.921Z",
+  "_hash": "886adc78fc089e70b5fce514eaae4352288a152b3e27e22566e6c113078fae7d",
+  "openQuestions": [
+    {
+      "id": "SQ-F020-CANONICAL-PATH-OWNER",
+      "q": "Should the F-020 extension authorize packages/main/src/core/acceptance-coverage-basis.ts (and its focused basis smoke) as the production owner of canonical edge reconciliation, and remove acceptance-topology.ts unless a separately demonstrated validator change is required?",
+      "evidence": "The mismatch-producing sourceRefValue/topologyPaths and the AT_TOPOLOGY_OUTSIDE_BASIS reverse check are local to acceptance-coverage-basis.ts. acceptance-topology.ts validates required graph shape and intent mappings; no current source diff demonstrates that changing it can normalize verifier-owned basis paths without weakening the contract.",
+      "sourcePointers": [
+        "packages/main/src/core/acceptance-coverage-basis.ts:141",
+        "packages/main/src/core/acceptance-coverage-basis.ts:152",
+        "packages/main/src/core/acceptance-coverage-basis.ts:482",
+        "packages/main/src/core/acceptance-coverage-basis.ts:554",
+        "packages/main/src/core/acceptance-topology.ts:445",
+        "packages/main/src/core/acceptance-topology.ts:518",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:363"
+      ]
+    }
+  ]
 }
