@@ -24220,6 +24220,53 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-447",
+      "desc": "packages/main/src/handlers/story-aware-validation.ts:574,616,627,647-655 and packages/main/src/tasks/story-aware-validation-case-adapter.mjs:15-23,62 and story-aware-validation-domain-case-runner.mjs:35 introduce an entirely NEW 9-variable env-var family (LATTICE_VALIDATION_SHARD_ID/DOMAIN/SENTINEL/CASE_IDS/CASE_REGISTRY/CASE_REGISTRY_DIGEST/ADAPTER_DIGEST/DIR, LATTICE_VALIDATION_PROJECT_ROOT, LATTICE_VALIDATION_SHARD_ADAPTER, LATTICE_VALIDATION_CASE_TIMEOUT_MS) authored fresh under the deprecated LATTICE_ prefix with zero PROOF_OR_STOP_ canonical form anywhere. docs/requirements/decisions/brand-rename-mapping.md ruling for the LATTICE_* prefix is RENAMED (additive): PROOF_OR_STOP_ is canonical for anything new, LATTICE_ is only a read-fallback for pre-existing vars via core/brand-env.ts. These vars never existed before this story so there is no legacy-compat need being served; authoring them under the deprecated prefix directly grows the exact residue count (56 distinct vars, per that doc) the rename was meant to shrink, is inconsistent across all 3 producer/consumer sites, and is unprotected by any brand-residue preflight (LATTICE_* env names are explicitly FROZEN-exempt from the lattice-residue [koala]/[brand-prose] checks, so this slipped through undetected). Fix: rename the whole family to PROOF_OR_STOP_VALIDATION_SHARD_* / PROOF_OR_STOP_VALIDATION_* before these become load-bearing external contract surface.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T05:04:47.819Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1097",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/quorum-submit-shards.ts",
+          "packages/main/src/tasks/review-pass-shards.ts",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "fbdb9d0c5c6a635871a9d4fd50ac8f45359b15c8652040d54bd1e961c2775067"
+      },
+      "readDiagnostics": [],
+      "_hash": "10b145ecb7c0ce5aea3ed2b1985ba82dd43e1adc8b711f78c19ce2eb604accfa",
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }

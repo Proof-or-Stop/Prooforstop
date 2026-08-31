@@ -10516,7 +10516,7 @@
       "reviewRound": "2026-08-31T02:29:23.056Z",
       "state": "OPEN",
       "begunAt": "2026-08-31T04:46:23.384Z",
-      "updatedAt": "2026-08-31T04:46:23.384Z",
+      "updatedAt": "2026-08-31T05:00:17.895Z",
       "cutoff": {
         "headHash": "eebc412c2bb0a550b45370886bd293867e6d0453",
         "materialHash": "7369d073fe106294376f8e649d813f135f8c9d443def3aa1c5f00ab7d395c49d",
@@ -10531,9 +10531,69 @@
       ],
       "initialRunSequenceBoundary": 1090,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-31T04:46:23.384Z",
+          "completedAt": "2026-08-31T05:00:17.895Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-1091",
+              "terminal": "finding",
+              "hostIdentity": "a85e8ba074318fe105f1d28157f6694b8e13c920ea9460d1ed994bce30a9fefd",
+              "promptIdentity": "fed65e264ea954b8bc9f57c49bac31c05231235c4d838ee9827c760db33e5580",
+              "evidenceIds": [
+                "B-45a0:F-446"
+              ],
+              "coverageDigest": "ef792f979d4526e19a687bbb5ca2f64d676fb9aa2996576f2af675b428677fa9"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-1092",
+              "terminal": "pass",
+              "hostIdentity": "a85e8ba074318fe105f1d28157f6694b8e13c920ea9460d1ed994bce30a9fefd",
+              "promptIdentity": "b3e33bafc89ee081be7f1ffd8f4146816cca8f90c4a65fce764cb75d8724d4e7",
+              "evidenceIds": [
+                "B-45a0:RP-486"
+              ],
+              "coverageDigest": "74d7e72a154464e13ad34b4739afbc271cff5081d2f1220b5a031079e4f8abec"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-1093",
+              "terminal": "pass",
+              "hostIdentity": "a85e8ba074318fe105f1d28157f6694b8e13c920ea9460d1ed994bce30a9fefd",
+              "promptIdentity": "10617500018d0216dd4cda92afd81eeacf854ae9231bb6cba8c40703e84eb8f1",
+              "evidenceIds": [
+                "B-45a0:RP-485"
+              ],
+              "coverageDigest": "587dfc02f256d8ca296f2dbfd48b33f8897d3512c69fcc19e42f2ef0212d8c06"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-1094",
+              "terminal": "pass",
+              "hostIdentity": "a85e8ba074318fe105f1d28157f6694b8e13c920ea9460d1ed994bce30a9fefd",
+              "promptIdentity": "9d7f22477a361f6b99b49088079380b67a0f65b08482234fcf71c2eca4b5157a",
+              "evidenceIds": [
+                "B-45a0:RP-484"
+              ],
+              "coverageDigest": "5c8778c52272ddc0687765663f83241c35ee5c17a42a0c670c44f3255d2fb021"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "story-aware-validation-config-source-comment-residue"
+          ],
+          "verifiedFindingSetDigest": "ac850b741f46c0264a36e3593cd675ac435d4c796f242e4cff00d58d48c44a16",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "e351f1c5b59a9b964cf2d9a9656bd2fe4b362acc0fde7f763d190a8c9bba1001",
+          "saturated": false,
+          "nextRunSequenceBoundary": 1095
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "42468b493abee539b985ab399067aa58e38b563e9f99264b70c622a3e39946e7"
+      "_hash": "9528cc04b0220cd088d77f5e82ce7253c17d9052bc11a8187558fe0eac6c07b0"
     }
   ],
   "receipts": [
@@ -16921,6 +16981,37 @@
       ],
       "createdAt": "2026-08-31T03:35:08.456Z",
       "_hash": "c9b816f9c17596ab4374dacd9f1944791edfe543c68e47ea3833e257342367e6"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-108:CRIT-01",
+      "epochId": "B-45a0:RI-108",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "eebc412c2bb0a550b45370886bd293867e6d0453",
+        "materialHash": "7369d073fe106294376f8e649d813f135f8c9d443def3aa1c5f00ab7d395c49d",
+        "storyFilesHash": "3f024d55e8753d7202c4c8b8e203709c9ac271222846672777f0ca737bb09abf"
+      },
+      "aggregateFindingSetDigest": "ac850b741f46c0264a36e3593cd675ac435d4c796f242e4cff00d58d48c44a16",
+      "requiredLaneCoverageDigest": "84a24c9cef3906aa6bb601a07712f544e273b7f12bb27998afd874e2332806cf",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-1095",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-487"
+      ],
+      "readEvidenceDigest": "f020428342bca6b2732d317c9ae90b1f453252527e406dc7c8468b7bb9a30908",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-446",
+          "disposition": "verified_family",
+          "familyKey": "story-aware-validation-config-source-comment-residue",
+          "reason": "Independently re-derived RI-108 wave 1 rawFindings scope from review-inventory-epoch.ts:373-395: waves.length===0 so both the required-lanes iteration and the baseline carry-forward are evaluated, but baselineFindingIds=[] means the carry-forward contributes nothing. Only F-446 (reviewRunId B-45a0:RR-1091) matches this waves candidate filter (reviewRound/materialHash/storyFilesHash equal to epoch cutoff 7369d073.../3f024d55..., startedAt 2026-08-31T04:50:33Z after begunAt 2026-08-31T04:46:23Z). F-441 and F-444 are administratively status=open in the tracker but bound to earlier reviewRunIds (RR-1082/RR-1087) outside this waves candidate window (different reviewRound/materialHash), so they are not raw findings of this wave regardless of tracker status -- there is no in-wave sibling for F-446 to duplicate or fold into. Independently verified F-446s underlying claim: story-aware-validation.ts:329-335 contains a stale F-441-era comment (No config file at all reports the canonical name) directly contradicted by the adjacent F-444 fix/comment three lines below (no-config now reports DEPRECATED_CONFIG_FILENAME); this is genuine self-contradictory comment residue newly introduced by commit 8d605caeba which is under review this round, correctly low severity (no runtime behavior impact), and evidenceState=verified. Classifying as a new verified family for this epoch/wave, not a duplicate of any existing family."
+        }
+      ],
+      "createdAt": "2026-08-31T04:59:59.734Z",
+      "_hash": "0fd97d960390267c5f5f32e5320d75e58ae2804d6c05b24117ea01b9b209d358"
     }
   ]
 }
