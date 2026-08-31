@@ -18,7 +18,7 @@ export CELL06_ACCOUNT_A_AUTH_BUNDLE=/absolute/path/to/account-a-auth
 export CELL06_ACCOUNT_B_AUTH_BUNDLE=/absolute/path/to/account-b-auth
 ```
 
-Do not point these variables at home directories, this repository, `.lattice`, `lattice-Paper`, Cell03/future-results material, or any non-temp-root path. Unsafe auth sources are recorded as `blocked_auth_bundle` and are never mounted. Without a bundle, the probe records `pending_auth` for that account instead of pretending success.
+Do not point these variables at home directories, this repository, `.proof-or-stop`, `proof-or-stop-Paper`, Cell03/future-results material, or any non-temp-root path. Unsafe auth sources are recorded as `blocked_auth_bundle` and are never mounted. Without a bundle, the probe records `pending_auth` for that account instead of pretending success.
 
 ## Run
 

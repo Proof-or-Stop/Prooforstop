@@ -4,10 +4,10 @@
 // server response body — so we see WHY the server returns 401 (the CLI swallows it).
 import { readFileSync } from 'node:fs';
 import { createHash, randomBytes } from 'node:crypto';
-import { signLatticeAuthorityEnvelope, derivePublicKeyHexFromPrivateKey } from '../../packages/main/dist/core/lattice-authority-native.js';
+import { signProofOrStopAuthorityEnvelope, derivePublicKeyHexFromPrivateKey } from '../../packages/main/dist/core/proof-or-stop-authority-native.js';
 
 const env = process.env;
-const E = (s) => env['LATTICE_AUTHORITY_' + s];
+const E = (s) => env['PROOF_OR_STOP_AUTHORITY_' + s];
 const baseURL = (E('LIVE_URL') || E('URL')).replace(/\/$/, '');
 const actorId = E('ACTOR_ID');
 const role = E('ACTOR_ROLE') || 'runner';
@@ -21,16 +21,16 @@ const sessionId = `probe-${Date.now()}`;
 const storyId = process.argv[2] || 'B-f908';
 const mode = 'authority', until = 'DONE';
 
-const promptRef = `lattice://authority/live-runner/${storyId}/${mode}/${until}`;
+const promptRef = `proof-or-stop://authority/live-runner/${storyId}/${mode}/${until}`;
 const jobRole = provider === 'gemini' ? 'explorer' : 'implementer';
 const idempotencyKey = createHash('sha256').update(
-  ['lattice-delegated-job-create-v3', projectId, storyId, provider, mode, until, promptRef, jobRole].join('\0'), 'utf8'
+  ['proof-or-stop-delegated-job-create-v3', projectId, storyId, provider, mode, until, promptRef, jobRole].join('\0'), 'utf8'
 ).digest('hex');
 const request = { projectId, storyId, provider, role: jobRole, promptRef, idempotencyKey,
   metadata: { runnerId, sessionId, mode, until, promptRef } };
 const ts = new Date().toISOString().replace(/\.(\d{3})Z$/, '.$1000Z');
 const envelope = { actorId, role, nonce: `${runnerId}:delegated-job-create:${Date.now()}:${randomBytes(6).toString('hex')}`, timestamp: ts, request };
-const { signed, digest } = signLatticeAuthorityEnvelope(envelope, actorPrivateKey, keyEnc);
+const { signed, digest } = signProofOrStopAuthorityEnvelope(envelope, actorPrivateKey, keyEnc);
 console.log('client canonical digest (signed over):', digest);
 console.log('signed envelope keys:', Object.keys(signed).join(','), '| request keys:', Object.keys(request).join(','));
 
@@ -43,7 +43,7 @@ console.log(`STEP1 POST ${baseURL}/v1/actors/${actorId}/keys  (keyId=${actorKeyI
 const reg = await fetch(`${baseURL}/v1/actors/${encodeURIComponent(actorId)}/keys`, {
   method: 'POST', headers: hdr,
   body: JSON.stringify({ role, publicKeyHex, keyId: actorKeyId, status: 'active', runnerId,
-    capabilities: { source: 'lattice-cli', providerExecution: 'tier-c-probe', runnerProvider: provider } }),
+    capabilities: { source: 'proof-or-stop-cli', providerExecution: 'tier-c-probe', runnerProvider: provider } }),
 });
 const regText = await reg.text();
 console.log(`  register -> HTTP ${reg.status}: ${regText.slice(0,300)}`);

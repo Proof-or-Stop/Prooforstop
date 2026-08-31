@@ -40,7 +40,7 @@ named in the one-line error).
 | `storeRoot` | non-empty ABSOLUTE path string | The RESOLVED learning-store root the run's lifecycle writes went to (section 12 isolation assertion; see Voiding below). Relative paths are rejected (cwd-dependent). |
 | `timeToDoneMs` | number \| null | Wall-clock ms from task intake to DONE or terminal stop; `null` when never reached. EITHER this field OR both `startedAt`/`endedAt` must be present. |
 | `startedAt` / `endedAt` | ISO 8601 strings | Alternative to `timeToDoneMs`; the scorer derives `endedAt - startedAt`. `endedAt` before `startedAt` is rejected. The scorer never reads a clock — timestamps only come from these inputs. |
-| `commandCount` | non-negative integer | Number of `lattice` CLI + verification commands issued during the run. |
+| `commandCount` | non-negative integer | Number of `proof-or-stop` CLI + verification commands issued during the run. |
 | `doneReached` | boolean | Whether the run reached DONE (or the task's terminal completion state). |
 | `validationPass` | boolean | Final validation outcome of the run (section 6.1 disjunct (a): `false` alone makes `defectPresent` true). |
 
@@ -112,7 +112,7 @@ claim:
 
 Every score record asserts store isolation: if the normalized `storeRoot`
 equals — or lies inside — the shared production learning root
-(`<repoRoot>/.lattice/learning`; default derived from the scorer's own
+(`<repoRoot>/.proof-or-stop/learning`; default derived from the scorer's own
 location, overridable via `--productionLearningRoot=<dir>` or the
 `productionLearningRoot` option of `scoreArmRun`), the record is emitted with
 `voided: true` and a `voidReason` naming the store-isolation breach. Voided

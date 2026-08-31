@@ -333,7 +333,9 @@ async function main() {
       process.exit(1);
     }
     await mod.runCli();
-    process.exit(0);
+    // Preserve a structured CLI failure. Unconditionally exiting 0 here hid
+    // verify_codex/validate failures from every generated project bootstrap.
+    process.exit(process.exitCode ?? 0);
   }
 
   // Selection is by CAPABILITY, not merely by exit status: a core-only install exits 0

@@ -1,5 +1,6 @@
 import {
   type ActiveStoryForOwnershipGate,
+  type ExternalCommandOwnershipClasses,
   resolveEffectiveOwnershipClass,
   storyIdFromArgs,
 } from './ownership-gate.js';
@@ -15,11 +16,12 @@ export function enforceReviewerReadOnlyCommandGate(
   cmd: string,
   args: Record<string, unknown>,
   activeStory: ActiveStoryForOwnershipGate | null,
+  externalOwnershipClasses?: ExternalCommandOwnershipClasses,
 ): void {
   if (!isReviewerReadOnlyModeEnabled()) return;
 
   const storyId = storyIdFromArgs(args, activeStory);
-  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId);
+  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId, externalOwnershipClasses);
 
   if (cls === 'readOnly') return;
 

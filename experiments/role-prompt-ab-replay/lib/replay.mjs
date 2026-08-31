@@ -41,34 +41,34 @@ export const STORY5_ROLE_CAMPAIGN = Object.freeze({
   },
   roles: [
     {
-      roleId: 'lattice-review-behavior',
-      artifactPath: 'packages/main/templates/agents/lattice-review-behavior.md',
-      legacy: { bytes: 14269, sha256: 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2' },
-      modular: { bytes: 9296, sha256: 'd485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4' },
+      roleId: 'proof-or-stop-review-behavior',
+      artifactPath: 'packages/main/templates/agents/proof-or-stop-review-behavior.md',
+      legacy: { bytes: 14505, sha256: 'bbb6815ba8131f9fa7b25fd2fa82a9d91890dc56f1c5e43b814cba8b55e4e582' },
+      modular: { bytes: 9434, sha256: '36a32b748fa951a7dff68136d5ee5cca2cf33ae5c0d607f1881ad49a527bc294' },
     },
     {
-      roleId: 'lattice-review-concept',
-      artifactPath: 'packages/main/templates/agents/lattice-review-concept.md',
-      legacy: { bytes: 9594, sha256: 'cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a' },
-      modular: { bytes: 4621, sha256: '8448a26c4189ac1bb84b93f8e8f875869886816269b41da118dcde7d1c000e95' },
+      roleId: 'proof-or-stop-review-concept',
+      artifactPath: 'packages/main/templates/agents/proof-or-stop-review-concept.md',
+      legacy: { bytes: 10279, sha256: '960bf0df46737570bbf55ebaefa3776272fe25b302f76bbde5c57e289a5db70c' },
+      modular: { bytes: 5208, sha256: 'cd849d08a65c9fcd3fa1317f46e4b03b9bad67fd3fed33df33d6a8195122953f' },
     },
     {
-      roleId: 'lattice-review-docs',
-      artifactPath: 'packages/main/templates/agents/lattice-review-docs.md',
-      legacy: { bytes: 12100, sha256: '9f86f7a379b27783887c17ee579201f6abfc9812d0e7c5689f98b26a02290f59' },
-      modular: { bytes: 7127, sha256: 'da2c9653cb15766a5937a417eb8b4c86e293485cb5e622dd08b144b5d0ac4681' },
+      roleId: 'proof-or-stop-review-docs',
+      artifactPath: 'packages/main/templates/agents/proof-or-stop-review-docs.md',
+      legacy: { bytes: 12749, sha256: 'e26caaf232929404a9ddd6e772e743ef87d5d67fdaedcde75123e6ed58f027c5' },
+      modular: { bytes: 7678, sha256: 'e4d2d75c54925ca398c8a9278e2ebe21298f623b8111a53abc3767ef9c7f7f8c' },
     },
     {
-      roleId: 'lattice-review-quality',
-      artifactPath: 'packages/main/templates/agents/lattice-review-quality.md',
-      legacy: { bytes: 10104, sha256: 'f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280' },
-      modular: { bytes: 5131, sha256: '2ddcabec412f69ce951b4c779013e0350bf70c184bb6c5cc6935a5f01c17eaee' },
+      roleId: 'proof-or-stop-review-quality',
+      artifactPath: 'packages/main/templates/agents/proof-or-stop-review-quality.md',
+      legacy: { bytes: 10730, sha256: 'f8122f08bef477636732a450148dd567bf835c22636c842881a9162d1265b031' },
+      modular: { bytes: 5659, sha256: '5ceef86e65ecbf577a2f1f647654d480644b091f7b470023980d4588726f89d3' },
     },
     {
-      roleId: 'lattice-review-test-coverage',
-      artifactPath: 'packages/main/templates/agents/lattice-review-test-coverage.md',
-      legacy: { bytes: 4403, sha256: '145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0' },
-      modular: { bytes: 2386, sha256: 'd0b67884622aaf5c99959639328709005223df5686e2f0efce32303321a47f31' },
+      roleId: 'proof-or-stop-review-test-coverage',
+      artifactPath: 'packages/main/templates/agents/proof-or-stop-review-test-coverage.md',
+      legacy: { bytes: 4937, sha256: '1d3e1705db33a4c801cc516f242bca3b2665dd94d8157801beaa2e07b208310a' },
+      modular: { bytes: 2914, sha256: 'bc152cd5c25683a804c87ef167e97287ebe990ec01c00d5915e9f8e525868a1b' },
     },
   ],
   arms: [
@@ -110,7 +110,7 @@ export const STORY5_ROLE_CAMPAIGN = Object.freeze({
     codex: unavailableProviderDimensions('codex'),
   },
 });
-export const STORY5_ROLE_CAMPAIGN_DIGEST = '0572a6c2a740fbb4e9eca2c516a3ae1c832ddd775f0b40c50b373ca99f00b57b';
+export const STORY5_ROLE_CAMPAIGN_DIGEST = '499e002a73d242449244a687acfc40954649057e64882abfde15f566bf86150e';
 
 export class ReplayContractError extends Error {
   constructor(code, message) {
@@ -191,11 +191,11 @@ export function evaluateStory5RoleCampaign(campaign, protocol, corpus, roleBodie
     throw new ReplayContractError('STORY3_CORPUS_DRIFT', 'B-235e must reuse the exact frozen Story 3 protocol/corpus');
   }
   const expectedRoles = [
-    'lattice-review-behavior',
-    'lattice-review-concept',
-    'lattice-review-docs',
-    'lattice-review-quality',
-    'lattice-review-test-coverage',
+    'proof-or-stop-review-behavior',
+    'proof-or-stop-review-concept',
+    'proof-or-stop-review-docs',
+    'proof-or-stop-review-quality',
+    'proof-or-stop-review-test-coverage',
   ];
   if (!Array.isArray(campaign.roles)
       || canonicalJson(campaign.roles.map(role => role.roleId)) !== canonicalJson(expectedRoles)

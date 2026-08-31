@@ -53,7 +53,7 @@ export function verifyDir(dir) {
   let out;
   try {
     out = execFileSync(
-      'lattice',
+      'proof-or-stop',
       ['memory_playbook_baseline_verify', `--inputDir=${dir}`, '--json'],
       { encoding: 'utf8', maxBuffer: 1 << 26 },
     );

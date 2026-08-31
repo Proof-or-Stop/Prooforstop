@@ -37,7 +37,7 @@
 - [Global Lifecycle Control Plane Execution Plan](decisions/global-lifecycle-control-plane-execution-plan.md)
 - [Proof-or-Stop Host-Neutral Observability Console (CLI-backed read-only)](decisions/host-neutral-observability-console.md)
 - [Proof-or-Stop Host Overflow](decisions/host-overflow.md)
-- [Legacy-to-Lattice Role Naming Execution Plan](decisions/legacy-to-lattice-role-naming-execution-plan.md)
+- [Legacy-to-Proof-or-Stop Role Naming Execution Plan](decisions/legacy-to-lattice-role-naming-execution-plan.md)
 - [Proof-or-Stop Authority Customer API Key Access](decisions/lattice-authority-customer-api-key-access.md)
 - [Proof-or-Stop Authority Unattended Development Requirements](decisions/lattice-authority-live-integration.md)
 - [Proof-or-Stop Authority M1-M16 Generated Proof And Live E2E Plan](decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md)

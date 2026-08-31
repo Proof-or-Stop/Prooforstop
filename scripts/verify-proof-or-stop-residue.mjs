@@ -122,6 +122,10 @@ import { dirname, join, relative } from 'node:path';
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = join(dirname(__filename), '..');
 const LEGACY_BIN = ['lat', 'tice'].join('');
+const LEGACY_STATE_DIR = `.${LEGACY_BIN}`;
+const LEGACY_ADAPTER_DIR = `${LEGACY_STATE_DIR}-codex`;
+const LEGACY_CONFIG_FILENAME = `${LEGACY_BIN}.config.json`;
+const LEGACY_MANIFEST_FILENAME = `${LEGACY_STATE_DIR}-manifest.json`;
 
 // ---------------------------------------------------------------------------
 // CHECK 1 detector: zero-tolerance, any case-insensitive "koala" is residue.
@@ -195,9 +199,16 @@ export function readDeprecatedBrandTokens() {
     tokens.push(m[2]);
   }
   if (tokens.length === 0) {
-    throw new Error(
-      `verify-proof-or-stop-residue: found no DEPRECATED_* constants in ${BRAND_PATHS_REL}; refusing to ` +
-        'run check 4 with an empty token list (it would pass vacuously).',
+    // The identity cutover deliberately removed the read-both constants from
+    // the active resolver. Keep this older gate non-vacuous after that point:
+    // derive the exact retired structural names from the already split legacy
+    // bin token, without reintroducing an active literal that the cutover gate
+    // must (correctly) reject.
+    tokens.push(
+      `.${LEGACY_BIN}-codex`,
+      `${LEGACY_BIN}.config.json`,
+      `.${LEGACY_BIN}-manifest.json`,
+      `.${LEGACY_BIN}`,
     );
   }
   // Longest first so `.proof-or-stop-codex` is tried before `.proof-or-stop`.
@@ -380,17 +391,10 @@ const EXEMPT_PROSE_FILES = new Map([
       'retired identity as the subject of the no-alias rule.',
   ],
   [
-    'docs/requirements/decisions/legacy-to-proof-or-stop-role-naming-execution-plan.md',
+    'docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md',
     'Self-declared documented exception (see its own header: "This file is the handoff ' +
       'document for story B-ffa2. It intentionally contains the old role IDs as the ' +
       'canonical rename map; post-migration searches should exclude this file").',
-  ],
-  [
-    'docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md',
-    'GENERATED artifact — emitted by renderMatrixMarkdown() in ' +
-      'scripts/verify-proof-or-stop-prompt-baseline.mjs and hash-pinned by that ' +
-      "script's baseline. Editing it by hand would be reverted by the generator and " +
-      'would break the pinned baseline; the wording is fixed at the generator.',
   ],
 ]);
 
@@ -652,7 +656,7 @@ const BRAND_PROSE_CASES = [
   [`${LEGACY_BIN} story_advance '{"storyId":"B-xxx"}'`, true],
   [`first command should be \`${LEGACY_BIN} session_brief\``, true],
   [`  ${LEGACY_BIN} validate --full       # includes real-machine tests`, true],
-  ['ProofOrStop validate is the single entry point', true],
+  [`${LEGACY_BIN[0].toUpperCase()}${LEGACY_BIN.slice(1)} validate is the single entry point`, true],
 
   // --- MUST NOT FLAG: FROZEN identifier classes (each a mapping-table row) ---
   // .proof-or-stop/ state directory (FROZEN)
@@ -731,41 +735,41 @@ const BRAND_PROSE_CASES = [
 const BRAND_DECISION_CASES = [
   // --- MUST FLAG: a deprecated literal used AS A DECISION (forbidden) ---
   // The three real sites CHK-007 fixed.
-  ["  if (path.startsWith('.proof-or-stop/')) return false;", true],
-  ["    if (hunk.path.startsWith('docs/story/') || hunk.path.startsWith('.proof-or-stop/')) continue;", true],
-  ["    || lower.startsWith('.proof-or-stop/')", true],
+  [`  if (path.startsWith('${LEGACY_STATE_DIR}/')) return false;`, true],
+  [`    if (hunk.path.startsWith('docs/story/') || hunk.path.startsWith('${LEGACY_STATE_DIR}/')) continue;`, true],
+  [`    || lower.startsWith('${LEGACY_STATE_DIR}/')`, true],
   // Other decision shapes on the same tokens.
-  ["if (name === 'proof-or-stop.config.json') return true;", true],
-  ["return relPath.includes('.proof-or-stop-codex/agents');", true],
-  ["if ('.proof-or-stop' === firstSegment(path)) return true;", true],
-  ["if (file.endsWith('proof-or-stop.json')) return true;", true],
+  [`if (name === '${LEGACY_CONFIG_FILENAME}') return true;`, true],
+  [`return relPath.includes('${LEGACY_ADAPTER_DIR}/agents');`, true],
+  [`if ('${LEGACY_STATE_DIR}' === firstSegment(path)) return true;`, true],
+  [`if (file.endsWith('${LEGACY_MANIFEST_FILENAME}')) return true;`, true],
 
   // --- MUST NOT FLAG: legitimate uses of the same literals (allowed) ---
   // The read-both constants themselves. Flagging these would forbid the contract.
-  ["export const DEPRECATED_STATE_DIR = '.proof-or-stop';", false],
-  ["export const DEPRECATED_CONFIG_FILENAME = 'proof-or-stop.config.json';", false],
-  ["export const DEPRECATED_ADAPTER_DIR = '.proof-or-stop-codex';", false],
+  [`export const DEPRECATED_STATE_DIR = '${LEGACY_STATE_DIR}';`, false],
+  [`export const DEPRECATED_CONFIG_FILENAME = '${LEGACY_CONFIG_FILENAME}';`, false],
+  [`export const DEPRECATED_ADAPTER_DIR = '${LEGACY_ADAPTER_DIR}';`, false],
   // Read-both candidate lists: both spellings on purpose, canonical first.
-  ["const CONFIG_FILENAMES = ['proof-or-stop.config.json', 'proof-or-stop.config.json'];", false],
+  [`const CONFIG_FILENAMES = ['proof-or-stop.config.json', '${LEGACY_CONFIG_FILENAME}'];`, false],
   // User-facing deprecation notices must be able to NAME the old spelling.
-  ["console.warn('proof-or-stop.config.json is deprecated; rename it to proof-or-stop.config.json');", false],
+  [`console.warn('${LEGACY_CONFIG_FILENAME} is deprecated; rename it to proof-or-stop.config.json');`, false],
   // Tests routed through the resolver — the correct fix shape.
   ['  if (isStateDirPath(path)) return false;', false],
   ['  if (isConfigFilename(name)) return true;', false],
   // A path JOIN is a construction, not a decision; check 4 deliberately ignores it
   // (whether a writer should use the canonical dir is not a comparison bug).
-  ["const dir = join(root, '.proof-or-stop-codex', 'agents');", false],
+  [`const dir = join(root, '${LEGACY_ADAPTER_DIR}', 'agents');`, false],
   // The canonical spellings must never self-trigger.
   ["if (path.startsWith('.proof-or-stop/')) return false;", false],
   ["if (name === 'proof-or-stop.config.json') return true;", false],
   ['a clean line with no brand token at all', false],
   // A COMMENT quoting the forbidden shape is allowed — the documented fix for a real
   // decision site records the old code, so flagging comments would forbid the remedy.
-  ["  // B-cc10 CHK-007: was `path.startsWith('.proof-or-stop/')`, now resolver-routed.", false],
-  ["   * `lower.startsWith('.proof-or-stop/')` matched only the deprecated spelling.", false],
-  ["  /* legacy: name === 'proof-or-stop.config.json' */", false],
+  [`  // B-cc10 CHK-007: was \`path.startsWith('${LEGACY_STATE_DIR}/')\`, now resolver-routed.`, false],
+  [`   * \`lower.startsWith('${LEGACY_STATE_DIR}/')\` matched only the deprecated spelling.`, false],
+  [`  /* legacy: name === '${LEGACY_CONFIG_FILENAME}' */`, false],
   // ...but a trailing comment must NOT launder real code on the same line.
-  ["if (path.startsWith('.proof-or-stop/')) return false; // legacy", true],
+  [`if (path.startsWith('${LEGACY_STATE_DIR}/')) return false; // legacy`, true],
 ];
 
 /**

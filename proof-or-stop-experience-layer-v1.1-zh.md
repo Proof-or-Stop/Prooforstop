@@ -1,9 +1,9 @@
-# Lattice Experience Layer：基于 Story 结局的可审计经验复用机制（v1.1 Implementation Draft，代码核对版）
+# Proof-or-Stop Experience Layer：基于 Story 结局的可审计经验复用机制（v1.1 Implementation Draft，代码核对版）
 
-> 版本：v1.1（在 v1.0 Implementation Draft 基础上，用真实 Lattice 代码映射 + 对抗校验 + ClawCreek 参考实现核对后修订；尚未实现验证）
-> 读者：Lattice CLI / Runtime / Story Lifecycle 开发者
+> 版本：v1.1（在 v1.0 Implementation Draft 基础上，用真实 Proof-or-Stop 代码映射 + 对抗校验 + ClawCreek 参考实现核对后修订；尚未实现验证）
+> 读者：Proof-or-Stop CLI / Runtime / Story Lifecycle 开发者
 > 性质：技术方案 / 实现规格
-> 核心原则不变：**Lattice 不让 Agent 自作聪明；Lattice 让过去发生过的、被验证过的证据，在下一次 review 时准时、可审计地出现。**
+> 核心原则不变：**Proof-or-Stop 不让 Agent 自作聪明；Proof-or-Stop 让过去发生过的、被验证过的证据，在下一次 review 时准时、可审计地出现。**
 > 一句话定位不变：**Learning suggests. Human and gate decide.**
 
 ---
@@ -14,28 +14,28 @@
 
 | # | 修订 | 原因（基于真实代码核对） |
 |---|---|---|
-| C1 | **砍掉 FTS** | v1.0 称「Lattice 已有 FTS 基础设施可复用」——**核对为假**：全仓无 SQLite/BM25/倒排索引，`story_list` 只是文件系统扫描 + enum 过滤。Level 2 召回改为「结构化字段过滤 + 复用现有 `story_list` 扫描路径」，**连派生 story-index 都先不建**（数据量没到需要索引的程度）。 |
+| C1 | **砍掉 FTS** | v1.0 称「Proof-or-Stop 已有 FTS 基础设施可复用」——**核对为假**：全仓无 SQLite/BM25/倒排索引，`story_list` 只是文件系统扫描 + enum 过滤。Level 2 召回改为「结构化字段过滤 + 复用现有 `story_list` 扫描路径」，**连派生 story-index 都先不建**（数据量没到需要索引的程度）。 |
 | C2 | **大量复用已有设施，不并建** | `dev-memory.ts`(489 行) 已是 80% 的采集层；`decision-doc-promotion.ts` 已有 propose→save→reject + digest 完整性；`activity-log.ts` 已有 JSONL appender。v1.0 在重造这三个。改为：采集**扩展 dev-memory**；playbook 晋升**克隆 decision-doc 的 digest 范式**；日志**直接用 `appendActivityLog()`**。 |
 | C3 | **堵 3 个确定性/解耦漏洞** | 见 §5.4、§7.1、§10.2：① `evidenceStrength`/`resolutionType`/`dismissReasonType` 必须 audit-only、**禁止任何 gate 读取**；② `finding-signals` 必须经 finding 子系统稳定端口 `store.readFindings` 读，**不得直接 parse `findings.json`**；③ reviewer hint 注入**不得进入 `promptHash` 域**（`reviewRunId` 签名含 promptHash，否则破坏 run 绑定可复现性）。 |
 | C4 | **改「第一个 story」** | v1.0 的 Phase 0「先注册路径 + 空骨架」**不可验证**（gate-exclusion 的 smoke 只是字符串匹配空转）。改为 **Phase 1a 垂直切片**：真正派生并写出 cache + 同 story 注册 registry 项，用「写 cache 后 `currentMaterialHash()` 不变」的**真实行为测试**证明 gate-safety。见 §17。 |
 | C5 | **back-compat 收口** | `finding_dismiss` 的 `dismissReasonType` 必须 **optional**（设为 required 会一上线就破坏所有现有调用方）；新命令一律用**扁平下划线名**（`learning_scan`/`playbook_propose`），多词形式要改 aliasMap，违背纯增量。 |
 | C6 | **模块收敛 + digest 抽取** | 模块从 v1.0 隐含的 7 个收敛为 **4 core + 2 handler**（signature 查找先并入 `learning-store`，第二个消费者出现前不独立）；Phase 2 前先把 canonical-JSON-digest 从 `decision-doc-promotion.ts` 抽成叶子 `core/digest.ts`（小重构 story），避免 handler→handler import。 |
 
-ClawCreek 参考结论（佐证方向）：ClawCreek 的 playbook 系统用 embedding 召回、LLM 生成/判定、自动 deactivate、A/B serving —— 因为它是多租户 SaaS 摊得起成本。本方案**正确地砍掉了这些**（FTS-first、无 RL、人审 staged、不自动判定），与 Lattice 的确定性/CLI-first/host-neutral 性质一致。
+ClawCreek 参考结论（佐证方向）：ClawCreek 的 playbook 系统用 embedding 召回、LLM 生成/判定、自动 deactivate、A/B serving —— 因为它是多租户 SaaS 摊得起成本。本方案**正确地砍掉了这些**（FTS-first、无 RL、人审 staged、不自动判定），与 Proof-or-Stop 的确定性/CLI-first/host-neutral 性质一致。
 
 ---
 
 ## 1. 一句话结论（不变）
 
-Lattice 引入 **Experience Layer**：把历史 story 的 `findings`+结局、`decision.json`、`checklist.json`、`activity.jsonl` 等结构化数据，沉淀成**可审计、可回滚、可解释**的 **review hints** 和 **process playbooks**。
+Proof-or-Stop 引入 **Experience Layer**：把历史 story 的 `findings`+结局、`decision.json`、`checklist.json`、`activity.jsonl` 等结构化数据，沉淀成**可审计、可回滚、可解释**的 **review hints** 和 **process playbooks**。
 
-它**不让** Agent 自动改 gate / 自动 finding / 自动 resolve。定位：**Evidence-backed Review Playbooks for Lattice** —— 基于真实 story 结局，把复发问题、常见误报、历史决策与踩坑，在下一次 Plan / Review / Session Brief 中提示给人类和 reviewer。
+它**不让** Agent 自动改 gate / 自动 finding / 自动 resolve。定位：**Evidence-backed Review Playbooks for Proof-or-Stop** —— 基于真实 story 结局，把复发问题、常见误报、历史决策与踩坑，在下一次 Plan / Review / Session Brief 中提示给人类和 reviewer。
 
 ---
 
 ## 2. 为什么需要（不变，略）
 
-Lattice 已有大量带结局的结构化数据（findings / checklist / decision / background / activity / 跨项目 footprint），但只服务当前 story、没跨 story 复用。Lattice 相对普通 agent memory 的独特优势：它知道某问题在哪个 story 出现过、reviewer 当时怎么判、最终 resolved/dismissed/accepted-risk、过没过 gate、有没有返工/rollback。
+Proof-or-Stop 已有大量带结局的结构化数据（findings / checklist / decision / background / activity / 跨项目 footprint），但只服务当前 story、没跨 story 复用。Proof-or-Stop 相对普通 agent memory 的独特优势：它知道某问题在哪个 story 出现过、reviewer 当时怎么判、最终 resolved/dismissed/accepted-risk、过没过 gate、有没有返工/rollback。
 
 ---
 
@@ -87,7 +87,7 @@ localSignature = category + signatureTag + fileKind + lifecyclePhase
 
 ### 5.3 Signature Registry（不变，但归入 learning-store）
 
-`.lattice/learning/signature-registry.json`（tags + aliases + status + mergedInto；propose 可由 Agent，active 需 human approve）。**C6 修订**：第一版**不单独成模块**，其读写并入 `core/learning-store.ts`，等出现第二个消费者再抽出。
+`.proof-or-stop/learning/signature-registry.json`（tags + aliases + status + mergedInto；propose 可由 Agent，active 需 human approve）。**C6 修订**：第一版**不单独成模块**，其读写并入 `core/learning-store.ts`，等出现第二个消费者再抽出。
 
 ### 5.4 ★ 确定性铁律（C3-H1，新增）
 
@@ -109,7 +109,7 @@ localSignature = category + signatureTag + fileKind + lifecyclePhase
 | 模块 | 职责 | 新建/改 | 耦合 |
 |---|---|---|---|
 | `core/experience-layer-types.ts` | 全部类型（叶子） | 新建 | 无 |
-| `core/learning-store.ts`（含 signature 查找/dedup） | 读写 `.lattice/learning/*`（source-of-truth + derived cache） | 新建 | →types |
+| `core/learning-store.ts`（含 signature 查找/dedup） | 读写 `.proof-or-stop/learning/*`（source-of-truth + derived cache） | 新建 | →types |
 | `core/finding-signals.ts` | 从 findings 派生 `finding-signals.json`（只读，derived） | 新建 | →store；**经 finding 端口读** |
 | `core/experience-hint-loader.ts` | top-N hint 排序/过滤/progressive disclosure | 新建 | →store（只读） |
 | `handlers/learning.ts` | `learning_scan` / `learning_hints` / `learning_signals_*` | 新建 | →core |
@@ -142,7 +142,7 @@ localSignature = category + signatureTag + fileKind + lifecyclePhase
 
 `finding-signals.ts` **必须**通过 finding 子系统导出的稳定访问器读取（真实为 `store.readFindings(storyId)`，`store.ts:359-365`），**不得直接 `JSON.parse('.../findings.json')`**。原因：`findings.json` 受 finding 子系统 + lifecycle-registry 白名单 + main-write-lock(`finding.ts:68-79`) 管辖；直接 parse 会把本层耦合到磁盘格式，格式一改即静默崩，且不符合「零向外耦合」标准。把「read-through-a-port」写进 Phase 1a story 的不变量。
 
-**数据模型** `.lattice/learning/finding-signals.json`：derived cache（schemaVersion / signals[] / 各计数 / signalScore / support / exampleStoryIds…）。
+**数据模型** `.proof-or-stop/learning/finding-signals.json`：derived cache（schemaVersion / signals[] / 各计数 / signalScore / support / exampleStoryIds…）。
 
 > **derived cache**：可由 finding outcome 记录 + `learning-log.jsonl` 重建。Source of truth = story 文件 / finding outcome / playbook proposals / `learning-log.jsonl`。冲突时直接重建。
 
@@ -182,7 +182,7 @@ priority    = signalScore * log(1+support) * recencyBoost
 - **Phase 2 前先做一个小重构 story**：把 canonical-JSON-digest helper 从 `decision-doc-promotion.ts`（551 行 handler）抽成叶子 `core/digest.ts`，供 decision-doc 与 playbook 共同 import，**避免 `handlers/playbook.ts` → `handlers/decision-doc-promotion.ts` 的 handler→handler import**（解耦违规）。
 - playbook **生命周期状态扩展进 dev-memory** 时（C2）：`status`/`promotionHistory` **必须排除在 dev-memory 的 id-hash 域之外**（dev-memory 条目按 content 的 sha7 定 id；把可变状态纳入会破坏 dedup/幂等）。晋升写**旁路 index**，不重写 append-only JSONL 行。
 
-数据模型 `.lattice/learning/playbooks.json`（后续可选 `PLAYBOOK.md`）；字段含 `trigger/check/pitfalls/verification/lineage/usage`（不变）。
+数据模型 `.proof-or-stop/learning/playbooks.json`（后续可选 `PLAYBOOK.md`）；字段含 `trigger/check/pitfalls/verification/lineage/usage`（不变）。
 
 **护栏**：playbook 永不自动 `finding_add`，只改 reviewer prompt「该看什么」；lineage 必须可溯源。
 
@@ -235,13 +235,13 @@ Project experience hints (advisory only):
 - **不要**自动 finding/resolve/改 gate/改强制 checklist/merge/rollback/approve；不要把 dismissed 当误报、resolved 当真问题、unclear 当负反馈。
 - **不要**第一版做 FTS / 跨项目 / embedding / 自动晋升 / DSPy-GEPA-RL / LLM curator pass。
 - **不要**让 Agent 直接写 active playbook；signalScore 必带 support。
-- 尤其**不要**说「Lattice 会自我变聪明」；要说：reuses evidence from completed stories / turns verified experience into review-time hints / makes workflow memory auditable。
+- 尤其**不要**说「Proof-or-Stop 会自我变聪明」；要说：reuses evidence from completed stories / turns verified experience into review-time hints / makes workflow memory auditable。
 
 ---
 
 ## 17. 推荐开发路线（C4：改了第一个 story 与排序）
 
-全部走 **Lattice story workflow**（每个 coherent slice 一个 story）。
+全部走 **Proof-or-Stop story workflow**（每个 coherent slice 一个 story）。
 
 ```text
 ★ 第一个 story = Phase 1a 垂直切片（最小可真验证）
@@ -275,7 +275,7 @@ Phase 4   org-local / 跨项目匿名聚合（local/public 双层签名）。   
 ## 18. 最小落地版本（文件结构 + CLI）
 
 ```text
-.lattice/learning/
+.proof-or-stop/learning/
   signature-registry.json     # source of truth（并入 learning-store 读写）
   playbooks.json              # source of truth
   proposals/<proposalId>.json # source of truth（staged）
@@ -299,7 +299,7 @@ playbook_reject <proposalId>        # 人审拒绝
 
 ## 19. 最终建议（一句话，不变）
 
-> Lattice 不需要一个「越来越自信的 Agent」，而应做一个「**越来越少重复踩坑的生命周期系统**」。
+> Proof-or-Stop 不需要一个「越来越自信的 Agent」，而应做一个「**越来越少重复踩坑的生命周期系统**」。
 > 切入：**先做 finding outcome signals（含 signatureTag + registry），再做 staged playbook proposal**。
 > 边界：**只提示不判定；只 surface 不自动 gate；signalScore 必带 support；所有经验有 lineage、可 diff、可回滚；FTS/embedding/RL/跨项目 v1 不碰；audit 字段禁入 gate；hint 不进 promptHash；derived 文件 materialHash 排除。**
 
@@ -308,7 +308,7 @@ playbook_reject <proposalId>        # 人审拒绝
 ## 附录 A：Reviewer Prompt 模板（不变）
 
 ```text
-You are reviewing this Lattice story.
+You are reviewing this Proof-or-Stop story.
 Use the following project experience hints as advisory context ONLY.
 Do not automatically file findings from these hints.
 Only file a finding if you can verify it in the current story evidence.

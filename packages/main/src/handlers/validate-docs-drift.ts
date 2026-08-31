@@ -31,7 +31,7 @@ export interface DocsDriftResult {
  *
  * Only matches lines inside code blocks fenced with ``` or ```bash.
  */
-export function extractLatticeCommands(mdContent: string): Set<string> {
+export function extractProofOrStopCommands(mdContent: string): Set<string> {
   const commands = new Set<string>();
   const lines = mdContent.split('\n');
   let inFencedBlock = false;
@@ -77,7 +77,7 @@ export function checkDocsDrift(
   registryNames: Set<string>,
   allowlist: Set<string> = new Set(),
 ): DocsDriftResult {
-  const mdCommands = extractLatticeCommands(mdContent);
+  const mdCommands = extractProofOrStopCommands(mdContent);
 
   // Internal commands (starting with _) are not included in stale check
   const INTERNAL_PREFIX = '_';
@@ -114,7 +114,7 @@ export function checkDocsDrift(
 // ── Gate result type (for preflight integration) ──
 
 export interface DocsDriftGateResult {
-  provider: 'lattice-docs-drift';
+  provider: 'proof-or-stop-docs-drift';
   status: 'pass' | 'fail' | 'skipped';
   summary: string;
   missing: string[];
@@ -445,7 +445,7 @@ export function runDocsDriftGate(
 ): DocsDriftGateResult {
   if (mdContents.length === 0) {
     return {
-      provider: 'lattice-docs-drift',
+      provider: 'proof-or-stop-docs-drift',
       status: 'skipped',
       summary: 'CLAUDE.md file not found',
       missing: [],
@@ -491,7 +491,7 @@ export function runDocsDriftGate(
     // Command-only failure: preserve the exact legacy summary (byte-identical to
     // the pre-B-a7b0 command-name-only gate output).
     return {
-      provider: 'lattice-docs-drift',
+      provider: 'proof-or-stop-docs-drift',
       status: 'fail',
       summary: `CLAUDE.md references ${result.missing.length} unregistered commands: ${result.missing.join(', ')}`,
       missing: result.missing,
@@ -516,7 +516,7 @@ export function runDocsDriftGate(
       parts.push(`${managedAssetContradictions.length} managed-asset contradiction(s): ${named}`);
     }
     return {
-      provider: 'lattice-docs-drift',
+      provider: 'proof-or-stop-docs-drift',
       status: 'fail',
       summary: `CLAUDE.md drift — ${parts.join('; ')}`,
       missing: result.missing,
@@ -530,7 +530,7 @@ export function runDocsDriftGate(
     ? ` (${result.stale.length} stale advisory)`
     : '';
   return {
-    provider: 'lattice-docs-drift',
+    provider: 'proof-or-stop-docs-drift',
     status: 'pass',
     summary: `CLAUDE.md command references aligned with registry${staleNote}`,
     missing: [],

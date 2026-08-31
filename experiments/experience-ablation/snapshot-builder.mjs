@@ -3,9 +3,9 @@
 // (experience-ablation M6, CHK-005).
 //
 // Emits the FROZEN memory-store directory the treatment arm surfaces and the
-// control arm shadow-computes. The output dir mirrors the `.lattice/` subtree
+// control arm shadow-computes. The output dir mirrors the `.proof-or-stop/` subtree
 // of an isolated run root and is materialized verbatim by run-pilot.mjs into
-// `<workspace>/.lattice/` on BOTH arms:
+// `<workspace>/.proof-or-stop/` on BOTH arms:
 //
 //   <out>/
 //     dev-memory/experience.jsonl        6 lessons (one per in-store trap class)
@@ -15,12 +15,12 @@
 // WHY EACH FILE (verified empirically against the built packages/main/dist
 // CLI — the production loaders, not assumptions):
 //   - dev-memory/experience.jsonl: `resolveProjectMemoryPath(projectRoot)` =
-//     `<root>/.lattice/dev-memory/experience.jsonl`; entries must pass
+//     `<root>/.proof-or-stop/dev-memory/experience.jsonl`; entries must pass
 //     dev-memory.ts validateEntry (id>=7 chars, canonical category/scope,
 //     summary>=10, trigger>=5, lesson>=10, reusePrompt>=5, gateEvidence:false,
 //     authority:'non_authoritative').
 //   - learning/playbooks.json: `resolvePlaybooksPath(projectRoot)` =
-//     `<root>/.lattice/learning/playbooks.json` (non-git root resolves to
+//     `<root>/.proof-or-stop/learning/playbooks.json` (non-git root resolves to
 //     itself); rows must pass learning-store.ts validatePlaybook and ONLY
 //     status:'active' rows are matched by the pack builder.
 //   - story/actives/B-mem0/index.json: session_brief EARLY-RETURNS before its

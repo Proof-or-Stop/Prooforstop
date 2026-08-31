@@ -18,7 +18,7 @@ digest was byte-identical:
 
 ```
 routine validation reuse refused:
-  refusalReasons=untrusted-lineage-path:lattice.config.json,
+  refusalReasons=untrusted-lineage-path:proof-or-stop.config.json,
                  untrusted-lineage-path:packages/main/src/tasks/command-catalog-smoke.ts
   priorIdentityDigest=a21a13de5f7152075bef00150480b0189a07fcb97690b0f85fdb9f3a0dbfc7fe
   currentIdentityDigest=a21a13de5f7152075bef00150480b0189a07fcb97690b0f85fdb9f3a0dbfc7fe   ← SAME
@@ -51,7 +51,7 @@ metadata path (`:275-277`, `isStoryMetadataPath` from `evidence-freshness.ts:143
 `git diff-tree -m` expands a **merge commit into a diff against *each* parent**. When
 `main` is merged into the story branch (a normal DONE-prep step), the merge commit's diff **against
 the main parent** lists the story's OWN files because they **differ from the main parent** (absent OR
-modified — e.g. `lattice.config.json` exists on `main` with different content; audit L5). So the
+modified — e.g. `proof-or-stop.config.json` exists on `main` with different content; audit L5). So the
 story's already-validated code/config files surface as `untrusted-lineage-path:*` — even though their
 blob content is identical at `evidenceHead` and `currentHead` (verified: parent1→merge blob IDs
 identical for both files). NOTE (audit L4): factor #2 also admits a prior FAIL whose only failure is
@@ -61,8 +61,8 @@ coverage-incomplete (`priorCoverageOnlyFailure`, `:309-315`), so the negative te
 Verified on the real B-3783 merge commit `2140375ac7`:
 
 ```
-$ git diff-tree --no-commit-id --name-only -r -m 2140375ac7 | grep -E 'command-catalog-smoke|lattice.config'
-lattice.config.json
+$ git diff-tree --no-commit-id --name-only -r -m 2140375ac7 | grep -E 'command-catalog-smoke|proof-or-stop.config'
+proof-or-stop.config.json
 packages/main/src/tasks/command-catalog-smoke.ts
 ```
 
@@ -132,7 +132,7 @@ distinct `lineage-diff-failed` reason (still fail-closed → refuse, but not sil
 ## 5. Why this is safe (security argument)
 
 The threat this gate defends against: **reusing a validation after the code/config it validated (or
-that determines what it validates) changed** — e.g. a story that edits `lattice.config.json`'s
+that determines what it validates) changed** — e.g. a story that edits `proof-or-stop.config.json`'s
 `validate.commands` to drop tests, then reuses an old PASS. That threat is real and this proposal
 does **not** relax it:
 
@@ -159,7 +159,7 @@ Net: the change removes a **false positive** (merge re-touch of unchanged files)
 | Merge-conflict resolution altered a file | If resolution changed final content vs `evidenceHead`, net diff reports it → still refused. Correct. |
 | Rename / delete of a lineage file | `--no-renames` keeps behavior identical to today; deletes surface as changed paths → refused. No regression. |
 | Reuse of a *non-executed* (laundered) validation | Out of scope of factor #8; still blocked by `isReusableCommandPass` (#1) and `material/storyFilesHash` (#6/#7). Unchanged. |
-| Someone edits `validate.commands` then reuses | `lattice.config.json` blob differs → net diff reports it → refused. The exact threat still blocked. |
+| Someone edits `validate.commands` then reuses | `proof-or-stop.config.json` blob differs → net diff reports it → refused. The exact threat still blocked. |
 | Interaction with B-3b88 (evidence-integrity Step 1) | B-3b88 touches `refresh_stale` laundering + evidence-row contradiction (`core/verification.ts`, `checklist.ts`), different files. No code overlap. This proposal does not re-open any laundering vector B-3b88 closes. |
 | Interaction with the B-914f validation-reuse envelope | This IS that envelope; we refine one factor and keep the other eight. |
 

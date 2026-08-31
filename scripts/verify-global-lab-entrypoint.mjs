@@ -49,6 +49,7 @@ function createTempProject() {
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
+  execFileSync('git', ['init', '-q'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   return dir;
 }
 
@@ -82,13 +83,15 @@ const checks = {
     assert(out.includes('proof-or-stop lab_create'), 'global core bin should show lab_create help through the proof-or-stop bootstrap');
     assert(!out.includes('koala lab_create'), 'global core bin should not advertise retired koala lab_create alias help');
   },
-  'lab-create-policy-gate': () => {
+  'lab-create': () => {
     const temp = createTempProject();
     try {
-      const failed = runAllowFailure(['--root', temp, 'lab_create', '--target=test-case-reviewer', '--profile=reviewer-quality-v1']);
-      assert(!failed.ok, 'lab_create execution should remain fail-closed until lab commands are classified');
-      assert(failed.text.includes('no valid ownershipClass'), 'lab_create should reach the ownership policy gate');
-      assert(!existsSync(join(temp, 'experiments', 'configs', 'lab-reviewer-reviewer-quality-v1.json')), 'policy-gated lab_create should not write config');
+      const config = 'experiments/configs/lab-reviewer-reviewer-quality-v1.json';
+      const created = run(['--root', temp, 'lab_create', '--target=test-case-reviewer', '--profile=reviewer-quality-v1']);
+      assert(created.includes(`Config: ${config}`), 'lab_create should report its canonical config path');
+      assert(existsSync(join(temp, config)), 'lab_create should write the canonical experiment config');
+      const dryRun = run(['--root', temp, 'lab_run', `--config=${config}`, '--dryRun']);
+      assert(dryRun.includes('Dry run complete'), 'lab_run --dryRun should complete through the global bootstrap');
     } finally {
       rmSync(temp, { recursive: true, force: true });
     }

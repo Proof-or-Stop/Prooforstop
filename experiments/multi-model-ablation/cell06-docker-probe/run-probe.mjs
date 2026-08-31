@@ -29,7 +29,7 @@ const AUTH_ACCEPTED_SOURCE_KINDS = Object.freeze(["directory-with-auth-json", "a
 const AUTH_REJECTED_SOURCE_CLASSES = Object.freeze([
   "home",
   "repo",
-  "lattice-dir",
+  "proof-or-stop-dir",
   "paper-repo",
   "prior-cell-results",
   "future-results",
@@ -166,16 +166,16 @@ function pathPolicyDigest(rootLabel, sourceKind, relativePath) {
 }
 
 function forbiddenSourceReason(candidatePaths) {
-  const latticeRoot = path.join(repoRoot, ".lattice");
+  const proofOrStopRoot = path.join(repoRoot, ".proof-or-stop");
   const homeRoot = os.homedir();
   for (const candidatePath of candidatePaths.filter(Boolean)) {
     const normalizedPath = path.resolve(candidatePath);
     const lowerPath = normalizedPath.split(path.sep).join("/").toLowerCase();
-    if (pathIsInside(normalizedPath, latticeRoot) || lowerPath.includes("/.lattice/") || lowerPath.endsWith("/.lattice")) {
-      return "inside_lattice";
+    if (pathIsInside(normalizedPath, proofOrStopRoot) || lowerPath.includes("/.proof-or-stop/") || lowerPath.endsWith("/.proof-or-stop")) {
+      return "inside_proof_or_stop";
     }
-    if (lowerPath.includes("lattice-paper")) {
-      return "inside_lattice_paper";
+    if (lowerPath.includes("proof-or-stop-paper")) {
+      return "inside_proof_or_stop_paper";
     }
     if (lowerPath.includes("cell03") || lowerPath.includes("cell-03") || lowerPath.includes("cell_03")) {
       return "inside_cell03_material";
@@ -849,7 +849,7 @@ const rows = rowInputs.map((input, index) => {
       },
       hostHomeMounted: false,
       repoMounted: false,
-      latticeMounted: false,
+      proofOrStopMounted: false,
       paperMounted: false,
       foreignResultsMounted: false,
     },
@@ -885,7 +885,7 @@ const manifest = {
   sterilePolicy: {
     mountHome: false,
     mountRepo: false,
-    mountLattice: false,
+    mountProofOrStop: false,
     mountPaper: false,
     mountForeignResults: false,
   },

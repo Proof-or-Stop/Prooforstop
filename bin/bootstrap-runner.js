@@ -137,7 +137,7 @@ export async function runLocalBootstrap() {
         const labModule = await import(pathToFileURL(LAB_DIST).href);
         labRegister = typeof labModule.register === 'function' ? labModule.register : null;
         if (typeof labModule.createLabToolDefs === 'function') {
-          const zodModule = await import(pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href);
+          const zodModule = await import('zod');
           labToolDefs = labModule.createLabToolDefs(zodModule.z);
         } else {
           labToolDefs = Array.isArray(labModule.labToolDefs) ? labModule.labToolDefs : [];
@@ -154,6 +154,15 @@ export async function runLocalBootstrap() {
         register(registry, ctx);
         if (typeof labRegister === 'function') labRegister(registry, ctx);
       },
+      ...(typeof labRegister === 'function' ? {
+        extraOwnershipClasses: {
+          lab_create: 'mainSharedMutating',
+          lab_run: 'mainSharedMutating',
+          lab_eval: 'readOnly',
+          lab_compare: 'readOnly',
+          lab_promote: 'readOnly',
+        },
+      } : {}),
     });
   } catch (error) {
     const err = error instanceof Error ? error : new Error(String(error));

@@ -19,6 +19,14 @@ export interface ActiveStoryForOwnershipGate {
   phase?: string;
 }
 
+/**
+ * Ownership declarations supplied by a package that extends `runCli` with
+ * extra tools. Core commands remain fail-closed against COMMAND_POLICIES;
+ * an extension command is classified only when its launcher supplies an exact
+ * command-name row here.
+ */
+export type ExternalCommandOwnershipClasses = Readonly<Record<string, OwnershipClass>>;
+
 export function ownerLeaseHelpBlock(cmd: string): string | null {
   const policy = getCommandPolicy(cmd);
   if (!policy || !isOwnershipClass(policy.ownershipClass)) return null;
@@ -85,10 +93,12 @@ export function resolveEffectiveOwnershipClass(
   cmd: string,
   args: Record<string, unknown>,
   storyId: string | null,
+  externalOwnershipClasses?: ExternalCommandOwnershipClasses,
 ): OwnershipClass | null {
   const policy = getCommandPolicy(cmd);
-  if (!policy || !isOwnershipClass(policy.ownershipClass)) return null;
-  let cls: OwnershipClass = policy.ownershipClass;
+  const declaredClass = policy?.ownershipClass ?? externalOwnershipClasses?.[cmd];
+  if (!isOwnershipClass(declaredClass)) return null;
+  let cls: OwnershipClass = declaredClass;
 
   if ((cmd === 'finding_resolve' || cmd === 'finding_dismiss') && storyId && storyId.startsWith('B-META-')) {
     cls = 'mainSharedMutating';
@@ -184,11 +194,12 @@ export function enforceRetiredRootGuard(
   config: Pick<ProofOrStopConfig, 'retiredRoot' | 'canonicalRoot'>,
   activeStory: ActiveStoryForOwnershipGate | null,
   projectRoot: string,
+  externalOwnershipClasses?: ExternalCommandOwnershipClasses,
 ): void {
   if (config.retiredRoot !== true) return;
 
   const storyId = storyIdFromArgs(args, activeStory, { command: cmd, projectRoot });
-  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId);
+  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId, externalOwnershipClasses);
 
   if (cls === null) {
     throw new Error(
@@ -240,9 +251,10 @@ export function enforceStoryOwnerLeaseGate(
   store: StoryStore,
   activeStory: ActiveStoryForOwnershipGate | null,
   projectRoot: string,
+  externalOwnershipClasses?: ExternalCommandOwnershipClasses,
 ): void {
   const storyId = storyIdFromArgs(args, activeStory, { command: cmd, projectRoot });
-  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId);
+  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId, externalOwnershipClasses);
 
   if (cls === null) {
     throw new Error(

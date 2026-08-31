@@ -42,7 +42,7 @@
 //
 // WRITE BOUNDARY: the tool writes EXACTLY two files (evidence-map.json,
 // evidence-map.md), both under --out (default: the experiment evidence root
-// <root>/.lattice/experiments/experience-ablation/<experimentId>, plan
+// <root>/.proof-or-stop/experiments/experience-ablation/<experimentId>, plan
 // section 12). Nothing outside --out is created or modified, and this module
 // imports nothing from packages/main — only the sibling committed tools
 // protocol.mjs (canonical hashing) and live-readout.mjs (record parsing +
@@ -101,7 +101,7 @@ export const SECTION18_ROWS = [
   { id: 'protocol-freeze', claim: 'protocol hash and memory-snapshot hash are frozen' },
   { id: 'manifest-ledger-run-order', claim: 'fixture manifest, pair ledger, and run-order seed are immutable and reproducible' },
   { id: 'arm-behavior', claim: 'control/treatment arm behavior (compute-and-log both, render-gate one) is mechanically verified' },
-  { id: 'store-isolation-leakage', claim: 'store isolation is asserted per run (no production .lattice/learning/ reads or writes) and the fixture-leakage audit passed' },
+  { id: 'store-isolation-leakage', claim: 'store isolation is asserted per run (no production .proof-or-stop/learning/ reads or writes) and the fixture-leakage audit passed' },
   { id: 'sample-size', claim: 'per-population sample size calculation is recorded before the powered run, with the seeded baseline validated in the pilot' },
   { id: 'score-records', claim: 'powered paired study score records are complete' },
   { id: 'analysis-report', claim: 'analysis report includes paired effect size, confidence interval, p-value, and the in-store vs held-out contrast' },
@@ -242,7 +242,7 @@ export function buildEvidenceMap({ root, experimentId, generatedAt, artifacts, p
   const records = rewrap(() => parseScoreRecordsText(artifacts['score-records.jsonl'].text));
 
   const cite = (...names) =>
-    names.map((n) => ({ path: `.lattice/experiments/experience-ablation/${experimentId}/${n}`, exists: true, sha256: artifacts[n].sha256 }));
+    names.map((n) => ({ path: `.proof-or-stop/experiments/experience-ablation/${experimentId}/${n}`, exists: true, sha256: artifacts[n].sha256 }));
 
   // Row 1 — protocol + snapshot freeze.
   if (!isHex64(protocol.protocolHash)) fail('protocol.json is missing a 64-hex protocolHash — re-freeze the protocol (protocol.mjs freeze)');
@@ -290,8 +290,8 @@ export function buildEvidenceMap({ root, experimentId, generatedAt, artifacts, p
   // Row 4 — store isolation + leakage audit. The production-store test is
   // separator-safe (exact match OR prefix + path separator, mirroring the
   // selfcheck digestTree skip pattern) so a SIBLING path like
-  // <root>/.lattice/learning-extra/... is NOT flagged as a violation.
-  const productionStore = join(root, '.lattice', 'learning');
+  // <root>/.proof-or-stop/learning-extra/... is NOT flagged as a violation.
+  const productionStore = join(root, '.proof-or-stop', 'learning');
   const insideProductionStore = (p) => p === productionStore || p.startsWith(productionStore + sep);
   const isolationOk = liveRecs.every((r) =>
     typeof r.storeRoot === 'string' && r.storeRoot.length > 0 && !insideProductionStore(r.storeRoot) && r.retrievalViolationCount === 0);
@@ -493,7 +493,7 @@ export function generateEvidenceMap({ root, experimentId, outDir, generatedAt })
   if (typeof generatedAt === 'string' && !/^\d{4}-\d{2}-\d{2}T[0-9:.+Z-]+$/.test(generatedAt)) {
     fail(`--generatedAt must be an ISO 8601 timestamp (got ${JSON.stringify(generatedAt)})`);
   }
-  const evidenceRoot = join(root, '.lattice', 'experiments', 'experience-ablation', experimentId);
+  const evidenceRoot = join(root, '.proof-or-stop', 'experiments', 'experience-ablation', experimentId);
   const artifacts = {};
   for (const name of REQUIRED_ARTIFACTS) {
     artifacts[name] = requireArtifact(evidenceRoot, name, 'regenerate it with its committed tool (M0-M8), or point --root/--experimentId at the evidence root');

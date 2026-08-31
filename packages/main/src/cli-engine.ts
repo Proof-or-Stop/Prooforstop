@@ -726,6 +726,7 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
 export async function runCli(opts?: {
   extraTools?: ToolDef[];
   extraRegister?: (registry: Registry, ctx: HandlerContext) => void;
+  extraOwnershipClasses?: Readonly<Record<string, import('./core/command-policy.js').OwnershipClass>>;
 }): Promise<void> {
   // Inject extras: merge tool defs and keep extras register for later invocation.
   TOOLS = opts?.extraTools && opts.extraTools.length > 0
@@ -1348,7 +1349,7 @@ export async function runCli(opts?: {
     // before the owner lease gate, so a blocked command cannot trigger hooks
     // or acquire/mutate lease state.
     try {
-      enforceReviewerReadOnlyCommandGate(cmd, parsed, activeStory);
+      enforceReviewerReadOnlyCommandGate(cmd, parsed, activeStory, opts?.extraOwnershipClasses);
     } catch (e: any) {
       clearInterval(watchdog);
       log(`${cmd} failed: ${e.message}`);
@@ -1362,7 +1363,7 @@ export async function runCli(opts?: {
     // because those are still writes even though they are intentionally exempt
     // from per-story owner leases.
     try {
-      enforceRetiredRootGuard(cmd, parsed, config0, activeStory, root);
+      enforceRetiredRootGuard(cmd, parsed, config0, activeStory, root, opts?.extraOwnershipClasses);
     } catch (e: any) {
       clearInterval(watchdog);
       log(`${cmd} failed: ${e.message}`);
@@ -1399,7 +1400,7 @@ export async function runCli(opts?: {
       // before the lease gate so a control-arm violation is recorded and
       // refused regardless of lease ownership.
       enforceExperimentArmRetrievalGate(cmd, root);
-      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root);
+      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root, opts?.extraOwnershipClasses);
       // B-bbaf CHK-003: convergence breaker gate — runs AFTER the owner-lease gate
       // (which owns the canonical-storyId / path-traversal guard and the ownership
       // check) so the breaker only ever derives a story path and writes state for a

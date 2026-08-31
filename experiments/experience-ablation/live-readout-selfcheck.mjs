@@ -145,7 +145,7 @@ const STUB_EFFECTIVENESS_TEXT = [
 /** Materialize a stub repo root; `omit` names evidence files to leave out. */
 function makeRoot(base, name, { omit = [], scoreText } = {}) {
   const root = join(base, name);
-  const evidence = join(root, '.lattice', 'experiments', 'experience-ablation', EXP_ID);
+  const evidence = join(root, '.proof-or-stop', 'experiments', 'experience-ablation', EXP_ID);
   mkdirSync(evidence, { recursive: true });
   if (!omit.includes('score-records.jsonl')) {
     writeFileSync(join(evidence, 'score-records.jsonl'), scoreText ?? stubScoreRecordsText());

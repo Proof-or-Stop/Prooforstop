@@ -62,11 +62,11 @@ export type ModularComplexRoleId = typeof MODULAR_COMPLEX_ROLE_IDS[number];
  * semantic edit. The assertion is preserved, never deleted or loosened.
  */
 const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, string>> = Object.freeze({
-  'proof-or-stop-review-behavior': '45efbfe90d7705408ed95f0111b2108b5e39fc9397aeb7d99eda600db2ea3fe0',
-  'proof-or-stop-review-concept': '846023d241693435c995900e5869b13e838795718143f2fab14e7a8f7f23eb5d',
-  'proof-or-stop-review-docs': '7aafa18c26dd713586f416dfc4a3b9676a88438f858c32374af9a978300dd43e',
-  'proof-or-stop-review-quality': '1f023f75aeab93b6d08e4ec1261a867e43ebd638f6d5ec18e1407cad7c90f58b',
-  'proof-or-stop-review-test-coverage': 'e433ed9bded50288388fff6447142555e412756137461d841ca7724848458753',
+  'proof-or-stop-review-behavior': 'bbb6815ba8131f9fa7b25fd2fa82a9d91890dc56f1c5e43b814cba8b55e4e582',
+  'proof-or-stop-review-concept': '960bf0df46737570bbf55ebaefa3776272fe25b302f76bbde5c57e289a5db70c',
+  'proof-or-stop-review-docs': 'e26caaf232929404a9ddd6e772e743ef87d5d67fdaedcde75123e6ed58f027c5',
+  'proof-or-stop-review-quality': 'f8122f08bef477636732a450148dd567bf835c22636c842881a9162d1265b031',
+  'proof-or-stop-review-test-coverage': '1d3e1705db33a4c801cc516f242bca3b2665dd94d8157801beaa2e07b208310a',
 });
 
 /** B-cdf6 CHK-005 + CHK-003 follow-up: re-approved for the same reason as LEGACY_REVIEWER_TEMPLATE_SHA256 above. */

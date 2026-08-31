@@ -426,7 +426,7 @@ function generateBaseline(dir, scale, iterationId) {
     throw new Error(`[fault-injection] forced generate failure at ${iterationId}`);
   }
   execFileSync(
-    'lattice',
+    'proof-or-stop',
     [
       'memory_playbook_baseline_generate',
       `--profile=${scale}`,

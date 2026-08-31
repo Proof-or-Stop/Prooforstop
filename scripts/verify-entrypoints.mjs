@@ -40,6 +40,8 @@ const repoRoot = process.cwd();
 const GLOBAL_CODEX_FALLBACK = 'PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop';
 const INIT_ENTRYPOINT = 'packages/main/dist/cli-init.js';
 const CORE_ENTRYPOINT = 'packages/main/dist/cli.js';
+const RETIRED_BIN = ['lat', 'tice'].join('');
+const NON_CANONICAL_STATE_CASE = '.Proof-or-Stop';
 const MANAGED_GITIGNORE_BLOCK_START = PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_START;
 const MANAGED_GITIGNORE_BLOCK_END = PROOF_OR_STOP_RUNTIME_IGNORE_BLOCK_END;
 const REQUIRED_RUNTIME_IGNORE_LINES = listRuntimeArtifactIgnorePatterns();
@@ -114,6 +116,18 @@ function seedClaudeAgentMirror(tempDir) {
     writeFileSync(join(mirrorDir, entry.file), renderPromptEntryForHost(entry, 'claude'));
   }
   return () => rmSync(mirrorDir, { recursive: true, force: true });
+}
+
+function installGlobalFallbackShim(tempDir) {
+  const shimDir = join(tempDir, '.test-global-bin');
+  mkdirSync(shimDir, { recursive: true });
+  const shim = join(shimDir, 'proof-or-stop');
+  writeFileSync(
+    shim,
+    `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(join(repoRoot, 'bin', 'proof-or-stop.js'))} "$@"\n`,
+  );
+  chmodSync(shim, 0o755);
+  return shimDir;
 }
 
 function sectionBetween(text, startNeedle, endNeedle, label) {
@@ -518,7 +532,7 @@ checks.push(() => {
     const generatedWrapper = readFileSync(join(tempDir, 'bin', 'proof-or-stop-codex.js'), 'utf8');
     const generatedBootstrap = readFileSync(join(tempDir, 'bin', 'proof-or-stop.js'), 'utf8');
     assert(existsSync(join(tempDir, 'bin', 'proof-or-stop.js')), 'init should generate sibling bin/proof-or-stop.js');
-    assertPathMissing(tempDir, 'bin/proof-or-stop-codex.js', 'init should not newly generate the deprecated Codex wrapper name');
+    assertPathMissing(tempDir, `bin/${RETIRED_BIN}-codex.js`, 'init should not newly generate the retired Codex wrapper name');
     assertPathMissing(tempDir, 'bin/proofOrStop.js', 'init should not newly generate the deprecated bootstrap name');
     assertIncludes(generatedWrapper, "'proof-or-stop.js'", 'generated Codex wrapper canonical bootstrap candidate');
     assertNotIncludes(generatedWrapper, "'proofOrStop.js'", 'generated Codex wrapper has no deprecated bootstrap fallback');
@@ -542,7 +556,11 @@ checks.push(() => {
     assertPathMissing(tempDir, `${AD}/koala.json`, 'full init should not generate .proof-or-stop-codex/koala.json');
 
     const cleanupClaudeMirror = seedClaudeAgentMirror(tempDir);
-    const verifyInitOut = run(process.execPath, [join(tempDir, 'bin', 'proof-or-stop.js'), 'verify_codex'], { cwd: tempDir });
+    const globalShimDir = installGlobalFallbackShim(tempDir);
+    const verifyInitOut = run(process.execPath, [join(tempDir, 'bin', 'proof-or-stop.js'), 'verify_codex'], {
+      cwd: tempDir,
+      env: { ...process.env, PATH: `${globalShimDir}:${process.env.PATH || ''}` },
+    });
     assertIncludes(verifyInitOut, 'Codex adapter checks passed', `proof-or-stop verify_codex output (${verifyInitOut.trim()})`);
     // B-cdf6: derive the expected count from the registry instead of hardcoding it.
     // The literal `16` had gone stale against a 17-role registry, so this assertion
@@ -656,11 +674,11 @@ checks.push(() => {
   try {
     run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
     rmSync(join(tempDir, 'PROOF_OR_STOP.md'), { force: true });
-    writeFileSync(join(tempDir, 'Proof-or-Stop.md'), '# Proof-or-Stop.md\n\nmixed-case ProofOrStop guide\n');
+    writeFileSync(join(tempDir, 'Proof_or_stop.md'), '# Proof_or_stop.md\n\nmixed-case Proof-or-Stop guide\n');
     const result = runManagedAssetCheck(tempDir, { profile: 'all' });
     const item = result.items.find(asset => asset.relPath === 'PROOF_OR_STOP.md');
     assert(item?.status === 'CASE_MISMATCH', 'proof-or-stop check should classify PROOF_OR_STOP.md casing drift as CASE_MISMATCH');
-    assert(item.actualRelPath === 'Proof-or-Stop.md', 'proof-or-stop check should report the mixed-case actual path');
+    assert(item.actualRelPath === 'Proof_or_stop.md', 'proof-or-stop check should report the mixed-case actual path');
     assert(item.reason.includes('different case'), 'proof-or-stop check should explain path casing drift');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -676,8 +694,8 @@ checks.push(() => {
     '.codex/hooks/proof-or-stop-scope-pretool.cjs',
   ];
   const forbidden = [
-    '.proof-or-stop/Proof-or-Stop.md',
-    `.proof-or-stop/${PROOF_OR_STOP_MANIFEST_FILENAME}`,
+    `${NON_CANONICAL_STATE_CASE}/Proof-or-Stop.md`,
+    `${NON_CANONICAL_STATE_CASE}/${PROOF_OR_STOP_MANIFEST_FILENAME}`,
     `${AD}/hooks.json`,
     `${AD}/hooks/proof-or-stop-scope-pretool.cjs`,
   ];
@@ -1034,8 +1052,10 @@ checks.push(() => {
     const cleanupClaudeMirror = seedClaudeAgentMirror(tempDir);
     let verifyOut;
     try {
+      const globalShimDir = installGlobalFallbackShim(tempDir);
       verifyOut = run(process.execPath, [join(tempDir, 'bin', 'proof-or-stop.js'), 'verify_codex'], {
         cwd: tempDir,
+        env: { ...process.env, PATH: `${globalShimDir}:${process.env.PATH || ''}` },
       });
     } finally {
       cleanupClaudeMirror();

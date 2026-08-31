@@ -79,6 +79,87 @@ const EXACT_ALLOWLIST = [
   expectedVerification: 'PASS exact salt occurrence and context',
 }));
 
+const EXACT_FROZEN_ROWS = [
+  ['signature_salt', 'CLAUDE.md', 'lattice-init-check-integrity-v1', 1, 'ae6e18fe9a563bf838eae1fce1021ebd8b0b54ff9f445de5474616c3df3c3449'],
+  ['signature_salt', 'CLAUDE.md', 'lattice-delivery-check-integrity-v1', 1, '3963c56493c9a6145856c658237fe1619885d01e2930f18ca54770e9e0cde243'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'legacy-to-lattice-role-naming-execution-plan.md', 1, '935d4532c30cadb40d7e117085260f5cbe565a1cbd811d5d016b6feaf7e4e211'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-authority-customer-api-key-access', 1, '145f3c49ef9b5066ca3bd358d37c410fa3a48ce2dec8213ba5107068c67e7305'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-authority-live-integration', 1, '6047759e7992cfc31e1e22c0cf3f8240390cbb70c21b4a682f18a742a2f77f84'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-authority-m1-m16-generated-proof-and-live-e2e', 1, '6ae929ca7a871911ba02aed864fec342af6e64bdb6ee3e98f5d0e984275b141d'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-authority-receipt-contract', 1, '256c2b423b39d03998c696763aeb9afaf35e58f1cead655407d4d03cd484ef27'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-authority-remote-evidence-bundle', 1, '8fe4973021c95cebd3198d72f84ed0685b9f928f035dc632f8b6a1fe59ed0933'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-baseline-two-host-multi-agent-execution-plan', 1, 'b9e410faaa299c74014cd86e5374555992a1b64f22a5190543eefd43257bbb77'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-cli-authority-client-receipt-ref', 1, '8468b9a76bdca3e6194bc82a10474a3b5126e0800c5dd6c4d0016471d81a4258'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-codex-command-boundary-execution-plan', 1, '8e6b2bd7ea6a051e481b181d1acfd546aa7908e0703ebf627ef5233537d92ce7'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-console-demo-mvp-requirements', 1, '2e581bd4eb24653f660af579599b1d6ae36e1952e6ae7d81ccbd980857792b6a'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-experience-layer-effectiveness-record', 1, '8282807fb27e7677cece9ca667ad85d22d035c62e2d69021e06f05406d5a67a4'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-experience-layer-execution-plan', 1, '47fa61f075d5348941c60271415ddeec04078ca773ce0c549a8464b09e283392'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-experiment-protocol', 1, '67ed3fb59ad54a3e112119a9fe289f52ad95cc1cc028d9fe55458458bd7808aa'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-llm-usage-ledger-execution-plan', 1, '19d976d4ae8e130d3e095866485e613e04e3837c25cb1c0ce0ce7962b4d94be9'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-midflight-story-repair-and-gitroot-worktree-plan', 1, '62dedbdf0f07efe9a1e7347eed09d1591cbe9eab8d03bd4353c879261cd14d48'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-parallel-wave', 1, 'c539be4cb1276099259a28f68c219e52f2c506f4b29ceedbac9ec504129d1116'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-runtime-owned-agent-assets-execution-plan', 1, 'efd7176bb67a19162e712af55fdfff6f98c35b84a3ccb7bc4d635d2b713d2697'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-strengthening-roadmap-execution-plan', 1, '9612102499987c720eff36393e906ba34aa80affc0f5f2b2bd8dd339383f8e6f'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-lifecycle-readiness-check-execution-plan', 1, 'b3275de6b554c91d41d738e42f7a2e294410de99790c56a016db540ca63cbec2'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-workflow-efficiency-baseline', 1, '4e864806de91b65847eb77febd289ced3fc89493c659745e2d369a5e655b09aa'],
+  ['provenance_bytes', 'docs/requirements/NAV.md', 'lattice-unattended-completion-plan', 1, '9d64a82f1570703511fd50d40f86f94a7d2d72fc936e0c35eee63f1308492c14'],
+  ['persisted_schema', 'experiments/configs/lab-reviewer-history-v1.json', 'lattice-lab', 1, '7db70f605dce28dfbae47e77210e3c5b90168feb75fa8f1894279dfc68af0aa9'],
+  ['persisted_schema', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', 'lattice-lab', 1, '7db70f605dce28dfbae47e77210e3c5b90168feb75fa8f1894279dfc68af0aa9'],
+  ['signature_salt', 'experiments/role-prompt-ab-replay/corpus.json', 'lattice-finding-integrity-v1', 2, 'b36ceef181ab304d6d99527b7139f5cc952b2e6a135934952c59f61860761596'],
+  ['signature_salt', 'experiments/role-prompt-ab-replay/lib/replay.mjs', 'lattice-finding-integrity-v1', 2, '5dda7fdca458160f139e84489d134fd5768116264599d8d06914827b9c525cc9'],
+  ['signature_salt', 'scripts/verify-done-merge-preflight.mjs', 'lattice-review-integrity-v1', 1, '0da981ec4a3e352675f85c972695da8a80672b7c49fa5f91ccca94a5389d7e9f'],
+  ['signature_salt', 'scripts/verify-main-branch-runtime-health.mjs', 'lattice-review-integrity-v1', 1, '185e469ceea1438fabb9861a1f3bd63c84a72d8befa1596e2c8d63d94605bf79'],
+  ['signature_salt', 'scripts/verify-proof-or-stop-residue.mjs', 'lattice-review-integrity-v1', 3, '6eb6ade9d168880cae05f5fc23d2e6e169c8ac741988111c470869d69d3b851f'],
+  ['signature_salt', 'scripts/verify-proof-or-stop-residue.mjs', 'lattice-delivery-check-integrity-v1', 1, '505370b648e3817a68017eaa176d3c0e97e5d04d232a0ae8276447032e2c44d9'],
+  ['signature_salt', 'scripts/verify-proof-or-stop-residue.mjs', 'lattice-closeout-write-receipt-integrity-v3', 1, '7c9e55485ff03a08306bc277438ecc8bf31482370a7122e3e7d32c06a36083a2'],
+  ['signature_salt', 'scripts/verify-runtime-reviewer-contract.mjs', 'lattice-review-integrity-v1', 1, 'a0b1dbbb8094162981b61e307bb8908c861b4eea85a0a0728fb35f2c47cb4433'],
+  ['signature_salt', 'scripts/verify-testintent-null-gates.mjs', 'lattice-review-integrity-v1', 1, 'a0b1dbbb8094162981b61e307bb8908c861b4eea85a0a0728fb35f2c47cb4433'],
+  ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_ACTIVITY_RECORD_READONLY', 1, '51ae7cf847cf2142cb327d3e66ba6bcd7d6121a4b9b32d1063f8fde4a452cffe'],
+  ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_ACTIVITY_ROLE', 1, '992ce2da579b0d750bf6c8957071e87a0507ec0228ca94aa7100232716fd044c'],
+  ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_ACTIVITY_SESSION', 1, '4f4e59cd71bf316da7cf2e33c0c6e71c27e8959f81956f08082dc21cf04c17e9'],
+  ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_ACTIVITY_SOURCE', 1, '9fb42a6ff820e71305519c45deb668fe09a768528f0a58d54846ef003c976344'],
+  ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_AGENT', 1, '6674f9db65a696f1a2ed7eb77a9762e8ddd23943be98c2f86ea107a0d8b7b4b1'],
+  ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_CODEX_ENTRYPOINT', 1, '496789846c25c9fd9c79cf58e85c414744cac0c9d0a2940ef26bb993140ab156'],
+  ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_OWNER_SESSION_ADAPTER_AGENT', 1, 'a08bdd1f15130257283852c1fd5ecfb181253d7a64a4ee942850209329502af8'],
+  ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY', 1, 'f51b59936664aacfcd9f4bba043cf54f046423281dcff2b0135f5326334d8634'],
+  ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_OWNER_SESSION_ADAPTER_GENERATED', 1, '4879c731640e9938b3f3554eb79b11fbf889577c48676818c1f6fa3ee4a7b281'],
+  ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_OWNER_SESSION_ADAPTER_PROVIDER', 1, 'f4122a3cba70dcd9461f43a73ffe63477d30d3ccde33f625e218b1735238d76a'],
+  ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_OWNER_SESSION_ADAPTER_ROLE', 1, 'bafd396911e28226a1011fb3b639d62a57fd0155aa052082d4faccbf2e73a99e'],
+  ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_OWNER_SESSION_ADAPTER_SESSION', 1, 'f525c0c8d73482f6bea256e3ca674fa4d9749f1f0c0657bb3aa1be648dfef88c'],
+  ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_OWNER_SESSION_ADAPTER_TASK', 1, 'e0d673fabcd18799eaee868d0f77b5f81b56fb9883770ce5f61a49dbc5d7bbc8'],
+  ['persisted_schema', 'packages/main/src/core/validation-command-environment.ts', 'LATTICE_SESSION_ID', 1, 'd9f5e5b83ecd524e196481c856a7e0c4c9cb83ea212b2eca97ac551676471579'],
+  ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_ACTIVITY_RECORD_READONLY', 1, '4d5f19da55d879cffa78ce0862c5b12ef51263134be1dac6aeebb4f8334d769c'],
+  ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_ACTIVITY_ROLE', 1, 'd6cb599a8efd8385092d53ab37359eb6d3b2c6c8e843af74940dafefe33c70ff'],
+  ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_ACTIVITY_SESSION', 1, 'eea80fcf31138563f7ad029b98d24dbd6fd7f6cf97eb1cb8487758aa1ed2b451'],
+  ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_ACTIVITY_SOURCE', 1, '732954f703dd7db84565c2c2fe3a84893e14aa89746980d17bc17730cd4e53b3'],
+  ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_AGENT', 1, 'e2fcec1376b10c722fb4934d01e61b95dfc61117d3d055448a255654494e509c'],
+  ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_CODEX_ENTRYPOINT', 1, 'dcc818f2a667df12d4d782e9cfa3bf80bcac2a82d0f4ec67c994b8e1488b12fb'],
+  ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_OWNER_SESSION_ADAPTER_AGENT', 1, '99e7ac65480624cbc7e8a0ca8e3f42dd0cbb9ab955255d1d8785881771fcc1bb'],
+  ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY', 1, 'b4a0d71d1ff6f9c18b4dd464306f634595e0d688ddf674dad385d99291a70097'],
+  ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_OWNER_SESSION_ADAPTER_GENERATED', 1, '1c52a398bb94fa4bc680fc18d20cbfd993e2e27b505628893973e8fed421b9b4'],
+  ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_OWNER_SESSION_ADAPTER_PROVIDER', 1, '0c579a2faa3b6c56321e8163fe98aa8560d1236b17c54134bdb2e78a5ebc499d'],
+  ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_OWNER_SESSION_ADAPTER_ROLE', 1, '8032c928b43a575592e43833c3cd55863840b77a4aa2ff6141b40bf7f025b9f7'],
+  ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_OWNER_SESSION_ADAPTER_SESSION', 1, 'c09043e6c49514c606d0e9bf8f277633d1859ebd494cfed1f43b40bc106460c3'],
+  ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_OWNER_SESSION_ADAPTER_TASK', 1, 'f54c46b498f1d1647014a5c7584bf4bf9aac76c43af1aaffb7de6db62abf811c'],
+  ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_SESSION_ID', 1, '95c69d3e9bd3b405a5e8a7a28b3b7d15da63b4dbb615d1dbf643717244552ef0'],
+  ['provenance_bytes', 'scripts/verify-proof-or-stop-residue.mjs', 'legacy-to-lattice-role-naming-execution-plan.md', 1, 'a53aad5b0e9ee43fba59f8a00bdc49f7b193a49142ce0683de33cc5b3df1dcef'],
+].map(([className, path, token, expectedOccurrences, contextSha256], index) => ({
+  id: `frozen-current-${String(index + 1).padStart(2, '0')}`,
+  class: className, path, token, expectedOccurrences, contextSha256,
+  reason: className === 'persisted_schema'
+    ? token.startsWith('LATTICE_')
+      ? 'Persisted validation receipt hashes bind this exact historical transport key; the active filter maps it to the canonical key without changing stored evidence.'
+      : 'Existing experiment.v1 schema namespace remains frozen while active package routing is canonical.'
+    : className === 'signature_salt'
+      ? 'Historical signatures bind this exact salt at this exact verification occurrence.'
+      : 'Exact historical decision title or filename reference remains linked to immutable provenance.',
+  disposition: 'frozen',
+  verificationCommand: 'internal:verify-exact-frozen-occurrence',
+  expectedVerification: 'PASS exact frozen occurrence and context',
+}));
+EXACT_ALLOWLIST.push(...EXACT_FROZEN_ROWS);
+const EXPECTED_EXACT_ALLOWLIST_COUNT = 83;
+
 const FROZEN_SALTS = [
   'lattice-review-integrity-v1',
   'lattice-init-check-integrity-v1',
@@ -141,7 +222,49 @@ const FROZEN_FILE_BASELINES = [
     byteSha256: 'c9a8166165681b00e4ce16bf626bcd292beda25c2985eb389e35d77b60b50e33',
     reason: 'Exact migration fixture proves bounded legacy input handling.',
   },
+  ...[
+    ['.proof-or-stop/artifact-releases.jsonl', '0918320f9803f910a351b9cb3e55fa4a572ce5b7', '353ad771076933f9c1e1eb74cf83eadf03aa2cb21ddc32865f764aa341ab382c'],
+    ['.proof-or-stop/capability-releases.jsonl', 'c908eaf4626a4fa893e86887d3a40885d4aca324', '9dd9fdfc54061145558aac04f959673c8dade7051c2d8ff9c2db1bf05e23d584'],
+    ['RESUME-B-cc10.md', 'a7a5a123d35b67270eeacae103ffce90a3489657', 'e35061dd7c7130b441158f298c30aa203ab8a1ab4a20f7b5967d715c802c55b3'],
+    ['docs/evidence/orchestrate-legacy-index.md', 'dee96f0808570c108112b9b0dce9ea234464b712', 'a95eb9728f5e34c5a01fcb142e63d13400142c223ca466c5eb7d932cdc9acf7c'],
+    ['docs/evidence/proof-surface-inventory.json', '0f8a38666f5d121b4bb367e9c061fc612bceac34', '5fd0421c5d37efef5e03d1c5e8be0d743049816f086a2a7566b6b0892651e1eb'],
+    ['docs/metadata/task.json', '705f574b26e71e0b21b62247c9079bb71db214cb', '4f1f651fe3ec97a657ea37baba1a2647e3595b1352c91cc9a6ba041ff07c9050'],
+    ['experiments/candidates/session-brief/00-baseline-current.txt', 'c2876081ba44f0e6822a26c8acfa5715e5a8873b', '6b2af77f3a01001c57bbf316f8df0779abd888bc5e38439348d696a26f945d76'],
+    ['experiments/candidates/session-brief/c01-current.txt', 'c2876081ba44f0e6822a26c8acfa5715e5a8873b', '6b2af77f3a01001c57bbf316f8df0779abd888bc5e38439348d696a26f945d76'],
+    ['experiments/candidates/session-brief/c02-next-step-top.txt', 'ca08c94c311d68e905b7acef639450fa7baf6cd8', '30e8bef34a61c3a687ff8760541e06e91217ff1d7d30c5fc2f6c1b247b7064c2'],
+    ['experiments/candidates/session-brief/c03-action-dashboard.txt', 'ec39bb47751f4229a272366ce54675033f3d61af', 'e312ebcfc9debbe5d2b3495d24b6cd3246ecd74b1065463bd6a2326bc91db266'],
+    ['experiments/candidates/session-brief/c05-reviewer-artifact-combined.txt', '7def98ca8cae720be3453fee75a27de63fb83c1c', '1b4ee2daf6a75ee52060ab5c16c9d48c65c08ef2da668e3dca5a0290694c717e'],
+    ['experiments/candidates/session-brief/c06-exception-only-health.txt', '221fcc5c2a03f083ce438c89fe3a20ebb9143792', '59169bc2001519bac84c1b70a1731663d7622892c34f6437987646c8d970d263'],
+    ['experiments/candidates/session-brief/c07-next-pending-only.txt', '4a0fb105c59bf6c7912986fcd9d185d9a3f25696', '09731d1e924c4f41a1f48d8b3bc9fb070d5263425e67bee3cbbb5a863084e155'],
+    ['experiments/candidates/session-brief/c08-active-story-card.txt', 'ac7b2328121567385d3ba5e30b7d8b6427bec23f', 'c4513c6158c90ea45d874b7753611f5fe7398bab0707f9f0d8ffcf32ef726791'],
+    ['experiments/candidates/session-brief/c10-detailed.txt', '88c87f672d3d29dfa7709d8ede34a066f45206af', '2a3776fecf654c4e5316d2a3050cf57aece7d01bb2b38b6a7fb04efe8caa5b57'],
+    ['experiments/candidates/session-brief/c12-chinese-action.txt', '68d8c9e1e5f604beaa5f50db8728c0a034c0c59b', '620517e5f360f8b3504a42c3e6308c6230cdf702cede80211bbbaa1394cbb300'],
+    ['experiments/reports/real-story-replay-v1.json', 'ee697a9d2cb0f9f353f171a150efdad0083bc4f3', '2a910264f90d44ec2aca5bba730b254fb917e88f8054adf9ee5e805e5670d2bf'],
+    ['experiments/reports/real-story-replay-v1.md', 'c397a420e49504a60324f8f4a2debb24b73da47e', '868ffd7a615b494c6e1fe209bab54c23f4095af76c621e4621b461e8e662da12'],
+    ['experiments/reports/session-brief-structured-v1.md', 'af278ea5712297b9ba0e4a9931012c9cfa9feba8', '2a3e16803c4fc484abf73ac57f94db495c315402f50d5b38aa56b53ccd7ed3e4'],
+    ['experiments/reports/story-review-output-after-production-v1.json', 'e3b723506bb6528d00a6d7c4006bd696e46dd499', 'c581049b0fb0d4652a1a35a8b3389d44de67bfc4a6d5c477d4c49914bb68a61c'],
+    ['experiments/reports/story-review-output-lab-v1.json', '6ef0f82d16b91eebfbe809a91bda0cc50788c25d', 'b0b393d040c5c6bd58c7081dace08286f4d4b567457461715339292dcb583c05'],
+    ['experiments/role-prompt-ab-replay/corpus.json', '577c378b18b904a8d270e093ac4ed0e9c4871a67', '2bc0964d23ac123423990d04d6aabf1ee6d484fe3171a3017a2d50ac55bd20c0'],
+    ['experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json', '11d4e000bc86030e773e7dc93f6ea6973488d961', '436f8ff99f31c8c94e56b2e0eb0bfc278e35758d511642c9a304c92757039790'],
+    ['experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json', 'c59404042a22e5e26419e936a208a6b09e0409fd', 'f0fa199cc596f8641d900df6b6459e116c7e015250df924e6d5c2be646e5aa6f'],
+    ['experiments/runs/lab-reviewer-history-v1/run-001/config.snapshot.json', '6337143cb6019c6246c190f2784681f1f71ff38d', 'bcf0d513dc65e42644f22f588e40863108118c9b7440813f676d3c8dc6fd15dd'],
+    ['experiments/runs/lab-reviewer-history-v1/run-002/config.snapshot.json', '6337143cb6019c6246c190f2784681f1f71ff38d', 'bcf0d513dc65e42644f22f588e40863108118c9b7440813f676d3c8dc6fd15dd'],
+    ['experiments/runs/lab-reviewer-reviewer-quality-v1/run-001/config.snapshot.json', '1c99896241d820e9e5435bb5bd7064f5b4cbd620', '28a83d48f7bda40a82750f7ea9af3ea78d9cab239105ecc0b93127237d4cac8c'],
+  ].map(([path, gitBlobOid, byteSha256], index) => ({
+    id: `legacy-provenance-${String(index + 1).padStart(2, '0')}`,
+    class: 'provenance_bytes', path, gitBlobOid, byteSha256,
+    reason: 'Historical release, replay, report, or evidence bytes are immutable provenance.',
+  })),
+  {
+    id: 'legacy-agent-author-negative-fixture', class: 'compatibility_fixture',
+    path: 'packages/main/tests/red/red-b2aa7-artifact-validation.mjs',
+    gitBlobOid: 'ce8ef0ea3ec930501e98c53e99fe49a149dfe465',
+    byteSha256: 'd0af2581766404c110c351c8aed3e66ef04bc9388e226cddae1659a97d3a2f32',
+    reason: 'Historical negative test preserves the exact pre-cutover Agent author input.',
+  },
 ];
+const FROZEN_FILE_BASELINE_PATHS = new Set(FROZEN_FILE_BASELINES.map((row) => row.path));
+const EXPECTED_FROZEN_FILE_BASELINE_COUNT = 35;
 
 // Generated once at the RED commit. Every row is one exact tracked file pinned by
 // both Git blob identity and sha256. Runtime exclusion is by this exact path set;
@@ -466,6 +589,9 @@ function hasBroadToken(token) {
 
 function validateExactRows(rows, tracked, root, readText = (path) => readFileSync(resolve(root, path), 'utf8')) {
   const errors = [];
+  if (rows.length !== EXPECTED_EXACT_ALLOWLIST_COUNT) {
+    errors.push(`allowlist row count ${rows.length}, expected ${EXPECTED_EXACT_ALLOWLIST_COUNT}`);
+  }
   const ids = new Set();
   const rowKeys = new Set();
   const signatureCoverage = new Map(FROZEN_SALTS.map((salt) => [salt, 0]));
@@ -530,6 +656,9 @@ function isProtectedArtifact(path) {
 
 function verifyFrozenFiles(root, tracked, baselines = FROZEN_FILE_BASELINES) {
   const errors = [];
+  if (baselines.length !== EXPECTED_FROZEN_FILE_BASELINE_COUNT) {
+    errors.push(`frozen baseline row count ${baselines.length}, expected ${EXPECTED_FROZEN_FILE_BASELINE_COUNT}`);
+  }
   const ids = new Set();
   for (const row of baselines) {
     if (ids.has(row.id)) errors.push(`frozen baseline duplicate id ${row.id}`);
@@ -663,7 +792,7 @@ function lineAt(text, index) {
   return text.slice(start, endIndex === -1 ? text.length : endIndex);
 }
 
-function isSignatureOccurrence(path, token) {
+function isExactAllowedOccurrence(path, token) {
   return EXACT_ALLOWLIST.some((row) => row.path === path && row.token === token);
 }
 
@@ -686,7 +815,7 @@ function scanActiveResidue(root, files) {
   const hits = [];
   const schemaSet = new Set(schemaRows(root, files).map((row) => `${row.path}\0${row.token}`));
   for (const path of files) {
-    if (!isActiveTextPath(path) || isFrozenSurface(path)) continue;
+    if (!isActiveTextPath(path) || isFrozenSurface(path) || FROZEN_FILE_BASELINE_PATHS.has(path)) continue;
     const absolute = resolve(root, path);
     let text;
     try {
@@ -696,7 +825,7 @@ function scanActiveResidue(root, files) {
     }
     for (const match of text.matchAll(TOKEN_PATTERN)) {
       const token = match[0];
-      if (schemaSet.has(`${path}\0${token}`) || isSignatureOccurrence(path, token)) continue;
+      if (schemaSet.has(`${path}\0${token}`) || isExactAllowedOccurrence(path, token)) continue;
       const line = lineAt(text, match.index);
       hits.push({ class: classifyToken(path, token, line), path, line: lineNumberAt(text, match.index), token });
     }
@@ -781,14 +910,26 @@ function runSelfTest(root, files) {
   expect(validateExactRows(stale, tracked, root, virtualRead).some((error) => error.includes('occurrence count')), 'stale allowlist count mutation did not fail');
   const broadened = EXACT_ALLOWLIST.map((row) => row === first ? { ...row, token: LEGACY_WORD } : row);
   expect(validateExactRows(broadened, tracked, root, virtualRead).some((error) => error.includes('forbidden broad')), 'broadened allowlist token did not fail');
+  const changedToken = EXACT_ALLOWLIST.map((row) => row === first ? { ...row, token: `${row.token}-changed` } : row);
+  expect(validateExactRows(changedToken, tracked, root, virtualRead).some((error) => error.includes('occurrence count')), 'changed exact allowlist token did not fail');
+  const changedPath = EXACT_ALLOWLIST.map((row) => row === first ? { ...row, path: 'package.json' } : row);
+  expect(validateExactRows(changedPath, tracked, root, virtualRead).some((error) => error.includes('occurrence count')), 'changed exact allowlist path did not fail');
+  const changedContext = EXACT_ALLOWLIST.map((row) => row === first ? { ...row, contextSha256: '0'.repeat(64) } : row);
+  expect(validateExactRows(changedContext, tracked, root, virtualRead).some((error) => error.includes('bounded context digest changed')), 'changed exact allowlist context digest did not fail');
   const missingRow = EXACT_ALLOWLIST.filter((row) => row.token !== FROZEN_SALTS[1]);
-  expect(validateExactRows(missingRow, tracked, root, virtualRead).some((error) => error.includes('missing signature allowlist')), 'missing allowlist row did not fail');
+  expect(validateExactRows(missingRow, tracked, root, virtualRead).some((error) => error.includes('row count') || error.includes('missing signature allowlist')), 'missing allowlist row did not fail');
   const missingOccurrenceText = source.replace(first.token, `proof-or-stop-review-integrity-v1`);
   const missingRead = (path) => (path === first.path ? missingOccurrenceText : readFileSync(resolve(root, path), 'utf8'));
   expect(validateExactRows(EXACT_ALLOWLIST, tracked, root, missingRead).some((error) => error.includes('occurrence count')), 'missing frozen occurrence did not fail');
   const frozen = FROZEN_FILE_BASELINES[0];
   const mutatedBytes = Buffer.concat([readFileSync(resolve(root, frozen.path)), Buffer.from('\nmutation')]);
   expect(sha256(mutatedBytes) !== frozen.byteSha256, 'frozen-byte mutation did not change digest');
+  const changedFrozenPath = FROZEN_FILE_BASELINES.map((row) => row === frozen ? { ...row, path: 'missing-frozen-file' } : row);
+  expect(verifyFrozenFiles(root, tracked, changedFrozenPath).some((error) => error.includes('missing tracked path')), 'changed frozen path did not fail');
+  const changedFrozenDigest = FROZEN_FILE_BASELINES.map((row) => row === frozen ? { ...row, gitBlobOid: '0'.repeat(40) } : row);
+  expect(verifyFrozenFiles(root, tracked, changedFrozenDigest).some((error) => error.includes('byte mutation')), 'changed frozen digest did not fail');
+  const missingFrozenRow = FROZEN_FILE_BASELINES.slice(1);
+  expect(verifyFrozenFiles(root, tracked, missingFrozenRow).some((error) => error.includes('row count')), 'missing frozen baseline row did not fail');
   const experimentMutation = EXPERIMENT_PROVENANCE_ROWS.map((row, index) => index === 0
     ? { ...row, byteSha256: '0'.repeat(64) }
     : row);
@@ -802,7 +943,7 @@ function runSelfTest(root, files) {
     process.exitCode = 1;
     return;
   }
-  console.log('PASS identity-cutover self-test: injected active residue, stale/broadened/missing allowlist, missing occurrence, and frozen/provenance-byte mutations all fail closed');
+  console.log('PASS identity-cutover self-test: active residue plus missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed');
 }
 
 function main() {
@@ -850,6 +991,10 @@ function main() {
   }
 
   const hits = scanActiveResidue(root, files);
+  if (process.argv.includes('--print-residue')) {
+    console.log(JSON.stringify(hits, null, 2));
+    return;
+  }
   if (hits.length > 0) {
     console.error('FAIL identity-cutover: active legacy identities remain');
     for (const className of ACTIVE_CLASSES) {
