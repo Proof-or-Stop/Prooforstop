@@ -5891,6 +5891,38 @@
       "consumedAt": "2026-08-26T07:20:03.919Z",
       "consumedByReviewRound": "2026-08-25T19:36:40.358Z",
       "_hash": "2ebc03cbb5a43f3396318fa744f97d72b41cfd9da3242015283135b13c84b8da"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RI-050",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-26T09:37:09.709Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-31T17:26:46.808Z",
+      "updatedAt": "2026-08-31T17:29:37.173Z",
+      "cutoff": {
+        "headHash": "27dbef1c674335c6ae076bd7e866e4ce92b5d71d",
+        "materialHash": "b5471b68273a55361022dd18c57eb876bf1e31a0d770747fc36a66b7e842b527",
+        "storyFilesHash": "3d171e21d938e9e5168ac1f339b5de422e2eeecce021c1ca8365a5179f0cd637"
+      },
+      "scopeDigest": "fed91c40a2e2ebb01288ba96fc9bbb063b64a37592baeb787f5663867e37ada2",
+      "candidateSpecSetDigest": "f5ef3c332fa094b1f07a5e0e59107237dec68634ce4a572bee15177ace27e743",
+      "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 765,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-5a15:F-324"
+      ],
+      "cancelledAt": "2026-08-31T17:29:37.173Z",
+      "cancelReason": "Cancel RI-050 before F-324 identity-invalidation fix; the OPEN epoch cutoff cannot survive the certification-window material change.",
+      "terminalRunSequenceBoundary": 765,
+      "_hash": "0eb8dd7e57af38ad9c92151a49e4010d14475656c4a2dd9ef63e3cb4095e05da"
     }
   ],
   "receipts": [
