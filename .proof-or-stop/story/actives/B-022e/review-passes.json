@@ -80,6 +80,28 @@
         "scanEscalationReason": null
       },
       "_hash": "e7af0c160f3c7eba682cd7521f4d0c89e89d429c27e896808bcbd9a8bb8cf7a5"
+    },
+    {
+      "id": "B-022e:RP-003",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: final evidence has non-empty fresh transcript refs and 29 fresh mechanical receipts; exact self-test selector, current-truth freeze and active-retired-instruction mutations, semver incompatibility plus alias/prerelease/optional dependency closure, four-tarball network-disabled offline boundary, cache tamper/stale/concurrency, and stale-refresh dedupe failure scenarios all pass. Open F-002 remains medium/non-blocking and is deferred per operator policy.",
+      "createdAt": "2026-08-31T04:28:49.073Z",
+      "reviewRound": "2026-08-31T04:21:34.264Z",
+      "reviewRunId": "B-022e:RR-010",
+      "envelopeId": "249b97af24e0e55f28685acb40d9902f278c0635f95343e20e256114fd73a870",
+      "writerSessionId": "sess-7e9eac50d15b4e6186c393729457a89c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "scripts/verify-proof-or-stop-pack-boundary.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "05afde786bf835a45287acd18f166fd0650fd5773af614a5f204e04ae654d887"
     }
   ]
 }
