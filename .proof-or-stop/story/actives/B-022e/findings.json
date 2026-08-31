@@ -14,6 +14,26 @@
       "_hash": "cd6a236ce7c3755e72f006a54511952c6f0b822b27412e0b95bd92c3d7323366",
       "signatureTag": "missing|unknown|scripts-verify-proof",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-002",
+      "desc": "packages/main/src/tasks/scope-contract-smoke.ts:186-225 and :386-413 cover only a rename-old positive plus one unrelated ambiguous-missing negative for the new exactRepoRootPaths path. They do not mechanically exercise the delete-positive branch or M/A/C/rename-target/untracked/glob negatives described by packages/main/src/core/scope-contract.ts:259-297 and packages/main/src/core/scope-path-classifier.ts:146-150. WHY: the current implementation is narrow, but a later parser broadening could silently turn the acknowledgement provenance into an escape hatch without this smoke failing; defer a complete status-matrix cohort to a follow-up story.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-31T01:40:55.940Z",
+      "reviewRound": "2026-08-31T01:34:00.265Z",
+      "reviewRunId": "B-022e:RR-002",
+      "_hash": "23a6f4c27585934b47f9a6263fbabbd6c3f625cb11da6911b741e6612a841eca",
+      "files": [
+        "packages/main/src/tasks/scope-contract-smoke.ts",
+        "packages/main/src/core/scope-contract.ts",
+        "packages/main/src/core/scope-path-classifier.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
