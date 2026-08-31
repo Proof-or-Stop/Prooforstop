@@ -373,6 +373,24 @@
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-019",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1621-1638,1706-1780,1936-1967,2015-2017 — HIGH: the contract text requires the verifier to reject every new gate consumer that bypasses the shared predicate and asserts an acyclic Story 3 -> Story 2 -> Story 1 dependency, but the future Required tests only compare the currently named consumer surfaces and reject Story 2 -> Story 1 imports. No falsifiable mutation test injects a newly registered/phase-allowed consumer that accepts CandidateRoute, standalone FindingRouteReceipt, or historical advisory evidence, and no dependency test rejects Story 3 importing Story 2/1. Therefore all three Story suites can pass while a new lifecycle consumer bypasses the mandatory floor or a reverse lower-layer import creates a cycle. Add contract-verifier mutations for registry/command-policy/phase-allowlist consumer bypasses and dependency fixtures for every forbidden reverse edge, with failure as an enforce stopping condition.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T01:32:31.541Z",
+      "reviewRound": "2026-08-31T01:27:13.637Z",
+      "reviewRunId": "B-1fa6:RR-019",
+      "_hash": "c931401bc13e170bc09dbf97f31a8208eaeb080f688a2f9f2d8ce90046c585d9",
+      "files": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
