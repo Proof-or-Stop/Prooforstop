@@ -445,7 +445,7 @@
       "desc": "scripts/verify-proof-or-stop-identity-cutover.mjs:719-760,780-789,993-1060 concept-cleanup: HIGH — append-only release-ledger suffixes bypass the exact legacy-residue contract. verifyAppendOnlyJsonlPrefix validates only byte-prefix preservation, UTF-8/JSON-object shape, and schemaVersion, while both ledger paths remain in FROZEN_FILE_BASELINE_PATHS and scanActiveResidue skips every such path wholesale. Therefore any newly appended record carrying lattice-review-*, LATTICE_*, @lattice/*, or .lattice paths passes the claimed zero-residue verifier without an exact path+token+context row. This is not hypothetical: the post-baseline suffixes currently contain 33 retired .lattice path occurrences (1 in artifact-releases.jsonl and 32 in capability-releases.jsonl), yet the verifier prints PASS. The policy at docs/requirements/decisions/proof-or-stop-identity-cutover.md:160-177 requires every occurrence to be exact-accounted and new unlisted tokens to fail. Preserve the frozen prefix, but residue-scan/classify the suffix (or exact-pin reviewed suffix occurrences) and add a mutation proving a correctly-schemaed appended record with a retired identity fails.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-31T23:00:24.805Z",
@@ -453,7 +453,11 @@
       "reviewRunId": "B-022e:RR-048",
       "_hash": "2698ec8f5393416ae82c6fae093001b8d14db5b54b7a5730858460b6ccbf08d7",
       "signatureTag": "missing|unknown|scripts-verify-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by edc7596cfa: frozen ledger prefixes remain exact, while every suffix row is schema-validated and retired identity occurrences require exact record, token, context and digest provenance; injected unlisted suffix identities fail.",
+      "resolvedAt": "2026-08-31T23:37:24.274Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-021",
