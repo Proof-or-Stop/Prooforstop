@@ -22709,6 +22709,36 @@
       },
       "readDiagnostics": [],
       "_hash": "268d1e5d9e7cdf03d115f9f4d02e2e809a7f24e183761086483b6b59b0f3de2b"
+    },
+    {
+      "id": "B-45a0:RP-470",
+      "agent": "lattice-review-docs",
+      "note": "Docs-vs-code consistency re-verified after DEV-phase repair-only round (rollout report regen, pre_review_check now PASS/zero codes, 50 evidence rows refreshed, F-428/F-429/F-430 resolved). Confirmed independently: zero production source and zero *.md changes since e3a6186f7f/f2e648606d (git log/diff --stat, only .proof-or-stop/story/actives/B-45a0/* metadata touched). Narrow question (acceptance-surface misdescription): checked proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md sec 8/97/1600 against transition-orchestrator.ts + config.ts + live pre-review-check.json. acceptanceRolloutGateMode=enforce in proof-or-stop.config.json/lattice.config.json genuinely blocks (verified blocking derivation in runAcceptanceRolloutGate); doc line 97 correctly states pre_review_check and rollout report run under independently configured modes -- pre_review_check blocking is gated by the separate acceptanceTopologyGateMode key, which is unset/defaults to observe in this repo (confirmed via resolveAcceptanceTopologyGateMode + live pre-review-check.json showing mode:observe), so it is currently non-blocking regardless of its pass/zero-codes status; no doc text claims pre_review_check is unconditionally enforced, and the only enforce-opt-in sentence (line 1600) is correctly scoped to the rollout surface only. No stale 50 Stories/exactly 50/minimum of 50/50-Story phrasing reintroduced (unchanged since RP-456/463/464). Zero findings this round.",
+      "createdAt": "2026-08-31T02:37:44.580Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1066",
+      "envelopeId": "f58a59d54884811d64086a50c795bbca8d9c3583f6cd21ced5b39d4db6ee0133",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "CLAUDE.md",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ebad7731ee30189bf1eecf7363e9a4f01d20b171a3256000ed634ab03f6e6047"
     }
   ]
 }
