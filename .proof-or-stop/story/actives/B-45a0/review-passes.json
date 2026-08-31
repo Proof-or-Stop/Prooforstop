@@ -23736,6 +23736,41 @@
         "scanEscalationReason": null
       },
       "_hash": "0cf9c7488481e5c625c8d47f137cef9a39373b6b0b8c24252e1ab11316a0a004"
+    },
+    {
+      "id": "B-45a0:RP-499",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion completeness scan for round 2026-08-31T10:45:30.796Z (head ee5b2fb). Deletions/moves identified: isStoryMetadataPath/isMaterialExcludedPath moved evidence-freshness.ts -> material-path-policy.ts (re-exported for ~10 live callers, single implementation confirmed, no duplicate logic); mergeBaseWithMain/changedStoryFilesBetween/objectIdsAtRef superseded by resolveStoryMergeBase/resolveStoryChangedFiles in story-aware-validation.ts. Repo-wide grep (ts/md/json/mjs/cjs, excluding node_modules/dist/.git) for all deleted local function names returned zero residual references. This confirms prior open finding B-45a0:F-121 (my own lane) describes a defect already fixed in current HEAD -- the three named superseded helpers are fully removed. Wave 4 concept-boundary check: acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, acceptance_rollout_check all present as sole current command-catalog.ts names for that chain; no predecessor/superseded command name found. EVIDENCE_COMMAND_TIMEOUT_CAP_MS value change (7_200_000 -> 21_600_000) is a documented CLAUDE.md-synced constant bump, not a concept rename with residue. No blocking concept-deletion residue this round.",
+      "createdAt": "2026-08-31T11:41:46.918Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1114",
+      "envelopeId": "b5e22b963d142ae51dc1daaefad78685bf609e827c7851978804031e70eec82d",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "291e0c30fd9b7c1c59b448653f8d0942ceb42d9571292ea1d7873a1f3c04be43"
     }
   ]
 }
