@@ -882,7 +882,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1543-1572,1628-1639 — HIGH targeted re-review of 93ab5605b4: GateEvaluationSnapshot makes earliestBoundExpiryAt optional and never requires the verifier to derive it as the minimum of every bound assessment, route, deferral and policy expiry. A signed snapshot can omit it or use a later time; commit-time clock recheck then has no effective boundary while record CAS heads remain unchanged. Require the field whenever any input is expiry-bound, derive and verify the complete minimum under the ledger snapshot, and add omission/later-value plus exact-boundary and replay race fixtures.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T09:12:10.988Z",
@@ -890,7 +890,11 @@
       "reviewRunId": "B-1fa6:RR-046",
       "_hash": "5bf45d2c56f32ea709dfbb122a2b4fc89af20cc1c1faddb38839fcd332fe75a8",
       "signatureTag": "adversarial|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d26fb86fe9: GateEvaluationSnapshot now carries a signed expiryClosure over complete expiring-input enumeration, canonical earliest expiry or explicit signed empty no-expiry state, trusted clock policy and commit deadline; commit re-enumerates and rejects omission, forged-late values, boundaries and replay races.",
+      "resolvedAt": "2026-08-31T09:31:44.256Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-043",
