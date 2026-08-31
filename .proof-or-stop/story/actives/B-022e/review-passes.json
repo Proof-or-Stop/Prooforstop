@@ -421,6 +421,29 @@
         "scanEscalationReason": null
       },
       "_hash": "9bb87544f87a6ef7149b1b1f5bae7e60cdd4a08b3a943349b556c294b506a99f"
+    },
+    {
+      "id": "B-022e:RP-015",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "F-013 targeted coverage re-review passed: the recaptured CHK-007 pack-boundary transcript is rebound to current storyFilesHash 716e81cc..., its command exited 0 and records the exact root/core/lab/utils four-tarball npm-offline boundary. evidence_inspect at stable HEAD b37423e reports fresh, staleRefs=0, transcriptRefs=1, and 30/30 fresh evidence refs. F-013 is resolved; F-002 remains the accepted medium non-blocking deferred advisory. No product code was modified.",
+      "createdAt": "2026-08-31T09:26:10.679Z",
+      "reviewRound": "2026-08-31T09:21:04.599Z",
+      "reviewRunId": "B-022e:RR-034",
+      "envelopeId": "1c0fe83257aeadd000b02d3d2c4fa6dca68f7f2157cb031a4d12e92760d57862",
+      "writerSessionId": "sess-7e9eac50d15b4e6186c393729457a89c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/evidence/live-smoke-transcript.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "50c46a4b758f1c96d976bb5d870c1918761ae43573427d1cbbaa4d763667f124"
     }
   ]
 }
