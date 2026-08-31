@@ -23627,6 +23627,21 @@
       "resolvedAt": "2026-08-31T02:29:45.902Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-431",
+      "desc": "F-428/F-429/F-430 resolvedReason unconditionally claims 'pre_review_check: PASS with zero codes, down from ten' as a settled, current fact. Independently re-running the read-only pre_review_check_read right now (REVIEW phase, HEAD 0c61e81d0c) reproduces FAIL with codes=[PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED], stably across repeat calls. Git history for .proof-or-stop/story/actives/B-45a0/{pre-review-check.json,acceptance-basis.json} shows the PASS was real at commit 38fd3b206d (bound to PLAN basisDigest sha256:d42824c0...), but acceptance_basis_generate was rerun twice more afterward (5dee7587a8, 5ce0fd05ed), producing a new basisDigest sha256:9e661a77... that was never re-certified via a follow-up pre_review_check before findings were marked resolved and the story advanced to REVIEW (0e1c5a3991). Root cause: the two later acceptance-basis.json snapshots are semantically byte-identical to the one pre_review_check passed against (same enumeratedPathRefs/adapterResults/status/blindSpots, only binding.headHash differs from git auto-commit churn) -- this is the benign drift class acceptanceCoverageBasisSemanticDigest exists to detect, but issuePreReviewCheckArtifacts PR_COVERAGE_BASIS_CHANGED check (pre-review-check.ts line ~342) compares raw basisDigest instead, so it false-positives on every acceptance_basis_generate rerun after a pre_review_check pass. The harder-won proof state from the transcript repair is unaffected (plannedActual=complete, executableEvidence=current, mutations=biting, transcript=related, authority=admissible all still hold), and this gate is non-blocking in current observe mode, so nothing is silently bypassed -- but the finding_resolve text overclaims a currently-false PASS as fact, which is a documentation/evidence-honesty gap the next reader (or a future enforce-mode flip) would trust incorrectly.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T02:39:54.947Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1063",
+      "_hash": "ecf01ddda4ef909e43187b9b26fed77721918562d0a180d47e5fe76e0adbfe34",
+      "signatureTag": "missing|unknown|resolvedreason-unconditionally-claims",
+      "signatureTagSource": "auto"
     }
   ]
 }
