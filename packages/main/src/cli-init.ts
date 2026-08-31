@@ -17,7 +17,7 @@ import {
   renderProofOrStopBootstrapScript,
   renderProofOrStopCodexAdapterManifest,
   renderProofOrStopCodexWrapperScript,
-  renderLatticeProjectConfig,
+  renderProofOrStopProjectConfig,
   renderCodexHooksJson,
   renderCodexPretoolScopeHookScript,
   renderCodexEvidencePretoolHookScript,
@@ -53,6 +53,8 @@ import {
   listRuntimeArtifactIgnorePatterns,
 } from './core/runtime-artifact-registry.js';
 import { PROOF_OR_STOP_STORY_DIR, PROOF_OR_STOP_DIR } from './core/lattice-paths.js';
+import { extractManagedBlock, hasManagedBlock, inspectManagedBlock, replaceManagedBlock } from './core/managed-markers.js';
+import { canonicalAgentRoleId } from './core/agent-role-identity.js';
 // B-cc10 CHK-002: `init` is a WRITER, so it uses the CANONICAL names only — the
 // read-both contract resolves deprecated spellings for reads but never writes
 // them, otherwise two on-disk copies of the same state would diverge.
@@ -71,7 +73,6 @@ const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, ENGLISH_ON
 
 // 通过 proof-or-stop init 调用时 argv[2]='init'，跳过；直接运行 init entrypoint 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
-const INIT_DOC_SECTION_RE = /<!--\s*lattice:start\s*-->[\s\S]*?<!--\s*lattice:end\s*-->/;
 const GITIGNORE_RUNTIME_BLOCK_RE = new RegExp(
   `${escapeRegExp(LATTICE_RUNTIME_IGNORE_BLOCK_START)}[\\s\\S]*?${escapeRegExp(LATTICE_RUNTIME_IGNORE_BLOCK_END)}`,
 );
@@ -336,13 +337,11 @@ function writeExecutable(relPath: string, content: string): boolean {
 }
 
 function extractManagedSection(content: string): string {
-  const match = content.match(INIT_DOC_SECTION_RE);
-  if (!match) return content;
-  return match[0];
+  return extractManagedBlock(content, 'document');
 }
 
 function hasManagedMarkers(content: string): boolean {
-  return INIT_DOC_SECTION_RE.test(content);
+  return hasManagedBlock(content, 'document');
 }
 
 function writeManagedMarkdown(relPath: string, desiredContent: string, label: string) {
@@ -356,12 +355,21 @@ function writeManagedMarkdown(relPath: string, desiredContent: string, label: st
   }
 
   const existing = readFileSync(full, 'utf-8');
-  if (!INIT_DOC_SECTION_RE.test(existing)) {
+  const inspection = inspectManagedBlock(existing, 'document');
+  if (inspection.status === 'missing') {
     console.log(`  - ${label} (exists, no Proof-or-Stop managed markers, skip)`);
     return;
   }
+  if (inspection.status === 'malformed') {
+    console.log(`  - ${label} (malformed Proof-or-Stop managed markers, skip)`);
+    return;
+  }
 
-  const updated = existing.replace(INIT_DOC_SECTION_RE, extractManagedSection(desiredContent));
+  const updated = replaceManagedBlock(existing, extractManagedSection(desiredContent), 'document');
+  if (updated === null) {
+    console.log(`  - ${label} (managed markers became ambiguous, skip)`);
+    return;
+  }
   if (updated !== existing) {
     writeFileSync(full, updated);
     console.log(`  ✓ ${label} (Proof-or-Stop section synced)`);
@@ -905,7 +913,7 @@ if (isGlobalThin) {
   // spelling, so the console never claims a filename that is not on disk.
   const latticeConfigLabel = `${PROOF_OR_STOP_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
   if (!existsSync(latticeConfigPath)) {
-    writeFileSync(latticeConfigPath, renderLatticeProjectConfig());
+    writeFileSync(latticeConfigPath, renderProofOrStopProjectConfig());
     console.log(`  ✓ ${latticeConfigLabel}`);
   } else {
     console.log(`  - ${latticeConfigLabel} (exists, skip)`);
@@ -930,7 +938,8 @@ if (isGlobalThin) {
 }
 
 // 4. agent 适配器 → 全局单一源 ~/.claude/agents thin-shim（B-097f）
-// Claude Code 只能从磁盘解析 subagent_type: lattice-*，但用户级全局
+// Claude Code 从磁盘解析 canonical proof-or-stop-* subagent_type；legacy
+// lattice-* values remain read-only compatibility aliases. 用户级全局
 // ~/.claude/agents 对所有项目生效，project-level 会 shadow user-level。
 // prompt 正文绝不物化进宿主目录（symlink 也算暴露）；每个角色只放一个
 // thin-shim（frontmatter + tools + "从 CLI 取指令" body），正文由
@@ -1019,14 +1028,14 @@ if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
   for (const file of agentPromptFiles) {
     const src = join(agentTemplateDir, file);
     const dst = join(codexAgentDir, file);
-    const roleId = file.replace(/\.md$/, '');
+    const roleId = canonicalAgentRoleId(file.replace(/\.md$/, ''));
     // B-META-framework-audit:F-005 — a MODULAR COMPLEX role must be materialized as
     // its digest-pinned legacy-full-context reconstruction, not as the raw modular
     // template. `verify_codex`'s agents-mirror check compares each file against
     // `renderPromptEntryForHost(entry, 'codex')`, which defaults complex roles to
     // 'legacy-full-context' (prompt-registry.ts:415-417). Reading the template
     // straight off disk emitted the modular body instead (marker
-    // proofbound:modular-role-body:v1 — for lattice-evaluator the modular template is
+    // proof-or-stop:modular-role-body:v1 — for proof-or-stop-evaluator the modular template is
     // 3945 bytes / 3939 UTF-16 units against the expected 9008 bytes / 8998 UTF-16
     // units; both units are given because the template contains 3 non-ASCII
     // characters, so byte and string lengths differ and quoting one as the other
@@ -1191,7 +1200,7 @@ console.log(`
 
 Next steps:
 ${isGlobalThin ? `  1. Read ${PROOF_OR_STOP_DIR}/Lattice.md
-  2. Use the global lattice CLI: proof-or-stop session_brief
+  2. Use the global proof-or-stop CLI: proof-or-stop session_brief
   3. For Codex adapter: proof-or-stop codex verify / proof-or-stop codex doctor
   4. Optional: proof-or-stop validate to verify project` : `  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
   2. Optional: edit ${PROOF_OR_STOP_CONFIG_FILENAME} to adjust scanRoot

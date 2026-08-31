@@ -41,6 +41,7 @@ import {
 } from './prompt-contracts.js';
 import { BASELINE_RUNTIME_CONTRACT } from './prompt-measurement.js';
 import { readPromptRegistry, type PromptHost } from './prompt-registry.js';
+import { agentRoleIdsEqual, canonicalAgentRoleId } from './agent-role-identity.js';
 import { loadConfig } from './config.js';
 import {
   isPromptRoleEligibleForReviewEvidence,
@@ -65,7 +66,29 @@ type ReviewLaneForEntry<Entry> = Entry extends {
 /** Includes the retired historical lane at the type boundary; runtime eligibility still rejects it. */
 export type ReviewRunLane =
   | ReviewLaneForEntry<(typeof AGENT_DISPATCH_REGISTRY)[number]>
-  | 'lattice-review-channel';
+  | 'proof-or-stop-review-story-init'
+  | 'proof-or-stop-review-scope-plan'
+  | 'proof-or-stop-review-topology-critic'
+  | 'proof-or-stop-review-concept'
+  | 'proof-or-stop-review-quality'
+  | 'proof-or-stop-review-test-coverage'
+  | 'proof-or-stop-review-behavior'
+  | 'proof-or-stop-review-docs'
+  | 'proof-or-stop-review-delivery'
+  | 'proof-or-stop-review-channel'
+  // Historical lane spellings remain valid input types for persisted evidence
+  // and migration tests; resolveReviewRunLane canonicalizes them before use.
+  | 'lattice-review-story-init'
+  | 'product-reviewer'
+  | 'lattice-review-scope-plan'
+  | 'lattice-review-topology-critic'
+  | 'lattice-review-concept'
+  | 'lattice-review-quality'
+  | 'lattice-review-test-coverage'
+  | 'lattice-review-behavior'
+  | 'lattice-review-docs'
+  | 'lattice-review-channel'
+  | 'lattice-review-delivery';
 
 /** Stable registry-order projection; the dispatch registry is the sole lane authority. */
 export const REVIEW_RUN_LANES: readonly ReviewRunLane[] = Object.freeze(
@@ -202,15 +225,19 @@ export function isTerminalReviewerFindingStatus(status: unknown): boolean {
 }
 
 export function isReviewRunLane(value: string): value is ReviewRunLane {
-  return (REVIEW_RUN_LANES as readonly string[]).includes(value);
+  return (REVIEW_RUN_LANES as readonly string[]).includes(canonicalAgentRoleId(value));
 }
 
 // A finding / review pass counts as reviewer evidence (subject to reviewRunId
-// binding) only when its agent is a lattice-review-* lane. main / main-agent /
-// lattice-implementer / other non-reviewer actors create findings during DEV or
-// for meta-process notes and must NOT be treated as reviewer evidence by the
-// REVIEW→TEST gate. Mirrors the predicate used at finding_add time
-// (handlers/finding.ts) and elsewhere in the codebase.
+// binding) only when its agent resolves to a proof-or-stop-review-* lane.
+// Historical lattice-review-* values are explicit legacy compatibility input
+// and are canonicalized before this check. lattice-implementer is a
+// historical/legacy compatibility alias; the canonical implementer is
+// proof-or-stop-implementer. main / main-agent / other non-reviewer actors
+// create findings during DEV or for meta-process
+// notes and must NOT be treated as reviewer evidence by the REVIEW→TEST gate.
+// Mirrors the predicate used at finding_add time (handlers/finding.ts) and
+// elsewhere in the codebase.
 export function isReviewerAgent(agent: string | undefined | null): boolean {
   const entry = resolveRegisteredAgentActor(agent);
   return !!entry?.reviewerLane
@@ -221,7 +248,7 @@ export function isReviewerAgent(agent: string | undefined | null): boolean {
 export function resolveReviewRunLane(agent?: string, lane?: string): ReviewRunLane {
   const resolvedAgent = (agent || '').trim();
   const resolvedLane = (lane || '').trim();
-  const candidate = resolvedLane || resolvedAgent;
+  const candidate = canonicalAgentRoleId(resolvedLane || resolvedAgent);
   if (!candidate) {
     throw new Error(`review_run_start: agent/lane must provide a registered REVIEW reviewer (supported: ${REVIEW_RUN_LANES.join(', ')})`);
   }
@@ -233,7 +260,7 @@ export function resolveReviewRunLane(agent?: string, lane?: string): ReviewRunLa
     if (!isPromptRoleEligibleForReviewEvidence(entry.reviewerLane)) {
       throw new Error(`review_run_start: agent "${resolvedAgent}" is retired or not eligible to create REVIEW evidence`);
     }
-    if (resolvedLane && resolvedLane !== entry.reviewerLane) {
+    if (resolvedLane && !agentRoleIdsEqual(resolvedLane, entry.reviewerLane)) {
       throw new Error(`review_run_start: agent "${resolvedAgent}" belongs to lane ${entry.reviewerLane}, not ${resolvedLane}`);
     }
   }
@@ -243,7 +270,7 @@ export function resolveReviewRunLane(agent?: string, lane?: string): ReviewRunLa
   if (!isPromptRoleEligibleForReviewEvidence(candidate)) {
     throw new Error(`review_run_start: lane "${candidate}" is retired or not eligible to create REVIEW evidence`);
   }
-  if (resolvedAgent && resolvedLane && resolvedAgent !== resolvedLane) {
+  if (resolvedAgent && resolvedLane && !agentRoleIdsEqual(resolvedAgent, resolvedLane)) {
     throw new Error(`review_run_start: agent "${resolvedAgent}" is inconsistent with lane "${resolvedLane}"`);
   }
   return candidate;
@@ -608,10 +635,12 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   projectRoot: string;
   rolloutMode?: 'legacy-full-context' | 'full-envelope';
 }): { ok: true; binding: VerifiedReviewerDispatchBinding } | { ok: false; reason: string } {
+  const canonicalLane = canonicalAgentRoleId(args.lane);
   const event = [...args.store.readProcessEvents(args.storyId)].reverse().find(candidate =>
     candidate.type === 'dispatch'
-    && candidate.targetKind === (args.lane === 'lattice-review-topology-critic' ? 'topology-critic-review' : 'story-review')
-    && candidate.agentType === args.lane
+    && candidate.targetKind === (canonicalLane === 'proof-or-stop-review-topology-critic' ? 'topology-critic-review' : 'story-review')
+    && typeof candidate.agentType === 'string'
+    && agentRoleIdsEqual(candidate.agentType, canonicalLane)
     && candidate.reviewRound === args.reviewRound);
   if (!event) {
     return { ok: false, reason: `no trusted story-review dispatch binding for ${args.lane} in the current REVIEW round` };
@@ -736,7 +765,7 @@ export function verifyReviewRunPromptEnvelope(
   }
   const envelope = matching[0];
   if (!verifyPromptEnvelopeIntegrity(envelope)) return { ok: false, reason: 'Prompt Envelope integrity verification failed' };
-  if (envelope.roleId !== run.lane) {
+  if (!agentRoleIdsEqual(envelope.roleId, run.lane)) {
     return { ok: false, reason: 'Prompt Envelope roleId does not match the signed ReviewRun lane' };
   }
   if (!run.assembledPrompt) {
@@ -745,24 +774,25 @@ export function verifyReviewRunPromptEnvelope(
   if (run.promptHash !== envelope.assembledPromptDigest) {
     return { ok: false, reason: 'signed ReviewRun promptHash does not match Prompt Envelope assembledPromptDigest' };
   }
-  const promptEntry = readPromptRegistry().agents.find(entry => entry.agentId === run.lane);
-  if (!promptEntry) return { ok: false, reason: `no canonical prompt registry entry for ReviewRun lane ${run.lane}` };
+  const canonicalLane = canonicalAgentRoleId(run.lane);
+  const promptEntry = readPromptRegistry().agents.find(entry => entry.agentId === canonicalLane);
+  if (!promptEntry) return { ok: false, reason: `no canonical prompt registry entry for ReviewRun lane ${canonicalLane}` };
   const metadataRoot = run.workspaceBinding?.metadataRoot
     || run.workspaceBinding?.signedWorkspaceRoot
     || process.cwd();
   let roleContract;
   let resolvedRoleBody;
   try {
-    roleContract = promptRoleContract(run.lane);
+    roleContract = promptRoleContract(canonicalLane);
     resolvedRoleBody = resolvePromptRoleBody(
-      run.lane,
+      canonicalLane,
       loadConfig(metadataRoot).promptEnvelope,
     );
   } catch {
-    return { ok: false, reason: `no canonical Role Contract for ReviewRun lane ${run.lane}` };
+    return { ok: false, reason: `no canonical Role Contract for ReviewRun lane ${canonicalLane}` };
   }
   if (resolvedRoleBody.mode !== 'full-envelope') {
-    return { ok: false, reason: `Prompt Envelope cannot be consumed while ${run.lane} is ${resolvedRoleBody.mode}` };
+    return { ok: false, reason: `Prompt Envelope cannot be consumed while ${canonicalLane} is ${resolvedRoleBody.mode}` };
   }
   const dispatchBinding = verifyCurrentReviewerDispatchBinding({
     store,
@@ -864,7 +894,7 @@ export function verifyReviewRunPromptEnvelope(
     && envelope.storyId === run.storyId
     && envelope.reviewRunId === run.reviewRunId
     && envelope.reviewRound === run.reviewRound
-    && envelope.lane === run.lane
+    && agentRoleIdsEqual(envelope.lane, run.lane)
     && envelope.headHash === run.headHash
     && envelope.materialHash === run.materialHash
     && envelope.storyFilesHash === run.storyFilesHash;
@@ -884,7 +914,7 @@ function compareRunRecency(a: ReviewRun, b: ReviewRun): number {
 
 function currentRunForLane(runs: ReviewRun[], lane: string, reviewRound: string): ReviewRun | null {
   const current = runs
-    .filter(run => verifyReviewRun(run) && run.lane === lane && run.reviewRound === reviewRound)
+    .filter(run => verifyReviewRun(run) && agentRoleIdsEqual(run.lane, lane) && run.reviewRound === reviewRound)
     .sort(compareRunRecency);
   return current.length > 0 ? current[current.length - 1] : null;
 }
@@ -1284,7 +1314,7 @@ export function assertCurrentReviewRunForEvidence(
   if (!envelopeVerification.ok) {
     throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} has invalid Prompt Envelope: ${envelopeVerification.reason}`);
   }
-  if (run.lane !== agent) {
+  if (!agentRoleIdsEqual(run.lane, agent)) {
     throw new Error(`review evidence agent=${agent} does not match lane=${run.lane} of reviewRunId ${reviewRunId}. ${startRunHint(story.storyId, agent)}`);
   }
   if (run.reviewRound !== story.currentReviewRound) {
@@ -1465,7 +1495,7 @@ function validateEvidenceRunBinding(
       message: `${evidence.kind} ${evidence.id} envelopeId does not equal its signed ReviewRun binding`,
     };
   }
-  if (run.lane !== evidence.agent) {
+  if (!agentRoleIdsEqual(run.lane, evidence.agent)) {
     return {
       code: 'wrong_lane',
       kind: evidence.kind,
@@ -1590,10 +1620,14 @@ export function collectReviewerEvidenceState(
   const findings = store.readFindings(storyId).findings || [];
   const passes = store.readReviewPasses(storyId).passes || [];
 
-  // Only true reviewer lanes (lattice-review-*) require reviewRunId binding.
-  // main / main-agent / lattice-implementer / other non-reviewer actors create
-  // findings during DEV or capture meta-process notes that must not be treated
-  // as reviewer evidence by the REVIEW→TEST gate.
+  // Only true reviewer lanes (proof-or-stop-review-*) require reviewRunId
+  // binding. Historical lattice-review-* values are legacy compatibility input
+  // and are canonicalized before this check. main / main-agent /
+  // lattice-implementer is a historical/legacy compatibility alias; the
+  // canonical implementer is proof-or-stop-implementer. Other non-reviewer
+  // actors create findings during DEV
+  // or capture meta-process notes that must not be treated as reviewer evidence
+  // by the REVIEW→TEST gate.
   const reviewerFindings = findings
     .filter((finding) => isReviewerAgent(finding.agent))
     .filter((finding) => !currentRound || finding.reviewRound === currentRound || !finding.reviewRound)
@@ -1699,7 +1733,7 @@ export function collectReviewerEvidenceState(
     ) return false;
     const invalidEvidence = evidenceById.get(issue.evidenceId);
     const hasNewerValidEvidence = Boolean(invalidEvidence) && valid.some(evidence =>
-      evidence.agent === issue.agent
+      agentRoleIdsEqual(evidence.agent, issue.agent)
       && evidenceCreatedAt(evidence) > evidenceCreatedAt(invalidEvidence!));
     if (!hasNewerValidEvidence) return true;
     if (issue.kind === 'pass') return false;

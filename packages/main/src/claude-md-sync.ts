@@ -9,6 +9,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import type { WorkflowProfile } from './core/types.js';
 import { WORKFLOW_PRESETS } from './core/types.js';
+import { inspectManagedBlock, replaceManagedBlock } from './core/managed-markers.js';
 
 /**
  * Generate CLAUDE.md profile section content for a given profile.
@@ -16,7 +17,7 @@ import { WORKFLOW_PRESETS } from './core/types.js';
 export function generateProfileSection(profile: WorkflowProfile): string {
   const policy = WORKFLOW_PRESETS[profile];
   const lines: string[] = [];
-  lines.push('<!-- lattice-profile:start -->');
+  lines.push('<!-- proof-or-stop-profile:start -->');
   lines.push(`## Workflow Profile: ${profile}\n`);
 
   if (policy.quickPath.enabled) {
@@ -40,7 +41,7 @@ export function generateProfileSection(profile: WorkflowProfile): string {
 
   // Subagent requirements
   if (policy.subagents.requireWorkerInNormalChannel) {
-    lines.push('**Normal channel**: must use the lattice-implementer subagent to write code; the main agent does not write business code.');
+    lines.push('**Normal channel**: must use the proof-or-stop-implementer subagent to write code; the main agent does not write business code.');
   } else {
     lines.push('**Normal channel**: subagent is recommended but not required; the main agent may write code itself.');
   }
@@ -64,7 +65,7 @@ export function generateProfileSection(profile: WorkflowProfile): string {
 
   lines.push('');
   lines.push('> High-risk stories (riskSignals hit) are automatically escalated to strict, regardless of the project default profile.');
-  lines.push('<!-- lattice-profile:end -->');
+  lines.push('<!-- proof-or-stop-profile:end -->');
 
   return lines.join('\n');
 }
@@ -79,14 +80,16 @@ export function syncProfileSection(claudeMdPath: string, profile: WorkflowProfil
 
   const content = readFileSync(claudeMdPath, 'utf-8');
   const newSection = generateProfileSection(profile);
-  const marker = /<!--\s*lattice-profile:start\s*-->[\s\S]*?<!--\s*lattice-profile:end\s*-->/;
-
+  const inspection = inspectManagedBlock(content, 'profile');
   let updated: string;
-  if (marker.test(content)) {
-    updated = content.replace(marker, newSection);
-  } else {
-    // Append outside lattice:start/end markers
+  if (inspection.status === 'valid') {
+    // Replacing a legacy block with the canonical section performs the
+    // in-place migration. Ambiguous/nested blocks are never overwritten.
+    updated = replaceManagedBlock(content, newSection, 'profile') ?? content;
+  } else if (inspection.status === 'missing') {
     updated = content.trimEnd() + '\n\n' + newSection + '\n';
+  } else {
+    return false;
   }
 
   if (updated !== content) {

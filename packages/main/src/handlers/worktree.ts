@@ -1059,7 +1059,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         `Story ${args.storyId} development environment is ready`,
         `Branch: ${branch}`,
         `Path: ${worktreePath}`,
-        `→ cd ${worktreePath} to enter the worktree for development; run all lattice commands in this directory`,
+        `→ cd ${worktreePath} to enter the worktree for development; run all proof-or-stop commands in this directory`,
         `→ sub agent should not use isolation:"worktree", run directly in the main agent's worktree`,
         `→ checklist_get(${args.storyId}) to view pending development items`,
         `→ After development completes, call dev_finish(${args.storyId}) to advance DEV→REVIEW for code review (the worktree is preserved; the merge to main happens later via dev_merge at TEST→DONE)`,

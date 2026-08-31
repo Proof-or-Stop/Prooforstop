@@ -125,7 +125,7 @@ export function normalizeHelpText(text: string | undefined): string {
  *   operator-safety prose. Help derives the surfaced contract from those live
  *   inputs so we do not create a second supportsDryRun registry.
  * @changes
- *   - [CHK-002] Summarize supportsDryRun-equivalent behavior in lattice <command> --help
+ *   - [CHK-002] Summarize supportsDryRun-equivalent behavior in proof-or-stop <command> --help
  *   - [CHK-002] Keep dry-run truth derived from schema/policy instead of speculative metadata
  * @test dangerous-command-guardrails
  */
@@ -265,6 +265,9 @@ export function printHelp(options: GlobalHelpOptions) {
     check: 'Check',
     release: 'Release',
     host: 'Host',
+    // `lattice_config_*` is a legacy command-family spelling, not an npm bin.
+    // Keep it grouped under the canonical product name while the old command
+    // remains readable for existing projects.
     lattice: 'Proof-or-Stop',
     rollout: 'Proof-or-Stop',
     authority: 'Authority',

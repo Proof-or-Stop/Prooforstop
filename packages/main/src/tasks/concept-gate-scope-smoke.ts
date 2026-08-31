@@ -74,7 +74,7 @@ const result = checkConcept({
 assert.deepEqual(result.deletedSymbols, ['audit_resources']);
 assert.equal(result.residuals.length, 1);
 assert.equal(result.residuals[0]?.file, 'src/live.ts');
-assert.match(renderConceptResult({ ...result, status: 'fail', recommendation: 'dispatch lattice-review-concept' }), /standalone validate --concept only reports raw residuals/);
+assert.match(renderConceptResult({ ...result, status: 'fail', recommendation: 'dispatch proof-or-stop-review-concept' }), /standalone validate --concept only reports raw residuals/);
 
 const headerlessFragment = '-export function headerlessRemoved() { return true; }';
 const headerlessAnalysis = analyzeDeletedSymbols(headerlessFragment);

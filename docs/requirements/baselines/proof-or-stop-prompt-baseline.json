@@ -2,85 +2,89 @@
   "schemaVersion": "proof-or-stop.prompt-baseline.v8",
   "storyId": "B-3928",
   "sourcePlan": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
-  "expectedRoleCount": 17,
+  "expectedRoleCount": 18,
   "promptPolicyApproval": {
     "model": "independent-hardcoded-role-and-mode-aware-whole-prompt-digest-manifest",
     "algorithm": "sha256",
-    "roleCount": 17,
+    "roleCount": 18,
     "primaryBoundary": "The independent code-reviewed approval manifest binds every exact role ID and selected complete prompt body by SHA-256. For the five modular reviewer roles it additionally binds the immutable legacy body, modular body, Role Contract, and Claude/Codex host-render digests before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.",
     "roles": [
       {
-        "role": "implementation-reviewer",
+        "role": "proof-or-stop-implementation-reviewer",
         "templateHash": "fed9fddce46760a0110ef14ae976480a219d391902b8718df0ad767859cfeafd"
       },
       {
-        "role": "lattice-evaluator-cli",
-        "templateHash": "9ffa0541c787078ae112f3edabf152fffca64b630f32f83d4367b1b310c4595e"
+        "role": "proof-or-stop-evaluator-cli",
+        "templateHash": "bbec313f09595dd1b5b49271494daea4e03060881b6f7d2215ad123620e214cc"
       },
       {
-        "role": "lattice-evaluator",
+        "role": "proof-or-stop-evaluator",
         "templateHash": "dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97"
       },
       {
-        "role": "lattice-implementer",
-        "templateHash": "0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41"
+        "role": "proof-or-stop-implementer",
+        "templateHash": "00b0181fafb0f6f5c93f0d945063d3b0732fa695ea88cae1c63e2b8767353829"
       },
       {
-        "role": "lattice-review-behavior",
-        "templateHash": "ff3926a26d0a5ea2c9f77682df750c47b3c9707c41a6eced0f67fbadfbe7c27d"
+        "role": "proof-or-stop-review-behavior",
+        "templateHash": "a52510668fbdb3275df55635bc1e5d1babdb938ea4b021a6f57ed7c3a985cdec"
       },
       {
-        "role": "lattice-review-channel",
-        "templateHash": "029d5fc9c42db199c513bda5674070b01550d9254172c71e572e229dc4de665b"
+        "role": "proof-or-stop-review-channel",
+        "templateHash": "dbde8cbb34a3ecab06473af4d97a48e3783ef587a38ac8e7519438a2a0f0de6f"
       },
       {
-        "role": "lattice-review-concept",
-        "templateHash": "a8b1ecd5020c6d0d091678d8c31f9c09bb12110e8da2658932570120fd86e0ca"
+        "role": "proof-or-stop-review-concept",
+        "templateHash": "b2699f1f18877711c1167adc4fbe55ba71a756c07d451f749576c8d744fa6fd4"
       },
       {
-        "role": "lattice-review-delivery",
+        "role": "proof-or-stop-review-delivery",
         "templateHash": "4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af"
       },
       {
-        "role": "lattice-review-docs",
-        "templateHash": "6808a26c1be23445dbb342d2e7110181c4e2d6b9ce581cfa41a2dfdea2a16d1e"
+        "role": "proof-or-stop-review-docs",
+        "templateHash": "bf145604d69f4f8390889a709e407f64cc9240745e368abc98f4b09016f37728"
       },
       {
-        "role": "lattice-review-quality",
-        "templateHash": "bf99a4151d4406490259efb51a037d28be730115f07b18d5abd63ac21598f32d"
+        "role": "proof-or-stop-review-quality",
+        "templateHash": "ec5c7375386c5c0ae04db878a426dee0efe3858e159cd280b863ea768ef42c67"
       },
       {
-        "role": "lattice-review-scope-plan",
+        "role": "proof-or-stop-review-scope-plan",
         "templateHash": "9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07"
       },
       {
-        "role": "lattice-review-story-init",
+        "role": "proof-or-stop-review-story-init",
         "templateHash": "d63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6"
       },
       {
-        "role": "lattice-review-test-coverage",
-        "templateHash": "5d1f5bac9cb33991d591189f9b944b307e96600a1dd89e2d24fda6dd0f352f90"
+        "role": "proof-or-stop-review-test-coverage",
+        "templateHash": "995717ea7e03b31de502d0289acd48caeac6240ca6ff42b966d81f9d1c2a86ca"
       },
       {
-        "role": "lattice-review-topology-critic",
-        "templateHash": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0"
+        "role": "proof-or-stop-review-topology-critic",
+        "templateHash": "2300cde0d2c95e9ec8af14bf96ee7d9e58f962bdbd0bc7704279e457fac90224"
       },
       {
-        "role": "product-reviewer",
+        "role": "proof-or-stop-product-reviewer",
         "templateHash": "e23eec314c5a5f3dff0d34768c15ff94546881999a223544456cfe695f995b2a"
       },
       {
-        "role": "test-case-reviewer",
-        "templateHash": "3292b8c15a696f588c9fcda45218aefeabb56668d47fa0e74cd163cbaf9da0a5"
+        "role": "proof-or-stop-test-case-reviewer",
+        "templateHash": "5c2533459d08b513f0079e675e29586748267dba022dbfa921642aeb1cbf8b57"
       },
       {
-        "role": "test-intent",
-        "templateHash": "168d1a5b862f0949aaa44223f21f42e67ff4df938805ac6ebf0fd55677be3fc2"
+        "role": "proof-or-stop-test-intent",
+        "templateHash": "ebf595e7a90bd8b2a29fbb260bf3e90404dd33848507108657277316f5111b2d"
+      },
+      {
+        "role": "proof-or-stop-verification-intent",
+        "templateHash": "45816aa6de69df16a893b8a29cd1775366d58ec624838a30fd5e70facd3e79f4"
       }
     ],
     "roleBodyRollout": [
       {
-        "role": "lattice-review-behavior",
+        "role": "proof-or-stop-review-behavior",
         "legacyBodySha256": "a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2",
         "modularBodySha256": "d485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4",
         "roleSemanticDigest": "af59ecd12840fddf54f63038cb844bb54395814fdf330e385631ac18057256d8",
@@ -91,7 +95,7 @@
         "modularCodexRenderDigest": "3072ff34e5cce36f95471204bd05dcacc6c60671027cd91299c8ebdebf39ec99"
       },
       {
-        "role": "lattice-review-concept",
+        "role": "proof-or-stop-review-concept",
         "legacyBodySha256": "c53202553b19cada7d13a7bef8cf6c7e268ccbc5310a7349620bca3f455b726c",
         "modularBodySha256": "3bca56bbd0c5666bfa5553136140f0fc955e0a89f2378af28699bd8b38d0ed7a",
         "roleSemanticDigest": "197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2",
@@ -102,7 +106,7 @@
         "modularCodexRenderDigest": "daaee0f7c78df598ca5c9180a00527bb0ef401cc472b4e0a48995b6d6a564eb1"
       },
       {
-        "role": "lattice-review-docs",
+        "role": "proof-or-stop-review-docs",
         "legacyBodySha256": "ec9b7fec4b4a67beaeda0da095be5de1d2c35d80104edbc8486b2101fd6e03af",
         "modularBodySha256": "835a0182ce5480c7d7cef9d350ae26a2a3aa11db4fcd3fea418f3c99e38b92a6",
         "roleSemanticDigest": "9aaa80a9426a04ea031a7feeb6cd409a236ca6493286bf50f3e5deed012009f7",
@@ -110,10 +114,10 @@
         "legacyClaudeRenderDigest": "904e311351654b9e16917747d459a05c46a31e2b6db892ddb796a1f63efce76b",
         "legacyCodexRenderDigest": "10bb3416dd7081f3bed5c2569210e1b40e7c7f8e766582f5a8fcc0d340b30b1f",
         "modularClaudeRenderDigest": "776ee19f31724fc24b02047627113b3c1211ca25295e3111c953c89ad2b502e5",
-        "modularCodexRenderDigest": "5866702beea655d933491ebfef927d0441887bce5f35fa9c45a20fe5c4544c6c"
+        "modularCodexRenderDigest": "5866702beea655d933491ebfef927d0446f371ddc9cd4dc63bd219cc2bf86e5"
       },
       {
-        "role": "lattice-review-quality",
+        "role": "proof-or-stop-review-quality",
         "legacyBodySha256": "1a11e779e4b877d7c75e4fbc98538db25f8ded2e53428fb627d2bf8734f3a504",
         "modularBodySha256": "4bbf141d64e12ca6e16ec82d1cb397ca2011267100ec8596760349c1c0b17f15",
         "roleSemanticDigest": "ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0",
@@ -124,7 +128,7 @@
         "modularCodexRenderDigest": "f8385e50c90f1ad9ffe3f14b6ae5f2d3e408d74240b169787d2ccf2a79b8b249"
       },
       {
-        "role": "lattice-review-test-coverage",
+        "role": "proof-or-stop-review-test-coverage",
         "legacyBodySha256": "2eadef36e4da2e034d722b0d5b0be0a2e9e61fc8e4200cd2ed373f4c8573ca88",
         "modularBodySha256": "99d5e95ee4d3075b1808c5f1f48ecd2ece3e785b7402c744627f2ffbd2dbc6c0",
         "roleSemanticDigest": "9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7",
@@ -133,162 +137,159 @@
         "legacyCodexRenderDigest": "683a981cb491c7efcdcf737d64e100e37e9667f18a2276392ddb0023e5dc3e3f",
         "modularClaudeRenderDigest": "f632600b708c6a05a24e94c4c9ec805567eaa1d5db81e51f17bf5f98f8a8f495",
         "modularCodexRenderDigest": "71895876e4451e4e7ff20887432daafccabe0a2e724b6dbf4d216901f543b5e2"
-      },
-      {
-        "role": "lattice-review-topology-critic",
-        "legacyBodySha256": "2300cde0d2c95e9ec8af14bf96ee7d9e58f962bdbd0bc7704279e457fac90224",
-        "modularBodySha256": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0",
-        "roleSemanticDigest": "38bfd5f5a08208a07cf9562fc295ab636e89b0ddff331f9b30f341fac4c1aa8e",
-        "roleRenderDigest": "2d4411f90d969398d14016d72a6f394c50467050ba0f3cdd3840a51410039260",
-        "legacyClaudeRenderDigest": "2300cde0d2c95e9ec8af14bf96ee7d9e58f962bdbd0bc7704279e457fac90224",
-        "legacyCodexRenderDigest": "2300cde0d2c95e9ec8af14bf96ee7d9e58f962bdbd0bc7704279e457fac90224",
-        "modularClaudeRenderDigest": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0",
-        "modularCodexRenderDigest": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0"
       }
     ]
   },
   "registry": {
     "module": "packages/main/dist/core/prompt-registry.js",
-    "schemaVersion": "lattice.prompt-registry.v1",
+    "schemaVersion": "proof-or-stop.prompt-registry.v1",
     "source": "@proof-or-stop/core/templates/agents",
-    "agentCount": 17,
-    "materialHash": "d130f331b9e4eea9de1d309cc98621b897ae2f7aac69875b54f0268c51a24e7d",
+    "agentCount": 18,
+    "materialHash": "dc770aaaa7ff333b1ff9d6b23268fbe340342283abe190b0bd681a0364752b0c",
     "roles": [
       {
-        "role": "implementation-reviewer",
-        "file": "implementation-reviewer.md",
-        "relPath": "templates/agents/implementation-reviewer.md",
-        "templateHash": "fed9fddce46760a0110ef14ae976480a219d391902b8718df0ad767859cfeafd",
-        "bytes": 2157,
-        "lines": 82
+        "role": "proof-or-stop-evaluator-cli",
+        "file": "proof-or-stop-evaluator-cli.md",
+        "relPath": "templates/agents/proof-or-stop-evaluator-cli.md",
+        "templateHash": "db4c2712365ed4142b0d54269738130abe8eeda91a8accb27f2e7391657c3c89",
+        "bytes": 9480,
+        "lines": 213
       },
       {
-        "role": "lattice-evaluator-cli",
-        "file": "lattice-evaluator-cli.md",
-        "relPath": "templates/agents/lattice-evaluator-cli.md",
-        "templateHash": "9ffa0541c787078ae112f3edabf152fffca64b630f32f83d4367b1b310c4595e",
-        "bytes": 4386,
-        "lines": 119
-      },
-      {
-        "role": "lattice-evaluator",
-        "file": "lattice-evaluator.md",
-        "relPath": "templates/agents/lattice-evaluator.md",
-        "templateHash": "dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97",
-        "bytes": 9008,
+        "role": "proof-or-stop-evaluator",
+        "file": "proof-or-stop-evaluator.md",
+        "relPath": "templates/agents/proof-or-stop-evaluator.md",
+        "templateHash": "77c8cfdc26b98f15f628e9779bf1c0dff94110244993945bfd5eef021976ad28",
+        "bytes": 9014,
         "lines": 201
       },
       {
-        "role": "lattice-implementer",
-        "file": "lattice-implementer.md",
-        "relPath": "templates/agents/lattice-implementer.md",
-        "templateHash": "0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41",
-        "bytes": 16129,
+        "role": "proof-or-stop-implementation-reviewer",
+        "file": "proof-or-stop-implementation-reviewer.md",
+        "relPath": "templates/agents/proof-or-stop-implementation-reviewer.md",
+        "templateHash": "8bc6ea4e4b498131a3b837929f2c7f26f4017756cad0106980941b5cd96ab0d2",
+        "bytes": 2199,
+        "lines": 82
+      },
+      {
+        "role": "proof-or-stop-implementer",
+        "file": "proof-or-stop-implementer.md",
+        "relPath": "templates/agents/proof-or-stop-implementer.md",
+        "templateHash": "832706c23b16277555ac3b305fcdb3293762ecd9c5ae911d6d9cec7641d732b5",
+        "bytes": 16193,
         "lines": 244
       },
       {
-        "role": "lattice-review-behavior",
-        "file": "lattice-review-behavior.md",
-        "relPath": "templates/agents/lattice-review-behavior.md",
-        "templateHash": "ff3926a26d0a5ea2c9f77682df750c47b3c9707c41a6eced0f67fbadfbe7c27d",
-        "bytes": 9392,
+        "role": "proof-or-stop-product-reviewer",
+        "file": "proof-or-stop-product-reviewer.md",
+        "relPath": "templates/agents/proof-or-stop-product-reviewer.md",
+        "templateHash": "0206b195e26ba067e863b2f54c9117f75bd56f2ea86d345bee8ed00187a3bbda",
+        "bytes": 3371,
         "lines": 91
       },
       {
-        "role": "lattice-review-channel",
-        "file": "lattice-review-channel.md",
-        "relPath": "templates/agents/lattice-review-channel.md",
-        "templateHash": "029d5fc9c42db199c513bda5674070b01550d9254172c71e572e229dc4de665b",
-        "bytes": 12292,
+        "role": "proof-or-stop-review-behavior",
+        "file": "proof-or-stop-review-behavior.md",
+        "relPath": "templates/agents/proof-or-stop-review-behavior.md",
+        "templateHash": "e5c993a2b42018984c4cc42b679d8eb278c8130564e2b0fef13bf95ba799c26c",
+        "bytes": 9437,
+        "lines": 91
+      },
+      {
+        "role": "proof-or-stop-review-channel",
+        "file": "proof-or-stop-review-channel.md",
+        "relPath": "templates/agents/proof-or-stop-review-channel.md",
+        "templateHash": "3ce5d558cd8c328f9995f8db752186aaa1dd42e24202a3ae4ae71988ac345213",
+        "bytes": 12364,
         "lines": 193
       },
       {
-        "role": "lattice-review-concept",
-        "file": "lattice-review-concept.md",
-        "relPath": "templates/agents/lattice-review-concept.md",
-        "templateHash": "a8b1ecd5020c6d0d091678d8c31f9c09bb12110e8da2658932570120fd86e0ca",
-        "bytes": 5184,
+        "role": "proof-or-stop-review-concept",
+        "file": "proof-or-stop-review-concept.md",
+        "relPath": "templates/agents/proof-or-stop-review-concept.md",
+        "templateHash": "dbf98f6ad4118c7a0bc7457c0dc12b4214890ed406121aaed0f66d71ae43c4ec",
+        "bytes": 5211,
         "lines": 60
       },
       {
-        "role": "lattice-review-delivery",
-        "file": "lattice-review-delivery.md",
-        "relPath": "templates/agents/lattice-review-delivery.md",
-        "templateHash": "4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af",
-        "bytes": 13875,
+        "role": "proof-or-stop-review-delivery",
+        "file": "proof-or-stop-review-delivery.md",
+        "relPath": "templates/agents/proof-or-stop-review-delivery.md",
+        "templateHash": "9d680469210a47fff4af184f0f895cc03c7f58fcfefba534c146df74f82c9b4c",
+        "bytes": 13887,
         "lines": 290
       },
       {
-        "role": "lattice-review-docs",
-        "file": "lattice-review-docs.md",
-        "relPath": "templates/agents/lattice-review-docs.md",
-        "templateHash": "6808a26c1be23445dbb342d2e7110181c4e2d6b9ce581cfa41a2dfdea2a16d1e",
-        "bytes": 7660,
+        "role": "proof-or-stop-review-docs",
+        "file": "proof-or-stop-review-docs.md",
+        "relPath": "templates/agents/proof-or-stop-review-docs.md",
+        "templateHash": "b7e5adbf1264b8875b954acb7b97fab71641fb5b63a1025c8c868f0385ca9c5b",
+        "bytes": 7681,
         "lines": 108
       },
       {
-        "role": "lattice-review-quality",
-        "file": "lattice-review-quality.md",
-        "relPath": "templates/agents/lattice-review-quality.md",
-        "templateHash": "bf99a4151d4406490259efb51a037d28be730115f07b18d5abd63ac21598f32d",
-        "bytes": 5641,
+        "role": "proof-or-stop-review-quality",
+        "file": "proof-or-stop-review-quality.md",
+        "relPath": "templates/agents/proof-or-stop-review-quality.md",
+        "templateHash": "d2d4174ddbd42fb81f8f7daf16846c0701790c8bb45170830e01fa8e621a76f8",
+        "bytes": 5662,
         "lines": 84
       },
       {
-        "role": "lattice-review-scope-plan",
-        "file": "lattice-review-scope-plan.md",
-        "relPath": "templates/agents/lattice-review-scope-plan.md",
-        "templateHash": "9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07",
-        "bytes": 15069,
+        "role": "proof-or-stop-review-scope-plan",
+        "file": "proof-or-stop-review-scope-plan.md",
+        "relPath": "templates/agents/proof-or-stop-review-scope-plan.md",
+        "templateHash": "98fc1827842a3b2d3a3b1dc29a338baa3933eb54e26e7216b7e0863fb6cd835b",
+        "bytes": 15075,
         "lines": 206
       },
       {
-        "role": "lattice-review-story-init",
-        "file": "lattice-review-story-init.md",
-        "relPath": "templates/agents/lattice-review-story-init.md",
-        "templateHash": "d63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6",
-        "bytes": 18449,
+        "role": "proof-or-stop-review-story-init",
+        "file": "proof-or-stop-review-story-init.md",
+        "relPath": "templates/agents/proof-or-stop-review-story-init.md",
+        "templateHash": "231b83d21cc676b3b5535a0b977915308adc198c5e9baca6788a3078fa535c1c",
+        "bytes": 18499,
         "lines": 271
       },
       {
-        "role": "lattice-review-test-coverage",
-        "file": "lattice-review-test-coverage.md",
-        "relPath": "templates/agents/lattice-review-test-coverage.md",
-        "templateHash": "5d1f5bac9cb33991d591189f9b944b307e96600a1dd89e2d24fda6dd0f352f90",
-        "bytes": 2890,
+        "role": "proof-or-stop-review-test-coverage",
+        "file": "proof-or-stop-review-test-coverage.md",
+        "relPath": "templates/agents/proof-or-stop-review-test-coverage.md",
+        "templateHash": "50a4b2fa8adaa543f69663c35affe5075e2db5287486d69aa8c397997325b9e8",
+        "bytes": 2917,
         "lines": 44
       },
       {
-        "role": "lattice-review-topology-critic",
-        "file": "lattice-review-topology-critic.md",
-        "relPath": "templates/agents/lattice-review-topology-critic.md",
-        "templateHash": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0",
-        "bytes": 1626,
-        "lines": 25
+        "role": "proof-or-stop-review-topology-critic",
+        "file": "proof-or-stop-review-topology-critic.md",
+        "relPath": "templates/agents/proof-or-stop-review-topology-critic.md",
+        "templateHash": "cfff90be259ccd68487c9622f8de03014ad7df5807838a98e6a8d9e7fefc51a3",
+        "bytes": 6707,
+        "lines": 119
       },
       {
-        "role": "product-reviewer",
-        "file": "product-reviewer.md",
-        "relPath": "templates/agents/product-reviewer.md",
-        "templateHash": "e23eec314c5a5f3dff0d34768c15ff94546881999a223544456cfe695f995b2a",
-        "bytes": 3267,
-        "lines": 91
+        "role": "proof-or-stop-test-case-reviewer",
+        "file": "proof-or-stop-test-case-reviewer.md",
+        "relPath": "templates/agents/proof-or-stop-test-case-reviewer.md",
+        "templateHash": "501c7cf78589d9e78f4657e5e5bad2ffb9dfa3fd0cf7a837545f4a6fe2d701bc",
+        "bytes": 599,
+        "lines": 22
       },
       {
-        "role": "test-case-reviewer",
-        "file": "test-case-reviewer.md",
-        "relPath": "templates/agents/test-case-reviewer.md",
-        "templateHash": "3292b8c15a696f588c9fcda45218aefeabb56668d47fa0e74cd163cbaf9da0a5",
-        "bytes": 9368,
-        "lines": 158
+        "role": "proof-or-stop-test-intent",
+        "file": "proof-or-stop-test-intent.md",
+        "relPath": "templates/agents/proof-or-stop-test-intent.md",
+        "templateHash": "d1ec6e8903ff4b953015b7836a7f88e9894b7dd0f4306138b4e32e435405dc27",
+        "bytes": 576,
+        "lines": 21
       },
       {
-        "role": "test-intent",
-        "file": "test-intent.md",
-        "relPath": "templates/agents/test-intent.md",
-        "templateHash": "168d1a5b862f0949aaa44223f21f42e67ff4df938805ac6ebf0fd55677be3fc2",
-        "bytes": 7601,
-        "lines": 167
+        "role": "proof-or-stop-verification-intent",
+        "file": "proof-or-stop-verification-intent.md",
+        "relPath": "templates/agents/proof-or-stop-verification-intent.md",
+        "templateHash": "a0883d46e5f0abf38651078c27bf9e52dd79688d938d131126df9f01b8b886bf",
+        "bytes": 1588,
+        "lines": 40
       }
     ]
   },
@@ -297,125 +298,118 @@
     "metadata": "sha256, bytes, and lines are computed from raw stdout; registry parity strips the CLI print newline only.",
     "outputs": [
       {
-        "role": "implementation-reviewer",
-        "sha256": "4ff8b0b0bf551dee0371f692870f69228d3ab42f935203935345c4fb4e7e1ae6",
-        "bytes": 2158,
-        "lines": 83
+        "role": "proof-or-stop-evaluator-cli",
+        "sha256": "8ce54cefe45b342a26588df7f411074a6327c8c7f3c63c9a4c57a91ab51bfd71",
+        "bytes": 9481,
+        "lines": 214
       },
       {
-        "role": "lattice-evaluator-cli",
-        "sha256": "5e1c640dd773622d13b326a87bb42442ff8c62ebbb44512c849d126143a674d8",
-        "bytes": 4387,
-        "lines": 120
-      },
-      {
-        "role": "lattice-evaluator",
-        "sha256": "2427d7d553285dcf1398b2a6df8c0f9bdffdde55a57a472da93c1a93de87126e",
-        "bytes": 9009,
+        "role": "proof-or-stop-evaluator",
+        "sha256": "6428dde90a9b5a40f7d783d2c00157743b7b0dde58c7549e290c0126822f5711",
+        "bytes": 9027,
         "lines": 202
       },
       {
-        "role": "lattice-implementer",
-        "sha256": "78a8666b135ddf5681e79c0964d85b91df4a2024b4e4ff82bfc477feed87b35c",
-        "bytes": 16130,
+        "role": "proof-or-stop-implementation-reviewer",
+        "sha256": "cfe0b174ec199260bf951aaad060a3c4524c0f2d87a417d99f65de3fe1070102",
+        "bytes": 2200,
+        "lines": 83
+      },
+      {
+        "role": "proof-or-stop-implementer",
+        "sha256": "49721e22a666f5785197a3a984044f660525fff9a706675af3b143682b96c61f",
+        "bytes": 16206,
         "lines": 245
       },
       {
-        "role": "lattice-review-behavior",
-        "sha256": "905b017e4d4e1e616c43f72675f6bd728d332c513a589421a2d765d81a958df4",
-        "bytes": 461,
-        "lines": 11
-      },
-      {
-        "role": "lattice-review-channel",
-        "sha256": "45c17891b73e087eb48021c58b05c918392894fb5cf40db450f3f481efac3ffc",
-        "bytes": 12293,
-        "lines": 194
-      },
-      {
-        "role": "lattice-review-concept",
-        "sha256": "db635a415075ff05c71a517be616e1def2ed62230faa5d6771332f96e2a1d0b9",
-        "bytes": 443,
-        "lines": 11
-      },
-      {
-        "role": "lattice-review-delivery",
-        "sha256": "760a6aa59857db126bf53460304271fbc42855070cbc326b34cace4295734103",
-        "bytes": 13876,
-        "lines": 291
-      },
-      {
-        "role": "lattice-review-docs",
-        "sha256": "7aadda0f1d89beada10bbda326bcef545e8f8ef6692d3458c509cc72dcc4197c",
-        "bytes": 513,
-        "lines": 11
-      },
-      {
-        "role": "lattice-review-quality",
-        "sha256": "6c625e83bb1fa1fa20eb1d3b4f9cc3d246c608c29d841971a0a62eb3109398a1",
-        "bytes": 447,
-        "lines": 11
-      },
-      {
-        "role": "lattice-review-scope-plan",
-        "sha256": "fe04afe31cb87639b99e253157f349fe45ea5e7130d5f238e0673285cbf19675",
-        "bytes": 15070,
-        "lines": 207
-      },
-      {
-        "role": "lattice-review-story-init",
-        "sha256": "df142ee3946a4d423b874b498e6858c3bdfaf878c87bd7c42fd384195d6560d1",
-        "bytes": 18450,
-        "lines": 272
-      },
-      {
-        "role": "lattice-review-test-coverage",
-        "sha256": "fd6ac4e5c796dc817ab57c07b886f66c2dce1ba3835a4d4978332fc835941065",
-        "bytes": 485,
-        "lines": 11
-      },
-      {
-        "role": "lattice-review-topology-critic",
-        "sha256": "d539068fd9bc521a9ed396d66076d884550a767ad73b5905f1ee6389fab22a6a",
-        "bytes": 1627,
-        "lines": 26
-      },
-      {
-        "role": "product-reviewer",
-        "sha256": "98cd787c17496de44726565da22dc23809db0499fa47389bc8586099b0634ca5",
-        "bytes": 3268,
+        "role": "proof-or-stop-product-reviewer",
+        "sha256": "48c7ec5e6168de83324bd49b5081a34cddbe5cf011582a93fb73c4a2ee8eba79",
+        "bytes": 3372,
         "lines": 92
       },
       {
-        "role": "test-case-reviewer",
-        "sha256": "a5746ce6bd5eb0661063752e270587fdf0924e487e1f484f55fe55c9e0505b7f",
-        "bytes": 9369,
-        "lines": 159
+        "role": "proof-or-stop-review-behavior",
+        "sha256": "03efc40617317b17c09300cfe6614cbfc98d3f6e7209ce9e2201354d776ff69d",
+        "bytes": 473,
+        "lines": 11
       },
       {
-        "role": "test-intent",
-        "sha256": "8e4ca13c7c12952833b13ebe80cec1849ab35c427dcc4b32538e4e479a6b25c1",
-        "bytes": 7602,
-        "lines": 168
+        "role": "proof-or-stop-review-channel",
+        "sha256": "e8b66844ba897a417a7853e95ff28f05ab8ed619f6f6fca07c12b7f372cdfadf",
+        "bytes": 12365,
+        "lines": 194
+      },
+      {
+        "role": "proof-or-stop-review-concept",
+        "sha256": "90ae11c2cd065d0f805fc645f2c8bf5fa3f4b30eef2d2c30551d5634e81582a4",
+        "bytes": 455,
+        "lines": 11
+      },
+      {
+        "role": "proof-or-stop-review-delivery",
+        "sha256": "b3a088f02ef56c1f6ac448eeb208908d3b266a6a21c8f86246a8d2b374bb9f6e",
+        "bytes": 13900,
+        "lines": 291
+      },
+      {
+        "role": "proof-or-stop-review-docs",
+        "sha256": "a56888bddbe82c95f4326a0030ee7a2548162e5f7d60658fe28f65d9af75b1a8",
+        "bytes": 525,
+        "lines": 11
+      },
+      {
+        "role": "proof-or-stop-review-quality",
+        "sha256": "8e8fa651a7d15adeb4c955363183945388a200bc29c4cd6c0d9e538d85f7b5b4",
+        "bytes": 459,
+        "lines": 11
+      },
+      {
+        "role": "proof-or-stop-review-scope-plan",
+        "sha256": "abc11f2e3797d9f36401131eee7138c54c89d764c8ff9105cf9c01accf8b1bd6",
+        "bytes": 15088,
+        "lines": 207
+      },
+      {
+        "role": "proof-or-stop-review-story-init",
+        "sha256": "4732e7971100674b837ecc78ea1359dd647556a81a7a850331595d65d3263cfa",
+        "bytes": 18512,
+        "lines": 272
+      },
+      {
+        "role": "proof-or-stop-review-test-coverage",
+        "sha256": "a50234669af8485177811bba3a146523c11998ae2012f31185919f06afac8e53",
+        "bytes": 497,
+        "lines": 11
+      },
+      {
+        "role": "proof-or-stop-review-topology-critic",
+        "sha256": "29745fd916098059516d4c6d6cb318e5fc20c193dfecaa1d68b02a3a860d93b3",
+        "bytes": 1648,
+        "lines": 26
+      },
+      {
+        "role": "proof-or-stop-test-case-reviewer",
+        "sha256": "31d07494bd0a9e0de49c083dc30adb77d6fe0652b32c85b23227a9c35c75de5f",
+        "bytes": 600,
+        "lines": 23
+      },
+      {
+        "role": "proof-or-stop-test-intent",
+        "sha256": "962ea3768e3b707df13f5e0453807286cdae21449f6c5058e56e3f2675a86c1c",
+        "bytes": 577,
+        "lines": 22
+      },
+      {
+        "role": "proof-or-stop-verification-intent",
+        "sha256": "688115ce57b87358c9e3594f85229f17cc86f4a00b4ce796bcff56e18e8c57e1",
+        "bytes": 1589,
+        "lines": 41
       }
     ]
   },
   "roleMatrix": [
     {
-      "role": "implementation-reviewer",
-      "status": "fold-candidate",
-      "phase": "REVIEW advisory",
-      "purpose": "Legacy implementation risk reviewer for code risks and maintainability.",
-      "commands": "none",
-      "directFileAccess": "Reads diff and implementation context; no direct story writes.",
-      "inputs": "Diff and implementation context.",
-      "outputs": "Text review notes.",
-      "capabilities": "Code risk review; edge condition review; maintainability review.",
-      "overlapCategory": "duplicates behavior and quality",
-      "notes": "Not in current review-run lanes; planned to fold into behavior and quality."
-    },
-    {
-      "role": "lattice-evaluator-cli",
+      "role": "proof-or-stop-evaluator-cli",
       "status": "optional",
       "phase": "TEST optional",
       "purpose": "CLI/core evaluator for user-facing command behavior.",
@@ -428,7 +422,7 @@
       "notes": "Advisory unless persisted through a structured evaluator evidence path."
     },
     {
-      "role": "lattice-evaluator",
+      "role": "proof-or-stop-evaluator",
       "status": "optional",
       "phase": "TEST optional",
       "purpose": "Browser/product evaluator for UI-facing behavior.",
@@ -441,7 +435,20 @@
       "notes": "Advisory unless a policy consumes saved evaluator evidence."
     },
     {
-      "role": "lattice-implementer",
+      "role": "proof-or-stop-implementation-reviewer",
+      "status": "fold-candidate",
+      "phase": "REVIEW advisory",
+      "purpose": "Legacy implementation risk reviewer for code risks and maintainability.",
+      "commands": "none",
+      "directFileAccess": "Reads diff and implementation context; no direct story writes.",
+      "inputs": "Diff and implementation context.",
+      "outputs": "Text review notes.",
+      "capabilities": "Code risk review; edge condition review; maintainability review.",
+      "overlapCategory": "duplicates behavior and quality",
+      "notes": "Not in current review-run lanes; planned to fold into behavior and quality."
+    },
+    {
+      "role": "proof-or-stop-implementer",
       "status": "active",
       "phase": "DEV",
       "purpose": "Implementation worker that edits code, verifies locally, and updates checklist evidence.",
@@ -454,137 +461,7 @@
       "notes": "Does not own review, test phase advancement, or DONE closure."
     },
     {
-      "role": "lattice-review-behavior",
-      "status": "active",
-      "phase": "REVIEW",
-      "purpose": "Reviews promised user-visible behavior, edge cases, and userSees mismatch.",
-      "commands": "git diff; dev_memory_preflight; dev_memory_search; Glob/rg candidate search; review_run_start; finding_add; review_pass_set.",
-      "directFileAccess": "Reads git diff, checklist userSees, source files, candidate docs, and scope-plan artifacts; no direct story writes.",
-      "inputs": "Diff, story scope, user-visible behavior, verification evidence.",
-      "outputs": "Reviewer findings or pass.",
-      "capabilities": "Behavior correctness; edge-case review; user-visible mismatch detection.",
-      "overlapCategory": "shares spec checks with scope and docs",
-      "notes": "Should consume scope artifacts instead of repeating broad PLAN scans."
-    },
-    {
-      "role": "lattice-review-channel",
-      "status": "retired-cli-only",
-      "phase": "REVIEW legacy",
-      "purpose": "Legacy reviewer for normal-channel dispatch evidence.",
-      "commands": "grep process-events; review_run_start; finding_add; review_pass_set.",
-      "directFileAccess": "Legacy direct read of docs/story process-events evidence.",
-      "inputs": "process-events dispatch and subagent_result evidence.",
-      "outputs": "Reviewer findings or pass.",
-      "capabilities": "Dispatch evidence inspection.",
-      "overlapCategory": "duplicates channel CLI gate",
-      "notes": "Plan marks this as retired in favor of validate channel checks."
-    },
-    {
-      "role": "lattice-review-concept",
-      "status": "conditional",
-      "phase": "REVIEW",
-      "purpose": "Reviews concept deletion, rename, and terminology residue.",
-      "commands": "git diff; grep; review_run_start; finding_add; review_pass_set.",
-      "directFileAccess": "Reads diff/source/docs references; reviewer evidence through Lattice CLI.",
-      "inputs": "Diff, renamed terms, deleted concepts, docs/code references.",
-      "outputs": "Reviewer findings or pass.",
-      "capabilities": "Residue scan; concept consistency; rename completeness.",
-      "overlapCategory": "overlaps docs and quality cleanup",
-      "notes": "Route only when rename, removal, or concept-retirement triggers exist."
-    },
-    {
-      "role": "lattice-review-delivery",
-      "status": "active",
-      "phase": "TEST/DONE",
-      "purpose": "Reviews final delivery claims, docs promises, real machine tests, and closeout.",
-      "commands": "git diff; source grep; delivery_check_set.",
-      "directFileAccess": "Reads git diff and repository files; explicitly avoids process-events, reviewer outputs, and test-evidence contents.",
-      "inputs": "storyId, git diff main...HEAD, and repository files.",
-      "outputs": "Signed delivery-check.json via delivery_check_set, or refusal text.",
-      "capabilities": "Delivery completeness; closeout self-check; final docs-promise fallback.",
-      "overlapCategory": "overlaps docs and product",
-      "notes": "Fresh-context review independently derives docs promises and real-machine test coverage; it does not consume prior docs review, other reviewer results, or test-evidence.json."
-    },
-    {
-      "role": "lattice-review-docs",
-      "status": "active",
-      "phase": "REVIEW",
-      "purpose": "Reviews code/documentation drift around changed public behavior.",
-      "commands": "git diff; grep; review_run_start; finding_add; review_pass_set.",
-      "directFileAccess": "Reads changed docs/source; reviewer evidence through Lattice CLI.",
-      "inputs": "Diff, docs, command examples, config/schema changes.",
-      "outputs": "Reviewer findings or pass.",
-      "capabilities": "Doc-code drift review; command example review; schema documentation review.",
-      "overlapCategory": "single REVIEW docs owner",
-      "notes": "Owns REVIEW doc drift and docs-promised-code-missing checks."
-    },
-    {
-      "role": "lattice-review-quality",
-      "status": "active",
-      "phase": "REVIEW",
-      "purpose": "Reviews maintainability, type safety, I/O shell isolation, and proof metadata consistency.",
-      "commands": "git diff; review_run_start; finding_add; review_pass_set.",
-      "directFileAccess": "Reads source/tests/proof metadata; reviewer evidence through Lattice CLI.",
-      "inputs": "Diff, source code, tests, proof metadata.",
-      "outputs": "Reviewer findings or pass.",
-      "capabilities": "Code quality; dead-code scan; type-safety review; maintainability review.",
-      "overlapCategory": "overlaps implementation-reviewer",
-      "notes": "Target owner for implementation-reviewer maintainability checks."
-    },
-    {
-      "role": "lattice-review-scope-plan",
-      "status": "active",
-      "phase": "PLAN",
-      "purpose": "Reviews story/checklist scope against source-of-truth requirements.",
-      "commands": "config; dev_memory_preflight; dev_memory_search; Glob/rg candidate search; scope_check_save.",
-      "directFileAccess": "Reads candidate docs and CLI-provided story/checklist context; scope evidence through Lattice CLI.",
-      "inputs": "Story, checklist, candidate requirement docs, risk signals.",
-      "outputs": "scope_check_save artifact.",
-      "capabilities": "Scope coverage; orphan requirement detection; candidate spec review.",
-      "overlapCategory": "PLAN scope owner",
-      "notes": "Should avoid default full decisions-directory scans without escalation."
-    },
-    {
-      "role": "lattice-review-story-init",
-      "status": "active",
-      "phase": "INIT",
-      "purpose": "Reviews new story readability, facts, risk wording, and initial checklist sanity.",
-      "commands": "Read/Grep story inputs; init_check_set; cat/echo/Edit init-self-check.json.",
-      "directFileAccess": "Grandfathered direct docs/story reads plus init-self-check cat/echo/Edit write wording.",
-      "inputs": "Story background, index fields, checklist title/context.",
-      "outputs": "init_check_set issues/pass plus init-self-check audit file wording.",
-      "capabilities": "Fresh-context intake review; story clarity; risk sanity check.",
-      "overlapCategory": "overlaps scope-plan on checklist sanity",
-      "notes": "Baseline includes grandfathered direct story-file reads and init-self-check write wording."
-    },
-    {
-      "role": "lattice-review-test-coverage",
-      "status": "active",
-      "phase": "REVIEW",
-      "purpose": "Reviews verificationIntent to verificationEvidence coverage.",
-      "commands": "validate; review_run_start; finding_add; review_pass_set.",
-      "directFileAccess": "Reads checklist/evidence through Lattice CLI; reviewer evidence through Lattice CLI.",
-      "inputs": "Checklist verificationIntent and verificationEvidence.",
-      "outputs": "Reviewer findings or pass.",
-      "capabilities": "Coverage completeness; missing/stale evidence detection.",
-      "overlapCategory": "verification coverage owner",
-      "notes": "Current replacement for the value of legacy TEST_CASE_REVIEW."
-    },
-    {
-      "role": "lattice-review-topology-critic",
-      "status": "active",
-      "phase": "PLAN/DEV/REVIEW",
-      "purpose": "Independently reviews acceptance topology completeness and signs a current critic receipt.",
-      "commands": "git diff; topology_critic_receipt_set; topology_critic_receipt_check.",
-      "directFileAccess": "Reads current source, topology, basis, and scope artifacts; writes only through registered Lattice receipt commands.",
-      "inputs": "Current acceptance basis/topology, scope bindings, findings, exclusions, and implementation provenance.",
-      "outputs": "Signed topology-critic receipt with pass or request_changes verdict.",
-      "capabilities": "Topology completeness criticism; four-dimensional independence verification; exclusion-approval validation.",
-      "overlapCategory": "independent acceptance-topology authority critic",
-      "notes": "Cannot override partial or unsupported discovery and cannot approve its own exclusions."
-    },
-    {
-      "role": "product-reviewer",
+      "role": "proof-or-stop-product-reviewer",
       "status": "compatibility",
       "phase": "INIT/DONE advisory",
       "purpose": "Reviews user-facing transcript and product closure.",
@@ -597,7 +474,137 @@
       "notes": "INIT compatibility remains until product reviewer routing is migrated."
     },
     {
-      "role": "test-case-reviewer",
+      "role": "proof-or-stop-review-behavior",
+      "status": "active",
+      "phase": "REVIEW",
+      "purpose": "Reviews promised user-visible behavior, edge cases, and userSees mismatch.",
+      "commands": "git diff; dev_memory_preflight; dev_memory_search; Glob/rg candidate search; review_run_start; finding_add; review_pass_set.",
+      "directFileAccess": "Reads git diff, checklist userSees, source files, candidate docs, and scope-plan artifacts; no direct story writes.",
+      "inputs": "Diff, story scope, user-visible behavior, verification evidence.",
+      "outputs": "Reviewer findings or pass.",
+      "capabilities": "Behavior correctness; edge-case review; user-visible mismatch detection.",
+      "overlapCategory": "shares spec checks with scope and docs",
+      "notes": "Should consume scope artifacts instead of repeating broad PLAN scans."
+    },
+    {
+      "role": "proof-or-stop-review-channel",
+      "status": "retired-cli-only",
+      "phase": "REVIEW legacy",
+      "purpose": "Legacy reviewer for normal-channel dispatch evidence.",
+      "commands": "grep process-events; review_run_start; finding_add; review_pass_set.",
+      "directFileAccess": "Legacy direct read of docs/story process-events evidence.",
+      "inputs": "process-events dispatch and subagent_result evidence.",
+      "outputs": "Reviewer findings or pass.",
+      "capabilities": "Dispatch evidence inspection.",
+      "overlapCategory": "duplicates channel CLI gate",
+      "notes": "Plan marks this as retired in favor of validate channel checks."
+    },
+    {
+      "role": "proof-or-stop-review-concept",
+      "status": "conditional",
+      "phase": "REVIEW",
+      "purpose": "Reviews concept deletion, rename, and terminology residue.",
+      "commands": "git diff; grep; review_run_start; finding_add; review_pass_set.",
+      "directFileAccess": "Reads diff/source/docs references; reviewer evidence through Lattice CLI.",
+      "inputs": "Diff, renamed terms, deleted concepts, docs/code references.",
+      "outputs": "Reviewer findings or pass.",
+      "capabilities": "Residue scan; concept consistency; rename completeness.",
+      "overlapCategory": "overlaps docs and quality cleanup",
+      "notes": "Route only when rename, removal, or concept-retirement triggers exist."
+    },
+    {
+      "role": "proof-or-stop-review-delivery",
+      "status": "active",
+      "phase": "TEST/DONE",
+      "purpose": "Reviews final delivery claims, docs promises, real machine tests, and closeout.",
+      "commands": "git diff; source grep; delivery_check_set.",
+      "directFileAccess": "Reads git diff and repository files; explicitly avoids process-events, reviewer outputs, and test-evidence contents.",
+      "inputs": "storyId, git diff main...HEAD, and repository files.",
+      "outputs": "Signed delivery-check.json via delivery_check_set, or refusal text.",
+      "capabilities": "Delivery completeness; closeout self-check; final docs-promise fallback.",
+      "overlapCategory": "overlaps docs and product",
+      "notes": "Fresh-context review independently derives docs promises and real-machine test coverage; it does not consume prior docs review, other reviewer results, or test-evidence.json."
+    },
+    {
+      "role": "proof-or-stop-review-docs",
+      "status": "active",
+      "phase": "REVIEW",
+      "purpose": "Reviews code/documentation drift around changed public behavior.",
+      "commands": "git diff; grep; review_run_start; finding_add; review_pass_set.",
+      "directFileAccess": "Reads changed docs/source; reviewer evidence through Lattice CLI.",
+      "inputs": "Diff, docs, command examples, config/schema changes.",
+      "outputs": "Reviewer findings or pass.",
+      "capabilities": "Doc-code drift review; command example review; schema documentation review.",
+      "overlapCategory": "single REVIEW docs owner",
+      "notes": "Owns REVIEW doc drift and docs-promised-code-missing checks."
+    },
+    {
+      "role": "proof-or-stop-review-quality",
+      "status": "active",
+      "phase": "REVIEW",
+      "purpose": "Reviews maintainability, type safety, I/O shell isolation, and proof metadata consistency.",
+      "commands": "git diff; review_run_start; finding_add; review_pass_set.",
+      "directFileAccess": "Reads source/tests/proof metadata; reviewer evidence through Lattice CLI.",
+      "inputs": "Diff, source code, tests, proof metadata.",
+      "outputs": "Reviewer findings or pass.",
+      "capabilities": "Code quality; dead-code scan; type-safety review; maintainability review.",
+      "overlapCategory": "overlaps implementation-reviewer",
+      "notes": "Target owner for implementation-reviewer maintainability checks."
+    },
+    {
+      "role": "proof-or-stop-review-scope-plan",
+      "status": "active",
+      "phase": "PLAN",
+      "purpose": "Reviews story/checklist scope against source-of-truth requirements.",
+      "commands": "config; dev_memory_preflight; dev_memory_search; Glob/rg candidate search; scope_check_save.",
+      "directFileAccess": "Reads candidate docs and CLI-provided story/checklist context; scope evidence through Lattice CLI.",
+      "inputs": "Story, checklist, candidate requirement docs, risk signals.",
+      "outputs": "scope_check_save artifact.",
+      "capabilities": "Scope coverage; orphan requirement detection; candidate spec review.",
+      "overlapCategory": "PLAN scope owner",
+      "notes": "Should avoid default full decisions-directory scans without escalation."
+    },
+    {
+      "role": "proof-or-stop-review-story-init",
+      "status": "active",
+      "phase": "INIT",
+      "purpose": "Reviews new story readability, facts, risk wording, and initial checklist sanity.",
+      "commands": "Read/Grep story inputs; init_check_set; cat/echo/Edit init-self-check.json.",
+      "directFileAccess": "Grandfathered direct docs/story reads plus init-self-check cat/echo/Edit write wording.",
+      "inputs": "Story background, index fields, checklist title/context.",
+      "outputs": "init_check_set issues/pass plus init-self-check audit file wording.",
+      "capabilities": "Fresh-context intake review; story clarity; risk sanity check.",
+      "overlapCategory": "overlaps scope-plan on checklist sanity",
+      "notes": "Baseline includes grandfathered direct story-file reads and init-self-check write wording."
+    },
+    {
+      "role": "proof-or-stop-review-test-coverage",
+      "status": "active",
+      "phase": "REVIEW",
+      "purpose": "Reviews verificationIntent to verificationEvidence coverage.",
+      "commands": "validate; review_run_start; finding_add; review_pass_set.",
+      "directFileAccess": "Reads checklist/evidence through Lattice CLI; reviewer evidence through Lattice CLI.",
+      "inputs": "Checklist verificationIntent and verificationEvidence.",
+      "outputs": "Reviewer findings or pass.",
+      "capabilities": "Coverage completeness; missing/stale evidence detection.",
+      "overlapCategory": "verification coverage owner",
+      "notes": "Current replacement for the value of legacy TEST_CASE_REVIEW."
+    },
+    {
+      "role": "proof-or-stop-review-topology-critic",
+      "status": "active",
+      "phase": "PLAN/DEV/REVIEW",
+      "purpose": "Independently reviews acceptance topology completeness and signs a current critic receipt.",
+      "commands": "git diff; topology_critic_receipt_set; topology_critic_receipt_check.",
+      "directFileAccess": "Reads current source, topology, basis, and scope artifacts; writes only through registered Lattice receipt commands.",
+      "inputs": "Current acceptance basis/topology, scope bindings, findings, exclusions, and implementation provenance.",
+      "outputs": "Signed topology-critic receipt with pass or request_changes verdict.",
+      "capabilities": "Topology completeness criticism; four-dimensional independence verification; exclusion-approval validation.",
+      "overlapCategory": "independent acceptance-topology authority critic",
+      "notes": "Cannot override partial or unsupported discovery and cannot approve its own exclusions."
+    },
+    {
+      "role": "proof-or-stop-test-case-reviewer",
       "status": "legacy",
       "phase": "TEST_CASE_REVIEW legacy",
       "purpose": "Legacy reviewer for fixture coverage of testIntent.",
@@ -606,11 +613,11 @@
       "inputs": "Legacy testIntent and fixture JSON.",
       "outputs": "testintent_record results and testintent_check status.",
       "capabilities": "Legacy fixture coverage review.",
-      "overlapCategory": "replaced by current lattice-review-test-coverage; target proof-or-stop-review-test-coverage",
+      "overlapCategory": "replaced by current proof-or-stop-review-test-coverage; target proof-or-stop-review-test-coverage",
       "notes": "Legacy-only prompt tied to old TEST_CASE_REVIEW phase."
     },
     {
-      "role": "test-intent",
+      "role": "proof-or-stop-test-intent",
       "status": "legacy",
       "phase": "PLAN legacy",
       "purpose": "Legacy checklist split reviewer and testIntent writer.",
@@ -621,11 +628,24 @@
       "capabilities": "Checklist split review; legacy acceptance-intent writing.",
       "overlapCategory": "replaced by verificationIntent flow",
       "notes": "Conflicts with the current verificationIntent model for new stories."
+    },
+    {
+      "role": "proof-or-stop-verification-intent",
+      "status": "active",
+      "phase": "PLAN",
+      "purpose": "Authors verificationIntent for one checklist item.",
+      "commands": "checklist_update with verificationIntent only; story_get; checklist_get; aux_doc_list and relevant read-only source/decision reads.",
+      "directFileAccess": "Reads source and decision documents; writes checklist intent only through Proof-or-Stop CLI.",
+      "inputs": "Story, one checklist item, relevant source and decision documents.",
+      "outputs": "Structured verificationIntent with happy, edge, and adversarial coverage lanes.",
+      "capabilities": "Adversarial acceptance-intent authoring; observable coverage design; verification boundary enforcement.",
+      "overlapCategory": "PLAN verification-intent owner",
+      "notes": "Active replacement for legacy test-intent authoring; does not write status or verificationEvidence."
     }
   ],
   "roleMatrixAudit": {
     "machineChecks": [
-      "Lock the exact 17 role snapshots and role IDs.",
+      "Lock the exact 18 role snapshots and role IDs.",
       "Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest.",
       "For five modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.",
       "Lock agent_prompt output hashes.",
@@ -653,89 +673,94 @@
       "purpose": "Navigation and drift anchors for manual review only; relPath and templateHash do not prove role semantics.",
       "roles": [
         {
-          "role": "implementation-reviewer",
-          "relPath": "templates/agents/implementation-reviewer.md",
-          "templateHash": "fed9fddce46760a0110ef14ae976480a219d391902b8718df0ad767859cfeafd"
+          "role": "proof-or-stop-evaluator-cli",
+          "relPath": "templates/agents/proof-or-stop-evaluator-cli.md",
+          "templateHash": "db4c2712365ed4142b0d54269738130abe8eeda91a8accb27f2e7391657c3c89"
         },
         {
-          "role": "lattice-evaluator-cli",
-          "relPath": "templates/agents/lattice-evaluator-cli.md",
-          "templateHash": "9ffa0541c787078ae112f3edabf152fffca64b630f32f83d4367b1b310c4595e"
+          "role": "proof-or-stop-evaluator",
+          "relPath": "templates/agents/proof-or-stop-evaluator.md",
+          "templateHash": "77c8cfdc26b98f15f628e9779bf1c0dff94110244993945bfd5eef021976ad28"
         },
         {
-          "role": "lattice-evaluator",
-          "relPath": "templates/agents/lattice-evaluator.md",
-          "templateHash": "dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97"
+          "role": "proof-or-stop-implementation-reviewer",
+          "relPath": "templates/agents/proof-or-stop-implementation-reviewer.md",
+          "templateHash": "8bc6ea4e4b498131a3b837929f2c7f26f4017756cad0106980941b5cd96ab0d2"
         },
         {
-          "role": "lattice-implementer",
-          "relPath": "templates/agents/lattice-implementer.md",
-          "templateHash": "0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41"
+          "role": "proof-or-stop-implementer",
+          "relPath": "templates/agents/proof-or-stop-implementer.md",
+          "templateHash": "832706c23b16277555ac3b305fcdb3293762ecd9c5ae911d6d9cec7641d732b5"
         },
         {
-          "role": "lattice-review-behavior",
-          "relPath": "templates/agents/lattice-review-behavior.md",
-          "templateHash": "ff3926a26d0a5ea2c9f77682df750c47b3c9707c41a6eced0f67fbadfbe7c27d"
+          "role": "proof-or-stop-product-reviewer",
+          "relPath": "templates/agents/proof-or-stop-product-reviewer.md",
+          "templateHash": "0206b195e26ba067e863b2f54c9117f75bd56f2ea86d345bee8ed00187a3bbda"
         },
         {
-          "role": "lattice-review-channel",
-          "relPath": "templates/agents/lattice-review-channel.md",
-          "templateHash": "029d5fc9c42db199c513bda5674070b01550d9254172c71e572e229dc4de665b"
+          "role": "proof-or-stop-review-behavior",
+          "relPath": "templates/agents/proof-or-stop-review-behavior.md",
+          "templateHash": "e5c993a2b42018984c4cc42b679d8eb278c8130564e2b0fef13bf95ba799c26c"
         },
         {
-          "role": "lattice-review-concept",
-          "relPath": "templates/agents/lattice-review-concept.md",
-          "templateHash": "a8b1ecd5020c6d0d091678d8c31f9c09bb12110e8da2658932570120fd86e0ca"
+          "role": "proof-or-stop-review-channel",
+          "relPath": "templates/agents/proof-or-stop-review-channel.md",
+          "templateHash": "3ce5d558cd8c328f9995f8db752186aaa1dd42e24202a3ae4ae71988ac345213"
         },
         {
-          "role": "lattice-review-delivery",
-          "relPath": "templates/agents/lattice-review-delivery.md",
-          "templateHash": "4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af"
+          "role": "proof-or-stop-review-concept",
+          "relPath": "templates/agents/proof-or-stop-review-concept.md",
+          "templateHash": "dbf98f6ad4118c7a0bc7457c0dc12b4214890ed406121aaed0f66d71ae43c4ec"
         },
         {
-          "role": "lattice-review-docs",
-          "relPath": "templates/agents/lattice-review-docs.md",
-          "templateHash": "6808a26c1be23445dbb342d2e7110181c4e2d6b9ce581cfa41a2dfdea2a16d1e"
+          "role": "proof-or-stop-review-delivery",
+          "relPath": "templates/agents/proof-or-stop-review-delivery.md",
+          "templateHash": "9d680469210a47fff4af184f0f895cc03c7f58fcfefba534c146df74f82c9b4c"
         },
         {
-          "role": "lattice-review-quality",
-          "relPath": "templates/agents/lattice-review-quality.md",
-          "templateHash": "bf99a4151d4406490259efb51a037d28be730115f07b18d5abd63ac21598f32d"
+          "role": "proof-or-stop-review-docs",
+          "relPath": "templates/agents/proof-or-stop-review-docs.md",
+          "templateHash": "b7e5adbf1264b8875b954acb7b97fab71641fb5b63a1025c8c868f0385ca9c5b"
         },
         {
-          "role": "lattice-review-scope-plan",
-          "relPath": "templates/agents/lattice-review-scope-plan.md",
-          "templateHash": "9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07"
+          "role": "proof-or-stop-review-quality",
+          "relPath": "templates/agents/proof-or-stop-review-quality.md",
+          "templateHash": "d2d4174ddbd42fb81f8f7daf16846c0701790c8bb45170830e01fa8e621a76f8"
         },
         {
-          "role": "lattice-review-story-init",
-          "relPath": "templates/agents/lattice-review-story-init.md",
-          "templateHash": "d63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6"
+          "role": "proof-or-stop-review-scope-plan",
+          "relPath": "templates/agents/proof-or-stop-review-scope-plan.md",
+          "templateHash": "98fc1827842a3b2d3a3b1dc29a338baa3933eb54e26e7216b7e0863fb6cd835b"
         },
         {
-          "role": "lattice-review-test-coverage",
-          "relPath": "templates/agents/lattice-review-test-coverage.md",
-          "templateHash": "5d1f5bac9cb33991d591189f9b944b307e96600a1dd89e2d24fda6dd0f352f90"
+          "role": "proof-or-stop-review-story-init",
+          "relPath": "templates/agents/proof-or-stop-review-story-init.md",
+          "templateHash": "231b83d21cc676b3b5535a0b977915308adc198c5e9baca6788a3078fa535c1c"
         },
         {
-          "role": "lattice-review-topology-critic",
-          "relPath": "templates/agents/lattice-review-topology-critic.md",
-          "templateHash": "29668c073394f3d3feb7ab591a196dab78b18fbb5789d5586e553a3cadcc07d0"
+          "role": "proof-or-stop-review-test-coverage",
+          "relPath": "templates/agents/proof-or-stop-review-test-coverage.md",
+          "templateHash": "50a4b2fa8adaa543f69663c35affe5075e2db5287486d69aa8c397997325b9e8"
         },
         {
-          "role": "product-reviewer",
-          "relPath": "templates/agents/product-reviewer.md",
-          "templateHash": "e23eec314c5a5f3dff0d34768c15ff94546881999a223544456cfe695f995b2a"
+          "role": "proof-or-stop-review-topology-critic",
+          "relPath": "templates/agents/proof-or-stop-review-topology-critic.md",
+          "templateHash": "cfff90be259ccd68487c9622f8de03014ad7df5807838a98e6a8d9e7fefc51a3"
         },
         {
-          "role": "test-case-reviewer",
-          "relPath": "templates/agents/test-case-reviewer.md",
-          "templateHash": "3292b8c15a696f588c9fcda45218aefeabb56668d47fa0e74cd163cbaf9da0a5"
+          "role": "proof-or-stop-test-case-reviewer",
+          "relPath": "templates/agents/proof-or-stop-test-case-reviewer.md",
+          "templateHash": "501c7cf78589d9e78f4657e5e5bad2ffb9dfa3fd0cf7a837545f4a6fe2d701bc"
         },
         {
-          "role": "test-intent",
-          "relPath": "templates/agents/test-intent.md",
-          "templateHash": "168d1a5b862f0949aaa44223f21f42e67ff4df938805ac6ebf0fd55677be3fc2"
+          "role": "proof-or-stop-test-intent",
+          "relPath": "templates/agents/proof-or-stop-test-intent.md",
+          "templateHash": "d1ec6e8903ff4b953015b7836a7f88e9894b7dd0f4306138b4e32e435405dc27"
+        },
+        {
+          "role": "proof-or-stop-verification-intent",
+          "relPath": "templates/agents/proof-or-stop-verification-intent.md",
+          "templateHash": "a0883d46e5f0abf38651078c27bf9e52dd79688d938d131126df9f01b8b886bf"
         }
       ]
     }
@@ -766,15 +791,15 @@
       ],
       "registeredContexts": [
         {
-          "role": "lattice-review-concept",
+          "role": "proof-or-stop-review-concept",
           "term": "testIntent",
           "excerpt": "2. `git diff main...HEAD` to see specific changes, and identify **concept words that have been deleted/replaced en masse** (e.g., testIntent was deleted, alpha was replaced with beta)",
           "reason": "Current concept-deletion example explicitly demonstrates that testIntent was deleted."
         },
         {
-          "role": "lattice-review-test-coverage",
+          "role": "proof-or-stop-review-test-coverage",
           "term": "TEST_CASE_REVIEW",
-          "excerpt": "You are `lattice-review-test-coverage`. Your duty is to inherit the value of the old `TEST_CASE_REVIEW`, but without resurrecting the old phase: you only review during the REVIEW phase whether the `verificationIntent` on the checklist is covered by valid `verificationEvidence`.",
+          "excerpt": "You are `proof-or-stop-review-test-coverage`. Your duty is to inherit the value of the old `TEST_CASE_REVIEW`, but without resurrecting the old phase: you only review during the REVIEW phase whether the `verificationIntent` on the checklist is covered by valid `verificationEvidence`.",
           "reason": "Current coverage reviewer explicitly identifies TEST_CASE_REVIEW as the old replaced phase."
         }
       ],
@@ -787,15 +812,15 @@
     ],
     "findings": [
       {
-        "id": "2ff6f2781444e189",
-        "role": "implementation-reviewer",
+        "id": "b78279a4fb911cfb",
+        "role": "proof-or-stop-implementation-reviewer",
         "line": 14,
         "clauseIndex": 2,
         "occurrence": 1,
         "term": "testIntent",
         "matchedText": "testIntent",
         "clause": "Your job is not to review fixtures / testIntent, nor to review user value",
-        "excerpt": "You are the `implementation-reviewer`. Your job is not to review fixtures / testIntent, nor to review user value, but to review **whether the implementation code itself has obvious risks**.",
+        "excerpt": "You are the `proof-or-stop-implementation-reviewer`. Your job is not to review fixtures / testIntent, nor to review user value, but to review **whether the implementation code itself has obvious risks**.",
         "classification": "legacy-overlap-wording",
         "note": "Legacy wording called out for later prompt consolidation.",
         "roleStatus": "fold-candidate",
@@ -804,8 +829,8 @@
         "policyReason": "Role status fold-candidate is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "ab2e7b5a0c970ada",
-        "role": "implementation-reviewer",
+        "id": "6fc3ddf1cd2e6d9c",
+        "role": "proof-or-stop-implementation-reviewer",
         "line": 25,
         "clauseIndex": 1,
         "occurrence": 1,
@@ -821,8 +846,8 @@
         "policyReason": "Role status fold-candidate is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "1979de4a42eb5199",
-        "role": "implementation-reviewer",
+        "id": "2f3902f8525408ea",
+        "role": "proof-or-stop-implementation-reviewer",
         "line": 59,
         "clauseIndex": 1,
         "occurrence": 1,
@@ -838,42 +863,8 @@
         "policyReason": "Role status fold-candidate is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "f08ece032d68ebd2",
-        "role": "lattice-review-concept",
-        "line": 20,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "`git diff main...HEAD` to see specific changes, and identify **concept words that have been deleted/replaced en masse** (e.g., testIntent was deleted, alpha was replaced with beta)",
-        "excerpt": "2. `git diff main...HEAD` to see specific changes, and identify **concept words that have been deleted/replaced en masse** (e.g., testIntent was deleted, alpha was replaced with beta)",
-        "classification": "legacy-example",
-        "note": "Example of concept deletion terminology, not an active testIntent instruction.",
-        "roleStatus": "conditional",
-        "statusClassification": "enforced",
-        "policyStatus": "allowed-registered-context",
-        "policyReason": "Exact role/term/excerpt occurrence is registered as current historical context."
-      },
-      {
-        "id": "6b3d106e069cabc8",
-        "role": "lattice-review-test-coverage",
-        "line": 8,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "TEST_CASE_REVIEW",
-        "matchedText": "TEST_CASE_REVIEW",
-        "clause": "Your duty is to inherit the value of the old `TEST_CASE_REVIEW`",
-        "excerpt": "You are `lattice-review-test-coverage`. Your duty is to inherit the value of the old `TEST_CASE_REVIEW`, but without resurrecting the old phase: you only review during the REVIEW phase whether the `verificationIntent` on the checklist is covered by valid `verificationEvidence`.",
-        "classification": "legacy-value-reference",
-        "note": "Current reviewer explicitly references the old TEST_CASE_REVIEW value without reviving the phase.",
-        "roleStatus": "active",
-        "statusClassification": "enforced",
-        "policyStatus": "allowed-registered-context",
-        "policyReason": "Exact role/term/excerpt occurrence is registered as current historical context."
-      },
-      {
-        "id": "58fb869a0dcdf601",
-        "role": "product-reviewer",
+        "id": "a6d872fb58385898",
+        "role": "proof-or-stop-product-reviewer",
         "line": 26,
         "clauseIndex": 1,
         "occurrence": 1,
@@ -889,8 +880,8 @@
         "policyReason": "The whole occurrence clause matches the closed safe-negative grammar."
       },
       {
-        "id": "b7539ae1f98af668",
-        "role": "product-reviewer",
+        "id": "d99fef02a8063fa1",
+        "role": "proof-or-stop-product-reviewer",
         "line": 27,
         "clauseIndex": 1,
         "occurrence": 1,
@@ -906,287 +897,49 @@
         "policyReason": "The whole occurrence clause matches the closed safe-negative grammar."
       },
       {
-        "id": "6b1b84edfe4bbcc7",
-        "role": "test-case-reviewer",
-        "line": 2,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "TEST_CASE",
-        "matchedText": "test-case",
-        "clause": "name: test-case-reviewer",
-        "excerpt": "name: test-case-reviewer",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "ff4c2cceb90105f1",
-        "role": "test-case-reviewer",
-        "line": 2,
-        "clauseIndex": 1,
-        "occurrence": 2,
-        "term": "TEST_CASE_REVIEW",
-        "matchedText": "test-case-reviewer",
-        "clause": "name: test-case-reviewer",
-        "excerpt": "name: test-case-reviewer",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "a432af3991230f70",
-        "role": "test-case-reviewer",
-        "line": 3,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "description: Review testIntent coverage item by item, record results, and report back to the main agent",
-        "excerpt": "description: Review testIntent coverage item by item, record results, and report back to the main agent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "d995b20af40b5d70",
-        "role": "test-case-reviewer",
-        "line": 12,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "TEST_CASE",
-        "matchedText": "test-case",
-        "clause": "# test-case-reviewer agent",
-        "excerpt": "# test-case-reviewer agent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "f71504fa6ea0cb38",
-        "role": "test-case-reviewer",
-        "line": 12,
-        "clauseIndex": 1,
-        "occurrence": 2,
-        "term": "TEST_CASE_REVIEW",
-        "matchedText": "test-case-reviewer",
-        "clause": "# test-case-reviewer agent",
-        "excerpt": "# test-case-reviewer agent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "24d2bdc93e612763",
-        "role": "test-case-reviewer",
-        "line": 14,
+        "id": "8bc784214fea5940",
+        "role": "proof-or-stop-review-concept",
+        "line": 20,
         "clauseIndex": 2,
         "occurrence": 1,
         "term": "testIntent",
-        "matchedText": "test-intent",
-        "clause": "The main agent (role=author) writes the code and tests, the test-intent agent (role=intent) writes the acceptance criteria, and you review whether the main agent's tests satisfy the acceptance criteria.",
-        "excerpt": "You are an independent reviewer (role=reviewer). The main agent (role=author) writes the code and tests, the test-intent agent (role=intent) writes the acceptance criteria, and you review whether the main agent's tests satisfy the acceptance criteria.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "fc393f02cb4f20d2",
-        "role": "test-case-reviewer",
-        "line": 26,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
         "matchedText": "testIntent",
-        "clause": "You review, item by item, whether each testIntent has a corresponding test that covers it and passes, during the TEST_CASE_REVIEW phase.",
-        "excerpt": "You review, item by item, whether each testIntent has a corresponding test that covers it and passes, during the TEST_CASE_REVIEW phase.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
+        "clause": "`git diff main...HEAD` to see specific changes, and identify **concept words that have been deleted/replaced en masse** (e.g., testIntent was deleted, alpha was replaced with beta)",
+        "excerpt": "2. `git diff main...HEAD` to see specific changes, and identify **concept words that have been deleted/replaced en masse** (e.g., testIntent was deleted, alpha was replaced with beta)",
+        "classification": "legacy-example",
+        "note": "Example of concept deletion terminology, not an active testIntent instruction.",
+        "roleStatus": "conditional",
+        "statusClassification": "enforced",
+        "policyStatus": "allowed-registered-context",
+        "policyReason": "Exact role/term/excerpt occurrence is registered as current historical context."
       },
       {
-        "id": "c7f0792235e36128",
-        "role": "test-case-reviewer",
-        "line": 26,
-        "clauseIndex": 1,
-        "occurrence": 2,
-        "term": "TEST_CASE_REVIEW",
-        "matchedText": "TEST_CASE_REVIEW",
-        "clause": "You review, item by item, whether each testIntent has a corresponding test that covers it and passes, during the TEST_CASE_REVIEW phase.",
-        "excerpt": "You review, item by item, whether each testIntent has a corresponding test that covers it and passes, during the TEST_CASE_REVIEW phase.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "224554a886af16d6",
-        "role": "test-case-reviewer",
-        "line": 32,
-        "clauseIndex": 1,
+        "id": "ec6b3b5b1710cc6b",
+        "role": "proof-or-stop-review-test-coverage",
+        "line": 8,
+        "clauseIndex": 2,
         "occurrence": 1,
         "term": "TEST_CASE_REVIEW",
         "matchedText": "TEST_CASE_REVIEW",
-        "clause": "- The current phase is already TEST_CASE_REVIEW",
-        "excerpt": "- The current phase is already TEST_CASE_REVIEW",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
+        "clause": "Your duty is to inherit the value of the old `TEST_CASE_REVIEW`",
+        "excerpt": "You are `proof-or-stop-review-test-coverage`. Your duty is to inherit the value of the old `TEST_CASE_REVIEW`, but without resurrecting the old phase: you only review during the REVIEW phase whether the `verificationIntent` on the checklist is covered by valid `verificationEvidence`.",
+        "classification": "legacy-value-reference",
+        "note": "Current reviewer explicitly references the old TEST_CASE_REVIEW value without reviving the phase.",
+        "roleStatus": "active",
+        "statusClassification": "enforced",
+        "policyStatus": "allowed-registered-context",
+        "policyReason": "Exact role/term/excerpt occurrence is registered as current historical context."
       },
       {
-        "id": "0685ddd37fbe2121",
-        "role": "test-case-reviewer",
-        "line": 36,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "### Step 1: Get the checklist and testIntent",
-        "excerpt": "### Step 1: Get the checklist and testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "b81c6a7dea0bb78a",
-        "role": "test-case-reviewer",
-        "line": 54,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "⚠ The X-th testIntent has reached the 5-round cap.",
-        "excerpt": "⚠ The X-th testIntent has reached the 5-round cap. The current segment cannot continue review.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "d4da366d7952b3b4",
-        "role": "test-case-reviewer",
-        "line": 57,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "First, reflect: 5 rounds without consensus suggests the testIntent description itself or the checklist breakdown may have problems",
-        "excerpt": "1. First, reflect: 5 rounds without consensus suggests the testIntent description itself or the checklist breakdown may have problems",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "4ab4b33e1b160906",
-        "role": "test-case-reviewer",
-        "line": 76,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "How to review: **read fixture JSON files directly** and check whether the case's language-agnostic test protocol covers the scenario described by the testIntent.",
-        "excerpt": "How to review: **read fixture JSON files directly** and check whether the case's language-agnostic test protocol covers the scenario described by the testIntent. Valid evidence may come from `executor`, `command`, or legacy `execute`; do not pass a case just because \"the JS runner cannot import a non-JS language\" — that only proves the lack of corresponding executor evidence.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "9441500ad4bd56d2",
-        "role": "test-case-reviewer",
-        "line": 79,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "TEST_CASE",
-        "matchedText": "test case",
-        "clause": "Find the corresponding test case in the fixture file (matched via `intentRef`)",
-        "excerpt": "1. Find the corresponding test case in the fixture file (matched via `intentRef`)",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "1aea355508c06dac",
-        "role": "test-case-reviewer",
-        "line": 81,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "Verify that `input` / `expect` / `throws` assertions cover the scenario described by the testIntent",
-        "excerpt": "3. Verify that `input` / `expect` / `throws` assertions cover the scenario described by the testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "ea3969e4ea67df37",
-        "role": "test-case-reviewer",
-        "line": 89,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "For each testIntent, call the CLI to record the review result:",
-        "excerpt": "For each testIntent, call the CLI to record the review result:",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "16b1080a10f157ae",
-        "role": "test-case-reviewer",
-        "line": 92,
+        "id": "79ef52db9f2a8943",
+        "role": "proof-or-stop-test-case-reviewer",
+        "line": 2,
         "clauseIndex": 1,
         "occurrence": 1,
         "term": "TEST_CASE",
         "matchedText": "test-case",
-        "clause": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
-        "excerpt": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
+        "clause": "name: proof-or-stop-test-case-reviewer",
+        "excerpt": "name: proof-or-stop-test-case-reviewer",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -1195,15 +948,15 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "e4c0a0124c53a7cd",
-        "role": "test-case-reviewer",
-        "line": 92,
+        "id": "96ef22b19e4f635e",
+        "role": "proof-or-stop-test-case-reviewer",
+        "line": 2,
         "clauseIndex": 1,
         "occurrence": 2,
         "term": "TEST_CASE_REVIEW",
         "matchedText": "test-case-reviewer",
-        "clause": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
-        "excerpt": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
+        "clause": "name: proof-or-stop-test-case-reviewer",
+        "excerpt": "name: proof-or-stop-test-case-reviewer",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -1212,491 +965,15 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "7a0fbfe27d15b61f",
-        "role": "test-case-reviewer",
-        "line": 96,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "TEST_CASE",
-        "matchedText": "test-case",
-        "clause": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
-        "excerpt": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "28b30f16a221e801",
-        "role": "test-case-reviewer",
-        "line": 96,
-        "clauseIndex": 1,
-        "occurrence": 2,
-        "term": "TEST_CASE_REVIEW",
-        "matchedText": "test-case-reviewer",
-        "clause": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
-        "excerpt": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "0abf8786d025f306",
-        "role": "test-case-reviewer",
-        "line": 110,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "- **pass=true**: A corresponding case is found, and the case's executor/command/execute + input/expect covers the scenario described by the testIntent.",
-        "excerpt": "- **pass=true**: A corresponding case is found, and the case's executor/command/execute + input/expect covers the scenario described by the testIntent. **The note must state the reason for passing**: cite the fixture file:line, explain which executor or command verified the behavior described by the intent, and why the assertions are sufficient. Writing only \"ok\" or \"case exists\" is not allowed.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "94b45f906b1828fe",
-        "role": "test-case-reviewer",
-        "line": 113,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "input/expect does not cover the key scenario described by the testIntent",
-        "excerpt": "- The case exists but input/expect does not cover the key scenario described by the testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "21a356d09083be70",
-        "role": "test-case-reviewer",
-        "line": 132,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "- **Do not modify testIntent** (review only, do not change)",
-        "excerpt": "- **Do not modify testIntent** (review only, do not change)",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "19eee2883be0d5b3",
-        "role": "test-case-reviewer",
-        "line": 135,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "- **Do not decide on your own to skip** any testIntent item",
-        "excerpt": "- **Do not decide on your own to skip** any testIntent item",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "09f2d6a94efef7c5",
-        "role": "test-intent",
+        "id": "2035f4c7118375ae",
+        "role": "proof-or-stop-test-intent",
         "line": 2,
         "clauseIndex": 1,
         "occurrence": 1,
         "term": "testIntent",
         "matchedText": "test-intent",
-        "clause": "name: test-intent",
-        "excerpt": "name: test-intent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "29c7cacb4a8518d1",
-        "role": "test-intent",
-        "line": 3,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "description: Adversarially review checklist split quality and write testIntent",
-        "excerpt": "description: Adversarially review checklist split quality and write testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "e995df1982f88702",
-        "role": "test-intent",
-        "line": 12,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "test-intent",
-        "clause": "# test-intent agent",
-        "excerpt": "# test-intent agent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "5ad74a7b829e9b96",
-        "role": "test-intent",
-        "line": 14,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "test-intent",
-        "clause": "You are the test-intent agent.",
-        "excerpt": "You are the test-intent agent. You have two responsibilities, **which must be executed in order**:",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "8cb1968f574575eb",
-        "role": "test-intent",
-        "line": 17,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "**Write testIntent for each item** (only after the split passes review)",
-        "excerpt": "2. **Write testIntent for each item** (only after the split passes review)",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "e362eafd72aa3e43",
-        "role": "test-intent",
-        "line": 85,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "test-intent",
-        "clause": "re-invoke the test-intent agent",
-        "excerpt": "→ Please have the main agent adjust the checklist, then re-invoke the test-intent agent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "ed749e90910bf7d5",
-        "role": "test-intent",
-        "line": 88,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "**Stop when review fails** — do not proceed to Step 2 to write testIntent.",
-        "excerpt": "**Stop when review fails** — do not proceed to Step 2 to write testIntent. Continue only after the main agent has corrected the checklist.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "c8cf4ee0a31f9684",
-        "role": "test-intent",
-        "line": 94,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "## Step 2: Identify Item Type and Write testIntent",
-        "excerpt": "## Step 2: Identify Item Type and Write testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "7d1ce167021eee80",
-        "role": "test-intent",
-        "line": 98,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "- **Testable**: involves code behavior changes (functions, CLI commands, UI interactions) → write testIntent",
-        "excerpt": "- **Testable**: involves code behavior changes (functions, CLI commands, UI interactions) → write testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "b724934adbd255aa",
-        "role": "test-intent",
-        "line": 99,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "- **Not testable**: pure documentation updates, configuration changes, process conventions → mark `testIntent: null` with a reason",
-        "excerpt": "- **Not testable**: pure documentation updates, configuration changes, process conventions → mark `testIntent: null` with a reason",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "7ed1c3fa88c0633f",
-        "role": "test-intent",
-        "line": 103,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "proof-or-stop checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
-        "excerpt": "proof-or-stop checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "024b999e549a07cd",
-        "role": "test-intent",
-        "line": 103,
-        "clauseIndex": 1,
-        "occurrence": 2,
-        "term": "testIntent",
-        "matchedText": "test-intent",
-        "clause": "proof-or-stop checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
-        "excerpt": "proof-or-stop checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "620a70162b8a9fd0",
-        "role": "test-intent",
-        "line": 106,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "### Writing testIntent",
-        "excerpt": "### Writing testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "d93372834c27a475",
-        "role": "test-intent",
-        "line": 108,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "For testable items, write a three-column testIntent:",
-        "excerpt": "For testable items, write a three-column testIntent:",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "11f54fba0388db2b",
-        "role": "test-intent",
-        "line": 114,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "Each testIntent entry is annotated with `type`:",
-        "excerpt": "Each testIntent entry is annotated with `type`:",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "f4adf1b53adff7f2",
-        "role": "test-intent",
-        "line": 122,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "When an item involves CLI / pure functions / file I/O and will clearly need fixtures written later, prefer writing testIntent in a reviewer-friendly structure:",
-        "excerpt": "When an item involves CLI / pure functions / file I/O and will clearly need fixtures written later, prefer writing testIntent in a reviewer-friendly structure:",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "596d6a5956c8c5b1",
-        "role": "test-intent",
-        "line": 128,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "TEST_CASE",
-        "matchedText": "test-case",
-        "clause": "\"input\": {\"target\": \"test-case-reviewer\", \"profile\": \"reviewer-quality-v1\"},",
-        "excerpt": "\"input\": {\"target\": \"test-case-reviewer\", \"profile\": \"reviewer-quality-v1\"},",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "b449a5de741f3a19",
-        "role": "test-intent",
-        "line": 128,
-        "clauseIndex": 1,
-        "occurrence": 2,
-        "term": "TEST_CASE_REVIEW",
-        "matchedText": "test-case-reviewer",
-        "clause": "\"input\": {\"target\": \"test-case-reviewer\", \"profile\": \"reviewer-quality-v1\"},",
-        "excerpt": "\"input\": {\"target\": \"test-case-reviewer\", \"profile\": \"reviewer-quality-v1\"},",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "9c59cbe993dad514",
-        "role": "test-intent",
-        "line": 142,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "proof-or-stop checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
-        "excerpt": "proof-or-stop checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "0300ef8c211596d7",
-        "role": "test-intent",
-        "line": 142,
-        "clauseIndex": 1,
-        "occurrence": 2,
-        "term": "testIntent",
-        "matchedText": "test-intent",
-        "clause": "proof-or-stop checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
-        "excerpt": "proof-or-stop checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "50f7297545354c8c",
-        "role": "test-intent",
-        "line": 158,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "- **Do not write code** — only review + write testIntent",
-        "excerpt": "- **Do not write code** — only review + write testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "5a781e5845d2e884",
-        "role": "test-intent",
-        "line": 159,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "- **Do not write testIntent if the review did not pass**",
-        "excerpt": "- **Do not write testIntent if the review did not pass**",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "b14377d717e1cef2",
-        "role": "test-intent",
-        "line": 165,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "how many testIntent entries you wrote for each item (e.g., CHK-001: 2h/2e/2a)",
-        "excerpt": "2. how many testIntent entries you wrote for each item (e.g., CHK-001: 2h/2e/2a)",
+        "clause": "name: proof-or-stop-test-intent",
+        "excerpt": "name: proof-or-stop-test-intent",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -1714,69 +991,69 @@
       "contextRadius": 2,
       "exactReferences": [
         {
-          "role": "lattice-review-channel",
+          "role": "proof-or-stop-review-channel",
           "classification": "process-event-evidence-reference",
           "excerpt": "The truly reliable evidence source is the `dispatch` / `subagent_result` events in **`docs/story/actives/<storyId>/process-events.jsonl`**: every time the main agent uses `proof-or-stop dispatch` to assign work, it appends `{\"type\":\"dispatch\",\"checklistId\":\"CHK-xxx\",...}`; once the worker finishes, it may append `{\"type\":\"subagent_result\",\"checklistId\":\"CHK-xxx\",\"success\":true,...}`."
         },
         {
-          "role": "lattice-review-channel",
+          "role": "proof-or-stop-review-channel",
           "classification": "process-event-evidence-reference",
           "excerpt": "grep '\"type\":\"dispatch\"' docs/story/actives/B-xxx/process-events.jsonl | grep -oE '\"checklistId\":\"CHK-[0-9]+\"' | sort -u"
         },
         {
-          "role": "lattice-review-channel",
+          "role": "proof-or-stop-review-channel",
           "classification": "process-event-evidence-reference",
           "excerpt": "- The full text of `docs/story/actives/<storyId>/process-events.jsonl` (dispatch evidence source)"
         },
         {
-          "role": "lattice-review-story-init",
+          "role": "proof-or-stop-review-story-init",
           "classification": "read-only-reference",
           "excerpt": "3. `docs/story/actives/<storyId>/background.md` (full text)"
         },
         {
-          "role": "lattice-review-story-init",
+          "role": "proof-or-stop-review-story-init",
           "classification": "read-only-reference",
           "excerpt": "4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields"
         },
         {
-          "role": "lattice-review-story-init",
+          "role": "proof-or-stop-review-story-init",
           "classification": "read-only-reference",
           "excerpt": "5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`"
         },
         {
-          "role": "lattice-review-story-init",
+          "role": "proof-or-stop-review-story-init",
           "classification": "other",
           "excerpt": "- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)"
         },
         {
-          "role": "lattice-review-story-init",
+          "role": "proof-or-stop-review-story-init",
           "classification": "direct-read",
           "excerpt": "2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., \"X only supports Y\", \"all projects have Z\")."
         },
         {
-          "role": "lattice-review-story-init",
+          "role": "proof-or-stop-review-story-init",
           "classification": "direct-read",
           "excerpt": "3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`."
         },
         {
-          "role": "lattice-review-story-init",
+          "role": "proof-or-stop-review-story-init",
           "classification": "direct-read",
           "excerpt": "4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`."
         },
         {
-          "role": "lattice-review-story-init",
+          "role": "proof-or-stop-review-story-init",
           "classification": "direct-read",
           "excerpt": "cat docs/story/actives/<storyId>/init-self-check.json"
         },
         {
-          "role": "product-reviewer",
+          "role": "proof-or-stop-product-reviewer",
           "classification": "read-only-reference",
           "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`"
         }
       ],
       "exactWrites": [
         {
-          "role": "lattice-review-story-init",
+          "role": "proof-or-stop-review-story-init",
           "excerpt": "echo '{\"question\":\"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.\",\"answer\":\"\"}' > docs/story/actives/<storyId>/init-self-check.json",
           "reason": "Current INIT anti-self-exemption sidecar pending CLI migration."
         }
@@ -1794,8 +1071,8 @@
     ],
     "findings": [
       {
-        "id": "1e94cdfd0166e079",
-        "role": "lattice-evaluator",
+        "id": "3dc10ad8ea7eb3c0",
+        "role": "proof-or-stop-evaluator",
         "line": 21,
         "references": [
           "docs/story/"
@@ -1806,8 +1083,20 @@
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "e9d2b1ffa5630390",
-        "role": "lattice-implementer",
+        "id": "0bde1c7e688f2ccd",
+        "role": "proof-or-stop-evaluator-cli",
+        "line": 22,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "9506853ccd12d399",
+        "role": "proof-or-stop-implementer",
         "line": 27,
         "references": [
           "docs/story/"
@@ -1818,8 +1107,8 @@
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "d1545283f097bca3",
-        "role": "lattice-implementer",
+        "id": "d16da2a5711c7c65",
+        "role": "proof-or-stop-implementer",
         "line": 145,
         "references": [
           "docs/story/"
@@ -1830,8 +1119,20 @@
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "010b8a822b735e7a",
-        "role": "lattice-review-channel",
+        "id": "5d84651ff1119fdc",
+        "role": "proof-or-stop-product-reviewer",
+        "line": 48,
+        "references": [
+          "docs/story/actives/"
+        ],
+        "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`",
+        "classification": "read-only-reference",
+        "grandfathered": true,
+        "note": "Exact code-reviewed current story-file reference."
+      },
+      {
+        "id": "e4c44e22234013b5",
+        "role": "proof-or-stop-review-channel",
         "line": 22,
         "references": [
           "docs/story/"
@@ -1842,8 +1143,8 @@
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "5ad0754e65cf4efa",
-        "role": "lattice-review-channel",
+        "id": "2a575cd9f6f85556",
+        "role": "proof-or-stop-review-channel",
         "line": 115,
         "references": [
           "docs/story/actives/"
@@ -1854,8 +1155,8 @@
         "note": "Exact code-reviewed current story-file reference."
       },
       {
-        "id": "2368893ce540b31b",
-        "role": "lattice-review-channel",
+        "id": "ad6eceb95e7a52cc",
+        "role": "proof-or-stop-review-channel",
         "line": 138,
         "references": [
           "docs/story/actives/B-xxx/process-events.jsonl"
@@ -1866,8 +1167,8 @@
         "note": "Exact code-reviewed current story-file reference."
       },
       {
-        "id": "9de92c2fef6237ee",
-        "role": "lattice-review-channel",
+        "id": "a9a73297ad783a06",
+        "role": "proof-or-stop-review-channel",
         "line": 177,
         "references": [
           "docs/story/actives/"
@@ -1878,8 +1179,8 @@
         "note": "Exact code-reviewed current story-file reference."
       },
       {
-        "id": "49953ff0587a0c5f",
-        "role": "lattice-review-delivery",
+        "id": "0747ee80a33f1683",
+        "role": "proof-or-stop-review-delivery",
         "line": 22,
         "references": [
           "docs/story/"
@@ -1890,8 +1191,8 @@
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "a71f6e47cd6f96f5",
-        "role": "lattice-review-scope-plan",
+        "id": "46c449cb5772674c",
+        "role": "proof-or-stop-review-scope-plan",
         "line": 22,
         "references": [
           "docs/story/"
@@ -1902,8 +1203,8 @@
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "3057381127edf4e1",
-        "role": "lattice-review-story-init",
+        "id": "884936ceaf903acd",
+        "role": "proof-or-stop-review-story-init",
         "line": 28,
         "references": [
           "docs/story/"
@@ -1914,8 +1215,8 @@
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "71a8517c07154ace",
-        "role": "lattice-review-story-init",
+        "id": "fad0ba0878215a2f",
+        "role": "proof-or-stop-review-story-init",
         "line": 127,
         "references": [
           "docs/story/actives/"
@@ -1926,8 +1227,8 @@
         "note": "Exact code-reviewed current story-file reference."
       },
       {
-        "id": "eaba4010eca37a8f",
-        "role": "lattice-review-story-init",
+        "id": "a1716ad7ea38c21d",
+        "role": "proof-or-stop-review-story-init",
         "line": 128,
         "references": [
           "docs/story/actives/"
@@ -1938,8 +1239,8 @@
         "note": "Exact code-reviewed current story-file reference."
       },
       {
-        "id": "75df88d9f98f75e2",
-        "role": "lattice-review-story-init",
+        "id": "8e0085a25eb5fc94",
+        "role": "proof-or-stop-review-story-init",
         "line": 129,
         "references": [
           "docs/story/actives/"
@@ -1950,8 +1251,8 @@
         "note": "Exact code-reviewed current story-file reference."
       },
       {
-        "id": "40f8a1ddd3201cb2",
-        "role": "lattice-review-story-init",
+        "id": "32895cb5e4646de9",
+        "role": "proof-or-stop-review-story-init",
         "line": 137,
         "references": [
           "docs/story/actives/",
@@ -1963,8 +1264,8 @@
         "note": "Exact code-reviewed current story-file reference."
       },
       {
-        "id": "93df51f6a30c6396",
-        "role": "lattice-review-story-init",
+        "id": "fa1d4c52fa33d610",
+        "role": "proof-or-stop-review-story-init",
         "line": 206,
         "references": [
           "docs/story/actives/"
@@ -1975,8 +1276,8 @@
         "note": "Exact code-reviewed current story-file reference."
       },
       {
-        "id": "fd458c5629fe9d43",
-        "role": "lattice-review-story-init",
+        "id": "20bc7edfec228fcc",
+        "role": "proof-or-stop-review-story-init",
         "line": 207,
         "references": [
           "docs/story/actives/"
@@ -1987,8 +1288,8 @@
         "note": "Exact code-reviewed current story-file reference."
       },
       {
-        "id": "2762ed5bc25c7e30",
-        "role": "lattice-review-story-init",
+        "id": "8e2b9764cde83f7c",
+        "role": "proof-or-stop-review-story-init",
         "line": 208,
         "references": [
           "docs/story/actives/"
@@ -1999,8 +1300,8 @@
         "note": "Exact code-reviewed current story-file reference."
       },
       {
-        "id": "36b3b67b40a251e2",
-        "role": "lattice-review-story-init",
+        "id": "e08bb651588534d0",
+        "role": "proof-or-stop-review-story-init",
         "line": 261,
         "references": [
           "docs/story/actives/"
@@ -2011,8 +1312,8 @@
         "note": "Exact code-reviewed current story-file reference."
       },
       {
-        "id": "8317bf943dec5e67",
-        "role": "lattice-review-story-init",
+        "id": "0defcd22ee06b1d7",
+        "role": "proof-or-stop-review-story-init",
         "line": 267,
         "references": [
           "docs/story/actives/"
@@ -2023,16 +1324,16 @@
         "note": "Registered direct story-file write instruction to replace with CLI-mediated writes in later milestones."
       },
       {
-        "id": "9aaa90a8209bb2f3",
-        "role": "product-reviewer",
-        "line": 48,
+        "id": "6ac805b5d795e574",
+        "role": "proof-or-stop-review-topology-critic",
+        "line": 22,
         "references": [
-          "docs/story/actives/"
+          "docs/story/"
         ],
-        "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`",
-        "classification": "read-only-reference",
-        "grandfathered": true,
-        "note": "Exact code-reviewed current story-file reference."
+        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       }
     ]
   }

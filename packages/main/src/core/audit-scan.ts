@@ -32,7 +32,11 @@ import {
   checkDocsDrift,
   DOCS_DRIFT_ALLOWLIST,
 } from '../handlers/validate-docs-drift.js';
-import { PROOF_OR_STOP_BIN_NAMES, PROOF_OR_STOP_PRIMARY_BIN } from './lattice-brand.js';
+import {
+  PROOF_OR_STOP_BIN_NAMES,
+  PROOF_OR_STOP_DEPRECATED_BIN,
+  PROOF_OR_STOP_PRIMARY_BIN,
+} from './lattice-brand.js';
 
 export interface DriftCandidate {
   sectionPath: string; // e.g., "CLAUDE.md#lattice CLI quick reference"
@@ -64,12 +68,13 @@ export interface AuditReport {
 }
 
 /**
- * Every bin token a doc may legitimately instruct the user to run, canonical first.
- * B-cdf6 CHK-005: sourced from `PROOF_OR_STOP_BIN_NAMES` rather than a local literal, so adding or
- * retiring a bin alias in lattice-brand.ts cannot silently desync the drift extractor from the
- * names the CLI actually answers to.
+ * Every bin token the docs-drift audit recognizes, canonical first. The deprecated `lattice` token
+ * remains here for historical documentation coverage even though it is not an active npm bin.
+ * B-cdf6 CHK-005: canonical names are sourced from `PROOF_OR_STOP_BIN_NAMES` rather than a local
+ * literal, while the historical token is explicit so retiring an active alias cannot blind audits
+ * of older docs.
  */
-const BIN_TOKEN_ALTERNATION = [...PROOF_OR_STOP_BIN_NAMES]
+const BIN_TOKEN_ALTERNATION = [...new Set([...PROOF_OR_STOP_BIN_NAMES, PROOF_OR_STOP_DEPRECATED_BIN])]
   // Longest first: alternation is ordered, so an entry that is a prefix of another
   // (`proof-or-stop` of `proof-or-stop-codex`, `lattice` of `lattice-codex`) must not
   // get first refusal. Backtracking would recover here, but relying on it is fragile —
@@ -139,9 +144,9 @@ const EXPLICIT_YAGNI_COMMANDS = new Set<string>([
  * scanCommandDrift: extract command names of the form `<bin> <cmd>` from md;
  * for each one not in the ignore list, run `<bin> <cmd> --help`, exit≠0 → drift.
  *
- * B-cdf6 CHK-005: `<bin>` is any token in `PROOF_OR_STOP_BIN_NAMES` (canonical `proof-or-stop` plus the
- * deprecated `lattice` alias), not a single hardcoded literal. Also returns `extractedCommands`
- * so an empty extraction is distinguishable from a clean scan.
+ * B-cdf6 CHK-005: `<bin>` is any canonical token in `PROOF_OR_STOP_BIN_NAMES` plus the historical
+ * deprecated `lattice` token, not a single hardcoded literal. Also returns `extractedCommands` so
+ * an empty extraction is distinguishable from a clean scan.
  */
 export function scanCommandDrift(
   md: string,

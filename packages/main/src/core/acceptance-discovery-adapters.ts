@@ -103,6 +103,29 @@ function sourceFiles(entry: ProcessFactRegistryEntry): string[] {
   return stable([...(entry.producerSourceRefs ?? []), ...(entry.consumerSourceRefs ?? [])]);
 }
 
+function isResolvableRegularSourceFile(root: string, file: string): boolean {
+  try { return lstatSync(resolve(root, file)).isFile(); }
+  catch { return false; }
+}
+
+function isExistingDirectory(root: string, file: string): boolean {
+  try { return lstatSync(resolve(root, file)).isDirectory(); }
+  catch { return false; }
+}
+
+function sourceFileRefs(root: string, files: readonly string[]): string[] {
+  return stable(files.filter(file => {
+    try {
+      // Follow neither directory symlinks nor file symlinks. Missing references
+      // stay in the candidate set so the existing unreadable-source diagnostic
+      // remains observable to the acceptance gate.
+      return lstatSync(resolve(root, file)).isFile();
+    } catch {
+      return true;
+    }
+  }));
+}
+
 function processFactPath(entry: ProcessFactRegistryEntry): string {
   return `path:process-fact:${entry.name}->consumer:${entry.consumerGate ?? '<audit-only>'}`;
 }
@@ -1149,9 +1172,18 @@ function sourceSeedFiles(input: AcceptanceDiscoveryInput, storyArtifactDirectory
   ]).filter(file => {
     const canonical = file.replace(/\\/g, '/');
     const basename = canonical.split('/').at(-1) ?? '';
-    return !(storyArtifactDirectory
+    if (storyArtifactDirectory
       && GENERATED_PROOF_ARTIFACT_BASENAMES.has(basename)
-      && canonical === `${storyArtifactDirectory}${basename}`);
+      && canonical === `${storyArtifactDirectory}${basename}`) return false;
+    // Scope contracts may name an existing directory as a source seed.  It is
+    // still valid scope evidence, but it is not a source file for the bounded
+    // reader.  Keep regular files and missing planned endpoints so their
+    // normal read/closure diagnostics remain observable.
+    try {
+      return !lstatSync(resolve(input.workspaceRoot, canonical)).isDirectory();
+    } catch {
+      return true;
+    }
   });
 }
 
@@ -1161,7 +1193,13 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const seedFiles = sourceSeedFiles(input, generatedStoryArtifactDirectory(readContext, input.storyId));
   const sourceInventory = configuredSourceInventory(root, readContext);
   const blindSpots: string[] = [...sourceInventory.blindSpots];
-  const registryCandidates = stable(['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)]);
+  // A process-fact sourceFiles entry may intentionally point at a directory
+  // (for example the agent prompt asset root).  Scope references are still
+  // retained by sourceSeedFiles, but never pass the directory to the bounded
+  // file reader: it is not a source file and would create a false blind spot.
+  // Missing file references remain in the candidate set so their normal
+  // unreadable-source diagnostic stays observable and fail-closed.
+  const registryCandidates = sourceFileRefs(root, ['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)]);
   const analysisContext = createBindingAnalysisContext(root, stable([...sourceInventory.files, ...seedFiles, ...registryCandidates]), readContext);
   const registryFiles = registryCandidates.filter(file => file === 'packages/main/src/registry.ts'
     || executableText(analysisContext.sourceFiles.get(file)?.text ?? '').includes('registerBatch('));
@@ -1205,7 +1243,7 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const inferredHandlerFiles = new Map<string, string>();
   for (const factory of factories) for (const command of factory.commandKeys) inferredHandlerFiles.set(command, factory.sourceFile);
   const entryFiles = (entry: ProcessFactRegistryEntry): string[] => stable([
-    ...sourceFiles(entry),
+    ...sourceFileRefs(root, sourceFiles(entry)),
     ...commandNamesForEntry(entry).map(command => inferredHandlerFiles.get(command) ?? '').filter(Boolean),
   ]);
   const closure = new Set(seedFiles);
@@ -1239,11 +1277,24 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
     if (supportsBindingAnalysis(file)) sourceScans.set(file, analyzeLocalImportCalls(analysisContext, file));
   }
   for (const entry of reached) {
-    for (const file of entryFiles(entry)) if (!existsSync(resolve(root, file))) blindSpots.push(`uninspectable registered source ${file} for ${entry.name}`);
+    const rawSourceRefs = sourceFiles(entry);
+    const acceptedSourceRefs = new Set(sourceFileRefs(root, rawSourceRefs));
+    for (const file of acceptedSourceRefs) {
+      if (!existsSync(resolve(root, file))) blindSpots.push(`uninspectable registered source ${file} for ${entry.name}`);
+    }
+    // Directory and symlink refs are excluded from the executable source set,
+    // but still pass through the no-follow reader once so their diagnostics are
+    // retained instead of silently disappearing from the acceptance basis.
+    for (const file of rawSourceRefs) {
+      if (acceptedSourceRefs.has(file)) continue;
+      const read = readSourceSafely(readContext, file);
+      if (read.blindSpot) blindSpots.push(`${read.blindSpot} for ${entry.name}`);
+    }
     if (entry.consumerGate) {
       const dispatchConsumer = isDispatchableProcessFact(entry)
         && graphFactoryCommandRegistered(factories, entry.name);
-      const explicitConsumer = dispatchConsumer || (entry.consumerSourceRefs ?? []).some(file => existsSync(resolve(root, file)));
+      const explicitConsumer = dispatchConsumer || sourceFileRefs(root, entry.consumerSourceRefs ?? [])
+        .some(file => isResolvableRegularSourceFile(root, file));
       const producerFiles = stable([
         ...(entry.producerSourceRefs ?? []),
         ...commandNamesForEntry(entry).map(command => inferredHandlerFiles.get(command) ?? '').filter(Boolean),
@@ -1266,11 +1317,13 @@ function registeredProcessFactClosureFromGraph(graph: BoundedSourceGraph): Regis
     pathRefs: stable(reached.map(processFactPath)),
     sourceInventoryRefs: stable(reached.flatMap(entry => [
       `process-fact:${entry.name}:${digestCanonicalJson(entry)}`,
-      ...((entry.producerSourceRefs ?? []).map(file => `source-file:producer:${encodeURIComponent(entry.name)}:${file}`)),
-      ...((entry.consumerSourceRefs ?? []).map(file => `source-file:consumer:${encodeURIComponent(entry.name)}:${file}`)),
+      ...sourceFileRefs(graph.readContext.physicalRoot, entry.producerSourceRefs ?? [])
+        .map(file => `source-file:producer:${encodeURIComponent(entry.name)}:${file}`),
+      ...sourceFileRefs(graph.readContext.physicalRoot, entry.consumerSourceRefs ?? [])
+        .map(file => `source-file:consumer:${encodeURIComponent(entry.name)}:${file}`),
       ...(entry.artifact ? [`artifact:${entry.artifact.path}`] : []),
     ]).concat(
-      graph.closureFiles.map(file => `source-file:closure:${file}`),
+      sourceFileRefs(graph.readContext.physicalRoot, graph.closureFiles).map(file => `source-file:closure:${file}`),
       // B-cc10 F-031: name the config spelling this project ACTUALLY has. This was a
       // hardcoded 'lattice.config.json' sitting beside dynamically-derived siblings, so a
       // canonical-only project inventoried a file it does not contain — producing a spurious
@@ -1304,6 +1357,7 @@ function adapterId(method: CoverageDiscoveryMethodV1): string {
 
 function sourceProvenance(context: SourceReadContext, file: string): string {
   try {
+    if (isExistingDirectory(context.physicalRoot, file)) return `source-directory:${file}`;
     const read = readSourceSafely(context, file);
     if (read.text === undefined) return `source-file:${file}:uninspectable`;
     const semanticDigest = context.semanticDigests.get(file);
@@ -1381,23 +1435,65 @@ function exportedCallableCount(source: ts.SourceFile, expected: string): number 
   return count;
 }
 
-function sameFileCallableCalls(source: ts.SourceFile, caller: string, callee: string): boolean {
-  let found = false;
-  const inspectBody = (node: ts.Node): void => {
-    if (ts.isCallExpression(node) && ts.isIdentifier(unwrapExpression(node.expression))
-      && (unwrapExpression(node.expression) as ts.Identifier).text === callee) found = true;
-    if (!found) ts.forEachChild(node, inspectBody);
-  };
-  for (const statement of source.statements) {
-    if (ts.isFunctionDeclaration(statement) && statement.name?.text === caller && statement.body) inspectBody(statement.body);
-    if (!ts.isVariableStatement(statement)) continue;
-    for (const declaration of statement.declarationList.declarations) {
-      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== caller || !declaration.initializer) continue;
-      const initializer = unwrapExpression(declaration.initializer);
-      if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) inspectBody(initializer.body);
+const MAX_SAME_FILE_CALL_REACHABILITY_DEPTH = 32;
+
+function isCallableDeclaration(node: ts.Node): boolean {
+  return ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node)
+    || ts.isArrowFunction(node) || ts.isFunctionExpression(node);
+}
+
+function sameFileCallableBody(source: ts.SourceFile, expected: string): ts.Node | null {
+  const bodies: ts.Node[] = [];
+  const visit = (node: ts.Node): void => {
+    if (ts.isFunctionDeclaration(node) && node.name?.text === expected && node.body) bodies.push(node.body);
+    if (ts.isMethodDeclaration(node) && ts.isIdentifier(node.name) && node.name.text === expected && node.body) bodies.push(node.body);
+    if (ts.isVariableStatement(node)) {
+      for (const declaration of node.declarationList.declarations) {
+        if (!ts.isIdentifier(declaration.name) || declaration.name.text !== expected || !declaration.initializer) continue;
+        const initializer = unwrapExpression(declaration.initializer);
+        if ((ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) && initializer.body) bodies.push(initializer.body);
+      }
     }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return bodies.length === 1 ? bodies[0] : null;
+}
+
+function sameFileCallableCallNames(source: ts.SourceFile, caller: string): Set<string> {
+  const body = sameFileCallableBody(source, caller);
+  if (!body) return new Set();
+  const called = new Set<string>();
+  const inspectBody = (node: ts.Node): void => {
+    if (node !== body && isCallableDeclaration(node)) return;
+    if (ts.isCallExpression(node)) {
+      const expression = unwrapExpression(node.expression);
+      if (ts.isIdentifier(expression)) called.add(expression.text);
+    }
+    ts.forEachChild(node, inspectBody);
+  };
+  inspectBody(body);
+  return called;
+}
+
+function sameFileCallableCalls(source: ts.SourceFile, caller: string, callee: string): boolean {
+  return sameFileCallableCallNames(source, caller).has(callee);
+}
+
+function sameFileCallableReachable(
+  source: ts.SourceFile,
+  caller: string,
+  callee: string,
+  visiting = new Set<string>(),
+  depth = 0,
+): boolean {
+  if (caller === callee) return true;
+  if (depth >= MAX_SAME_FILE_CALL_REACHABILITY_DEPTH || visiting.has(caller)) return false;
+  const nextVisiting = new Set(visiting).add(caller);
+  for (const candidate of sameFileCallableCallNames(source, caller)) {
+    if (candidate === callee || sameFileCallableReachable(source, candidate, callee, nextVisiting, depth + 1)) return true;
   }
-  return found;
+  return false;
 }
 
 function hasSameFileIncomingCall(source: ts.SourceFile, expected: string): boolean {
@@ -1448,12 +1544,17 @@ function producerConsumerRelation(
   producer: VerificationPlannedPathEndpointV1,
   consumer: VerificationPlannedPathEndpointV1,
 ): boolean {
+  const sourceText = graph.readContext.snapshots.get(consumer.expectedFileRef);
+  const source = sourceText !== undefined
+    ? ts.createSourceFile(consumer.expectedFileRef, sourceText, ts.ScriptTarget.Latest, true, scriptKindFor(consumer.expectedFileRef))
+    : undefined;
   const importedCall = (graph.sourceScans.get(consumer.expectedFileRef)?.calledImports ?? []).some(call =>
     call.sourceFile === producer.expectedFileRef && call.imported === producer.expectedSymbolOrFact
-      && call.caller === consumer.expectedSymbolOrFact);
-  const source = graph.readContext.snapshots.get(consumer.expectedFileRef) !== undefined
-    ? ts.createSourceFile(consumer.expectedFileRef, graph.readContext.snapshots.get(consumer.expectedFileRef)!, ts.ScriptTarget.Latest, true, scriptKindFor(consumer.expectedFileRef))
-    : undefined;
+      && (call.caller === consumer.expectedSymbolOrFact
+        || (registeredHandlerEndpoint(graph, consumer)
+          && call.caller !== null
+          && source !== undefined
+          && sameFileCallableReachable(source, consumer.expectedSymbolOrFact, call.caller))));
   const sameFileCall = producer.expectedFileRef === consumer.expectedFileRef && source
     ? sameFileCallableCalls(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact) : false;
   const registryRelation = (producer.expectedArtifactKind === 'process_fact' || consumer.expectedArtifactKind === 'process_fact')
@@ -1503,7 +1604,10 @@ function buildResult(
     } else if (method === 'process_fact_registry') {
       pathRefs = graph.entries.map(processFactPath);
       blindSpots = graphBlindSpots;
-      provenanceRefs = stable(graph.entries.flatMap(entry => [`process-fact:${entry.name}:${digestCanonicalJson(entry)}`, ...sourceFiles(entry).map(file => sourceProvenance(graph.readContext, file))]));
+      provenanceRefs = stable(graph.entries.flatMap(entry => [
+        `process-fact:${entry.name}:${digestCanonicalJson(entry)}`,
+        ...sourceFileRefs(input.workspaceRoot, sourceFiles(entry)).map(file => sourceProvenance(graph.readContext, file)),
+      ]));
     } else if (method === 'handler_dispatch_inventory') {
       const commands = catalogCommands(graph.readContext);
       const registeredKeys = new Set(graph.factories.filter(factory => factory.registered).flatMap(factory => factory.commandKeys));
@@ -1520,7 +1624,8 @@ function buildResult(
       provenanceRefs = stable(['packages/main/src/cli/command-catalog.ts', 'packages/main/src/registry.ts', ...graph.factories.map(factory => factory.sourceFile)]
         .map(file => sourceProvenance(graph.readContext, file)));
     } else if (method === 'static_call_graph') {
-      const inspectableEntries = graph.entries.filter(entry => sourceFiles(entry).every(file => existsSync(resolve(input.workspaceRoot, file))));
+      const inspectableEntries = graph.entries.filter(entry => sourceFileRefs(input.workspaceRoot, sourceFiles(entry))
+        .every(file => existsSync(resolve(input.workspaceRoot, file))));
       const staticCalls = staticCallPaths(input, graph);
       pathRefs = inspectableEntries.map(processFactPath);
       pathRefs.push(...staticCalls.paths);

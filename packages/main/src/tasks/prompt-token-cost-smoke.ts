@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   LOAD_BEARING_LATTICE_PROMPT_SLICE,
+  isModularComplexRoleId,
   isActiveModularReviewerRoleId,
   isModularReviewerRoleId,
   readPromptRegistry,
@@ -24,16 +25,16 @@ const templateDir = join(packageRoot, 'templates', 'agents');
 const auditDocPath = join(repoRoot, 'docs', 'requirements', 'decisions', 'slim-fields-token-savings-execution-plan.md');
 
 const baselineTemplateBytes: Record<string, number> = {
-  'lattice-evaluator.md': 57931,
-  'lattice-implementer.md': 63463,
-  'lattice-review-behavior.md': 63499,
-  'lattice-review-channel.md': 63587,
-  'lattice-review-concept.md': 61085,
-  'lattice-review-delivery.md': 64505,
-  'lattice-review-docs.md': 63591,
-  'lattice-review-quality.md': 60804,
-  'lattice-review-scope-plan.md': 63354,
-  'lattice-review-story-init.md': 70868,
+  'proof-or-stop-evaluator.md': 57931,
+  'proof-or-stop-implementer.md': 63463,
+  'proof-or-stop-review-behavior.md': 63499,
+  'proof-or-stop-review-channel.md': 63587,
+  'proof-or-stop-review-concept.md': 61085,
+  'proof-or-stop-review-delivery.md': 64505,
+  'proof-or-stop-review-docs.md': 63591,
+  'proof-or-stop-review-quality.md': 60804,
+  'proof-or-stop-review-scope-plan.md': 63354,
+  'proof-or-stop-review-story-init.md': 70868,
 };
 
 const requiredSourcePaths = [
@@ -42,7 +43,6 @@ const requiredSourcePaths = [
   '.claude/agents',
   // B-cc10 F-055: canonical first; a renamed root silently yields zero files.
   '.proof-or-stop-codex/agents',
-  '.lattice-codex/agents',
   'packages/main/src/core/prompt-registry.ts',
   'packages/main/src/core/managed-assets.ts',
   'packages/main/src/handlers/story-query.ts',
@@ -73,9 +73,12 @@ const compactQueryGuidancePhrases = [
   `proof-or-stop story_get '{"storyId":"B-xxxx"}'`,
   `proof-or-stop checklist_get '{"storyId":"B-xxxx"}'`,
 ];
+const LEGACY_LOAD_BEARING_PROMPT_SLICE = LOAD_BEARING_LATTICE_PROMPT_SLICE
+  .replace('<!-- proof-or-stop:start -->', '<!-- lattice:start -->')
+  .replace('<!-- proof-or-stop:end -->', '<!-- lattice:end -->');
 
 const modularReviewerSafetyPhrases = [
-  'proofbound:modular-role-body:v1',
+  'proof-or-stop:modular-role-body:v1',
   'review_run_start',
   'review_pass_set',
   'finding_add',
@@ -95,7 +98,8 @@ function readRepo(path: string): string {
 }
 
 function extractLatticeBlock(content: string): string {
-  const match = content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/);
+  const match = content.match(/<!-- proof-or-stop:start -->[\s\S]*?<!-- proof-or-stop:end -->/)
+    ?? content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/);
   assert.ok(match, 'expected lattice managed block');
   return match[0];
 }
@@ -142,11 +146,20 @@ function assertPromptReductions(): void {
       for (const phrase of modularReviewerSafetyPhrases) {
         assert.ok(content.includes(phrase), `${file} keeps modular reviewer safety phrase: ${phrase}`);
       }
+    } else if (isModularComplexRoleId(roleId)) {
+      // Complex roles are assembled from the package registry. Their package
+      // templates carry the role body marker; the load-bearing runtime slice is
+      // injected only by the host renderer.
+      assert.match(content, /<!-- proof-or-stop:modular-role-body:v1 -->/, `${file} keeps the modular role-body marker`);
+      assert.doesNotMatch(content, /<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/, `${file} does not inline the host runtime slice`);
     } else {
+      const expectedLoadBearingSlice = file === 'proof-or-stop-review-channel.md'
+        ? LOAD_BEARING_LATTICE_PROMPT_SLICE
+        : LEGACY_LOAD_BEARING_PROMPT_SLICE;
       assert.equal(
         extractLatticeBlock(content),
-        LOAD_BEARING_LATTICE_PROMPT_SLICE,
-        `${file} uses canonical load-bearing prompt slice`,
+        expectedLoadBearingSlice,
+        `${file} uses the expected load-bearing prompt slice`,
       );
       for (const phrase of requiredPromptPhrases) {
         assert.ok(content.includes(phrase), `${file} keeps prompt-safety phrase: ${phrase}`);
@@ -180,7 +193,7 @@ function assertMirrorsMatch(): void {
   for (const file of Object.keys(baselineTemplateBytes)) {
     const packageContent = readRepo(`packages/main/templates/agents/${file}`);
     const claudeContent = readRepo(`.claude/agents/${file}`);
-    const codexContent = readRepo(`.lattice-codex/agents/${file}`);
+    const codexContent = readRepo(`.proof-or-stop-codex/agents/${file}`);
     const roleId = file.replace(/\.md$/, '');
     // B-cdf6:F-036 — this was a FOURTH hand-rolled copy of the complex-role render
     // rule, found by the concept lane after three others were consolidated. Like the
@@ -198,14 +211,18 @@ function assertMirrorsMatch(): void {
       ? renderPromptEntryForHost(registryEntry, 'codex')
       : renderCodexPromptContent(packageContent);
     assert.equal(claudeContent, expectedClaude, `.claude asset matches canonical host input for ${file}`);
-    assert.equal(codexContent, expectedCodex, `.lattice-codex asset matches canonical host input for ${file}`);
+    assert.equal(codexContent, expectedCodex, `.proof-or-stop-codex asset matches canonical host input for ${file}`);
     if (isActiveModularReviewerRoleId(roleId)) {
       assert.match(claudeContent, /review_run_start/, `.claude bootstrap selects ${file} at runtime`);
-      assert.match(codexContent, /review_run_start/, `.lattice-codex bootstrap selects ${file} at runtime`);
+      assert.match(codexContent, /review_run_start/, `.proof-or-stop-codex bootstrap selects ${file} at runtime`);
+    } else if (isModularComplexRoleId(roleId)) {
+      // Complex roles are assembled from the package registry and receive the
+      // runtime slice from the host renderer; they do not carry compact query
+      // guidance in their package or mirrored role body.
     } else {
       assertCompactQueryGuidance(packageContent, `package template ${file}`);
       assertCompactQueryGuidance(claudeContent, `.claude mirror ${file}`);
-      assertCompactQueryGuidance(codexContent, `.lattice-codex mirror ${file}`);
+      assertCompactQueryGuidance(codexContent, `.proof-or-stop-codex mirror ${file}`);
     }
   }
 }
@@ -287,7 +304,7 @@ function assertSlimOutputCompatibility(): void {
   const slimChecklist = checklistHandlers.checklist_get({ storyId, slim: true });
   assert.ok(jsonBytes(slimChecklist) < jsonBytes(defaultChecklist), 'slim checklist_get is smaller than default');
   assert.deepEqual(checklistHandlers.checklist_get({ storyId, slim: true, fields: ['counts'] }), {
-    counts: { total: 2, done: 1, inProgress: 0, pending: 1 },
+    counts: { total: 2, done: 1, inProgress: 0, pending: 1, withdrawn: 0 },
   });
 
   const defaultStory = storyHandlers.story_get({ storyId });

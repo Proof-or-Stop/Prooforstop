@@ -1,0 +1,50 @@
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+const rootPackage = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
+const rootLock = JSON.parse(readFileSync(join(repoRoot, 'package-lock.json'), 'utf8'));
+const corePackage = JSON.parse(readFileSync(join(repoRoot, 'packages/main/package.json'), 'utf8'));
+const coreLock = JSON.parse(readFileSync(join(repoRoot, 'packages/main/package-lock.json'), 'utf8'));
+const utilsPackage = JSON.parse(readFileSync(join(repoRoot, 'packages/utils/package.json'), 'utf8'));
+const utilsLock = JSON.parse(readFileSync(join(repoRoot, 'packages/utils/package-lock.json'), 'utf8'));
+const labPackage = JSON.parse(readFileSync(join(repoRoot, 'packages/lab/package.json'), 'utf8'));
+const labLock = JSON.parse(readFileSync(join(repoRoot, 'packages/lab/package-lock.json'), 'utf8'));
+const brandSource = readFileSync(join(repoRoot, 'packages/main/src/core/lattice-brand.ts'), 'utf8');
+const runtimeSource = readFileSync(join(repoRoot, 'packages/main/src/core/runtime-environment-checks.ts'), 'utf8');
+
+assert.equal(rootPackage.name, 'proof-or-stop');
+assert.equal(rootLock.name, 'proof-or-stop');
+assert.equal(rootLock.packages[''].name, 'proof-or-stop');
+assert.equal(rootPackage.version, rootLock.version);
+assert.equal(rootPackage.version, rootLock.packages[''].version);
+assert.equal(corePackage.dependencies['@proof-or-stop/lab'], '0.3.65');
+assert.equal(corePackage.dependencies['@lattice/lab'], undefined);
+assert.equal(coreLock.packages[''].dependencies['@proof-or-stop/lab'], '0.3.65');
+assert.equal(coreLock.packages['../lab'].name, '@proof-or-stop/lab');
+assert.equal(coreLock.packages['node_modules/@proof-or-stop/lab'].resolved, '../lab');
+assert.equal(coreLock.packages['node_modules/@lattice/lab'], undefined);
+assert.equal(utilsPackage.name, '@proof-or-stop/utils');
+assert.equal(utilsPackage.main, 'dist/index.js');
+assert.deepEqual(utilsPackage.exports, { '.': './dist/index.js', './register': './dist/register.js' });
+assert.equal(utilsLock.name, '@proof-or-stop/utils');
+assert.equal(utilsLock.packages[''].name, '@proof-or-stop/utils');
+assert.equal(utilsLock.packages['../main'].dependencies['@proof-or-stop/lab'], '0.3.65');
+assert.equal(labPackage.name, '@proof-or-stop/lab');
+assert.equal(labPackage.main, 'dist/index.js');
+assert.deepEqual(labPackage.exports, { '.': './dist/index.js', './register': './dist/register.js' });
+assert.equal(labLock.name, '@proof-or-stop/lab');
+assert.equal(labLock.packages[''].name, '@proof-or-stop/lab');
+assert.equal(labLock.packages['../main'].dependencies['@proof-or-stop/lab'], '0.3.65');
+assert.match(brandSource, /PROOF_OR_STOP_ROOT_PACKAGE_NAME\s*=\s*'proof-or-stop'/);
+assert.match(brandSource, /PROOF_OR_STOP_CLI_VERSION\s*=\s*LATTICE_CLI_VERSION/);
+assert.match(runtimeSource, /SELF_ROOT_PACKAGE_NAMES/);
+assert.match(runtimeSource, /PROOF_OR_STOP_DEPRECATED_ROOT_PACKAGE_NAME/);
+
+const npmName = execFileSync('npm', ['pkg', 'get', 'name'], { cwd: repoRoot, encoding: 'utf8' }).trim();
+assert.equal(JSON.parse(npmName), 'proof-or-stop');
+
+console.log('package identity migration test passed');

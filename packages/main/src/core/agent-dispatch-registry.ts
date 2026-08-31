@@ -6,9 +6,14 @@ import type {
   StoryPhase,
 } from './types.js';
 import { readBrandEnv } from './brand-env.js';
+import { LEGACY_AGENT_ROLE_ALIASES, type CanonicalAgentRoleId } from './agent-role-identity.js';
 
 const ITEM_REVIEW_MUTATIONS = ['review_run_start', 'finding_add', 'review_pass_set'] as const;
 const ITEM_REVIEW_EVIDENCE = ['review-run', 'finding', 'review-pass'] as const;
+
+function roleAliases(canonical: CanonicalAgentRoleId, extra: readonly string[] = []): readonly string[] {
+  return [...LEGACY_AGENT_ROLE_ALIASES[canonical], ...extra];
+}
 
 /**
  * Canonical dispatch authority table.
@@ -17,10 +22,16 @@ const ITEM_REVIEW_EVIDENCE = ['review-run', 'finding', 'review-pass'] as const;
  * be inferred from a name prefix. Legacy verification names intentionally map
  * to verification-intent and therefore cannot inherit implementer authority.
  */
-export const AGENT_DISPATCH_REGISTRY = [
+// Keep the exported table's public view at the contract level instead of
+// preserving each row's literal canonicalName. Historical smoke/audit code
+// still compares persisted lattice lane values against this table; widening
+// the view keeps those comparisons expressible while the runtime rows below
+// remain proof-or-stop canonical strings and aliases are still resolved to
+// those rows.
+export const AGENT_DISPATCH_REGISTRY: readonly AgentDispatchRegistryEntry[] = [
   {
-    canonicalName: 'lattice-implementer',
-    aliases: [],
+    canonicalName: 'proof-or-stop-implementer',
+    aliases: roleAliases('proof-or-stop-implementer'),
     roleClass: 'implementer',
     allowedPhases: ['DEV', 'TEST_CASE'],
     targetCardinality: 'exactly-one',
@@ -33,8 +44,8 @@ export const AGENT_DISPATCH_REGISTRY = [
     evidenceOwnership: ['checklist-status', 'finding-resolution', 'cluster-resolution'],
   },
   {
-    canonicalName: 'verification-intent',
-    aliases: ['test-intent', 'test-case-reviewer'],
+    canonicalName: 'proof-or-stop-verification-intent',
+    aliases: roleAliases('proof-or-stop-verification-intent'),
     roleClass: 'verification-intent',
     allowedPhases: ['PLAN'],
     targetCardinality: 'exactly-one',
@@ -47,8 +58,8 @@ export const AGENT_DISPATCH_REGISTRY = [
     evidenceOwnership: ['verification-intent'],
   },
   {
-    canonicalName: 'lattice-review-story-init',
-    aliases: [],
+    canonicalName: 'proof-or-stop-review-story-init',
+    aliases: roleAliases('proof-or-stop-review-story-init'),
     roleClass: 'init-reviewer',
     allowedPhases: ['INIT'],
     targetCardinality: 'story-only',
@@ -57,12 +68,12 @@ export const AGENT_DISPATCH_REGISTRY = [
     promptBuilderByIdentifier: {},
     permittedMutations: ['init_check_set'],
     commitAllowed: false,
-    reviewerLane: 'lattice-review-story-init',
+    reviewerLane: 'proof-or-stop-review-story-init',
     evidenceOwnership: ['init-check'],
   },
   {
-    canonicalName: 'product-reviewer',
-    aliases: [],
+    canonicalName: 'proof-or-stop-product-reviewer',
+    aliases: roleAliases('proof-or-stop-product-reviewer'),
     roleClass: 'init-reviewer',
     allowedPhases: ['INIT'],
     targetCardinality: 'story-only',
@@ -71,12 +82,12 @@ export const AGENT_DISPATCH_REGISTRY = [
     promptBuilderByIdentifier: {},
     permittedMutations: ['init_check_set'],
     commitAllowed: false,
-    reviewerLane: 'product-reviewer',
+    reviewerLane: 'proof-or-stop-product-reviewer',
     evidenceOwnership: ['init-check'],
   },
   {
-    canonicalName: 'lattice-review-scope-plan',
-    aliases: [],
+    canonicalName: 'proof-or-stop-review-scope-plan',
+    aliases: roleAliases('proof-or-stop-review-scope-plan'),
     roleClass: 'scope-reviewer',
     allowedPhases: ['PLAN'],
     targetCardinality: 'story-only',
@@ -85,12 +96,12 @@ export const AGENT_DISPATCH_REGISTRY = [
     promptBuilderByIdentifier: {},
     permittedMutations: ['scope_check_save', 'topology_exclusion_approval_set'],
     commitAllowed: false,
-    reviewerLane: 'lattice-review-scope-plan',
+    reviewerLane: 'proof-or-stop-review-scope-plan',
     evidenceOwnership: ['scope-check', 'topology-exclusion-approval'],
   },
   {
-    canonicalName: 'lattice-review-topology-critic',
-    aliases: [],
+    canonicalName: 'proof-or-stop-review-topology-critic',
+    aliases: roleAliases('proof-or-stop-review-topology-critic'),
     roleClass: 'scope-reviewer',
     allowedPhases: ['PLAN', 'DEV', 'REVIEW'],
     targetCardinality: 'story-only',
@@ -99,20 +110,20 @@ export const AGENT_DISPATCH_REGISTRY = [
     promptBuilderByIdentifier: {},
     permittedMutations: ['topology_critic_receipt_set', 'review_run_start', 'finding_add', 'review_pass_set', 'review_inventory_critic_set'],
     commitAllowed: false,
-    reviewerLane: 'lattice-review-topology-critic',
+    reviewerLane: 'proof-or-stop-review-topology-critic',
     evidenceOwnership: ['topology-critic-receipt', 'review-run', 'finding', 'review-pass', 'review-inventory-critic-receipt'],
   },
   ...([
-    'lattice-review-concept',
-    'lattice-review-quality',
-    'lattice-review-behavior',
-    'lattice-review-docs',
+    'proof-or-stop-review-concept',
+    'proof-or-stop-review-quality',
+    'proof-or-stop-review-behavior',
+    'proof-or-stop-review-docs',
     // Retained for read-only historical classification. Runtime dispatch and
     // evidence eligibility reject it from the Prompt Role Contract registry.
-    'lattice-review-channel',
+    'proof-or-stop-review-channel',
   ] as const).map((canonicalName) => ({
     canonicalName,
-    aliases: [],
+    aliases: roleAliases(canonicalName),
     roleClass: 'story-reviewer' as const,
     allowedPhases: ['REVIEW'] as const,
     targetCardinality: 'story-only' as const,
@@ -125,8 +136,8 @@ export const AGENT_DISPATCH_REGISTRY = [
     evidenceOwnership: ITEM_REVIEW_EVIDENCE,
   })),
   {
-    canonicalName: 'lattice-review-test-coverage',
-    aliases: [],
+    canonicalName: 'proof-or-stop-review-test-coverage',
+    aliases: roleAliases('proof-or-stop-review-test-coverage'),
     roleClass: 'coverage-reviewer',
     allowedPhases: ['REVIEW'],
     targetCardinality: 'story-only',
@@ -135,12 +146,12 @@ export const AGENT_DISPATCH_REGISTRY = [
     promptBuilderByIdentifier: {},
     permittedMutations: ITEM_REVIEW_MUTATIONS,
     commitAllowed: false,
-    reviewerLane: 'lattice-review-test-coverage',
+    reviewerLane: 'proof-or-stop-review-test-coverage',
     evidenceOwnership: ITEM_REVIEW_EVIDENCE,
   },
   {
-    canonicalName: 'lattice-review-delivery',
-    aliases: [],
+    canonicalName: 'proof-or-stop-review-delivery',
+    aliases: roleAliases('proof-or-stop-review-delivery'),
     roleClass: 'delivery-reviewer',
     allowedPhases: ['TEST'],
     targetCardinality: 'story-only',
@@ -149,12 +160,12 @@ export const AGENT_DISPATCH_REGISTRY = [
     promptBuilderByIdentifier: {},
     permittedMutations: ['delivery_check_set'],
     commitAllowed: false,
-    reviewerLane: 'lattice-review-delivery',
+    reviewerLane: 'proof-or-stop-review-delivery',
     evidenceOwnership: ['delivery-check'],
   },
   {
-    canonicalName: 'lattice-finding-repair',
-    aliases: [],
+    canonicalName: 'proof-or-stop-finding-repair',
+    aliases: roleAliases('proof-or-stop-finding-repair'),
     roleClass: 'repairer',
     allowedPhases: ['DEV'],
     targetCardinality: 'exactly-one',
@@ -167,8 +178,8 @@ export const AGENT_DISPATCH_REGISTRY = [
     evidenceOwnership: ['finding-resolution'],
   },
   {
-    canonicalName: 'lattice-cluster-repair',
-    aliases: [],
+    canonicalName: 'proof-or-stop-cluster-repair',
+    aliases: roleAliases('proof-or-stop-cluster-repair'),
     roleClass: 'repairer',
     allowedPhases: ['DEV'],
     targetCardinality: 'exactly-one',
@@ -296,9 +307,48 @@ export function validateAgentDispatchRegistry(entries: readonly unknown[]): void
 
 validateAgentDispatchRegistry(AGENT_DISPATCH_REGISTRY);
 
+/**
+ * Historical verification identities remain resolvable for actor/read paths,
+ * but are deliberately outside AGENT_DISPATCH_REGISTRY and therefore cannot
+ * be selected for a new dispatch. They have no mutation or evidence authority.
+ */
+export const LEGACY_AGENT_DISPATCH_REGISTRY: readonly AgentDispatchRegistryEntry[] = [
+  {
+    canonicalName: 'proof-or-stop-test-intent',
+    aliases: roleAliases('proof-or-stop-test-intent'),
+    roleClass: 'verification-intent',
+    allowedPhases: ['PLAN', 'TEST_CASE', 'TEST_CASE_REVIEW'],
+    targetCardinality: 'exactly-one',
+    identifierKinds: ['itemId'],
+    promptBuilder: 'verification-intent-item',
+    promptBuilderByIdentifier: { itemId: 'verification-intent-item' },
+    permittedMutations: [],
+    commitAllowed: false,
+    reviewerLane: null,
+    evidenceOwnership: [],
+  },
+  {
+    canonicalName: 'proof-or-stop-test-case-reviewer',
+    aliases: roleAliases('proof-or-stop-test-case-reviewer'),
+    roleClass: 'verification-intent',
+    allowedPhases: ['TEST_CASE', 'TEST_CASE_REVIEW'],
+    targetCardinality: 'exactly-one',
+    identifierKinds: ['itemId'],
+    promptBuilder: 'verification-intent-item',
+    promptBuilderByIdentifier: { itemId: 'verification-intent-item' },
+    permittedMutations: [],
+    commitAllowed: false,
+    reviewerLane: null,
+    evidenceOwnership: [],
+  },
+] as const satisfies readonly AgentDispatchRegistryEntry[];
+
+validateAgentDispatchRegistry(LEGACY_AGENT_DISPATCH_REGISTRY);
+
 export type AgentDispatchRegistryErrorCode =
   | 'blank_agent_type'
   | 'unknown_agent_type'
+  | 'legacy_agent_type'
   | 'invalid_dispatch_phase'
   | 'invalid_dispatch_cardinality';
 
@@ -328,14 +378,23 @@ for (const entry of AGENT_DISPATCH_REGISTRY) {
   for (const alias of entry.aliases) byName.set(alias, entry);
 }
 
+const legacyByName = new Map<string, AgentDispatchRegistryEntry>();
+for (const entry of LEGACY_AGENT_DISPATCH_REGISTRY) {
+  legacyByName.set(entry.canonicalName, entry);
+  for (const alias of entry.aliases) legacyByName.set(alias, entry);
+}
+
 export const AGENT_DISPATCH_ACCEPTED_TYPES = Object.freeze(
-  [...byName.keys()].filter(name => name !== 'lattice-review-channel').sort(),
+  [...byName.entries()]
+    .filter(([, entry]) => entry.canonicalName !== 'proof-or-stop-review-channel')
+    .map(([name]) => name)
+    .sort(),
 );
 
 /** Resolve one explicit type or the deliberate omitted-type implementer default. */
 export function resolveAgentDispatchType(agentType?: string): ResolvedAgentDispatchType {
   if (agentType === undefined) {
-    const entry = byName.get('lattice-implementer')!;
+    const entry = byName.get('proof-or-stop-implementer')!;
     return {
       entry,
       requestedType: undefined,
@@ -347,12 +406,20 @@ export function resolveAgentDispatchType(agentType?: string): ResolvedAgentDispa
   if (agentType.trim().length === 0) {
     throw new AgentDispatchRegistryError(
       'blank_agent_type',
-      `agentType must be omitted for the lattice-implementer default or be one of: ${AGENT_DISPATCH_ACCEPTED_TYPES.join(', ')}`,
+      `agentType must be omitted for the proof-or-stop-implementer default or be one of: ${AGENT_DISPATCH_ACCEPTED_TYPES.join(', ')}`,
+      AGENT_DISPATCH_ACCEPTED_TYPES,
+    );
+  }
+  const legacyEntry = legacyByName.get(agentType);
+  if (legacyEntry) {
+    throw new AgentDispatchRegistryError(
+      'legacy_agent_type',
+      `agentType "${agentType}" is a legacy read-side identity and is not dispatchable for new stories; use proof-or-stop-verification-intent for PLAN verificationIntent authoring`,
       AGENT_DISPATCH_ACCEPTED_TYPES,
     );
   }
   const entry = byName.get(agentType);
-  if (!entry || entry.canonicalName === 'lattice-review-channel') {
+  if (!entry || entry.canonicalName === 'proof-or-stop-review-channel') {
     throw new AgentDispatchRegistryError(
       'unknown_agent_type',
       `${entry ? 'retired' : 'unknown'} agentType "${agentType}"; accepted types: ${AGENT_DISPATCH_ACCEPTED_TYPES.join(', ')}`,
@@ -441,7 +508,7 @@ export function validateAgentDispatchRequest(args: AgentDispatchTargetInput & {
 export function resolveRegisteredAgentActor(actor: string | undefined | null): AgentDispatchRegistryEntry | null {
   const value = actor?.trim();
   if (!value) return null;
-  return byName.get(value) ?? null;
+  return byName.get(value) ?? legacyByName.get(value) ?? null;
 }
 
 /** True only for registered REVIEW lanes; prefix lookalikes never acquire reviewer authority. */
