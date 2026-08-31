@@ -23060,6 +23060,30 @@
         "scanEscalationReason": null
       },
       "_hash": "06fbc09b981abfb6e2afea2706655ae6a0095e4a2b50e8a1c94f82114285d905"
+    },
+    {
+      "id": "B-45a0:RP-480",
+      "agent": "lattice-review-test-coverage",
+      "note": "WAVE 3/3 final-wave test-coverage audit. Independently reproduced all five CHK-014 acceptance-gate surfaces at current HEAD: pre_review_check_read -> fail/PR_ARTIFACT_TAMPERED/PR_COVERAGE_BASIS_CHANGED (matches F-433/F-436/F-437); acceptance_rollout_check -> ok:false/AR_REPORT_STALE/evaluationWindow still 2026-07-23 (matches F-439/F-440); acceptance_rollout_report_read -> identical AR_REPORT_STALE (matches F-439/F-440); acceptance_topology_check -> status:fail/AT_COVERAGE_BASIS_STALE (matches F-440); acceptance_basis -> status:invalid (matches F-440). Independently re-ran git log --name-only af11244..HEAD: 41 commits, zero files outside .proof-or-stop/story/actives/B-45a0/** and docs/requirements/decisions/**, confirming zero code regression, corroborating the acceptance-rollout-and-topology-basis-restaling-from-review-churn mechanism (F-439/F-440) at a third independent HEAD. All 14 checklist items verificationEvidence rows uniformly bound to single headHash 9a87c4b1, consistent with only CHK-014 live-CLI acceptance surfaces affected. No new gap found beyond the three verified families (F-437, F-438, F-439/F-440) plus pre-existing F-431/F-432 pre_review_check desync family. F-439 stays open, not retracted by this pass; repair requires DEV-only writers REVIEW cannot invoke.",
+      "createdAt": "2026-08-31T03:30:12.070Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1084",
+      "envelopeId": "3b743a2bf50dba88559749c1471992d9202333018b6989e2c475a3fa1b4cb7d6",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4dcf37b2bac43cede3db6e581913282a52b7dda702e7150b2af985f5fde72c21"
     }
   ]
 }
