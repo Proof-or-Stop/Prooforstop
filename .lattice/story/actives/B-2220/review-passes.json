@@ -752,6 +752,28 @@
       },
       "readDiagnostics": [],
       "_hash": "79a9ff483c4d2e648df6990411bd90d058495b4710cadcabc4e7aa67b565324d"
+    },
+    {
+      "id": "B-2220:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed after current main merge: 7 intents have 7 passing evidence records, 0 gaps, and 0 waivers. All six document intent commands and the compiled smoke pass now. CHK-001:happy:2 remains story-fresh because storyFilesHash eb45a53 is unchanged and the story source, compiled smoke, and binding manifest are unchanged since its passing build-bound receipt; the current global binding wrapper mismatch is unrelated merged source-only drift. The story-owned diff is limited to the decision record and smoke, retires the active B-3434 follow-up posture, and does not touch or broaden Dynamic Finding product behavior.",
+      "createdAt": "2026-08-31T22:34:37.768Z",
+      "reviewRound": "2026-08-31T00:10:59.937Z",
+      "reviewRunId": "B-2220:RR-031",
+      "envelopeId": "fb8c663ebdcf4448cff1587160b9101da48e74973c51373d09489f7bb3f0fcae",
+      "writerSessionId": "sess-0d64495f901e27c428c603cee721f30f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "525ae1a4e82c452380a27a186eabff05cd7a88a00e602cc12b5ab06d34a83ccd"
     }
   ]
 }
