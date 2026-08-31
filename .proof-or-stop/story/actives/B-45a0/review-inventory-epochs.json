@@ -11149,9 +11149,9 @@
       "epochId": "B-45a0:RI-114",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-31T20:19:23.055Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-08-31T22:41:28.623Z",
-      "updatedAt": "2026-08-31T23:20:09.257Z",
+      "updatedAt": "2026-08-31T23:48:18.241Z",
       "cutoff": {
         "headHash": "19a6685517716e983bbfd18334e284457103a7f4",
         "materialHash": "6d96761e24fabeb191351d28a0fa127f81793c6c1fd5723a5fb2e50738958b10",
@@ -11228,10 +11228,72 @@
           "criticDigest": "5ffc57111f23f622c7f55d029ffdc5fb13dfabfab54ba2ec9f69288ce0d2d052",
           "saturated": false,
           "nextRunSequenceBoundary": 1172
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-31T23:20:09.257Z",
+          "completedAt": "2026-08-31T23:48:18.241Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-1173",
+              "terminal": "pass",
+              "hostIdentity": "ec9dd788e65a6f956058190499ddc89ede2f594f41d13f543ff6e4df86361b6a",
+              "promptIdentity": "e1d1289967625abdd166b841caf6356856d9bc23c9dbe4ef9e9ebb87d458dda0",
+              "evidenceIds": [
+                "B-45a0:RP-523"
+              ],
+              "coverageDigest": "bba1debfed9478945d65fccff3f3e11523b521b64904ab4e0546fcf96fab8dee"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-1174",
+              "terminal": "pass",
+              "hostIdentity": "afc61da094db64609788aff2d64c216648652a6ce4740c9e9138fd82670fec68",
+              "promptIdentity": "0cd9d0fc5efc88b32ccf9288894843b5a1106e96e15394d71dce40721fdca65a",
+              "evidenceIds": [
+                "B-45a0:RP-524"
+              ],
+              "coverageDigest": "967c49fbbeb36ba1e027da5f8bfbbb3d58ba3ca1e43b93a822ba027f7d1630d3"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-1175",
+              "terminal": "finding",
+              "hostIdentity": "00745b3dbf8710504399e97ce533d443ea98f8be32c14cdd9505cd89b0474854",
+              "promptIdentity": "d227b652365eb3117c4c4a20a8fb68db75d4ee1464ea2706f3b354ec79e70e6c",
+              "evidenceIds": [
+                "B-45a0:F-468"
+              ],
+              "coverageDigest": "04dd41999f6ba348f3872288f65641bea0d97e15c0d557bd85b53440eedde8a5"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-1176",
+              "terminal": "finding",
+              "hostIdentity": "25756c95165cbfaeb3cd49bf515d9836078b7783969f77c1edca1bce67020fc4",
+              "promptIdentity": "72b56e15101b95bbc6a0ab998878f2add1d7b0d4c8d9c0855acbc0b3c8534f3a",
+              "evidenceIds": [
+                "B-45a0:F-469"
+              ],
+              "coverageDigest": "d239155b84915518753e07fae276967c063ca10b9ff3e6830611521767263686"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "chk014-wave4-binding-claims-false-at-head",
+            "dead-code-buildLptSchedule",
+            "validation-inventory-count-doc-drift-112-vs-116"
+          ],
+          "verifiedFindingSetDigest": "4c2063a564b3edb528ee2277f5c3fd7c129a0f00246bf8d87a8b2d7dcf3a8285",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "3178cf435f86125ad0d8153ded2db93682b88808286eab184e5e774a225300a8",
+          "saturated": true,
+          "nextRunSequenceBoundary": 1178
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "ad721fed885b3d39badddfd61cec151276b4f62351a4d8b605fed49d6fd3c366"
+      "receiptId": "B-45a0:RI-114:RCP-001",
+      "_hash": "41d9b1da8fcbc88797df60d941ecd6b4eca8d776eedc5fe8161eca5cb874e805"
     }
   ],
   "receipts": [
@@ -12990,6 +13052,33 @@
       "invalidatedAt": "2026-08-31T22:41:18.301Z",
       "invalidationReason": "Cancelling the unconsumed empty-wave receipt B-45a0:RIE-140:RCP-001. Root cause identified in packages/main/src/core/review-inventory-epoch.ts:551-554: finalizedLiveAggregateError takes epoch.waves.at(-1) and requires it to exist, be completed, be saturated and carry newVerifiedFindingCount zero. RIE-140 was minted through the no-OPEN-epoch finalize path, so its waves array is empty, finalWave is undefined, and the DEV consume path can never accept it - it fails REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED by construction. Meanwhile review_inventory_begin refuses to open a new epoch while this receipt sits unconsumed, so the two commands point at each other. Cancelling the dead receipt breaks that deadlock so a real epoch with an actual saturated wave can be run.",
       "_hash": "8e686cb73c1e763216a450e3ec9540cf1d015f13d27bdff4da5f3e6b19bd83b8"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-45a0:RI-114:RCP-001",
+      "epochId": "B-45a0:RI-114",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "cutoff": {
+        "headHash": "19a6685517716e983bbfd18334e284457103a7f4",
+        "materialHash": "6d96761e24fabeb191351d28a0fa127f81793c6c1fd5723a5fb2e50738958b10",
+        "storyFilesHash": "8c241e49512b1da79933cb51085e17e56620aa3670e4e5a3c8d3cded6569d989"
+      },
+      "scopeDigest": "210676234f9e93fcdd291e697de767a372a4ae1b647d48bb6738c706e5991e09",
+      "requiredLanes": [
+        "lattice-review-concept",
+        "lattice-review-quality",
+        "lattice-review-test-coverage",
+        "lattice-review-docs"
+      ],
+      "waveCount": 2,
+      "findingSetDigest": "4c2063a564b3edb528ee2277f5c3fd7c129a0f00246bf8d87a8b2d7dcf3a8285",
+      "coverageDigest": "82e83eeebfe4d9c3ddff7a1663ba9a74db2e040460e8d22c551600f88cab933d",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-31T23:48:18.241Z",
+      "_hash": "ec0dcd8ecc1a4ca19e5c3869ec6332654475091582d17b284b5981fce3642ee7"
     }
   ],
   "criticReceipts": [
