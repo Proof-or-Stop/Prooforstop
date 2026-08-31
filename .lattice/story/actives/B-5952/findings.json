@@ -340,6 +340,21 @@
       "_hash": "d6dde5a3de5e73384d05a7cc387c44255ca95ea9b4a342752924408c3449daf5",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5952:F-017",
+      "desc": "packages/main/tests/red/red-w2d-command-readonly.mjs:217 and :273 — acceptance-blocking high: CHK-001:edge:missing-lattice-readonly-snapshot requires two deterministic snapshots while .lattice is absent and a meaningful non-empty comparison after initialization, but the patch merely configures storyDir so lines 225-232 create .lattice before the first snapshot; snapshotLattice still unconditionally readdirSyncs the directory at lines 276-285. The passing command does not exercise the required absent-tree behavior and would still throw ENOENT; add an actual pre-initialization missing-state control and keep the post-initialization manifest control.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T12:23:48.682Z",
+      "reviewRound": "2026-08-31T12:18:00.095Z",
+      "reviewRunId": "B-5952:RR-036",
+      "_hash": "2984cb4aee364d64eed016d647f5be3dac0180e07b359c50513e53014f7abd76",
+      "signatureTag": "missing|unknown|packages-main-tests",
+      "signatureTagSource": "auto"
     }
   ]
 }
