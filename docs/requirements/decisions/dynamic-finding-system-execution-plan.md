@@ -779,9 +779,9 @@ interface FindingRouteReceipt {
     gateEvidence: false;
   };
   source: {
-    subjectKind: 'candidate_finding' | 'finding_assessment';
+    subjectKind: 'candidate_finding' | 'finding_assessment_proposal';
     subjectId: string;
-    subjectHash: string; // candidate hash or immutable assessmentProposalDigest
+    subjectHash: string; // candidate hash or immutable proposalDigest
     storyId: string;
   };
   target: {
@@ -1016,24 +1016,14 @@ type AssessmentFreshness =
   | 'missing'
   | 'expired';
 
-interface AssessmentEnvelope {
+interface FindingAssessmentProposalEnvelope {
   schemaVersion: 1;
-  assessmentId: string;
+  proposalId: string;
   findingRef: FindingRef;
   findingHash: string;
   findingVersion: string;
-  assessmentProposalDigest: string;
-  proposalSignature: string;
   evaluationScope: 'target_story' | 'canonical_owner' | 'repository_release';
   owner: 'current_story' | 'meta' | 'other_story' | 'unowned';
-  acceptedRoute?: {
-    receiptId: string;
-    receiptHash: string;
-    profile: 'finding_route';
-    sourceAssessmentProposalDigest: string;
-    targetResponsibilityRef: FindingRef | { workItemRef: string; workItemHash: string };
-    routeChainDigest: string;
-  };
   issuedAt: string;
   expiresAt: string;
   freshnessPolicyVersion: string;
@@ -1044,7 +1034,6 @@ interface AssessmentEnvelope {
     canonicalIdentityDigest?: string;
     currentCanonicalFinding?: FindingRef & { hash: string };
     supersessionChainTipDigest?: string;
-    acceptedOwnerRouteDigest?: string;
     proofPolicyDigest: string;
     reviewerAuthorityPolicyDigest: string;
     ledgerSnapshotDigest: string;
@@ -1064,17 +1053,53 @@ interface AssessmentEnvelope {
   storyFilesHash: string;
   runtimeReceiptIds: string[];
   assessedBy: string;
+  proposalDigest: string;
+  proposalSigner: {
+    actorId: string;
+    authorityDigest: string;
+    keyId: string;
+    algorithm: string;
+    trustRootDigest: string;
+  };
+  proposalSignature: string;
+}
+
+type FindingAssessmentProposal =
+  | (FindingAssessmentProposalEnvelope & { verdict: 'applicable'; basis: 'introduced_by_diff' | 'direct_scope'; owner: 'current_story'; currentWitness: { receiptIds: string[]; reproduced: true } })
+  | (FindingAssessmentProposalEnvelope & { verdict: 'pre_existing_unaffected'; basis: 'base_head_reproduction'; owner: 'meta' | 'other_story'; baseHead: { baseRef: string; baseResult: 'reproduced'; headRef: string; headResult: 'reproduced'; worsenedByStory: false; receiptIds: string[] } })
+  | (FindingAssessmentProposalEnvelope & { verdict: 'out_of_scope'; basis: 'decision_scope'; owner: 'meta' | 'other_story'; excludedScopeProofDigest: string })
+  | (FindingAssessmentProposalEnvelope & { verdict: 'duplicate'; basis: 'canonical_duplicate'; owner: 'meta' | 'other_story'; canonicalDefectRef: { canonicalDefectId: string; identityDigest: string; currentCanonicalFinding: FindingRef & { hash: string }; canonicalOwner: string } })
+  | (FindingAssessmentProposalEnvelope & { verdict: 'not_reproduced_under_current_witness'; basis: 'counter_evidence'; owner: 'meta' | 'other_story'; currentWitness: { receiptIds: string[]; reproduced: false; commandPolicyDigest: string; runtimeEvidenceDigest: string; negativeWitnessDigest: string } })
+  | (FindingAssessmentProposalEnvelope & { verdict: 'unknown'; basis: 'direct_scope' | 'counter_evidence'; nonBlockingProof?: never });
+
+interface AssessmentEnvelope {
+  schemaVersion: 1;
+  assessmentId: string;
+  proposalId: string;
+  assessmentProposalDigest: string;
+  proposalReceipt: {
+    receiptId: string;
+    receiptHash: string;
+    operation: 'append_assessment_proposal';
+  };
+  acceptedRoute?: {
+    receiptId: string;
+    receiptHash: string;
+    profile: 'finding_route';
+    sourceAssessmentProposalId: string;
+    sourceAssessmentProposalDigest: string;
+    targetResponsibilityRef: FindingRef | { workItemRef: string; workItemHash: string };
+    routeChainDigest: string;
+  };
   assessmentHash: string;
   signature: string;
 }
 
-type FindingApplicabilityAssessment =
-  | (AssessmentEnvelope & { verdict: 'applicable'; basis: 'introduced_by_diff' | 'direct_scope'; owner: 'current_story'; currentWitness: { receiptIds: string[]; reproduced: true } })
-  | (AssessmentEnvelope & { verdict: 'pre_existing_unaffected'; basis: 'base_head_reproduction'; owner: 'meta' | 'other_story'; acceptedRoute: NonNullable<AssessmentEnvelope['acceptedRoute']>; baseHead: { baseRef: string; baseResult: 'reproduced'; headRef: string; headResult: 'reproduced'; worsenedByStory: false; receiptIds: string[] } })
-  | (AssessmentEnvelope & { verdict: 'out_of_scope'; basis: 'decision_scope'; owner: 'meta' | 'other_story'; acceptedRoute: NonNullable<AssessmentEnvelope['acceptedRoute']>; excludedScopeProofDigest: string })
-  | (AssessmentEnvelope & { verdict: 'duplicate'; basis: 'canonical_duplicate'; owner: 'meta' | 'other_story'; acceptedRoute: NonNullable<AssessmentEnvelope['acceptedRoute']>; canonicalDefectRef: { canonicalDefectId: string; identityDigest: string; currentCanonicalFinding: FindingRef & { hash: string }; canonicalOwner: string } })
-  | (AssessmentEnvelope & { verdict: 'not_reproduced_under_current_witness'; basis: 'counter_evidence'; owner: 'meta' | 'other_story'; acceptedRoute: NonNullable<AssessmentEnvelope['acceptedRoute']>; currentWitness: { receiptIds: string[]; reproduced: false; commandPolicyDigest: string; runtimeEvidenceDigest: string; negativeWitnessDigest: string } })
-  | (AssessmentEnvelope & { verdict: 'unknown'; basis: 'direct_scope' | 'counter_evidence'; nonBlockingProof?: never; acceptedRoute?: never });
+type AssessmentRouteBinding =
+  | { verdict: 'applicable' | 'unknown'; acceptedRoute?: never }
+  | { verdict: 'pre_existing_unaffected' | 'out_of_scope' | 'duplicate' | 'not_reproduced_under_current_witness'; acceptedRoute: NonNullable<AssessmentEnvelope['acceptedRoute']> };
+
+type FindingApplicabilityAssessment = FindingAssessmentProposal & AssessmentEnvelope & AssessmentRouteBinding;
 
 type DeferredProtectedSurface =
   | 'data_integrity'
@@ -1480,6 +1505,7 @@ interface FindingDispositionManifest {
     expectedRouteReceiptId?: string;
     expectedRouteReceiptHash?: string;
     expectedRouteReceiptProfile?: 'candidate_route' | 'finding_route';
+    expectedRouteReceiptSourceAssessmentProposalId?: string;
     expectedRouteReceiptSourceAssessmentProposalDigest?: string;
     expectedInitialProgressBaselineSetId?: string;
     expectedInitialProgressBaselineSetHash?: string;
@@ -1505,6 +1531,7 @@ interface FindingLedgerReceipt {
     | 'append_detector_signal'
     | 'append_candidate_route'
     | 'append_candidate'
+    | 'append_assessment_proposal'
     | 'append_assessment'
     | 'append_mandatory_repair'
     | 'append_deferral_expiry_policy'
@@ -1569,10 +1596,17 @@ interface GateEvaluationSnapshot {
   trustedClockDigest: string;
   clockPolicyDigest: string;
   expiryClosure: {
-    expiringInputIds: string[];
+    expiringInputs: Array<{
+      type: 'assessment_proposal' | 'assessment_integrity_state' | 'route_receipt'
+        | 'deferral_expiry_policy' | 'runtime_receipt'
+        | 'finding_deferral_disposition' | 'deferral_lineage';
+      recordId: string;
+      recordHash: string;
+      expiresAt: string;
+    }>;
     earliestBoundExpiryAt: string;
   } | {
-    expiringInputIds: [];
+    expiringInputs: [];
     noExpiry: true;
   };
   commitDeadlineAt: string;
@@ -1591,12 +1625,14 @@ interface LegacyFindingIdentityBinding {
 }
 ```
 
-For a `defer_with_proof` action, all four `expectedRouteReceipt*` fields are
+For a `defer_with_proof` action, all five `expectedRouteReceipt*` fields are
 required and `expectedRouteReceiptProfile` must equal `finding_route`.
+`expectedRouteReceiptSourceAssessmentProposalId` and
 `expectedRouteReceiptSourceAssessmentProposalDigest` must equal the exact
-receipt source's `subjectHash`; `expectedAssessmentHash` separately binds the
-final signed assessment and never flows back into the receipt.
-`routeReceiptId`, `routeReceiptHash`, `routeReceiptProfile`, and
+receipt source's `subjectId` and `subjectHash`; `expectedAssessmentHash`
+separately binds the final signed assessment and never flows back into the receipt.
+`routeReceiptId`, `routeReceiptHash`, `routeReceiptProfile`,
+`routeReceiptSourceAssessmentProposalId`, and
 `routeReceiptSourceAssessmentProposalDigest` are canonical inputs to
 `FindingDeferralDisposition.dispositionHash` and its signature; the matching
 manifest action fields are canonical inputs to `manifestDigest` and its
@@ -1617,17 +1653,31 @@ CAS binding. A failed conditional predicate produces an explicit conflict/refusa
 receipt or error but no new deferral/manifest records.
 
 Route acceptance uses a two-stage, immutable assessment construction to avoid a
-hash fixed point. First the assessor signs `assessmentProposalDigest`, which
-canonically covers every proposal field except `assessmentProposalDigest` itself,
-`proposalSignature`, `acceptedRoute`, final `assessmentHash`, and final signature.
-`proposalSignature` signs that digest only. Story 2 accepts a `finding_route` receipt whose source
-`subjectHash` is exactly that proposal digest. The final assessment then
-canonically includes the accepted receipt ID/hash/profile and that proposal
-digest, producing `assessmentHash`; the receipt does not require or contain the
-final hash. The manifest/deferral binds both final assessment hash and proposal
-digest/receipt tuple. A verifier rejects a proposal mismatch, a receipt bound to
-a final assessment hash, or any final assessment whose immutable inputs differ
-from its proposal, so the final relationship remains exact without self-reference.
+hash fixed point. `FindingAssessmentProposal` is the lower/shared signed
+attachment: its `proposalDigest` canonically covers every field in its envelope
+and exact discriminated verdict payload (including basis, owner, current witness,
+canonical/base-head/scope dependencies, evaluation scope, evidence, and dependency
+bundle) except `proposalDigest` and `proposalSignature`. It excludes every
+route field, final-assessment field (`assessmentId`, `assessmentHash`, final
+signature), and ledger receipt so it can be constructed before target acceptance.
+`proposalSignature` signs that digest using the named proposal signer authority,
+key, algorithm, and trust root. Story 3A atomically persists it through
+`append_assessment_proposal` and returns one `FindingLedgerReceipt`; its shared
+verifier/query API verifies the immutable proposal, signer authority/signature,
+currentness, and receipt without importing Story 1.
+
+Only after that verification may Story 2 accept a `finding_route` receipt whose
+source binds the exact `proposalId` and `proposalDigest`. The final Story 1
+assessment consumes that same durable proposal plus exact receipt tuple and
+signs `assessmentProposalDigest` (equal to the proposal's `proposalDigest`) and
+the final `assessmentHash`; the receipt neither requires nor contains the final
+hash. The final verifier looks up the proposal by ID/digest and rejects a
+missing/stale/expired proposal, wrong signer/signature/authority, any payload or
+dependency-bundle divergence between final and proposal, a receipt bound to a
+final assessment hash, or a non-current receipt. The manifest/deferral binds the
+final assessment hash separately from the proposal-digest/receipt tuple, so the
+relationship remains exact without self-reference or a Story 2 -> Story 1
+dependency.
 
 `FindingDispositionManifest` is a transaction envelope, not a second gate
 authority: its actions are the verifier's deterministic derivation from the
@@ -1648,10 +1698,14 @@ also obtains the trusted clock, verifies its policy digest, and rejects a
 snapshot at or after `expiryClosure.earliestBoundExpiryAt` or after
 `commitDeadlineAt`; replay and expiry-between-preflight-and-commit mutations
 must abort even with unchanged record bytes. The reader mechanically enumerates
-every expiring assessment, receipt, policy and runtime input: a non-empty set
-uses its canonical minimum, while only an empty set may use signed `noExpiry`.
-Missing, optional, forged-late, clock-drift, boundary, or replay-race expiry
-closures fail closed. The
+every expiring assessment proposal/integrity state, receipt, policy, runtime
+input, active `FindingDeferralDisposition`, and active `DeferralLineageState`.
+Each canonical `expiryClosure.expiringInputs` entry binds its type, record ID,
+record hash, and `expiresAt`; the non-empty set uses the mechanical minimum of
+all entries (including every active deferral/lineage expiry), while only an
+empty set may use signed `noExpiry`. Missing, optional, omitted-deferral,
+forged-late, clock-drift, boundary, preflight-to-commit race, or replay-race
+expiry closures fail closed. The
 snapshot's `evaluationScope` is mandatory: `target_story` decides responsibility
 for that target only, `canonical_owner` preserves its open applicable obligation,
 and `repository_release` independently aggregates open high/critical (and any
@@ -1998,8 +2052,8 @@ following are mandatory:
   freshness binding, and a valid owner are present. The target must already
   exist as another Story or a B-META gap. The target binds both
   `routeReceiptId` and `routeReceiptHash`, plus the `finding_route` profile and
-  exact source-assessment proposal digest, to prove the target/owner accepted this
-  assessment. A promise to create a target later is insufficient.
+  exact source-assessment proposal ID/digest, to prove the target/owner accepted
+  this immutable proposal. A promise to create a target later is insufficient.
 - The initial accepted route and initial deferral bind the exact target-signed
   `InitialProgressBaselineSet` ID/hash containing all four eligible kinds; a
   missing, incomplete, tampered, wrong-route/defect/subject, or stale set is
@@ -2007,8 +2061,8 @@ following are mandatory:
 - `recheckTriggers` and `expiresAt` are present. Story 1 applies the deferral and
   its manifest/action atomically in a transaction separate from Story 2's
   earlier standalone receipt transaction. Under the same lock/transaction it
-  compares the expected receipt ID/hash/profile/source-assessment proposal digest and
-  expected baseline-set ID/hash to the latest receipt-chain/baseline bytes, then
+  compares the expected receipt ID/hash/profile/source-assessment proposal ID/digest
+  and expected baseline-set ID/hash to the latest receipt-chain/baseline bytes, then
   rechecks freshness and absence of revocation or supersession. Any mismatch or
   state change aborts with neither a deferral nor manifest/action written.
 - `expiryPolicyVersion` and `policyDigest` bind the disposition to the current
@@ -2051,7 +2105,7 @@ Triage is complete only when every otherwise-blocking open Finding has a valid
 current assessment, every applicable mandatory condition has a matching fresh
 classification/manifest action, and every `defer_with_proof` action has a
 matching signed deferral plus the exact CAS-bound receipt ID/hash/profile/source
-assessment hash. A valid deferred low/medium Finding
+assessment proposal ID/digest. A valid deferred low/medium Finding
 does not block the current Story. A missing, invalid, expired, tampered,
 ownerless, or partially applied claimed deferral produces invalid
 `DeferralLineageState` and enters the current mandatory floor in enforce; in
@@ -2108,13 +2162,14 @@ or a ledger commit receipt. The source Story cannot self-sign target acceptance.
 Story 2 owns the base target-side semantic contract, acceptance/rejection/
 revocation commands, signer/verifier, target-authority checks, and freshness
 reader used by `CandidateRoute`. Every Story 2 receipt has
-`gateEvidence=false`, including a receipt whose source is a Finding assessment;
+`gateEvidence=false`, including a receipt whose source is a Finding assessment
+proposal;
 it proves target acceptance but cannot change lifecycle state by itself. Story 2
 may atomically persist a standalone candidate/renewal receipt or the initial
 finding-route receipt plus baseline set through Story 3 without calling Story 1.
 Story 1 later opens a separate ledger CAS transaction, reads the latest
 route-receipt chain and initial baseline-set bytes under the transaction lock,
-validates the expected ID/hash/`finding_route` profile/source-assessment proposal digest,
+validates the expected ID/hash/`finding_route` profile/source-assessment proposal ID/digest,
 baseline-set ID/hash/completeness/signatures, freshness, and absence of
 revocation or supersession, and atomically writes the signed L4
 `FindingDeferralDisposition` plus its matching manifest/action. Story 1 does not
@@ -2250,9 +2305,10 @@ source-lineage equality, or an old out-of-scope result is insufficient.
   target-closed `FindingRouteReceipt` is invalid. A deferral cannot outlive its
   route receipt or its canonical-lineage cumulative V1 horizon.
 - The deferral reader requires its bound route receipt ID and hash to be the
-  latest chain head with `profile='finding_route'` and source `subjectHash`
-  equal to the bound assessment hash. A successor, revocation, stale target, or
-  exact-byte/hash mismatch invalidates the deferral without rewriting it.
+  latest chain head with `profile='finding_route'` and source `subjectId`/
+  `subjectHash` equal to the bound proposal ID/digest (not the final assessment
+  hash). A successor, revocation, stale target, or exact-byte/hash mismatch
+  invalidates the deferral without rewriting it.
 - A severity/target/owner/Story/canonical-ID change, canonical supersession or
   merge/split, or a new deferral row causes lineage recomputation; none resets
   `firstDeferredAt` or `renewalCount`. A gap, cycle, digest mismatch, missing
@@ -2446,8 +2502,9 @@ authoritative artifacts and cannot alter lifecycle output.
 
 **Deliverables.**
 
-- `FindingApplicabilityAssessment` schema, signer/verifier, append-only reader,
-  and current projection.
+- Final `FindingApplicabilityAssessment` schema, signer/verifier, append-only
+  reader, and current projection; it consumes the lower/shared immutable
+  `FindingAssessmentProposal` rather than re-creating its payload.
 - Verifier-derived `AssessmentIntegrityState` and
   `assessmentIntegrityFloorBlocks`, using the exact
   `REQUIRED_ASSESSMENT_INVALID` set and the release/convert/remain transitions;
@@ -2637,16 +2694,23 @@ authoritative artifacts and cannot alter lifecycle output.
   missing immutable FindingRef/version/dependency-bundle member, stale/expired
   freshness, and a current-witness verdict used as a freshness value. They prove
   dependency drift invalidates integrity state and no raw assessment bypasses it.
+- Proposal/final fixtures require one immutable, receipted
+  `FindingAssessmentProposal` lookup before route acceptance or finalization;
+  wrong proposal signer/authority/signature, missing lookup, stale/expired
+  proposal, route proposal-ID/digest mismatch, or final payload/dependency-bundle
+  divergence fails closed. A Story 2 -> Story 1 import mutation also fails.
 - Route fixtures require target responsibility ref/hash, live accepting owner,
   valid B-META canonical policy authority where applicable, and an acyclic route
   chain; A->B->A, owner/target change, responsibility closure/supersession, or
   stale receipt revokes and recalls.
 - Gate snapshot fixtures cover REVIEW->TEST, TEST->DONE, certification and
   release CAS races over every bound digest and all three evaluation scopes.
-  They reject incomplete expiry enumeration, a forged-late minimum, `noExpiry`
-  for a nonempty expiring set, trusted clock or verifier-policy drift, the exact
-  expiry boundary, expiry between preflight and commit, and replay against a
-  reused snapshot/clock receipt.
+  They reject incomplete expiry enumeration (including any active
+  `FindingDeferralDisposition` or `DeferralLineageState`), an omitted/forged
+  deferral entry or forged-late minimum, `noExpiry` for a nonempty expiring set,
+  wrong entry type/ID/hash/`expiresAt`, trusted clock or verifier-policy drift,
+  the exact expiry boundary, expiry between preflight and commit, and replay
+  against a reused snapshot/clock receipt.
   A target-only strong non-applicable verdict may not release canonical-owner or
   repository-release high/critical aggregation.
 - Deterministic scorecard fixtures cover every Section 11 row and assert exact
@@ -2687,6 +2751,10 @@ identity/supersession writes. A read-only benchmark prototype may precede Story
 
 - `DetectorSignal`, `CandidateFinding`, non-authoritative `CandidateRoute`,
   `CanonicalDefect`, and promotion contracts.
+- Shared read-only `FindingAssessmentProposal` verifier/query port over Story
+  3A ledger receipts. Story 2 validates proposal ID/digest, exact union payload,
+  signer authority/signature, receipt, and currentness before a target may bind
+  it in a route; it neither imports nor constructs a Story 1 final assessment.
 - Base `FindingRouteReceipt` schema, target-side accept/reject/revoke commands,
   signer/verifier, Story/B-META authority resolver, owner/lease/policy freshness,
   candidate/finding source profiles, and typed target-authorized
@@ -2839,7 +2907,8 @@ path may bypass that order.
 **Deliverables.**
 
 - Shared atomic append/transaction primitive for Finding, candidate route,
-  assessment, mandatory-repair, expiry-policy, deferral, supersession, route,
+  assessment proposal, final assessment, mandatory-repair, expiry-policy,
+  deferral, supersession, route,
   initial progress baseline set, material-drift re-attestation, manifest, and
   receipt records.
 - Schema-neutral transaction snapshot/CAS primitive that can commit a standalone
@@ -2875,6 +2944,11 @@ path may bypass that order.
 - Concurrent mixed Finding/candidate-route/assessment/mandatory-repair/
   expiry-policy/deferral/route/baseline-set/material-re-attestation/manifest
   writes lose nothing and preserve referential integrity.
+- `append_assessment_proposal` atomically persists one immutable proposal and
+  one non-recursive `FindingLedgerReceipt`; idempotent retry returns the exact
+  proposal/receipt IDs. A wrong signer/signature/authority, altered exact-union
+  payload, missing receipt lookup, stale/expired proposal, or proposal/final
+  divergence is rejected before Story 2 route acceptance or Story 1 finalization.
 - Mandatory-repair classify/close and expiry-policy records are append-only,
   unique, idempotent, and never half-visible with their manifest references.
 - Story 2 can atomically append a standalone prevalidated candidate/renewal
@@ -3375,10 +3449,14 @@ The program is complete only when all of the following are true in merged state:
 - Only a fresh signed strongly proven `pre_existing_unaffected`, `out_of_scope`,
   `duplicate`, or `disproven` superseding artifact, or complete repair closure,
   releases a previously claimed lineage; a new assessment omission cannot.
-- Fresh strongly proven pre-existing/out-of-scope/duplicate verdicts remain
-  independent of the mandatory-repair floor, may release only the transient
-  assessment-integrity projection when no other obligation exists, and warn
-  rollback restores the exact old predicate.
+- Fresh strongly proven pre-existing/out-of-scope/duplicate verdicts, and a
+  target-bound strong `not_reproduced_under_current_witness` with live accepted
+  owner/route plus signed current negative command/runtime witness and
+  command-policy/witness digests, remain independent of the mandatory-repair
+  floor and may release only the transient assessment-integrity projection when
+  no other obligation exists. The current-witness verdict never releases a
+  claimed-deferral lineage or an existing mandatory-repair floor; warn rollback
+  restores the exact old predicate.
 - Suspected low/medium observations may take the separate non-authoritative
   candidate-routing path with explicit uncertainty, evidence, a live existing
   target/owner, and a signed route receipt; this requires no promotion, root
@@ -3394,7 +3472,8 @@ The program is complete only when all of the following are true in merged state:
   covered `progress_baseline`/`target_route_semantic_only`/`gateEvidence=false`
   marker and remains non-gate. Story 1
   later uses a separate same-transaction CAS of the latest exact receipt ID/hash/
-  profile/source assessment/freshness state and exact baseline-set ID/hash/bytes,
+  profile/source assessment proposal ID/digest/freshness state and exact
+  baseline-set ID/hash/bytes,
   then atomically writes deferral plus manifest/action. A mismatch writes
   neither, receipt/baseline-alone is legal/non-gate, and deferral-alone is
   invalid. There is no Story 2 -> Story 1 dependency.
@@ -3466,9 +3545,10 @@ The program is complete only when all of the following are true in merged state:
   `rootCauseState='unknown'` carries no fabricated cause, and later correction
   preserves history through supersession.
 - Every non-blocking real high/critical issue has a valid owner.
-- The exact required-assessment invalid set—missing, re_attestation_required,
-  stale, unsigned, tampered, mismatched, incomplete, expired, and unknown—cannot downgrade an otherwise blocking
-  Finding; its temporary integrity projection is not mislabeled as repair.
+- The named `REQUIRED_ASSESSMENT_INVALID` exact nine-state constant cannot
+  downgrade an otherwise blocking Finding; final acceptance fixtures explicitly
+  exercise `re_attestation_required` and `expired` as blocking members. Its
+  temporary integrity projection is not mislabeled as repair.
 - One shared predicate drives every blocker consumer and is registered as an L4
   process fact with contract-verifier coverage.
 - That predicate receives only a signed `GateEvaluationSnapshot` with explicit
