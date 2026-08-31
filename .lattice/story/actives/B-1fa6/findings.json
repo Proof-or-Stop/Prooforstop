@@ -592,7 +592,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1599-1625,1643-1650,1667-1670,2151-2156 — The new missing/invalid-assessment floor has no release transition for a later fresh strong non-applicable verdict. Missing or invalid assessment now creates a non-decaying mandatory-repair floor, while lines 1618-1622 say the only clearing state is `closure_proven` with a complete repair chain. The later statement that a fresh `pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict does not create the floor only handles a clean initial control; it does not supersede an already active `required` record created while assessment was absent. Therefore an open verified high Finding first observed without an assessment can remain permanently blocked and require repair even after its independent strong non-applicable proof succeeds. Define whether assessment-invalidity is a transient pre-round fail-closed projection or add a signed release/supersession path limited to that reason, and add a missing-to-fresh-non-applicable transition fixture rather than only paired initial states.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T07:28:58.961Z",
@@ -600,7 +600,11 @@
       "reviewRunId": "B-1fa6:RR-030",
       "_hash": "e7ee0483c34986f5df75933d9f87d6b299073a28fcc179b98b144b47ccbb5ff7",
       "signatureTag": "adversarial|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 6189f4b025. The shared gate now derives assessmentIntegrityFloorBlocks before mandatoryRepairFloorBlocks and ordinary round policy. Section 7.1 states assessment integrity is transient, is not a MandatoryRepairClassification or confirmed applicability, and requires no Red-to-Green repair closure: later fresh signed strong pre_existing_unaffected, out_of_scope, or duplicate proof releases it; fresh applicable high/critical converts it to mandatory repair; weak or invalid assessment remains blocking. Story 1 adds all three transition fixtures plus clean initial controls. Verification: git show --check --stat 6189f4b025 passed; structural document audit confirmed floor order, release/convert/remain transitions, closure-only qualification, and controls.",
+      "resolvedAt": "2026-08-31T07:55:41.968Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-028",
