@@ -307,7 +307,7 @@
       "desc": "doc-code-drift: CLAUDE.md:782 open-source-language acceptance breach (high): this Story replaced the prior REVIEW-handling bullet but the replacement still adds new Chinese triage prose (\"是否当前修复由下面的 applicability、gate impact 和证据规则决定，不能只按 severity 或追求全局全绿\"). CHK-004 explicitly requires the newly added Story Owner triage slices to be English-only; a non-ASCII probe over added lines finds this exact new slice, while the focused English-only smoke still reports PASS. Translate the newly added clause to English and extend the English-slice check so this regression cannot be hidden inside a modified pre-existing Chinese bullet.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-31T22:27:25.089Z",
@@ -319,7 +319,11 @@
         "packages/main/src/tasks/prompt-registry-smoke.ts"
       ],
       "signatureTag": "missing|md|code-drift-claude",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 21d9b2c9af7f9dadf8f3eb780719ae518b021baa. The triage guidance in CLAUDE.md was translated to English and synchronized byte-for-byte with AGENTS.md. The English-only focused verification passes at the current material.",
+      "resolvedAt": "2026-08-31T22:46:41.208Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-016",
