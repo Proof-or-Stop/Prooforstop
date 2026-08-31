@@ -24438,6 +24438,53 @@
       ],
       "signatureTag": "missing|json|edge-evidence-falsely",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-453",
+      "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1283-1284 Rule 10 citation-correction sentence is self-contradictory prose (facts/code citations are accurate, only the sentence logic is broken). It reads: \"failing closed is correct per Rule 9's 'never a silent pass' (Rule 3, not Rule 9 — Rule 9 governs coverage-basis freshness).\" This first attributes the quoted phrase to Rule 9, then in the same breath says \"Rule 3, not Rule 9\" without rewriting the primary clause. Verified: the exact phrase \"never a silent pass\" appears only in Rule 3 (line 1256, materialHash-only drift clause); Rule 9 (line 1268) covers coverage-basis freshness recomputation triggers and contains no such phrase. The parenthetical correction is factually right but was appended instead of used to fix the sentence, leaving a self-contradiction for readers. All other Rule 10 code claims verified accurate: core/pre-review-check.ts:342 PR_COVERAGE_BASIS_CHANGED compares basis.priorPlanBasisDigest !== input.planArtifact.basis.basisDigest; acceptanceCoverageBasisSemanticDigest exists at packages/main/src/core/acceptance-coverage-basis.ts:250.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-31T11:42:16.019Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1116",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+      },
+      "readDiagnostics": [],
+      "_hash": "b834449b3c433a87c4be225aff104eebd6d76ed4cf999a3aa09ffe19424e468d",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
