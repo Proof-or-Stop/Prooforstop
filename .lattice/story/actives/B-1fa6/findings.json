@@ -1005,6 +1005,21 @@
       "_hash": "bfddca3a7082e9159efdeab5e1538fede9f02cac3998ee16f1d2806a3b757776",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-049",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:3348-3350 — HIGH: the final implementation acceptance still defines the assessment-integrity floor with only seven states and omits re_attestation_required and expired, contradicting the normative REQUIRED_ASSESSMENT_INVALID nine-state set at lines 1851-1854 and the immediately following claim that all nine states are mutation-tested. An implementation can satisfy this acceptance bullet while failing open for either omitted state. Make the acceptance predicate consume the exact named nine-state constant/set, and require both omitted cells in the final acceptance fixture matrix.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T12:03:35.283Z",
+      "reviewRound": "2026-08-31T09:31:08.288Z",
+      "reviewRunId": "B-1fa6:RR-050",
+      "_hash": "25937d0af3343a49e326ea3d08cb36b47ea905c12c01dfd129daec1869f40111",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
