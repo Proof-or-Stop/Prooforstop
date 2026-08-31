@@ -542,6 +542,59 @@
       },
       "readDiagnostics": [],
       "_hash": "48620337000ef8691ed1e2681bdccdaa8aa90cebd7fee366f0ea22f8255c508f"
+    },
+    {
+      "id": "B-2220:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Final quality review found no blocker. Commit 101513dc32 is an ancestor of current HEAD and closes F-010 coherently across the full smoke: top-level scope, helper diagnostics, sections 5-10b assertions/comments, and PASS output now describe check-time candidate measurement; lines 20-23 explicitly deny any guarantee that StoryStore later writes the same bytes, and sections 10c/13 preserve prototype and byte-identity limitations. The decision document remains at reviewed SHA-256 02bb788f...83b75d, declines the follow-up, and contains deferred wording only in explicitly historical or negated contexts. Build binding and complete compiled smoke passed.",
+      "createdAt": "2026-08-31T00:13:33.039Z",
+      "reviewRound": "2026-08-31T00:10:59.937Z",
+      "reviewRunId": "B-2220:RR-027",
+      "envelopeId": "e9f538f07cd2a9736f2f192cfe1ed3f4b5f932ca10d5d02abbd7ad42617e266f",
+      "writerSessionId": "sess-2e1e847a55fb5d4ff890cedb3970d681",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/acceptance-basis.json",
+          ".lattice/story/actives/B-2220/dev-memory-preflight-ack.json",
+          ".lattice/story/actives/B-2220/findings.json",
+          ".lattice/story/actives/B-2220/index.json",
+          ".lattice/story/actives/B-2220/intent-collision.json",
+          ".lattice/story/actives/B-2220/original-intent-snapshot.json",
+          ".lattice/story/actives/B-2220/pre-review-check.json",
+          ".lattice/story/actives/B-2220/process-events.jsonl",
+          ".lattice/story/actives/B-2220/process-metrics.json",
+          ".lattice/story/actives/B-2220/prompt-envelopes.json",
+          ".lattice/story/actives/B-2220/proofstory.json",
+          ".lattice/story/actives/B-2220/review-passes.json",
+          ".lattice/story/actives/B-2220/review-runs.json",
+          ".lattice/story/actives/B-2220/review.json",
+          ".lattice/story/actives/B-2220/scope-check.json",
+          ".lattice/story/actives/B-2220/scope-contract.json",
+          ".lattice/story/actives/B-2220/stall-adjudication.json",
+          ".lattice/story/actives/B-2220/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "7dbd2fe69bdd5e68eddede48a426040c8ff863c8a066cd31b0bbce4fc756c191"
     }
   ]
 }
