@@ -111,6 +111,25 @@
       ],
       "signatureTag": "missing|md|code-drift-claude",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-007",
+      "desc": "doc-code-drift: packages/main/src/core/prompt-registry.ts:51,58 names Dynamic Finding routing outcomes but weakens their verdict-specific proof. The authority requires deterministic base/head reproduction and no-worsening proof for pre_existing_unaffected, signed scope/decision evidence for out_of_scope, a signature-valid live canonical owner plus no-cycle proof for duplicate, and current receipts with source/runtime freshness plus no old-DONE inference for stale_or_not_reproduced (dynamic-finding-system-execution-plan.md:824-835). The approved proposal also preserves signature-valid owner/current-receipt requirements. General evidence wording at line 44 is not equivalent, so all five reviewer lanes are taught under-evidenced routing candidates. severity=high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-31T20:54:31.299Z",
+      "reviewRound": "2026-08-31T20:39:14.724Z",
+      "reviewRunId": "B-9a49:RR-006",
+      "_hash": "34fb735e6948ac04f65f3b123690eb1f17c18e8259f891895a84317f1625e8a7",
+      "files": [
+        "packages/main/src/core/prompt-registry.ts",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|ts|code-drift-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
