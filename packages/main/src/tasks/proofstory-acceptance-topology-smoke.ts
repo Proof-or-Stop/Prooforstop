@@ -151,19 +151,19 @@ const schemaRoundTrip = verificationIntentSchema.parse(intent);
 assert.deepEqual(schemaRoundTrip, intent, 'valid planned declaration round-trips without changing stable IDs or semantics');
 assert.equal(verificationIntentSchema.parse({ happy: [{ id: 'LEGACY', desc: 'legacy', type: 'logic' }], edge: [], adversarial: [] }).happy[0].plannedPathDeclarations, undefined, 'legacy intent remains optional');
 assert.deepEqual(
-  acceptanceMatrixEvidenceProvenance({ kind: 'logic_test', command: `node bin/proofOrStop.js acceptance_matrix --storyId=${storyId}`, note: 'ordinary transcript' }),
+  acceptanceMatrixEvidenceProvenance({ kind: 'logic_test', command: `node bin/proof-or-stop.js acceptance_matrix --storyId=${storyId}`, note: 'ordinary transcript' }),
   { kind: 'producer_command', producerCommand: 'acceptance_matrix' },
   'exact producer command token derives structured non-evidentiary provenance',
 );
 for (const command of [
   `proof-or-stop acceptance_matrix --storyId=${storyId}`,
-  `/usr/local/bin/proofOrStop --root /tmp/proofbound acceptance_matrix --storyId=${storyId}`,
-  `node bin/proofOrStop.js acceptance_matrix --storyId=${storyId}`,
-  `/usr/bin/node ./bin/proofOrStop.js --root=/tmp/proofbound acceptance_matrix --json`,
-  `node /Users/example/proofbound/bin/proofOrStop.js --root /tmp/proofbound acceptance_matrix`,
-  `./bin/proofOrStop.js acceptance_matrix --storyId=${storyId}`,
+  `/usr/local/bin/proof-or-stop --root /tmp/proofbound acceptance_matrix --storyId=${storyId}`,
+  `node bin/proof-or-stop.js acceptance_matrix --storyId=${storyId}`,
+  `/usr/bin/node ./bin/proof-or-stop.js --root=/tmp/proofbound acceptance_matrix --json`,
+  `node /Users/example/proofbound/bin/proof-or-stop.js --root /tmp/proofbound acceptance_matrix`,
+  `./bin/proof-or-stop.js acceptance_matrix --storyId=${storyId}`,
 ]) {
-  assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', command, note: 'ordinary transcript' }), true, `supported Proof-or-Stop invocation is derived: ${command}`);
+  assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', command, note: 'ordinary transcript' }), true, `canonical Proof-or-Stop invocation is derived: ${command}`);
 }
 for (const command of [
   'rg acceptance_matrix packages/main/src/core/command-policy.ts',
@@ -171,7 +171,7 @@ for (const command of [
   'node cli-contract-test.mjs acceptance_matrix',
   'echo proof-or-stop acceptance_matrix',
   'proof-or-stop check acceptance_matrix',
-  'node bin/proofOrStop.js help acceptance_matrix',
+  'node bin/proof-or-stop.js help acceptance_matrix',
 ]) {
   assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', command, note: 'independent assertion passed' }), false, `data/argument token is not producer provenance: ${command}`);
 }

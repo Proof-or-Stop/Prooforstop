@@ -2,7 +2,7 @@
 
 > Full command reference for the Proof-or-Stop CLI (`proof-or-stop`). For what the project is and the problem it solves, see the [README](../README.md).
 
-Proof-or-Stop CLI 0.3.5 is the CLI-first product entry point for the Proof-or-Stop Story workflow. `proof-or-stop` is the canonical product command, pointing at the same set of project state, phase, gate, review, evidence, and handoff semantics.
+Proof-or-Stop CLI 0.3.268 is the CLI-first product entry point for the Proof-or-Stop Story workflow. `proof-or-stop` is the canonical product command, pointing at the same set of project state, phase, gate, review, evidence, and handoff semantics.
 
 This repository currently contains:
 
@@ -72,7 +72,7 @@ exact total counts of the omitted items (e.g. `story_list._phases` covers every
 phase, `bug_list.summary` covers every status) plus a `_hint` naming `--full`, so
 nothing is hidden and `--full` recovers everything.
 
-## Proof-or-Stop CLI 0.3.5 Migration
+## Proof-or-Stop CLI 0.3.268 Migration
 
 Mac App provider/config dashboard capabilities are now exposed through CLI
 surfaces first:
@@ -1066,7 +1066,7 @@ npm --prefix packages/lab run build
 
 A globally installed `proof-or-stop` (canonical package: `@proof-or-stop/core`) also automatically enables `proof-or-stop lab ...` when `@proof-or-stop/lab` is resolvable; if lab is not installed, the ordinary core commands still work and only `proof-or-stop lab ...` prompts to install/build lab.
 
-Before releasing `0.3.5`, it is recommended to run:
+Before releasing `0.3.268`, it is recommended to run:
 
 ```bash
 npm --prefix packages/main run build

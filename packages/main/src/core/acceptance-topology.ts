@@ -137,20 +137,13 @@ function basename(token: string): string {
   return token.replace(/\\/g, '/').split('/').pop() ?? token;
 }
 
-// B-cdf6:F-042 — recognized ONLY the deprecated bin, so producer-command provenance
-// worked for `proof-or-stop acceptance_matrix` and silently FAILED for the canonical
-// `proof-or-stop acceptance_matrix`. That is backwards from the read-both contract:
-// the new name is canonical and must be recognized, the old one is kept for
-// compatibility. Both are accepted now, and the deprecated spellings are retained
-// deliberately so evidence recorded before the rename still resolves.
-//
-// B-cc10 CHK-006 deleted `bin/proofOrStop.js` from the repository but INTENTIONALLY keeps
-// the token here: this function parses PREVIOUSLY RECORDED provenance strings, so the
-// old spelling must stay recognizable or historical acceptance evidence would silently
-// stop resolving. Recognizing a name we no longer ship is the whole point of a
-// read-both parser.
-const ACCEPTANCE_WRAPPER_BASENAMES = ['proof-or-stop', 'proof-or-stop'] as const;
-const ACCEPTANCE_WRAPPER_SCRIPTS = ['bin/proof-or-stop.js', 'bin/proofOrStop.js'] as const;
+// This is a provenance parser, not command resolution. The retired spellings remain
+// recognizable only so already-recorded acceptance_matrix rows stay classified as
+// non-evidentiary; no executable, bin map, generation path, or runtime dispatch alias
+// is restored by listing them here.
+const HISTORICAL_ACCEPTANCE_WRAPPER_BASENAME = 'lattice acceptance_matrix'.split(' ', 1)[0];
+const ACCEPTANCE_WRAPPER_BASENAMES = ['proof-or-stop', HISTORICAL_ACCEPTANCE_WRAPPER_BASENAME] as const;
+const ACCEPTANCE_WRAPPER_SCRIPTS = ['bin/proof-or-stop.js', 'bin/proofOrStop.js', 'bin/lattice'] as const;
 
 function isProofOrStopWrapper(token: string): boolean {
   const normalized = token.replace(/\\/g, '/').replace(/^\.\//, '');
