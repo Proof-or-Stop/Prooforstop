@@ -699,7 +699,7 @@
       "desc": "doc-code-drift: .proof-or-stop/story/actives/B-022e/scope-contract.json:413-427 acknowledges docs/requirements/decisions/dynamic-finding-system-execution-plan.md as unrelated main-sync carry-in and states that B-022e did not modify its content. Git history contradicts that signed explanation: later B-022e commit c7a29f6563 changed that document by 23 insertions and 22 deletions while rewriting its package-scope example. Reclassify and review the actual B-022e-owned documentation delta, or revert it to the independently merged content; the current acknowledgement is no longer truthful.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-08-31T23:07:24.659Z",
@@ -745,7 +745,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "missing|json|code-drift-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by the corrected signed scope acknowledgement committed in 8bf9af0885: it explicitly supersedes the earlier assumption and classifies the dynamic-finding document canonicalization as B-022e-owned reviewed scope.",
+      "resolvedAt": "2026-08-31T23:37:29.237Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
