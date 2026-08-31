@@ -23769,6 +23769,31 @@
         "scanEscalationReason": null
       },
       "_hash": "45082aa527e228282cd4adc13b5f2775eae1d7130146c2f94f49ed6913c15dc9"
+    },
+    {
+      "id": "B-5a88:RP-402",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Re-anchor pass for RI-095 wave1: HEAD advanced only via metadata (process-events/review-inventory/review-passes/review-runs/prompt-envelopes), zero packages/scripts/bin/.githooks diff since prior pass 59ecc092c1..HEAD and since RP-399 pass point. All 13 checklist items done, 39/39 verificationIntent bound to verified evidence with receipts (exitCode 0, selectorMatched true), 0 waivers, 0 demoted. Re-verified via checklist_get (counts + items) and finding_list that the 313 open findings are all dated 2026-08-20..26, predate currentReviewRound 2026-08-31T15:07:11.080Z, and do not bind to this round per canPassReviewGuard round-scoped evidence semantics. F-498/F-500/F-501/F-502 already settled per dispatch context and independently re-confirmed via story metadata read this session. No new test-coverage gaps found.",
+      "createdAt": "2026-08-31T15:12:23.960Z",
+      "reviewRound": "2026-08-31T15:07:11.080Z",
+      "reviewRunId": "B-5a88:RR-975",
+      "envelopeId": "b6025b9a364f561a8ad8c84ac8bdb75009dd8f3385e6fd7912c8cd5ef213958b",
+      "writerSessionId": "claude-b5a88-1788161424",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          ".proof-or-stop/story/actives/B-5a88/review-inventory-epochs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0d9859af404f33bd61eb47a5d6db561a148b236262037b93baa1141d688fcf96"
     }
   ]
 }
