@@ -659,6 +659,44 @@
         "scanEscalationReason": null
       },
       "_hash": "715bf94e088bdf81456a04f466d6f050fe955ff1e068d92da326d2ae28ece51e"
+    },
+    {
+      "id": "B-022e:RP-024",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Round 10 docs PASS at bb3978e611. Extracted 1436 changed symbols and compared 16 identity-relevant paragraphs/sections anchored on REQUIRED_INIT_CHECK_AGENTS, CURRENT_LEGACY_CONTEXT_ROWS, isFrozenSurface, verifier output, current operator docs, marker docs, and the three Agent asset roots. proof-or-stop-review-story-init is present with canonical frontmatter in package/Claude/Codex roots; each root has 13 canonical files and zero lattice-* files. README/AGENTS/CLAUDE/CLI/host guidance and canonical marker/adapter docs contain no active retired Agent instruction. Identity self-test and full verifier/packed clean-install boundary pass; exact signature/current-context/historical/provenance rows remain unchanged, so retained legacy tokens are bounded history/migration inputs rather than active guidance.",
+      "createdAt": "2026-08-31T14:41:47.151Z",
+      "reviewRound": "2026-08-31T14:30:13.313Z",
+      "reviewRunId": "B-022e:RR-047",
+      "envelopeId": "6600bfd380fa9b91e1d9d8eaac4163a505193e8329b2dc9c7b812f4c00c8c75a",
+      "writerSessionId": "sess-b3b00e849b0b6dfd42a317de680eb418",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop-codex/README.md",
+          ".proof-or-stop/Proof-or-Stop.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+          "README.md",
+          "scripts/proof-or-stop-identity-concept-provenance.json",
+          "scripts/proof-or-stop-identity-current-legacy-contexts.json",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": "Targeted identity re-review: raw retired-role matches outside active roots were bounded to exact frozen or migration contexts; no broader unrelated docs audit was performed."
+      },
+      "_hash": "858f7646a69cf40e33ddb622a8b81e552c222f4db6cc2352d8ab5082b5053f11"
     }
   ]
 }
