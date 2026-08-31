@@ -977,7 +977,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1890-1894,2501-2509,2525-2528,3132 — HIGH: F-036 is only partially integrated. Story 1 transition prose now includes not_reproduced_under_current_witness, but the mandatory-floor exclusion bullet and rollout scorecard clean-initial control set still enumerate only pre_existing_unaffected/out_of_scope/duplicate. Consequently enforce qualification can omit the new verdict’s clean-initial control and does not prove clean-initial equals missing→fresh, leaving the original path-dependent latch risk outside the scorecard. Include target-bound not_reproduced_under_current_witness in every integrity-release/non-mandatory statement and in the scorecard transition plus clean-initial numerator/denominator/rollback fixtures.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T09:13:36.789Z",
@@ -985,7 +985,11 @@
       "reviewRunId": "B-1fa6:RR-047",
       "_hash": "2dba62ae404e0f9369171a332c6b2063360a78288b50d6f6c109e7e05e7496e4",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d26fb86fe9, d260eccd08 and a6f3d3b0fe: target-bound strongly proven not_reproduced_under_current_witness now has consistent assessment-integrity release, mandatory-floor exclusion, clean-initial/transition, required-test and scorecard controls while never releasing an independent claimed-deferral lineage.",
+      "resolvedAt": "2026-08-31T09:31:49.794Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
