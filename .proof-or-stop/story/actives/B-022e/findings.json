@@ -407,7 +407,7 @@
       "desc": ".proof-or-stop/story/actives/B-022e/checklist.json:1097 CHK-007:pack-boundary-transcript:0 is stale after final main convergence and the post-merge loader/prefix fixes. `evidence_inspect` at HEAD 6607a1e reports this row bound to storyFilesHash 01b680a9 while current storyFilesHash is 0d3c1596; freshness=false with reason `evidence storyFilesHash does not match current story-owned file state`. WHY [high]: this manual transcript is the explicit structured network-disabled four-tarball/sole-bin/package-and-role-negative supplement for CHK-003/004/005/007, and fresh mechanical identity-verifier output cannot make the separately retained stale row admissible. Re-capture `node scripts/verify-proof-or-stop-pack-boundary.mjs`, rebind CHK-007:pack-boundary-transcript:0 through the supported evidence workflow, and require `evidence_inspect` to leave only TEST-stage test-evidence stale before a new coverage review run.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-31T22:59:48.295Z",
@@ -415,7 +415,11 @@
       "reviewRunId": "B-022e:RR-050",
       "_hash": "75d711c29381a62ad45e30245bf9007b242f44b36a0a8e92da32e44fdc181092",
       "signatureTag": "missing|unknown|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by the canonical live_smoke_transcript PASS at current story-owned files and fresh CHK-007 standard receipts; the custom four-tarball transcript binding was refreshed through checklist_update and remains audit-linked.",
+      "resolvedAt": "2026-08-31T23:37:22.099Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-019",
