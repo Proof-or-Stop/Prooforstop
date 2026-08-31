@@ -224,6 +224,17 @@
           "materialHash": "b675940198ae436f3970cbeb335e414e4da3df9096002e0be91ca703803dfa29",
           "storyFilesHash": "c95208cbf5b5c6881179b3664c34e87b5887fe3980c5fab3fb73ccd23ead79a1",
           "timestamp": "2026-08-31T03:19:11.267Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:binding-scope-mutants",
+          "kind": "logic_test",
+          "command": "node -e \"const fs=require('fs'),cp=require('child_process');const source='packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts';const dist='packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js';const doc='docs/requirements/decisions/dynamic-finding-system-execution-plan.md';const originals=new Map([[source,fs.readFileSync(source,'utf8')],[dist,fs.readFileSync(dist,'utf8')],[doc,fs.readFileSync(doc,'utf8')]]);const run=(args)=>cp.spawnSync(process.execPath,args,{encoding:'utf8',maxBuffer:20*1024*1024});let sourceRejected=false,distRejected=false,docRejected=false;try{fs.writeFileSync(source,originals.get(source).replace('DYNAMIC_BINDING_BUILD_CEILING = 808','DYNAMIC_BINDING_BUILD_CEILING = 809'));sourceRejected=run(['scripts/verify-full-suite-build-binding.mjs']).status!==0;fs.writeFileSync(source,originals.get(source));fs.writeFileSync(dist,originals.get(dist).replace('DYNAMIC_BINDING_BUILD_CEILING = 808','DYNAMIC_BINDING_BUILD_CEILING = 809'));distRejected=run(['scripts/verify-full-suite-build-binding.mjs']).status!==0;fs.writeFileSync(dist,originals.get(dist));fs.writeFileSync(doc,originals.get(doc)+'\\nB-5952 protected mutation probe\\n');const scoped=run(['bin/proof-or-stop.js','scope_contract_check','--storyId=B-5952']);docRejected=scoped.status!==0||(scoped.stdout+scoped.stderr).includes('violation');}finally{for(const [p,b] of originals)fs.writeFileSync(p,b);}const binding=run(['scripts/verify-full-suite-build-binding.mjs']);const scope=run(['bin/proof-or-stop.js','scope_contract_check','--storyId=B-5952']);if(!sourceRejected||!distRejected||!docRejected||binding.status!==0||scope.status!==0)throw new Error(JSON.stringify({sourceRejected,distRejected,docRejected,binding:binding.status,scope:scope.status,scopeOut:scope.stdout+scope.stderr}));console.log('actual-binding-scope-mutants PASS sourceOnlyRejected=true distOnlyRejected=true protectedDocRejected=true restored=true');\"",
+          "note": "Tool-executed fail-closed mutation receipt proves source-only, dist-only, and protected Dynamic Finding document mutations are detected, then verifies binding and scope controls after byte restoration.",
+          "mechanical": false,
+          "headHash": "88b35e7fdd1b6b0f3508163a9f2f57abe368b95e",
+          "materialHash": "b675940198ae436f3970cbeb335e414e4da3df9096002e0be91ca703803dfa29",
+          "storyFilesHash": "c95208cbf5b5c6881179b3664c34e87b5887fe3980c5fab3fb73ccd23ead79a1",
+          "timestamp": "2026-08-31T03:19:32.025Z"
         }
       ]
     }
