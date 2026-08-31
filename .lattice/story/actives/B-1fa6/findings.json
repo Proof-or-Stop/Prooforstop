@@ -857,6 +857,21 @@
       "resolvedAt": "2026-08-31T09:08:12.216Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1fa6:F-041",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1025-1032,1382-1386,1482,1586-1592,1610-1620 — HIGH targeted re-review of 93ab5605b4: the new two-stage assessmentProposalDigest construction is contradicted by surviving routeReceiptSourceAssessmentHash / expectedRouteReceiptSourceAssessmentHash fields and the rule that this value equals expectedAssessmentHash and receipt.subjectHash. That reinstates the final-assessment/receipt hash fixed point the new paragraph says is forbidden. The proposal-digest definition also says it covers every assessment input except acceptedRoute, assessmentHash and signature but does not explicitly exclude assessmentProposalDigest itself. Replace every route/deferral/manifest/source-assessment binding with the proposal digest, bind final assessmentHash separately, and define an acyclic canonical field set that excludes the proposal digest field itself.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T09:12:08.611Z",
+      "reviewRound": "2026-08-31T09:05:58.911Z",
+      "reviewRunId": "B-1fa6:RR-046",
+      "_hash": "ba680f155d89fa8b58fa07c3296d7d2cc1791a1d0e11ff5f1df14c2908a8e70d",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
