@@ -116,7 +116,10 @@ const requiredReviewFindingTriagePhrases = [
   '`stale_or_not_reproduced` (current evidence cannot reproduce an older claim)',
   'Never delete the original observation',
   'silently rewrite its severity',
-  'append a traceable revision or superseding Finding',
+  'report the new evidence to the Story Owner',
+  'do not fabricate a revision, superseding Finding, applicability recalculation, or gate-impact recalculation',
+  'Only the future official Dynamic Finding System may append a signed revision or superseding Finding',
+  'recalculate applicability and gate impact',
 ];
 const forbiddenReviewFindingTriagePermissions = [
   {
@@ -135,6 +138,42 @@ const forbiddenReviewFindingTriagePermissions = [
     label: 'stale reviewRunId reuse',
     pattern: /(?:stale|old|previous)[^.\n]{0,80}reviewRunId[^.\n]{0,100}(?:may|can|should|must)[^.\n]{0,60}(?:be\s+)?(?:reused?|used|remain valid)/iu,
   },
+  {
+    label: 'reviewer repair permission',
+    pattern: /reviewers?\s+(?:may|can|should|must|are permitted to|are allowed to)[^.\n]{0,120}(?:repair|fix|modify|patch)\s+(?:the\s+)?(?:implementation|code|product)/iu,
+  },
+  {
+    label: 'reviewer story_create permission',
+    pattern: /reviewers?\s+(?:may|can|should|must|are permitted to|are allowed to)[^.\n]{0,120}(?:call|run|use|invoke)\s+`?story_create`?/iu,
+  },
+  {
+    label: 'unilateral scope or global-green expansion',
+    pattern: /reviewers?\s+(?:may|can|should|must|are permitted to|are allowed to)[^.\n]{0,120}(?:expand|widen)[^.\n]{0,80}(?:Story|scope)[^.\n]{0,100}(?:unilaterally|globally green|global green|repository green)/iu,
+  },
+  {
+    label: 'severity rewrite permission',
+    pattern: /reviewers?\s+(?:may|can|should|must|are permitted to|are allowed to)[^.\n]{0,120}(?:rewrite|replace|change|lower|raise|overwrite)[^.\n]{0,60}(?:original\s+)?(?:Finding\s+)?severity/iu,
+  },
+  {
+    label: 'routing collapses outcome to resolved',
+    pattern: /(?:routed?|deferred|dismissed)[^.\n]{0,120}(?:Finding|issue|defect)?[^.\n]{0,80}(?:is|becomes?|counts?\s+as|means?)[^.\n]{0,40}resolved/iu,
+  },
+  {
+    label: 'evidence-free or ownerless routing',
+    pattern: /(?:critical|high)[^.\n]{0,100}(?:Finding|issue|defect)[^.\n]{0,120}(?:may|can|should|must)[^.\n]{0,80}(?:routed?|deferred|dismissed)[^.\n]{0,80}(?:without|no)[^.\n]{0,40}(?:evidence|owner)/iu,
+  },
+  {
+    label: 'prompt prose controls lifecycle gates',
+    pattern: /(?:reviewer\s+)?prompt\s+prose[^.\n]{0,100}(?:may|can|should|must|does)[^.\n]{0,80}(?:control|decide|determine|override|satisfy)[^.\n]{0,60}(?:gate|blocking|lifecycle)/iu,
+  },
+  {
+    label: 'file disjointness proves pre_existing applicability',
+    pattern: /file\s+disjointness\s+(?:alone|by itself)[^.\n]{0,80}(?:proves?|establishes?|confirms?|determines?)[^.\n]{0,60}(?:pre_existing_unaffected|pre-existing unaffected|applicability)/iu,
+  },
+  {
+    label: 'unsigned stale or ownerless duplicate target',
+    pattern: /(?:unsigned|stale|ownerless|unowned)[^.\n]{0,100}(?:Finding|issue|target)[^.\n]{0,100}(?:may|can|should|must)[^.\n]{0,80}(?:serve|act|count|qualify)[^.\n]{0,60}(?:duplicate|canonical)/iu,
+  },
 ] as const;
 
 function assertReviewFindingTriageSemantics(content: string, sourceLabel: string): void {
@@ -152,6 +191,15 @@ function assertReviewFindingTriageMutationFailures(): void {
     'Dismissal proves `out_of_scope` for the current Story.',
     'Severity alone decides scope and applicability.',
     'An old reviewRunId may be reused after the reviewer envelope changes.',
+    'Reviewers may repair the implementation before recording the lane result.',
+    'Reviewers may call `story_create` to open a follow-up Story.',
+    'Reviewers may expand the Story unilaterally to make the repository globally green.',
+    'Reviewers may rewrite the original Finding severity when new evidence arrives.',
+    'A routed Finding becomes resolved once it no longer blocks the current Story outcome.',
+    'A high Finding may be routed without evidence or an owner.',
+    'Reviewer prompt prose may determine lifecycle gate impact.',
+    'File disjointness alone proves `pre_existing_unaffected` applicability.',
+    'An unsigned, stale, ownerless Finding may serve as the canonical duplicate target.',
   ];
   for (const [index, mutation] of mutations.entries()) {
     assert.throws(

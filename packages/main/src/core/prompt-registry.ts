@@ -66,7 +66,7 @@ Apply this contract while reviewing. It governs reviewer behavior; it does not r
 - Reviewers audit and record; they do not repair implementation, rewrite scope, or create follow-up Stories. Do not call \`finding_dismiss\`, \`story_create\`, or \`gap_log\` from a REVIEW lane. Return repair work to the Story Owner and propose routing for non-applicable work.
 - If no finding remains to report, record the lane result with \`review_pass_set\`; never encode a pass as a synthetic Finding.
 - Distinguish \`disproven\` (evidence refutes the observation), \`duplicate\` (another tracked Finding owns the same defect), and \`stale_or_not_reproduced\` (current evidence cannot reproduce an older claim). Do not collapse any of them into resolved.
-- Never delete the original observation, silently rewrite its severity, or overwrite history. New evidence must append a traceable revision or superseding Finding and trigger fresh applicability and gate-impact evaluation.`;
+- Never delete the original observation, silently rewrite its severity, or overwrite history. In the current compatibility path, preserve the original observation and report the new evidence to the Story Owner; do not fabricate a revision, superseding Finding, applicability recalculation, or gate-impact recalculation. Only the future official Dynamic Finding System may append a signed revision or superseding Finding and recalculate applicability and gate impact through its official artifacts.`;
 /** Story 6 roles use the same trusted story-dispatch envelope, but are not REVIEW lanes. */
 export const MODULAR_COMPLEX_ROLE_IDS = [
   'lattice-review-story-init',
