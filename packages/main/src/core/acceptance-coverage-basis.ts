@@ -149,14 +149,24 @@ function sourceRefValue(node: unknown): string | null {
   return null;
 }
 
+function topologyPathEndpointValue(node: unknown): string | null {
+  const value = sourceRefValue(node);
+  // `existing:` records provenance (the endpoint references already-existing
+  // material); it is not part of the verifier's canonical path namespace.
+  // The canonicalSourceRef itself carries the bounded endpoint kind, such as
+  // process-fact/consumer or runtime-fact/checker. Exact basis membership below
+  // still rejects unknown or unrelated endpoints after this normalization.
+  return value?.startsWith('existing:') ? value.slice('existing:'.length) : value;
+}
+
 function topologyPaths(contract: ProofStoryContractData | null): string[] {
   const paths: string[] = [];
   for (const binding of contract?.acceptanceBindings ?? []) {
     const topology = binding.verificationTopology as AcceptanceVerificationTopologyV1 | undefined;
     if (!topology) continue;
-    const producers = new Map(topology.producerRefs.map(producer => [producer.id, sourceRefValue(producer)]));
+    const producers = new Map(topology.producerRefs.map(producer => [producer.id, topologyPathEndpointValue(producer)]));
     for (const consumer of topology.consumerRefs) {
-      const consumerRef = sourceRefValue(consumer);
+      const consumerRef = topologyPathEndpointValue(consumer);
       for (const producerId of consumer.producerRefs ?? []) {
         const producerRef = producers.get(producerId);
         if (producerRef && consumerRef) paths.push(`path:${producerRef}->${consumerRef}`);

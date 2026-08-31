@@ -937,6 +937,40 @@ try {
     focusedBasis.excludedPathRefs = [];
     focusedBasis.phaseBasis = 'pre_review';
     focusedBasis.priorPlanBasisDigest = genericBasis.basisDigest;
+    const referenceOnlyBasis = structuredClone(focusedBasis);
+    referenceOnlyBasis.enumeratedPathRefs = [focusedProcessPath];
+    const referenceOnlyExistingTopology: AcceptanceVerificationTopologyV1 = {
+      schemaVersion: 'proofstory.acceptance_topology.v1',
+      producerRefs: [{ id: 'P-EXISTING', sourceRef: { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' } }],
+      consumerRefs: [{
+        id: 'C-EXISTING',
+        sourceRef: { refKind: 'existing', canonicalSourceRef: 'consumer:acceptance_topology_check' },
+        producerRefs: ['P-EXISTING'],
+      }],
+      positiveAssertionRefs: [], mutationCaseRefs: [], transcriptAssertionRefs: [], commandRefs: [],
+    };
+    assert.deepEqual(
+      reconcileTopologyWithCoverageBasis(contract(referenceOnlyExistingTopology), referenceOnlyBasis),
+      [],
+      'reference-only existing process-fact edge reconciles in the verifier canonical basis path space',
+    );
+    const outsideReferenceTopology = structuredClone(referenceOnlyExistingTopology);
+    outsideReferenceTopology.consumerRefs[0].sourceRef = { refKind: 'existing', canonicalSourceRef: 'consumer:unrelated_topology_target' };
+    outsideReferenceTopology.commandRefs = [{ refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' }];
+    assert.ok(
+      reconcileTopologyWithCoverageBasis(contract(outsideReferenceTopology), referenceOnlyBasis)
+        .some(item => item.code === 'AT_TOPOLOGY_OUTSIDE_BASIS'
+          && item.pathRef === 'path:process-fact:acceptance_basis_generate->consumer:unrelated_topology_target'),
+      'a matching commandRef cannot hide an unrelated reference-only topology edge',
+    );
+    const unknownReferenceTopology = structuredClone(referenceOnlyExistingTopology);
+    unknownReferenceTopology.producerRefs[0].sourceRef = { refKind: 'existing', canonicalSourceRef: 'unknown-ref:not-a-basis-endpoint' };
+    assert.ok(
+      reconcileTopologyWithCoverageBasis(contract(unknownReferenceTopology), referenceOnlyBasis)
+        .some(item => item.code === 'AT_TOPOLOGY_OUTSIDE_BASIS'
+          && item.pathRef === 'path:unknown-ref:not-a-basis-endpoint->consumer:acceptance_topology_check'),
+      'canonical reconciliation remains fail-closed for unknown existing endpoint kinds',
+    );
     const focusedTopology: AcceptanceVerificationTopologyV1 = {
       schemaVersion: 'proofstory.acceptance_topology.v1',
       producerRefs: [], consumerRefs: [], positiveAssertionRefs: [], mutationCaseRefs: [], transcriptAssertionRefs: [],
