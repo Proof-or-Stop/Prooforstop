@@ -3419,15 +3419,18 @@ The program is complete only when all of the following are true in merged state:
 - Runtime execution evidence binds the bytes actually executed to source and
   command.
 - Applicability is target-Story-specific, signed, fresh, and routed.
-- A verified open high/critical Finding whose required assessment is exactly
-  `missing`, `stale`, `unsigned`, `tampered`, `mismatched`, `incomplete`, or
-  `unknown` enters a transient assessment-integrity floor before severity,
-  round, or advisory policy. The projection is not a confirmed applicable
-  repair obligation and does not require Red-to-Green closure. A later fresh
-  signed strong non-applicable verdict releases it through its independent
-  proof contract; a fresh applicable verdict converts to mandatory repair; a
-  weak or invalid verdict remains blocked. Clean initial and transition controls
-  must have identical final results.
+- A verified open high/critical Finding whose required assessment is a member of
+  `REQUIRED_ASSESSMENT_INVALID`—exactly `missing`,
+  `re_attestation_required`, `stale`, `unsigned`, `tampered`, `mismatched`,
+  `incomplete`, `expired`, or `unknown`—enters a transient assessment-integrity
+  floor before severity, round, or advisory policy. The final-acceptance matrix
+  explicitly includes blocking `re_attestation_required` and `expired` cells.
+  The projection is not a confirmed applicable repair obligation and does not
+  require Red-to-Green closure. A later fresh signed strong non-applicable
+  verdict releases it through its independent proof contract; a fresh applicable
+  verdict converts to mandatory repair; a weak or invalid verdict remains
+  blocked. Clean initial and transition controls must have identical final
+  results.
 - The assessment-integrity floor receives only a signature-valid, L4-registered
   `AssessmentIntegrityState` from its signer/verifier/reader, bound to the
   Finding, Story, assessment, head, material, story-files, scope, runtime, and
