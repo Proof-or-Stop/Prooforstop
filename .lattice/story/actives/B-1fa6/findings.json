@@ -427,7 +427,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:785-813,1209-1219,1497-1504,1771-1776,1865-1868,2142 [medium] The typed progress contract cannot mechanically implement all four advertised ProgressEvidenceKind values. The predecessor baseline and required material-change check cover only target kind/id/scope plus head/material/storyFiles hashes. A legitimate target_test_result, target_delivery_state, or target_status_transition can occur without changing those source/material hashes and is therefore indistinguishable from no progress; conversely an unrelated material/hash change can satisfy the snapshot-difference rule without advancing the routed defect. Define a kind-specific canonical progress projection/baseline (including signed test outcome, delivery/status transition or affected-contract/source delta and its relation to the canonical defect/route), compare that projection rather than only the repository snapshot, and add positive unchanged-code test/delivery/status cases plus negative unrelated-source-change cases. Until then the schema, Story 2 tests, scorecard, risk and acceptance claims of materially progressed renewal are not mutually supported.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-31T01:32:34.037Z",
@@ -438,7 +438,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 0974481b67: ProgressEvidenceBinding now carries a canonical defect and route-bound kind-specific ProgressProjection for relevant source/contract, defect-bound test receipt, target acceptance/checklist delivery state or permitted defect-work status transition; positive unchanged-code progress and negative unrelated/wrong-subject/no-op cases are required.",
+      "resolvedAt": "2026-08-31T01:46:09.921Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-022",
