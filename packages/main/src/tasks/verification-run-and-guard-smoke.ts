@@ -26,6 +26,9 @@
  *      confirmable in this environment (see PENDING-REAL-TOKEN below); the e2e
  *      asserts only that the documented CANDIDATE tokens (shell|local_shell|
  *      exec_command) fire — never a false green that Codex coverage is confirmed.
+ *   E. stale-refresh exact-semantics dedupe: identical command/selector/timeout
+ *      rows execute once and receive one cloned receipt per intent; selector or
+ *      timeout differences remain distinct; one shared failure demotes all rows.
  *
  * RED-first: each core assertion mutation-kills — reverting the corresponding
  * behavior (make refresh demote instead of re-execute; make the guard always-allow;
@@ -38,7 +41,7 @@
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -486,6 +489,167 @@ async function partD(): Promise<string> {
   } finally { cleanup(env); }
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// E. stale refresh exact-semantics dedupe — real child-process execution count.
+// ════════════════════════════════════════════════════════════════════════════
+
+function externalVerifierCommand(counterPath: string, outputPath: string): string {
+  const script = [
+    `require('fs').appendFileSync(${JSON.stringify(counterPath)}, 'x')`,
+    `process.stdout.write(require('fs').readFileSync(${JSON.stringify(outputPath)}, 'utf8'))`,
+  ].join(';');
+  return `node -e ${JSON.stringify(script)}`;
+}
+
+function commitRefreshDrift(env: Env, label: string): void {
+  write(env.root, 'packages/main/src/refresh-drift.ts', `export const drift = ${JSON.stringify(label)};\n`);
+  git(env.root, ['add', 'packages/main/src/refresh-drift.ts']);
+  git(env.root, ['commit', '-m', `refresh drift ${label}`]);
+}
+
+async function seedPinnedReceipt(
+  env: Env,
+  args: {
+    intentRef: string;
+    command: string;
+    selector: string;
+    commandTimeoutMs?: number;
+    commandTimeoutReason?: string;
+  },
+): Promise<void> {
+  await env.handlers.verification_evidence_add({
+    storyId: env.storyId,
+    itemId: 'CHK-001',
+    intentRef: args.intentRef,
+    kind: 'integration_test',
+    command: args.command,
+    selector: args.selector,
+    result: 'pass',
+    note: `seed ${args.intentRef}`,
+    ...(args.commandTimeoutMs !== undefined ? { commandTimeoutMs: args.commandTimeoutMs } : {}),
+    ...(args.commandTimeoutReason ? { commandTimeoutReason: args.commandTimeoutReason } : {}),
+  });
+}
+
+function executionCount(counterPath: string): number {
+  return readFileSync(counterPath, 'utf8').length;
+}
+
+async function partE(): Promise<void> {
+  const externalRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-refresh-dedupe-'));
+  try {
+    // E1: two intents with one exact pin/provenance key execute once. Each row
+    // receives a cloned receipt whose timestamp and output digest describe that
+    // one real execution, rather than a fabricated per-intent pass.
+    {
+      const env = makeEnv('B-refresh-dedupe-same', [
+        intent('INT-SHARED-A', 'cli'),
+        intent('INT-SHARED-B', 'cli'),
+      ]);
+      try {
+        const counter = join(externalRoot, 'same-counter.txt');
+        const output = join(externalRoot, 'same-output.txt');
+        writeFileSync(counter, '');
+        writeFileSync(output, 'SHARED_OK\n');
+        const command = externalVerifierCommand(counter, output);
+        await seedPinnedReceipt(env, { intentRef: 'INT-SHARED-A', command, selector: 'SHARED_OK' });
+        await seedPinnedReceipt(env, { intentRef: 'INT-SHARED-B', command, selector: 'SHARED_OK' });
+        writeFileSync(counter, '');
+        commitRefreshDrift(env, 'same-key');
+
+        await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
+        assert.equal(executionCount(counter), 1, 'E1: one exact execution key runs once for two stale rows');
+        const a = findEvidence(env, 'INT-SHARED-A');
+        const b = findEvidence(env, 'INT-SHARED-B');
+        assert.equal(a?.mechanical, true, 'E1: first shared row remains mechanical');
+        assert.equal(b?.mechanical, true, 'E1: second shared row remains mechanical');
+        assert.ok(a?.receipt && b?.receipt, 'E1: both rows receive receipts');
+        assert.deepEqual(a!.receipt, b!.receipt, 'E1: shared rows bind cloned facts from the same execution');
+        assert.match(a!.receipt!.executedAt, /^\d{4}-\d{2}-\d{2}T/u, 'E1: receipt timestamp is an ISO execution time');
+        assert.equal(a!.receipt!.outputDigest, sha256Hex('SHARED_OK\n'), 'E1: receipt digest binds the real shared output');
+      } finally { cleanup(env); }
+    }
+
+    // E2: selector and effective-timeout differences are execution semantics,
+    // not presentation metadata. Five distinct keys must produce five runs.
+    {
+      const env = makeEnv('B-refresh-dedupe-distinct', [
+        intent('INT-SELECTOR-A', 'cli'),
+        intent('INT-SELECTOR-B', 'cli'),
+        intent('INT-TIMEOUT-A', 'cli'),
+        intent('INT-TIMEOUT-B', 'cli'),
+        intent('INT-PROVENANCE-C', 'cli'),
+      ]);
+      try {
+        const counter = join(externalRoot, 'distinct-counter.txt');
+        const output = join(externalRoot, 'distinct-output.txt');
+        writeFileSync(counter, '');
+        writeFileSync(output, 'SELECTOR_A SELECTOR_B\n');
+        const command = externalVerifierCommand(counter, output);
+        await seedPinnedReceipt(env, { intentRef: 'INT-SELECTOR-A', command, selector: 'SELECTOR_A' });
+        await seedPinnedReceipt(env, { intentRef: 'INT-SELECTOR-B', command, selector: 'SELECTOR_B' });
+        await seedPinnedReceipt(env, {
+          intentRef: 'INT-TIMEOUT-A', command, selector: 'SELECTOR_A', commandTimeoutMs: 5000,
+          commandTimeoutReason: 'The dedupe smoke needs an attributable first timeout provenance.',
+        });
+        await seedPinnedReceipt(env, {
+          intentRef: 'INT-TIMEOUT-B', command, selector: 'SELECTOR_A', commandTimeoutMs: 7000,
+          commandTimeoutReason: 'The dedupe smoke needs an attributable second timeout provenance.',
+        });
+        await seedPinnedReceipt(env, {
+          intentRef: 'INT-PROVENANCE-C', command, selector: 'SELECTOR_A', commandTimeoutMs: 5000,
+          commandTimeoutReason: 'The dedupe smoke needs distinct provenance at the same timeout value.',
+        });
+        writeFileSync(counter, '');
+        commitRefreshDrift(env, 'distinct-keys');
+
+        await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
+        assert.equal(executionCount(counter), 5, 'E2: different selector/effective-timeout/provenance keys never dedupe');
+        assert.equal(findEvidence(env, 'INT-TIMEOUT-A')?.receipt?.timeoutOverride?.timeoutMs, 5000,
+          'E2: first timeout provenance survives refresh');
+        assert.equal(findEvidence(env, 'INT-TIMEOUT-B')?.receipt?.timeoutOverride?.timeoutMs, 7000,
+          'E2: second timeout provenance survives refresh');
+        assert.notEqual(
+          findEvidence(env, 'INT-TIMEOUT-A')?.receipt?.timeoutOverride?.reason,
+          findEvidence(env, 'INT-PROVENANCE-C')?.receipt?.timeoutOverride?.reason,
+          'E2: same timeout with different audited provenance is not collapsed',
+        );
+      } finally { cleanup(env); }
+    }
+
+    // E3: a shared command that no longer emits the selector runs once, but its
+    // failure produces zero pass stamps. Every row sharing that key is demoted.
+    {
+      const env = makeEnv('B-refresh-dedupe-failure', [
+        intent('INT-FAIL-A', 'cli'),
+        intent('INT-FAIL-B', 'cli'),
+      ]);
+      try {
+        const counter = join(externalRoot, 'failure-counter.txt');
+        const output = join(externalRoot, 'failure-output.txt');
+        writeFileSync(counter, '');
+        writeFileSync(output, 'WAS_GOOD\n');
+        const command = externalVerifierCommand(counter, output);
+        await seedPinnedReceipt(env, { intentRef: 'INT-FAIL-A', command, selector: 'WAS_GOOD' });
+        await seedPinnedReceipt(env, { intentRef: 'INT-FAIL-B', command, selector: 'WAS_GOOD' });
+        writeFileSync(counter, '');
+        writeFileSync(output, 'NOW_BROKEN\n');
+        commitRefreshDrift(env, 'shared-failure');
+
+        await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
+        assert.equal(executionCount(counter), 1, 'E3: one shared failing key is attempted once');
+        for (const ref of ['INT-FAIL-A', 'INT-FAIL-B']) {
+          const row = findEvidence(env, ref);
+          assert.equal(row?.mechanical, false, `E3: ${ref} is demoted after the shared failure`);
+          assert.equal(row?.receipt, undefined, `E3: ${ref} receives no fabricated pass receipt`);
+        }
+      } finally { cleanup(env); }
+    }
+  } finally {
+    rmSync(externalRoot, { recursive: true, force: true });
+  }
+}
+
 // ── Runner ──
 (async () => {
   await partA();
@@ -493,6 +657,7 @@ async function partD(): Promise<string> {
   await partB();
   await partC();
   const codexNote = await partD();
+  await partE();
   if (codexNote) console.log(codexNote);
   console.log('verification-run-and-guard-smoke: PASS');
 })().catch((e) => {
