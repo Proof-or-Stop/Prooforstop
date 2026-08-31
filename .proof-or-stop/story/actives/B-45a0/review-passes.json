@@ -24332,6 +24332,31 @@
         "scanEscalationReason": null
       },
       "_hash": "de0cba2b2e92553a5eadbe8cb3e73940bdd8b555652a7d88fee1c4d91cac979f"
+    },
+    {
+      "id": "B-45a0:RP-519",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion residue re-verified at HEAD 19a6685 (isFirstPass=true per review_incremental_context, changedFiles=(none) since prior PASS B-45a0:RP-518 at head 56c05add08; commit 9f5b0d96b1 is an ancestor of that prior-pass head, i.e. already covered). Mechanically re-confirmed all prior findings still hold: (1) commit 9f5b0d96b1 touches exactly packages/graph/scripts/verify-no-project-writes.mjs, purely additive regex alternation adding .proof-or-stop/runtime/validation-traces/ to PRUNED, original (node_modules|dist|.git) alternative byte-intact, comment updated consistently; (2) cited precedent packages/main/src/handlers/story-aware-validation.ts:725 drops the identical path from command residue, confirmed present; (3) isStoryMetadataPath/isMaterialExcludedPath single-sourced in core/material-path-policy.ts, core/evidence-freshness.ts only re-exports (grep confirms exact re-export lines); the additional isStoryMetadataPath(file) in handlers/validate-channel.ts is a 1-arg forwarding shim to the shared impl via an import alias (isSharedStoryMetadataPath), not a duplicate concept, and that file is untouched by this story diff (out of scope, pre-existing); (4) mergeBaseWithMain/changedStoryFilesBetween: zero remaining references repo-wide; resolveStoryMergeBase/resolveStoryChangedFiles in active use in 3 files; (5) objectIdsAtRef: exactly 1 definition + 1 use, both in core/story-aware-validation.ts; (6) the stray local isMaterialExcludedPath in tasks/lattice-baseline-smoke.ts:422 is confirmed still present, pre-existing, and untouched by this story diff (out of scope). Also mechanically confirmed scope_contract_check now reports Scope gate: warn (55 warning(s), mode=enforce) with 0 blocking=true entries; every previously-UNACK out-of-scope path (including packages/graph/scripts/verify-no-project-writes.mjs) now shows a matching acknowledgement. No concept-deletion residue found in this lanes scope. NOTE (explicit, per epoch brief): I do not attest to Wave-4 acceptance-gate freshness (acceptance_topology_check / pre_review_check_read / acceptance_rollout_check / acceptance_rollout_report_read) -- those evaluators are reported failing at this HEAD and are outside the concept-residue lanes scope; that is a topology/test-coverage lane concern, not resolved by this pass.",
+      "createdAt": "2026-08-31T22:47:45.305Z",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "reviewRunId": "B-45a0:RR-1167",
+      "envelopeId": "fbd145cfc76d580ed931bca12750eb92a667478f2f5411cf8c17f64f64d8fc42",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "fdbf4b8f2487a029ecbb4d5da34925c31746952dfbd6971df40be38a4f64c62b"
     }
   ]
 }
