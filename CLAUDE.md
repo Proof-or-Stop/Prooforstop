@@ -1027,6 +1027,61 @@ proof-or-stop dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 impl
 
 > 这里是短摘要。**canonical 详细版（含完整枚举检查清单与 incident 溯源）在 `docs/requirements/decisions/story-lifecycle.md` 的「合并态组合审查」节** —— 以那份为准，本段只作快速提示。
 
+## Defect triage discipline
+
+When a defect surfaces during REVIEW or TEST, classify it before acting. Do not
+reflexively fix everything a reviewer reports.
+
+### 1. Major or acceptance-blocking defects — fix now
+
+Any one of these qualifies:
+
+- Blocks this story's acceptance surface (an acceptance gate, a DONE gate, or any
+  `blocking: true` check in enforce mode)
+- critical / high severity with `evidenceState: verified`
+- Makes already-registered evidence false — e.g. a selector that cannot match the
+  real verdict, or a receipt claiming `pass` for a command that actually failed
+- Security, data corruption, or anything that would make a later story inherit a
+  wrong premise
+
+Action: fix it, add the regression test, and `finding_resolve` with mechanical
+evidence (the command run and its actual output). No deferral.
+
+### 2. Non-major defects outside this story's blocking path — record with evidence, then defer
+
+Real and reproducible, but does not block this story's acceptance and is not in its
+scope contract.
+
+Action: **the deferral must leave evidence behind.** A verbal mention is not enough:
+
+- `finding_add` with reproduction steps, blast radius, and why it is non-blocking, or
+- `story_create` for a follow-up, with the evidence linked, and
+- state in this story's resolution or summary that it is recorded and deferred
+
+Do **not** fix an out-of-scope, non-blocking defect just because it is convenient.
+That is exactly what rule 3 exists to prevent.
+
+### 3. Never widen scope to chase all-green
+
+Green is not the goal. Trustworthy evidence is the goal.
+
+- Never make a check pass by changing its decision rule, widening an allowlist, or
+  adjusting acceptance inputs to accommodate your own change.
+  (B-45a0 case: adding files to `REPLAY_ADMISSION_NONEXECUTING_PATHS` looked like a
+  cheap way to make the replay admit. Measuring the actual diff showed the drift was
+  in `story-aware-validation.ts` — where `discoverValidationInventory` and
+  `compileValidationCatalog` live — i.e. producer-side drift, precisely what that
+  allowlist is designed to refuse. The correct action was re-running the campaign to
+  earn a fresh report.)
+- "A reviewer raised it" does not imply "it must be fixed now". The reviewer's job is
+  to find; the main agent's job is to triage.
+- Every out-of-scope fix is another material change: it can invalidate an open review
+  inventory epoch, re-stale acceptance surfaces, and force another review round.
+- If something genuinely should be fixed but belongs elsewhere, apply rule 2.
+
+One-line test: **if this defect goes unfixed, is this story's acceptance conclusion
+false?** Yes → rule 1. No → rule 2.
+
 ## Debugging Contract
 
 遇到 `proof-or-stop validate` / reviewer finding / bug 反馈报红时，**禁止直接猜修**，必须先走 Systematic Debugging：
