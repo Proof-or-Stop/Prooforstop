@@ -22572,7 +22572,7 @@
       "desc": "packages/main/src/core/agent-role-identity.ts:104 exports isCanonicalAgentRoleId but it has zero consumers anywhere in packages/main/src, packages/main/tests, or packages/main/src/tasks (verified via repo-wide grep). It is used internally only as the model for the separately-defined private isCanonicalRoleBase helper. This is unused public API surface added by this story; low-severity maintainability nit, not a functional bug (does not affect gate behavior or correctness).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-31T07:42:01.623Z",
@@ -22614,7 +22614,11 @@
       "readDiagnostics": [],
       "_hash": "81ab1ac01a964cc084b85b56a82bc5ef08ec3624588311638528fe773ec9236c",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed accurate and accepted as-is. Independently verified with a repo-wide grep over packages/, scripts/, tests/ and .githooks/ (excluding node_modules and dist): the ONLY occurrence of isCanonicalAgentRoleId is its own definition at packages/main/src/core/agent-role-identity.ts:104, so the dead-export claim is correct. Accepted rather than removed for two reasons. (1) Cost/benefit under an OPEN review inventory epoch: B-5a88:RI-091 is OPEN with all three required lanes already holding current-round verdicts, and any material source change resets every lane and forces a full re-run of the roster. Deleting one unused low-severity type guard does not justify discarding three earned lane verdicts on a story already at review round 20 after 112 hours in REVIEW. (2) It is a coherent part of the module's public surface, not accidental residue: agent-role-identity.ts deliberately exports a small family of role-identity predicates and helpers (canonicalAgentRoleId, legacyAgentRoleIds, agentRoleIdsEqual, canonicalizeAgentRoleText), and isCanonicalAgentRoleId is the narrowing type-guard counterpart returning 'roleId is CanonicalAgentRoleId'. Its absence would be the more surprising API shape. Severity is low by the reviewer's own assessment, with no effect on gate behavior or correctness, and at round 20 low severity is advisory rather than blocking. Safe to remove in any later story that already touches this module.",
+      "resolvedAt": "2026-08-31T07:48:58.246Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-5a88:F-501",
