@@ -132,6 +132,7 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:residue-inject-repro'), repoRead('test:retired-authority-vocabulary-guard'),
   repoRead('test:brand-path-resolver-smoke'), repoRead('test:config-filename-migration-smoke'),
   repoRead('test:core-package-rename'), repoRead('test:state-dir-migration'),
+  repoRead('test:identity-state-migrate-atomicity'),
   repoRead('test:migration-contract'),
   repoRead('test:proof-or-stop-prompt-baseline'),
   // B-cdf6: both added to test:serial-reference by this story. Membership authority is
