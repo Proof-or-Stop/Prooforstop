@@ -17345,6 +17345,65 @@
       "resolvedAt": "2026-08-26T09:38:11.589Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a15:F-324",
+      "desc": "packages/main/src/core/certification-window.ts:794-802 [high] detectCertificationWindowMaterialDrift early-returns drifted=false on the new unrelated-materialHash advisory and never reaches the official verifier/test identity checks at :803-816. The U-03b happy path (matching storyFilesHash plus whole-tree materialHash drift) therefore disables a previously live fail-closed invalidation. Repro: keep a signed advisory causalDecision bound to the live hashes, set current.materialHash != frozen.materialHash, keep storyFilesHash equal, and set verifierIdentity to a mutated value; observed drifted=false with PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY instead of reason \"verifier identity changed\". packages/main/src/tasks/certification-window-smoke.ts:907-914 only mutates identity while hashes still match, so it cannot catch this. refuseHeavyCertificationUnlessAdmitted also drops the advisory, so the heavy-cert consumer can keep an ADMITTED window without printing Warning. Fix: record the advisory but continue into the identity checks, and only return drifted=false if verifier/test identity still match.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T17:25:32.485Z",
+      "reviewRound": "2026-08-26T09:37:09.709Z",
+      "reviewRunId": "B-5a15:RR-765",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/handlers/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "e80825281499be0cb711f44b6197d4eda471857b63a1946bac336c2494c455df"
+      },
+      "readDiagnostics": [],
+      "_hash": "1d659d7a75052495b2f131e58acc50339db10083a1c45067aad8f2fd4cf00226",
+      "files": [
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
