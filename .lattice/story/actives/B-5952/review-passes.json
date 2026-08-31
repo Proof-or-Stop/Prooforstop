@@ -495,6 +495,30 @@
         "scanEscalationReason": null
       },
       "_hash": "13f5dce487db8e26eb082e0758ba11e616ced5349406f9ff5f3431422aea6e53"
+    },
+    {
+      "id": "B-5952:RP-019",
+      "agent": "lattice-review-quality",
+      "note": "Scoped quality review passed at HEAD 6cf0eeb. The implementation diff is limited to packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts: the 808 ceiling and 850 hard cap are centralized in a live typed helper, exact/+1/measured-minus-one/hard-cap checks execute before the real assertion, and generated dist has matching constants, comparator, diagnostics, and calls. No dead code, unsafe cast, swallowed catch, I/O-boundary crossing, proof-metadata semantic change, or undelivered scoped promise was found. The protected Dynamic Finding decision document has zero diff; unrelated observe-only Wave-4 rollout readers were excluded per the operator scope. No validate command was run.",
+      "createdAt": "2026-08-31T09:05:17.998Z",
+      "reviewRound": "2026-08-31T08:59:48.174Z",
+      "reviewRunId": "B-5952:RR-031",
+      "envelopeId": "406dfe4feb61ea2926599e3d5213b853ba49ecff55a014e1f273722efdd224b5",
+      "writerSessionId": "sess-b2dd2138f9022fef84de6dad0fe96c30",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": "Scoped story-level quality review followed the owner-provided B-5952 baseline-repair boundary and excluded unrelated observe-only Wave-4 rollout requirements."
+      },
+      "_hash": "a0e1992c8395a73ffe0f1ed0769a3ab057a8fa0f4dbe1eeac4c85f1a0c6e83e8"
     }
   ]
 }
