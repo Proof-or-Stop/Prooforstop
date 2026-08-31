@@ -63,8 +63,12 @@
           {
             "id": "CHK-001:adversarial:binding-scope-mutants",
             "desc": "An isolated fail-closed harness must run a clean control and then actual source-only, dist-only, and protected-document mutations. Each mutated case must be detected with a nonzero result by the source/dist binding or scope check, including any diff to docs/requirements/decisions/dynamic-finding-system-execution-plan.md, while cleanup restores the control. A current-state zero-diff check without executing the mutants is insufficient.",
-            "type": "docs",
-            "priority": "must"
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require('fs'),cp=require('child_process');const source='packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts';const dist='packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js';const doc='docs/requirements/decisions/dynamic-finding-system-execution-plan.md';const originals=new Map([[source,fs.readFileSync(source,'utf8')],[dist,fs.readFileSync(dist,'utf8')],[doc,fs.readFileSync(doc,'utf8')]]);const run=(args)=>cp.spawnSync(process.execPath,args,{encoding:'utf8',maxBuffer:20*1024*1024});let sourceRejected=false,distRejected=false,docRejected=false;try{fs.writeFileSync(source,originals.get(source).replace('DYNAMIC_BINDING_BUILD_CEILING = 808','DYNAMIC_BINDING_BUILD_CEILING = 809'));sourceRejected=run(['scripts/verify-full-suite-build-binding.mjs']).status!==0;fs.writeFileSync(source,originals.get(source));fs.writeFileSync(dist,originals.get(dist).replace('DYNAMIC_BINDING_BUILD_CEILING = 808','DYNAMIC_BINDING_BUILD_CEILING = 809'));distRejected=run(['scripts/verify-full-suite-build-binding.mjs']).status!==0;fs.writeFileSync(dist,originals.get(dist));fs.writeFileSync(doc,originals.get(doc)+'\\nB-5952 protected mutation probe\\n');const scoped=run(['bin/proof-or-stop.js','scope_contract_check','--storyId=B-5952']);docRejected=scoped.status!==0||(scoped.stdout+scoped.stderr).includes('violation');}finally{for(const [p,b] of originals)fs.writeFileSync(p,b);}const binding=run(['scripts/verify-full-suite-build-binding.mjs']);const scope=run(['bin/proof-or-stop.js','scope_contract_check','--storyId=B-5952']);if(!sourceRejected||!distRejected||!docRejected||binding.status!==0||scope.status!==0)throw new Error(JSON.stringify({sourceRejected,distRejected,docRejected,binding:binding.status,scope:scope.status,scopeOut:scope.stdout+scope.stderr}));console.log('actual-binding-scope-mutants PASS sourceOnlyRejected=true distOnlyRejected=true protectedDocRejected=true restored=true');\"",
+              "selector": "actual-binding-scope-mutants PASS sourceOnlyRejected=true distOnlyRejected=true protectedDocRejected=true restored=true"
+            }
           }
         ]
       },
