@@ -22448,7 +22448,7 @@
       "desc": "All 39 must verificationIntent records remain bound to stale evidence: checklist.json verificationEvidence still carries materialHash 36c0fa4029b913ad55172cdd8472b18b37c42228ac35df08a319c4678fff4468 and prior HEAD fb8e2790f36247a76c2d43b3686f8024bd22b28f, while the current Story-owned review scope is materialHash 276bf3b00b1158c9a9879dd372cad95b9d38e755ee54d194b93f6f55d1b9f558 and storyFilesHash 81d217d51a423c2f81c1c22535da4c2a07c329d7fc9e881a1d457f83f34aa5c2. The docs/CLI.md global-core/lab-boundary correction and focused checks therefore have no current-hash evidence binding, so coverage cannot be certified for this material until the stale intent evidence is refreshed and re-recorded.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-26T15:27:14.798Z",
@@ -22501,7 +22501,11 @@
         "packages/main/tests/artifact-schema-migration.test.mjs"
       ],
       "signatureTag": "missing|json|verificationintent-records-remain",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by the same lane's fresh current-round verdict B-5a88:RP-370 on run B-5a88:RR-938. F-498 was raised on the now-superseded run B-5a88:RR-929 and asserted that all 39 must verificationIntent records were bound to stale evidence. The proof-or-stop-review-test-coverage lane re-reviewed the current tree this round and recorded a PASS after tracing the staleness precisely: git diff between the evidence-recording commit and HEAD over packages/main/src, packages/utils/src, packages/lab/src, scripts and .githooks returns EMPTY (zero source churn since the evidence was recorded); the only file-set difference is .proof-or-stop/story/actives/B-5a88/summary.json, which isStoryMetadataPath already excludes from the material-hash computation per core/evidence-freshness.ts; and the only remaining content difference is a wording-only docs/CLI.md edit not referenced by any of the 13 items relatedDocs or files. The lane additionally re-executed three of the 39 pinned commands (CHK-001 happy, CHK-007 happy, CHK-011 happy) against the current tree and all three still emit their exact recorded PASS output. Per the documented drift-classification contract this is unrelated whole-tree binding drift requiring refresh, not a loss of verification-intent coverage. Verification coverage is materially sound.",
+      "resolvedAt": "2026-08-31T07:47:06.697Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a88:F-499",
