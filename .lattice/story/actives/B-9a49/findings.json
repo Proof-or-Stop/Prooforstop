@@ -71,7 +71,7 @@
       "desc": "packages/main/src/core/prompt-registry.ts:51,58 preserves the Dynamic Finding verdict names but weakens their minimum evidence semantics. Compared with dynamic-finding-system-execution-plan.md:824-835 and the approved proposal section 4, pre_existing_unaffected omits deterministic base/head reproduction plus no-worsening proof; out_of_scope omits signed scope/decision evidence and acceptance non-contradiction; duplicate omits a signature-valid live canonical Finding/owner and no-cycle requirement; stale_or_not_reproduced omits current command receipts with source/runtime freshness and the prohibition on inferring from old DONE. General source-or-command evidence at line 44 does not preserve these verdict-specific thresholds. The gate remains machine-owned, but all five reviewers are taught to propose under-evidenced routing candidates, violating CHK-001/CHK-004 distinct-outcome and current-evidence acceptance. severity=high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T20:45:30.932Z",
@@ -83,7 +83,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 8baacb207e: the canonical contract states verdict-specific minimum evidence for pre_existing_unaffected, out_of_scope, duplicate, and stale_or_not_reproduced, including deterministic receipts, signed scope evidence, live canonical ownership/no-cycle, and fresh current-command proof. Current focused semantic smoke passes.",
+      "resolvedAt": "2026-08-31T21:25:53.381Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-005",
