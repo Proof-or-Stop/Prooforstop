@@ -855,15 +855,30 @@ function appendOnlyReleaseRecordStructureErrors(schemaVersion, value) {
   return errors;
 }
 
-function retiredTokenCounts(text) {
+function retiredTokenCounts(value) {
   const counts = new Map();
-  for (const match of text.matchAll(TOKEN_PATTERN)) counts.set(match[0], (counts.get(match[0]) ?? 0) + 1);
+  const scan = (candidate) => {
+    if (typeof candidate === 'string') {
+      for (const match of candidate.matchAll(TOKEN_PATTERN)) counts.set(match[0], (counts.get(match[0]) ?? 0) + 1);
+      return;
+    }
+    if (Array.isArray(candidate)) {
+      for (const entry of candidate) scan(entry);
+      return;
+    }
+    if (!isPlainRecord(candidate)) return;
+    for (const [key, entry] of Object.entries(candidate)) {
+      scan(key);
+      scan(entry);
+    }
+  };
+  scan(value);
   return counts;
 }
 
 function validateAppendOnlySuffixProvenance(row, line, record) {
   const errors = [];
-  const counts = retiredTokenCounts(line);
+  const counts = retiredTokenCounts(record);
   const pin = APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE.find((candidate) => candidate.path === row.path && candidate.recordId === record.id);
   if (counts.size === 0) {
     if (pin) errors.push(`frozen baseline ${row.id}: stale retired-identity provenance pin for suffix record ${record.id}`);
@@ -1233,7 +1248,7 @@ function scanRootGroups(files) {
   };
 }
 
-const TOKEN_PATTERN = /@lattice\/[A-Za-z0-9._/-]+|__?LATTICE_[A-Z0-9_]+|LATTICE_[A-Z0-9_]+|\.lattice(?:-[A-Za-z0-9._-]+|\/[A-Za-z0-9._/-]*)?|lattice\.config\.json|lattice\.json|lattice-[a-z0-9-]+|[A-Za-z0-9_.-]*lattice[A-Za-z0-9_.-]*|Lattice[A-Za-z0-9_]*|LATTICE[A-Z0-9_]*/gu;
+const TOKEN_PATTERN = /@lattice\/[A-Za-z0-9._/-]+|__?LATTICE_[A-Z0-9_]+|LATTICE_[A-Z0-9_]+|\.lattice(?:-[A-Za-z0-9._-]+|\/[A-Za-z0-9._/-]*)?|lattice\.config\.json|lattice\.json|lattice-[a-z0-9-]+|[A-Za-z0-9_.-]*lattice[A-Za-z0-9_.-]*|Lattice[A-Za-z0-9_]*|LATTICE[A-Z0-9_]*/giu;
 
 function lineNumberAt(text, index) {
   let line = 1;
@@ -1371,7 +1386,7 @@ function verifyOrdering(root, options = {}) {
   return errors;
 }
 
-function createOrderingSelfTestFixture(productionBeforePolicy = false, productionBeforeRed = false) {
+function createOrderingSelfTestFixture(productionBeforePolicy = false, productionBeforeRed = false, policyPathMutation = 'none') {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-ordering-self-test-'));
   git(['init', '-b', 'main'], { cwd: root });
   git(['config', 'user.email', 'ordering@example.test'], { cwd: root });
@@ -1389,8 +1404,16 @@ function createOrderingSelfTestFixture(productionBeforePolicy = false, productio
     git(['add', '.'], { cwd: root });
     git(['commit', '-m', 'production before policy'], { cwd: root });
   }
-  write(POLICY_PATH, '# Cutover policy\n');
-  git(['add', POLICY_PATH], { cwd: root });
+  const committedPolicyPath = policyPathMutation === 'wrong'
+    ? 'docs/requirements/decisions/wrong-cutover-policy.md'
+    : POLICY_PATH;
+  write(committedPolicyPath, '# Cutover policy\n');
+  if (policyPathMutation === 'extra') {
+    write('packages/main/src/policy-side-effect.ts', 'export const changedWithPolicy = true;\n');
+    git(['add', committedPolicyPath, 'packages/main/src/policy-side-effect.ts'], { cwd: root });
+  } else {
+    git(['add', committedPolicyPath], { cwd: root });
+  }
   git(['commit', '-m', 'policy only'], { cwd: root });
   const policyCommit = git(['rev-parse', 'HEAD'], { cwd: root }).trim();
   if (productionBeforeRed) {
@@ -1534,6 +1557,9 @@ function runSelfTest(root, files) {
     const retiredPayload = { ...validRecord, notes: [...validRecord.notes, 'new .lattice/injected identity'] };
     const retiredAppend = Buffer.from(`${JSON.stringify(retiredPayload)}\n`);
     expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, retiredAppend])).some((error) => error.includes('unclassified retired identity tokens')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted a new retired-token payload`);
+    const escapedRetiredLine = JSON.stringify(retiredPayload).replace('.lattice', '.\\u006cattice');
+    const escapedRetiredAppend = Buffer.from(`${escapedRetiredLine}\n`);
+    expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, escapedRetiredAppend])).some((error) => error.includes('unclassified retired identity tokens')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted a Unicode-escaped retired-token payload`);
     const wrongSchemaAppend = Buffer.from(`${JSON.stringify({ ...validRecord, schemaVersion: 'wrong.schema.v1' })}\n`);
     expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, wrongSchemaAppend])).some((error) => error.includes('schemaVersion')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted another schema`);
     expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, validAppend.subarray(0, validAppend.length - 1)])).some((error) => error.includes('truncated')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted a truncated appended record`);
@@ -1544,6 +1570,15 @@ function runSelfTest(root, files) {
   mutatedPrefix[0] ^= 1;
   const firstValidAppend = Buffer.from(`${JSON.stringify(selfTestAppendRecord(firstAppendOnlyRow.appendOnlyJsonlSchemaVersion))}\n`);
   expect(verifyAppendOnlyJsonlPrefix({ ...firstAppendOnlyRow, path: `${firstAppendOnlyRow.path}.synthetic-self-test` }, firstAppendOnlyPrefix, Buffer.concat([mutatedPrefix, firstValidAppend])).some((error) => error.includes('immutable JSONL prefix changed')), 'append-only row accepted a frozen-prefix mutation');
+  const mixedCaseIdentity = ['La', 'Tt', 'Ic', 'E'].join('');
+  expect(
+    [...`run ${mixedCaseIdentity} validate now`.matchAll(TOKEN_PATTERN)].length > 0,
+    'mixed-case retired command mutation was not detected',
+  );
+  expect(
+    [...`.${mixedCaseIdentity}/story/actives/B-mixed/index.json`.matchAll(TOKEN_PATTERN)].length > 0,
+    'mixed-case retired path mutation was not detected',
+  );
   const experimentMutation = EXPERIMENT_PROVENANCE_ROWS.map((row, index) => index === 0
     ? { ...row, byteSha256: '0'.repeat(64) }
     : row);
@@ -1599,6 +1634,28 @@ function runSelfTest(root, files) {
       verifyOrdering(positiveOrdering.root, { ...orderingOptions, policyCommit: '0'.repeat(40) })
         .some((error) => error.includes('cannot be inspected')),
       'unknown rewritten policy SHA did not fail ordering verification',
+    );
+    const wrongPolicyPath = createOrderingSelfTestFixture(false, false, 'wrong');
+    orderingFixtures.push(wrongPolicyPath.root);
+    expect(
+      verifyOrdering(wrongPolicyPath.root, {
+        storyInitCommit: wrongPolicyPath.storyInitCommit,
+        policyCommit: wrongPolicyPath.policyCommit,
+        policyPath: POLICY_PATH,
+        scriptPath: SCRIPT_PATH,
+      }).some((error) => error.includes(`policy commit must contain only ${POLICY_PATH}`)),
+      'wrong one-path policy commit did not fail the exact policy-path verification',
+    );
+    const extraPolicyPath = createOrderingSelfTestFixture(false, false, 'extra');
+    orderingFixtures.push(extraPolicyPath.root);
+    expect(
+      verifyOrdering(extraPolicyPath.root, {
+        storyInitCommit: extraPolicyPath.storyInitCommit,
+        policyCommit: extraPolicyPath.policyCommit,
+        policyPath: POLICY_PATH,
+        scriptPath: SCRIPT_PATH,
+      }).some((error) => error.includes(`policy commit must contain only ${POLICY_PATH}`)),
+      'policy commit with an extra production path did not fail the exact one-path verification',
     );
     const prePolicyProduction = createOrderingSelfTestFixture(true, false);
     orderingFixtures.push(prePolicyProduction.root);

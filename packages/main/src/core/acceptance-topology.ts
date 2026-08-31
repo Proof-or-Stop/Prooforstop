@@ -144,11 +144,14 @@ function basename(token: string): string {
 const HISTORICAL_ACCEPTANCE_WRAPPER_BASENAME = 'lattice acceptance_matrix'.split(' ', 1)[0];
 const ACCEPTANCE_WRAPPER_BASENAMES = ['proof-or-stop', HISTORICAL_ACCEPTANCE_WRAPPER_BASENAME] as const;
 const ACCEPTANCE_WRAPPER_SCRIPTS = ['bin/proof-or-stop.js', 'bin/proofOrStop.js', 'bin/lattice'] as const;
+const HISTORICAL_ACCEPTANCE_WRAPPER_SCRIPT = `${ACCEPTANCE_WRAPPER_SCRIPTS[2]}.js`;
 
 function isProofOrStopWrapper(token: string): boolean {
   const normalized = token.replace(/\\/g, '/').replace(/^\.\//, '');
   const base = basename(normalized);
   return (ACCEPTANCE_WRAPPER_BASENAMES as readonly string[]).includes(base)
+    || normalized === HISTORICAL_ACCEPTANCE_WRAPPER_SCRIPT
+    || normalized.endsWith(`/${HISTORICAL_ACCEPTANCE_WRAPPER_SCRIPT}`)
     || (ACCEPTANCE_WRAPPER_SCRIPTS as readonly string[]).some(
       script => normalized === script || normalized.endsWith(`/${script}`),
     );
