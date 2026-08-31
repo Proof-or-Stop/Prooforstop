@@ -23401,6 +23401,40 @@
       },
       "readDiagnostics": [],
       "_hash": "fc3c942b5697c8939868fc6d84af68dc162197e04a32bc765ad043b2dd9a2fa0"
+    },
+    {
+      "id": "B-45a0:RP-490",
+      "agent": "lattice-review-test-coverage",
+      "note": "Wave 2 saturation sweep: re-verified all 14 checklist items x 45 must-priority verificationIntent refs have a corresponding verificationEvidence row (0 missing by intentRef). Mechanically confirmed the topology critic flagged trap on pre_review_check_read: top-level verdict status=inconclusive/ok=false/codes=[PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED], nested .artifact.status=pass exists at a different path; bare-key status selector (CHK-014:edge:0 pin) matches 4 locations/3 distinct values in one command output, strengthening already-open F-437 (same root cause, not re-filed). F-446 stale comment confirmed still present, unchanged, already open, not re-filed. F-439/F-440 staleness confirmed consistent with already-documented pure metadata-churn root cause, not a new regression. No new coverage gap found this wave.",
+      "createdAt": "2026-08-31T05:07:59.375Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1098",
+      "envelopeId": "071b499b986f0629ca786f2442d0b5903ade221d38785eb9f4807bb5fe3d467e",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3a93a27d21fc7b687f9ef6d251cd206346e232e60efa1e75e751c8c8db6d1596"
     }
   ]
 }
