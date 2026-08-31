@@ -1248,6 +1248,43 @@
         "scanEscalationReason": null
       },
       "_hash": "ea4a8591a4d3b53d20de7b3faab1c4d1701d8f554fb4872196e564a7a0c652f9"
+    },
+    {
+      "id": "B-5952:RP-039",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 14 test coverage PASS: independently audited all 13 must intents (2 happy, 7 edge, 4 adversarial) against 13 unique mechanical PASS receipts; no missing, duplicate, waiver, failed, or non-mechanical evidence. Enforce-mode intent_coverage_check returned pass with gaps=[]; eight safe executable checks were independently rerun and passed, while mutation receipts were source-audited without rewriting tracked files. Routine validation records 120/120 required commands PASS, and all evidence binds current storyFilesHash da09395; no coverage blocker found.",
+      "createdAt": "2026-08-31T22:07:34.988Z",
+      "reviewRound": "2026-08-31T21:58:54.586Z",
+      "reviewRunId": "B-5952:RR-059",
+      "envelopeId": "78e414ded1c8340c27beb7f9c3b43c019e46123941cdce0d9989aaff5f29b3e2",
+      "writerSessionId": "sess-c29de34b97da970cd12cf95a3c7425e7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/dist/core/codex-adapter-checks.js",
+          "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "scripts/verify-core-package-rename.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "afee74a9df0cb00faaaaf48c586ca693b29d3901dfbc59786c60ba5faf377b8c"
     }
   ]
 }
