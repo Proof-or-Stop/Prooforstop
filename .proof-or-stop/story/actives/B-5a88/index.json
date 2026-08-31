@@ -4,7 +4,7 @@
   "title": "Rename remaining lattice role IDs, markers, schemas, and npm identities to proof-or-stop forms",
   "description": "After B-cc10, user-facing bins, state dirs, config filenames, and @proof-or-stop/core are migrated, but lattice still remains in agent role IDs, managed-block markers, persisted artifact schemas, the remote-push-approval schema, the root npm package name, sibling packages @lattice/utils and @lattice/lab, and the package.json bin alias lattice. This story retires those identifiers with dual-read compatibility so in-flight evidence and already-installed files keep resolving, while new writes use proof-or-stop forms. Signature salts and archived story body text stay frozen.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "depends": [
     "B-cc10"
@@ -1651,6 +1651,15 @@
       "user": "Pan Qi",
       "sessionId": "claude-b5a88-1788161424",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-31T14:02:35.128Z",
+      "branch": "story/B-5a88",
+      "user": "Pan Qi",
+      "sessionId": "claude-b5a88-1788161424",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -1658,5 +1667,5 @@
     "branch": "story/B-5a88",
     "createdAt": "2026-08-20T04:49:03.575Z"
   },
-  "currentReviewRound": "2026-08-31T11:31:20.622Z"
+  "currentReviewRound": "2026-08-31T14:02:35.128Z"
 }
