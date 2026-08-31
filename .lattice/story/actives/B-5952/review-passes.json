@@ -20,6 +20,29 @@
         "scanEscalationReason": null
       },
       "_hash": "ed90f4aefcdc879ecbce28967e4b6b088038d792a7eeb4337a8b8b6c4fc7bb7b"
+    },
+    {
+      "id": "B-5952:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: all six current must intents have matching current-material mechanical receipts. The built-in guard receipt executes exact-boundary, ceiling+1, and measured-minus-one checks; guard mutants actually execute unbounded and 900 variants, restore bytes in finally, and require the 804 control; binding/scope mutants actually execute source-only, dist-only, and protected-doc mutations, restore bytes, and rerun clean controls. Explicit custom intent IDs prevent legacy positional tautology evidence from matching current coverage.",
+      "createdAt": "2026-08-31T03:27:01.869Z",
+      "reviewRound": "2026-08-31T03:23:55.455Z",
+      "reviewRunId": "B-5952:RR-006",
+      "envelopeId": "c451eba34f24ab04538c77c3a16a470ca107b5923cd44d1b22fab21c959f1fb9",
+      "writerSessionId": "sess-2baf090929090602b4b2e7192019435a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7dedd69bacf52acc029f8c19848cd51824df954032a2274fad912d69973f8e6c"
     }
   ]
 }
