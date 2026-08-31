@@ -1,6 +1,6 @@
 {
   "storyId": "B-5952",
-  "checkedAt": "2026-08-31T07:56:16.535Z",
+  "checkedAt": "2026-08-31T08:18:06.466Z",
   "features": [
     {
       "feature": "At a committed B-5952 green HEAD, the rebuilt retired-authority vocabulary smoke must exit 0 for the current 804-build inventory under a finite ceiling no greater than 850.",
@@ -10,11 +10,18 @@
       "source": ".lattice/story/actives/B-5952/proofstory.json"
     },
     {
-      "feature": "The 808 ceiling must be justified by a detached baseline/current causal map proving 796->804 comes only from synthetic 419 staying flat and repository entries growing 377->385 through the exact eight expected +1 files with no removals or duplicate counts.",
+      "feature": "The 808 ceiling must be causally justified by a detached baseline/current comparison that reproduces the 796 to 804 delta as synthetic 419 remaining unchanged and repository entries growing 377 to 385 through the exact eight expected +1 files, with no removals or duplicate counts.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-5952/checklist.json"
+    },
+    {
+      "feature": "The acceptance binding must reference the current canonical custom verification intent ids for the finite-bound control, guard mutants, protected-document scope mutants, and causal baseline map, rather than stale positional refs.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-5952/proofstory.json"
     },
     {
       "feature": "The repair stays limited to the retired-authority smoke TypeScript source plus regenerated dist output; dist is rebuilt from source rather than edited independently.",
@@ -24,7 +31,7 @@
       "source": ".lattice/story/actives/B-5952/plan.md"
     },
     {
-      "feature": "The committed finite-bound helper must self-characterize the exact boundary and actual smoke must reject comparator weakening or a sentinel ceiling above the absolute 850 cap with restored passing control.",
+      "feature": "The committed finite-bound helper must self-characterize the exact boundary and reject comparator weakening or a sentinel ceiling above the absolute 850 cap with a restored passing control.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
@@ -50,13 +57,6 @@
       "status": "excluded",
       "excluded_by": "background.md and understanding.json keep this as an independent repair story, and scope-contract.json lists the Dynamic Finding decision in protectedFiles plus explicitExcludes.",
       "source": ".lattice/story/actives/B-5952/scope-contract.json"
-    },
-    {
-      "feature": "The acceptance binding should reference the repaired CHK-001 verification-intent surface, including the renamed finite-bound and guard-mutant checks and the new causal-baseline-map intent.",
-      "covered_by": "CHK-001",
-      "status": "drift",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-5952/proofstory.json"
     }
   ],
   "readManifest": {
@@ -66,6 +66,8 @@
       ".lattice/story/actives/B-5952/decision.json",
       ".lattice/story/actives/B-5952/plan.md",
       ".lattice/story/actives/B-5952/proofstory.json",
+      ".lattice/story/actives/B-5952/review.json",
+      ".lattice/story/actives/B-5952/scope-check.json",
       ".lattice/story/actives/B-5952/scope-contract.json",
       ".lattice/story/actives/B-5952/understanding.json",
       "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
@@ -75,13 +77,13 @@
   },
   "summary": {
     "total": 8,
-    "covered": 5,
+    "covered": 6,
     "excluded": 2,
     "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 1
+    "drift": 0
   },
-  "reviewRound": "2026-08-31T07:32:26.785Z",
-  "_hash": "ed07604cdbb2d632a5b756564ba0bee9d4bbe39a9656501e61fd76f4bd36138d",
+  "reviewRound": "2026-08-31T08:07:59.883Z",
+  "_hash": "130ea3af4033b55b2d14cfed03c13ec251379db382b82816b19efbd91689e554",
   "openQuestions": []
 }

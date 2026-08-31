@@ -35,18 +35,19 @@
       "verificationIntentRefs": [
         "CHK-001:happy:0",
         "CHK-001:happy:1",
-        "CHK-001:edge:0",
+        "CHK-001:edge:finite-bound-actual",
         "CHK-001:edge:1",
-        "CHK-001:adversarial:0",
-        "CHK-001:adversarial:1"
+        "CHK-001:adversarial:guard-mutants",
+        "CHK-001:adversarial:binding-scope-mutants",
+        "CHK-001:adversarial:causal-baseline-map"
       ],
       "milestoneIds": [],
-      "acceptanceClaim": "At a committed B-5952 green HEAD, the rebuilt retired-authority vocabulary smoke exits 0 under a finite ceiling no greater than 850, and B-1fa6 Dynamic Finding document has no B-5952 diff.",
-      "note": "Binds the current-main baseline repair, finite bound, rebuild binding, mutation proof, determinism, and document scope protection."
+      "acceptanceClaim": "At a committed B-5952 green HEAD, the rebuilt retired-authority vocabulary smoke exits 0 under a finite ceiling no greater than 850, the 796 to 804 inventory delta is causally reproduced, and the protected Dynamic Finding decision document remains outside the change.",
+      "note": "Binds the baseline repair, finite/hard bounds, rebuild, determinism, real mutations, exact JSON scope protection, and detached causal map comparison."
     }
   ],
   "diagnosticGaps": [],
-  "note": "Single-acceptance contract for the independent B-5952 validation baseline repair.",
+  "note": "Single-acceptance contract updated after verification-intent repair to reference canonical custom intent ids.",
   "createdAt": "2026-08-31T02:46:36.273Z",
-  "updatedAt": "2026-08-31T02:46:36.273Z"
+  "updatedAt": "2026-08-31T08:16:21.069Z"
 }
