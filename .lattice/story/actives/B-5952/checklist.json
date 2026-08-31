@@ -246,22 +246,22 @@
         {
           "intentRef": "CHK-001:adversarial:binding-scope-mutants",
           "kind": "logic_test",
-          "command": "node -e \"const fs=require('fs'),cp=require('child_process');const source='packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts';const dist='packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js';const doc='docs/requirements/decisions/dynamic-finding-system-execution-plan.md';const originals=new Map([[source,fs.readFileSync(source,'utf8')],[dist,fs.readFileSync(dist,'utf8')],[doc,fs.readFileSync(doc,'utf8')]]);const run=(args)=>cp.spawnSync(process.execPath,args,{encoding:'utf8',maxBuffer:20*1024*1024});const scope=()=>{const r=run(['bin/proof-or-stop.js','scope_contract_check','--storyId=B-5952','--json']);if(r.status!==0)throw new Error('scope process failed: '+r.stderr);return JSON.parse(r.stdout)};let sourceRejected=false,distRejected=false,docExact=false;try{const sourceMut=originals.get(source).replace('DYNAMIC_BINDING_BUILD_CEILING = 808','DYNAMIC_BINDING_BUILD_CEILING = 809');if(sourceMut===originals.get(source))throw new Error('source substitution did not apply');fs.writeFileSync(source,sourceMut);sourceRejected=run(['scripts/verify-full-suite-build-binding.mjs']).status!==0;fs.writeFileSync(source,originals.get(source));const distMut=originals.get(dist).replace('DYNAMIC_BINDING_BUILD_CEILING = 808','DYNAMIC_BINDING_BUILD_CEILING = 809');if(distMut===originals.get(dist))throw new Error('dist substitution did not apply');fs.writeFileSync(dist,distMut);distRejected=run(['scripts/verify-full-suite-build-binding.mjs']).status!==0;fs.writeFileSync(dist,originals.get(dist));fs.writeFileSync(doc,originals.get(doc)+'\\nB-5952 exact protected mutation probe\\n');const report=scope();docExact=report.status==='fail'&&Array.isArray(report.violations)&&report.violations.some(v=>v.path===doc&&v.rule==='protected'&&v.acknowledged===false);}finally{for(const [p,b] of originals)fs.writeFileSync(p,b);}const binding=run(['scripts/verify-full-suite-build-binding.mjs']);const clean=scope();const restored=[...originals].every(([p,b])=>fs.readFileSync(p,'utf8')===b);if(!sourceRejected||!distRejected||!docExact||!restored||binding.status!==0||clean.status!=='pass')throw new Error(JSON.stringify({sourceRejected,distRejected,docExact,restored,binding:binding.status,clean:clean.status}));console.log('binding-scope-mutants-v2 PASS sourceRejected=true distRejected=true docStatus=fail exactProtectedRule=true restored=true control=pass');\"",
+          "command": "node -e \"const fs=require('fs'),cp=require('child_process');const p='docs/requirements/decisions/dynamic-finding-system-execution-plan.md',o=fs.readFileSync(p,'utf8'),from='enumerated `@lattice/core` (later replaced by `@proof-or-stop/core`)\\nspecifically.',to='enumerated `@lattice/core`\\nspecifically.';const m=o.replace(from,to);if(m===o)throw new Error('mutation did not apply');let rejected=false;try{fs.writeFileSync(p,m);rejected=cp.spawnSync(process.execPath,['scripts/verify-core-package-rename.mjs'],{encoding:'utf8',maxBuffer:20*1024*1024}).status!==0;}finally{fs.writeFileSync(p,o);}const restored=fs.readFileSync(p,'utf8')===o,control=cp.spawnSync(process.execPath,['scripts/verify-core-package-rename.mjs'],{encoding:'utf8',maxBuffer:20*1024*1024});if(!rejected||!restored||control.status!==0)throw new Error(JSON.stringify({rejected,restored,control:control.status}));console.log('core-package-rename-mutation PASS mutantRejected=true restored=true control=pass');\"",
           "result": "pass",
-          "note": "Fresh fail-closed JSON scope and source/dist binding mutation receipt.",
-          "headHash": "f7c9d374c8d470e954fc4fdaec43319a60e17173",
-          "materialHash": "63292a573bf3271dcc1f220f9f9172c03919d79772485d71e28d8b5f05fe8e82",
-          "storyFilesHash": "65166487f29740c1f2342fc9ec7c73b09faac4f702cfa4ec1e27c2a3714785eb",
+          "note": "F-020 fail-closed proof: removing the canonical package-name pairing must fail the repository verifier, then exact-byte restoration must pass.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "cb9f17fa1a7f4ff8615638d4e3156d8eb43a2976240d1474793f44a27404a9f6",
-            "outputTail": "binding-scope-mutants-v2 PASS sourceRejected=true distRejected=true docStatus=fail exactProtectedRule=true restored=true control=pass\n",
+            "outputDigest": "91c5f74a1cb8df7034f1003d2cfa8aa963a3c3c3884710ed681e6d18258831f8",
+            "outputTail": "core-package-rename-mutation PASS mutantRejected=true restored=true control=pass\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T12:14:00.766Z",
+            "executedAt": "2026-08-31T14:52:10.972Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T12:15:14.476Z"
+          "headHash": "2a520d8be0aecd4d410ed56f5ab2de59b0cf5e1e",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:52:11.121Z"
         },
         {
           "intentRef": "CHK-001:adversarial:causal-baseline-map",
