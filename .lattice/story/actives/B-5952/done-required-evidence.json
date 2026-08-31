@@ -1,0 +1,93 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-5952",
+  "status": "FAIL",
+  "startedAt": "2026-08-31T13:13:01.797Z",
+  "endedAt": "2026-08-31T13:16:28.692Z",
+  "durationMs": 206895,
+  "headHash": "0267a5c5fe9da5ef551eb740f84297946e710b58",
+  "materialHash": "63292a573bf3271dcc1f220f9f9172c03919d79772485d71e28d8b5f05fe8e82",
+  "storyFilesHash": "65166487f29740c1f2342fc9ec7c73b09faac4f702cfa4ec1e27c2a3714785eb",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 405,
+      "outputDigest": "c8eae8f55779d6313237e89c393784e42dd4b9b59f3db9db4187ef913f29c2dd",
+      "outputTail": "\n> @proof-or-stop/core@0.3.267 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+      "startedAt": "2026-08-31T13:13:01.798Z",
+      "endedAt": "2026-08-31T13:13:02.203Z",
+      "effectiveEnvironmentDigest": "303d23c8d330c468066cc568f98eac129f9ae38e145ca8cfc2bb114caed03e33",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "0267a5c5fe9da5ef551eb740f84297946e710b58",
+      "materialHash": "63292a573bf3271dcc1f220f9f9172c03919d79772485d71e28d8b5f05fe8e82",
+      "storyFilesHash": "65166487f29740c1f2342fc9ec7c73b09faac4f702cfa4ec1e27c2a3714785eb"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 206247,
+      "outputDigest": "ded9fe6b672027aa0dfcae9021bea2a084c3f0a50376ec4d56607c8bfcaa0c7a",
+      "outputTail": "est:review-loop-smoke 0.7s\nPASS test:codex-heartbeat-timeout 2.9s\nPASS test:delivery-context-pack-smoke 6.2s\nPASS test:review-assurance-floor-smoke 6.7s\nPASS test:scope-shrinkage-withdrawal-floor-smoke 0.7s\nPASS test:global-core-realpath 0.5s\nPASS test:brand-path-resolver-smoke 0.4s\nPASS test:withdrawn-disposition-smoke 1.3s\nFAIL test:core-package-rename 0.6s (exit code 1)\nINTERRUPTED test:retired-authority-vocabulary-guard 28.0s (cancelled after terminal failure test:core-package-rename)\nINTERRUPTED test:config-filename-migration-smoke 0.8s (cancelled after terminal failure test:core-package-rename)\n\n--- test:retired-authority-vocabulary-guard INTERRUPTED ---\n\n> lattice@0.3.267 test:retired-authority-vocabulary-guard\n> npm --prefix packages/main run test:retired-authority-vocabulary-guard\n\n\n> @proof-or-stop/core@0.3.267 test:retired-authority-vocabulary-guard\n> node dist/tasks/retired-authority-vocabulary-guard-smoke.js\n\n\n\n--- test:config-filename-migration-smoke INTERRUPTED ---\n\n> lattice@0.3.267 test:config-filename-migration-smoke\n> node packages/main/dist/tasks/config-filename-migration-smoke.js\n\n  [ok] canonical-only project loads with zero deprecation notices\n\n\n--- test:core-package-rename FAIL ---\n\n> lattice@0.3.267 test:core-package-rename\n> node scripts/verify-core-package-rename.mjs\n\ncorePackageName=@proof-or-stop/core\nok core package uses the canonical renamed name\ncliEngineExists=true\nok core build emitted dist/cli-engine.js (exit code alone is insufficient)\nutilsDependsOn=@proof-or-stop/core\nok packages/utils depends on @proof-or-stop/core\nok packages/utils no longer references the deprecated core name\nlabDependsOn=@proof-or-stop/core\nok packages/lab depends on @proof-or-stop/core\nok packages/lab no longer references the deprecated core name\nutilsDistExists=true\nok packages/utils built against the renamed core (cross-package resolution intact)\nrootPackageName=lattice\noq2BoundaryHeld=true\nok ROOT package name stays \"lattice\" (OQ-2 exclusion) while core is renamed\ndeprecatedCoreNameWithoutCanonical=1\n  stranded: docs/requirements/decisions/dynamic-finding-system-execution-plan.md\nFAIL every @lattice/core mention sits beside the canonical name (read-both), none stranded\n\ncore package rename verification FAILED (1):\n  - every @lattice/core mention sits beside the canonical name (read-both), none stranded\n\n\n--- test:state-dir-migration INTERRUPTED ---\n\n\n--- test:migration-contract INTERRUPTED ---\n\n\n--- test:review-assurance-floor-storyfileshash-smoke INTERRUPTED ---\n\n\n--- test:docs-drift-smoke INTERRUPTED ---\n\n\n--- test:docs-drift-wrapper-root INTERRUPTED ---\n\n\n--- test:gitroot-cwd-contract INTERRUPTED ---\n\n\n--- test:process-fact-contract INTERRUPTED ---\n\n\n--- test:closeout-trust INTERRUPTED ---\n\n\n--- test:runtime-fact-contract INTERRUPTED ---\n\n\n--- test:evidence-quality INTERRUPTED ---\n\n\n--- test:anti-stall INTERRUPTED ---\n\n\n--- test:storydir-inside-gitroot-smoke INTERRUPTED ---\n\n\n--- test:gitroot-cwd-routing INTERRUPTED ---\n\n\n--- test:bare-gate-gitroot-cwd INTERRUPTED ---\n\n\n--- test:project-gitroot-cwd INTERRUPTED ---\n\n\n--- test:done-oracle-wrapper-root INTERRUPTED ---\n\n\n--- test:done-premerge-mainsha-recheck INTERRUPTED ---\n\n\n--- test:done-escalation-drift-advisory INTERRUPTED ---\n\n\n--- test:review-escalation-freshness-root INTERRUPTED ---\n\n\n--- test:dispatch-checklist-doctor-wrapper-root INTERRUPTED ---\n\n\n--- test:graceful-sites-gitroot-cwd INTERRUPTED ---\n\n\n--- test:experience-hint-worktree-cache INTERRUPTED ---\n\n\n--- test:done-merge-experience-refresh INTERRUPTED ---\n\n\n--- test:experience-coverage-gap INTERRUPTED ---\n\n\n--- test:nested-worktree-bootstrap INTERRUPTED ---\n\n\n--- test:e2e INTERRUPTED ---\n\n\n--- test:experience-arm-gate INTERRUPTED ---\n\n\n--- test:experience-arm-isolation-e2e INTERRUPTED ---\n\n\n--- test:convergence-breaker INTERRUPTED ---\n\n\n--- test:topology-signing-source-guard INTERRUPTED ---\n\n\n--- test:signing-guard-mutation-proof INTERRUPTED ---\n\nfull-suite: 24/58 passed in 205.2s; retries=0; jobs=3\n",
+      "startedAt": "2026-08-31T13:13:02.310Z",
+      "endedAt": "2026-08-31T13:16:28.557Z",
+      "effectiveEnvironmentDigest": "303d23c8d330c468066cc568f98eac129f9ae38e145ca8cfc2bb114caed03e33",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "0267a5c5fe9da5ef551eb740f84297946e710b58",
+      "materialHash": "63292a573bf3271dcc1f220f9f9172c03919d79772485d71e28d8b5f05fe8e82",
+      "storyFilesHash": "65166487f29740c1f2342fc9ec7c73b09faac4f702cfa4ec1e27c2a3714785eb"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}
