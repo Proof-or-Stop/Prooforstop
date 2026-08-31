@@ -500,6 +500,61 @@
       ],
       "signatureTag": "adversarial|ts|historical-provenance-regression",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-022",
+      "desc": "append-only-residue-bypass: scripts/verify-proof-or-stop-identity-cutover.mjs:752 accepts any JSON object whose schemaVersion string matches, while isFrozenSurface/scanActiveResidue (lines 993-1060) exempts the entire release-ledger path. Thus a post-freeze suffix record carrying 'lattice'/LATTICE_* or missing required release fields still passes the cutover gate; only the old byte prefix is truly frozen. Validate appended rows against the real ledger schema/invariants and scan suffix bytes for retired identities, with UTF-8/JSONL/schema and legacy-token mutation controls.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-31T23:03:14.754Z",
+      "reviewRound": "2026-08-31T22:53:47.816Z",
+      "reviewRunId": "B-022e:RR-049",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "bin/bootstrap-runner.js",
+          "bin/proof-or-stop-codex.js",
+          "packages/main/src/cli.ts",
+          "packages/main/src/core/artifact-release.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/capability-release.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": "Story-level identity cutover required all checklist relatedDocs plus focused post-merge loader, provenance-prefix, and canonical-cleanup review."
+      },
+      "_hash": "1bc39adb78ecf1086730f68823644f62de089536d6ba7d8880e86c02c2f95286",
+      "files": [
+        "scripts/verify-proof-or-stop-identity-cutover.mjs",
+        "packages/main/src/core/artifact-release.ts",
+        "packages/main/src/core/capability-release.ts"
+      ],
+      "signatureTag": "adversarial|mjs|append-residue-bypass",
+      "signatureTagSource": "auto"
     }
   ]
 }
