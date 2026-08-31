@@ -223,6 +223,24 @@
       "_hash": "c73bedd16492a308b103b87b903956dc1ef5e877b69196bc840df36ca8b06eaa",
       "signatureTag": "missing|unknown|lattice-story-actives",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5952:F-011",
+      "desc": ".lattice/story/actives/B-5952/checklist.json:131-245 [high] At the current review candidate (review_run_start bound HEAD 06dcafbf34b8c939996830a1a50d134be24b27c6, storyFilesHash 0a810d9ec23f5da95a914068afc3fb1a0ae6450c1f286365fd2487b0f25849aa), CHK-001 has no valid current-bound must evidence surface. All 9 verificationEvidence rows still bind older heads (9f0a0c2, 029a97c, e82bd0c, e027c3c) and older storyFilesHash values (311fcf1 / c95208c), so 0 of 6 must intents are covered by a receipt at this candidate. In addition, the active CHK-001:adversarial:binding-scope-mutants rerun command at checklist.json:233-235 still uses docRejected=scoped.status!==0||(scoped.stdout+scoped.stderr).includes(\"violation\"), which also matches the normal pass renderer text \"0 unacknowledged violations\". Until the receipts are refreshed on this candidate and the active mutation command is replaced with the fail-closed JSON-parsing variant, test-coverage cannot treat CHK-001 as currently covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T07:42:55.960Z",
+      "reviewRound": "2026-08-31T07:32:26.785Z",
+      "reviewRunId": "B-5952:RR-009",
+      "_hash": "4918070f04c7f565e9d105623a58d2d6ba502a95e32411172545f2a51b2bb213",
+      "files": [
+        ".lattice/story/actives/B-5952/checklist.json"
+      ],
+      "signatureTag": "missing|json|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
