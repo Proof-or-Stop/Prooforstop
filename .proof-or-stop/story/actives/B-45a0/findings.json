@@ -24341,7 +24341,7 @@
       "desc": "quality: lattice.config.json:173-174,788-789 declaredEnvironmentKeys for review-pass-discard-smoke and its quorum sibling list only the deprecated LATTICE_VALIDATION_SHARD_ADAPTER. The F-447 fix (story-aware-validation-case-adapter.mjs:19-21) now reads env[`PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER`] first via the readShardEnv helper, and the runtime tracer (validation-runtime-tracer.cjs get trap) records every process.env key access into trace.environmentKeys. verifyValidationClosureCertificate (story-aware-validation.ts:462-467) requires undeclaredObservedEnvironmentKeys.length===0. Since the canonical PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER key is now observed but not declared, these two DYN-5 commands closure-certify as status=unverified whenever traced, breaking CHK-004s closure certification for exactly the commands F-447 touched. Fix: add the canonical PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER (and ideally the 9 other PROOF_OR_STOP_VALIDATION_SHARD_* keys the handler now emits) to declaredEnvironmentKeys in both lattice.config.json entries.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T10:50:46.621Z",
@@ -24354,7 +24354,11 @@
         "packages/main/src/core/story-aware-validation.ts"
       ],
       "signatureTag": "missing|json|quality-lattice-config",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 84961f4252, and the fix is broader than the finding reported. The reviewer cited lattice.config.json; proof-or-stop.config.json had the identical defect and is the file discoverValidationInventory actually loads, so fixing only the reported one would have left the real one broken. Both files now set env to the canonical PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER and list declaredEnvironmentKeys as canonical-first with the deprecated LATTICE_ spelling retained, matching the read-both-prefer-new contract the adapter implements. Root cause confirmed as described: the runtime tracer records every process.env access through its Proxy get trap into trace.environmentKeys, and verifyValidationClosureCertificate at core/story-aware-validation.ts:462-467 requires undeclaredObservedEnvironmentKeys.length === 0, so the canonical key was observed but undeclared and both DYN-5 shard commands would have certified unverified whenever traced. Verified after the fix: both configs parse as JSON and are byte-identical; discoverValidationInventory reports both shard commands carrying [PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER, LATTICE_VALIDATION_SHARD_ADAPTER]; 112 commands with source=proof-or-stop.config.json unchanged; tsc --noEmit clean; historical-replay-artifact smoke PASS; verify-lattice-residue.mjs 4/4 PASS.",
+      "resolvedAt": "2026-08-31T10:55:31.931Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
