@@ -54,7 +54,11 @@
             "id": "CHK-001:adversarial:guard-mutants",
             "desc": "An isolated executable mutation harness must prove the guard is causal: mutate the real comparator to an unbounded form and separately replace the ceiling with sentinel 900, rebuild or execute the mutated artifact, and require each mutant run to fail the characterization while the unmodified control passes. The harness must assert that each substitution occurred and must reject a no-op mutation; arithmetic-only checks and source-text presence checks are insufficient.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require('fs'),cp=require('child_process');const p='packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js';const original=fs.readFileSync(p,'utf8');const run=()=>cp.spawnSync(process.execPath,[p],{encoding:'utf8',maxBuffer:20*1024*1024});let unboundedRejected=false,sentinelRejected=false;try{const unbounded=original.replace('actualBuilds <= ceiling,','true,');if(unbounded===original)throw new Error('unbounded substitution did not apply');fs.writeFileSync(p,unbounded);unboundedRejected=run().status!==0;const sentinel=original.replace('const DYNAMIC_BINDING_BUILD_CEILING = 808;','const DYNAMIC_BINDING_BUILD_CEILING = 900;');if(sentinel===original)throw new Error('sentinel substitution did not apply');fs.writeFileSync(p,sentinel);const result=run();sentinelRejected=result.status!==0&&(result.stderr+result.stdout).includes('finite integer between 1 and 850');}finally{fs.writeFileSync(p,original);}const restored=fs.readFileSync(p,'utf8')===original;const control=run();if(!unboundedRejected||!sentinelRejected||!restored||control.status!==0||!control.stdout.includes('PASS builds=804'))throw new Error(JSON.stringify({unboundedRejected,sentinelRejected,restored,control:control.status}));console.log('actual-guard-mutants PASS unboundedRejected=true sentinelRejected=true restored=true control=804');\"",
+              "selector": "actual-guard-mutants PASS unboundedRejected=true sentinelRejected=true restored=true control=804"
+            }
           },
           {
             "id": "CHK-001:adversarial:binding-scope-mutants",
@@ -195,6 +199,31 @@
           "materialHash": "b675940198ae436f3970cbeb335e414e4da3df9096002e0be91ca703803dfa29",
           "storyFilesHash": "c95208cbf5b5c6881179b3664c34e87b5887fe3980c5fab3fb73ccd23ead79a1",
           "timestamp": "2026-08-31T03:17:24.766Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:guard-mutants",
+          "kind": "logic_test",
+          "command": "node -e \"const fs=require('fs'),cp=require('child_process');const p='packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js';const original=fs.readFileSync(p,'utf8');const run=()=>cp.spawnSync(process.execPath,[p],{encoding:'utf8',maxBuffer:20*1024*1024});let unboundedRejected=false,sentinelRejected=false;try{const unbounded=original.replace('actualBuilds <= ceiling,','true,');if(unbounded===original)throw new Error('unbounded substitution did not apply');fs.writeFileSync(p,unbounded);unboundedRejected=run().status!==0;const sentinel=original.replace('const DYNAMIC_BINDING_BUILD_CEILING = 808;','const DYNAMIC_BINDING_BUILD_CEILING = 900;');if(sentinel===original)throw new Error('sentinel substitution did not apply');fs.writeFileSync(p,sentinel);const result=run();sentinelRejected=result.status!==0&&(result.stderr+result.stdout).includes('finite integer between 1 and 850');}finally{fs.writeFileSync(p,original);}const restored=fs.readFileSync(p,'utf8')===original;const control=run();if(!unboundedRejected||!sentinelRejected||!restored||control.status!==0||!control.stdout.includes('PASS builds=804'))throw new Error(JSON.stringify({unboundedRejected,sentinelRejected,restored,control:control.status}));console.log('actual-guard-mutants PASS unboundedRejected=true sentinelRejected=true restored=true control=804');\"",
+          "result": "pass",
+          "note": "Tool-executed mutation receipt proves both real guard mutants fail, substitutions are non-no-op, bytes are restored, and the unmodified 804-build control passes.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "724b65f25eb55b5a1ba5949d57061b52f08f382b37e00e250deed0af845016f6",
+            "outputTail": "actual-guard-mutants PASS unboundedRejected=true sentinelRejected=true restored=true control=804\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T03:19:11.137Z",
+            "timeoutMs": 240000,
+            "timeoutOverride": {
+              "timeoutMs": 240000,
+              "defaultTimeoutMs": 270000,
+              "reason": "The harness executes the heavy retired-authority smoke three times: unbounded comparator mutant, sentinel ceiling mutant, and restored control."
+            }
+          },
+          "headHash": "e82bd0c93b5ba008dc10b5b27096a0a730b74d1c",
+          "materialHash": "b675940198ae436f3970cbeb335e414e4da3df9096002e0be91ca703803dfa29",
+          "storyFilesHash": "c95208cbf5b5c6881179b3664c34e87b5887fe3980c5fab3fb73ccd23ead79a1",
+          "timestamp": "2026-08-31T03:19:11.267Z"
         }
       ]
     }
