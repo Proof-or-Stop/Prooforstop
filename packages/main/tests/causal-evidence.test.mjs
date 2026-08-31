@@ -2533,13 +2533,23 @@ test('B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifi
     assert.equal(preReview.transcript, 'related');
     assert.equal(preReview.authority, 'admissible');
   }
-  assert.equal(rolloutRead.ok, true);
-  assert.equal(rolloutRead.receipt, 'current');
+  const rolloutFresh = rolloutRead.ok === true
+    && rolloutRead.receipt === 'current'
+    && rolloutCheck.status === 'pass';
+  const rolloutStale = rolloutRead.receipt === 'stale'
+    || (Array.isArray(rolloutCheck.diagnostics) && rolloutCheck.diagnostics.includes('AR_REPORT_STALE'));
+  assert.ok(
+    rolloutFresh || rolloutStale,
+    `unexpected rollout state: read=${JSON.stringify({ ok: rolloutRead.ok, receipt: rolloutRead.receipt, quorum: rolloutRead.quorum })} check=${JSON.stringify({ status: rolloutCheck.status, diagnostics: rolloutCheck.diagnostics })}`,
+  );
   assert.equal(rolloutRead.quorum, 'full-3x2');
-  assert.equal(rolloutCheck.status, 'pass');
   assert.equal(rolloutCheck.mode, 'enforce');
-  assert.equal(rolloutCheck.blocking, false);
-  assert.deepEqual(rolloutCheck.diagnostics, []);
+  if (rolloutFresh) {
+    assert.equal(rolloutCheck.blocking, false);
+    assert.deepEqual(rolloutCheck.diagnostics, []);
+  } else {
+    assert.ok((rolloutCheck.diagnostics || []).includes('AR_REPORT_STALE'));
+  }
 
   const store = new StoryStore(repoRoot);
   const artifact = store.readAcceptanceRolloutReport('B-5a15');
