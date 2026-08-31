@@ -23719,6 +23719,29 @@
         "scanEscalationReason": null
       },
       "_hash": "0d2f8c29b6070543c920a096102caa1495c36eb9491b92cc114dddb291fe00a6"
+    },
+    {
+      "id": "B-5a88:RP-400",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-anchor for fresh unconsumed inventory epoch RI-095; zero source diff vs prior pass (git diff --stat 59ecc092c1..HEAD -- packages/ scripts/ bin/ .githooks/ empty), confirmed concept-scope migration (role/marker/schema/package renames with dual-read compatibility) unchanged; no new residue introduced.",
+      "createdAt": "2026-08-31T15:10:32.791Z",
+      "reviewRound": "2026-08-31T15:07:11.080Z",
+      "reviewRunId": "B-5a88:RR-973",
+      "envelopeId": "41f26b3e2dc27f725f467c31f971cf7a6b7a1655698615441117e6cc075598df",
+      "writerSessionId": "claude-b5a88-1788161424",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "88f3abcb377342bcd5ea23dbe7340a12ef5320128fb17fe0e1b86d81ec11168f"
     }
   ]
 }
