@@ -4,6 +4,7 @@
   "allowedModify": [
     "packages/main/src/core/prompt-registry.ts",
     "AGENTS.md",
+    "CLAUDE.md",
     "packages/main/templates/agents/lattice-implementer.md",
     "packages/main/src/core/prompt-role-contract-registry.ts",
     "scripts/verify-proof-or-stop-prompt-baseline.mjs",
@@ -41,10 +42,10 @@
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/process-fact-levels.ts"
   ],
-  "scopeChangeReason": "Acceptance-blocker extension, bounded after exact enumeration: synchronize the retired lattice-review-channel source and its two host mirrors to the existing canonical LOAD_BEARING_LATTICE_PROMPT_SLICE. The drift is two pre-existing line wraps, but it blocks this Story's required full registry and adapter verification. No semantic or Dynamic Finding runtime change.",
+  "scopeChangeReason": "REVIEW blocker extension: add CLAUDE.md only to replace the superseded unbounded-scope guidance with the same bounded current-Story triage contract already accepted for AGENTS.md. Findings B-9a49:F-003 and F-006 prove cross-host behavioral divergence. No Dynamic Finding runtime or handler change.",
   "acknowledgements": [],
   "createdAt": "2026-08-31T14:19:20.690Z",
-  "updatedAt": "2026-08-31T19:46:59.088Z",
+  "updatedAt": "2026-08-31T20:58:59.580Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -74,6 +75,7 @@
     ".proof-or-stop-codex/agents/lattice-implementer.md": ".proof-or-stop-codex/agents/lattice-implementer.md",
     "packages/main/templates/agents/lattice-review-channel.md": "packages/main/templates/agents/lattice-review-channel.md",
     ".claude/agents/lattice-review-channel.md": ".claude/agents/lattice-review-channel.md",
-    ".proof-or-stop-codex/agents/lattice-review-channel.md": ".proof-or-stop-codex/agents/lattice-review-channel.md"
+    ".proof-or-stop-codex/agents/lattice-review-channel.md": ".proof-or-stop-codex/agents/lattice-review-channel.md",
+    "CLAUDE.md": "CLAUDE.md"
   }
 }

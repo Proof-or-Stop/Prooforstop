@@ -554,14 +554,13 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
-          "file": "AGENTS.md",
-          "command": "node --input-type=module -e \"import { readFileSync } from 'node:fs'; const owner=readFileSync('AGENTS.md','utf8'); const impl=readFileSync('packages/main/templates/agents/lattice-implementer.md','utf8'); const ownerPhrases=['introduced or worsened by the current Story','directly blocks acceptance or the core user result','would make lifecycle gate evidence or gate truth misleading','including a medium Finding in a policy round where medium is blocking','Critical or high Findings must never be left without a traceable owner','finding_dismiss','does not prove applicability, repair, or resolution','is not mechanically enforced by prompt text alone','Never expand the Story merely to make the repository globally green']; const implPhrases=['Preserve its reproduction evidence and impact evidence','Report it to the Story Owner','Never widen the assigned item or Story unilaterally']; for (const p of ownerPhrases) if (!owner.includes(p)) throw new Error('missing owner phrase: '+p); for (const p of implPhrases) if (!impl.includes(p)) throw new Error('missing implementer phrase: '+p); console.log('owner and implementer triage guidance: PASS');\"",
-          "note": "Tool-executed source contract proves bounded Owner/implementer triage guidance for CHK-002:happy:0, including applicable repair, evidence-backed owned routing, fail-closed unknown applicability, compatibility limitations, evidence preservation, and no unilateral widening.",
-          "headHash": "8a3eecbedca821dc581682ed3f375a45ec8dde90",
-          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
-          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "command": "node --input-type=module -e \"import { readFileSync } from 'node:fs'; const owner=readFileSync('AGENTS.md','utf8'); const claude=readFileSync('CLAUDE.md','utf8'); const impl=readFileSync('packages/main/templates/agents/lattice-implementer.md','utf8'); const shared=['Bounded current-Story repair','introduced or worsened by the current Story','Severity and applicability are separate axes','Evidence-backed routing, otherwise fail closed','including a medium Finding in a policy round where medium is blocking','Critical or high Findings must never be left without a traceable owner','Never expand the Story merely to make the repository globally green','Compatibility boundary and dismissal','Dynamic Finding System execution plan is future authority','never fabricate an assessment field, verdict, owner, route, signature, freshness result, or receipt','not applicability','out_of_scope','repair, or resolution proof','prompt text does not mechanically enforce this discipline']; for (const doc of [owner,claude]) for (const p of shared) if (!doc.includes(p)) throw new Error('missing shared guidance: '+p); for (const p of ['Preserve its reproduction evidence and impact evidence','Report it to the Story Owner','Never widen the assigned item or Story unilaterally']) if (!impl.includes(p)) throw new Error('missing implementer phrase: '+p); console.log('owner claude implementer triage guidance: PASS');\"",
+          "note": "Current tool-executed source contract proves the complete bounded Story Owner and implementer normal path across AGENTS.md and CLAUDE.md, including repair, evidence-backed owned routing, fail-closed applicability, future-authority compatibility limits, evidence preservation, and no unilateral widening.",
           "mechanical": false,
-          "timestamp": "2026-08-31T20:01:48.310Z"
+          "headHash": "8baacb207e2a60256062a28dbe645afde50c4485",
+          "materialHash": "e36eb3f4882562691bf2fda46c3d41db59c7e74a380e75d71212bbf75d485430",
+          "storyFilesHash": "7ebbcb0542b6437c019613fc166acc74e15e0804cc90239a6888fc31893775ad",
+          "timestamp": "2026-08-31T21:17:01.557Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -629,14 +628,13 @@
         {
           "intentRef": "CHK-002:edge:2",
           "kind": "logic_test",
-          "file": "AGENTS.md",
-          "command": "node --input-type=module -e \"import { readFileSync } from 'node:fs'; const owner=readFileSync('AGENTS.md','utf8'); const impl=readFileSync('packages/main/templates/agents/lattice-implementer.md','utf8'); const ownerPhrases=['introduced or worsened by the current Story','directly blocks acceptance or the core user result','would make lifecycle gate evidence or gate truth misleading','including a medium Finding in a policy round where medium is blocking','Critical or high Findings must never be left without a traceable owner','finding_dismiss','does not prove applicability, repair, or resolution','is not mechanically enforced by prompt text alone','Never expand the Story merely to make the repository globally green']; const implPhrases=['Preserve its reproduction evidence and impact evidence','Report it to the Story Owner','Never widen the assigned item or Story unilaterally']; for (const p of ownerPhrases) if (!owner.includes(p)) throw new Error('missing owner phrase: '+p); for (const p of implPhrases) if (!impl.includes(p)) throw new Error('missing implementer phrase: '+p); console.log('owner and implementer triage guidance: PASS');\"",
-          "note": "Tool-executed source contract proves bounded Owner/implementer triage guidance for CHK-002:edge:2, including applicable repair, evidence-backed owned routing, fail-closed unknown applicability, compatibility limitations, evidence preservation, and no unilateral widening.",
-          "headHash": "8a3eecbedca821dc581682ed3f375a45ec8dde90",
-          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
-          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "command": "node --input-type=module -e \"import { readFileSync } from 'node:fs'; const owner=readFileSync('AGENTS.md','utf8'); const claude=readFileSync('CLAUDE.md','utf8'); const impl=readFileSync('packages/main/templates/agents/lattice-implementer.md','utf8'); const shared=['Bounded current-Story repair','introduced or worsened by the current Story','Severity and applicability are separate axes','Evidence-backed routing, otherwise fail closed','including a medium Finding in a policy round where medium is blocking','Critical or high Findings must never be left without a traceable owner','Never expand the Story merely to make the repository globally green','Compatibility boundary and dismissal','Dynamic Finding System execution plan is future authority','never fabricate an assessment field, verdict, owner, route, signature, freshness result, or receipt','not applicability','out_of_scope','repair, or resolution proof','prompt text does not mechanically enforce this discipline']; for (const doc of [owner,claude]) for (const p of shared) if (!doc.includes(p)) throw new Error('missing shared guidance: '+p); for (const p of ['Preserve its reproduction evidence and impact evidence','Report it to the Story Owner','Never widen the assigned item or Story unilaterally']) if (!impl.includes(p)) throw new Error('missing implementer phrase: '+p); console.log('owner claude implementer triage guidance: PASS');\"",
+          "note": "Current tool-executed source contract proves finding_dismiss is compatibility accounting only and is not applicability, out_of_scope, repair, resolution, or mechanical enforcement proof in either host guide.",
           "mechanical": false,
-          "timestamp": "2026-08-31T20:01:48.310Z"
+          "headHash": "8baacb207e2a60256062a28dbe645afde50c4485",
+          "materialHash": "e36eb3f4882562691bf2fda46c3d41db59c7e74a380e75d71212bbf75d485430",
+          "storyFilesHash": "7ebbcb0542b6437c019613fc166acc74e15e0804cc90239a6888fc31893775ad",
+          "timestamp": "2026-08-31T21:17:01.557Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -725,14 +723,13 @@
         {
           "intentRef": "CHK-002:adversarial:4",
           "kind": "logic_test",
-          "file": "AGENTS.md",
-          "command": "node --input-type=module -e \"import { readFileSync } from 'node:fs'; const owner=readFileSync('AGENTS.md','utf8'); const impl=readFileSync('packages/main/templates/agents/lattice-implementer.md','utf8'); const ownerPhrases=['introduced or worsened by the current Story','directly blocks acceptance or the core user result','would make lifecycle gate evidence or gate truth misleading','including a medium Finding in a policy round where medium is blocking','Critical or high Findings must never be left without a traceable owner','finding_dismiss','does not prove applicability, repair, or resolution','is not mechanically enforced by prompt text alone','Never expand the Story merely to make the repository globally green']; const implPhrases=['Preserve its reproduction evidence and impact evidence','Report it to the Story Owner','Never widen the assigned item or Story unilaterally']; for (const p of ownerPhrases) if (!owner.includes(p)) throw new Error('missing owner phrase: '+p); for (const p of implPhrases) if (!impl.includes(p)) throw new Error('missing implementer phrase: '+p); console.log('owner and implementer triage guidance: PASS');\"",
-          "note": "Tool-executed source contract proves bounded Owner/implementer triage guidance for CHK-002:adversarial:4, including applicable repair, evidence-backed owned routing, fail-closed unknown applicability, compatibility limitations, evidence preservation, and no unilateral widening.",
-          "headHash": "8a3eecbedca821dc581682ed3f375a45ec8dde90",
-          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
-          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "command": "node --input-type=module -e \"import { readFileSync } from 'node:fs'; const owner=readFileSync('AGENTS.md','utf8'); const claude=readFileSync('CLAUDE.md','utf8'); const impl=readFileSync('packages/main/templates/agents/lattice-implementer.md','utf8'); const shared=['Bounded current-Story repair','introduced or worsened by the current Story','Severity and applicability are separate axes','Evidence-backed routing, otherwise fail closed','including a medium Finding in a policy round where medium is blocking','Critical or high Findings must never be left without a traceable owner','Never expand the Story merely to make the repository globally green','Compatibility boundary and dismissal','Dynamic Finding System execution plan is future authority','never fabricate an assessment field, verdict, owner, route, signature, freshness result, or receipt','not applicability','out_of_scope','repair, or resolution proof','prompt text does not mechanically enforce this discipline']; for (const doc of [owner,claude]) for (const p of shared) if (!doc.includes(p)) throw new Error('missing shared guidance: '+p); for (const p of ['Preserve its reproduction evidence and impact evidence','Report it to the Story Owner','Never widen the assigned item or Story unilaterally']) if (!impl.includes(p)) throw new Error('missing implementer phrase: '+p); console.log('owner claude implementer triage guidance: PASS');\"",
+          "note": "Current tool-executed source contract proves both host guides identify Dynamic Finding as future authority, prohibit fabricated fields and receipts, and do not claim prompt prose mechanically enforces lifecycle truth.",
           "mechanical": false,
-          "timestamp": "2026-08-31T20:01:48.310Z"
+          "headHash": "8baacb207e2a60256062a28dbe645afde50c4485",
+          "materialHash": "e36eb3f4882562691bf2fda46c3d41db59c7e74a380e75d71212bbf75d485430",
+          "storyFilesHash": "7ebbcb0542b6437c019613fc166acc74e15e0804cc90239a6888fc31893775ad",
+          "timestamp": "2026-08-31T21:17:01.557Z"
         }
       ],
       "userSeesSnapshot": {
@@ -977,14 +974,13 @@
         {
           "intentRef": "CHK-003:adversarial:no-dynamic-schema-expansion",
           "kind": "logic_test",
-          "file": "packages/main/src/core/prompt-role-contract-registry.ts",
-          "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
-          "note": "Tool-executed boundary probe covers CHK-003:adversarial:no-dynamic-schema-expansion: exact five-lane declarative registration, all other roles excluded, and no Dynamic Finding handler/advisory/process-fact authority files changed.",
-          "headHash": "8a3eecbedca821dc581682ed3f375a45ec8dde90",
-          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
-          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+          "note": "Current tool-executed boundary probe proves exact five-lane declarative registration and no Dynamic Finding handler, advisory, process-fact registry, or process-fact level changes.",
           "mechanical": false,
-          "timestamp": "2026-08-31T20:01:48.310Z"
+          "headHash": "8baacb207e2a60256062a28dbe645afde50c4485",
+          "materialHash": "e36eb3f4882562691bf2fda46c3d41db59c7e74a380e75d71212bbf75d485430",
+          "storyFilesHash": "7ebbcb0542b6437c019613fc166acc74e15e0804cc90239a6888fc31893775ad",
+          "timestamp": "2026-08-31T21:17:01.557Z"
         }
       ],
       "userSeesSnapshot": {
@@ -1278,14 +1274,13 @@
         {
           "intentRef": "CHK-004:edge:english-only-slices",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
           "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
-          "note": "Focused semantic smoke verifies the newly added public Agent-facing contract and guidance slices are English-only.",
+          "note": "Current focused tool-executed semantic smoke proves the newly added public Agent-facing contract and guidance slices are English-only while retaining exact delivery and semantic checks.",
           "mechanical": false,
-          "headHash": "8473be63e80f384503d06861bfba048dd71c37ed",
-          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
-          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
-          "timestamp": "2026-08-31T20:08:14.767Z"
+          "headHash": "8baacb207e2a60256062a28dbe645afde50c4485",
+          "materialHash": "e36eb3f4882562691bf2fda46c3d41db59c7e74a380e75d71212bbf75d485430",
+          "storyFilesHash": "7ebbcb0542b6437c019613fc166acc74e15e0804cc90239a6888fc31893775ad",
+          "timestamp": "2026-08-31T21:17:01.557Z"
         },
         {
           "intentRef": "CHK-004:edge:compatibility-and-outcomes",
