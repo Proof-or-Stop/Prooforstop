@@ -112,7 +112,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:678-704,793-836,902-922 [high] CandidateRoute and FindingDeferralDisposition require a signed routeReceiptId proving target/owner acceptance, but the data model defines no RouteReceipt contract, signer, authority, target/owner binding, acceptance status, or freshness validation. FindingLedgerReceipt only records an append_route_receipt operation, has no signature, and proves persistence rather than target acceptance. This leaves the gate-critical anti-waiver proof uninterpretable and the three-Story ownership incomplete. Define the signed accepted-route receipt schema and assign its acceptance writer/verifier to Story 2 or Story 1 while Story 3 owns only atomic persistence; test wrong target, wrong owner, stale/closed target, forged signer, and atomic rollback.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T00:34:38.618Z",
@@ -120,7 +120,11 @@
       "reviewRunId": "B-1fa6:RR-008",
       "_hash": "19d7d4c2ee8a27b29cd8c3bbed9fcbcd11b425af92a75e08dddedd1f285f87ac",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f741bf8754: signed FindingRouteReceipt schema, target-side signer authority, wrong-target/owner/signer and stale/revoked/tampered negative tests, plus Story 1/2/3 ownership are explicit.",
+      "resolvedAt": "2026-08-31T00:48:15.865Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-007",
