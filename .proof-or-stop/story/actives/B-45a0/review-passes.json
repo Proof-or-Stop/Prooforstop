@@ -23242,6 +23242,28 @@
       },
       "readDiagnostics": [],
       "_hash": "e914893d100de64f33e32aa1d735c1e1735e297eefd25f3d81aec3a905b542cc"
+    },
+    {
+      "id": "B-45a0:RP-485",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage pass at frozen HEAD 4849d3b (RI-108, wave 1). Re-audited CHK-014 verifier-owned artifact chain evidence coverage: live-reran pre_review_check_read (FAIL/PR_ARTIFACT_TAMPERED+PR_COVERAGE_BASIS_CHANGED, matches open F-437 exactly, not re-filed), acceptance_rollout_check and acceptance_rollout_report_read (ok:false/blocking:true/AR_REPORT_STALE, matches open F-439/F-440 exactly, not re-filed), acceptance_topology_check (status:fail/structuralPass:false, same family as F-439/F-440), and acceptance_basis (status:invalid, matches F-440). All five are the same previously-registered gap families; all are DEV-only writers per command-policy and cannot be repaired from REVIEW. Spot-checked finding_list for anything newer in test-coverage scope (verificationIntent-to-verificationEvidence coverage): only F-446 (lattice-review-concept, stale-comment residue, out of this lane's scope) appeared since dispatch. No new gap exists in evidence-coverage scope beyond the known F-437/F-439/F-440 families at this frozen HEAD. Terminating this lane with a pass; F-437 remains open and is not retracted by this pass.",
+      "createdAt": "2026-08-31T04:51:54.894Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1093",
+      "envelopeId": "10617500018d0216dd4cda92afd81eeacf854ae9231bb6cba8c40703e84eb8f1",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "29a2a4dc42a47768c5a804e7e279700b54f1fe5cd52efd416072f41e3c0b306a"
     }
   ]
 }
