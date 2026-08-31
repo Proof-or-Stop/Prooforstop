@@ -21,14 +21,14 @@
     "packages/main/templates/agents/lattice-review-channel.md",
     ".claude/agents/lattice-review-channel.md",
     ".proof-or-stop-codex/agents/lattice-review-channel.md",
-    "packages/main/src/core/acceptance-topology.ts"
+    "packages/main/src/core/acceptance-coverage-basis.ts"
   ],
   "allowedCreate": [],
   "allowedTest": [
     "packages/main/src/tasks/prompt-registry-smoke.ts",
     "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
     "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
-    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "scripts/verify-process-fact-contract.mjs",
     "scripts/verify-proof-or-stop-prompt-baseline.mjs",
     "scripts/verify-runtime-fact-contract.mjs"
@@ -42,12 +42,13 @@
     "packages/main/src/handlers",
     "packages/main/src/core/advisory.ts",
     "packages/main/src/core/process-fact-registry.ts",
-    "packages/main/src/core/process-fact-levels.ts"
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/acceptance-topology.ts"
   ],
-  "scopeChangeReason": "REVIEW blocker extension for B-9a49:F-020: allow only the acceptance-topology reconciler and its smoke test to correct the proven canonical-path mismatch that makes a truthful existing process-fact topology impossible to reconcile with the verifier-owned basis. Dynamic Finding handlers, advisory gate logic, and process-fact registries remain protected and excluded.",
+  "scopeChangeReason": "REVIEW blocker extension for B-9a49:F-020, corrected by formal scope reviewer: allow only packages/main/src/core/acceptance-coverage-basis.ts and its focused proofstory-acceptance-basis smoke to normalize proven existing process-fact topology edges into the verifier basis canonical path space. Do not weaken acceptance-topology structural validation or fabricate plannedPathDeclarations. Dynamic Finding handlers, advisory gate logic, and process-fact registries remain protected and excluded.",
   "acknowledgements": [],
   "createdAt": "2026-08-31T14:19:20.690Z",
-  "updatedAt": "2026-08-31T23:35:09.479Z",
+  "updatedAt": "2026-08-31T23:39:35.825Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -80,6 +81,8 @@
     ".proof-or-stop-codex/agents/lattice-review-channel.md": ".proof-or-stop-codex/agents/lattice-review-channel.md",
     "CLAUDE.md": "CLAUDE.md",
     "packages/main/src/core/acceptance-topology.ts": "packages/main/src/core/acceptance-topology.ts",
-    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
   }
 }

@@ -88,14 +88,13 @@
       "q": "Should the F-020 extension authorize packages/main/src/core/acceptance-coverage-basis.ts (and its focused basis smoke) as the production owner of canonical edge reconciliation, and remove acceptance-topology.ts unless a separately demonstrated validator change is required?",
       "evidence": "The mismatch-producing sourceRefValue/topologyPaths and the AT_TOPOLOGY_OUTSIDE_BASIS reverse check are local to acceptance-coverage-basis.ts. acceptance-topology.ts validates required graph shape and intent mappings; no current source diff demonstrates that changing it can normalize verifier-owned basis paths without weakening the contract.",
       "sourcePointers": [
-        "packages/main/src/core/acceptance-coverage-basis.ts:141",
-        "packages/main/src/core/acceptance-coverage-basis.ts:152",
-        "packages/main/src/core/acceptance-coverage-basis.ts:482",
-        "packages/main/src/core/acceptance-coverage-basis.ts:554",
-        "packages/main/src/core/acceptance-topology.ts:445",
-        "packages/main/src/core/acceptance-topology.ts:518",
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:363"
-      ]
+        "B-9a49:F-020",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "resolution": "Resolved by correcting the scope owner to packages/main/src/core/acceptance-coverage-basis.ts and its focused proofstory-acceptance-basis smoke, while explicitly excluding acceptance-topology.ts. This targets the sourceRefValue/topologyPaths/reconcile canonicalization mismatch without weakening structural totality or fabricating plannedPathDeclarations.",
+      "resolvedAt": "2026-08-31T23:39:47.151Z"
     }
   ]
 }
