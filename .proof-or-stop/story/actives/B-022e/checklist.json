@@ -1063,6 +1063,27 @@
           "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
           "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
           "timestamp": "2026-08-31T23:35:33.414Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+          "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+          "result": "pass",
+          "note": "Clean canonical-only installation resolves Proof-or-Stop identities and rejects retired package identities.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
+            "outputTail": "proof-or-stop-only absence smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T23:35:40.074Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "ff8f68558b5323c04188a4dd9d8d6052ea9208dd",
+          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
+          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
+          "timestamp": "2026-08-31T23:35:40.218Z"
         }
       ]
     },
