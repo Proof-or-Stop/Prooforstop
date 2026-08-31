@@ -11,6 +11,8 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix, resolve } from 'node:path';
+import { DEPRECATED_CONFIG_FILENAME, PROOF_OR_STOP_CONFIG_FILENAME } from './brand-paths.js';
+import { pickProjectConfigPath } from './config.js';
 import type { ResourceClaim } from './keyed-scheduler.js';
 import { validateResourceClaims } from './keyed-scheduler.js';
 import { CAPABILITY_CATEGORIES } from './capabilities.js';
@@ -270,10 +272,13 @@ function commandId(row: { command: string; args: string[]; label?: string }, ind
 export function discoverValidationInventory(projectRoot: string, injected?: ValidationInventoryCommand[]): ValidationInventory {
   let commands: ValidationInventoryCommand[] = injected ? injected.map((row, index) => ({ ...row, originalIndex: row.originalIndex ?? index })) : [];
   if (!injected) {
-    const canonicalPath = join(projectRoot, 'proof-or-stop.config.json');
-    const legacyPath = join(projectRoot, 'lattice.config.json');
-    const configPath = existsSync(canonicalPath) ? canonicalPath : legacyPath;
-    const raw = existsSync(configPath) ? JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown> : {};
+    // B-45a0 F-441: reuse the canonical resolver instead of re-deriving the
+    // canonical/legacy read-both lookup here. pickProjectConfigPath already
+    // returns {path, filename, legacy} for exactly this, and its own comment
+    // notes that deriving the answer without embedding a deprecated literal in
+    // a comparison is deliberate — the B-cdf6 F-065/F-061/F-068 regression shape.
+    const picked = pickProjectConfigPath(projectRoot);
+    const raw = picked ? JSON.parse(readFileSync(picked.path, 'utf8')) as Record<string, unknown> : {};
     const validation = ((raw.validate || raw.validation) as Record<string, unknown> | undefined) || {};
     const dynamic = validation.dynamic && typeof validation.dynamic === 'object' ? validation.dynamic as Record<string, unknown> : {};
     const policyDefaults = dynamic.policyDefaults && typeof dynamic.policyDefaults === 'object'
@@ -317,7 +322,18 @@ export function discoverValidationInventory(projectRoot: string, injected?: Vali
     id: row.id || commandId(row, index),
     originalIndex: row.originalIndex ?? index,
   }));
-  return { schema: 'proof-or-stop.validation-inventory.v1', commands: normalized, digest: stableDigest(normalized), source: injected ? 'injected' : existsSync(join(projectRoot, 'proof-or-stop.config.json')) ? 'proof-or-stop.config.json' : 'lattice.config.json' };
+  // B-45a0 F-441: same resolver, so `source` reports the filename that actually
+  // satisfied the lookup rather than re-deriving it from a second existsSync
+  // probe. `legacy` (not a filename comparison) is what narrows to the union,
+  // keeping the deprecated literal out of the decision — the point of the
+  // resolver. No config file at all reports the canonical name, matching the
+  // prior behaviour where a missing file fell through to the legacy branch only
+  // because existsSync on the canonical path failed.
+  const picked = injected ? null : pickProjectConfigPath(projectRoot);
+  const source = injected
+    ? 'injected' as const
+    : picked?.legacy ? DEPRECATED_CONFIG_FILENAME : PROOF_OR_STOP_CONFIG_FILENAME;
+  return { schema: 'proof-or-stop.validation-inventory.v1', commands: normalized, digest: stableDigest(normalized), source };
 }
 function validRelativePath(path: string): boolean {
   const value = normalPath(path);
