@@ -86,6 +86,30 @@
       "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
       "inventory": {},
       "_hash": "20d5c7b823d8b13376a03b20cbedad65e61011797595d6091826363277b88fe1"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5952:CW-006",
+      "storyId": "B-5952",
+      "state": "ADMITTED",
+      "createdAt": "2026-08-31T21:20:05.059Z",
+      "updatedAt": "2026-08-31T21:20:05.059Z",
+      "frozen": {
+        "headHash": "c34d092fc74705c0c0f5dc117f1d46e0b70345f1",
+        "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+        "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+        "expectedMainSha": "fe1288860f0afd02b582860e0a229e188c64072c",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-5952:RIE-003",
+        "receiptId": "B-5952:RIE-003:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-5952:PRECERT-003",
+      "_hash": "aa8c8618749d9951d0c0e4933df2e7013c03b6bec1a8034013e0ddd5ef625fc4"
     }
   ],
   "receipts": [
@@ -128,6 +152,26 @@
       "inventoryReceiptId": "B-5952:RIE-002:RCP-001",
       "createdAt": "2026-08-31T19:41:59.752Z",
       "_hash": "0d8b720c45bdbd1634805e240c7b776ebb6cf28005f7d1b56f90bb7507d0ec77"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-5952:PRECERT-003",
+      "windowId": "B-5952:CW-006",
+      "storyId": "B-5952",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "c34d092fc74705c0c0f5dc117f1d46e0b70345f1",
+        "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+        "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+        "expectedMainSha": "fe1288860f0afd02b582860e0a229e188c64072c",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-5952:RIE-003",
+      "inventoryReceiptId": "B-5952:RIE-003:RCP-001",
+      "createdAt": "2026-08-31T21:20:05.059Z",
+      "_hash": "c2d01cf601936e3e3aeb4c833c0532f2d3cbec2a60478bdb6d0b5cbd6f019ef9"
     }
   ]
 }
