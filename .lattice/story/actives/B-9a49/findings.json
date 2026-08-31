@@ -385,6 +385,24 @@
       "_hash": "2cd2e8ba03b0bbfe3c445f5e5f060a2593cd5145926deb487393aba85f7f5787",
       "signatureTag": "missing|unknown|agents-claude-resolution",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-019",
+      "desc": "packages/main/src/tasks/prompt-registry-smoke.ts:77,182-249 F-017 remediation still does not satisfy repinned-digest adversarial coverage (high): the 45 must intents have 45 unique current mechanical passing receipts and zero waivers, but the new 26-case mutation loop may fail an appended contradiction solely because approvedReviewFindingTriageContractSha256 no longer matches. CHK-004:adversarial:semantic-collapse explicitly requires rejection even when all digest pins are refreshed. A read-only simulation mutated the production contract, recomputed the exact terminal-contract SHA as the refreshed approval pin, preserved the marker and all required phrases, and applied the 13 committed forbidden regexes; 13/13 new equivalent contradictions were accepted, including review-team authority to invoke gap_log, finding_dismiss establishing Story exclusion, superseded-envelope bindings remaining accepted, REVIEW availability of story_create, routed findings counting as closed, ownership/proof optional for blocker routing, instructions establishing lifecycle blocking, non-overlapping diff proving inherited/unaffected, and a stale unowned canonical record as duplicate destination. Thus F-017 is not fixed under the acceptance-required repin scenario, and verificationEvidence remains semantically insufficient for CHK-001:adversarial:2, CHK-001:adversarial:3, CHK-001:adversarial:4, CHK-001:adversarial:5, CHK-004:adversarial:test-weakening, and CHK-004:adversarial:semantic-collapse. Use a bounded semantic contract representation or mutation oracle that remains effective after digest refresh, then rerun and rebind those intents.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T22:51:39.239Z",
+      "reviewRound": "2026-08-31T22:45:56.798Z",
+      "reviewRunId": "B-9a49:RR-017",
+      "_hash": "a77b1c435dd58239d31f019f8a968c49b739d9cc78447181e570e8cb3457097f",
+      "files": [
+        "packages/main/src/tasks/prompt-registry-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
