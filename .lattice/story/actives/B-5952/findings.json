@@ -325,6 +325,21 @@
       "_hash": "1aded255b03785f21c217f28ee44430906e33339acab36e63b6100a1066ad602",
       "signatureTag": "missing|unknown|lattice-story-actives",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5952:F-016",
+      "desc": "packages/main/src/tasks/red-evidence-envelope-smoke.ts:512 and :542 — acceptance-blocking high: CHK-001:edge:missing-lattice-envelope-snapshot requires the real snapshot path to represent an absent .lattice tree deterministically before initialization, but the patch instead forces StoryStore into .lattice via storyDir and snapshotLattice still unconditionally calls readdirSync at line 545/walk at line 552. The PASS receipt therefore avoids the required missing-tree state and would still throw ENOENT if that state occurred; implement and exercise an explicit missing-state snapshot before creating fixture metadata, then retain the non-empty before/after manifest assertion.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T12:23:46.853Z",
+      "reviewRound": "2026-08-31T12:18:00.095Z",
+      "reviewRunId": "B-5952:RR-036",
+      "_hash": "d6dde5a3de5e73384d05a7cc387c44255ca95ea9b4a342752924408c3449daf5",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
