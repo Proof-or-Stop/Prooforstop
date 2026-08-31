@@ -923,20 +923,20 @@
           "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
-          "note": "Current prose residue is zero while exact history stays byte-bound.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "note": "F-011: current migration guidance distinguishes retired-role inventory from required canonical identity hits; exact historical mappings remain context-bound and active residue is empty.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0ff70de06a251fcfb312ec0f8fc080c4c488ba16435aa4f8c671742faa171057",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 245 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit 0889f89abbe7\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:46:38.951Z",
+            "executedAt": "2026-08-31T05:14:57.420Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.484Z"
+          "headHash": "9d520f8441c00c0726ed3bcefcddffc545da3394",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
+          "timestamp": "2026-08-31T05:14:57.657Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
