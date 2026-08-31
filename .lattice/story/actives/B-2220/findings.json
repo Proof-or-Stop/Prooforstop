@@ -134,7 +134,7 @@
       "desc": "quality-coherence: packages/main/src/tasks/validation-evidence-buffer-smoke.ts:562 and :588-589 still claim that a later serialisation cannot disagree and that every reading is the same. Those statements are wider than the code and contradict the narrowed check-time limitation at :81-84: after boundPersistedValidationEvidence returns, installing Object.prototype.toJSON changes the same record measurement from reported=57/before=57 to after=22 (diverged=true). Build binding and the full compiled smoke both pass despite this false claim, so F-006 is not fully closed; narrow or remove these remaining statements.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-30T23:53:55.984Z",
@@ -142,7 +142,11 @@
       "reviewRunId": "B-2220:RR-018",
       "_hash": "e9ceb752c31c2e90e0bc7c8eccfc11f87cb22705870d63f51e5bae4619283213",
       "signatureTag": "missing|unknown|quality-coherence-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f62e88384b: section 10c now limits the snapshot claim to own volatile values read during the check, explicitly preserves the inherited Object.prototype.toJSON limitation, and narrows the assertion and PASS text. Full-file wording audit found no remaining wider claim; build-bound compiled smoke passed with receipt 7b2ee62.",
+      "resolvedAt": "2026-08-31T00:00:55.376Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-2220:F-008",
