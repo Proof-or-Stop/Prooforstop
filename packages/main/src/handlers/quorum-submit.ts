@@ -17,6 +17,7 @@ import { normalizeRelPath } from '../core/lattice-paths.js';
 import { evaluateReviewEscalation } from '../core/review-escalation.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { collectReviewerEvidenceState } from '../core/review-run.js';
+import { canonicalReviewerLane } from '../core/reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { computeActiveReviewers } from './reviewer-list.js';
 import { readGitBlobAt } from '../core/git-blob-reader.js';
@@ -83,7 +84,8 @@ function normalizeIdentity(value: unknown): string {
 }
 
 function toLane(name: string): string {
-  return name.startsWith('lattice-review-') ? name : `lattice-review-${name}`;
+  return canonicalReviewerLane(name)
+    ?? (name.startsWith('proof-or-stop-review-') ? name : `proof-or-stop-review-${name}`);
 }
 
 function parseRounds(value: unknown): number {
@@ -150,7 +152,7 @@ function assertCurrentReviewerPasses(ctx: HandlerContext, storyId: string, proje
   const requiredLanes = requiredReviewerLanes(ctx, storyId, projectRoot);
   const state = collectReviewerEvidenceState(ctx.store, storyId, projectRoot);
   const validPasses = state.valid.filter(evidence => evidence.kind === 'pass');
-  const passByLane = new Map(validPasses.map(evidence => [evidence.agent, evidence]));
+  const passByLane = new Map(validPasses.map(evidence => [canonicalReviewerLane(evidence.agent) ?? evidence.agent, evidence]));
   const missing = requiredLanes.filter(lane => !passByLane.has(lane));
   if (missing.length > 0 || state.invalid.length > 0) {
     const details = [

@@ -560,7 +560,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const authority = resolveAgentMutationAuthority({ command: 'finding_add', payloadActors: [args.agent] });
       const dispatchedActor = authority.actor;
       const missingAttribution = !dispatchedActor;
-      const agent = dispatchedActor || 'main';
+      // Registry aliases are accepted on input, but persisted findings are a
+      // new-write surface and must carry the canonical proof-or-stop role.
+      const agent = authority.entry?.canonicalName || dispatchedActor || 'main';
       const category = normalizeFindingCategory(args.category);
       // B-3fad CHK-001: evidenceState defaults to verified; explicit suspected/disproven requires the accompanying fields.
       const evidence = resolveEvidenceState(args);
@@ -721,9 +723,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
       }
 
       const warning = missingAttribution
-        // B-cdf6: teach the canonical env var name. `lattice-review-*` in this same
-        // string is a FROZEN role ID (subagent_type value) and must NOT be renamed.
-        ? `\n⚠ finding_add is missing agent/${BRAND_ENV_PREFIX}AGENT and has been recorded as main; reviewer must pass agent="lattice-review-*", otherwise it will not count as reviewer evidence.`
+        // B-cdf6: teach the canonical env var name and canonical reviewer role family.
+        ? `\n⚠ finding_add is missing agent/${BRAND_ENV_PREFIX}AGENT and has been recorded as main; reviewer must pass agent="proof-or-stop-review-*", otherwise it will not count as reviewer evidence.`
         : '';
       const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_add');
       const advisoryHint = evidence.evidenceState === 'suspected'

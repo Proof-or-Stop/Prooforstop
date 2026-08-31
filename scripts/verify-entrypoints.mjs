@@ -37,7 +37,7 @@ const CODEX_MANIFEST_REL = `${AD}/${PROOF_OR_STOP_MANIFEST_FILENAME}`;
 const repoRoot = process.cwd();
 // B-cdf6: the global-fallback advice names the CANONICAL bin. The LATTICE_* env vars in it
 // are FROZEN (Pass B owns them); only the bin token moved.
-const GLOBAL_CODEX_FALLBACK = 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop';
+const GLOBAL_CODEX_FALLBACK = 'PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop';
 const INIT_ENTRYPOINT = 'packages/main/dist/cli-init.js';
 const CORE_ENTRYPOINT = 'packages/main/dist/cli.js';
 const MANAGED_GITIGNORE_BLOCK_START = LATTICE_RUNTIME_IGNORE_BLOCK_START;
@@ -64,6 +64,19 @@ function runBounded(cmd, args, opts = {}) {
   });
 }
 
+function assertExpectedBoundedExit(result, label) {
+  // `serve` is intentionally long-lived, so the harness may terminate it after
+  // it has emitted its startup markers. Keep that timeout/termination contract
+  // explicit while rejecting every other spawn failure and every non-zero exit.
+  if (result.error) {
+    assert(result.error.code === 'ETIMEDOUT', `${label} failed unexpectedly: ${result.error.code || result.error.message}`);
+    return;
+  }
+  if (result.signal === 'SIGTERM' && result.status === null) return;
+  assert(result.signal === null, `${label} terminated unexpectedly by ${result.signal}`);
+  assert(result.status === 0, `${label} exited with status ${result.status}`);
+}
+
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
@@ -79,6 +92,19 @@ function assertNotIncludes(haystack, needle, label) {
 function readJson(root, relPath) {
   return JSON.parse(readFileSync(join(root, relPath), 'utf8'));
 }
+
+function assertCanonicalMainPackageBin(root) {
+  const packageJson = readJson(root, 'packages/main/package.json');
+  const packageLock = readJson(root, 'packages/main/package-lock.json');
+  const packageBin = packageJson.bin || {};
+  const lockBin = packageLock.packages?.['']?.bin || {};
+  assert(packageBin['proof-or-stop'] === 'dist/cli.js', 'packages/main package.json must publish proof-or-stop -> dist/cli.js');
+  assert(lockBin['proof-or-stop'] === 'dist/cli.js', 'packages/main package-lock.json must pin proof-or-stop -> dist/cli.js');
+  assert(!Object.prototype.hasOwnProperty.call(packageBin, 'lattice'), 'packages/main package.json must not reintroduce the lattice npm bin alias');
+  assert(!Object.prototype.hasOwnProperty.call(lockBin, 'lattice'), 'packages/main package-lock.json must not reintroduce the lattice npm bin alias');
+}
+
+assertCanonicalMainPackageBin(repoRoot);
 
 function assertPathExists(root, relPath, label = relPath) {
   assert(existsSync(join(root, relPath)), `${label} should exist`);
@@ -146,8 +172,17 @@ function assertInitHelpDocumentsStarterAsOptional(help, label) {
 }
 
 function assertManagedMarkerSync(content, expectedNeedle, staleNeedle, label) {
-  assertIncludes(content, '<!-- lattice:start -->', label);
-  assertIncludes(content, '<!-- lattice:end -->', label);
+  const managedMarkerPairs = [
+    ['<!-- proof-or-stop:start -->', '<!-- proof-or-stop:end -->'],
+    ['<!-- lattice:start -->', '<!-- lattice:end -->'],
+  ];
+  const hasManagedMarkerPair = managedMarkerPairs.some(([start, end]) =>
+    content.includes(start) && content.includes(end),
+  );
+  assert(
+    hasManagedMarkerPair,
+    `${label} missing a complete managed marker pair (canonical proof-or-stop or legacy lattice)`,
+  );
   assertIncludes(content, expectedNeedle, label);
   if (staleNeedle) assertNotIncludes(content, staleNeedle, label);
 }
@@ -175,10 +210,10 @@ function assertProfileAssets(tempDir, profile, opts = {}) {
       'bin/proof-or-stop-codex.js',
       CODEX_README_REL,
       CODEX_MANIFEST_REL,
-      `${AD}/agents/test-intent.md`,
-      `${AD}/agents/test-case-reviewer.md`,
-      `${AD}/agents/lattice-review-quality.md`,
-      `${AD}/agents/lattice-implementer.md`,
+      `${AD}/agents/proof-or-stop-test-intent.md`,
+      `${AD}/agents/proof-or-stop-test-case-reviewer.md`,
+      `${AD}/agents/proof-or-stop-review-quality.md`,
+      `${AD}/agents/proof-or-stop-implementer.md`,
     );
   } else if (!opts.allowExistingCodex) {
     absent.push('AGENTS.md', 'bin/proof-or-stop-codex.js', AD);
@@ -476,7 +511,7 @@ checks.push(() => {
     assertIncludes(codexReadme, 'Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json`', CODEX_README_REL);
 
     const codexManifest = readJson(tempDir, CODEX_MANIFEST_REL);
-    assert(codexManifest.adapterOwner === 'lattice', 'adapter manifest should be owned by lattice');
+    assert(codexManifest.adapterOwner === 'proof-or-stop', 'adapter manifest should be owned by proof-or-stop');
     assert(codexManifest.activitySource === 'codex', 'adapter manifest should declare activitySource=codex');
     assert(
       codexManifest.recommendedEntrypoints.some(entry => entry.command === 'node bin/proof-or-stop-codex.js'),
@@ -501,8 +536,9 @@ checks.push(() => {
         && codexManifest.sessionEnv.sessionCandidates.includes('TERM_SESSION_ID'),
       'adapter manifest should document Codex thread/session/OpenAI/terminal task env candidates',
     );
-    assert(codexManifest.sessionEnv.session === 'LATTICE_OWNER_SESSION_ADAPTER_TASK', 'adapter manifest should name the non-logging task bridge');
-    assert(codexManifest.sessionEnv.recordReadOnly === 'LATTICE_ACTIVITY_RECORD_READONLY', 'adapter manifest should document read-only activity opt-in');
+    assert(codexManifest.sessionEnv.session === 'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK', 'adapter manifest should name the non-logging task bridge');
+    assert(codexManifest.sessionEnv.recordReadOnly === 'PROOF_OR_STOP_ACTIVITY_RECORD_READONLY', 'adapter manifest should document read-only activity opt-in');
+    assert(!JSON.stringify(codexManifest).includes('LATTICE_'), 'new Codex adapter manifest must not emit legacy environment names');
     assert(!codexManifest.excludedRuntimeAssets.includes(`${AD}/hooks`), 'adapter manifest should allow managed Codex native hooks');
     assert(codexManifest.excludedRuntimeAssets.includes(`${AD}/settings.json`), 'adapter manifest should exclude .lattice-codex/settings.json');
     assertPathExists(tempDir, '.codex/hooks', 'lattice init .codex/hooks');
@@ -589,7 +625,7 @@ checks.push(() => {
     const checkApply = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--apply', '--json'], { cwd: tempDir }));
     assert(checkApply.ok === true, 'lattice check --apply should repair safe managed drift');
     assert(checkApply.applied.includes(CODEX_MANIFEST_REL), 'lattice check --apply should report applied managed manifest');
-    assert(readJson(tempDir, CODEX_MANIFEST_REL).adapterOwner === 'lattice', 'lattice check --apply should restore Codex manifest');
+    assert(readJson(tempDir, CODEX_MANIFEST_REL).adapterOwner === 'proof-or-stop', 'proof-or-stop check --apply should restore Codex manifest');
     // B-cc10 F-044: MANIFEST_REL_PATH now writes only the canonical path, so asserting the
     // deprecated one could never pass — the assertion was checking for a file init stopped
     // creating.
@@ -701,9 +737,23 @@ checks.push(() => {
 checks.push(() => {
   const tempDir = mkdtempSync(join(tmpdir(), 'lattice-entrypoints-serve-flags-'));
   try {
+    let rejectedNonZeroExit = false;
+    try {
+      assertExpectedBoundedExit({ status: 17, signal: null }, 'serve exit contract synthetic non-zero case');
+    } catch (error) {
+      rejectedNonZeroExit = true;
+      assertIncludes(String(error?.message || error), 'exited with status 17', 'serve exit contract non-zero rejection');
+    }
+    assert(rejectedNonZeroExit, 'serve exit contract must reject a non-zero child exit');
+
+    const localBinDir = join(tempDir, 'node_modules', '.bin');
+    mkdirSync(localBinDir, { recursive: true });
+    const tsxShim = join(localBinDir, 'tsx');
+    writeFileSync(tsxShim, `#!/bin/sh\nexec ${process.execPath} "$@"\n`);
+    chmodSync(tsxShim, 0o755);
     const cliPath = join(repoRoot, 'packages/main/dist/cli.js');
     for (const flag of ['--web', '--cli']) {
-      const result = runBounded(process.execPath, [cliPath, 'serve', flag], {
+      const result = runBounded(process.execPath, [cliPath, '--root', tempDir, 'serve', flag], {
         cwd: tempDir,
         env: process.env,
       });
@@ -713,9 +763,7 @@ checks.push(() => {
       assertNotIncludes(output, 'Unknown option', `lattice serve ${flag} should not be rejected as an unknown option`);
       assertNotIncludes(output, '--web', `lattice serve ${flag} runtime output`);
       assertNotIncludes(output, '--cli', `lattice serve ${flag} runtime output`);
-      if (result.error && result.error.code !== 'ETIMEDOUT') {
-        throw result.error;
-      }
+      assertExpectedBoundedExit(result, `proof-or-stop serve ${flag}`);
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

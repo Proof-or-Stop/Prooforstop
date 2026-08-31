@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
+import { AgentDispatchRegistryError, validateAgentDispatchRequest } from '../core/agent-dispatch-registry.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from '../handlers/stray-file-cleanup.js';
@@ -178,7 +179,7 @@ async function assertReviewPassConcurrentWrites(): Promise<void> {
   try {
     const storyId = 'B-pass';
     writeReviewStory(root, storyId);
-    const agents = ['concept', 'quality', 'test-coverage', 'docs'].map(name => `lattice-review-${name}`);
+    const agents = ['concept', 'quality', 'test-coverage', 'docs'].map(name => `proof-or-stop-review-${name}`);
     const runIds = new Map(await Promise.all(agents.map(async (agent) => [agent, await startReviewRun(root, storyId, agent)] as const)));
     await Promise.all(agents.map(agent => runProofOrStop(root, 'review_pass_set', {
       storyId,
@@ -653,7 +654,7 @@ async function assertInitDispatchPromptHasStatusFirstLivenessGuidance(): Promise
       events: [],
     });
 
-    const output = await runProofOrStop(root, 'dispatch', { storyId, agentType: 'lattice-review-story-init' });
+    const output = await runProofOrStop(root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-story-init' });
     assert.match(output, /INIT_REVIEW_START/, 'init dispatch should ask reviewer to emit start heartbeat');
     assert.match(output, /INIT_REVIEW_READ_DONE/, 'init dispatch should ask reviewer to emit read heartbeat');
     assert.match(output, /Within 5 minutes.*init_check_set.*explicit blocker/, 'init dispatch should preserve the reviewer progress duty');
@@ -666,7 +667,7 @@ async function assertInitDispatchPromptHasStatusFirstLivenessGuidance(): Promise
     const events = new StoryStore(root).readProcessEvents(storyId);
     const dispatchEvent = events.find(ev => ev.type === 'dispatch');
     assert.equal(dispatchEvent?.targetKind, 'init-review', 'init dispatch should write an init-review dispatch event');
-    assert.equal(dispatchEvent?.agentType, 'lattice-review-story-init', 'init dispatch should preserve reviewer agentType');
+    assert.equal(dispatchEvent?.agentType, 'proof-or-stop-review-story-init', 'init dispatch should preserve reviewer agentType');
     assert.equal(dispatchEvent?.phase, 'INIT', 'init dispatch event should include story phase');
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -682,10 +683,10 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
     const output = await runProofOrStop(root, 'dispatch', {
       storyId,
       itemId: 'CHK-001',
-      agentType: 'lattice-implementer',
+      agentType: 'proof-or-stop-implementer',
     });
     assert.match(output, /CHK-001/, 'item dispatch should still return the item prompt');
-    assert.match(output, /DISPATCH_START:lattice-implementer\/CHK-001/, 'item dispatch should ask worker to emit a liveness heartbeat');
+    assert.match(output, /DISPATCH_START:proof-or-stop-implementer\/CHK-001/, 'item dispatch should ask worker to emit a liveness heartbeat');
     assert.match(output, /Host-native task liveness policy/, 'item dispatch should include the canonical liveness policy');
     assert.match(output, /including after 10 minutes\/600s/, 'item dispatch should explicitly protect long-running work');
     assert.match(output, /do not dispatch a duplicate/, 'item dispatch should prevent duplicate workers');
@@ -695,7 +696,7 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
     const dispatchEvent = events.find(ev => ev.type === 'dispatch' && ev.itemId === 'CHK-001');
     assert.equal(dispatchEvent?.targetKind, 'checklist', 'item dispatch should write checklist targetKind');
     assert.equal(dispatchEvent?.checklistId, 'CHK-001', 'item dispatch should write checklistId for channel gate');
-    assert.equal(dispatchEvent?.agentType, 'lattice-implementer', 'item dispatch should write agentType');
+    assert.equal(dispatchEvent?.agentType, 'proof-or-stop-implementer', 'item dispatch should write agentType');
     assert.equal(dispatchEvent?.phase, 'DEV', 'item dispatch event should include story phase');
     assert.equal(dispatchEvent?.source, 'proof-or-stop dispatch', 'item dispatch event should name source');
   } finally {
@@ -709,25 +710,25 @@ async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<vo
     const storyId = 'B-review-dispatch';
     writeChecklistConcurrencyStory(root, storyId, 'REVIEW');
 
-    const output = await runProofOrStop(root, 'dispatch', { storyId, agentType: 'lattice-review-quality' });
-    assert.match(output, /As lattice-review-quality, review story/, 'story reviewer dispatch should identify reviewer role');
+    const output = await runProofOrStop(root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-quality' });
+    assert.match(output, /As proof-or-stop-review-quality, review story/, 'story reviewer dispatch should identify reviewer role');
     assert.match(output, /Review only; do not change code/, 'reviewer item dispatch should constrain the role to review only');
     assert.match(output, /review_run_start/, 'reviewer item dispatch should require review_run_start before REVIEW evidence');
     assert.match(output, /finding_add/, 'reviewer item dispatch should tell reviewers how to record findings');
     assert.match(output, /review_pass_set/, 'reviewer item dispatch should tell reviewers how to record pass evidence');
     assert.match(output, /<reviewRunId>/, 'reviewer dispatch should use a fresh returned reviewRunId placeholder');
     assert.doesNotMatch(output, /:RR-001/, 'reviewer dispatch must not hard-code a synthetic reviewRunId');
-    assert.doesNotMatch(output, /as lattice-implementer/, 'reviewer item dispatch must not generate implementer prompt');
+    assert.doesNotMatch(output, /as proof-or-stop-implementer/, 'reviewer item dispatch must not generate implementer prompt');
     assert.doesNotMatch(output, /git commit/, 'reviewer item dispatch must not ask reviewer to commit');
     assert.doesNotMatch(output, /checklist_update/, 'reviewer item dispatch must not ask reviewer to mark checklist done');
 
     const events = new StoryStore(root).readProcessEvents(storyId);
-    const dispatchEvent = events.find(ev => ev.type === 'dispatch' && ev.agentType === 'lattice-review-quality');
+    const dispatchEvent = events.find(ev => ev.type === 'dispatch' && ev.agentType === 'proof-or-stop-review-quality');
     assert.equal(dispatchEvent?.targetKind, 'story-review', 'reviewer dispatch should write story-review targetKind');
-    assert.equal(dispatchEvent?.agentType, 'lattice-review-quality', 'reviewer item dispatch should preserve reviewer agentType');
+    assert.equal(dispatchEvent?.agentType, 'proof-or-stop-review-quality', 'reviewer item dispatch should preserve reviewer agentType');
 
     await assert.rejects(
-      runProofOrStop(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'lattice-review-quality' }),
+      runProofOrStop(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-review-quality' }),
       /story-only.*omit itemId/i,
       'story reviewer with itemId must fail closed with cardinality guidance',
     );
@@ -737,26 +738,33 @@ async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<vo
       'unknown explicit agent type must fail before prompt generation',
     );
     await assert.rejects(
-      runProofOrStop(root, 'checklist_update', { storyId, itemId: 'CHK-001', status: 'done' }, { LATTICE_AGENT: 'lattice-review-quality' }),
+      runProofOrStop(root, 'checklist_update', { storyId, itemId: 'CHK-001', status: 'done' }, { LATTICE_AGENT: 'proof-or-stop-review-quality' }),
       /agent_dispatch_mutation_denied/,
       'reviewer role must not complete checklist status',
     );
 
     const planStoryId = 'B-verification-dispatch';
     writeChecklistConcurrencyStory(root, planStoryId, 'PLAN');
-    for (const agentType of ['verification-intent', 'test-intent', 'test-case-reviewer']) {
-      const verificationPrompt = await runProofOrStop(root, 'dispatch', {
-        storyId: planStoryId,
-        itemId: 'CHK-001',
-        agentType,
-      });
-      assert.match(verificationPrompt, /define verification intent/, `${agentType} must route to verification-intent prompt`);
-      assert.doesNotMatch(verificationPrompt, /git commit|status["': ]+done/i, `${agentType} must not receive implementer completion guidance`);
+    const verificationPrompt = await runProofOrStop(root, 'dispatch', {
+      storyId: planStoryId,
+      itemId: 'CHK-001',
+      agentType: 'verification-intent',
+    });
+    assert.match(verificationPrompt, /define verification intent/, 'verification-intent must route to its prompt');
+    assert.doesNotMatch(verificationPrompt, /git commit|status["': ]+done/i, 'verification-intent must not receive implementer completion guidance');
+    for (const agentType of ['proof-or-stop-test-intent', 'proof-or-stop-test-case-reviewer', 'test-intent', 'test-case-reviewer']) {
+      assert.throws(
+        () => validateAgentDispatchRequest({ agentType, phase: 'PLAN', itemId: 'CHK-001' }),
+        (error: unknown) => error instanceof AgentDispatchRegistryError
+          && error.code === 'legacy_agent_type'
+          && /legacy read-side identity.*proof-or-stop-verification-intent/.test(error.message),
+        `${agentType} must be rejected with canonical verification-intent guidance`,
+      );
     }
     await assert.rejects(
-      runProofOrStop(root, 'checklist_update', { storyId: planStoryId, itemId: 'CHK-001', status: 'done' }, { LATTICE_AGENT: 'test-intent' }),
+      runProofOrStop(root, 'checklist_update', { storyId: planStoryId, itemId: 'CHK-001', status: 'done' }, { LATTICE_AGENT: 'verification-intent' }),
       /agent_dispatch_mutation_scope_denied/,
-      'verification-intent alias must not mark checklist done',
+      'verification-intent role must not mark checklist done',
     );
   } finally {
     rmSync(root, { recursive: true, force: true });

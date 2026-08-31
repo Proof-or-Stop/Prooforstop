@@ -18,6 +18,7 @@ import { syncBuiltinESMExports } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 import { resetConfigCache } from '../core/config.js';
+import { DONE_PREPARE_SCHEMA } from '../core/artifact-schema.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { StoryStore } from '../core/store.js';
@@ -1263,7 +1264,7 @@ function assertJsonStdoutClean(): void {
       status?: string;
       transcript?: string;
     };
-    assert.equal(parsed.schemaVersion, 'lattice.done_prepare.v1');
+    assert.equal(parsed.schemaVersion, DONE_PREPARE_SCHEMA);
     assert.equal(parsed.storyId, storyId);
     assert.equal(parsed.status, 'pass', `JSON done_prepare should pass:\nstderr:\n${result.stderr}\nstdout:\n${result.stdout}`);
     assert.match(parsed.transcript ?? '', /^DONE prepare: PASS/);

@@ -7,6 +7,11 @@
 
 import assert from 'node:assert/strict';
 import {
+  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
+  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY,
+  isDoneRequiredEvidenceVersionedSchema,
+} from '../core/artifact-schema.js';
+import {
   ADMISSIBILITY_REASON_CODES,
   ARTIFACT_CONSUMER_KINDS,
   ARTIFACT_ROLES,
@@ -43,7 +48,7 @@ function currentValidChecks(schemaVersion: string) {
     subjectMatches: true,
     producerBoundaryTrusted: true,
   };
-  if (schemaVersion === 'lattice.done_required_evidence.v1') {
+  if (isDoneRequiredEvidenceVersionedSchema(schemaVersion)) {
     return {
       ...checks,
       commandSpecDigestValid: true,
@@ -290,25 +295,39 @@ for (const value of [false, 'true', 1, 0]) {
 }
 
 {
-  const doneRequired = evaluateProofAdmissibility({
+  for (const schemaVersion of [
+    DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
+    DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY,
+  ]) {
+    const doneRequired = evaluateProofAdmissibility({
+      artifactKind: 'done-required-evidence',
+      consumer: 'DONE_REQUIRED',
+      claim: 'done-readiness',
+      checks: currentValidChecks(schemaVersion),
+    });
+    assert.equal(doneRequired.allowed, true, `${schemaVersion} can satisfy local done-readiness`);
+    assert.equal(doneRequired.scope, 'local-gate-evidence', `${schemaVersion} remains local gate evidence`);
+    assert.equal(doneRequired.productionDoneEligible, false, `${schemaVersion} is never productionDone eligible`);
+
+    const doneRequiredOverread = evaluateProofAdmissibility({
+      artifactKind: 'done-required-evidence',
+      consumer: 'DONE',
+      claim: 'production-completion',
+      checks: currentValidChecks(schemaVersion),
+    });
+    assert.equal(doneRequiredOverread.allowed, false, `${schemaVersion} cannot satisfy release readiness`);
+    assert.equal(doneRequiredOverread.productionDoneEligible, false, `${schemaVersion} cannot set productionDone`);
+    expectReason(doneRequiredOverread.reasons, 'artifact_consumer_mismatch', `${schemaVersion} production claim`);
+  }
+
+  const doneRequiredUnknown = evaluateProofAdmissibility({
     artifactKind: 'done-required-evidence',
     consumer: 'DONE_REQUIRED',
     claim: 'done-readiness',
-    checks: currentValidChecks('lattice.done_required_evidence.v1'),
+    checks: { ...currentValidChecks('proof-or-stop.done_required_evidence.v99'), commandSpecDigestValid: true },
   });
-  assert.equal(doneRequired.allowed, true, 'DONE-required evidence can satisfy local done-readiness');
-  assert.equal(doneRequired.scope, 'local-gate-evidence', 'DONE-required evidence is scoped as local gate evidence');
-  assert.equal(doneRequired.productionDoneEligible, false, 'DONE-required evidence is never productionDone eligible');
-
-  const doneRequiredOverread = evaluateProofAdmissibility({
-    artifactKind: 'done-required-evidence',
-    consumer: 'DONE',
-    claim: 'production-completion',
-    checks: currentValidChecks('lattice.done_required_evidence.v1'),
-  });
-  assert.equal(doneRequiredOverread.allowed, false, 'DONE-required evidence cannot satisfy release readiness');
-  assert.equal(doneRequiredOverread.productionDoneEligible, false, 'DONE-required evidence cannot set productionDone');
-  expectReason(doneRequiredOverread.reasons, 'artifact_consumer_mismatch', 'DONE-required production claim');
+  assert.equal(doneRequiredUnknown.allowed, false, 'unknown DONE-required schemas fail closed');
+  expectReason(doneRequiredUnknown.reasons, 'unsupported_schema_version', 'unknown DONE-required schema');
 }
 
 {

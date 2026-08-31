@@ -116,7 +116,7 @@ try {
   const missingProduct = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }, true);
   assert.match(missingProduct, /missing_init_check_agent/);
   assert.match(missingProduct, /product-reviewer/);
-  assert.match(missingProduct, /agentType":"product-reviewer"/, 'partial recovery should dispatch the missing product reviewer');
+  assert.match(missingProduct, /agentType":"proof-or-stop-product-reviewer"/, 'partial recovery should dispatch the missing product reviewer');
   assert.doesNotMatch(
     missingProduct,
     /(?:subagent_type|agentType)[^\n]*lattice-review-story-init/,
@@ -159,15 +159,15 @@ try {
   run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'product-reviewer' });
   const missingStoryInit = run(root, 'story_advance', { storyId: tamperStoryId, phase: 'INIT_CHECK' }, true);
   assert.match(missingStoryInit, /missing_init_check_agent/);
-  assert.match(missingStoryInit, /lattice-review-story-init/);
+  assert.match(missingStoryInit, /proof-or-stop-review-story-init/);
   assert.match(
     missingStoryInit,
-    /agentType":"lattice-review-story-init"/,
+    /agentType":"proof-or-stop-review-story-init"/,
     'partial recovery should dispatch the missing story-init reviewer',
   );
   assert.doesNotMatch(
     missingStoryInit,
-    /(?:subagent_type|agentType)[^\n]*product-reviewer|and (?:have |dispatch )?product-reviewer/i,
+    /(?:subagent_type|agentType)\s*:\s*"(?:lattice-review-story-init|product-reviewer)"|agentType":"(?:lattice-review-story-init|product-reviewer)"/i,
     'partial recovery must not duplicate the already-recorded product reviewer',
   );
   assert.match(missingStoryInit, /Host-native task liveness policy/, 'partial story-init recovery should include canonical liveness guidance');

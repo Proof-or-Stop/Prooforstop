@@ -6,8 +6,9 @@ import { basename, dirname, isAbsolute, join, relative } from 'node:path';
 import { isStoryMetadataPath } from './evidence-freshness.js';
 import { parseGitPorcelainRow, type DirtyWorktreeParsedRow } from './dirty-worktree.js';
 import { classifySharedLifecycleMetadata } from './lifecycle-registry.js';
+import { DONE_PREPARE_GENERATED_METADATA_SCHEMA } from './artifact-schema.js';
 
-export const DONE_PREPARE_GENERATED_METADATA_SCHEMA = 'lattice.done-prepare-generated-metadata.v1' as const;
+export { DONE_PREPARE_GENERATED_METADATA_SCHEMA };
 
 /**
  * Explicit output ceiling for every `git` read this module performs.

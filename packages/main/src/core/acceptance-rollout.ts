@@ -251,7 +251,10 @@ function replayProductionGateState(args: {
       env: {
         ...process.env,
         PROOF_OR_STOP_SESSION_ID: `rollout-replay-${args.storyId}-${command}`,
-        PROOF_OR_STOP_AGENT: 'acceptance-rollout-verifier',
+        // The verifier name is an artifact issuer, not a registered mutation
+        // role. Use the trusted host actor for the nested gate replay; any
+        // reviewer identity remains carried by the signed gate payload.
+        PROOF_OR_STOP_AGENT: 'main',
       },
       maxBuffer: 16 * 1024 * 1024,
     });

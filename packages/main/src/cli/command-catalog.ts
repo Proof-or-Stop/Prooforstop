@@ -65,6 +65,28 @@ import { AGENT_DISPATCH_ACCEPTED_TYPES } from '../core/agent-dispatch-registry.j
 import { STALL_RESOLUTION_ACTIONS } from '../core/review-convergence.js';
 import { normalizeDeliveryPromiseOutcome } from '../core/delivery-promise-outcome.js';
 
+// review_run_start accepts canonical reviewer lanes for new callers and the
+// historical lattice spellings for persisted/compatibility callers. Runtime
+// phase and evidence eligibility checks remain in core/review-run.ts.
+const REVIEW_RUN_LANE_INPUTS = [
+  'proof-or-stop-review-topology-critic',
+  'proof-or-stop-review-concept',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-behavior',
+  'proof-or-stop-review-docs',
+  'proof-or-stop-review-channel',
+  'proof-or-stop-review-test-coverage',
+  'proof-or-stop-review-delivery',
+  'lattice-review-topology-critic',
+  'lattice-review-concept',
+  'lattice-review-quality',
+  'lattice-review-behavior',
+  'lattice-review-docs',
+  'lattice-review-channel',
+  'lattice-review-test-coverage',
+  'lattice-review-delivery',
+] as const;
+
 const HIDDEN_LOCAL_ASSURANCE_REFUSAL = '@help-hidden local-assurance refusal sentinel';
 
 const READ_ONLY_STATUS_UNSUPPORTED_FLAGS = {
@@ -175,7 +197,7 @@ const reviewerReadEventSchema = z.object({
   tokens: reviewerReadTokenCountSchema.optional().describe('Alias for tokenCount.'),
 }).passthrough().describe('Mechanical reviewer read event captured from tool usage.');
 const reviewerReadEventsSchema = z.array(reviewerReadEventSchema)
-  .describe('Mechanical reviewer read events. Runtime keeps only lattice-review-* decisions-doc reads, derives the signed readLog digest/summary, and scopes mismatch diagnostics to decisions docs.');
+  .describe('Mechanical reviewer read events. Runtime keeps only proof-or-stop-review-* decisions-doc reads, derives the signed readLog digest/summary, and scopes mismatch diagnostics to decisions docs.');
 const reviewerReadLogInputSchema = z.union([
   reviewerReadEventsSchema,
   z.object({ events: reviewerReadEventsSchema }).passthrough(),
@@ -647,16 +669,8 @@ Behavior:
   }},
   { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round; write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
-    lane: z.enum([
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
-      'lattice-review-behavior',
-      'lattice-review-docs',
-      'lattice-review-channel',
-      'lattice-review-topology-critic',
-    ]).optional().describe('Explicit reviewer lane; synonym for agent, provide only one.'),
+    agent: z.string().optional().describe('Reviewer agent ID, for example proof-or-stop-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
+    lane: z.enum(REVIEW_RUN_LANE_INPUTS).optional().describe('Explicit canonical reviewer lane; historical lattice aliases remain readable, provide only one.'),
     reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.'),
     reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
   }},
@@ -670,8 +684,8 @@ Behavior:
   { name: 'review_inventory_critic_set', description: 'Record independent completeness-critic authority for the current frozen inventory wave', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
     epochId: z.string().min(1).describe('Current OPEN inventory epoch ID.'),
-    reviewRunId: z.string().min(1).describe('Fresh lattice-review-topology-critic ReviewRun with terminal read evidence.'),
-    agent: z.literal('lattice-review-topology-critic').optional().describe('Critic actor; must agree with the dispatched LATTICE_AGENT authority.'),
+    reviewRunId: z.string().min(1).describe('Fresh proof-or-stop-review-topology-critic ReviewRun with terminal read evidence.'),
+    agent: z.literal('proof-or-stop-review-topology-critic').optional().describe('Critic actor; must agree with the dispatched PROOF_OR_STOP_AGENT authority.'),
     findingDispositions: z.array(z.object({
       findingId: z.string().min(1),
       disposition: z.enum(['verified_family', 'duplicate', 'not_verified']),
@@ -692,7 +706,7 @@ Behavior:
   }},
   { name: 'review_pass_set', description: 'Record a reviewer pass credential (reviewer checked, found no blocking findings)', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('Reviewer agent ID, for example lattice-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
+    agent: z.string().optional().describe('Reviewer agent ID, for example proof-or-stop-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
     reviewRunId: z.string().describe('Current reviewer run ID; call review_run_start first.'),
     note: z.string().describe('Review scope and reason there is no blocker (at least 10 characters).'),
     readManifest: reviewerReadManifestSchema.describe('Required signed reviewer read coverage for this pass.'),
@@ -1359,7 +1373,7 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
   { name: 'agent_prompt', description: 'Print the canonical package-registry host render: a body-free review_run_start bootstrap for migrated reviewers, or the role body for ordinary roles', schema: {
-    role: z.string().min(1).describe('Proof-or-Stop agent role name, e.g. lattice-implementer, lattice-review-concept (the template basename without .md)'),
+    role: z.string().min(1).describe('Proof-or-Stop agent role name, e.g. proof-or-stop-implementer, proof-or-stop-review-concept (the template basename without .md)'),
     storyId: z.string().min(1).optional().describe('Optional Story ID for trusted full-context assembly when this role rollout flag is enabled.'),
     format: z.enum(['text', 'json']).optional().describe('Story-aware full-context output format (default text); role-only output equals the canonical registry host render.'),
   }},
@@ -2144,7 +2158,7 @@ Behavior:
       'spec-boundary',
     ]).describe('Category (legacy category is normalized to missing).'),
     agent: z.string().optional().describe('Caller identity (optional, defaults from PROOF_OR_STOP_AGENT environment variable).'),
-    reviewRunId: z.string().optional().describe('Current lattice-review-* reviewer run ID (call review_run_start first; main finding may omit this).'),
+    reviewRunId: z.string().optional().describe('Current proof-or-stop-review-* reviewer run ID (call review_run_start first; main finding may omit this).'),
     files: z.array(z.string()).optional().describe('Related file paths (for reviewer finding clustering and traceability).'),
     // B-3fad CHK-001: evidence state axis. Omitted value defaults to verified for REVIEW-stage reviewer findings, preserving current gate behavior.
     // suspected requires uncertaintyReason; disproven requires disprovenEvidence.summary (runtime applies the same standard validation).
@@ -2161,8 +2175,8 @@ Behavior:
     signatureTag: z.string().optional()
       .describe('Audit-only signature tag grouping this finding into a recurring pattern family (auto-proposed to the signature-registry if new). Never read by any gate.'),
     readManifest: reviewerReadManifestSchema.optional().describe('Required when pass-only finding_add text is converted into review_pass_set evidence; also required for reviewer finding_add when readEvents/readLog is supplied.'),
-    readEvents: reviewerReadEventsSchema.optional().describe('Optional mechanical read events for reviewer finding_add. Requires readManifest for lattice-review-* agents; non-reviewer usage is ignored by the read-evidence capture path, and mismatch diagnostics are decisions-doc scoped.'),
-    readLog: reviewerReadLogInputSchema.optional().describe('Optional mechanical read-log input for reviewer finding_add: event array or {events:[...]}. Requires readManifest for lattice-review-* agents; mismatch diagnostics are decisions-doc scoped.'),
+    readEvents: reviewerReadEventsSchema.optional().describe('Optional mechanical read events for reviewer finding_add. Requires readManifest for proof-or-stop-review-* agents; non-reviewer usage is ignored by the read-evidence capture path, and mismatch diagnostics are decisions-doc scoped.'),
+    readLog: reviewerReadLogInputSchema.optional().describe('Optional mechanical read-log input for reviewer finding_add: event array or {events:[...]}. Requires readManifest for proof-or-stop-review-* agents; mismatch diagnostics are decisions-doc scoped.'),
   }},
   { name: 'finding_list', description: 'View story findings', schema: {
     storyId: z.string().describe('Story ID'),
@@ -2428,8 +2442,8 @@ Behavior:
       severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Issue severity.'),
       desc: z.string().min(1, 'desc is required and must be at least 1 character').describe('Issue details (reviewer subjective judgment must be specific).'),
     })).describe('List of issues raised by Reviewer; critical/high block INIT_CHECK; empty array allowed.'),
-    agent: z.string().optional().describe('Reviewer self-reported agent name; product-reviewer must pass product-reviewer.'),
-    agentId: z.string().optional().describe('Reviewer self-reported agent ID; product-reviewer must pass product-reviewer and must not pass lattice-review-story-init.'),
+    agent: z.string().optional().describe('Reviewer self-reported agent name; proof-or-stop-product-reviewer must pass proof-or-stop-product-reviewer.'),
+    agentId: z.string().optional().describe('Reviewer self-reported agent ID; proof-or-stop-product-reviewer must pass proof-or-stop-product-reviewer and must not pass proof-or-stop-review-story-init.'),
   }},
 
   // Init Check fallback/repair (B-95d8 CHK-001: explicit, auditable INIT_CHECK exit
@@ -2450,9 +2464,9 @@ Behavior:
     actor: z.string().optional().describe('Optional actor identifier; defaults to git user.name.'),
   }},
 
-  // Delivery Check (B-35ed: lattice-review-delivery reviewer writes signed delivery-check.json)
+  // Delivery Check (B-35ed: proof-or-stop-review-delivery reviewer writes signed delivery-check.json)
   // TEST to DONE hard-gate artifact. Signature domain: storyId + docsPromises + realMachineTests + closingSelfCheck + reviewRound.
-  { name: 'delivery_check_set', description: 'Save delivery check results (called by lattice-review-delivery reviewer)', schema: {
+  { name: 'delivery_check_set', description: 'Save delivery check results (called by proof-or-stop-review-delivery reviewer)', schema: {
     storyId: z.string().describe('Story ID'),
     docsPromises: z.array(deliveryPromiseSchema).describe('Documentation promise list.'),
     realMachineTests: z.array(z.object({
@@ -2477,7 +2491,7 @@ Behavior:
   }},
 
   // Scope Check (B-d4d1: scope agent writes signed scope-check.json)
-  { name: 'scope_check_save', description: 'Save reviewer-written PLAN scope evidence (scope-check.json) consumed by story_review; intended for lattice-review-scope-plan/scope-plan reviewers.', schema: {
+  { name: 'scope_check_save', description: 'Save reviewer-written PLAN scope evidence (scope-check.json) consumed by story_review; intended for proof-or-stop-review-scope-plan/scope-plan reviewers.', schema: {
     storyId: z.string().describe('Story ID'),
     features: z.array(z.object({
       feature: z.string(),
@@ -2539,7 +2553,7 @@ Behavior:
     itemId: z.string().optional().describe('Checklist item ID (CHK-xxx). Supply only when the registered agent type requires an item target; story-only roles must omit all identifiers.'),
     findingId: z.string().optional().describe('Finding ID (F-xxx or B-xxx:F-xxx). Supply only for a registered finding-target role; mutually exclusive with itemId/clusterId.'),
     clusterId: z.string().optional().describe('Cluster ID (CL-xxx). Supply only for a registered cluster-target role; mutually exclusive with itemId/findingId.'),
-    agentType: z.enum(AGENT_DISPATCH_ACCEPTED_TYPES as [string, ...string[]]).optional().describe('Registered subagent type or compatibility alias. Omit only for the deliberate lattice-implementer default; runtime enforces phase and target cardinality from the same registry.'),
+    agentType: z.enum(AGENT_DISPATCH_ACCEPTED_TYPES as [string, ...string[]]).optional().describe('Registered subagent type or compatibility alias. Omit only for the deliberate proof-or-stop-implementer default; runtime enforces phase and target cardinality from the same registry.'),
   }},
 
   // Background CLI trio (B-45ed CHK-007: background.md set/append/get).
@@ -3175,13 +3189,13 @@ Behavior:
   }},
   { name: 'host_run', description: 'Launch a canonical reviewer/quorum host (codex/claude/agy) through the B-70e9 usage choke point: builds the B-d8ef canonical launcher argv, streams host stdout, and writes preflight+final LLM usage-ledger rows bound to storyId/agentType/phase/provider (plus reviewRunId->threadId, lane->subagentId). Enforces the per-dispatch hard-budget cap and the host-run concurrency cap before spawn. Usage rows are gateEvidence=false diagnostics. Alias: proof-or-stop host run', schema: {
     host: z.string().describe('Canonical host: codex, claude, or agy (aliases: claude-code->claude, antigravity->agy)'),
-    agentType: z.string().describe('Attribution agentType recorded on the usage rows, e.g. reviewer / lattice-review-quality / autopilot-repair'),
+    agentType: z.string().describe('Attribution agentType recorded on the usage rows, e.g. reviewer / proof-or-stop-review-quality / autopilot-repair'),
     storyId: z.string().optional().describe('Canonical Story id; when set the story index resolves the phase (omit for an adhoc run)'),
     phase: z.string().optional().describe('Explicit attribution phase; when omitted and storyId is set, resolves from the story index'),
     prompt: z.string().optional().describe('Inline prompt text (mutually exclusive with --promptFile)'),
     promptFile: z.string().optional().describe('Path to a prompt file (mutually exclusive with --prompt)'),
     reviewRunId: z.string().optional().describe('Review run id (e.g. B-70e9:RR-001) recorded as threadId; must start with "<storyId>:" when storyId is given'),
-    lane: z.string().optional().describe('Reviewer lane (e.g. lattice-review-quality) recorded as subagentId'),
+    lane: z.string().optional().describe('Reviewer lane (e.g. proof-or-stop-review-quality) recorded as subagentId'),
     timeoutMs: z.number().int().positive().optional().describe('Host subprocess timeout in milliseconds'),
     agyPrintTimeout: z.string().optional().describe('agy --print-timeout override (e.g. 30m); must match \\d+[smh]'),
     json: z.boolean().optional().describe('Output the structured host_run result as JSON (exitCode is a field)'),
@@ -3239,7 +3253,7 @@ Behavior:
     lesson: z.string().describe('Reusable lesson (at least 10 characters).'),
     reusePrompt: z.string().describe('How to retrieve this lesson in a later session (at least 5 characters).'),
     tags: z.union([z.array(z.string()), z.string()]).optional().describe('Keyword tags, as a comma-separated string or array.'),
-    sourceAgent: z.string().optional().describe('Source agent (default: lattice-implementer).'),
+    sourceAgent: z.string().optional().describe('Source agent (default: proof-or-stop-implementer).'),
     sourceStoryId: z.string().optional().describe('Source story ID.'),
     evidenceRefs: z.array(z.string()).optional().describe('Evidence references (file paths or commit SHAs).'),
   }},

@@ -46,6 +46,8 @@ import {
 } from '../core/story-owner-lease.js';
 import { getSessionId } from '../core/owner-session.js';
 import { isBudgetedComplexRole, observeComplexRolePromptBudget } from '../core/prompt-budget.js';
+import { canonicalAgentRoleId } from '../core/agent-role-identity.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION } from '../core/prompt-role-contract-registry.js';
 
 /**
  * Resolve the registry entry for a role name. Roles are the template basenames
@@ -53,7 +55,8 @@ import { isBudgetedComplexRole, observeComplexRolePromptBudget } from '../core/p
  */
 export function findRoleEntry(role: string, templateDir?: string): PromptRegistryEntry | null {
   const snapshot = readPromptRegistry(templateDir);
-  return snapshot.agents.find(entry => entry.agentId === role) ?? null;
+  const canonicalRole = canonicalAgentRoleId(role);
+  return snapshot.agents.find(entry => entry.agentId === canonicalRole) ?? null;
 }
 
 /** List available role names (sorted) for error messages. */
@@ -102,19 +105,20 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       validateAgentPromptArgs(args);
       // Runtime re-validation (Handler 编码约定): reject blank/missing role even
       // though the Zod schema declares a min-length constraint.
-      const role = (args.role ?? '').trim();
-      if (role.length === 0) {
+      const requestedRole = (args.role ?? '').trim();
+      if (requestedRole.length === 0) {
         const available = listAvailableRoles();
         throw new Error(
           `agent_prompt: --role is required. Available roles: ${available.join(', ')}`,
         );
       }
 
+      const role = canonicalAgentRoleId(requestedRole);
       const entry = findRoleEntry(role);
       if (!entry) {
         const available = listAvailableRoles();
         throw new Error(
-          `agent_prompt: unknown role "${role}". Available roles: ${available.join(', ')}`,
+          `agent_prompt: unknown role "${requestedRole}". Available roles: ${available.join(', ')}`,
         );
       }
 
@@ -127,7 +131,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       }
       const effectivePromptEnvelope = args.experimentalModeOverride === 'full-envelope'
         ? {
-            version: 'proofbound.prompt-envelope-rollout.v1' as const,
+            version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
             roles: { ...(configuredPromptEnvelope?.roles ?? {}), [role]: 'full-envelope' as const },
           }
         : configuredPromptEnvelope;
@@ -188,7 +192,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
           agentType: role,
         });
         return canonicalJsonStringify({
-          schemaVersion: 'proofbound.agent-prompt-response.v1',
+          schemaVersion: 'proof-or-stop.agent-prompt-response.v1',
           mode: resolvedRoleBody.mode,
           roleBodyDigest: resolvedRoleBody.bodyDigest,
           legacyBytesRestored: resolvedRoleBody.legacyBytesRestored,
@@ -259,7 +263,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       // diagnostic/audit evidence only and cannot mint REVIEW evidence.
       if (args.format === 'json') {
         return canonicalJsonStringify({
-          schemaVersion: 'proofbound.agent-prompt-response.v1',
+        schemaVersion: 'proof-or-stop.agent-prompt-response.v1',
           mode: resolvedRoleBody.mode,
           roleBodyDigest: resolvedRoleBody.bodyDigest,
           legacyBytesRestored: resolvedRoleBody.legacyBytesRestored,

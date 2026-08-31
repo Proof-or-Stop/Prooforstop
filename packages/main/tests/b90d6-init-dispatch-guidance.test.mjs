@@ -159,7 +159,9 @@ function assertInitCheckGuardGuidance() {
     });
     const missingInitAgent = getGuardFailureReason(storyId, store, 'INIT_CHECK', root);
     assert.match(missingInitAgent ?? '', /missing_init_check_agent/);
-    assert.match(missingInitAgent ?? '', /product-reviewer/);
+    assert.match(missingInitAgent ?? '', /proof-or-stop-product-reviewer/);
+    assert.doesNotMatch(missingInitAgent ?? '', /lattice-review-story-init/);
+    assert.doesNotMatch(missingInitAgent ?? '', /subagent_type: "product-reviewer"/);
     assertIncludesInitPreflight(missingInitAgent, storyId, 'missing init-check agent guidance');
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -247,15 +249,36 @@ function assertStoryCreateAndGlobalHelpInitGuidance() {
     const storyId = output.match(/Story (B-[a-f0-9]+) created/)?.[1];
     assert.ok(storyId, 'story_create output should include the created story id');
     assert.match(output, /spawn two INIT reviewers in parallel/);
-    assert.match(output, /lattice-review-story-init/);
-    assert.match(output, /product-reviewer/);
+    assert.match(output, /proof-or-stop-review-story-init/);
+    assert.match(output, /proof-or-stop-product-reviewer/);
+    assert.doesNotMatch(output, /subagent_type: "lattice-review-story-init"/);
+    assert.doesNotMatch(output, /agentType":"lattice-review-story-init"/);
+    assert.doesNotMatch(output, /subagent_type: "product-reviewer"/);
+    assert.doesNotMatch(output, /agentType":"product-reviewer"/);
     assert.match(output, new RegExp(`proof-or-stop init_preflight --storyId=${storyId}`));
     assert.match(output, /read-only, writes no evidence, and creates no worktree/);
     assert.match(output, new RegExp(`"phase":"INIT_CHECK"`));
 
+    const draftName = 'missing-draft-check-guidance';
+    write(root, `docs/story/drafts/${draftName}/index.json`, JSON.stringify({
+      title: 'Draft INIT guidance',
+      description: 'Verify missing draft-check guidance uses the canonical reviewer ID.',
+    }));
+    write(root, `docs/story/drafts/${draftName}/background.md`, validBackground());
+    write(root, `docs/story/drafts/${draftName}/checklist.json`, JSON.stringify({ items: [] }));
+    assert.throws(
+      () => createStoryCreateHandlers(ctx(root, store)).story_create({ fromDraft: draftName }),
+      (error) => {
+        assert.match(error.message, /proof-or-stop-review-story-init/);
+        assert.doesNotMatch(error.message, /lattice-review-story-init/);
+        return true;
+      },
+      'fromDraft guidance should name the canonical story-init reviewer',
+    );
+
     const helpRoot = makeRoot();
     try {
-      const help = execFileSync(process.execPath, [join(distRoot, 'cli.js'), '--root', helpRoot, 'help'], {
+      const help = execFileSync(process.execPath, [join(distRoot, 'cli.js'), '--root', helpRoot, 'help', '--full'], {
         cwd: helpRoot,
         encoding: 'utf8',
         stdio: ['pipe', 'pipe', 'pipe'],
@@ -300,7 +323,7 @@ function assertScopePlanDispatchAndReviewGuidance() {
       .story_review({ storyId });
     const issue = storyReview.issues.find((entry) => entry.type === 'missing_scope_check');
     assert.ok(issue, 'story_review should report missing_scope_check');
-    assert.match(issue.message, new RegExp(`proof-or-stop dispatch --storyId=${storyId} --agentType=lattice-review-scope-plan`));
+    assert.match(issue.message, new RegExp(`proof-or-stop dispatch --storyId=${storyId} --agentType=proof-or-stop-review-scope-plan`));
     assert.match(issue.message, /dispatch output is not gate evidence/);
     assert.match(issue.message, /proof-or-stop scope_check_save/);
   } finally {
@@ -319,7 +342,7 @@ function assertScopePlanDispatchPhaseGate() {
 
       assert.throws(
         () => dispatch.dispatch({ storyId, agentType: 'lattice-review-scope-plan' }),
-        new RegExp(`scope_check_save is PLAN-only; current phase ${phase} is unsupported`),
+        new RegExp(`(?:scope_check_save is PLAN-only; current phase ${phase} is unsupported|proof-or-stop-review-scope-plan cannot be dispatched during ${phase})`),
       );
       assert.equal(
         store.readProcessEvents(storyId).some((event) => event.targetKind === 'scope-plan-review'),
