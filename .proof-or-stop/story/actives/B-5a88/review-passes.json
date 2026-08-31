@@ -23559,6 +23559,47 @@
       },
       "readDiagnostics": [],
       "_hash": "4c84d2f7d939939c87a3417457cf0a4223c801ec5ff807188300bb9a740cf108"
+    },
+    {
+      "id": "B-5a88:RP-395",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test-coverage lane pass at frozen cutoff 25e0f0d2/HEAD b04f210. Independently verified all 39 must-intent verificationEvidence records in checklist.json have receipt.exitCode=0, receipt.selectorMatched=true, 0 waivers, 0 failing; all evidence headHash values (cbc9f8e029, 8835cb1fab) are ancestors of current HEAD. Reviewed the F-502 fix commit de8b75e0cb: removes a zero-usage dead import (PROOF_OR_STOP_BIN_NAMES, confirmed still exported/used by lattice-brand.ts/audit-scan.ts/managed-assets.ts/alias-normalizer.ts) and repins the whole-file fingerprint identically in both coupled copies; confirmed no pinned evidence command names the three changed files, and dist/cli-engine.js (used transitively by CHK-013 evidence) has zero references to the removed import, consistent with the post-fix source. Confirmed zero open findings bind to the current review round 2026-08-31T11:31:20.622Z; all 313 open findings (incl. my lane's 88) are dated 2026-08-20..26 and do not bind to this cutoff. F-498 (superseded) and F-502 (fixed) both resolved. No new coverage gap found; no blocker.",
+      "createdAt": "2026-08-31T13:53:54.957Z",
+      "reviewRound": "2026-08-31T11:31:20.622Z",
+      "reviewRunId": "B-5a88:RR-965",
+      "envelopeId": "fc53376fb8621dd75909bcebb8ed23a9cab5941519fe92db80c0ceaf4f74daae",
+      "writerSessionId": "claude-b5a88-1788161424",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/findings.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/cli-engine.js",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/core/audit-scan.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/managed-assets.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6c29a90f22b84549c16544dbe5ac019b6d86b6d4ee4c1a58a7fe53748ef7f5c9"
     }
   ]
 }
