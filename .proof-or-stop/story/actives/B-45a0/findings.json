@@ -24696,6 +24696,42 @@
       ],
       "signatureTag": "missing|ts|independent-topology-critic",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-459",
+      "desc": "packages/main/src/handlers/verifier.ts:81 imports buildRevocationLedger from ../core/story-aware-validation.js but never uses it (exactly 1 occurrence in the file: the import itself). tsc does not flag it because noUnusedLocals is not enabled in packages/main/tsconfig.json. Deliberately deferred per triage rule 3 (low severity, not a regression of current acceptance scope, not affecting the core result, not distorting lifecycle gates). Family: quality-unused-import-buildRevocationLedger",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T12:31:41.208Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1129",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tsconfig.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "eedf6ebf009038d73b0336b0a1bd9d5caf7ad4d45a25b27f6e4b0555eb02c733",
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
