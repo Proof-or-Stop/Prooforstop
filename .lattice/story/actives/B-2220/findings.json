@@ -214,7 +214,7 @@
       "desc": "verification-stale: packages/main/src/tasks/validation-evidence-buffer-smoke.ts:703 [high] After the main merge, the checklist-required build-bound smoke exits before executing with stale full-suite dist: source/dist build binding mismatch. The dist contains this decision-digest contract, but current REVIEW lacks the promised proof that executed dist matches the merged source tree; refresh/build in DEV and rerun the exact build-binding smoke before re-review.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T22:31:19.414Z",
@@ -222,7 +222,11 @@
       "reviewRunId": "B-2220:RR-032",
       "_hash": "0877d89bd7cd39a7fe1e374b86e57a00af73c67694511a0319af577e74a82879",
       "signatureTag": "missing|unknown|verification-stale-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Merged current main, rebuilt packages/main with build-main-with-binding, then re-executed the pinned CHK-001:happy:2 command. verifyBuildBinding passed and the compiled validation-evidence-buffer-smoke ended with validation-evidence-buffer-smoke: PASS; tool-owned receipt was recorded in commit dae9be1.",
+      "resolvedAt": "2026-08-31T22:36:58.140Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
