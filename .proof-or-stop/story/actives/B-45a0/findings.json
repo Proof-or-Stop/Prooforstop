@@ -23657,6 +23657,26 @@
       "_hash": "35bfbcd48d7e2ec8858ae8862137b63e321a41f7c9ddcfc857e1806d518d14fa",
       "signatureTag": "missing|unknown|resolution-claims-review",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-433",
+      "desc": "CHK-014:edge:0 verificationEvidence claims result=pass for `node bin/proof-or-stop.js pre_review_check_read --storyId=B-45a0 --json`, captured at executedAt=2026-08-31T02:22:37.553Z (headHash=9a87c4b15d). Independently re-running the identical pinned command right now returns status=fail, ok=false, codes=[PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED] -- reproduced twice. Root cause: pre-review-check.json was rewritten again at 2026-08-31T02:26:58Z (commit 38fd3b206d, +715/-20 lines) after the evidence row was captured, and then acceptance-basis.json was regenerated at 2026-08-31T02:28:17Z and 02:28:20Z (commits 5dee7587a8 / 5ce0fd05ed) -- strictly after the pre-review artifact was last signed -- so the coverage basis the pre-review artifact was bound to moved out from under it (PR_COVERAGE_BASIS_CHANGED), and pre_review_check_read now flags the persisted artifact as tampered/invalid. storyFilesHash is unchanged (ba1a2650...) so this is not classic material drift; it is a write-ordering/self-consistency bug between pre_review_check and acceptance_basis_generate: the two verifier-owned artifacts can desync from each other even when neither is edited by hand, leaving the CHK-014 Wave-4 acceptance chain evidence stale relative to its own dependency the moment a later verifier run touches the coverage basis. The dispatch/review-round claim that pre_review_check now reports PASS with zero codes does not hold at current HEAD; a fresh pre_review_check (recompute+resign) is needed before this CHK-014 row can be trusted as current, or the write-ordering bug that lets pre-review-check.json and acceptance-basis.json drift out of sync needs to be fixed so a later acceptance_basis_generate cannot silently invalidate an already-signed pre_review_check artifact.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T02:41:08.766Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1065",
+      "_hash": "fd168d05abdb1b9f101a05af68f4dc651819a8149d7fbcb44ae2d98f81786f15",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json"
+      ],
+      "signatureTag": "missing|ts|edge-verificationevidence-claims",
+      "signatureTagSource": "auto"
     }
   ]
 }
