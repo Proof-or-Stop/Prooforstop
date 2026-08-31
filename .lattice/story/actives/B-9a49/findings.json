@@ -411,6 +411,54 @@
       "resolvedAt": "2026-08-31T23:13:51.227Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9a49:F-020",
+      "desc": "acceptance-proof-chain-missing: the current formal concept-review contract requires the verifier-owned acceptance_topology_check -> pre_review_check_read -> acceptance_rollout_report_read / acceptance_rollout_check chain to have a current signed PASS receipt with genuine full 3 rounds x 2 hosts. At HEAD c8195155155a3b2ed38749a05a00f6f488df5cf6, acceptance_topology_check reports status=inconclusive, basis=partial, structural pass=no and missing topology for ACCEPT-AGENT-SYSTEM-BOUNDARY and ACCEPT-REVIEW-TRIAGE-DELIVERY; pre_review_check_read reports FAIL with authority=inadmissible and missing executable/mutation/transcript proof; both rollout readers report FAIL AR_REPORT_MISSING with receipt=missing and quorum=degraded-or-missing. The 45/45 current checklist receipts and passing prompt smokes do not substitute for that explicitly required signed rollout proof. Observe mode is non-blocking to the lifecycle gate, but it cannot support a formal concept PASS under this reviewer contract. Generate the required verifier-owned proof or repair the Story acceptance topology/rollout basis before re-review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T23:19:11.711Z",
+      "reviewRound": "2026-08-31T23:13:35.921Z",
+      "reviewRunId": "B-9a49:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-concept.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "5519f319a6f28cdef269fd215d7647473cc676d82027a0134b676eb157869202",
+      "files": [
+        "packages/main/templates/agents/lattice-review-concept.md"
+      ],
+      "signatureTag": "missing|md|acceptance-proof-chain",
+      "signatureTagSource": "auto"
     }
   ]
 }
