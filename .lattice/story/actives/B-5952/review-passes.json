@@ -469,6 +469,32 @@
         "scanEscalationReason": "Final clean-round scoped review stayed within the owner-provided B-5952 baseline-repair prompt and excluded unrelated observe-only Wave-4 diagnostics."
       },
       "_hash": "4636b59b86f081a1d9b11c2846658c2c84d9d60b50f02f70b8d790ce2a59d7a3"
+    },
+    {
+      "id": "B-5952:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Scoped test-coverage review passed: all 7 must verification intents (2 happy, 2 edge, 3 adversarial) have concrete mechanical PASS evidence bound to storyFilesHash 0a810d9 and materialHash 6c68147; 0 must gaps, 0 waivers. Reviewed only the B-5952 instrumentation-bound source/dist scope and excluded protected Wave-4/runtime areas.",
+      "createdAt": "2026-08-31T09:04:50.093Z",
+      "reviewRound": "2026-08-31T08:59:48.174Z",
+      "reviewRunId": "B-5952:RR-032",
+      "envelopeId": "6c124154e5ee0c2e2f951cb04483c3e59cfbfe547f9bad6bcf00e6d4f6df8174",
+      "writerSessionId": "sess-0b7b831900cbff87db3911967c7900f3",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/scope-contract.json",
+          "scripts/verify-full-suite-build-binding.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "13f5dce487db8e26eb082e0758ba11e616ced5349406f9ff5f3431422aea6e53"
     }
   ]
 }
