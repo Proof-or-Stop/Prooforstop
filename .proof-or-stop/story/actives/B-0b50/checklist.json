@@ -1,0 +1,262 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Render the direct missing-inventory recovery command",
+      "context": "Propagate review_inventory_finalize as the actionable next step from the done_prepare and certification-window blocked path when no PRE_CERT inventory receipt exists in TEST.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "status": "done",
+      "startTime": "2026-08-25T19:52:56.528Z",
+      "endTime": "2026-08-25T20:02:29.740Z",
+      "userSees": "User sees \"Next: proof-or-stop review_inventory_finalize --storyId=B-xxxx\" after done_prepare reports missing PRE_CERT inventory, instead of being sent back to done_required_validate.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "When DONE-required validation is refused because no PRE_CERT inventory receipt exists, done_prepare exposes the exact review_inventory_finalize command.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When the same parser sees a non-inventory blocker or no authoritative Next line, done_prepare retains its existing caller-specific retry command.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A malformed or unrelated refusal message cannot inject an arbitrary shell command into the done_prepare next field; only the expected proof-or-stop command is propagated.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "Current-HEAD smoke verifies missing PRE_CERT inventory routes to review_inventory_finalize.",
+          "headHash": "9f27f943f3ba793eee4a1125fbb36e62c37412d8",
+          "materialHash": "9fd1a248ff279ff34b6fa7faee0b6b0a87807720c1191d7fd09636c4243e70b2",
+          "storyFilesHash": "e2e7ac825c52d37630f50197253ddbfc9563666f7cb1743af5af9ba64925cb98",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2eeba65d4a683cee4eeab3b2bdea69e30cc7fdcd0714120930da5e653387c366",
+            "outputTail": "attice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nPRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 98e28ffc0ab51e9cea91a443aac7bbdc7247f2fa\nexpectedMainSha: 98e28ffc0ab51e9cea91a443aac7bbdc7247f2fa\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (58cc64d)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-30T19:17:34.394Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-30T19:18:25.722Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "Current-HEAD smoke verifies admitted, missing, and probe-failed inventory states retain distinct recovery commands.",
+          "headHash": "9f27f943f3ba793eee4a1125fbb36e62c37412d8",
+          "materialHash": "9fd1a248ff279ff34b6fa7faee0b6b0a87807720c1191d7fd09636c4243e70b2",
+          "storyFilesHash": "e2e7ac825c52d37630f50197253ddbfc9563666f7cb1743af5af9ba64925cb98",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "36ce625c841ac54f7ea300407e330b0126203c9bb931af386f83798cae0ecc16",
+            "outputTail": "attice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nPRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 2eb053d20989b164b0559a97c2a9a0164dfd9436\nexpectedMainSha: 2eb053d20989b164b0559a97c2a9a0164dfd9436\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (ae364e2)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-30T19:17:44.580Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-30T19:18:25.722Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "Current-HEAD smoke verifies malformed, wrong-Story, and shell-metacharacter recovery text falls back safely.",
+          "headHash": "9f27f943f3ba793eee4a1125fbb36e62c37412d8",
+          "materialHash": "9fd1a248ff279ff34b6fa7faee0b6b0a87807720c1191d7fd09636c4243e70b2",
+          "storyFilesHash": "e2e7ac825c52d37630f50197253ddbfc9563666f7cb1743af5af9ba64925cb98",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "457ecbbee9861af282f651cf89139ab28297b4365cf703cd5eee25e698463c3f",
+            "outputTail": "attice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nPRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 4df4e1c2e30677068beb6163704a5d64f51cddde\nexpectedMainSha: 4df4e1c2e30677068beb6163704a5d64f51cddde\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (f1c7746)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-30T19:17:54.759Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-30T19:18:25.722Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "0069352176cf347485c679198ab80a996d4e768cd7d177d197a5e2359631e4ab",
+        "storyFilesHash": "a5eefa4c2c8f49bc9b190618179a3268991ad75a74a36bf7dad1fd99c0a8301e",
+        "headHash": "fe2d6d1a714b9b563a6b1634766f6428b9ad0d26",
+        "attestedAt": "2026-08-25T20:02:30.118Z",
+        "materialHash": "c0bd5e6be60329f2d37ec3fd9b3fb57d19d758b73d50d031c35de355f4991529"
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove recovery stays in TEST",
+      "context": "Add a focused regression covering the B-45a0-shaped missing inventory path: finalization and retry must not require story_advance to DEV or a new REVIEW round.",
+      "relatedDocs": [
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+        "AGENTS.md#Story stages"
+      ],
+      "status": "done",
+      "startTime": "2026-08-25T20:02:36.394Z",
+      "endTime": "2026-08-25T20:03:30.046Z",
+      "userSees": "User sees the blocked certification output point directly to \"Next: proof-or-stop review_inventory_finalize --storyId=B-xxxx\" while the story remains in TEST and no DEV or REVIEW transition is requested.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/certification-window.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A TEST story with no current PRE_CERT inventory receipt gets the blocker-specific review_inventory_finalize next command from the shared certification choke.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An ADMITTED or RUNNING certification window continues to report done_required_validate as its next command, while a different blocked PRE_CERT reason keeps its own remediation command.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An inventory-completeness-only receipt remains non-authoritative and the recovery output never suggests story_advance to DEV or a new REVIEW round.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+              "selector": "certification-window-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "Current-HEAD smoke verifies blocked heavy validation does not launch heavy children.",
+          "headHash": "9f27f943f3ba793eee4a1125fbb36e62c37412d8",
+          "materialHash": "9fd1a248ff279ff34b6fa7faee0b6b0a87807720c1191d7fd09636c4243e70b2",
+          "storyFilesHash": "e2e7ac825c52d37630f50197253ddbfc9563666f7cb1743af5af9ba64925cb98",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "770383f9864893f4fc5f1406a7103817a8e6c22b3302ffe5cf36beaad70e9ffd",
+            "outputTail": "attice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nPRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 5a690493dfe8aa4d687167774d8a346eee8ba92c\nexpectedMainSha: 5a690493dfe8aa4d687167774d8a346eee8ba92c\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (4a71c95)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-30T19:18:05.063Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-30T19:18:25.722Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "Current-HEAD smoke verifies cheap validation remains available while heavy certification is blocked.",
+          "headHash": "9f27f943f3ba793eee4a1125fbb36e62c37412d8",
+          "materialHash": "9fd1a248ff279ff34b6fa7faee0b6b0a87807720c1191d7fd09636c4243e70b2",
+          "storyFilesHash": "e2e7ac825c52d37630f50197253ddbfc9563666f7cb1743af5af9ba64925cb98",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "28dd65fbac669fb5d44b228aab57343bd4652327eca30f04ff02f90ef9dbfe1a",
+            "outputTail": "attice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nPRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 2bf2999e961a64f7926713488548e019d4411a26\nexpectedMainSha: 2bf2999e961a64f7926713488548e019d4411a26\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (3ec3c7c)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-30T19:18:15.342Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-30T19:18:25.722Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/certification-window-smoke.js",
+          "result": "pass",
+          "note": "Current-HEAD smoke verifies retry storms do not spawn heavy children and invalidated windows route to REVIEW.",
+          "headHash": "9f27f943f3ba793eee4a1125fbb36e62c37412d8",
+          "materialHash": "9fd1a248ff279ff34b6fa7faee0b6b0a87807720c1191d7fd09636c4243e70b2",
+          "storyFilesHash": "e2e7ac825c52d37630f50197253ddbfc9563666f7cb1743af5af9ba64925cb98",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "280221316dafa0aaadb94943fb3efb789e5e5239746a4816339ef5031dc491a8",
+            "outputTail": "attice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nPRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0\n[pre_cert_window_required] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\nCertification window: none\nState: BLOCKED\nBlocker: [pre_cert_window_missing]\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw20\nCertification window: B-cw21:CW-001\nState: INVALIDATED\nBlocker: [pre_cert_window_invalidated]\nDetail: materialHash changed\nNext: proof-or-stop story_advance --storyId=B-cw21 --phase=REVIEW\ncertification-window-smoke: PASS\nCertification window: B-cw01:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw01\nCertification window: B-cw12:CW-001\nState: ADMITTED\nheadHash: 382056b42c980353a7063b8ad7220bd48af0e075\nexpectedMainSha: 382056b42c980353a7063b8ad7220bd48af0e075\nstoryFilesHash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nNext: proof-or-stop done_required_validate --storyId=B-cw12\nCertification window: B-cw23:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: [pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw23\nCertification window: B-cw11:CW-001\nState: BLOCKED\nBlocker: [pre_cert_inventory_not_finalized]\nDetail: No FINALIZED unconsumed Review Inventory receipt is present.\nNext: proof-or-stop review_inventory_finalize --storyId=B-cw11\nCertification window: B-cw13:CW-001\nState: BLOCKED\nBlocker: [pre_cert_main_not_merged]\nDetail: Local main is not an ancestor of HEAD.\nNext: proof-or-stop done_prepare --storyId=B-cw13 --mergeMain\n✓ proof-or-stop metadata auto-committed: proof-or-stop: record B-cw13 certification_window_begin metadata (dff1e64)\nCertification window: B-cw14:CW-001\nState: BLOCKED\nBlocker: [pre_cert_blocking_findings_open]\nDetail: Open verified blocking findings: B-cw14:F-001\nNext: proof-or-stop finding_list --storyId=B-cw14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-30T19:18:25.687Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-30T19:18:25.722Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "23fe32c201a812fce0e59b1cd288a3972d58c73d3437deed5004b4348c30988f",
+        "storyFilesHash": "a5eefa4c2c8f49bc9b190618179a3268991ad75a74a36bf7dad1fd99c0a8301e",
+        "headHash": "fe2d6d1a714b9b563a6b1634766f6428b9ad0d26",
+        "attestedAt": "2026-08-25T20:03:30.292Z",
+        "materialHash": "c0bd5e6be60329f2d37ec3fd9b3fb57d19d758b73d50d031c35de355f4991529"
+      }
+    }
+  ]
+}

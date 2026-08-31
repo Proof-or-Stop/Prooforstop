@@ -23,6 +23,7 @@ import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../c
 import { createCertificationWindowHandlers } from '../handlers/certification-window.js';
 import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
+import { safeDoneRequiredRecoveryCommand } from '../handlers/done-prepare.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { buildVerificationCoverage } from '../core/verification.js';
@@ -35,6 +36,7 @@ import {
   PRE_CERT_DIRTY_TREE,
   PRE_CERT_INVENTORY_API_ABSENT,
   PRE_CERT_INVENTORY_NOT_FINALIZED,
+  PRE_CERT_INVENTORY_PROBE_FAILED,
   PRE_CERT_MAIN_NOT_MERGED,
   PRE_CERT_WINDOW_REQUIRED,
   PRE_CERT_WINDOW_TAMPERED,
@@ -71,7 +73,7 @@ function makeRoot(): string {
   return root;
 }
 
-function makeStore(root: string, storyId: string): StoryStore {
+function makeStore(root: string, storyId: string, phase: 'DEV' | 'TEST' = 'DEV'): StoryStore {
   const store = new StoryStore(root);
   mkdirSync(join(root, '.lattice', 'story', 'actives', storyId), { recursive: true });
   store.writeStory(storyId, {
@@ -80,7 +82,7 @@ function makeStore(root: string, storyId: string): StoryStore {
     title: 'Certification window smoke',
     description: 'Smoke test story',
     type: 'feature',
-    phase: 'DEV',
+    phase,
     priority: 'high',
     createdAt: new Date().toISOString(),
     startedAt: null,
@@ -578,6 +580,7 @@ const admitHandlers = createCertificationWindowHandlers({
 });
 const admittedBegin = admitHandlers.certification_window_begin({ storyId: admitStoryId });
 assertStatusSurface(admittedBegin, 'ADMITTED');
+assert.match(admittedBegin, new RegExp(`^Next: proof-or-stop done_required_validate --storyId=${admitStoryId}$`, 'm'));
 assert.match(admittedBegin, new RegExp(`^headHash: ${admitHead}$`, 'm'));
 assert.match(admittedBegin, /^expectedMainSha: /m);
 assert.match(admittedBegin, new RegExp(`^storyFilesHash: ${admitStoryFiles}$`, 'm'));
@@ -758,10 +761,14 @@ function writeHeavyConfig(dir: string, commit = false): void {
   }
 }
 
+setReviewInventoryAdmitApisForTest({
+  finalizedUnconsumedReviewInventory: () => null,
+  consumeReviewInventoryCompletenessReceipt: () => null,
+});
 const chokeRoot = makeGitRoot();
 writeHeavyConfig(chokeRoot);
 const chokeStoryId = 'B-cw20';
-const chokeStore = makeStore(chokeRoot, chokeStoryId);
+const chokeStore = makeStore(chokeRoot, chokeStoryId, 'TEST');
 chokeStore.writeChecklist(chokeStoryId, { items: [] });
 const chokeCtx = { store: chokeStore, root: chokeRoot, scanRoot: join(chokeRoot, 'packages', 'main'), log: () => {} };
 const chokeDone = createDoneRequiredValidationHandlers(chokeCtx);
@@ -778,7 +785,7 @@ async function caught(fn: () => Promise<unknown> | unknown): Promise<string> {
 
 const prematureDone = await caught(() => chokeDone.done_required_validate({ storyId: chokeStoryId }));
 assert.match(prematureDone, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
-assert.match(prematureDone, new RegExp(`Next: proof-or-stop certification_window_status --storyId=${chokeStoryId}`));
+assert.match(prematureDone, new RegExp(`Next: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`));
 assert.equal(existsSync(join(chokeRoot, heavyMarker)), false, 'done_required_validate must not spawn heavy children without an admitted window');
 for (let i = 0; i < 3; i += 1) {
   const storm = await caught(() => chokeDone.done_required_validate({ storyId: chokeStoryId }));
@@ -788,8 +795,77 @@ assert.equal(existsSync(join(chokeRoot, heavyMarker)), false, 'retry storm must 
 
 const prematureFull = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, full: true }));
 assert.match(prematureFull, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
-assert.match(prematureFull, new RegExp(`Next: proof-or-stop certification_window_status --storyId=${chokeStoryId}`));
+assert.match(prematureFull, new RegExp(`Next: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`));
 assert.equal(existsSync(join(chokeRoot, heavyMarker)), false, 'validate --full must not spawn heavy children without an admitted window');
+
+setReviewInventoryAdmitApisForTest({
+  finalizedUnconsumedReviewInventory: () => {
+    throw new Error('inventory store unreadable');
+  },
+  consumeReviewInventoryCompletenessReceipt: () => null,
+});
+const failedInventoryProbe = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, full: true }));
+assert.match(failedInventoryProbe, new RegExp(`\\[${PRE_CERT_INVENTORY_PROBE_FAILED}\\]`));
+assert.match(failedInventoryProbe, /Review Inventory probe failed: inventory store unreadable/);
+assert.match(failedInventoryProbe, new RegExp(`Next: proof-or-stop certification_window_status --storyId=${chokeStoryId}`));
+assert.doesNotMatch(failedInventoryProbe, new RegExp(`Next: proof-or-stop certification_window_begin --storyId=${chokeStoryId}`));
+setReviewInventoryAdmitApisForTest(null);
+
+const donePrepareFallback = `proof-or-stop done_required_validate --storyId=${chokeStoryId}`;
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    `[pre_cert_window_required]\nNext: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`,
+    donePrepareFallback,
+  ),
+  `proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`,
+  'done_prepare must propagate the authoritative inventory-finalization recovery command',
+);
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    `Next: proof-or-stop review_inventory_finalize --storyId=B-other`,
+    donePrepareFallback,
+  ),
+  donePrepareFallback,
+  'done_prepare must not propagate a recovery command for another Story',
+);
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    'Next: proof-or-stop review_inventory_finalize --storyId=',
+    donePrepareFallback,
+  ),
+  donePrepareFallback,
+  'done_prepare must reject a malformed inventory recovery command',
+);
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    `Next: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId};touch /tmp/proof-or-stop-smoke`,
+    donePrepareFallback,
+  ),
+  donePrepareFallback,
+  'done_prepare must reject shell metacharacters in a recovery command',
+);
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    'refusal without an authoritative Next line',
+    donePrepareFallback,
+  ),
+  donePrepareFallback,
+  'done_prepare must retain the caller fallback when Next is absent',
+);
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    `Next: proof-or-stop finding_list --storyId=${chokeStoryId}`,
+    donePrepareFallback,
+  ),
+  `proof-or-stop finding_list --storyId=${chokeStoryId}`,
+  'done_prepare must retain a non-inventory caller-specific recovery command',
+);
 
 const cheapChannel = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, channel: true }));
 assert.doesNotMatch(cheapChannel, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));

@@ -9,7 +9,7 @@ import { basename } from 'path';
  * fail loudly — the bump silently stops finding the constant. It is kept
  * verbatim and aliased forward instead; see PROOF_OR_STOP_CLI_VERSION below.
  */
-export const LATTICE_CLI_VERSION = '0.3.269' as const;
+export const LATTICE_CLI_VERSION = '0.3.271' as const;
 
 /**
  * Brand-forward READ alias for {@link LATTICE_CLI_VERSION}. New code should read
