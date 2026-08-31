@@ -697,6 +697,27 @@
         "packages/main/src/tasks/delivery-context-pack-smoke.ts"
       ],
       "_hash": "d3857c2cc74961632ec6378c3c10efdba6cea21a3e10da198bfe67cfe5f587d6"
+    },
+    {
+      "id": "B-META-framework-audit:F-038",
+      "desc": "DONE is unreachable: done_required_validate writes a PASS receipt whose effectiveEnvironmentDigest the DONE gate can never re-derive, so done.done-required-validation stays BLOCKED with effective-environment-digest-mismatch[0],[1] even though the validation itself passes every time (packages/main build exitCode=0, root npm test exitCode=0 in ~330s, refusalReasons=none). Observed on B-5a88 across five separate successful runs. The writer is deterministic: two identical plain-CLI done_required_validate invocations both stored efe8f186b53fcd9b. The reader nonetheless computes a different value, so writer and reader disagree systematically rather than flakily. Root cause is the class of volatile host-launcher env values documented in core/validation-command-environment.ts above HOST_LAUNCHER_SESSION_ENV_KEYS, whose comment states this exact symptom already surfaced on this repo: 'because they change with every session a receipt written in one session can never be re-derived in another ... on this repo it surfaced as effective-environment-digest-mismatch[0..1] blocking DONE on a story whose DONE-required validation had actually passed.' The existing strip list does not cover every such key in a Claude Code + Alacritty session: ALACRITTY_SOCKET and ALACRITTY_LOG embed a per-terminal PID (Alacritty-72557) and survive into the digest, as do AI_AGENT and SECURITYSESSIONID. Separately and independently reportable: GITHUB_NPM_TOKEN also survives into effectiveValidationCommandEnvironment and is therefore hashed into a persisted evidence digest, which is a secret-handling concern in its own right. Ruled out by test, not assumption: raised timeout env vars (removed, still mismatched), AI_AGENT/SECURITYSESSIONID (stripped on both write and read sides, still mismatched), reader non-determinism (the earlier apparent instability was my own node -e probes perturbing the _ last-arg variable, which is itself in the strip list; the real CLI path is stable), single-key env difference (brute-force removal of each of ~79 keys produced no match), and cwd asymmetry (both writer and reader derive cwd from args.projectRoot). Recommended handling: a dedicated story that extends the volatile-key filter at the effectiveValidationCommandEnvironment seam rather than appending to VALIDATION_TRANSPORT_ENV_KEY_LIST, because that list is digest-pinned by VALIDATION_TRANSPORT_ENV_KEYS_DIGEST and its own comment warns that appending invalidates every already-persisted receipt at once; the same story should decide whether secrets like GITHUB_NPM_TOKEN belong in an evidence digest at all.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-31T16:37:45.179Z",
+      "reviewRound": "",
+      "gapFingerprint": "ed841688b772c62e08959e284d6ed10a98bdaa692724ab275b9bb12bc0dfe9ab",
+      "files": [
+        "packages/main/src/core/validation-command-environment.ts:74",
+        "packages/main/src/core/validation-command-environment.ts:104",
+        "packages/main/src/core/done-required-validation.ts:864",
+        "packages/main/src/handlers/done-required-validation.ts:36",
+        "packages/main/src/core/validation-command-environment.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "_hash": "90e07f8cc919e92790c731f4d5262b26585c8d5860a56f4268ad5c3da8d4cce8"
     }
   ]
 }
