@@ -673,7 +673,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1027-1066,1576-1579 — HIGH: Assessment.acceptedRoute includes receiptHash/sourceAssessmentHash inside the bytes covered by assessmentHash, while the receipt source subjectHash and manifest contract must equal that same final assessmentHash. The receipt therefore needs the assessment hash before the assessment can include/sign the receipt hash, creating an undefined hash fixed point. Define a two-stage immutable assessment-proposal digest or an explicit hash-exclusion/canonicalization rule; otherwise accepted-route assessments and defer-with-proof cannot be constructed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T08:55:09.108Z",
@@ -681,7 +681,11 @@
       "reviewRunId": "B-1fa6:RR-043",
       "_hash": "03bb74e89588306b3a8eac22fcbc106b07401255377cf4f1c25f77311241e917",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 93ab5605b4: accepted-route construction now uses an immutable signed assessmentProposalDigest before target receipt issuance; final assessmentHash is computed after receipt binding with explicit hash exclusions, removing the Assessment/receipt fixed point while preserving exact final CAS bindings.",
+      "resolvedAt": "2026-08-31T09:08:01.766Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-032",
