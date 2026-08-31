@@ -377,7 +377,7 @@
       "desc": "packages/main/src/tasks/red-evidence-envelope-smoke.ts:518,542-556 and packages/main/tests/red/red-w2d-command-readonly.mjs:223,273-288 — WHY: CHK-001:edge:missing-lattice-envelope-snapshot and CHK-001:edge:missing-lattice-readonly-snapshot are must intents that claim deterministic coverage when .lattice is absent, but both fixtures construct StoryStore/write story data before snapshotting, then assert the snapshot is non-empty; snapshotLattice itself calls readdirSync without an absent-directory branch. The two commands pass only because storyDir was explicitly redirected into .lattice, so their receipts do not execute the failure path named by either intent. This is an acceptance-blocking coverage gap: either add a causal pre-initialization missing-tree assertion while preserving the later non-empty manifest contract, or revise the two intents to the actual legacy-fixture storyDir compatibility requirement and regenerate matching evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-31T12:24:25.956Z",
@@ -389,7 +389,11 @@
         "packages/main/tests/red/red-w2d-command-readonly.mjs"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate coverage manifestation of F-014, F-016, and F-017. The two inaccurate must descriptions were atomically corrected through verification-intent flow; IDs, commands, selectors, and evidence were preserved, and the 13-intent coverage set has no stale receipts.",
+      "resolvedAt": "2026-08-31T12:45:18.017Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5952:F-019",
