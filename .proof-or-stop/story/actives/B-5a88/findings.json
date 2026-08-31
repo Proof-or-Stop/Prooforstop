@@ -22562,6 +22562,55 @@
       "resolvedAt": "2026-08-26T15:32:40.647Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a88:F-500",
+      "desc": "packages/main/src/core/agent-role-identity.ts:104 exports isCanonicalAgentRoleId but it has zero consumers anywhere in packages/main/src, packages/main/tests, or packages/main/src/tasks (verified via repo-wide grep). It is used internally only as the model for the separately-defined private isCanonicalRoleBase helper. This is unused public API surface added by this story; low-severity maintainability nit, not a functional bug (does not affect gate behavior or correctness).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-08-31T07:42:01.623Z",
+      "reviewRound": "2026-08-26T15:22:14.772Z",
+      "reviewRunId": "B-5a88:RR-935",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/pre-push",
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "packages/main/src/cli/lab-entrypoint.ts",
+          "packages/main/src/core/agent-role-identity.ts",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/legacy-role-alias-sunset.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/core/release-push-approval.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/tests/legacy-role-alias-sunset.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "packages/main/tests/artifact-schema-migration.test.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "81ab1ac01a964cc084b85b56a82bc5ef08ec3624588311638528fe773ec9236c",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }

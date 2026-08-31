@@ -8050,9 +8050,9 @@
       "epochId": "B-5a88:RIE-112",
       "storyId": "B-5a88",
       "reviewRound": "2026-08-26T13:56:02.532Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-26T15:15:44.477Z",
-      "updatedAt": "2026-08-26T15:15:44.477Z",
+      "updatedAt": "2026-08-31T07:35:55.221Z",
       "cutoff": {
         "headHash": "90557456bd99171593bb4436fd5107ae452be8c2",
         "materialHash": "36c0fa4029b913ad55172cdd8472b18b37c42228ac35df08a319c4678fff4468",
@@ -8063,7 +8063,35 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-5a88:RIE-112:RCP-001",
-      "_hash": "98e5176728753091fc586a06262e84bfde1225e0a1c77e9db45910240a2e5f75"
+      "cancelledAt": "2026-08-31T07:35:55.221Z",
+      "cancelReason": "finalized RIE-112 receipt is bound to superseded review round 2026-08-26T13:56:02.532Z; current round is 2026-08-26T15:22:14.772Z after the DEV docs-accuracy remediation, so the receipt is unconsumable and a fresh epoch must be begun at the current round",
+      "terminalRunSequenceBoundary": 934,
+      "_hash": "85838c94ea098d822894cccf382c0c0be4d2e0ed7fd737409fce8e3adc16a926"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a88:RI-091",
+      "storyId": "B-5a88",
+      "reviewRound": "2026-08-26T15:22:14.772Z",
+      "state": "OPEN",
+      "begunAt": "2026-08-31T07:36:01.155Z",
+      "updatedAt": "2026-08-31T07:36:01.155Z",
+      "cutoff": {
+        "headHash": "a1ccfae35ca2f17bc5f37991498e2e66f31760ab",
+        "materialHash": "db6bc28792c31834a0cd12aac3232c99df51b79995daf43300413d82bc272484",
+        "storyFilesHash": "949a7107e9f1646cc032477d0119da869aec3f2d1374f8a9770b687785d10984"
+      },
+      "scopeDigest": "3e2c7a30e5bbd8abf34090e51f5deeb6c4d40e51da54041d8069db1daee863d9",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 934,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "f0a1f0f888fbb579a504d772612b69ec6f7d7ae954a9dd21c2e621f1b4b9f7ba"
     }
   ],
   "receipts": [
@@ -9393,7 +9421,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-26T15:15:44.477Z",
-      "_hash": "9bf0312840208f4b4ff24bb250b387b603ada48d3a9d8949e2475af5f554b34c"
+      "invalidatedAt": "2026-08-31T07:35:55.221Z",
+      "invalidationReason": "finalized RIE-112 receipt is bound to superseded review round 2026-08-26T13:56:02.532Z; current round is 2026-08-26T15:22:14.772Z after the DEV docs-accuracy remediation, so the receipt is unconsumable and a fresh epoch must be begun at the current round",
+      "_hash": "d8ffe058c4e5c5ff2f3593fbc2ee214c5acf2b8cd9725f88f278e1e29c4388b2"
     }
   ],
   "criticReceipts": [
