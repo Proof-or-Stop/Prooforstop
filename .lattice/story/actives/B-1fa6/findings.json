@@ -901,7 +901,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:2554-2557,3325-3327 — HIGH targeted re-review of 93ab5605b4: two normative Story 1/merged-acceptance clauses still call {missing, stale, unsigned, tampered, mismatched, incomplete, unknown} the exact invalid set, omitting re_attestation_required and expired. This still conflicts with REQUIRED_ASSESSMENT_INVALID and the nine-state matrix, so F030/F033 are not fully repaired despite one required-test occurrence being updated. Replace both residual lists with the canonical nine-state set or reference the named constant exclusively.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T09:12:12.777Z",
@@ -909,7 +909,11 @@
       "reviewRunId": "B-1fa6:RR-046",
       "_hash": "f7f8d0715fe10836c11e003eb79e902fa699c2037c001094b06d06b175766d26",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d26fb86fe9 and d260eccd08: all required-test and acceptance-summary invalid-state lists now use the exact nine-state set including re_attestation_required and expired; targeted multiline residue scan is empty.",
+      "resolvedAt": "2026-08-31T09:31:45.381Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-044",
