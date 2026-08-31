@@ -662,6 +662,61 @@
       },
       "readDiagnostics": [],
       "_hash": "3f5d6837f030b3fe18deca9a51e80ec9ed1bf19698b800deeb837e7d6126ac78"
+    },
+    {
+      "id": "B-2220:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed the post-main-merge story-owned diff and full changed decision/smoke files. The unassigned B-3434 writer-owned-boundary work-order posture is fully retired; remaining references are explicitly historical or negative, no active follow-up mandate remains, and no Dynamic Finding behavior is changed or promised.",
+      "createdAt": "2026-08-31T22:31:09.894Z",
+      "reviewRound": "2026-08-31T00:10:59.937Z",
+      "reviewRunId": "B-2220:RR-033",
+      "envelopeId": "aa58b9f0bc6c51fd15a4b71290bb78f2be5e1d113e2de3ac53fc788ae5f68746",
+      "writerSessionId": "sess-779894440bca138e3c361370ff0e2252",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/acceptance-basis.json",
+          ".lattice/story/actives/B-2220/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-2220/dev-memory-preflight-ack.json",
+          ".lattice/story/actives/B-2220/findings.json",
+          ".lattice/story/actives/B-2220/index.json",
+          ".lattice/story/actives/B-2220/intent-collision.json",
+          ".lattice/story/actives/B-2220/original-intent-snapshot.json",
+          ".lattice/story/actives/B-2220/pre-review-check.json",
+          ".lattice/story/actives/B-2220/process-events.jsonl",
+          ".lattice/story/actives/B-2220/process-metrics.json",
+          ".lattice/story/actives/B-2220/prompt-envelopes.json",
+          ".lattice/story/actives/B-2220/proofstory.json",
+          ".lattice/story/actives/B-2220/review-passes.json",
+          ".lattice/story/actives/B-2220/review-runs.json",
+          ".lattice/story/actives/B-2220/review.json",
+          ".lattice/story/actives/B-2220/scope-check.json",
+          ".lattice/story/actives/B-2220/scope-contract.json",
+          ".lattice/story/actives/B-2220/stall-adjudication.json",
+          ".lattice/story/actives/B-2220/test-evidence.json",
+          ".lattice/story/actives/B-2220/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "117a0a37f9084a78d294c4b288a3c2d98be28baec8934334438e7262da996316"
     }
   ]
 }
