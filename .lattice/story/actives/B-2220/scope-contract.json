@@ -99,10 +99,31 @@
         "83950d47b6555471c372a54f15b1d64df4e9f5bad7767b021aa8bee2666c2247",
         "d27975454012de15c1ab024d3e52cd505c0b3ea3b3417e73f4ed9141e263b0e3"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The executable smoke wording and assertion diagnostics must match the approved decision: they verify a check-time candidate measurement and must not imply the declined writer-owned byte-identity guarantee. No production behavior changes.",
+      "timestamp": "2026-08-31T00:08:16.915Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "101513dc32a6212b0d8718b716efdf6615a73a58",
+      "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
+      "hunkDigests": [
+        "53b57a3c89c175613b1364580d2897c7d128f49420a003cb0cc9b2286f04cafb",
+        "6e297bc8953931924698f1f64256feae055566f1f82913483364ea7d6d9c3608",
+        "66e85e051b0b61a611685af5d160bda36901e3b3c9aee50d1582ba93bcf8cb54"
+      ]
     }
   ],
   "createdAt": "2026-08-30T22:57:42.914Z",
-  "updatedAt": "2026-08-30T23:58:48.751Z",
+  "updatedAt": "2026-08-31T00:08:16.916Z",
   "fileRules": [
     {
       "path": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
