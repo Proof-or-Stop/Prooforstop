@@ -628,6 +628,40 @@
         "scanEscalationReason": null
       },
       "_hash": "6298544b3592d4c6ec8b812ce25721166d5f58e3bc7546354576d53fa9da7016"
+    },
+    {
+      "id": "B-5952:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "No blocker after auditing the bounded source/test diff, F-014 through F-019 resolutions, all seven target command reruns, source/dist build binding, scope contract, and fresh mandatory Codex adapter evidence under Node v26. The two corrected intents now match explicit storyDir plus non-empty manifest behavior; current storyRequiresCodexEvidence is true and summarizeCodexEvidence is passing.",
+      "createdAt": "2026-08-31T12:53:16.233Z",
+      "reviewRound": "2026-08-31T12:44:33.706Z",
+      "reviewRunId": "B-5952:RR-039",
+      "envelopeId": "2765b76a00082879c083ec8f44b10a12c8de3c8fce585cec4a2a1747d14967a5",
+      "writerSessionId": "sess-1ad448d8a76414374e558546ec11f7ea",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/understanding.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/findings.json",
+          ".lattice/story/actives/B-5952/pre-review-check.json",
+          ".lattice/story/actives/B-5952/process-events.jsonl",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8bb4b0515ef496019c6d5f5d5fbd4e40f7d5fec152401dfb834bbe3cbe568fe8"
     }
   ]
 }
