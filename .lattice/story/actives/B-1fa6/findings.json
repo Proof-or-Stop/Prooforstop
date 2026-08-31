@@ -5,7 +5,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:938-943,1012-1018,1189-1191 — defer-with-proof gate contradiction: Path C promises that every known or uncertain protected-surface risk must complete Red -> root cause -> fix -> Green in the current Story regardless of assigned severity, but the only authoritative predicate first requires policy.effectiveBlockingSeverities.includes(finding.severity) and its inputs contain no protected-surface state. A low/medium protected-surface Finding excluded by the current severity policy therefore returns non-blocking before applicabilityAndDispositionBlocks runs; protectedSurfaceImpact exists only inside a deferral record, which an ineligible Path-C Finding will not have. The Story tests repeat the promise without specifying a gate-consumed protected-risk fact or severity-elevation rule. Define a signed protected-surface classification available for every applicable Finding and make the shared predicate enforce it independently of ordinary severity/round decay (or narrow the prose to mere deferral ineligibility); otherwise the advertised mandatory Red-to-Green safety floor is not mechanically expressible.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-31T00:33:07.657Z",
@@ -18,7 +18,11 @@
         "packages/main/src/core/types.ts"
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f741bf8754: section 7.1 now defines a signed MandatoryRepairClassification checked before status, severity, and round decay; protected-surface known/unknown/missing evaluation creates the non-decaying floor and resolve/dismiss requires fresh closure evidence.",
+      "resolvedAt": "2026-08-31T00:48:10.501Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-002",
