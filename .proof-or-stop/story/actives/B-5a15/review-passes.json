@@ -11958,6 +11958,76 @@
       },
       "readDiagnostics": [],
       "_hash": "b20fe6fd66badddcf7ff5dcc77c401958faec13663414bd86ae0c7cb3f683884"
+    },
+    {
+      "id": "B-5a15:RP-246",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 53 intents (22 must, 0 must-gaps, 0 waivers). All 51 required intents have mechanical logic_test receipts with selectorMatched=true on node --test packages/main/tests/causal-evidence.test.mjs, and each intent selector is emitted by that suite. Two should-priority Wave-4 rows (CHK-004:happy:2/3) remain result=pass after stale-refresh non-mechanical receipts; the same pinned suite still executes acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check covering current signed receipt, full-3x2 quorum, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive history. No coverage blocker.",
+      "createdAt": "2026-08-31T19:22:26.366Z",
+      "reviewRound": "2026-08-26T09:37:09.709Z",
+      "reviewRunId": "B-5a15:RR-772",
+      "envelopeId": "54fb5fa429c7b0948c6eb1f10de8283dff8703d3e48ede4be24fd9c42677bf79",
+      "writerSessionId": "sess-review-coverage-b5a15-r4",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/background.md",
+          ".proof-or-stop/story/actives/B-5a15/plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": 3530
+        },
+        "digest": "b78d7deb4cb993b486c0ce7b5eb156205b3c80b62b11a2b204432d46b90a1c6a"
+      },
+      "readDiagnostics": [],
+      "_hash": "e4ae6140aba5840d47b29fb5a04d5d73f31a26f686637f802e0bd1f649eb6806"
     }
   ]
 }
