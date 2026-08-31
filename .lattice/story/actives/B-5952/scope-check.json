@@ -1,63 +1,63 @@
 {
   "storyId": "B-5952",
-  "checkedAt": "2026-08-31T14:33:29.711Z",
+  "checkedAt": "2026-08-31T14:51:15.924Z",
   "features": [
     {
-      "feature": "Keep the retired-authority instrumentation guard under a finite, explicit ceiling for the current source inventory.",
+      "feature": "Keep the retired-authority instrumentation guard finite and fail closed.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Rebuild generated output so the bounded source behavior is the behavior exercised from dist.",
+      "feature": "Refresh the measured ceiling for the current source inventory while retaining bounded headroom.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Verify the targeted retired-authority vocabulary smoke after restoring the bounded ceiling.",
+      "feature": "Rebuild generated output and verify the focused instrumentation smoke for the refreshed bound.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Any production-behavior change beyond restoring the test/instrumentation baseline.",
+      "feature": "Do not change production runtime behavior while repairing the validation baseline.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Decision rationale and scope contract keep unrelated runtime behavior outside B-5952.",
+      "excluded_by": "Decision principle: constrain the correction and keep unrelated runtime behavior outside B-5952.",
       "source": "description"
     },
     {
-      "feature": "Implement Dynamic Finding schemas, commands, persistence, lifecycle gates, or historical-data migration.",
+      "feature": "Do not implement Dynamic Finding schemas, commands, persistence, gates, or historical-data migration.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Decision principle admits only the exact historical package-name pairing and excludes Dynamic Finding semantic implementation.",
+      "excluded_by": "Decision principle: the document edit is limited to the exact historical package-name pairing; Dynamic Finding semantics remain unchanged.",
       "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "Implement the deferred B-3434 writer-owned canonical storage/measurement boundary or its sequenced optimization work.",
+      "feature": "Do not implement the deferred B-3434 writer-owned canonical persistence boundary in this Story.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Plan, scope contract, and ProofStory acceptance claim explicitly preserve B-3434 semantics and admit no writer-boundary implementation.",
+      "excluded_by": "Decision principle: unrelated runtime behavior is outside this corrective Story.",
       "source": "decisions:decisions/validation-evidence-artifact-growth.md"
     },
     {
-      "feature": "Change handlers or CLI sources while repairing the package-name documentation baseline.",
+      "feature": "Do not perform another package rename or alter retired-authority migration semantics; only preserve the historical @lattice/core to @proof-or-stop/core pairing annotation.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Scope contract explicitly excludes packages/main/src/handlers/** and packages/main/src/cli/**.",
-      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+      "excluded_by": "Decision rationale: the one-line annotation is admitted only to satisfy the existing rename verifier without changing decision semantics.",
+      "source": "decisions:decisions/proof-or-stop-identity-migration.md"
     }
   ],
   "readManifest": {
     "filesReadFully": [
-      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
       "docs/requirements/decisions/brand-rename-mapping.md",
       "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
       "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
       "docs/requirements/decisions/validation-evidence-artifact-growth.md"
     ],
     "filesTriagedByName": [
@@ -67,6 +67,7 @@
       "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
       "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
       "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
       "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
       "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
       "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
@@ -145,7 +146,6 @@
       "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
       "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
       "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
-      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
       "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
       "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
       "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
@@ -201,6 +201,6 @@
     "drift": 0
   },
   "reviewRound": "2026-08-31T13:56:26.777Z",
-  "_hash": "fcadd94de7419635ab480676dab3c29f2ec553750568f940154f61b3fa6e48eb",
+  "_hash": "f8d6b024acc0dba16723eef424f592281ac333219ee0e2c7ac8173d4144379e1",
   "openQuestions": []
 }
