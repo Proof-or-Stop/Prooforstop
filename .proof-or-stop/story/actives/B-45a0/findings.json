@@ -24179,6 +24179,47 @@
       ],
       "signatureTag": "missing|md|code-drift-claude",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-446",
+      "desc": "packages/main/src/core/story-aware-validation.ts:329-335 concept-residue: the F-441 comment block directly above the F-444 fix still asserts \"No config file at all reports the canonical name, matching the prior behaviour\" -- this is now factually FALSE and directly contradicted by the F-444 comment/code three lines below it (no-config now reports DEPRECATED_CONFIG_FILENAME, verified independently against a temp dir: source=lattice.config.json with zero config files present). F-444 corrected the code and added a new comment explaining the correction, but left the older, now-wrong sentence in place immediately adjacent, so a future reader hits two contradictory claims about the same edge case in the same block. Low severity: does not affect runtime behavior (verified correct via live probe against packages/main/dist/core/story-aware-validation.js), but is exactly the kind of stale-comment residue this reviewer role exists to catch, and it is new residue left uncorrected within commit 8d605caeba which is under review this round.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T04:50:33.270Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1091",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+      },
+      "readDiagnostics": [],
+      "_hash": "3b8d8475c22414767ca06c79c2c988dfffb95a6c23f8c21b68f34327307f2fe9",
+      "files": [
+        "packages/main/src/core/story-aware-validation.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
