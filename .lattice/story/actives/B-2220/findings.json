@@ -227,6 +227,25 @@
       "resolvedAt": "2026-08-31T22:36:58.140Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2220:F-012",
+      "desc": "doc-code-drift: docs/requirements/decisions/validation-evidence-artifact-growth.md:45 [medium] The table and line 57 present values as current measurements from the compiled validation-evidence smoke, but a fresh build-bound execution at HEAD f3958cd reported 2,520,044 rather than 2,520,038 bytes, 38,878,844/19,617,042 rather than 38,878,838/19,617,036, and the same +6-byte drift across the other affected fixtures. WHY: the exact-reviewed decision digest now freezes reproducibly stale current-value claims, so readers cannot obtain the documented figures from the named command after the F-011 rebuild; update and re-review the figures/digest or label the values as historical and bind them to the producing revision.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-31T22:40:51.882Z",
+      "reviewRound": "2026-08-31T22:36:50.515Z",
+      "reviewRunId": "B-2220:RR-035",
+      "_hash": "646ee587f761ad5699f3d1a1d3f0f2cb311d6912ef068686c85d188d4a5b9c52",
+      "files": [
+        "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
