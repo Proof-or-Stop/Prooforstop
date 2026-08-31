@@ -63,7 +63,7 @@
             "id": "C-DELIVERY-TOPOLOGY-CHECK",
             "sourceRef": {
               "refKind": "existing",
-              "canonicalSourceRef": "consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+              "canonicalSourceRef": "process-fact:acceptance_topology_check"
             },
             "producerRefs": [
               "P-DELIVERY-BASIS-GENERATOR"
@@ -238,7 +238,7 @@
             "id": "C-BOUNDARY-REVIEW-GATE",
             "sourceRef": {
               "refKind": "existing",
-              "canonicalSourceRef": "consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+              "canonicalSourceRef": "process-fact:acceptance_topology_check"
             },
             "producerRefs": [
               "P-BOUNDARY-PRE-REVIEW-CHECK"
@@ -372,5 +372,5 @@
   "diagnosticGaps": [],
   "note": "Acceptance bindings for the approved REVIEW Finding triage Agent-behavior projection.",
   "createdAt": "2026-08-31T14:38:19.652Z",
-  "updatedAt": "2026-08-31T23:49:17.679Z"
+  "updatedAt": "2026-08-31T23:49:51.702Z"
 }
