@@ -4,15 +4,14 @@
   "title": "Refresh the retired-authority instrumentation bound for the current source inventory",
   "description": "Current main reproducibly reports 804 dynamic binding graph builds while the retired-authority vocabulary smoke retains an absolute ceiling of 800. Restore a bounded, explicit performance budget without changing production behavior, rebuild generated output, and verify the targeted smoke.",
   "type": "bug",
-  "phase": "INIT",
-  "priority": "high",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
   "riskSignals": [
     {
       "category": "Production/Emergency",
       "matched": "production"
     }
   ],
-  "priorityElevatedFrom": "medium",
   "createdAt": "2026-08-31T02:31:30.475Z",
   "startedAt": "2026-08-31T02:31:30.475Z",
   "endedAt": null,
@@ -25,6 +24,27 @@
       "user": "Harmony",
       "sessionId": "sess-926732d65bb5e74c324cbadbf4d314bc",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-31T02:34:41.885Z",
+      "branch": "main",
+      "user": "Harmony",
+      "sessionId": "sess-926732d65bb5e74c324cbadbf4d314bc",
+      "agent": "main"
     }
-  ]
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "The background only states that the instrumentation-test budget repair does not change production behavior; this Story modifies a validation assertion and generated test output, not production or emergency code.",
+      "at": "2026-08-31T02:31:53.205Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5952",
+    "branch": "story/B-5952",
+    "createdAt": "2026-08-31T02:34:39.621Z"
+  }
 }
