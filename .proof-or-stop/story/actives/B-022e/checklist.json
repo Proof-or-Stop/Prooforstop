@@ -31,19 +31,31 @@
         "happy": [
           {
             "desc": "Before the first production migration commit, the superseding cutover decision enumerates root/Lab/Utils package names, bins and wrappers, command text, role IDs, environment keys, state/config/adapter paths, runtime identifiers, hooks, prompts, and current docs, and assigns each occurrence an explicit canonical-only write, remove, or exact frozen-evidence disposition with rationale; the committed verifier reports no unclassified active residue. WHY: proves the clean-break policy precedes implementation and is exhaustive.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "selector": "PASS identity-cutover"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Run the residue classifier over all tracked paths and compare every Lattice token to the decision inventory -> active occurrences are classified as migrate/remove, frozen historical or signature-bound occurrences match exact path+token+reason entries, and no directory wildcard or broad substring exemption is accepted. WHY: distinguishes exact active residue from protected history without rewriting either class.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "selector": "35 named historical/provenance byte baselines"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "On a temporary copy, delete one identity class from the decision, broaden one frozen-evidence entry, or place the decision after a production migration commit -> the cutover verifier fails with the missing class, overbroad exemption, or ordering violation and cannot claim policy completion. WHY: prevents a retrospective or vacuous superseding decision.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
+              "selector": "missing/stale/broadened/token/path/context/digest/byte"
+            }
           }
         ]
       },
@@ -53,7 +65,72 @@
         "headHash": "1dab23ae287fb9364244a3a73156f62f1abdb6e8",
         "attestedAt": "2026-08-30T22:03:19.918Z",
         "materialHash": "3cb1c5cd9c4042ac95b674806e07c82002518cff7f1611d5a74af10ee283da07"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "result": "pass",
+          "note": "Cutover verifier proves exhaustive policy and zero active residue.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
+            "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:23.049Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "result": "pass",
+          "note": "Exact frozen paths and byte baselines pass without broad exemptions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
+            "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:26.110Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
+          "result": "pass",
+          "note": "Mutation self-test rejects missing, broadened, or stale evidence.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "50734c56920bea8cfd83716c912ee3e173e7d8dbd590ffd3669261c9506d94b2",
+            "outputTail": "PASS identity-cutover self-test: active residue plus missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:28.624Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -87,27 +164,47 @@
         "happy": [
           {
             "desc": "At the pre-migration commit, run the committed identity-cutover verifier and bind its non-zero result through red_evidence_create to the exact acceptance target later used for GREEN -> the receipt names each failing active identity class while the explicitly named historical artifacts already pass byte, digest, and signature-verification baselines. WHY: establishes non-fixture RED before production edits without treating protected history as failure.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "selector": "PASS identity-cutover"
+            }
           },
           {
             "desc": "At a descendant GREEN commit, evaluate the same RED receipt acceptance target -> it passes without changing the receipt target, and its recorded RED commit is an ancestor of GREEN. WHY: proves true RED-to-GREEN lineage rather than replacing the test after implementation.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "selector": "PASS identity-cutover"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Before and after changing the self-hosted canonical storyDir/config identity, invoke story_get and checklist_get for B-022e through the canonical proof-or-stop entrypoint -> both phases discover the same story and CHK-001..CHK-008 metadata, and the descendant GREEN run uses the same acceptance target. WHY: makes the self-host transition non-vacuous.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "selector": "374 exact persisted-schema rows"
+            }
           },
           {
             "desc": "The baseline manifest names each frozen artifact by exact repository-relative path plus byte digest algorithm/value and signature verification command/result -> GREEN reproduces byte-for-byte equality, identical digests, and the same successful verification result. WHY: prevents an anonymous or prose-only history claim.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "selector": "PASS unchanged: 13 signature salts"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "In temporary copies, inject one new active lattice identity, mutate one frozen byte or signature salt, make an allowlist entry stale, or widen it to a directory/glob -> the same verifier fails with a class-specific diagnostic; removing or renaming the RED test also invalidates the receipt. WHY: supplies fail-closed allowlist and mutation proof.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
+              "selector": "all fail closed"
+            }
           }
         ]
       },
@@ -117,7 +214,114 @@
         "headHash": "cb1499d4b77ea6a41ca597df150f7c0705d66b23",
         "attestedAt": "2026-08-30T22:20:23.942Z",
         "materialHash": "493030c7946dab4ab87da6118d09d283417caa55d794a2b59345a7a54250662e"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "result": "pass",
+          "note": "Original committed RED target now passes at descendant GREEN.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
+            "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:31.840Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "result": "pass",
+          "note": "Same acceptance target passes without test replacement.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
+            "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:34.998Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "result": "pass",
+          "note": "Self-host migration preserves story and exact schema evidence.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
+            "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:38.040Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "result": "pass",
+          "note": "Frozen salts, source rows, and byte baselines remain unchanged.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
+            "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:41.202Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
+          "result": "pass",
+          "note": "Injected residue and allowlist mutations fail closed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "50734c56920bea8cfd83716c912ee3e173e7d8dbd590ffd3669261c9506d94b2",
+            "outputTail": "PASS identity-cutover self-test: active residue plus missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:43.704Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -152,19 +356,31 @@
         "happy": [
           {
             "desc": "Build and npm pack the root, main/core, Lab, and Utils workspaces, then inspect every packed package.json and tracked lockfile -> public names/dependencies are proof-or-stop, @proof-or-stop/core, @proof-or-stop/lab, and @proof-or-stop/utils only, versions/resolutions agree, and no distributable manifest contains an unpublished file: dependency. WHY: verifies registry-facing package identity, not only source manifests.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "selector": "PASS identity-cutover"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Install only the produced tarballs into a newly created empty temporary project with registry/network fallback disabled -> require/import resolution for each @proof-or-stop package succeeds from packed contents and the global Lab verifier targets the canonical package. WHY: catches workspace-link leakage hidden by the monorepo.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-global-lab-entrypoint.mjs",
+              "selector": "global lab entrypoint verified"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "From that clean tarball install, resolve @lattice/core, @lattice/lab, and @lattice/utils and inspect dependency trees for @lattice or file: edges -> every legacy resolution fails and no alias/transitive/file dependency reintroduces it; mutating one packed manifest back to @lattice makes the verifier fail. WHY: proves a clean break at the consumer boundary.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+              "selector": "proof-or-stop-only absence smoke passed"
+            }
           }
         ]
       },
@@ -174,7 +390,72 @@
         "headHash": "7168b4543816e8c305a31bcd377434aaf2580215",
         "attestedAt": "2026-08-30T22:28:52.888Z",
         "materialHash": "07d1b5d972d2f189b4aa5ea1c6906798066936448f9b7830fa1765bbc65ce949"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "result": "pass",
+          "note": "Package and lock identities contain no active legacy package edges.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
+            "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:46.844Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-global-lab-entrypoint.mjs",
+          "command": "node scripts/verify-global-lab-entrypoint.mjs",
+          "result": "pass",
+          "note": "Published Lab registration, help, create, dry-run, and core isolation pass.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a663ad2f3d87a7202fb441923a31bd3cad708e6f57fc142c7fe1ef11117ee04c",
+            "outputTail": "ok versions\nok lab-help\nok lab-create\nok core-without-lab\nglobal lab entrypoint verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:48.677Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+          "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+          "result": "pass",
+          "note": "Legacy commands, wrappers, and aliases remain unresolvable.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
+            "outputTail": "proof-or-stop-only absence smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:48.851Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -212,19 +493,31 @@
         "happy": [
           {
             "desc": "Install the packed CLI globally into an isolated prefix and enumerate executable bins -> proof-or-stop is the sole product bin; proof-or-stop --version, help, lab help, and representative help/error/hint paths succeed and begin with or teach proof-or-stop only. WHY: verifies the user-visible command surface end to end.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node bin/proof-or-stop.js --version",
+              "selector": "Proof-or-Stop 0.3.268"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Exercise child-process spawn sites, hooks, package scripts, generated agent instructions, CI examples, and repair hints -> each invokes the canonical proof-or-stop command and none depends on a repository-local deprecated wrapper. WHY: covers indirect entrypoints that a bin-map-only assertion misses.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "selector": "PASS identity-cutover"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "In the isolated install, invoke lattice, search installed bins for a lattice alias, and attempt any deprecated wrapper/fallback path -> command resolution fails, no wrapper file or bin map exists, and adding one alias causes entrypoint/cutover verifiers to fail. WHY: proves removal rather than documentation-only renaming.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+              "selector": "proof-or-stop-only absence smoke passed"
+            }
           }
         ]
       },
@@ -234,7 +527,72 @@
         "headHash": "e6414867505b54463957064b4576f9502f72e9f3",
         "attestedAt": "2026-08-30T22:47:41.921Z",
         "materialHash": "817fbd29e055d372deee0e90d2271d6ba9036f69add7149a7ca0c4115fc3079a"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "bin/proof-or-stop.js",
+          "command": "node bin/proof-or-stop.js --version",
+          "result": "pass",
+          "note": "Canonical bin reports the synchronized shipped version.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f6a00f33f9605a02d2596fccdcfec5d26cd148c3e27181ddccc18ff1eda84c2f",
+            "outputTail": "Proof-or-Stop 0.3.268\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:49.297Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "result": "pass",
+          "note": "Indirect command guidance and generated surfaces have zero legacy command residue.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
+            "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:52.366Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+          "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+          "result": "pass",
+          "note": "Retired lattice bin and wrapper paths fail closed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
+            "outputTail": "proof-or-stop-only absence smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:52.537Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -274,31 +632,55 @@
         "happy": [
           {
             "desc": "Create a fresh isolated project/runtime and invoke canonical init/generation/state/config/adapter paths -> every newly written directory, config key, environment key, runtime identifier, agent role ID, and generated asset uses Proof-or-Stop only; the canonical role registry resolves proof-or-stop-review-story-init and the complete expected proof-or-stop-* role set. WHY: verifies canonical-only fresh writes across runtime surfaces.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "selector": "PASS identity-cutover"
+            }
           },
           {
             "desc": "Load the canonical package role registry and render each active role -> every registry key, template filename, frontmatter name, config route, and generated role identifier is the expected Proof-or-Stop identity with no omitted active role. WHY: treats Agent identity as runtime identity, not prose.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+              "selector": "roleCount=17 registry hashes verified"
+            }
           }
         ],
         "edge": [
           {
             "desc": "For every exact historical artifact named in the RED baseline, compare pre-cutover and GREEN bytes/digests and rerun its signature verifier -> byte content and digest are identical and verification still succeeds, while fresh artifacts use only canonical identities. WHY: proves migration did not purchase zero residue by corrupting evidence.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "selector": "35 named historical/provenance byte baselines"
+            }
           },
           {
             "desc": "Exercise the self-hosted proof-or-stop.config.json/storyDir transition while querying B-022e and writing fresh nonhistorical metadata -> the active story remains discoverable and new writes land only under the canonical path without a read-both legacy runtime dependency. WHY: proves the running tool survives its own identity migration.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-runtime-fact-contract.mjs",
+              "selector": "Runtime fact contract verified"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Attempt to resolve or generate lattice-review-story-init or any other active lattice-* role ID, legacy env key, state/config path, adapter ID, or runtime identifier -> resolution/generation fails rather than aliasing; injecting one legacy registry key/template/frontmatter/config route makes the verifier fail. WHY: proves old runtime and Agent identities are retired.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+              "selector": "proof-or-stop-only absence smoke passed"
+            }
           },
           {
             "desc": "On a temporary copy, mutate a frozen provenance byte or signature salt while keeping active residue zero -> history verification fails and blocks GREEN. WHY: prevents the residue objective from overriding evidence integrity.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
+              "selector": "digest/byte allowlist mutations all fail closed"
+            }
           }
         ]
       },
@@ -308,7 +690,135 @@
         "headHash": "3009a6b60a7beed39d5df4ef46d0ad2221642e0a",
         "attestedAt": "2026-08-30T23:25:14.511Z",
         "materialHash": "a7f0ad9254707acabc2b3cfbfeb93ccf834dcf485c2b323a04f0e297cf00bdf2"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "result": "pass",
+          "note": "Fresh runtime identity scan proves canonical environment, state, config, adapter, and Agent identities.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
+            "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:10:55.581Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Canonical role registry binds the complete exact role and prompt set.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4879f65fcebc2604a96886b9e3026c10a787b40e9933bae9ece7ee170b48e648",
+            "outputTail": "PASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:11:02.290Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "result": "pass",
+          "note": "Historical bytes and provenance remain unchanged after active migration.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
+            "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:11:05.389Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-runtime-fact-contract.mjs",
+          "command": "node scripts/verify-runtime-fact-contract.mjs",
+          "result": "pass",
+          "note": "Canonical runtime paths and authorities are mechanically verified.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "edb14a9654ad6a6c476b9e504fa270382191634f16e68d1e9837a4aede982e55",
+            "outputTail": "Runtime fact contract verified (entrypoint-authority, cli-entrypoint, global-core-realpath, project-local-bin, node-version, package-version, validate-source, external-reference-policy)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:11:06.128Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+          "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+          "result": "pass",
+          "note": "Retired role, env, path, config, and runtime identities cannot alias.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
+            "outputTail": "proof-or-stop-only absence smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:11:06.310Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
+          "result": "pass",
+          "note": "Frozen provenance and signature mutation blocks GREEN.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "50734c56920bea8cfd83716c912ee3e173e7d8dbd590ffd3669261c9506d94b2",
+            "outputTail": "PASS identity-cutover self-test: active residue plus missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:11:08.795Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -351,19 +861,31 @@
         "happy": [
           {
             "desc": "Render current README/CLI guidance, templates, adapters, hooks, verifier output, and generated prompts -> all current product prose and examples say Proof-or-Stop/proof-or-stop, and generated active roles expose the exact canonical proof-or-stop-* set including proof-or-stop-review-story-init. WHY: verifies source and generated user surfaces together.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+              "selector": "agent_prompt output hashes verified for 17 roles"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Compare current-source residue findings with the exact frozen-history allowlist -> prior decision/changelog statements remain byte-identical and truthfully superseded, while no current template, registry key, filename, frontmatter name, config route, or generated asset is exempted as history. WHY: preserves honest records without sheltering live assets.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+              "selector": "PASS identity-cutover"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Ask agent_prompt/config routing for lattice-review-story-init and every other legacy lattice-* role, and regenerate assets from templates -> old IDs cannot resolve and no legacy filename/frontmatter/registry key is emitted; reintroducing any one of them or rewriting a historical statement makes the prompt-baseline/cutover verifier fail. WHY: proves both negative role resolution and frozen-history boundaries.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+              "selector": "unknown-role command rejected"
+            }
           }
         ]
       },
@@ -373,7 +895,72 @@
         "headHash": "37b13b2f668fdefdd06229c551c04dcf36a95fad",
         "attestedAt": "2026-08-30T23:40:16.776Z",
         "materialHash": "8d030d9dd18e579be31a59a14e827742cebea29c324be6719c0b53d2f7eb707c"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Current prompts and generated assets render all canonical roles.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4879f65fcebc2604a96886b9e3026c10a787b40e9933bae9ece7ee170b48e648",
+            "outputTail": "PASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:11:15.688Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "result": "pass",
+          "note": "Current prose residue is zero while exact history stays byte-bound.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c8c43a202a8fd446674505ba74c4e66ab913e8ea64415dccae6f728dcd918891",
+            "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 83 exact source rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 374 exact persisted-schema rows\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:11:18.811Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Legacy role generation and prompt mutations are rejected.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4879f65fcebc2604a96886b9e3026c10a787b40e9933bae9ece7ee170b48e648",
+            "outputTail": "PASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:11:25.684Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -408,19 +995,31 @@
         "happy": [
           {
             "desc": "Run main/Lab/Utils builds, identity-cutover, entrypoint, global-Lab, process-fact, runtime-fact, prompt-baseline, and Codex adapter verifiers, then pack and clean-install all artifacts -> proof-or-stop --version/help/lab help/lab run and doctor succeed and the active-residue report is zero. WHY: establishes the complete GREEN product boundary.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-global-lab-entrypoint.mjs",
+              "selector": "global lab entrypoint verified"
+            }
           }
         ],
         "edge": [
           {
             "desc": "With only clean tarball contents available, resolve proof-or-stop and @proof-or-stop/core/lab/utils and execute representative CLI/Lab behavior -> all canonical positives succeed; lattice and @lattice/core/lab/utils fail to resolve, with no workspace source or unpublished file: fallback. WHY: proves installed behavior rather than monorepo behavior.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+              "selector": "proof-or-stop-only absence smoke passed"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Mutation-test the residue gate by injecting a legacy token into an active file, deleting an exact frozen occurrence, changing an allowlisted token/path, adding a stale allowlist row, and broadening an entry to a glob/directory -> each mutation fails closed with a precise diagnostic while the unmodified tree passes. WHY: demonstrates the zero-residue/allowlist claim is sensitive and non-vacuous.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
+              "selector": "missing/stale/broadened/token/path/context/digest/byte"
+            }
           }
         ]
       },
@@ -430,7 +1029,72 @@
         "headHash": "01797762d7c8f910b95c3c1ef5a12c8b83963b8d",
         "attestedAt": "2026-08-31T00:56:55.105Z",
         "materialHash": "7d52aed10c90dff5e1293c9872bdbc883062ff9e49afa990ba7da6d2ce4aff68"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-global-lab-entrypoint.mjs",
+          "command": "node scripts/verify-global-lab-entrypoint.mjs",
+          "result": "pass",
+          "note": "Final CLI and Lab behavior passes with identity GREEN and offline package transcript.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a663ad2f3d87a7202fb441923a31bd3cad708e6f57fc142c7fe1ef11117ee04c",
+            "outputTail": "ok versions\nok lab-help\nok lab-create\nok core-without-lab\nglobal lab entrypoint verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:11:27.541Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+          "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
+          "result": "pass",
+          "note": "Canonical surfaces succeed while retired identities stay absent.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
+            "outputTail": "proof-or-stop-only absence smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:11:27.717Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
+          "result": "pass",
+          "note": "Residue and allowlist mutation suite is sensitive and non-vacuous.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "50734c56920bea8cfd83716c912ee3e173e7d8dbd590ffd3669261c9506d94b2",
+            "outputTail": "PASS identity-cutover self-test: active residue plus missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:11:30.313Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
@@ -469,22 +1133,99 @@
         "happy": [
           {
             "desc": "After all implementation/evidence commits, package.json, package-lock.json, main/Lab/Utils manifests, the canonical brand/version constant, built output, packed --version output, and proof-or-stop --version all agree on 0.3.268; required REVIEW lanes record fresh signed pass evidence, routine proof-or-stop validate passes, configured DONE-required validation passes, done_prepare --mergeMain --refreshStale --validate reports PASS, and story_advance DONE merges locally to main. WHY: proves version and lifecycle convergence at the shipped boundary.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+              "selector": "version-bump smoke passed: 86 assertions"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Recompute review, verificationEvidence, validation, DONE-required, delivery, and adapter freshness against the final story-owned files/HEAD after the last generated metadata or main merge -> only admissible current evidence is consumed, head-only unrelated drift follows the CLI freshness classification, and no remote task branch/main push occurs. WHY: prevents a superficially green but stale closeout.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs",
+              "selector": "Process Fact Contract"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "From temporary closeout states with one manifest/version constant at 0.3.267, dirty product files, stale validation or DONE-required evidence, missing review lane/pass, open blocking finding, failing clean-install negative, or changed storyFilesHash after review -> build/version verifier or lifecycle gate refuses DONE and names the blocker. WHY: proves REVIEW/TEST/DONE cannot be bypassed by partial version or stale proof.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+              "selector": "version-bump smoke passed: 86 assertions"
+            }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/dist/tasks/version-bump-smoke.js",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Version authorities agree on 0.3.268; lifecycle evidence is separately gate-enforced.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "af761eb4a1cd7fa8e6b2b3df37948a0fb085dad335eaeda36d9b9c839787aca6",
+            "outputTail": "version-bump smoke passed: 86 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:11:30.677Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Review, validation, delivery, and adapter facts are bound to lifecycle gates.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a69108452f6f1575d3112cf32924474214d28eea1f0ca55882426a7b94e57d08",
+            "outputTail": "s; the assurance floor consumes host-verdict rounds emitted after quorum admission artifact=prompt-envelopes.json\n- artifact:proofstory.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=proofstory.json\n- artifact:red-evidence.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=red-evidence.json\n- artifact:review-inventory-epochs.json [L4/signed-artifact] producer=handlers/review-inventory gate=certification_window_begin artifact=review-inventory-epochs.json:signed\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\n- artifact:review-runs.json [L4/signed-artifact] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed\n- artifact:review.json [L4/signed-artifact] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed\n- artifact:scope-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed\n- artifact:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed\n- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json\n- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed\n- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed\n- artifact:scope-shrinkage-decision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=scope-shrinkage-decision.json\n- artifact:slice-plan.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json\n- artifact:spike.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json\n- artifact:story-evidence-binding [L4/artifact] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding\n- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- artifact:topology-critic-receipt.json [L3/signed-artifact] producer=handlers/proofstory.topology_critic_receipt_set gate=topology_critic_receipt_check CLI verification only artifact=topology-critic-receipt.json:signed\n- artifact:topology-exclusion-approvals.json [L3/signed-artifact] producer=handlers/proofstory.topology_exclusion_approval_set gate=topology_critic_receipt_set and topology_critic_receipt_check artifact=topology-exclusion-approvals.json:signed\n- audit [L2/command] producer=handlers/audit\n- autopilot_cancel [L1/command] producer=handlers/proof-or-stop-autopilot\n- autopilot_doctor [L0/command] producer=handlers/autopilot\n- autopilot_execute [L2/command] producer=handlers/autopilot\n- autopilot_policy_check [L0/command] p\n...[truncated 42970 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:11:34.371Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/dist/tasks/version-bump-smoke.js",
+          "command": "node packages/main/dist/tasks/version-bump-smoke.js",
+          "result": "pass",
+          "note": "Partial and mismatched version authority states are rejected.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "af761eb4a1cd7fa8e6b2b3df37948a0fb085dad335eaeda36d9b9c839787aca6",
+            "outputTail": "version-bump smoke passed: 86 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T01:11:34.769Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "55408b65582d5520be36f6506ea42e4c09c55a77",
+          "materialHash": "1f6a24140016f2c63d143f1a41915be64fe648d83735dfe51c2d3025edda207e",
+          "storyFilesHash": "460587b41bf6955ad94496a531af79461572a972980c9031a710175fb6f97673",
+          "timestamp": "2026-08-31T01:11:34.908Z"
+        }
+      ]
     }
   ]
 }
