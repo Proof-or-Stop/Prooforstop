@@ -662,6 +662,36 @@
         "scanEscalationReason": null
       },
       "_hash": "8bb4b0515ef496019c6d5f5d5fbd4e40f7d5fec152401dfb834bbe3cbe568fe8"
+    },
+    {
+      "id": "B-5952:RP-024",
+      "agent": "lattice-review-quality",
+      "note": "Round 10 incremental quality review found no blocker. review_run_start selected ELIGIBLE_NO_MATERIAL_CHANGE with trusted prior binding to B-5952:RP-023 after the TEST anchor reset and merge-main only. I re-read the story specification and current main...HEAD hunks: the Unix global CLI probe preserves caller PATH via a non-login shell; the bounded 808/850 instrumentation helper is live and self-characterized; canonical-config and explicit legacy storyDir fixture repairs remain coherent. No dead code, unused new symbol, unsafe cast, swallowed catch, I/O boundary violation, proof-metadata semantic change, or promised-but-undelivered README/CLAUDE behavior was introduced. The Wave 4 acceptance-topology commands are outside this unchanged scoped diff, so this pass makes no receipt or production-authority claim for them. No validation command was rerun during this review-only round.",
+      "createdAt": "2026-08-31T13:33:17.750Z",
+      "reviewRound": "2026-08-31T13:28:41.780Z",
+      "reviewRunId": "B-5952:RR-043",
+      "envelopeId": "3e14cea50e62328a7e10a2d9abddda37b28454aacbe370e48476939b202b911d",
+      "writerSessionId": "sess-fde422f0feb5b59e45bcbaf424c93930",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1d2c0829e31cf8fd02209934b2a8bf78691cd786fcfdf39c373e6ae3799294ac"
     }
   ]
 }
