@@ -295,6 +295,21 @@
       "dismissedAt": "2026-08-31T08:49:49.036Z",
       "dismissReasonType": "false_positive",
       "dismissEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5952:F-014",
+      "desc": "packages/main/src/tasks/red-evidence-envelope-smoke.ts:512 and packages/main/tests/red/red-w2d-command-readonly.mjs:217 — HIGH acceptance-evidence mismatch: CHK-001:edge:missing-lattice-envelope-snapshot and CHK-001:edge:missing-lattice-readonly-snapshot promise deterministic behavior when .lattice is absent, but both fixes instead set storyDir=.lattice/story/actives, write StoryStore artifacts before snapshot, and snapshotLattice still unconditionally calls readdirSync at lines 545/277. Therefore the passing commands never exercise the claimed missing-tree state and the two must receipts do not prove their intents. Either rewrite the intents to the actual fixture-root correction and rerun evidence, or implement and directly test the promised absent-tree semantics; this blocks current acceptance because two of 13 must claims are unproven.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T12:22:55.419Z",
+      "reviewRound": "2026-08-31T12:18:00.095Z",
+      "reviewRunId": "B-5952:RR-035",
+      "_hash": "0901f14b53df4965a27979880fa58f67c41d82cd15cab940577eda2c0fa4eef9",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
