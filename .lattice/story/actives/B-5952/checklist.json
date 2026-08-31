@@ -166,22 +166,22 @@
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build",
+          "command": "node -e \"const cp=require(\\\"child_process\\\");const run=(file,args)=>{const r=cp.spawnSync(file,args,{encoding:\\\"utf8\\\",maxBuffer:52428800});process.stdout.write(r.stdout||\\\"\\\");process.stderr.write(r.stderr||\\\"\\\");if(r.status!==0)process.exit(r.status??1)};run(\\\"npm\\\",[\\\"--prefix\\\",\\\"packages/main\\\",\\\"run\\\",\\\"build\\\"]);run(process.execPath,[\\\"scripts/verify-core-package-rename.mjs\\\"]);\"",
           "result": "pass",
-          "note": "Fresh rebuilt-dist binding receipt after PLAN evidence repair.",
-          "headHash": "f7c9d374c8d470e954fc4fdaec43319a60e17173",
-          "materialHash": "63292a573bf3271dcc1f220f9f9172c03919d79772485d71e28d8b5f05fe8e82",
-          "storyFilesHash": "65166487f29740c1f2342fc9ec7c73b09faac4f702cfa4ec1e27c2a3714785eb",
+          "note": "F-020 positive proof: single argv wrapper performs a clean packages/main build and the existing root core-package rename verifier.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "c8eae8f55779d6313237e89c393784e42dd4b9b59f3db9db4187ef913f29c2dd",
-            "outputTail": "\n> @proof-or-stop/core@0.3.267 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+            "outputDigest": "34f013ee393bb7130e5e7bc248a2a4044e01efc8e2dba2a209c9c9d9fbc4a4e4",
+            "outputTail": "\n> @proof-or-stop/core@0.3.267 build\n> node ../../scripts/build-main-with-binding.mjs\n\ncorePackageName=@proof-or-stop/core\nok core package uses the canonical renamed name\ncliEngineExists=true\nok core build emitted dist/cli-engine.js (exit code alone is insufficient)\nutilsDependsOn=@proof-or-stop/core\nok packages/utils depends on @proof-or-stop/core\nok packages/utils no longer references the deprecated core name\nlabDependsOn=@proof-or-stop/core\nok packages/lab depends on @proof-or-stop/core\nok packages/lab no longer references the deprecated core name\nutilsDistExists=true\nok packages/utils built against the renamed core (cross-package resolution intact)\nrootPackageName=lattice\noq2BoundaryHeld=true\nok ROOT package name stays \"lattice\" (OQ-2 exclusion) while core is renamed\ndeprecatedCoreNameWithoutCanonical=0\nok every @lattice/core mention sits beside the canonical name (read-both), none stranded\n\ncore package rename verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T12:11:17.887Z",
-            "timeoutMs": 290000
+            "executedAt": "2026-08-31T14:51:59.159Z",
+            "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T12:15:14.476Z"
+          "headHash": "af8fb4091503838a45c95d6c04cc35680a9d1d96",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:51:59.297Z"
         },
         {
           "intentRef": "CHK-001:edge:finite-bound-actual",
