@@ -73,6 +73,13 @@ const qualityProofMetadataPhrases = [
   'not receipt-backed production proof',
 ];
 const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
+const frozenReviewerLegacyReconstructionDigests = {
+  'lattice-review-behavior': '45efbfe90d7705408ed95f0111b2108b5e39fc9397aeb7d99eda600db2ea3fe0',
+  'lattice-review-concept': '846023d241693435c995900e5869b13e838795718143f2fab14e7a8f7f23eb5d',
+  'lattice-review-docs': '7aafa18c26dd713586f416dfc4a3b9676a88438f858c32374af9a978300dd43e',
+  'lattice-review-quality': '1f023f75aeab93b6d08e4ec1261a867e43ebd638f6d5ec18e1407cad7c90f58b',
+  'lattice-review-test-coverage': 'e433ed9bded50288388fff6447142555e412756137461d841ca7724848458753',
+} as const;
 const requiredReviewFindingTriagePhrases = [
   'evidenceState',
   'severity says how harmful it is',
@@ -81,6 +88,9 @@ const requiredReviewFindingTriagePhrases = [
   'Severity does not determine scope by itself',
   'Start the current lane with `proof-or-stop review_run_start`',
   'Carry its current `reviewRunId` on every `finding_add` or `review_pass_set` submission',
+  'already assembled in-flight reviewer envelope stale',
+  'start a fresh current-material run with `review_run_start`, and redispatch the reviewer',
+  'never submit evidence from the older envelope',
   'fail closed and keep it in the current Story',
   'including medium findings when the current round treats them as blocking',
   'Critical or high findings must never be left without an owner',
@@ -105,10 +115,21 @@ function extractLatticeBlock(content: string): string | null {
 }
 
 function assertReviewFindingTriageDelivery(): void {
+  assert.doesNotMatch(
+    REVIEW_FINDING_TRIAGE_CONTRACT,
+    /[\u3400-\u9fff]/u,
+    'the injected open-source REVIEW triage contract is English-only',
+  );
   for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
     const entry = registry.agents.find(candidate => candidate.agentId === roleId);
     assert.ok(entry, `${roleId} is registered`);
-    assert.equal(occurrenceCount(restoreLegacyPromptTemplate(entry), reviewFindingTriageContractMarker), 0, `${roleId} frozen reconstruction is unchanged`);
+    const frozenLegacyReconstruction = restoreLegacyPromptTemplate(entry);
+    assert.equal(occurrenceCount(frozenLegacyReconstruction, reviewFindingTriageContractMarker), 0, `${roleId} frozen reconstruction excludes the appended contract`);
+    assert.equal(
+      createHash('sha256').update(frozenLegacyReconstruction).digest('hex'),
+      frozenReviewerLegacyReconstructionDigests[roleId],
+      `${roleId} frozen legacy reconstruction digest remains byte-for-byte unchanged`,
+    );
     for (const mode of ['legacy-full-context', 'full-envelope'] as const) {
       const body = resolvePromptTemplateBody(entry, mode);
       assert.equal(occurrenceCount(body, reviewFindingTriageContractMarker), 1, `${roleId}/${mode} receives one contract`);
@@ -150,6 +171,12 @@ function assertOwnerAndImplementerTriageGuidance(): void {
   ]) {
     assert.ok(ownerGuide.includes(phrase), `Story Owner guidance keeps triage phrase: ${phrase}`);
   }
+  const ownerTriageSlice = ownerGuide
+    .split('\n')
+    .filter(line => /Bounded current-Story repair|Evidence-backed routing|Compatibility dismissal/.test(line))
+    .join('\n');
+  assert.equal(ownerTriageSlice.split('\n').length, 3, 'all three added Story Owner triage rules are isolated for language audit');
+  assert.doesNotMatch(ownerTriageSlice, /[\u3400-\u9fff]/u, 'the added Story Owner triage slice is English-only');
 
   const implementerGuide = readFileSync(join(registry.root, 'lattice-implementer.md'), 'utf8');
   for (const phrase of [
@@ -159,6 +186,11 @@ function assertOwnerAndImplementerTriageGuidance(): void {
   ]) {
     assert.ok(implementerGuide.includes(phrase), `implementer guidance keeps triage phrase: ${phrase}`);
   }
+  const implementerTriageLine = implementerGuide
+    .split('\n')
+    .find(line => line.includes('**Out-of-item finding discipline**')) ?? '';
+  assert.ok(implementerTriageLine, 'the implementer triage rule is present');
+  assert.doesNotMatch(implementerTriageLine, /[\u3400-\u9fff]/u, 'the added implementer triage rule is English-only');
 }
 
 assertReviewFindingTriageDelivery();

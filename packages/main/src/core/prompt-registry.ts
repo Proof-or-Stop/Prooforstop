@@ -39,6 +39,7 @@ Apply this contract while reviewing. It governs reviewer behavior; it does not r
 ### Record evidence before disposition
 
 - Start the current lane with \`proof-or-stop review_run_start\`. Carry its current \`reviewRunId\` on every \`finding_add\` or \`review_pass_set\` submission.
+- A role-body or policy change makes an already assembled in-flight reviewer envelope stale. Stop, start a fresh current-material run with \`review_run_start\`, and redispatch the reviewer; never submit evidence from the older envelope.
 - Keep four axes separate: \`evidenceState\` says whether the observation is suspected, verified, or disproven; severity says how harmful it is; applicability reports whether it belongs to this Story; gate impact is computed by the current lifecycle policy. Severity does not determine scope by itself.
 - Preserve reproduction steps, source or command evidence, observed impact, and uncertainty. Report an applicability candidate in the evidence supported by the current command; do not invent unsupported fields or present the candidate as a gate decision.
 - The machine-owned handler and gate derive the actual blocking result from structured facts. Reviewer prose, a routing proposal, or a claimed deferral is not gate evidence.
@@ -99,7 +100,7 @@ const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, st
 const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<ModularComplexRoleId, string>> = Object.freeze({
   'lattice-review-story-init': 'd63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6',
   'lattice-review-scope-plan': '9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07',
-  'lattice-implementer': '0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41',
+  'lattice-implementer': '7ed67ae4392ba7f9cf1cb0b9b562db90220cd62b5fe419db9c8aec5b13c9b53c',
   'lattice-review-delivery': '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
   'lattice-evaluator': 'dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97',
 });

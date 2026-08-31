@@ -66,6 +66,14 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * verified new content addresses, never a relaxation. Audited before repinning: normalizing
  * brand tokens and line-wrapping makes the new injected slice byte-identical to the previous
  * one, i.e. the drift is brand-only with no semantic edit.
+ *
+ * B-9a49: re-approved the lattice-implementer body after adding its bounded
+ * out-of-item Finding handoff rule, and the five active modular REVIEW bodies
+ * after appending the canonical Finding triage contract in both rollout modes.
+ * The reviewer source templates and their frozen legacy reconstruction hashes
+ * did not move; only selected assembled bodies and their derived identities do.
+ * The lattice-review-channel source hash moved only because its embedded
+ * load-bearing slice was rewrapped byte-for-byte to the canonical slice.
  */
 const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
@@ -82,19 +90,19 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-implementer',
-    templateHash: '0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41',
+    templateHash: '7ed67ae4392ba7f9cf1cb0b9b562db90220cd62b5fe419db9c8aec5b13c9b53c',
   },
   {
     role: 'lattice-review-behavior',
-    templateHash: 'ff3926a26d0a5ea2c9f77682df750c47b3c9707c41a6eced0f67fbadfbe7c27d',
+    templateHash: '62ab317b260d7f9c08df7039581fad25c5339f34231e20b10906f55683a4edda',
   },
   {
     role: 'lattice-review-channel',
-    templateHash: 'f49ae178d354b3cd940da3bd28d729fb6b602cbd6a2bf2d9b23dbf555460035d',
+    templateHash: '029d5fc9c42db199c513bda5674070b01550d9254172c71e572e229dc4de665b',
   },
   {
     role: 'lattice-review-concept',
-    templateHash: 'a8b1ecd5020c6d0d091678d8c31f9c09bb12110e8da2658932570120fd86e0ca',
+    templateHash: 'a0843d9f74a94fb44eb8f984b9f772f4cdd957092e618999e3127fa1dd2633b5',
   },
   {
     role: 'lattice-review-delivery',
@@ -102,11 +110,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-docs',
-    templateHash: '6808a26c1be23445dbb342d2e7110181c4e2d6b9ce581cfa41a2dfdea2a16d1e',
+    templateHash: '21f057b29706f63f2d3f26ec6677ee275e7d42b04bd2a7c8d6aac687aa3b35a9',
   },
   {
     role: 'lattice-review-quality',
-    templateHash: 'bf99a4151d4406490259efb51a037d28be730115f07b18d5abd63ac21598f32d',
+    templateHash: '99793aaa609aaf9ba2538c6910b16118dbb24b4fe9ffb4f70f05ee291b34e7b5',
   },
   {
     role: 'lattice-review-scope-plan',
@@ -118,7 +126,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-test-coverage',
-    templateHash: '5d1f5bac9cb33991d591189f9b944b307e96600a1dd89e2d24fda6dd0f352f90',
+    templateHash: 'e7f9e669ba90588f36623d5bb6853e1446646c19c1ffb0dcea72e2f38b5ee28f',
   },
   {
     role: 'lattice-review-topology-critic',
@@ -138,11 +146,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
 ].map(entry => Object.freeze(entry)));
 const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
-  ['lattice-review-behavior', 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2', 'd485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4', 'af59ecd12840fddf54f63038cb844bb54395814fdf330e385631ac18057256d8', '3ebf56716b7a9354a147df2ee221ba63e3439cf837a67393dea2bc26d649eab0', '0ce97a4f6fafaac9c89a729502924fcdd121ae846b5588bc1055f5065e18f02d', '0691de5b1497033422f8c0a31103e9473a5a58ee4add491dcd0846919ac0442a', '32683356fbb8b38e6b5b2f423d275c1cc9dd17b0010c9308a37fab0a1b65e767', '3072ff34e5cce36f95471204bd05dcacc6c60671027cd91299c8ebdebf39ec99'],
-  ['lattice-review-concept', 'c53202553b19cada7d13a7bef8cf6c7e268ccbc5310a7349620bca3f455b726c', '3bca56bbd0c5666bfa5553136140f0fc955e0a89f2378af28699bd8b38d0ed7a', '197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2', 'aa959585d8566f2974f4de6b636b92ec63a1d433eaebe7416341b12bf7e38f43', 'cdb5f4abe7224db712a61b7c5fc1912a5af1551371262132ff07ffc6a9ea4622', '1e45b2db67503b833934d78c489267c8964a45faa9c67e77a476060f7bb0ca63', '5333050f9af3b04ef751a73fb49382a0446f371ddc9cd4dc63bd219cc2bf86e1', 'daaee0f7c78df598ca5c9180a00527bb0ef401cc472b4e0a48995b6d6a564eb1'],
-  ['lattice-review-docs', 'ec9b7fec4b4a67beaeda0da095be5de1d2c35d80104edbc8486b2101fd6e03af', '835a0182ce5480c7d7cef9d350ae26a2a3aa11db4fcd3fea418f3c99e38b92a6', '9aaa80a9426a04ea031a7feeb6cd409a236ca6493286bf50f3e5deed012009f7', '6dc808cd000a19b8f897011d8e84ccb221320b9141c4538b5de95208b8a96a47', '904e311351654b9e16917747d459a05c46a31e2b6db892ddb796a1f63efce76b', '10bb3416dd7081f3bed5c2569210e1b40e7c7f8e766582f5a8fcc0d340b30b1f', '776ee19f31724fc24b02047627113b3c1211ca25295e3111c953c89ad2b502e5', '5866702beea655d933491ebfef927d0441887bce5f35fa9c45a20fe5c4544c6c'],
-  ['lattice-review-quality', '1a11e779e4b877d7c75e4fbc98538db25f8ded2e53428fb627d2bf8734f3a504', '4bbf141d64e12ca6e16ec82d1cb397ca2011267100ec8596760349c1c0b17f15', 'ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0', '10ad8484f6f24c3a92041a64c26ca82ac394139e7c51ea984e265241d21ab15b', 'ea06fe995cad296be48b924bbf52a32955c69606bebee9d56be843c5587ff539', '969abfc83df845b61c2cfc2149d57e22c290928dbccdc62bce04491315035d27', '1c2fe6227362a4b8dbdd8ab3e2de550bbbc89a8e4b9881c41327d96645dde52a', 'f8385e50c90f1ad9ffe3f14b6ae5f2d3e408d74240b169787d2ccf2a79b8b249'],
-  ['lattice-review-test-coverage', '2eadef36e4da2e034d722b0d5b0be0a2e9e61fc8e4200cd2ed373f4c8573ca88', '99d5e95ee4d3075b1808c5f1f48ecd2ece3e785b7402c744627f2ffbd2dbc6c0', '9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7', 'f605de383aca246bbfc1d107237d89cb8c377f01168e81d2cdf61331200358d3', 'f09f04111090048a98f80224e72c224cba7c9469fa6ed24fb6f90cd2b94e6256', '683a981cb491c7efcdcf737d64e100e37e9667f18a2276392ddb0023e5dc3e3f', 'f632600b708c6a05a24e94c4c9ec805567eaa1d5db81e51f17bf5f98f8a8f495', '71895876e4451e4e7ff20887432daafccabe0a2e724b6dbf4d216901f543b5e2'],
+  ['lattice-review-behavior', '664d41150a7d5ed53c196d6fbc91e597ce63003bde63ef4c430e16f51edf0de7', 'e214105b87eacfa0ef51a2ee196058fb1a8f6d4f4fb314896687139acf3a3e93', '6d38fd23c7cf3e6d1e38f82f207424cc2ff1ade6cf73fc0fd717e021fa03cef8', 'b6758a2d07ec8424f813d0daef5cbdb7bae9a9f05deed0c5572354ac80cc4086', '3208ccd62d0281a017afc3edfec283305967eb99cdd0a9e9d348107ab0cf784e', '03ca98aaa4be23d8e33c466d8bb863f4aee7bbb6abc22156df59b100c2bea1b1', 'cc1b242811f454c68ea0cf87373e31a8a4294a3b9d6e98fd01188a9c647f73b4', '36aefc794cfdfdfe81aba9dbe70c18dac3f541000544318758fc826fc331aac4'],
+  ['lattice-review-concept', 'a33273445d8289c752154e1ed0f2eb6b6bf38e829ef70cff0a4e4d78ab5453f6', '23ca5ebb9137f8f0b39b7d1bfd3fc1da5ed245f888e2730071ea75bb4a5acb8d', 'cff3cd40370116851a06870eadefd12d01c1b1c8e69feb220ecc7534138f702e', 'ed146ebb750126845e7c4b371d295aad8a9a480e6c57756e50836f67050ed5bf', 'e759591c83e3cb17b35ac239931c1ba95d1119d583577b5780366f907d085556', 'f145452293bcdaf184ec6489b2bcff1f063c8cb3f4a74ded2d77c48feaeeefb5', 'b45a6ea87af1312d9733049a2d9d73990d6c02f3b15c0f796f5172d46dee0ba0', '3c16eb938a7538dde56b2791763ec21f4335cb04e01eea45d115666959804326'],
+  ['lattice-review-docs', 'cf04d018bd14bb87c3d4d93d52d5a7888994044dededc8f42364da8b93945f30', 'b7b8bd5f1c7ff2a73344df6c27a5dd10f0fbd3fd420fddc071c7d7792c611d8d', 'd2ca10730a1c4793a34a383a618cf46ba76194ab23ac696151af842bff7b7503', '77066b1eaf94c5d7a49c6c8812370c05a37a639255d3ee526e424c446995b401', '95ab2f5bf7c1267ade87c94fdfbb7e2deee4141dffe634af21ed1ea82ddf72d8', '142c020f9ed93c2e4670b9b19de5634109745a7b8f06463a4e6c3124a38cc5fa', 'dbfd1c8a85cdff87b4483d9eec95326bea0f5694cd95b49cc8f89b545a593eae', '9ee5b6df2a0ba5015d989abc83c99286a0234518ae7e8497409fd59dc27682db'],
+  ['lattice-review-quality', '8294aa8f53b964aac0ee85e645d7df6d9d09c33f476d615472063e6eda2bf758', 'a6df2c1d972942345627ad0476f6cb6f9193695645b671af6be63655d281ad07', 'f41b197af6143de82548fcacd693e3a5ec0b681995ff1a3aa6f21af262cd8441', 'c7143cd1375865d19cfd7d4e7571a27a7480aa286f3539e38e86af24958bedf7', '0f9478c6d0c58525a68e721bae6d5231442ed2bd2dbd6807a1d6efe7fdf1f652', '42fde63009e85e57275861018f60dfa1feb40904b3bec57aab249d848c86d9e9', 'be96a3223f5ea58a467d7b6882eb0da805f98b0bf3bc2ddd697397b47479916e', 'b155853c959a59b95930f8a19d82863973b53ad0b7a6c6f739f633c6ade52dd7'],
+  ['lattice-review-test-coverage', '805d98958e4d9103bb52ad4d223d976fa525846842c1b4b9e3106b472f6a3d0a', '84ba4932db8482db6fb0fc069d1e79fcd63dc8631b27f7bfa2e113c75782f2bd', 'b9c9ad8d02a7a7aed17c867e0f6780fa003fbf2d4015dfb403dd0512f0a28603', 'dba4ee4199e84ab32f99b211000ae8bf66c33a472ec1a26f0ec5a69870784da5', 'bdbefe3f9f9cc0326d58949456a52b19fa7e80e44b619347a1f5b3854c30c1ed', '253f7f6bfb4ed975cffdc699b2f759bef1af59c744118d74c674aceac4b1ce1c', '3241704c4b94485efff4e8a14d0ed3efce3320a364f1e937eea6b3cf86f014af', 'e78b5e221c3a71651c155254343e202f42f1c8b265857fc28662577881dbb238'],
 ].map(([role, legacyBodySha256, modularBodySha256, roleSemanticDigest, roleRenderDigest, legacyClaudeRenderDigest, legacyCodexRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest]) => Object.freeze({
   role,
   legacyBodySha256,
