@@ -196,6 +196,24 @@
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-011",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1408-1429,1513-1549,1643-1661 [high] The declared Story 3 -> Story 2 -> Story 1 order is not implementable with the current route-receipt ownership. Story 1 exclusively owns the FindingRouteReceipt semantic commands/signer/verifier and may only run a read-only, no-authoritative-write prototype before its prerequisites, while Story 2 requires a fresh accepted Story 1 route receipt for CandidateRoute and recall acceptance tests. Therefore Story 2 cannot be accepted before Story 1, yet Story 1 enforce requires Story 2 accepted and merged. Split a non-gating target-acceptance receipt interface into Story 2, or introduce an explicit prerequisite foundation with acyclic ownership; Story 1 can then add the L4 deferral/gate consumer without circular acceptance.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T00:52:59.299Z",
+      "reviewRound": "2026-08-31T00:47:52.310Z",
+      "reviewRunId": "B-1fa6:RR-011",
+      "_hash": "6bf015c51de56f0c038734977158ccb3c684b49784fc2bbfcb78307b2027c2d4",
+      "files": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
