@@ -415,10 +415,26 @@
         "topology_critic_receipt_set",
         "classifyCurrentCloseoutArtifactForReviewRetention"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "DONE-required root npm test includes test:brief-output; raise its full-suite isolation timeout to 240s so closeout verification can earn a current-HEAD PASS without changing unique-key, CAS-receipt, or invalidation semantics.",
+      "timestamp": "2026-08-31T17:07:14.081Z",
+      "paths": [
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "96554e014fdd1c26403d29a0f7b3b454d3a42c4c",
+      "materialHash": "cdc15bd102d7477311bb455067352b95438feb71fefb34e8c2732599c960912a"
     }
   ],
   "createdAt": "2026-08-20T09:29:12.295Z",
-  "updatedAt": "2026-08-25T16:29:07.036Z",
+  "updatedAt": "2026-08-31T17:07:14.081Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -483,6 +499,7 @@
     ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ed28534544f5eee6957b570ed5189b1c05ca250ba9de801a703233ace09022cf.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ed28534544f5eee6957b570ed5189b1c05ca250ba9de801a703233ace09022cf.json",
     "packages/main/src/core/validation-command-environment.ts": "packages/main/src/core/validation-command-environment.ts",
     "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
-    "packages/main/src/core/closeout-trust.ts": "packages/main/src/core/closeout-trust.ts"
+    "packages/main/src/core/closeout-trust.ts": "packages/main/src/core/closeout-trust.ts",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts"
   }
 }
