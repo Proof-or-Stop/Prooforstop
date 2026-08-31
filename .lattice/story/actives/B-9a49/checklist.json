@@ -36,7 +36,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Story Owner and implementer instructions distinguish current-Story repair from evidence-backed routing and prevent boundaryless scope expansion."
+      "userSees": "Story Owner and implementer instructions distinguish current-Story repair from evidence-backed routing and prevent boundaryless scope expansion.",
+      "files": {
+        "modify": [
+          "AGENTS.md",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
