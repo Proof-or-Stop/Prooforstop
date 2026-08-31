@@ -975,6 +975,49 @@
       },
       "readDiagnostics": [],
       "_hash": "882de82dd2345a3d071801184f448cb275d96cfa4bd320b12a9a74405007cf16"
+    },
+    {
+      "id": "B-5952:RP-032",
+      "agent": "lattice-review-quality",
+      "note": "Round 12 quality PASS: reviewed the complete main...HEAD product diff and story contract; exact decision-doc change is only the historical @lattice/core to @proof-or-stop/core pairing and does not alter Dynamic Finding or B-3434 semantics. All 13 mechanical receipts are current for storyFilesHash da09395a and materialHash 3754272f with exit 0 and matched selectors. Independently reran the argv-safe happy:1 build/verifier wrapper and the fail-closed mutation; exact document SHA-256 was restored and no product file became dirty. Scope gate PASS with 0 unacknowledged violations, no unrelated handler/CLI/proof-metadata or new README/CLAUDE promises.",
+      "createdAt": "2026-08-31T19:25:29.978Z",
+      "reviewRound": "2026-08-31T15:00:25.549Z",
+      "reviewRunId": "B-5952:RR-048",
+      "envelopeId": "2e78f995049295f39a0d234c2160116dd5630e72a6909a692aea86f015c96beb",
+      "writerSessionId": "sess-239850a0a4c15721d83d92e921bfeb4d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "7bbe72ae4650621a018b45f2dc7e8183092ca35383bbe611cc2898784dcb4af5"
     }
   ]
 }
