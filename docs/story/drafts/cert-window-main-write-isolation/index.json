@@ -1,0 +1,14 @@
+{
+  "name": "cert-window-main-write-isolation",
+  "title": "Coordinate certification windows with concurrent main writes",
+  "description": "An admitted DONE-required CertificationWindow currently permits other sessions to commit Story initialization metadata to main during the heavy root suite. This can make the certification attempt fail or become non-reproducible even when the candidate material is unchanged.",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [
+    "certification-window",
+    "main-write-lock",
+    "done-required",
+    "concurrency"
+  ],
+  "createdAt": "2026-08-31T13:27:33.020Z"
+}
