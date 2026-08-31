@@ -809,6 +809,25 @@
       },
       "readDiagnostics": [],
       "_hash": "a7147e2459da22c60cfc2eba68913828a55988002619550a788e43c13bb6969c"
+    },
+    {
+      "id": "B-1fa6:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Targeted Round 17 re-review of commit 59698dda90 verified F-053: the final assessment union is constructible for both route-free applicable repair_current and route-bound applicable defer_with_proof; manifest and deferral bind the exact proposal/receipt/final-assessment tuple; and separate eligibility policy still rejects critical/high and known/uncertain protected-surface deferral. Old route-forbidden applicable union residue scan found no contradictory schema residue.",
+      "createdAt": "2026-08-31T12:37:51.364Z",
+      "reviewRound": "2026-08-31T12:32:34.833Z",
+      "reviewRunId": "B-1fa6:RR-057",
+      "envelopeId": "09617ebe4e6777fed1a239f8dfd0df92d3c138a3b4d7e0322d767875fbdb28ad",
+      "writerSessionId": "sess-b447a21effd90b6899f1951543881841",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c0cd6a34e7f14f126f2990c5dbb0ed80fca918d350c13d3171a1feb8639947af"
     }
   ]
 }
