@@ -28,6 +28,35 @@
       ],
       "signatureTag": "budget-bump-without-causal-baseline",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5952:F-002",
+      "desc": "B-5952 CHK-001 edge/adversarial verification receipts do not execute the promised finite-bound mutations. The edge command merely checks JavaScript tautologies `c<=c` and `!((c+1)<=c)` after reading the constant; the adversarial command only greps the comparator and evaluates constant-false `804<=803`, so neither rebuilds/runs a ceiling+1, below-804, unbounded, relative-only, or warning-only mutant. The source/dist+doc receipt is also stored non-mechanical without an execution receipt. Independently, `pre_review_check_read {storyId:B-5952}` currently reports FAIL with PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, and PR_AUTHORITY_INADMISSIBLE. Replace the tautological probes with isolated executable mutations that first fail, restore the committed control, then pass, and record verifier-admissible receipts.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T02:55:15.407Z",
+      "reviewRound": "2026-08-31T02:52:42.602Z",
+      "reviewRunId": "B-5952:RR-001",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cb967bd945b18583f5e1b5227ba6113947f8d7fad8de9f198d6336ad98676a5c",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "tautological-mutation-proof",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
