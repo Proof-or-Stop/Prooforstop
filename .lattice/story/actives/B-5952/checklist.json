@@ -208,20 +208,20 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Fresh deterministic second 804-build smoke receipt.",
-          "headHash": "f7c9d374c8d470e954fc4fdaec43319a60e17173",
-          "materialHash": "63292a573bf3271dcc1f220f9f9172c03919d79772485d71e28d8b5f05fe8e82",
-          "storyFilesHash": "65166487f29740c1f2342fc9ec7c73b09faac4f702cfa4ec1e27c2a3714785eb",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "1c4c42527981ee85ff91881293f097280d74dbe635a3c06448f2fbdb2d83b635",
             "outputTail": "retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T12:12:20.242Z",
+            "executedAt": "2026-08-31T14:54:09.965Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T12:15:14.476Z"
+          "headHash": "81f71091b2d0e25c0dce9fc836216dd2a890e96f",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:54:10.089Z"
         },
         {
           "intentRef": "CHK-001:adversarial:guard-mutants",
