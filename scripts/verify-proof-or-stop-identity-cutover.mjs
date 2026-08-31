@@ -11,8 +11,8 @@ const CONCEPT_PROVENANCE_MANIFEST_PATH = 'scripts/proof-or-stop-identity-concept
 const CONCEPT_PROVENANCE_MANIFEST_SHA256 = '2e7b3d5e5c2925748c1651aec42715997930cca764120c5679ff34ebe9717412';
 const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 45;
 const CURRENT_LEGACY_CONTEXT_MANIFEST_PATH = 'scripts/proof-or-stop-identity-current-legacy-contexts.json';
-const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'b0f3f515313903cd2d245b293ecdd558d2ba35d63efd89f2b71b9e35f0dc7450';
-const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 120;
+const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = 'f7bb7a46bfc4a2b2efe516dde32e8903a20d87d17380895cf4fa4b4962c62723';
+const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 163;
 const POLICY_PATH = 'docs/requirements/decisions/proof-or-stop-identity-cutover.md';
 const POLICY_COMMIT = '1dab23ae287fb9364244a3a73156f62f1abdb6e8';
 const EXPECTED_PACKAGE_SCRIPT = 'node scripts/verify-proof-or-stop-identity-cutover.mjs';
@@ -206,7 +206,7 @@ const CURRENT_LEGACY_CONTEXT_ROWS = JSON.parse(readFileSync(
   'utf8',
 ));
 EXACT_ALLOWLIST.push(...CURRENT_LEGACY_CONTEXT_ROWS);
-const EXPECTED_EXACT_ALLOWLIST_COUNT = 202;
+const EXPECTED_EXACT_ALLOWLIST_COUNT = 245;
 
 const FROZEN_SALTS = [
   'lattice-review-integrity-v1',
@@ -671,8 +671,7 @@ function validateExactRows(rows, tracked, root, readText = (path) => readFileSyn
     } else if (statSync(resolve(root, row.path)).isDirectory()) {
       errors.push(`allowlist ${row.id}: directory exemptions are forbidden`);
     }
-    const isSemanticContextRow = CURRENT_LEGACY_CONTEXT_ROWS.includes(row);
-    if (!row.token || (hasBroadToken(row.token) && !isSemanticContextRow) || /[*?\[\]{}]/u.test(row.token)) {
+    if (!row.token || hasBroadToken(row.token) || /[*?\[\]{}]/u.test(row.token)) {
       errors.push(`allowlist ${row.id}: token is empty, wildcarded, or a forbidden broad identity`);
     }
     if (!Number.isInteger(row.expectedOccurrences) || row.expectedOccurrences <= 0) {
@@ -972,8 +971,11 @@ function lineAt(text, index) {
   return text.slice(start, endIndex === -1 ? text.length : endIndex);
 }
 
-function exactAllowedRow(path, token) {
-  return EXACT_ALLOWLIST.find((row) => row.path === path && row.token === token);
+function exactAllowedRow(path, token, line = '') {
+  return EXACT_ALLOWLIST.find((row) => row.path === path && (
+    row.token === token
+    || (line.includes(row.token) && row.token.includes(token))
+  ));
 }
 
 function classifyToken(path, token, line) {
@@ -1008,7 +1010,7 @@ function scanActiveResidue(root, files) {
       const token = match[0];
       const line = lineAt(text, match.index);
       if (schemaSet.has(`${path}\0${token}`)) continue;
-      const exactRow = exactAllowedRow(path, token);
+      const exactRow = exactAllowedRow(path, token, line);
       const activeInstruction = isRetiredActiveInstruction(path, token, line, currentTruthSources);
       if (exactRow && (!activeInstruction || exactRow.class === 'migration_input')) continue;
       hits.push({ class: classifyToken(path, token, line), path, line: lineNumberAt(text, match.index), token });
@@ -1123,6 +1125,12 @@ function runSelfTest(root, files) {
   expect(validateExactRows(stale, tracked, root, virtualRead).some((error) => error.includes('occurrence count')), 'stale allowlist count mutation did not fail');
   const broadened = EXACT_ALLOWLIST.map((row) => row === first ? { ...row, token: LEGACY_WORD } : row);
   expect(validateExactRows(broadened, tracked, root, virtualRead).some((error) => error.includes('forbidden broad')), 'broadened allowlist token did not fail');
+  const semanticFirst = CURRENT_LEGACY_CONTEXT_ROWS[0];
+  const broadenedSemantic = EXACT_ALLOWLIST.map((row) => row === semanticFirst ? { ...row, token: LEGACY_WORD } : row);
+  expect(
+    validateExactRows(broadenedSemantic, tracked, root, virtualRead).some((error) => error.includes('forbidden broad')),
+    'broad semantic-context token mutation did not fail',
+  );
   const changedToken = EXACT_ALLOWLIST.map((row) => row === first ? { ...row, token: `${row.token}-changed` } : row);
   expect(validateExactRows(changedToken, tracked, root, virtualRead).some((error) => error.includes('occurrence count')), 'changed exact allowlist token did not fail');
   const changedPath = EXACT_ALLOWLIST.map((row) => row === first ? { ...row, path: 'package.json' } : row);
@@ -1134,17 +1142,18 @@ function runSelfTest(root, files) {
   const missingOccurrenceText = source.replace(first.token, `proof-or-stop-review-integrity-v1`);
   const missingRead = (path) => (path === first.path ? missingOccurrenceText : readFileSync(resolve(root, path), 'utf8'));
   expect(validateExactRows(EXACT_ALLOWLIST, tracked, root, missingRead).some((error) => error.includes('occurrence count')), 'missing frozen occurrence did not fail');
-  const migrationRow = CURRENT_LEGACY_CONTEXT_ROWS.find((row) => row.class === 'migration_input' && row.token === LEGACY_WORD);
-  expect(Boolean(migrationRow), 'self-test requires an exact migration-input row for the retired command token');
+  const migrationRow = CURRENT_LEGACY_CONTEXT_ROWS.find((row) => row.class === 'migration_input' && row.token.includes(LEGACY_WORD));
+  expect(Boolean(migrationRow), 'self-test requires an exact migration-input context for the retired command token');
   if (migrationRow) {
     const migrationSource = readFileSync(resolve(root, migrationRow.path), 'utf8');
-    const activeMigrationRead = (path) => path === migrationRow.path
-      ? `${migrationSource}\nRun ${LEGACY_WORD} validate now.\n`
-      : readFileSync(resolve(root, path), 'utf8');
+    const migrationLine = migrationSource.split(/\r?\n/u).find((line) => line.includes(migrationRow.token)) || '';
     expect(
-      validateExactRows(EXACT_ALLOWLIST, tracked, root, activeMigrationRead)
-        .some((error) => error.includes('occurrence count') || error.includes('bounded context digest changed')),
-      'active retired instruction added inside an exact migration context did not fail closed',
+      exactAllowedRow(migrationRow.path, LEGACY_WORD, migrationLine) === migrationRow,
+      'exact migration context did not cover its bounded retired token',
+    );
+    expect(
+      !exactAllowedRow(migrationRow.path, LEGACY_WORD, `Run ${LEGACY_WORD} validate now.`),
+      'active retired instruction reused an unrelated exact migration context',
     );
   }
   const frozen = FROZEN_FILE_BASELINES[0];
