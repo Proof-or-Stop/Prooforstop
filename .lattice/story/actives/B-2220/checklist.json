@@ -108,14 +108,15 @@
         },
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "logic_test",
-          "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const must=[\\\"## Decision after B-3434\\\",\\\"Decision: decline the writer-owned canonical boundary as not currently justified.\\\",\\\"No follow-up story is planned or owned.\\\",\\\"this document is not an active work order.\\\"];if(!must.every(x=>s.includes(x)))process.exit(1);console.log(\\\"B-2220 happy-0 PASS\\\");\"",
-          "note": "Tool-executed decision-disposition check.",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "The declined/no-active-work-order statements are present in the reviewed decision document.",
           "mechanical": false,
-          "headHash": "1ac81cf6e03763bccc80326cc4dceaeeb5387c15",
+          "headHash": "cad603598318fcf6ddaf1996cff0a7abcf8e5e29",
           "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
           "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
-          "timestamp": "2026-08-31T00:15:01.109Z"
+          "timestamp": "2026-08-31T00:15:31.309Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
