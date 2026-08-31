@@ -297,6 +297,7 @@ export function enforceExperimentArmRetrievalGate(cmd: string, root: string): vo
  * name: 'gap_analyze'
  * name: 'gap_log'
  * name: 'global_control_status'
+ * name: 'graph'
  * name: 'grill_close'
  * name: 'grill_get'
  * name: 'grill_record'
