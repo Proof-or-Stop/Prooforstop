@@ -1020,6 +1020,21 @@
       "_hash": "25937d0af3343a49e326ea3d08cb36b47ea905c12c01dfd129daec1869f40111",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-050",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1401-1403,1571-1578,1647-1653 — HIGH: FindingDeferralDisposition has a binding expiresAt, but GateEvaluationSnapshot expiryClosure only says its reader enumerates expiring assessment, receipt, policy, and runtime inputs; deferrals are absent. A valid claimed deferral can therefore cross its expiresAt between preflight and commit with unchanged record bytes and escape the canonical earliest-expiry CAS, despite the stated exact-boundary/race guarantee. Include every active deferral/lineage expiry in expiringInputIds and earliestBoundExpiryAt and add omission, forged-later-minimum, exact-boundary, and preflight-to-commit race fixtures for deferral expiry.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T12:03:36.673Z",
+      "reviewRound": "2026-08-31T09:31:08.288Z",
+      "reviewRunId": "B-1fa6:RR-050",
+      "_hash": "b7255ab658dc5316798906c5bd3a5ffb081495924e98e51b9f3ff35c578bf352",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
