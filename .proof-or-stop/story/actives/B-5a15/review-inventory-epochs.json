@@ -5923,6 +5923,26 @@
       "cancelReason": "Cancel RI-050 before F-324 identity-invalidation fix; the OPEN epoch cutoff cannot survive the certification-window material change.",
       "terminalRunSequenceBoundary": 765,
       "_hash": "0eb8dd7e57af38ad9c92151a49e4010d14475656c4a2dd9ef63e3cb4095e05da"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a15:RIE-068",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-26T09:37:09.709Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-08-31T19:55:53.926Z",
+      "updatedAt": "2026-08-31T19:55:53.926Z",
+      "cutoff": {
+        "headHash": "37fc7052a341777bc63fede468dfbc9dfae29a4e",
+        "materialHash": "6d1ff7dcd6d03e382ddeecd9947b457e1d15122db53341de1f01e74308b26a5a",
+        "storyFilesHash": "9a49bfb8dd86493a088c679c1c3c3dab11583d171d618e3d36adb75adfceb4f6"
+      },
+      "scopeDigest": "47d844f65770df550901d5fee70b3735e8cd4264ee3a8494433fbb5fadf83b79",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a15:RIE-068:RCP-001",
+      "_hash": "ed41ef2ec150127ef829dfb072fbaf33a1ea856370134e8ddd792216390bea71"
     }
   ],
   "receipts": [
@@ -6853,6 +6873,28 @@
       "issuedAt": "2026-08-26T07:17:31.000Z",
       "consumedAt": "2026-08-26T07:20:03.919Z",
       "_hash": "ceebdeb3412fb12f66a960660fb32fe39006789e82ad025de7a6c7f52606588a"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a15:RIE-068:RCP-001",
+      "epochId": "B-5a15:RIE-068",
+      "storyId": "B-5a15",
+      "reviewRound": "2026-08-26T09:37:09.709Z",
+      "cutoff": {
+        "headHash": "37fc7052a341777bc63fede468dfbc9dfae29a4e",
+        "materialHash": "6d1ff7dcd6d03e382ddeecd9947b457e1d15122db53341de1f01e74308b26a5a",
+        "storyFilesHash": "9a49bfb8dd86493a088c679c1c3c3dab11583d171d618e3d36adb75adfceb4f6"
+      },
+      "scopeDigest": "47d844f65770df550901d5fee70b3735e8cd4264ee3a8494433fbb5fadf83b79",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-31T19:55:53.926Z",
+      "_hash": "e8352be76ed25ee6db19b6e3359674be2326c038617f4983bc049cefa832e528"
     }
   ],
   "criticReceipts": [
