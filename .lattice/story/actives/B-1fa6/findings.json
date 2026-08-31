@@ -573,7 +573,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1599-1607,1633-1657,2180-2182,2699 — Missing/stale applicability leaves a Round-3 verified high Finding able to bypass the promised fail-closed safety floor. The mandatory-repair floor is created only for a fresh `applicable` assessment, while a missing/unsigned/tampered/mismatched/stale assessment with no claimed deferral falls back to the previous predicate. That predicate makes `high` advisory from Round 3 (`packages/main/src/core/advisory.ts:52-75`; `packages/main/src/core/guard-utils.ts:50-56`). Consequently a verified open high Finding can become non-blocking precisely because classification is absent or invalid, contradicting the assertions that unknown high/critical is never downgraded and that missing required classification blocks. Make verified high/critical missing/stale/invalid assessments enter the pre-round mandatory-repair floor, or explicitly narrow and reconcile the safety contract; add a Round-3 high plus missing/stale/unsigned assessment adversarial fixture.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T07:19:38.110Z",
@@ -581,7 +581,11 @@
       "reviewRunId": "B-1fa6:RR-028",
       "_hash": "ebb36deaee3cebbcfbe63173ac25da1c39558ee83940734fafa2bea73024c9ec",
       "signatureTag": "adversarial|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 37d941607e. The shared gate contract now places verified open high/critical Findings with missing, stale, unsigned, tampered, mismatched, incomplete, or unknown required applicability assessments into a non-decaying mandatory-repair floor before round/advisory policy; the only high/critical exception is a fresh strongly proven non-applicable verdict. The applicability pseudo-code no longer falls through to the previous predicate, legacy enforce behavior is explicit, Story 1 acceptance adds a round-3 verified-open-high fixture for each invalid/missing assessment plus a fresh-valid non-applicable control, and the scorecard fail-closed metric names the same matrix. Evidence commands: git show --check --stat HEAD; rg -n for the floor/pseudo-code/fixture/scorecard clauses in docs/requirements/decisions/dynamic-finding-system-execution-plan.md; commit author is lattice-implementer.",
+      "resolvedAt": "2026-08-31T07:23:38.216Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
