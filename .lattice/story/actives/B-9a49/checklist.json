@@ -568,20 +568,20 @@
           "kind": "logic_test",
           "command": "node --input-type=module -e \"import { readFileSync } from 'node:fs'; const owner=readFileSync('AGENTS.md','utf8'); const claude=readFileSync('CLAUDE.md','utf8'); const impl=readFileSync('packages/main/templates/agents/lattice-implementer.md','utf8'); const shared=['Bounded current-Story repair','introduced or worsened by the current Story','Severity and applicability are separate axes','Evidence-backed routing, otherwise fail closed','including a medium Finding in a policy round where medium is blocking','Critical or high Findings must never be left without a traceable owner','Never expand the Story merely to make the repository globally green','Compatibility boundary and dismissal','Dynamic Finding System execution plan is future authority','never fabricate an assessment field, verdict, owner, route, signature, freshness result, or receipt','not applicability','out_of_scope','repair, or resolution proof','prompt text does not mechanically enforce this discipline']; for (const doc of [owner,claude]) for (const p of shared) if (!doc.includes(p)) throw new Error('missing shared guidance: '+p); for (const p of ['Preserve its reproduction evidence and impact evidence','Report it to the Story Owner','Never widen the assigned item or Story unilaterally']) if (!impl.includes(p)) throw new Error('missing implementer phrase: '+p); console.log('owner claude implementer triage guidance: PASS');\"",
           "result": "pass",
-          "note": "Tool-executed pinned logic verifier confirms this must intent against the current source and selected proof output.",
-          "headHash": "ed7dfe2adb6321ee79c928568d9e88a31ea458fe",
-          "materialHash": "63c391f8e5540b042a5cafc79e1932fbad37faaa67d24e9ebab3cd4ac8fba0d4",
-          "storyFilesHash": "84f27e35b4203cbf5efd432bd2a6646919566c50ed2cfafb14b21241653000c4",
+          "note": "Re-executed immutable dual-host guidance pin after preserving all six compatibility phrases in the consolidated English sentence.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "7e429165d5a8177ea0a55c1bcc257b045b9bcec02006cc6b9b44cdceb2db9974",
             "outputTail": "owner claude implementer triage guidance: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T22:43:09.058Z",
+            "executedAt": "2026-08-31T22:45:07.269Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T22:43:48.706Z"
+          "headHash": "ad342e4fc6b9205927d6fbac430f16418f2be8a4",
+          "materialHash": "63c391f8e5540b042a5cafc79e1932fbad37faaa67d24e9ebab3cd4ac8fba0d4",
+          "storyFilesHash": "84f27e35b4203cbf5efd432bd2a6646919566c50ed2cfafb14b21241653000c4",
+          "timestamp": "2026-08-31T22:45:07.420Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
