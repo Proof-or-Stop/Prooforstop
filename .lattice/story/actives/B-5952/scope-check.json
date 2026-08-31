@@ -1,47 +1,47 @@
 {
   "storyId": "B-5952",
-  "checkedAt": "2026-08-31T02:43:33.989Z",
+  "checkedAt": "2026-08-31T03:14:56.320Z",
   "features": [
     {
-      "feature": "Raise only the retired-authority dynamic-binding instrumentation assertion to a finite documented ceiling strictly above the observed 804 and no greater than 850.",
+      "feature": "Use the measured fixed ceiling 808: historical 796 under ceiling 800 and current 804 restore the original four-build headroom, with unchanged synthetic work and identified repository-inventory growth.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-5952/checklist.json"
+      "source": ".lattice/story/actives/B-5952/decision.json"
     },
     {
-      "feature": "Rebuild packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js from the TypeScript source and prove source/dist binding.",
+      "feature": "Modify only packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts and regenerate packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js from source.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-5952/plan.md"
     },
     {
-      "feature": "Preserve a real absolute bound with ceiling and ceiling+1 characterization, adversarial mutation rejection, deterministic rebuild-and-smoke evidence, and an operator-visible PASS at the current inventory.",
+      "feature": "Run the actual smoke boundary self-characterization so the exact ceiling passes, ceiling+1 and measured-1 fail with diagnostics, and ceilings above hard cap 850 fail.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-5952/checklist.json"
     },
     {
-      "feature": "A frozen enforce execution boundary allows exactly packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts and packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js.",
+      "feature": "Execute causal comparator/unbounded/sentinel mutants and fail-closed source-only, dist-only, and protected-document mutations, assert substitutions occurred, require each mutant to fail, and restore a passing control.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
+      "source": ".lattice/story/actives/B-5952/checklist.json"
+    },
+    {
+      "feature": "Keep production handlers, core, CLI, runtime behavior, and unrelated implementation outside this instrumentation-only repair.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Understanding forbids production behavior changes and the enforce scope explicitly excludes handlers/**, core/**, and cli/**.",
       "source": ".lattice/story/actives/B-5952/scope-contract.json"
     },
     {
-      "feature": "Changes to production command behavior or runtime handlers/core/CLI.",
+      "feature": "Do not modify docs/requirements/decisions/dynamic-finding-system-execution-plan.md or contaminate the B-1fa6 documentation-only scope.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Understanding and plan limit the repair to validation instrumentation; enforce scope explicitly excludes packages/main/src/handlers/**, packages/main/src/core/**, and packages/main/src/cli/**.",
-      "source": ".lattice/story/actives/B-5952/scope-contract.json"
-    },
-    {
-      "feature": "Changes to docs/requirements/decisions/dynamic-finding-system-execution-plan.md.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "The enforce scope names the document in both protectedFiles and explicitExcludes; plan and verificationIntent also require a zero fork/base diff.",
+      "excluded_by": "The enforce scope lists the Dynamic Finding document in both protectedFiles and explicitExcludes, and the executable protected-document mutant must prove detection.",
       "source": ".lattice/story/actives/B-5952/scope-contract.json"
     }
   ],
@@ -49,11 +49,14 @@
     "filesReadFully": [
       ".lattice/story/actives/B-5952/background.md",
       ".lattice/story/actives/B-5952/checklist.json",
+      ".lattice/story/actives/B-5952/decision.json",
       ".lattice/story/actives/B-5952/plan.md",
       ".lattice/story/actives/B-5952/scope-contract.json",
       ".lattice/story/actives/B-5952/understanding.json"
     ],
-    "filesTriagedByName": [],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+    ],
     "scanEscalationReason": null
   },
   "summary": {
@@ -64,7 +67,7 @@
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "",
-  "_hash": "9dc40b7c0c360edda4d1000ead6edeba3ffbfa6e87b64a688e30e48fbb8ed0f7",
+  "reviewRound": "2026-08-31T02:52:42.602Z",
+  "_hash": "14c547a1f4a77812ca2e71130a37f8ea51dad757e9280f39c27143d6da97fc71",
   "openQuestions": []
 }
