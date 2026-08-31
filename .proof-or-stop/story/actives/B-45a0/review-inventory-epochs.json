@@ -10152,7 +10152,7 @@
       "reviewRound": "2026-08-31T02:29:23.056Z",
       "state": "OPEN",
       "begunAt": "2026-08-31T02:51:13.643Z",
-      "updatedAt": "2026-08-31T02:51:13.643Z",
+      "updatedAt": "2026-08-31T03:04:18.832Z",
       "cutoff": {
         "headHash": "5b2510e0a7818c9616f23a49f3b65ab8164e88c7",
         "materialHash": "3ef55149759d21499c5a6abb1c31b5eea17be3e0d8938a31f1a8f41c4c87b959",
@@ -10167,9 +10167,70 @@
       ],
       "initialRunSequenceBoundary": 1070,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-08-31T02:51:13.643Z",
+          "completedAt": "2026-08-31T03:04:18.832Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-1071",
+              "terminal": "pass",
+              "hostIdentity": "1c219754e3247db75586faf645a913a4fd696233de0269b2783faf6b08816120",
+              "promptIdentity": "5e6080cfc684abcd09d782f512721d7b426d5709912f037d3d96ac5a642fb9f7",
+              "evidenceIds": [
+                "B-45a0:RP-473"
+              ],
+              "coverageDigest": "e2c60e49b9a68350327173f09ef96b52f91176023c75ba51dc77615e86ef9f96"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-1072",
+              "terminal": "pass",
+              "hostIdentity": "1c219754e3247db75586faf645a913a4fd696233de0269b2783faf6b08816120",
+              "promptIdentity": "2056c597a130f6820eac1751d3f5d2fb2daee12fa923320e20db85e0da125935",
+              "evidenceIds": [
+                "B-45a0:RP-474"
+              ],
+              "coverageDigest": "14b4b5caf96d73e4cdeab5a5b577447a4a4e72d54a53a227d52ef42782a05e44"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-1073",
+              "terminal": "finding",
+              "hostIdentity": "1c219754e3247db75586faf645a913a4fd696233de0269b2783faf6b08816120",
+              "promptIdentity": "639250d9d3e10c5e2c6251e151b2c2cd41555bca8ab7a5e8dde7f7d29f7201a8",
+              "evidenceIds": [
+                "B-45a0:F-437"
+              ],
+              "coverageDigest": "a6ff772d31b63811a7796a518c079929c2ec34156138fa01dd544c3cfec16550"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-1074",
+              "terminal": "finding",
+              "hostIdentity": "1c219754e3247db75586faf645a913a4fd696233de0269b2783faf6b08816120",
+              "promptIdentity": "ad30cd2bde031bcfe37b957c4839717c146148b48c85ac440832daa98b63e38d",
+              "evidenceIds": [
+                "B-45a0:F-438"
+              ],
+              "coverageDigest": "b4eb277abbe3974dd4c0f9cb150d8883542543e4dcf4138876d9b8e2edc95186"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "pre-review-read-exit-code-value-blind-selector",
+            "rule-10-doc-fix-partial-propagation"
+          ],
+          "verifiedFindingSetDigest": "8822da86452f770f9777e8cbb28b399e400e7adc8feacdc3fd4b815317a0b8aa",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "21f866f488d8fa3b47b4225e8a18d2464dbfb278e1166895a150619293d0c55d",
+          "saturated": false,
+          "nextRunSequenceBoundary": 1075
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "ff217566af1e4965e8f15cb369c88939e9d7558ff96de059693dad94cd731e5c"
+      "_hash": "90909330366e8feb415318065c6f0ed85f039c7890aaff5523b0da0ee6db2070"
     }
   ],
   "receipts": [
@@ -16332,6 +16393,43 @@
       "findingDispositions": [],
       "createdAt": "2026-08-30T17:36:22.237Z",
       "_hash": "adae213021f1a79dd8d5d5c5cb3f7c0b35870f8a2626c62552dc92c94a445733"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-106:CRIT-01",
+      "epochId": "B-45a0:RI-106",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "5b2510e0a7818c9616f23a49f3b65ab8164e88c7",
+        "materialHash": "3ef55149759d21499c5a6abb1c31b5eea17be3e0d8938a31f1a8f41c4c87b959",
+        "storyFilesHash": "473418728956538b08fefded663b4357221166e9fa5f702c2f99e5c3176c38b4"
+      },
+      "aggregateFindingSetDigest": "8822da86452f770f9777e8cbb28b399e400e7adc8feacdc3fd4b815317a0b8aa",
+      "requiredLaneCoverageDigest": "fc6f88efd6f2208b2bf0f96d334a73cefe2fbe1d71b4ae09b1febd077bf031db",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-1075",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-475"
+      ],
+      "readEvidenceDigest": "8778b070ac2afbcbad978e098612c3d83e558e7d761dee61fd8d05279147f741",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-437",
+          "disposition": "verified_family",
+          "familyKey": "pre-review-read-exit-code-value-blind-selector",
+          "reason": "Independently reproduced live and read-only: pre_review_check_read --storyId=B-45a0 --json currently returns ok:false codes=[PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED] yet the CLI process exits 0 (verified via direct invocation, exit code captured as 0). Confirmed CHK-014:edge:0 pinned selector in checklist.json is the bare key match \"status\": with zero value constraint, so it would match a failing or passing report identically. The stored evidence row result:pass for that intentRef therefore cannot mechanically prove the check passed; process exit code and selector both fail to discriminate PASS from FAIL for this command."
+        },
+        {
+          "findingId": "B-45a0:F-438",
+          "disposition": "verified_family",
+          "familyKey": "rule-10-doc-fix-partial-propagation",
+          "reason": "Independently verified: Rule 10 (coverage-basis-before-pre-review ordering, PR_COVERAGE_BASIS_CHANGED hazard) exists as item 10 in Section 9 of docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md (committed, present at current head). Direct grep of CLAUDE.md and AGENTS.md for both \"Rule 10\" and \"PR_COVERAGE_BASIS_CHANGED\" returns zero hits in either file. Ran pre_review_check --help and pre_review_check_read --help directly: neither help text mentions Rule 10, PR_COVERAGE_BASIS_CHANGED, or the basis-regeneration-ordering hazard. Confirms only 1 of the 4 locations F-435 named received the fix; the other 3 (CLAUDE.md, AGENTS.md, both --help texts) remain undelivered."
+        }
+      ],
+      "createdAt": "2026-08-31T03:03:44.529Z",
+      "_hash": "cf305556959dd327e55a6cbd8dd22bd21f7ec13a898e23b9eae07dc2e87b30c3"
     }
   ]
 }
