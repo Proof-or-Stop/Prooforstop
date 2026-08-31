@@ -1,18 +1,18 @@
 {
   "storyId": "B-5a88",
-  "changes": "Renamed remaining lattice role IDs, managed markers, artifact schemas, package identities, bootstrap checks, and truthful RI-088 smoke expectations.",
-  "usage": "Use the existing proof-or-stop CLI and reviewer workflow; run proof-or-stop validate --story=B-5a88 --json before DONE.",
-  "expectedOutcome": "Users see proof-or-stop naming consistently across the CLI, packages, markers, schemas, and review evidence.",
-  "actualTranscript": "The implementation and configured validation completed with 112 of 112 commands passing, all 39 verification intents covered, and the Story is ready for DONE after final assurance and delivery evidence.",
-  "outcomeDiff": "No functional difference from the expected outcome; the remaining work is lifecycle evidence closure only.",
+  "changes": "Renamed the remaining lattice identities to proof-or-stop forms across all 13 checklist items: canonical agent role IDs (CHK-001), managed-block markers (CHK-002), artifact schemas (CHK-003), the remote-push-approval schema (CHK-004), root and sibling npm package identities (CHK-005/006), removal of the lattice npm bin alias (CHK-007), host-verdict and review-assurance role identities (CHK-008), delivery-check and floor role identities (CHK-009), machine-defined legacy alias sunset (CHK-010), the gate-artifact schema and freshness matrix (CHK-011), archived story signature readability (CHK-012), and Wave 4 acceptance gates bound to executable current-head verification (CHK-013). Every rename kept scoped legacy-read compatibility: dual-read markers, artifact readers that still accept lattice.* schemas, legacy role aliases resolved to canonical lanes, and a read-both state-dir resolver. Two in-flight repairs also landed: a finding-verify.ts read-both fix that restored the B-META gap-log provenance chain broken by the B-cc10 state-dir migration, and a STRIPPABLE_BIN_TOKENS parse-tolerance split so retired bin tokens still parse without ever being advertised.",
+  "usage": "Use the existing proof-or-stop CLI and reviewer workflow unchanged; retired lattice spellings keep working on read paths. Run proof-or-stop validate --story=B-5a88 --json before DONE.",
+  "expectedOutcome": "Users see proof-or-stop naming consistently across the CLI, packages, managed markers, artifact schemas, and review evidence, while every retired lattice spelling still resolves on scoped legacy-read paths so in-flight stories and existing installations keep working.",
+  "actualTranscript": "Implementation and validation completed: 116 of 116 configured validate commands pass with allPass=true, all 39 must verificationIntent records carry mechanical receipts (exitCode 0, selectorMatched true, zero demoted, zero waivers), the root npm test suite passes 58 of 58, acceptance topology reports Structural pass yes, the acceptance rollout receipt is current with a full-3x2 quorum, delivery-check is signed by proof-or-stop-review-delivery, and a real 3-round x 2-host review quorum is recorded. All three reviewer lanes plus the topology critic passed with zero open findings in the current review round.",
+  "outcomeDiff": "No functional difference from the expected outcome. Both halves of the original intent are delivered: the identity migration is complete across all 13 items, and scoped legacy-read compatibility is preserved and test-covered (dual-read markers, lattice.* schema acceptance, legacy role aliases, read-both state-dir resolution). The only deliberately narrower part is the three deferred defects listed under limitations, none of which is claimed by any checklist item or documentation promise.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "none — fully covered",
-  "pitfalls": "The Story required repeated review remediation, stale evidence refresh, a fresh host probe, and careful avoidance of concurrent metadata writers; rerun DONE preparation after any main merge.",
+  "limitations": "Three defects were deliberately deferred with full evidence rather than fixed here, all recorded in B-5a88-FOLLOWUP-STORIES.md: F-501 (validate-gate provider discriminants still emit lattice-*, 41 occurrences across 9 files, unclaimed by any checklist item), F-500 (unused isCanonicalAgentRoleId export), and a session-env-defeatable owner-gate fixture. B-META-framework-audit:F-038 additionally records volatile host-launcher env keys and GITHUB_NPM_TOKEN being hashed into persisted evidence digests.",
+  "pitfalls": "Every DONE-gate artifact binds to storyFilesHash and nearly every producing command auto-commits, so earning them sequentially re-stales the ones already earned; record dev_memory_finish_decision first, then earn all evidence with no intervening commit of your own. The certification window needs a FINALIZED UNCONSUMED inventory receipt, and story_advance --phase=DEV consumes it. The 116-command validate suite exceeds the flat 900s story_advance watchdog, so earn a standalone PASS under a raised watchdog and let the gate reuse it.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -27,19 +27,19 @@
       "durationMs": 10440077
     },
     "DEV": {
-      "count": 80,
-      "durationMs": 127759491
+      "count": 87,
+      "durationMs": 130584445
     },
     "REVIEW": {
-      "count": 65,
-      "durationMs": 394606965
+      "count": 72,
+      "durationMs": 824835804
     },
     "TEST": {
-      "count": 8,
-      "durationMs": 22563297
+      "count": 12,
+      "durationMs": 37409480
     }
   },
-  "totalDurationMs": 557562863,
+  "totalDurationMs": 1005462839,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-08-26T15:05:28.260Z",
-  "updatedAt": "2026-08-26T15:05:28.260Z"
+  "updatedAt": "2026-08-31T19:30:28.236Z"
 }
