@@ -599,10 +599,26 @@
       "phase": "DEV",
       "headHash": "8b84c7fd0f3e3526636440b89d7cb654bf436757",
       "materialHash": "277d5434151b5d23a24d11c30b2627f17b12331e9bfcb5402219ad12466f1f62"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to unblock this story's own REVIEW-to-TEST gate, not a scope expansion. That guard runs as configured validate command 112; it hashes the whole repository before and after a graph scan and fails on any byte change, deliberately including gitignored paths. But when it executes as one of proof-or-stop validate's own commands, the surrounding validate run concurrently writes one trace file per executed command into .proof-or-stop/runtime/validation-traces/, so the validator's writes were attributed to the graph scan and failed the gate. Measured: a probe writing three files there during a scan produced UNEXPECTED_PROJECT_WRITE naming exactly those files; after the one-line PRUNED regex addition the same probe passes while a canary one level up at .proof-or-stop/runtime/canary-probe.txt is still caught and named, so detection is narrowed rather than weakened. The exclusion is not new policy: packages/main/src/handlers/story-aware-validation.ts:725 already drops the identical path from command residue, and packages/main/src/core/runtime-artifact-registry.ts already registers the entire runtime/ prefix as materialHash exclude. The change is one regex alternation plus explanatory comment, no logic touched, and all four reviewer lanes audited it in epoch RI-111 (RP-514 concept, RP-515 test-coverage, RP-516 docs, RP-517 quality, the last adversarially testing seven regex boundary cases and independently reproducing the probe).",
+      "timestamp": "2026-08-31T22:18:10.725Z",
+      "paths": [
+        "packages/graph/scripts/verify-no-project-writes.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/graph/scripts/verify-no-project-writes.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "b487d38b5cb70fe6ada9e7cf886cdd7c15b6b9d2",
+      "materialHash": "6d96761e24fabeb191351d28a0fa127f81793c6c1fd5723a5fb2e50738958b10"
     }
   ],
   "createdAt": "2026-08-21T07:07:34.430Z",
-  "updatedAt": "2026-08-31T10:45:13.460Z",
+  "updatedAt": "2026-08-31T22:18:10.725Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -704,6 +720,7 @@
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
     "AGENTS.md": "AGENTS.md",
     "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
-    "packages/main/src/core/review-inventory-epoch.ts": "packages/main/src/core/review-inventory-epoch.ts"
+    "packages/main/src/core/review-inventory-epoch.ts": "packages/main/src/core/review-inventory-epoch.ts",
+    "packages/graph/scripts/verify-no-project-writes.mjs": "packages/graph/scripts/verify-no-project-writes.mjs"
   }
 }
