@@ -549,7 +549,7 @@ non-responsibilities.
 | Inputs | Proposed Finding, candidate route, assessment, mandatory-repair classification/closure, deferral, supersession, manifest, `FindingRouteReceipt`, and ledger-receipt mutations; actor/session; idempotency key; expected prior digest; exact referenced-record ID/hash CAS bindings |
 | Records | Immutable ledger entries, unique IDs, transaction/commit digest, persisted signed `FindingRouteReceipt`, `FindingLedgerReceipt`, lock/lease diagnostics |
 | Authority | Authoritative only for persistence integrity: whether exact bytes were durably committed once. It does not attest that the content is true. |
-| Outputs | Exactly-once append result, durable ID, previous/new ledger digest, replay result, explicit conflict/refusal |
+| Outputs | Exactly-once append result, durable ID, previous/new ledger digest, replay result, explicit conflict/refusal, signed read-only ledger/CAS/runtime scorecard query rows |
 | Non-responsibilities | Detector precision, semantic equivalence, severity, applicability, routing judgment, or freshness interpretation |
 
 Every Finding-system mutation named above, including a non-authoritative
@@ -567,9 +567,9 @@ CAS, and persistence only; it neither signs route semantics nor imports Story 1.
 | Contract | Definition |
 | --- | --- |
 | Inputs | Detector outputs, reviewer suspicions, current source anchors, Finding history through the stable accessor/CLI port, source-lineage records, supersession-aware historical rows |
-| Records | `DetectorSignal`, `CandidateFinding`, non-authoritative `CandidateRoute`, base `FindingRouteReceipt` and typed `ProgressEvidenceBinding` contracts, `CanonicalDefect`, `CanonicalDefectSupersession`, derived historical index, candidate-to-Finding promotion receipt |
+| Records | `DetectorSignal`, `CandidateFinding`, non-authoritative `CandidateRoute`, base `FindingRouteReceipt`, typed `ProgressEvidenceBinding`/`ProgressProjection` contracts, `CanonicalDefect`, `CanonicalDefectSupersession`, derived historical index, candidate-to-Finding promotion receipt |
 | Authority | Signals, candidates, auto signatures, recall hits, and the index are advisory. This component may mint/verify target-side acceptance for candidate or Finding-assessment subjects, but every receipt remains `gateEvidence=false`. A designated reviewer plus CLI may confirm identity or promote a currently verified Finding; historical identity alone has no gate authority. |
-| Outputs | Deduped/grouped candidates, evidence-bearing suspected routes, canonical defect suggestions/confirmations, ranked historical candidates, affected symbols/contracts, current canonical historical row, and trigger-matched recall candidates for candidate routes and routed deferrals |
+| Outputs | Deduped/grouped candidates, evidence-bearing suspected routes, canonical defect suggestions/confirmations, ranked historical candidates, affected symbols/contracts, current canonical historical row, trigger-matched recall candidates, and signed read-only identity/route/progress scorecard query rows |
 | Non-responsibilities | Current-Story applicability, lifecycle blocking, runtime artifact freshness, durable-write correctness, or fixing detector implementation quality |
 
 Source-lineage identity and semantic defect identity are separate fields.
@@ -585,9 +585,9 @@ not an in-place invented cause.
 | Contract | Definition |
 | --- | --- |
 | Inputs | One verified/open Finding, target Story, signed scope contract/digest, base/head evidence, current diff/touchpoints, protected-surface risk classification, canonical owner, routing candidates, review run, freshness verdicts |
-| Records | Signed `FindingApplicabilityAssessment`, `MandatoryRepairClassification`, verifier-derived `DeferralLineageState`, Story 1's exact-receipt-CAS L4 profile over Story 2's `FindingRouteReceipt`, `FindingDeferralDisposition`, versioned `DeferralExpiryPolicy`, signed batch disposition manifest, reviewer override/adjudication with reason |
+| Records | Signed `FindingApplicabilityAssessment`, `MandatoryRepairClassification`, ledger-derived `DeferralLineageState`, Story 1's exact-receipt-CAS L4 profile over Story 2's `FindingRouteReceipt`, `FindingDeferralDisposition`, versioned `DeferralExpiryPolicy`, signed batch disposition manifest, read-only rollout scorecard, reviewer override/adjudication with reason |
 | Authority | Advisory in observe/warn. In enforce, only the designated CLI writer plus eligible current reviewer may mint signed L4 assessments/dispositions; the registered verifier derives signed `DeferralLineageState` directly for the shared predicate. |
-| Outputs | `applicable`, `pre_existing_unaffected`, `out_of_scope`, `duplicate`, `stale_or_not_reproduced`, or `unknown`; non-decaying mandatory-repair floor for applicable high/critical, protected-surface risk, or verifier-invalid claimed lineage; optional defer-with-proof after eligible low/medium; exact-CAS consumption of Story 2 target acceptance/revocation; evidence references; gate projection |
+| Outputs | `applicable`, `pre_existing_unaffected`, `out_of_scope`, `duplicate`, `stale_or_not_reproduced`, or `unknown`; non-decaying mandatory-repair floor for applicable high/critical, protected-surface risk, or ledger-derived invalid claimed lineage; optional defer-with-proof after eligible low/medium; exact-CAS consumption of Story 2 target acceptance/revocation; checked-in scorecard JSON/refusal; evidence references; gate projection |
 | Non-responsibilities | Changing Finding truth/severity/status, declaring semantic identity from similarity, proving bytes were stored, producing runtime receipts, or deleting the underlying issue |
 
 Applicability is target-specific and expiring. A Finding may be applicable to
@@ -600,10 +600,10 @@ verdict.
 
 | Contract | Definition |
 | --- | --- |
-| Inputs | Candidate-route/assessment/mandatory-repair/route-receipt/deferral signatures and bindings, canonical-defect/deferral lineage, `DeferralExpiryPolicy`, current `headHash`, `materialHash`, `storyFilesHash`, scope digest, runtime receipts, predecessor/successor Finding records, route-owner/lease/policy state, source hashes, clock |
+| Inputs | Ledger/canonical-chain claim scan; candidate-route/assessment/mandatory-repair/route-receipt/deferral signatures and bindings; canonical-defect/deferral lineage; `DeferralExpiryPolicy`; current `headHash`, `materialHash`, `storyFilesHash`, scope digest and runtime receipts; predecessor/successor Finding records; route-owner/lease/policy state; source hashes; clock |
 | Records | `RuntimeEvidenceReceipt`, `FindingSupersession`, route-receipt revocation/freshness, mandatory-repair closure freshness, signed `DeferralLineageState`, candidate-route/deferral expiry evaluation, canonical-current-record projection, re-attestation advisory |
 | Authority | Runtime receipts and signed assessment freshness are authoritative only for the evidence they bind. Supersession is authoritative for historical record selection after signature/chain validation. Historical content remains non-authoritative for a new Story until revalidated. |
-| Outputs | fresh, valid-with-re-attestation-advisory, stale, expired, tampered, missing; canonical current historical record; exact invalidation/reopen reason |
+| Outputs | fresh, valid-with-re-attestation-advisory, stale, expired, tampered, missing, unknown; canonical current historical record; exact invalidation/reopen reason |
 | Non-responsibilities | Deciding whether a detector hit is a defect, whether two sources are semantically equivalent, assigning severity, or persisting records without the ledger component |
 
 This component is intentionally delivered across two prerequisite Stories and
@@ -635,7 +635,8 @@ detector/reviewer observation
   -> Story 1 exact-receipt CAS                [latest ID/hash/profile/source]
   -> FindingDeferralDisposition + manifest   [one atomic CAS commit;
                                                applicable low/medium only; L4]
-  -> DeferralLineageState                     [verifier-derived safety floor]
+  -> DeferralLineageState                     [ledger/canonical derived first;
+                                               assessment cannot erase claim]
   -> one shared blocking predicate
   -> REVIEW/TEST/DONE consumers
 
@@ -788,6 +789,39 @@ type ProgressEvidenceKind =
   | 'target_delivery_state'
   | 'target_status_transition';
 
+type ProgressProjection =
+  | {
+      kind: 'target_source_change';
+      affectedContractRef: string;
+      affectedSourceRefs: string[];
+      relevantSourceDigest: string;
+    }
+  | {
+      kind: 'target_test_result';
+      defectBoundCommandDigest: string;
+      selectorDigest: string;
+      outcome: 'pass' | 'fail';
+      executionReceiptId: string;
+      executionReceiptHash: string;
+    }
+  | {
+      kind: 'target_delivery_state';
+      subjectKind: 'acceptance_item' | 'checklist_item';
+      subjectRef: string;
+      signedState: string;
+      stateEvidenceId: string;
+      stateEvidenceHash: string;
+    }
+  | {
+      kind: 'target_status_transition';
+      defectWorkItemRef: string;
+      fromState: string;
+      toState: string;
+      transitionPolicyDigest: string;
+      processReceiptId: string;
+      processReceiptHash: string;
+    };
+
 interface ProgressEvidenceBinding {
   schemaVersion: 1;
   kind: ProgressEvidenceKind;
@@ -805,6 +839,17 @@ interface ProgressEvidenceBinding {
     materialHash: string;
     storyFilesHash?: string;
   };
+  subject: {
+    canonicalDefectId: string;
+    routeReceiptId: string;
+    routeReceiptHash: string;
+    affectedContractRefs: string[];
+    targetAcceptanceRefs: string[];
+    targetChecklistItemRefs: string[];
+  };
+  projection: ProgressProjection;
+  projectionDigest: string;
+  predecessorProjectionDigest: string;
   previousDeferralId: string;
   predecessorBaselineDigest: string;
   tupleDigest: string;
@@ -932,6 +977,7 @@ interface MandatoryRepairClassification {
     | 'protected_surface_known_risk'
     | 'protected_surface_unknown_risk'
     | 'deferral_lineage_missing'
+    | 'deferral_lineage_stale'
     | 'deferral_lineage_expired'
     | 'deferral_lineage_exhausted'
     | 'deferral_lineage_tampered'
@@ -978,6 +1024,7 @@ interface DeferralExpiryPolicy {
   };
   hardCeilingSeconds: 2592000;
   effectiveAt: string;
+  supersedesPolicyDigest?: string;
   policyDigest: string;
   signedBy: string;
   signedByAuthority: 'command_policy_authority';
@@ -988,14 +1035,24 @@ type DeferralLineageValidity =
   | 'not_present'
   | 'valid'
   | 'missing'
+  | 'stale'
   | 'expired'
   | 'exhausted'
   | 'tampered'
-  | 'unknown';
+  | 'unknown'
+  | 'released';
 
 type DeferralLineageReasonCode =
   | 'no_committed_disposition'
   | 'deferral_manifest_partial'
+  | 'replacement_assessment_missing'
+  | 'replacement_assessment_stale'
+  | 'replacement_assessment_tampered'
+  | 'replacement_assessment_omits_claim'
+  | 'scope_digest_drift'
+  | 'story_files_hash_drift'
+  | 'material_hash_drift'
+  | 'runtime_binding_drift'
   | 'route_receipt_not_latest'
   | 'route_receipt_invalid'
   | 'expiry_boundary_reached'
@@ -1004,12 +1061,37 @@ type DeferralLineageReasonCode =
   | 'lineage_digest_invalid'
   | 'trusted_clock_unknown';
 
+interface DeferralLineageRelease {
+  kind:
+    | 'pre_existing_unaffected'
+    | 'out_of_scope'
+    | 'duplicate'
+    | 'disproven'
+    | 'repair_closure';
+  sourceArtifactId: string;
+  sourceArtifactHash: string;
+  proofContractDigest: string;
+  evidenceRefs: string[];
+  verifiedAt: string;
+}
+
 interface DeferralLineageState {
   schemaVersion: 1;
   storyId: string;
   findingId: string;
-  assessmentId: string;
+  assessmentId?: string;
   canonicalDefectId: string;
+  hasHistoricalClaim: boolean;
+  claimDeferralIds: string[];
+  claimLedgerDigest: string;
+  claimCanonicalChainDigest: string;
+  replacementAssessmentState:
+    | 'not_required'
+    | 'fresh_bound'
+    | 'missing'
+    | 'stale'
+    | 'tampered'
+    | 'omits_prior_lineage';
   validity: DeferralLineageValidity;
   boundary: 'before' | 'exact' | 'after' | 'unknown';
   activeDeferralId?: string;
@@ -1017,6 +1099,7 @@ interface DeferralLineageState {
   latestRouteReceiptId?: string;
   latestRouteReceiptHash?: string;
   lineageDigest?: string;
+  release?: DeferralLineageRelease;
   reasonCodes: DeferralLineageReasonCode[];
   evaluatedAt: string;
   trustedClockDigest: string;
@@ -1208,15 +1291,34 @@ receipt or error but no new deferral/manifest records.
 
 `ProgressEvidenceBinding.tupleDigest` is the digest of the canonical,
 field-name-sorted tuple containing `kind`, evidence ID/hash/signature/
-`producedAt`, the complete target snapshot, `previousDeferralId`, and
-`predecessorBaselineDigest`. Array and object insertion order is not semantic;
-the canonical encoder rejects duplicate keys and non-canonical encodings. The
-outer receipt signature covers the complete binding, while the nested evidence
-signature proves target-authorized production of the named evidence.
+`producedAt`, subject canonical defect/route/contract/acceptance bindings, the
+kind-specific `ProgressProjection`, both projection digests, the complete target
+snapshot, `previousDeferralId`, and `predecessorBaselineDigest`. Array and object
+insertion order is not semantic; the canonical encoder rejects duplicate keys
+and non-canonical encodings. The outer receipt signature covers the complete
+binding, while the nested evidence signature proves target-authorized
+production of the named evidence.
+The top-level `kind` must equal `projection.kind`; canonical defect and exact
+route ID/hash are mandatory for every kind. Source/test projections require a
+matching affected-contract binding, delivery projections require the named
+acceptance/checklist item, and status transitions require the target-owned
+defect work item and an allowed transition-policy receipt. Empty or cross-kind
+subject bindings are invalid.
 `FindingDeferralDisposition.target.targetSnapshotDigest` is the canonical digest
 of the accepted receipt's target kind/ID/scope and current target head/material/
-story-files snapshot at apply time; it is the next renewal's immutable
-predecessor baseline.
+story-files snapshot at apply time. It is the next renewal's immutable freshness
+baseline, but whole-repository snapshot change is never itself semantic
+progress; only the kind-specific projection comparison can prove progress.
+
+`DeferralLineageState.hasHistoricalClaim`, `claimDeferralIds`, and both claim
+digests are derived from ledger records and canonical supersession/merge links,
+not copied from `FindingApplicabilityAssessment`. `not_present` requires
+`hasHistoricalClaim=false` plus an empty, complete claim scan. If any committed
+deferral is reachable, `hasHistoricalClaim=true`; absent/stale/tampered or
+lineage-omitting replacement assessment maps to missing/stale/tampered/unknown,
+not `not_present`. `validity='released'` requires the signed
+`DeferralLineageRelease` strong-proof or closure artifact; no other state may
+silently discard the historical claim.
 
 The existing `Finding` remains the verified observation type. A candidate is
 not a Finding. A canonical defect is not an applicability verdict. A ledger
@@ -1248,7 +1350,6 @@ isDynamicFindingBlocking(
 ) =
   if deferralLineageFloorBlocks(
     finding,
-    assessmentState,
     deferralLineageState
   ) then true
   else if mandatoryRepairFloorBlocks(
@@ -1267,20 +1368,36 @@ isDynamicFindingBlocking(
     )
 ```
 
-The verifier-derived lineage check is deliberately first. For any open Finding
-with a fresh `applicable` assessment and a claimed deferral lineage,
-`missing`, `expired`, `exhausted`, `tampered`, or `unknown` validity blocks
-directly; `boundary='exact'` is already expired, and an unknown clock or lineage
-result at that boundary also blocks. This computation does not depend on a
+The verifier-derived lineage check is deliberately first and derives claim
+existence independently from immutable deferral records plus the canonical
+supersession/merge chain before consulting any current assessment. A current
+assessment cannot erase a prior claim by being missing, stale, tampered, or by
+omitting the old lineage. If `hasHistoricalClaim=true` and there is no valid
+strong release, `missing`, `stale`, `expired`, `exhausted`, `tampered`, or
+`unknown` validity blocks directly. Scope, `storyFilesHash`, material, and
+runtime drift therefore turn the derived state stale/unknown and remain in this
+first floor even when no replacement assessment exists. `boundary='exact'` is
+already expired, and an unknown clock or lineage result at that boundary also
+blocks.
+
+This computation does not depend on a fresh `applicable` assessment or a
 successful `MandatoryRepairClassification` append. It remains blocking when
 that audit append is missing, fails, or races another writer, and it runs before
 Finding status/severity, `effectiveBlockingSeverities`, evidence-state, or
-`isAdvisoryThisRound` short-circuits. `not_present` means no deferral is claimed
-and continues to the ordinary applicable-Finding predicate; only a fresh,
-exact-receipt-CAS-valid `valid` lineage can supply deferral authority.
+`isAdvisoryThisRound` short-circuits. `not_present` is allowed only when the
+ledger/canonical-chain reader proves no committed deferral has ever existed for
+the Finding/defect lineage; an assessment omission cannot produce it. Only a
+fresh exact-receipt-CAS-valid `valid` lineage can supply deferral authority.
 For this floor, an unclosed direct status mutation does not erase the durable
 open/applicable obligation; only the existing complete closure contract permits
 the subsequent resolved projection.
+
+The only other lineage-floor release is a fresh signed superseding
+`pre_existing_unaffected`, `out_of_scope`, or `duplicate` verdict satisfying its
+independent strong proof contract, or a signed `disproven` truth transition with
+current counter-evidence. `DeferralLineageRelease` binds that exact artifact and
+proof digest. Advisory history, a replacement `applicable`/`unknown` assessment,
+or a new assessment that omits the old deferral cannot release the floor.
 
 The mandatory-repair classification check is also before ordinary policy. For
 a verified Finding with a fresh `applicable` assessment, `critical`/`high`
@@ -1324,7 +1441,10 @@ fresh signed unknown assessment                            -> true if the
 missing, unsigned, tampered, mismatched, or stale assessment,
 with no claimed deferral                                    -> previous predicate
                                                                remains authoritative
-claimed missing/expired/exhausted/tampered/unknown lineage  -> first safety floor
+claimed missing/stale/expired/exhausted/tampered/unknown
+lineage, independent of current assessment                 -> first safety floor
+claimed lineage + fresh strong superseding release         -> released only by
+                                                               its proof contract
 fresh non-blocking verdict with all required proof          -> false
 ```
 
@@ -1396,6 +1516,14 @@ following are mandatory:
   severities, cumulative horizon, and renewal count come from the canonical
   ledger lineage rather than caller input. The route receipt must remain
   accepted and valid through `expiresAt`.
+- The policy verifier requires the exact supported schema/version, valid
+  command-policy-authority signature, recomputed `policyDigest`, an
+  `effectiveAt` no later than disposition creation, exact V1 7/30-day constants,
+  renewal limits, and 30-day hard ceiling. A wrong/not-yet-effective/tampered
+  policy or disposition policy-version/digest mismatch aborts deferral apply.
+  Policy supersession is append-only and applies only to later dispositions; it
+  cannot rebind existing rows or reset their ledger-derived `firstDeferredAt`,
+  renewal count, or cumulative horizon.
 
 **Path C — current-Story mandatory repair.** A verified applicable
 `critical`/`high` Finding cannot be deferred. Neither can any Finding with known
@@ -1499,9 +1627,19 @@ not per row:
   produced after the predecessor deferral. At renewal time its evidence
   signature, signer authority, target ID/scope and current head/material target
   snapshot must still verify. `predecessorBaselineDigest` must equal the
-  predecessor's `targetSnapshotDigest`, while the new target snapshot digest
-  must differ materially from that baseline. Stale, cross-target, reordered,
-  replayed, or re-signed-but-unchanged tuples are insufficient.
+  predecessor's `targetSnapshotDigest`, but that whole-repository snapshot is a
+  freshness/authority check only. Progress requires the new kind-specific
+  `projectionDigest` to differ semantically from the predecessor's exact
+  `predecessorProjectionDigest` for the same canonical defect and route:
+  source change compares affected source/contract digest; test result compares
+  defect-bound command/selector/outcome receipt; delivery state compares a
+  target acceptance/checklist item's signed state and evidence; status
+  transition compares an allowed target-owned defect-work transition and
+  process receipt. Real test, delivery, or status progress may therefore pass
+  with unchanged source bytes, while unrelated repository/head/material change
+  is never progress. Stale, cross-target, wrong-defect/route/contract/item/
+  command, reordered, replayed, or re-signed-without-semantic-transition tuples
+  are insufficient.
 - An initial deferral has `renewalCount=0`, no `supersedesDeferralId`, no
   `progressEvidenceBindingDigest`, and names itself as
   `lineageRootDeferralId`. A
@@ -1552,6 +1690,12 @@ source-lineage equality, or an old out-of-scope result is insufficient.
   stale.
 - Missing current `storyFilesHash`: strict `materialHash` fallback.
 - Invalid assessment or receipt signature/hash: tampered and fail closed.
+- A ledger/canonical-chain claim scan always precedes assessment freshness.
+  Once any deferral is committed, no replacement assessment, absent assessment,
+  or omitted lineage field can make `hasHistoricalClaim=false`. Missing,
+  tampered, or scope/story-files/material/runtime-stale replacement assessment
+  produces the corresponding missing/stale/tampered/unknown lineage state and
+  the first floor until a strong signed release or complete repair closure.
 - A rejected, revoked, expired, wrong-authority, owner/lease/policy-stale, or
   target-closed `FindingRouteReceipt` is invalid. A deferral cannot outlive its
   route receipt or its canonical-lineage cumulative V1 horizon.
@@ -1564,9 +1708,10 @@ source-lineage equality, or an old out-of-scope result is insufficient.
   `firstDeferredAt` or `renewalCount`. A gap, cycle, digest mismatch, missing
   progress, or exhausted lineage fails closed into mandatory repair.
 - Renewal freshness also revalidates the typed progress tuple against the
-  predecessor baseline and current target snapshot. Cross-target evidence,
-  stale production time, tuple reordering, replay into another renewal, or a
-  new signature over unchanged evidence/target bytes fails closed.
+  predecessor kind-specific projection and current target authority snapshot.
+  Unrelated source/head/material change, wrong defect/route/contract/item/
+  command, stale production time, tuple reordering, replay into another renewal,
+  or a new signature without a semantic projection transition fails closed.
 - Creating or starting the target Story/gap, scope drift, material or
   `storyFilesHash` drift, runtime-binding drift, a changed affected contract,
   severity escalation, owner invalidation, target closure without a Green fix,
@@ -1629,13 +1774,29 @@ resolve/dismiss or per-consumer path bypasses the floor. The registered shared
 predicate must consume verifier-derived lineage state before status/severity/
 round policy and must not depend on successful classification-audit persistence
 for its invalid-lineage floor. The dependency verifier must reject any Story 2
-command/artifact import from Story 1.
+command/artifact import from Story 1 and any Story 3 import from Story 2 or
+Story 1.
 Exact command names remain subject to normal CLI design review. Atomic/idempotent
 persistence, route-receipt validity, non-decay, finite expiry, and fail-closed
 fallback are required registered semantics.
 Prompt guidance is not sufficient. The contract verifier must reject a new gate
 consumer that bypasses the shared predicate or accepts a candidate route or
 advisory historical record as evidence.
+
+The checked-in verifier must use mutation fixtures, not presence-only grep:
+inject a new process-registry, command-policy, and phase-allowlist gate consumer
+that directly consumes `CandidateRoute`, a standalone `FindingRouteReceipt`, or
+historical advisory/candidate data, and independently inject a consumer that
+bypasses `isDynamicFindingBlocking`; every mutation must fail. Dependency
+fixtures must separately make Story 3 import Story 2, Story 3 import Story 1,
+and Story 2 import Story 1; every mutation fails, while the delivery DAG
+`Story 3 -> Story 2 -> Story 1` passes. Enforce entry also registers the
+read-only scorecard artifact/command and must refuse when either mutation suite
+or dependency contract is not green.
+The same contract suite mutates `DeferralExpiryPolicy` signature, signer,
+digest, version, effective time, V1 constants/ceiling, supersession, and each
+disposition binding; an implementation that accepts or silently rebinds any
+mutation fails registration/enforce qualification.
 
 ## 8. Seven-problem ownership matrix
 
@@ -1691,7 +1852,8 @@ authoritative artifacts and cannot alter lifecycle output.
   exact route-receipt CAS binding, expiry, and recheck-trigger validation.
 - Signed/versioned `DeferralExpiryPolicy`, canonical-lineage reader/digest, V1
   cumulative 7-day medium/no-renewal and 30-day low/one-renewal limits, hard
-  30-day ceiling, immutable expiry, and superseding renewal.
+  30-day ceiling, signature/authority/effective-time verifier, immutable expiry,
+  and non-rebinding policy supersession.
 - Read-only consumption of Story 2 `CandidateRoute` records with a hard
   non-authoritative/no-gate boundary.
 - Exact verdict/basis/owner/route enums and proof validators.
@@ -1701,11 +1863,17 @@ authoritative artifacts and cannot alter lifecycle output.
   UX whose transaction atomically writes deferral plus manifest/action only
   after revalidating exact existing receipt bytes (final command names chosen
   through normal CLI design review).
-- Signed verifier-derived `DeferralLineageState` reader used as the first safety
-  floor input independently of classification-audit append success.
+- Signed verifier-derived `DeferralLineageState` reader that discovers every
+  committed claim from ledger/canonical chains independently of replacement
+  assessment presence/content/freshness, and is used as the first safety-floor
+  input independently of classification-audit append success.
 - One `isDynamicFindingBlocking` predicate used by every current consumer.
 - L4 command policies, process-fact entries, registry artifacts, and contract
   verifier coverage.
+- Checked-in read-only `finding_rollout_scorecard --json` aggregator owned by
+  Story 1. It consumes only Story 2/3 public query contracts, emits the complete
+  Section 11 qualification metadata/rows, and supplies the enforce-entry safety
+  decision without parsing protected storage.
 - Feature state `observe|warn|enforce` and kill switch.
 
 **Required tests.**
@@ -1718,11 +1886,18 @@ authoritative artifacts and cannot alter lifecycle output.
 - Missing/stale/tampered classification and a direct resolved/dismissed write
   without a fresh closure remain blocking; closure requires non-empty current
   Red/repro, root-cause, fix, Green, and closure evidence.
-- For an open applicable Finding, `missing`, `expired`, `exhausted`, `tampered`,
-  or unknown-at-boundary `DeferralLineageState` blocks before status/severity/
-  round policy even when the `MandatoryRepairClassification` audit append
+- For an open applicable Finding, `missing`, `stale`, `expired`, `exhausted`,
+  `tampered`, or unknown-at-boundary `DeferralLineageState` blocks before
+  status/severity/round policy even when the `MandatoryRepairClassification` audit append
   fails, is delayed, or loses a race. Exact-boundary, injected write-failure,
   and reader/writer interleaving fixtures must all remain blocking.
+- A committed old deferral remains a ledger-derived claimed lineage when there
+  is no replacement assessment, when a new assessment omits the old deferral,
+  or when scope, story-files, material, runtime, assessment hash, or signature
+  drift makes the assessment missing/stale/tampered. Low, round-decayed medium,
+  and direct-status-mutation variants all block. Only a fresh strong
+  non-applicable/duplicate/disproven superseding proof or complete repair closure
+  releases them.
 - Fresh strongly proven `pre_existing_unaffected`, `out_of_scope`, or
   `duplicate` remains outside the mandatory floor; warn rollback reproduces the
   exact old predicate.
@@ -1770,11 +1945,30 @@ authoritative artifacts and cannot alter lifecycle output.
   with exactly-once recall.
 - The one permitted low renewal requires a new assessment and Story 2 receipt
   containing a target-authorized typed `ProgressEvidenceBinding` produced after
-  the predecessor, current for the same target snapshot, and materially changed
-  from its bound predecessor baseline. Missing/stale/cross-target/reordered/
-  replayed/re-signed-unchanged progress, exhausted count/horizon, or an earlier
-  receipt expiry creates the verifier-derived mandatory floor; retries remain
-  idempotent.
+  the predecessor, current for the same defect/route, and semantically changed
+  from the predecessor's kind-specific projection. Positive fixtures allow real
+  test-result, delivery-item, or allowed status progress with unchanged source
+  bytes. Negative fixtures reject unrelated source/head/material changes, wrong
+  defect/route/contract/item/command, no semantic state transition, stale/cross-
+  target/reordered/replayed/re-signed-unchanged progress, exhausted count/
+  horizon, or an earlier receipt expiry; retries remain idempotent.
+- Policy mutation fixtures reject bad/missing signature, wrong signer authority,
+  recomputed-digest mismatch, unsupported version, future/not-yet-effective
+  `effectiveAt`, modified 7/30-day constants, renewal limits or hard ceiling,
+  and deferral policy-version/digest mismatch. Superseding-policy fixtures prove
+  existing rows retain their original policy binding, `firstDeferredAt`, count,
+  and cumulative horizon.
+- Registry/command-policy/phase-allowlist mutation fixtures reject every newly
+  injected gate consumer that reads a candidate, standalone receipt, or
+  historical advisory directly, or bypasses the shared predicate.
+- The integrated dependency fixture accepts only the delivery DAG and rejects
+  Story 3 importing Story 2/1 or Story 2 importing Story 1; Story 1 enforce
+  cannot waive a failed reverse-edge mutation.
+- Deterministic scorecard fixtures cover every Section 11 row and assert exact
+  numerator, denominator, promotion threshold, rollback threshold, HEAD/window/
+  retry/exclusion/hardware/Story-class metadata, and JSON stability. The command
+  uses CLI/query contracts only, refuses missing/tampered/incomplete evidence,
+  and refuses enforce if any safety threshold or merged prerequisite is unmet.
 - Rollback to warn restores the exact previous authoritative predicate.
 - Existing review assurance floor, escalation, certification, readiness, and
   convergence surfaces report the same blocker set.
@@ -1811,7 +2005,7 @@ identity/supersession writes. A read-only benchmark prototype may precede Story
 - Base `FindingRouteReceipt` schema, target-side accept/reject/revoke commands,
   signer/verifier, Story/B-META authority resolver, owner/lease/policy freshness,
   candidate/finding source profiles, and typed target-authorized
-  `ProgressEvidenceBinding`. Every receipt remains
+  `ProgressEvidenceBinding` with kind-specific `ProgressProjection`. Every receipt remains
   `gateEvidence=false`; Story 1 alone binds a finding-profile receipt into L4
   deferral state.
 - Independent standalone-receipt append through Story 3 and CandidateRoute CAS
@@ -1835,6 +2029,10 @@ identity/supersession writes. A read-only benchmark prototype may precede Story
   target/owner, and an accepted route receipt without requiring promotion,
   root-cause analysis, or Green evidence.
 - Gold-set benchmark and recall/precision report by detector/family.
+- Stable read-only query contract for candidate/identity/route authority,
+  supersession, recall, and progress-projection scorecard inputs; every row is
+  signed/digest-bound and consumable by Story 1 without protected-storage
+  parsing.
 - Candidate inspection, merge, disprove, and reviewer-confirmed promotion UX.
 
 **Required tests.**
@@ -1861,11 +2059,21 @@ identity/supersession writes. A read-only benchmark prototype may precede Story
   revoked, expired, wrong-owner/signer/target, or tampered receipts remain
   historical context and cannot generate an authoritative assessment.
 - Story 2 builds and tests without importing any Story 1 handler, artifact, or
-  command; its receipts have zero lifecycle transition delta.
+  command; a dependency mutation that adds any such import fails, and its
+  receipts have zero lifecycle transition delta.
 - `ProgressEvidenceBinding` rejects a missing/invalid target-authorized nested
   signature, pre-predecessor or stale `producedAt`, wrong target/scope/head/
-  material snapshot, wrong predecessor baseline, cross-target reuse,
-  non-canonical reorder, replay, and re-signing of unchanged evidence.
+  material authority snapshot, wrong predecessor projection/baseline,
+  canonical defect, route, affected contract, acceptance/checklist item,
+  test command/selector/outcome, or allowed status transition; it rejects
+  cross-target reuse, unrelated source/head/material movement, non-canonical
+  reorder, replay, and re-signing without semantic projection change. Positive
+  tests accept defect-bound test/delivery/status progress with unchanged code.
+- Registry/command-policy/phase-allowlist mutations that make a gate consume
+  CandidateRoute, standalone receipt, or historical advisory data directly fail
+  the shared contract verifier even though Story 2 itself remains non-gate.
+- Scorecard query fixtures return deterministic complete signed rows, reject
+  tamper/incomplete data, and expose no protected-storage path or parser.
 - Promotion requires current source/reproduction evidence and eligible reviewer
   authority.
 - Same canonical source is deduped as provenance but not assumed to be the same
@@ -1932,6 +2140,8 @@ than adding an uncoordinated lock tree.
 - Build-in-progress refusal and post-run artifact-stability check.
 - Process-fact registration for atomic persistence and gate-eligible runtime
   evidence.
+- Stable read-only query contract for ledger/CAS/idempotency/runtime scorecard
+  inputs, with signed row digests and no exposure of protected storage paths.
 
 **Required tests.**
 
@@ -1965,6 +2175,16 @@ than adding an uncoordinated lock tree.
 - Receipt tamper, wrong source HEAD, changed command, changed artifact bytes,
   and changed environment are rejected.
 - No nested-lock deadlock with current Finding and B-META write paths.
+- Story 3 builds with no import from Story 2 or Story 1; separate dependency
+  mutations adding either forbidden import fail while schema-neutral callback/
+  CAS consumers continue to build.
+- Registry/command-policy/phase-allowlist mutation fixtures still fail when a
+  new gate consumer bypasses the shared predicate or treats a persisted
+  standalone receipt/candidate/historical advisory as semantic gate evidence;
+  persistence authority cannot be promoted by registration.
+- Scorecard query fixtures deterministically report exact atomicity/CAS/runtime
+  numerator and denominator inputs, reject missing/tampered/incomplete rows, and
+  are consumed only through the public query contract.
 
 **Non-goals.** No detector classification, canonical defect judgment,
 applicability verdict, target-authority/routing decision, route semantic signer
@@ -2012,9 +2232,11 @@ Parallel implementation does not relax ordering: branches may prototype
 non-gating work concurrently, but any process-framework deliveries must receive
 a merged-state combination review before Story 1 enforce. No Story may lower
 the existing review assurance floor to make the combination pass.
-The dependency graph is acyclic: Story 2 imports only Story 3 persistence/runtime
-contracts; Story 1 imports Story 2 identity/route semantics and Story 3 runtime/
-ledger contracts. Story 2 must never import a Story 1 gate artifact or handler.
+The dependency graph is acyclic: Story 3 imports neither Story 2 nor Story 1;
+Story 2 imports only Story 3 persistence/runtime/query contracts and never Story
+1; Story 1 imports Story 2 identity/route/query semantics and Story 3 runtime/
+ledger/query contracts. Checked-in dependency mutation fixtures must reject each
+forbidden reverse import independently.
 
 ## 10. Migration, rollout, and rollback
 
@@ -2046,8 +2268,8 @@ ledger contracts. Story 2 must never import a Story 1 gate artifact or handler.
 | State | Entry criteria | Permitted writes | Gate authority | Operator-visible output | Exit / rollback |
 | --- | --- | --- | --- | --- | --- |
 | `observe` | Read-only classifier/index prototype passes structural tests | None; stdout/report only. Benchmark artifacts, if explicitly exported outside lifecycle state, remain non-authoritative. | Existing `isFindingBlocking` only | Candidate groups/routes, predicted mandatory floors, proposed verdicts/deferrals, target-authority/receipt gaps, expiry-policy violations, high/critical closure gaps, predicted blocker delta, latency | Exit to warn after labeled replay shows no safety violation and Story 3/2 dependencies needed by persisted advice are ready; kill switch simply disables output |
-| `warn` | Story 3 atomic persistence accepted; Story 2 candidate/identity/supersession plus non-gate route semantics accepted; observe qualification thresholds met | Story 2 may append standalone signed target route receipts and later CAS-bound candidate routes; Story 1 appends only non-authoritative triage/mandatory/deferral proposals; no new L4 artifact affects lifecycle | Existing predicate only; every route receipt remains `gateEvidence=false` | Old blocker set plus proposed exact receipt tuple/CAS result, verifier-derived lineage floor, horizon/count/progress, protected-surface/closure gaps, stale/unknown/overdue warnings, override audit | Return to observe on data/persistence defect; advance only after merged-state enforce qualification |
-| `enforce` | All three Stories accepted in the acyclic order; signed current-material assessment; runtime receipt; mandatory-floor/process-fact contract; Story 2 target-authorized receipt; exact-receipt CAS; V1 cumulative-lineage policy; legacy compatibility; adversarial and rollback tests green | Atomic/idempotent standalone non-gate receipt and candidate route; separate Story 1 CAS atomically writes L4 deferral plus manifest/action; expiry policy and audit records remain append-only | Verifier-derived invalid-lineage floor first, then classification floor, then shared `isDynamicFindingBlocking`; route receipts/candidates alone remain non-authoritative | Effective mandatory/blocker sets, closure chain, expected/current receipt ID/hash/profile/source, CAS outcome, canonical lineage state/root/first time/count/horizon/progress, candidate recall, freshness, advisory drift, kill switch | Any safety threshold breach immediately changes feature state to warn and restores previous predicate; records remain append-only |
+| `warn` | Story 3 atomic persistence/query contract accepted; Story 2 candidate/identity/supersession plus non-gate route/query semantics accepted; observe qualification thresholds met | Story 2 may append standalone signed target route receipts and later CAS-bound candidate routes; Story 1 appends only non-authoritative triage/mandatory/deferral proposals; no new L4 artifact affects lifecycle | Existing predicate only; every route receipt remains `gateEvidence=false` | Old blocker set plus proposed exact receipt tuple/CAS result, ledger-derived claimed-lineage floor, policy/progress projection results, protected-surface/closure gaps, and read-only scorecard JSON/refusal reasons | Return to observe on data/persistence defect; advance only after merged-state qualification and complete scorecard evidence |
+| `enforce` | All three Stories accepted in the acyclic order; signed current-material assessment; runtime receipt; mandatory-floor/process-fact contract; Story 2 target-authorized receipt; exact-receipt CAS; authentic effective V1 policy; legacy compatibility; gate/dependency mutations and adversarial/rollback tests green; complete `finding_rollout_scorecard --json` passes every safety threshold, qualification window, and merged prerequisite | Atomic/idempotent standalone non-gate receipt and candidate route; separate Story 1 CAS atomically writes L4 deferral plus manifest/action; expiry policy and audit records remain append-only | Ledger-derived claimed-lineage invalid state first, then classification floor, then shared `isDynamicFindingBlocking`; route receipts/candidates alone remain non-authoritative | Effective mandatory/blocker sets, closure/release chain, expected/current receipt tuple and CAS result, policy binding, kind-specific progress projection, scorecard evidence/refusal, candidate recall, freshness, advisory drift, kill switch | Any safety threshold, scorecard evidence, registry/dependency mutation, or merged-prerequisite failure immediately refuses/ends enforce and restores previous predicate; records remain append-only |
 
 The feature-state downgrade is a policy switch, not a data rollback. Disabling
 enforce must restore the previous authoritative blocker predicate and treat all
@@ -2074,6 +2296,9 @@ silently rebound.
   deferral-alone row as authoritative.
 - Scope, Story-owned material, and runtime artifact changes invalidate exactly
   the dependent assessments and deferrals.
+- A committed deferral remains ledger-derived claimed lineage after replacement
+  assessment deletion, omission, tamper, or scope/story-files/material/runtime
+  drift; none can reach `not_present` or bypass the first floor.
 - In enforce, an invalid, expired, ownerless, partially applied, or
   trigger-matched claimed deferral enters the verifier-derived mandatory floor
   and is never converted into a waiver. After rollback to warn, only the
@@ -2081,13 +2306,21 @@ silently rebound.
 - Wrong-authority/revoked route receipts and V1 cumulative boundary/over-count
   deferrals fail closed; renewal creates new assessment/Story 2 acceptance/
   deferral rows and never mutates or resets the predecessor lineage.
+- Invalid signature/signer/digest/version/effective time/V1 constants/hard
+  ceiling or deferral-policy mismatch fails closed. Policy supersession neither
+  rebinds an existing disposition nor resets its lineage clock/count/horizon.
 - Severity flip, target/Story/canonical change, supersession/merge/split, chain
   tamper, or unchanged/missing progress cannot reset `firstDeferredAt` or evade
   mandatory repair.
 - At the exact expiry/horizon boundary, and under injected classification-write
   failure or reader/writer race, invalid `DeferralLineageState` remains the first
-  blocking floor. Stale/cross-target/reordered/replayed/re-signed-unchanged
-  progress cannot renew authority.
+  blocking floor. Unrelated source/head/material movement, wrong defect/route/
+  item/command, stale/cross-target/reordered/replayed/re-signed-no-op progress
+  cannot renew authority, while defect-bound test/delivery/status progress with
+  unchanged code remains representable.
+- Scorecard missing/tampered/incomplete input, any row rollback threshold, any
+  unqualified window, forbidden gate-consumer/dependency mutation, or unmerged
+  prerequisite produces explicit enforce refusal.
 - Whole-tree-only drift is surfaced for re-attestation and is never silently
   classified by the host.
 - Rollback/recovery performs no historical record rewrite or deletion.
@@ -2110,10 +2343,27 @@ The program may claim reductions in compute/triage/convergence only from their
 own measurements. Genuine applicable-defect repair time is reported, not
 credited as a Dynamic Finding saving.
 
-The future implementation must expose a checked-in read-only scorecard
-procedure (planned CLI surface: `finding_rollout_scorecard --json`) backed by
-ledger/process-event queries, not protected-storage parsing. Before that command
-exists, the CLI-only corpus procedure in section 3 is the reproducible baseline.
+Story 1 owns the checked-in read-only
+`finding_rollout_scorecard --json` aggregator and its enforce-refusal result.
+Story 2 provides signed identity/candidate/route/progress query rows; Story 3
+provides signed ledger/CAS/runtime query rows. The aggregator calls those public
+CLI/query contracts only and must never parse protected storage. Its stable JSON
+contains each table row's exact numerator, denominator, observed value,
+promotion threshold, rollback threshold, pass/refuse reason, and evidence
+digests, plus feature state, date/window, repository HEADs, Story classes,
+detector versions, retries, exclusions, and latency hardware. Before that
+command exists, the CLI-only corpus procedure in section 3 is the reproducible
+baseline, not an enforce artifact.
+
+Checked-in deterministic fixtures must exercise every table row, exact boundary,
+empty denominator policy, and rollback condition. Missing, tampered,
+incomplete, non-current, or internally inconsistent evidence makes the command
+return refusal rather than omit a row or assume zero. Warn -> enforce is refused
+when any safety threshold, qualification window, Story 3/2 merged prerequisite,
+dependency mutation suite, or merged-state combination review is not green.
+A zero denominator is emitted as `observed=null,status='insufficient_evidence'`
+and cannot vacuously satisfy a safety threshold; descriptive-only rows retain
+their explicit non-promotion semantics.
 
 Qualification window for warn -> enforce: at least 20 Finding-bearing Stories
 and 200 independently adjudicated candidate/assessment cases over at least 30
@@ -2128,7 +2378,7 @@ merged-state dependency review.
 | False non-blocking high/critical | Adjudicated high/critical verdicts classified non-blocking by the system but applicable by independent qualification / all system-proposed non-blocking high/critical verdicts | Scorecard join of signed proposal, reviewer adjudication, and current repro receipt | **0**, including adversarial set | Any one event |
 | Stale/tampered rejection | Stale/tampered/mismatched test cases rejected / all injected stale/tampered/mismatched cases | Deterministic negative suite plus receipt-verifier events | 100% | Any accepted case |
 | Unknown high/critical fail-closed | Otherwise-blocking high/critical unknown cases that remain blocking / all such unknown cases | Shared predicate fixture and live warn comparison | 100% | Any downgrade caused by unknown |
-| Mandatory-repair floor and closure integrity | Applicable high/critical, known/unknown protected-surface, or verifier-derived missing/expired/exhausted/tampered/unknown-at-boundary deferral-lineage cases that remain blocking through severity/round decay and classification-audit append failure/race, then clear only with a fresh complete closure / all injected mandatory cases | Shared-predicate, resolve/dismiss-handler, exact-boundary clock, classification-write failure, reader/writer race, stale/tamper, and closure mutation suite | 100%; zero direct-status, audit-write, or lineage bypasses | Any decayed/bypassed floor, any audit-write failure that opens the gate, or any incomplete/stale closure accepted |
+| Mandatory-repair floor and closure integrity | Applicable high/critical, known/unknown protected-surface, or ledger-derived claimed lineage with missing/stale/expired/exhausted/tampered/unknown state that remains blocking through missing/omitting replacement assessment, drift, severity/round decay and classification-audit append failure/race, then clears only with a fresh strong release or complete closure / all injected mandatory cases | Shared-predicate, ledger claim scan, no-replacement/omitted-lineage, scope/story-files/material/runtime drift, exact-boundary clock, classification-write failure, reader/writer race, stale/tamper, strong-release, and closure mutation suite | 100%; zero assessment-omission, direct-status, audit-write, or lineage bypasses | Any claimed lineage erased by assessment state, any decayed/bypassed floor, any audit-write failure that opens the gate, or any weak/incomplete release accepted |
 | Non-blocking classification precision | Independently confirmed correct non-blocking verdicts / all reviewed non-blocking verdicts | Stratified reviewer gold set; disclose severity and verdict mix | >=98% overall and 100% high/critical safety | <98% overall or any high/critical safety miss |
 | Candidate-to-verified conversion | Candidates promoted to verified Findings / all terminally adjudicated candidates, per detector/version | Candidate ledger and promotion receipts | Descriptive, not maximized; each detector preregisters a baseline band before warn | Absolute drift >10 percentage points without an explained corpus/version change pauses promotion |
 | Canonical root-cause honesty | Canonical identities whose `rootCauseState` and optional value match reviewed evidence / all independently reviewed canonical identities | Identity gold set plus supersession audit | 100%; unknown cause remains representable | Any fabricated cause, cause present with `unknown`, or in-place cause rewrite |
@@ -2139,7 +2389,9 @@ merged-state dependency review.
 | Deferral route completeness | Deferred rows with a live existing target, owner, exact accepted signed route receipt tuple, expiry, and complete recheck triggers / all proposed deferred rows | Deferral/manifest atomic ledger join plus latest receipt-chain and target existence/owner validation | 100% | Any orphan, missing/mismatched receipt, deferral-alone/manifest-alone commit, or closed-unfixed target accepted as valid |
 | False deferral | Independently adjudicated deferred rows that require current repair or touch a protected surface / all system-proposed deferrals | Current reproducible failure evidence, acceptance/verificationIntent diff, introduced/worsened analysis, protected-surface campaign, and independent disposition review | **0**; critical/high proposals are mechanically ineligible; root cause may remain for the target Story | Any one event or any protected-surface risk deferred |
 | Stale/overdue/reopened deferral handling | Triggered, expired, owner-invalid, or target-closed-unfixed deferrals recalled as candidates and made non-authoritative / all such deferrals injected or observed | Freshness/expiry evaluator events joined to candidate recall and gate decisions | 100%, exactly-once candidate recall per trigger set | Any stale/overdue row remains non-blocking, any missed recall, or duplicate recall changes gate state |
-| Deferral lineage horizon and renewal compliance | Canonical lineages with correct immutable `firstDeferredAt`, digest, strictest severity, cumulative horizon, renewal count, and current target-authorized typed progress tuple materially changed from the predecessor baseline / all proposed deferrals and renewals | Signed policy plus canonical/deferral graph join, deterministic clock/severity/target/supersession suite, canonical tuple/reorder/replay/cross-target/stale/re-sign mutations, and exactly-once recall | 100%; medium total <=7 days and 0 renewals; low total <=30 days and <=1 renewal | Any reset, over-horizon/count advisory, stale/cross-target/reordered/replayed/re-signed-unchanged progress renewal, chain tamper acceptance, missed recall, or duplicate recall gate delta |
+| Deferral expiry-policy integrity | Proposals bound to an authentic currently effective policy with exact supported version/digest/signer, V1 7/30-day constants, renewal limits and hard ceiling, while existing rows retain original policy/lineage under supersession / all deferral proposals plus policy mutations/supersessions | Policy signature/authority/digest/version/time/constant mutation suite joined to deferral binding and lineage reader | 100% valid binding and 100% mutation rejection | Any bad/not-yet-effective/mismatched policy accepted, or policy supersession rebinds/reset an existing row |
+| Deferral lineage horizon and renewal compliance | Canonical lineages with correct immutable `firstDeferredAt`, digest, strictest severity, cumulative horizon, renewal count, and target-authorized kind-specific progress projection semantically changed for the same defect/route / all proposed deferrals and renewals | Signed policy plus canonical/deferral graph join; source-contract, test command/selector/outcome, delivery item, status-transition positive fixtures; unrelated-repo/wrong-subject/reorder/replay/cross-target/stale/re-sign mutations; exactly-once recall | 100%; medium total <=7 days and 0 renewals; low total <=30 days and <=1 renewal; genuine unchanged-code test/delivery/status progress accepted | Any reset, over-horizon/count advisory, unrelated repository change counted as progress, wrong subject accepted, stale/replayed/no-op renewal, chain tamper, missed recall, or duplicate recall gate delta |
+| Scorecard contract completeness | Metric rows with exact deterministic numerator/denominator/threshold/rollback result and complete HEAD/window/retry/exclusion/hardware/Story-class metadata / every versioned metric row declared in this table | Story 1 aggregator over Story 2/3 public signed queries; golden JSON plus missing/tampered/incomplete evidence mutations | 100% rows and metadata; zero protected-storage reads; refusal on any safety/prerequisite failure | Any omitted/miscomputed row, silent missing evidence, protected-storage parse, unstable JSON, or false enforce eligibility |
 | Manual Finding-operation reduction | Avoided individual resolve/dismiss commands on batch-eligible rows / baseline individual operations for matched Story class | Process events; matched before/after or randomized warn cohort | >=50% on Finding-heavy cohort with safety floor intact | Safety breach, or no reduction after two windows |
 | Review convergence | Median change in genuine review-round count and REVIEW elapsed time for matched Story classes | Phase/process events; runs/lanes reported separately | >=30% reduction in either round count or elapsed review time, with simple-Story regression <=10% | >10% simple-Story regression for two windows or any safety breach |
 | Triage latency | p50/p95 wall time from candidate-set freeze to signed proposed manifest; retries separately reported | Monotonic timing in scorecard, fixed qualification corpus/hardware | p50 <=2s and p95 <=5s for the 2,273-Finding-scale qualification corpus | p95 >10s for two windows or timeouts >1% |
@@ -2234,16 +2486,17 @@ operator's lab request is not authority to rename utils.
 | Failure scenario | Trigger | Consequence | Mitigation / stop rule |
 | --- | --- | --- | --- |
 | A real high/critical issue is classified non-blocking | Missing/weak scope evidence, model confidence, or bad duplicate owner is accepted | False green REVIEW/TEST transition | Fail closed; zero-event safety threshold; immediate enforce -> warn kill switch |
-| Mandatory repair decays or is status-bypassed | Floor check runs after severity/round/status predicates, or invalid-lineage safety depends on a classification audit append that fails/races | Applicable high/critical/protected-surface or expired/exhausted/tampered deferral clears without repair proof | Verifier-derived `DeferralLineageState` first, classification floor second, both before ordinary policy; audit append is not the sole safety input; exact-boundary/write-failure/race tests; any bypass stops enforce |
+| Mandatory repair decays, is assessment-erased, or status-bypassed | Claim detection depends on a fresh assessment, a replacement omits old deferral state, floor runs after ordinary predicates, or classification audit append fails/races | Applicable high/critical/protected-surface or previously deferred defect clears without strong release/repair proof | Ledger/canonical claim scan first; missing/stale/tampered/omitting assessment stays in first floor; classification floor second; exact-boundary/drift/write-failure/race tests; any bypass stops enforce |
 | A correct assessment survives changed runtime bytes | Receipt omits artifact/build binding | False blocker or false pass | Story 3 runtime receipt prerequisite; mutation/tamper campaign; no enforce without 100% rejection |
 | Parallel reviewers lose or alias records | New record path bypasses shared transaction | Audit evidence disappears | Story 3 first; concurrency/idempotency tests; contract verifier requires atomic persistence |
 | Historical similarity becomes authority | Recall/tag/playbook is read by gate | Old context silently changes lifecycle | Hard `authority=non_authoritative`, `gateEvidence=false`; process-fact verifier rejects dependency |
 | Suspected routing is mistaken for verification or deferral | Candidate route is read as a promoted Finding, verified repair obligation, or gate fact | Unverified work silently blocks/unblocks a Story or disappears from review | Separate `CandidateRoute` schema; explicit uncertainty/evidence/receipt; atomic append; hard non-authoritative/no-gate contract; recall before any new assessment |
 | Source Story self-signs target acceptance | Receipt signer/owner/target authority is not checked or a ledger writer is treated as semantic authority | Work is exported to a target that never accepted it | Target-authorized Story actor or canonical B-META/main-write authority only; exact source/target/lease/policy binding; rejection/revocation/freshness tests |
-| Story 1 and Story 2 form an implementation cycle | Candidate routing imports Story 1 receipt/gate code while Story 1 imports Story 2 identity | Neither prerequisite Story can be accepted independently; rollout order is fictitious | Story 2 owns non-gate receipt semantics on Story 3 storage; Story 1 only consumes and adds L4 deferral binding; dependency verifier rejects reverse import |
+| Delivery dependency reverses or a new gate bypass appears | Story 3 imports Story 2/1, Story 2 imports Story 1, or a new registry/policy/allowlist consumer reads advisory data or bypasses the shared predicate | Prerequisites cycle or a new lifecycle path silently defeats non-authority/floor rules | Story 3 -> Story 2 -> Story 1 delivery DAG; mutation fixtures for every forbidden import and direct advisory/shared-predicate bypass; any surviving mutation stops enforce |
 | Receipt-to-deferral TOCTOU or partial apply | Story 1 validates a receipt before the transaction, binds only its ID, or writes deferral and manifest separately while revocation/supersession races | A deferral becomes authoritative against bytes or target consent that are no longer current | Persist receipt standalone/non-gate; later same-transaction CAS of latest ID/hash/profile/source/freshness; atomic deferral+manifest/action; any mismatch writes neither |
 | Deferral becomes an unowned waiver | Reproduction or acceptance/protected-surface analysis is incomplete, route receipt is missing/invalid, owner disappears, or target closes unfixed | An applicable defect silently falls out of current repair and future recall | Verified low/medium plus current reproduction only; exact-receipt CAS then atomic deferral+manifest/action; expiry/trigger recall; invalid claimed lineage enters the enforce mandatory floor; any false deferral stops enforce |
-| Deferral becomes indefinite | Per-row clock resets after severity/target/canonical changes, stale/replayed/cross-target/unchanged progress is re-signed, chain tamper, or in-place expiry renewal | Open applicable work stays advisory forever | Ledger-derived canonical `firstDeferredAt`/count/digest; strictest-severity cumulative V1 horizon; medium no renewal; low one only with typed target-signed current progress materially changed from predecessor baseline; exhaustion enters mandatory repair |
+| Deferral becomes indefinite | Per-row clock resets, policy bytes are tampered/rebound, unrelated repository change is called progress, or stale/replayed/cross-target/no-op evidence is re-signed | Open applicable work stays advisory forever | Authentic effective V1 policy and immutable row binding; ledger-derived clock/count/horizon; medium no renewal; low one only with kind-specific target-signed projection progress for the same defect/route; exhaustion enters mandatory repair |
+| Scorecard falsely authorizes enforce | Aggregator omits a metric/evidence row, computes a boundary incorrectly, reads protected storage, or ignores an unmerged prerequisite/safety threshold | Enforce starts without the evidence the rollout claims | Story 1 checked-in read-only JSON aggregator over signed Story 2/3 queries; deterministic every-row fixtures and metadata; missing/tampered/incomplete evidence or any failed threshold/prerequisite is refusal |
 | Canonical identity fabricates a cause | Root cause is required before investigation has established it | False lineage and bad future routing become durable history | `rootCauseState`; optional cause; trigger/repro/contract identity; append-only correction/supersession; any fabricated cause stops promotion |
 | Review work does not converge after filtering/routing | Genuine defects remain or task is ill-posed | Dynamic system is blamed or used to waive work | Keep existing `stall_resolution_set` adjudication; stop promising further efficiency and replan/split when convergence backstop fires |
 
@@ -2252,10 +2505,12 @@ prototype and Story 1 may not persist or enforce. If Story 2 cannot establish
 supersession-aware identity with measured retrieval, Story 1 may assess only
 current Findings without historical auto-suggestion and may not claim P3/P5/P7
 coverage. If the qualification set finds one false non-blocking high/critical
-decision, one mandatory-floor/audit-write-race bypass, one unauthorized route
-acceptance, one exact-receipt CAS/atomicity failure, one candidate-route gate
-delta or reverse Story dependency, one false/reset/over-horizon/replayed-progress
-deferral, one fabricated canonical root cause, or one
+decision, one ledger-claim erasure or mandatory-floor/audit-write-race bypass,
+one unauthorized route acceptance, one exact-receipt CAS/atomicity failure, one
+candidate-route/direct-advisory gate delta, shared-predicate bypass, forbidden
+Story import, expiry-policy mutation/rebinding, false/reset/over-horizon/wrong-
+projection progress deferral, incomplete/tampered scorecard or false enforce
+eligibility, one fabricated canonical root cause, or one
 protected-surface Finding accepted for deferral, enforce stops regardless of
 efficiency gains.
 
@@ -2307,11 +2562,16 @@ The program is complete only when all of the following are true in merged state:
   create a signed non-decaying mandatory-repair floor checked before status,
   severity, and round policy; only fresh Red/repro, root-cause, fix, Green, and
   closure evidence permits resolution/clearance.
-- For every open applicable Finding with a claimed deferral, verifier-derived
-  missing/expired/exhausted/tampered/unknown-at-boundary
-  `DeferralLineageState` is the first blocking floor even if the classification
-  audit append is missing, fails, or races; low/medium severity, status checks,
+- Claimed-deferral existence is derived from immutable ledger/canonical chains,
+  never from a fresh assessment. Once committed, missing/stale/tampered/
+  lineage-omitting replacement assessments and scope/story-files/material/
+  runtime drift yield missing/stale/unknown `DeferralLineageState` in the first
+  floor, as do expired/exhausted/tampered/exact-boundary states, even if the
+  classification audit append fails/races; low/medium severity, status mutation,
   and round decay cannot bypass it.
+- Only a fresh signed strongly proven `pre_existing_unaffected`, `out_of_scope`,
+  `duplicate`, or `disproven` superseding artifact, or complete repair closure,
+  releases a previously claimed lineage; a new assessment omission cannot.
 - Fresh strongly proven pre-existing/out-of-scope/duplicate verdicts remain
   independent of the mandatory floor, and warn rollback restores the exact old
   predicate.
@@ -2329,6 +2589,10 @@ The program is complete only when all of the following are true in merged state:
   source assessment/freshness state and atomically writes deferral plus
   manifest/action. A mismatch writes neither, receipt-alone is legal/non-gate,
   and deferral-alone is invalid. There is no Story 2 -> Story 1 dependency.
+- Story 3 imports neither Story 2 nor Story 1, and Story 2 never imports Story 1.
+  Dependency fixtures and registry/command-policy/phase-allowlist mutations
+  reject every forbidden import, direct CandidateRoute/standalone-receipt/
+  historical-advisory gate consumer, or shared-predicate bypass before enforce.
 - Defer-with-proof is a disposition inside the four-component design, not a new
   verdict/component: only verified applicable low/medium Findings with current
   reproducible failure evidence, no acceptance or protected-surface impact, no
@@ -2338,13 +2602,26 @@ The program is complete only when all of the following are true in merged state:
   lineage: immutable earliest `firstDeferredAt`; medium total <=7 days with no
   renewal; low total <=30 days with at most one target-authorized, materially
   progressed renewal. Severity/target/Story/canonical changes cannot reset it.
+- The expiry-policy verifier rejects signature/signer/digest/version/effective-
+  time/V1 constant/hard-ceiling or disposition-binding mismatch. Append-only
+  policy supersession cannot rebind existing rows or reset first time/count/
+  horizon.
 - Missing/unchanged progress, clock/horizon/count boundary, or lineage tamper
   enters mandatory repair/current gate and emits exactly-once recall; renewal is
   new assessment/receipt/deferral rows, never an in-place edit.
 - Renewal progress is a canonical typed, target-authorized signed tuple bound to
-  evidence ID/hash/signature/time, current target scope/head/material snapshot,
-  predecessor deferral and baseline digest. Stale, cross-target, reordered,
-  replayed, or re-signed-unchanged tuples cannot renew authority.
+  the canonical defect/route/affected contract or target acceptance item,
+  evidence ID/hash/signature/time, current authority snapshot, predecessor, and
+  kind-specific projection digests. Relevant source/contract, defect-bound test
+  command/selector/outcome, signed delivery item, or allowed work-state
+  transition proves progress; unchanged-code test/delivery/status progress may
+  pass, while unrelated repository/head/material, wrong subject/command/item,
+  stale/cross-target/reordered/replayed/re-signed-no-op tuples cannot.
+- Story 1 owns checked-in read-only `finding_rollout_scorecard --json`; Story 2/3
+  expose signed public query contracts. Deterministic fixtures cover every metric
+  row's exact numerator/denominator/threshold/rollback and all required metadata;
+  no protected-storage parse is allowed, and missing/tampered/incomplete evidence
+  or any failed safety threshold/window/merged prerequisite refuses enforce.
 - Deferred Findings retain truth, severity, and open status; in enforce,
   invalid, expired, tampered, overdue, trigger-matched, or ownerless claimed
   deferrals enter the verifier-derived mandatory floor and are also recalled
