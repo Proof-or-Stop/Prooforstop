@@ -184,7 +184,7 @@
       "desc": ".lattice/story/actives/B-5952/checklist.json:64-70 [high] CHK-001:adversarial:binding-scope-mutants still publishes the old false-positive harness as the current verification.command. It sets docRejected=scoped.status!==0||(scoped.stdout+scoped.stderr).includes(\"violation\"), but a passing scope check prints \"0 unacknowledged violations\", so the active intent still accepts a status-0 control as rejected. F-005 says a JSON-parsing v2 harness superseded this, yet that replacement exists only in findings.json and was never propagated to the current checklist verification surface, leaving the F-005 root cause open for future reruns/reviews.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T07:37:12.057Z",
@@ -192,7 +192,11 @@
       "reviewRunId": "B-5952:RR-008",
       "_hash": "84258da3174b3b9ff03a622cc5562721c8a0bb6ec2dc4115ec96f57a81a0d382",
       "signatureTag": "adversarial|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Returned to PLAN and replaced the active CHK-001:adversarial:binding-scope-mutants pin itself. The current command parses scope_contract_check --json, requires status=fail plus the exact protected path/rule/acknowledged=false tuple, byte-restores all three files, and requires build-binding PASS plus scope status=pass. A current tool-owned receipt now has exit=0 and selector binding-scope-mutants-v2 PASS ... exactProtectedRule=true ... control=pass.",
+      "resolvedAt": "2026-08-31T08:08:32.838Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5952:F-009",
