@@ -355,6 +355,24 @@
       "resolvedAt": "2026-08-31T01:27:34.451Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1fa6:F-018",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1249-1280,1324-1328,1420-1429,1542-1565 [high] The lineage-first floor still requires a fresh applicable assessment. When the deferral-bound assessment becomes stale or missing after scope, storyFiles/material, or runtime drift, the claimed deferral simultaneously loses authority, but deferralLineageFloorBlocks can skip because its fresh-applicable precondition is false. A low or round-decayed medium Finding can then fall through to the old non-blocking predicate, contradicting the stated rule that every invalid claimed deferral enters the enforce floor. Define claimed lineage from durable ledger history, not the current assessment/caller; once a committed deferral exists, stale/missing/tampered assessment must project the lineage to missing/unknown and block until a fresh strongly proven non-applicable/disproven verdict or complete repair closure supersedes the obligation. Add low/decayed-medium fixtures for scope/material/runtime drift, a newly minted assessment that omits the old deferral, and no replacement assessment.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T01:30:49.948Z",
+      "reviewRound": "2026-08-31T01:27:13.637Z",
+      "reviewRunId": "B-1fa6:RR-017",
+      "_hash": "3576d65ec3a5b0f737bad59c9ec4a04851504a1c4e83fee3582775c3ab754dc9",
+      "files": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
