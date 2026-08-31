@@ -566,6 +566,26 @@
         "scanEscalationReason": null
       },
       "_hash": "a297c02ee84b1832ff70919433c98d352b25a6e89678fc71858fd40b0c0d8c70"
+    },
+    {
+      "id": "B-022e:RP-020",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 9 targeted quality re-review passes: 2e9d9bb fixes the production detector root cause by matching the lowercased canonical underscore filename and adds a focused assertion. Node v24 build passed; direct probes prove canonical PROOF_OR_STOP.md and casing variants select full while the underscore-less proofOrStop.md remains global-thin as the separately tracked B-b319 boundary; identity mutation self-test and full four-package offline clean-install boundary pass. No gate or fail-closed behavior was weakened.",
+      "createdAt": "2026-08-31T14:13:15.707Z",
+      "reviewRound": "2026-08-31T14:03:29.351Z",
+      "reviewRunId": "B-022e:RR-041",
+      "envelopeId": "8a34a2385954e3384bffbf36c6715c2db64a44b7fc13590b8445b2c280aeb3b4",
+      "writerSessionId": "sess-e3699543f7807b21c9895ed661564de2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5661669b1fa4cb0bf033fb29bf7e078c44dfbacb1cc033d6503e2ce11098177d"
     }
   ]
 }
