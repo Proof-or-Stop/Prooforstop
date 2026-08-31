@@ -256,7 +256,7 @@
       "desc": "CHK-001:adversarial:1 / packages/main/src/tasks/validation-evidence-buffer-smoke.ts:706 — HIGH acceptance-contract mismatch: the current decision document SHA-256 and executable smoke both bind fbd665df2456e770e466ebdc77f431ae20f3bae0fab98aab61c06a14ebd11d52, but the checklist required exact-decision verifier still expects obsolete 02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d and exits 1. The candidate therefore cannot satisfy its stated byte-for-byte decision acceptance until the authoritative verification intent/evidence is rebound to the newly reviewed digest.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T23:17:21.122Z",
@@ -264,7 +264,11 @@
       "reviewRunId": "B-2220:RR-041",
       "_hash": "d206e1a6e7a02ffbd8aa08da69cbe73e913377aa022edee151de1f3a3b843abd",
       "signatureTag": "adversarial|unknown|adversarial-packages-main",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated CHK-001:adversarial:1 through the registered verification-intent role to the reviewed fbd665df digest; the CLI re-executed and refreshed all six stale document verifiers successfully.",
+      "resolvedAt": "2026-08-31T23:22:42.250Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-2220:F-014",
