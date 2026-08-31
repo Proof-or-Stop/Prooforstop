@@ -1042,6 +1042,27 @@
           "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
           "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
           "timestamp": "2026-08-31T23:35:10.011Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-global-lab-entrypoint.mjs",
+          "command": "node scripts/verify-global-lab-entrypoint.mjs",
+          "result": "pass",
+          "note": "Global canonical Lab entrypoint and active product boundary pass.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a663ad2f3d87a7202fb441923a31bd3cad708e6f57fc142c7fe1ef11117ee04c",
+            "outputTail": "ok versions\nok lab-help\nok lab-create\nok core-without-lab\nglobal lab entrypoint verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T23:35:33.253Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "6b38467363f81342b1b82b2dc33417a451c29c58",
+          "materialHash": "5d00b51c7d4d8e4321c98f53f8b75ace813cf2beb90c44c76d35de089c181f70",
+          "storyFilesHash": "d1cad6301753a3994071604a26823a2e2e3a55e6997102d46153ae284ca0af6d",
+          "timestamp": "2026-08-31T23:35:33.414Z"
         }
       ]
     },
