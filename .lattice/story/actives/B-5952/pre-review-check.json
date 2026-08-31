@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-5952",
   "mode": "observe",
-  "cutoffAt": "2026-08-31T03:23:13.482Z",
+  "cutoffAt": "2026-08-31T07:14:07.057Z",
   "planBasisDigest": "sha256:dca32f1d1850786ee456187e14f86de470cd7996abcca5c2c2e847176a92c3f9",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -163,13 +163,13 @@
           "coverageClaim": "complete_for_scope",
           "blindSpots": [],
           "provenanceRefs": [
-            "source-file:packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js:sha256:d22c4c78899d1cb11a3dcf51ce1918dc852ff1df17d50d756fc9c44d56cacee8",
+            "source-file:packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js:sha256:390c324e4bc8404621bb968576f05c3736301b8cef1137a1262bb4a22a393f14",
             "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
             "source-file:packages/main/src/core/pre-review-check.ts:sha256:c3beb9d8b06fbecd208b442f12b753682390a851969f4c73d1db98509535cf00",
             "source-file:packages/main/src/core/pre-review-live-proof.ts:sha256:ea1f1f2175640d18170dd1e41e8a3886e6761c17054ab4d8f99a8bf429cd0880",
             "source-file:packages/main/src/handlers/proofstory.ts:sha256:06fa735b5348452cfb65d75c2fe5221693294e8d0f584f401b98e4e7924fd330",
             "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:b43f5c91e74c8849588abb53ead643cd16ba0a200c8b907a467408c3d7657698",
-            "source-file:packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:sha256:f9369fb81e44a1c70c2aef045d6b6618cea9684b2e52aa7d6d22a49022911313",
+            "source-file:packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:sha256:da8e13fa765c73b5c3ef4a310e880d54431053fed7e0bd4ed2d9d9325049d7d2",
             "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
             "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
             "source-file:scripts/verify-process-fact-contract.mjs:sha256:978b17d41fef80408d20284ff09257258317bee6727effe6eb95da9bb8d5ca3b"
@@ -183,7 +183,7 @@
               "scope:file:packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
             ]
           },
-          "resultDigest": "sha256:0db214b67185844efecf85e78e95017819f53e127bac93a8868eaab65ed9260b"
+          "resultDigest": "sha256:3ec97c724bdaafab003c06490be8eb889436bbbccc63431913f6173d272edbbe"
         }
       ],
       "scopeRefs": [
@@ -273,7 +273,7 @@
         "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
         "inventoryDirectoryDigest": "sha256:400a8ec4c3ede1c2824a78ab4a3c82cfcbaa858525eb25e26009b5712e9ac443",
         "inventoryDirectoryCount": 21,
-        "sourceSnapshotDigest": "sha256:d8f3931efd12e79bd8d06c7bef5d905e37dee13fa7953f165ea0c0b4dce5533a",
+        "sourceSnapshotDigest": "sha256:75117c73eb1d974ab9a897f75af0a3333e27249f22191e472f388e309dd9e2f7",
         "sourceSnapshotCount": 820,
         "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
         "status": "partial",
@@ -314,89 +314,46 @@
             "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
           }
         ],
-        "sealDigest": "sha256:7d7f5abb1a176380df4ad27001e82cdceed82534e8b6d84dfcafad250d71b946"
+        "sealDigest": "sha256:4f70020b55d3dbe812bc2070994875dfe946393975702d93cecc093806c7ae39"
       },
       "binding": {
-        "headHash": "47a20a293a902fea187772861a0abc48657252b8",
-        "materialHash": "b675940198ae436f3970cbeb335e414e4da3df9096002e0be91ca703803dfa29",
-        "storyFilesHash": "c95208cbf5b5c6881179b3664c34e87b5887fe3980c5fab3fb73ccd23ead79a1",
+        "headHash": "6b004998d236a2842486908f812999d2b8caa08f",
+        "materialHash": "6c681470d49ab185e200c43d04da9ea6a777bbe8c074f2ec2410cb9570d66d1a",
+        "storyFilesHash": "0a810d9ec23f5da95a914068afc3fb1a0ae6450c1f286365fd2487b0f25849aa",
         "scopeCheckDigest": "sha256:5f845a5f80031af404b302762e3c82f39fefb113d84cf5101b37ffc3ec068bbe",
         "scopeContractDigest": "sha256:b0abb0309794ea083cddfe1519ceae22ae2c359080ca27b7a2fe53d32590afaf",
-        "closureFilesHash": "sha256:df32d3eaa6ef532e04be699bf6ad884616fb6bbc5b65a47b6eb66cb670070ea5"
+        "closureFilesHash": "sha256:f38cb1a160d994842e762164756a9c446aa002e995e02c68399d0ec8239f4cb3"
       },
-      "receiptRef": "receipt:coverage-basis:B-5952:pre_review:464ac52f9b5a4b06",
-      "basisDigest": "sha256:d3014bd7539755a7309389b028382927e4ad343f11861259ea7572243452c132"
+      "receiptRef": "receipt:coverage-basis:B-5952:pre_review:6d7ab1828321bcda",
+      "basisDigest": "sha256:da6608969ce96dc26a957070df89de7ac9f7f98b8bd56d9c32fa67452dd17ff1"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-      "receiptRef": "receipt:coverage-basis:B-5952:pre_review:464ac52f9b5a4b06",
+      "receiptRef": "receipt:coverage-basis:B-5952:pre_review:6d7ab1828321bcda",
       "issuer": "acceptance-coverage-basis-verifier",
       "issuerKeyId": "sha256:f4ff36c006003589257466d51b93dbde761b171216fe5d18f8b33a5c0f6167eb",
       "signerPublicKey": "tjxYGaesOrQdcymh+37gs6yiu4zRFO+t/N+Zc0kMV78=",
       "storyId": "B-5952",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:d3014bd7539755a7309389b028382927e4ad343f11861259ea7572243452c132",
+      "basisDigest": "sha256:da6608969ce96dc26a957070df89de7ac9f7f98b8bd56d9c32fa67452dd17ff1",
       "topologyDigest": "sha256:ae627322a6dd520a26464c81bc10f7b3782a0fc2312ab1d32ec5b3fad762e4c8",
       "scopeCheckDigest": "sha256:5f845a5f80031af404b302762e3c82f39fefb113d84cf5101b37ffc3ec068bbe",
       "scopeContractDigest": "sha256:b0abb0309794ea083cddfe1519ceae22ae2c359080ca27b7a2fe53d32590afaf",
-      "headHash": "47a20a293a902fea187772861a0abc48657252b8",
-      "materialHash": "b675940198ae436f3970cbeb335e414e4da3df9096002e0be91ca703803dfa29",
-      "storyFilesHash": "c95208cbf5b5c6881179b3664c34e87b5887fe3980c5fab3fb73ccd23ead79a1",
-      "closureFilesHash": "sha256:df32d3eaa6ef532e04be699bf6ad884616fb6bbc5b65a47b6eb66cb670070ea5",
-      "sealDigest": "sha256:7d7f5abb1a176380df4ad27001e82cdceed82534e8b6d84dfcafad250d71b946",
+      "headHash": "6b004998d236a2842486908f812999d2b8caa08f",
+      "materialHash": "6c681470d49ab185e200c43d04da9ea6a777bbe8c074f2ec2410cb9570d66d1a",
+      "storyFilesHash": "0a810d9ec23f5da95a914068afc3fb1a0ae6450c1f286365fd2487b0f25849aa",
+      "closureFilesHash": "sha256:f38cb1a160d994842e762164756a9c446aa002e995e02c68399d0ec8239f4cb3",
+      "sealDigest": "sha256:4f70020b55d3dbe812bc2070994875dfe946393975702d93cecc093806c7ae39",
       "workspaceIdentityDigest": "sha256:3ca5e15b033a603651c86dd0e0707d751e5d12535f33bad5dc89185fea7c4608",
-      "signature": "oUbsKvVBASuVSCrpnOG3BEXaRA1+/3HH+W+uf6QMjIMwy9ObE6Dbc/ktcS6JAOtyBRSRBXsylC5PiW4wB6OGBQ=="
+      "signature": "cV6aiCQzhrntQ5yaVa3JUmCLxbjgAn5Zz8ZtG/OH7Cyqf2KNHwWmW7HmP6Ea9FwNWbnmKOSPpSayzGsUlbzuDQ=="
     }
   },
   "topologyDigest": "sha256:ae627322a6dd520a26464c81bc10f7b3782a0fc2312ab1d32ec5b3fad762e4c8",
   "scopeCheckDigest": "sha256:5f845a5f80031af404b302762e3c82f39fefb113d84cf5101b37ffc3ec068bbe",
   "scopeContractDigest": "sha256:b0abb0309794ea083cddfe1519ceae22ae2c359080ca27b7a2fe53d32590afaf",
-  "storyFilesHash": "c95208cbf5b5c6881179b3664c34e87b5887fe3980c5fab3fb73ccd23ead79a1",
-  "closureFilesHash": "sha256:df32d3eaa6ef532e04be699bf6ad884616fb6bbc5b65a47b6eb66cb670070ea5",
-  "evidenceRefs": [
-    {
-      "intentRef": "CHK-001:adversarial:binding-scope-mutants",
-      "itemId": "CHK-001",
-      "evidenceIndex": 8,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:7b35bce805883f4458845b392aae6a9391c3c881b76ebb2d3f41aa0b3414dded"
-    },
-    {
-      "intentRef": "CHK-001:adversarial:guard-mutants",
-      "itemId": "CHK-001",
-      "evidenceIndex": 7,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:c4f1979e8f2decd758d938ec2bd37d1039ed79a5e3bede02ddadd39435feea61"
-    },
-    {
-      "intentRef": "CHK-001:edge:1",
-      "itemId": "CHK-001",
-      "evidenceIndex": 3,
-      "kind": "manual_transcript",
-      "evidenceDigest": "sha256:6ae78f5494a458c27b7cd47eaa57b1a2e38c5ba32950047191caa1a7eb002852"
-    },
-    {
-      "intentRef": "CHK-001:edge:finite-bound-actual",
-      "itemId": "CHK-001",
-      "evidenceIndex": 6,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:d55146a6913d68cc1d67ca3b54eb63243a789ab437c357a512969c3307f442c1"
-    },
-    {
-      "intentRef": "CHK-001:happy:0",
-      "itemId": "CHK-001",
-      "evidenceIndex": 0,
-      "kind": "manual_transcript",
-      "evidenceDigest": "sha256:16863324b33b88e873cc41782e7d14aa4fe1b3302d35b359d44d8a4022fd628a"
-    },
-    {
-      "intentRef": "CHK-001:happy:1",
-      "itemId": "CHK-001",
-      "evidenceIndex": 1,
-      "kind": "manual_transcript",
-      "evidenceDigest": "sha256:d486c03c2cf91a615f665776a747e43dea2070aa2e612509ff2b006fadbbc607"
-    }
-  ],
+  "storyFilesHash": "0a810d9ec23f5da95a914068afc3fb1a0ae6450c1f286365fd2487b0f25849aa",
+  "closureFilesHash": "sha256:f38cb1a160d994842e762164756a9c446aa002e995e02c68399d0ec8239f4cb3",
+  "evidenceRefs": [],
   "executableProof": {
     "schemaVersion": "proofstory.pre_review_executable_proof.v1",
     "storyId": "B-5952",
@@ -418,6 +375,7 @@
     "PR_NEW_PATH_UNMAPPED",
     "PR_COVERAGE_BASIS_CHANGED",
     "PR_COVERAGE_INCONCLUSIVE",
+    "PR_POSITIVE_EVIDENCE_MISSING",
     "PR_PRODUCTION_PATH_UNPROVEN",
     "PR_MUTATION_EVIDENCE_MISSING",
     "PR_MUTATION_DID_NOT_BITE",
@@ -427,7 +385,7 @@
     "PR_EVIDENCE_STALE"
   ],
   "status": "inconclusive",
-  "issuedAt": "2026-08-31T03:23:13.482Z",
+  "issuedAt": "2026-08-31T07:14:07.057Z",
   "signerPublicKey": "/X1ZTyM6s6k0Jhbm8ZjD1OjkCoDjf/fslfz1nOrPs2A=",
-  "signature": "Ba0LIpV9Llm2ERFNHKerxSCJ72Vbq3PsCmIxvAuJc+ihmYgtW7oHUPbvb8znBhKB3TweTG1gVYqIRjIzwzbTDw=="
+  "signature": "Gw6COnnHWBMKIbMNSu0K2mQ61ZwvB7nBmbzUed8Q4cuiPTl/nXVpItZZ5Z6uG7cZocsy8HsAbEQ+828AzXUjCA=="
 }
