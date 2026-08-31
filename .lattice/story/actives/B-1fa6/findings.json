@@ -693,6 +693,21 @@
       "_hash": "22804ea3a06304b3c8ea7c337fed3b5171d2ee6ab26e91dce91a0e212777a28a",
       "signatureTag": "adversarial|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-033",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:2457-2464,2518-2521 — HIGH: Story 1 Required tests twice call a seven-value subset the exact required-assessment set, omitting re_attestation_required and expired, while REQUIRED_ASSESSMENT_INVALID and the scorecard define nine states. This contradictory acceptance contract can ship without testing two fail-closed states. Both exact lists and the projection statement must reference all nine canonical states.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T08:55:12.160Z",
+      "reviewRound": "2026-08-31T08:47:53.205Z",
+      "reviewRunId": "B-1fa6:RR-043",
+      "_hash": "808ebba5883810058a6ee01425a8a1a11815226d387393cf8d3fc677bff3521f",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
