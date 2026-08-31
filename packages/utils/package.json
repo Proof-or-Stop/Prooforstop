@@ -12,8 +12,10 @@
     "build": "node ../../scripts/build-utils-with-binding.mjs"
   },
   "dependencies": {
-    "@proof-or-stop/core": "0.3.65",
-    "zod": "^3.23.0"
+    "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "@proof-or-stop/core": "^0.3.65"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

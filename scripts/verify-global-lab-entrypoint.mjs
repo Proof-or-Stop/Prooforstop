@@ -10,6 +10,7 @@ const mode = process.argv[2] || 'all';
 const cli = join(root, 'bin', 'proof-or-stop.js');
 const EXPECTED_CORE_VERSION = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
 const EXPECTED_EXTENSION_VERSION = '0.3.65';
+const EXPECTED_CORE_PEER_RANGE = '^0.3.65';
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -69,8 +70,10 @@ const checks = {
     assert(utils.version === EXPECTED_EXTENSION_VERSION, `utils version mismatch: ${utils.version}`);
     assert(lab.version === EXPECTED_EXTENSION_VERSION, `lab version mismatch: ${lab.version}`);
     assert(core.dependencies?.['@proof-or-stop/lab'] === EXPECTED_EXTENSION_VERSION, `core should depend on @proof-or-stop/lab@${EXPECTED_EXTENSION_VERSION}`);
-    assert(utils.dependencies?.['@proof-or-stop/core'] === EXPECTED_EXTENSION_VERSION, `utils should depend on @proof-or-stop/core@${EXPECTED_EXTENSION_VERSION}`);
-    assert(lab.dependencies?.['@proof-or-stop/core'] === EXPECTED_EXTENSION_VERSION, `lab should depend on @proof-or-stop/core@${EXPECTED_EXTENSION_VERSION}`);
+    assert(utils.peerDependencies?.['@proof-or-stop/core'] === EXPECTED_CORE_PEER_RANGE, `utils should accept independently-versioned core releases through peer range ${EXPECTED_CORE_PEER_RANGE}`);
+    assert(lab.peerDependencies?.['@proof-or-stop/core'] === EXPECTED_CORE_PEER_RANGE, `lab should accept independently-versioned core releases through peer range ${EXPECTED_CORE_PEER_RANGE}`);
+    assert(!utils.dependencies?.['@proof-or-stop/core'], 'utils should not pin core as an exact runtime dependency');
+    assert(!lab.dependencies?.['@proof-or-stop/core'], 'lab should not pin core as an exact runtime dependency');
     assert(!core.dependencies?.['@proof-or-stop-agent/lab'], 'core should not depend on retired @proof-or-stop-agent/lab');
     assert(!utils.dependencies?.['@proof-or-stop-agent/core'], 'utils should not depend on retired @proof-or-stop-agent/core');
     assert(!lab.dependencies?.['@proof-or-stop-agent/core'], 'lab should not depend on retired @proof-or-stop-agent/core');

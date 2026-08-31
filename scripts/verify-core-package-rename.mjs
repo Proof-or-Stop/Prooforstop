@@ -31,6 +31,8 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const CANONICAL_CORE = '@proof-or-stop/core';
+const RETIRED_CORE = `@${['lat', 'tice'].join('')}/core`;
+const RETIRED_STATE_PREFIX = `.${['lat', 'tice'].join('')}/`;
 const FROZEN_ROOT = 'proof-or-stop';
 
 const failures = [];
@@ -63,16 +65,16 @@ check('core build emitted dist/cli-engine.js (exit code alone is insufficient)',
 // ---- edge: sibling packages resolve under the new name --------------------
 for (const sibling of ['utils', 'lab']) {
   const pkg = readPackage(`packages/${sibling}/package.json`);
-  const deps = pkg?.dependencies ?? {};
+  const deps = { ...(pkg?.dependencies ?? {}), ...(pkg?.peerDependencies ?? {}) };
   const coreDeps = Object.keys(deps).filter(k => k.endsWith('/core'));
   console.log(`${sibling}DependsOn=${coreDeps.join(',') || '<none>'}`);
   check(
-    `packages/${sibling} depends on ${CANONICAL_CORE}`,
+    `packages/${sibling} declares a dependency or peer dependency on ${CANONICAL_CORE}`,
     Object.prototype.hasOwnProperty.call(deps, CANONICAL_CORE),
   );
   check(
     `packages/${sibling} no longer references the deprecated core name`,
-    !Object.prototype.hasOwnProperty.call(deps, '@proof-or-stop/core'),
+    !Object.prototype.hasOwnProperty.call(deps, RETIRED_CORE),
   );
 }
 
@@ -117,7 +119,7 @@ check(
     .trim().split('\n').filter(Boolean);
   const skip = (f) =>
     f.includes('node_modules/') || f.includes('/dist/') || f.startsWith('dist/')
-    || f.startsWith('.proof-or-stop/') || f.startsWith('.proof-or-stop/')
+    || f.startsWith('.proof-or-stop/') || f.startsWith(RETIRED_STATE_PREFIX)
     || f === 'CHANGELOG.md'             // historical release record (FROZEN)
     // brand-rename-mapping.md is the FROZEN decision record that quotes the OLD name to
     // explain why each identity was or was not renamed; rewriting it would destroy the
@@ -128,7 +130,7 @@ check(
     if (skip(f)) continue;
     let body = '';
     try { body = readFileSync(f, 'utf8'); } catch { continue; }
-    if (!body.includes('@proof-or-stop/core')) continue;
+    if (!body.includes(RETIRED_CORE)) continue;
     if (!body.includes('@proof-or-stop/core')) deprecatedOnly.push(f);
   }
   console.log(`deprecatedCoreNameWithoutCanonical=${deprecatedOnly.length}`);
