@@ -1,6 +1,6 @@
 {
   "storyId": "B-9a49",
-  "checkedAt": "2026-08-31T14:28:19.111Z",
+  "checkedAt": "2026-08-31T14:35:19.438Z",
   "features": [
     {
       "feature": "One byte-consistent canonical Finding triage contract is delivered to all five active REVIEW lanes in full-envelope and legacy-full-context modes, exactly once and nowhere else.",
@@ -60,8 +60,8 @@
     },
     {
       "feature": "Only the main Agent or a human may call gap_log, and only for a Proof-or-Stop framework gap; reviewers must not use it as a general backlog or defect-routing shortcut.",
-      "covered_by": "",
-      "status": "gap",
+      "covered_by": "CHK-001 + CHK-004",
+      "status": "covered",
       "excluded_by": "",
       "source": "proposal section 3 and section 8 item 5"
     },
@@ -156,13 +156,13 @@
   },
   "summary": {
     "total": 20,
-    "covered": 17,
+    "covered": 18,
     "excluded": 2,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "55b99a8c3872e316625ff1c4fec2ddd6c17f7dde790de3e6d2376e1132226ef5",
+  "_hash": "a633b09cfae36b9fb6531a361b4170a292ec77244b5fb49f572b310f434ddcda",
   "openQuestions": []
 }
