@@ -1263,10 +1263,28 @@
       "phase": "DEV",
       "headHash": "1eb607b8c33f72f7c93f33fe2b3aaa4e7e83741b",
       "materialHash": "61c31d7289c0623541334bbd406ba4e78198b44ff05d40dd02972897f2b590e5"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Both files carry the fix for a real regression THIS story introduced, so they are in-scope repair rather than scope expansion. CHK-007 correctly narrowed PROOF_OR_STOP_BIN_NAMES to the canonical pair so retired lattice names are never advertised in usage text, but two PARSER call sites reused that same list to strip a redundant bin token pasted as argv[0], so 'lattice host runtime list' regressed to 'Unknown command: lattice'. That regression was caught by cli-surface-smoke, a configured validate command, and both call sites' own comments state they forgive a pasted bin token under EITHER name, so the narrowing contradicted their documented contract. Fix adds an exported STRIPPABLE_BIN_TOKENS (canonical union retired) in cli/alias-normalizer.ts consumed only by those two parser sites, mirroring the established BIN_TOKEN_ALTERNATION union in core/audit-scan.ts. Parse-tolerating a token does not advertise it: resolveUsageBin still gates strictly on PROOF_OR_STOP_BIN_NAMES, bin-alias-migration.test.mjs (CHK-007's own test) passes, verify-lattice-residue npm-bin passes, and cli.js help emits zero lattice bin forms. cli-engine.ts additionally drops the dead PROOF_OR_STOP_BIN_NAMES import that the fix left behind (finding F-502, filed by the concept lane and now resolved). All three reviewer lanes reviewed these exact files this round; concept and quality each independently verified the advertising path is untouched.",
+      "timestamp": "2026-08-31T13:44:04.013Z",
+      "paths": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/cli/alias-normalizer.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/cli/alias-normalizer.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "3ed2ae95128c792f57beef0e84b88252396a0ca1",
+      "materialHash": "25e0f0d20105007001c8eb4ccaef93a92c8676e7ad08d325a90e9bce06c8d718"
     }
   ],
   "createdAt": "2026-08-20T05:20:00.402Z",
-  "updatedAt": "2026-08-31T11:20:58.415Z",
+  "updatedAt": "2026-08-31T13:44:04.013Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -1352,6 +1370,8 @@
     "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
     "packages/main/src/core/managed-markers.ts": "packages/main/src/core/managed-markers.ts",
     "B-5a88-FOLLOWUP-STORIES.md": "B-5a88-FOLLOWUP-STORIES.md",
-    "packages/main/src/core/finding-verify.ts": "packages/main/src/core/finding-verify.ts"
+    "packages/main/src/core/finding-verify.ts": "packages/main/src/core/finding-verify.ts",
+    "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/alias-normalizer.ts": "packages/main/src/cli/alias-normalizer.ts"
   }
 }
