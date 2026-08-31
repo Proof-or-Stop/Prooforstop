@@ -330,7 +330,7 @@
       "desc": "doc-code-drift: AGENTS.md:573 and CLAUDE.md:785 open-source prose-quality defect (medium): the compatibility paragraph repeats both conclusions instead of stating each once (\"not applicability ... proof\" is immediately restated as \"It does not prove ...\"; \"not mechanically enforced by prompt text alone\" is immediately restated as \"prompt text does not mechanically enforce ...\"). The duplicated wording is identical in both public guides, is materially harder to read than the canonical contract, and appears to preserve test tokens rather than publish polished English. Consolidate each claim into one grammatical sentence while retaining the required semantics and keep both guides synchronized.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-31T22:27:41.768Z",
@@ -343,7 +343,11 @@
         "packages/main/src/core/prompt-registry.ts"
       ],
       "signatureTag": "missing|md|code-drift-agents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 21d9b2c9af7f9dadf8f3eb780719ae518b021baa, 467d8852b875abdac498c28e636cd1a546c3d666, and ed7dfe2adb6321ee79c928568d9e88a31ea458fe. The duplicated compatibility explanation was consolidated into one synchronized English sentence while preserving all six immutable compatibility phrases required by the signed verification intents. Current focused source checks and receipts pass.",
+      "resolvedAt": "2026-08-31T22:46:42.332Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-017",
