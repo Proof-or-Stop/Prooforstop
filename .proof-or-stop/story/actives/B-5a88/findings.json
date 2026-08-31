@@ -22611,6 +22611,61 @@
       "_hash": "81ab1ac01a964cc084b85b56a82bc5ef08ec3624588311638528fe773ec9236c",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a88:F-501",
+      "desc": "concept-cleanup: lattice identity rename incomplete for validate gate result 'provider' discriminants. See verifier.ts/validate-channel.ts/validate-concept.ts/validate-lint.ts hardcoded provider:'lattice-*' literals emitted into 'proof-or-stop validate --json' output; not covered by CHK-001..013; small fix blast radius.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-31T07:46:31.773Z",
+      "reviewRound": "2026-08-26T15:22:14.772Z",
+      "reviewRunId": "B-5a88:RR-936",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "packages/main/src/core/artifact-schema.ts",
+          "packages/main/src/core/managed-markers.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/handlers/validate-lint.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/claude-md-sync.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/utils/package.json",
+          "README.md",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "fbdb9d0c5c6a635871a9d4fd50ac8f45359b15c8652040d54bd1e961c2775067"
+      },
+      "readDiagnostics": [],
+      "_hash": "5f617c71e45330282585c0cd519200f1e25821b83612cca312409dad31fc3df2",
+      "signatureTag": "missing|unknown|concept-cleanup-lattice",
+      "signatureTagSource": "auto"
     }
   ]
 }
