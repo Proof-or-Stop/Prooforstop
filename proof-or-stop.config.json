@@ -168,9 +168,10 @@
         "caseRegistryPath": "packages/main/src/tasks/story-aware-validation-domain-cases.json",
         "runnerSourcePath": "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
         "env": {
-          "LATTICE_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
+          "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
         },
         "declaredEnvironmentKeys": [
+          "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER",
           "LATTICE_VALIDATION_SHARD_ADAPTER"
         ],
         "assurance": "story-selectable",
@@ -783,9 +784,10 @@
         "caseRegistryPath": "packages/main/src/tasks/story-aware-validation-domain-cases.json",
         "runnerSourcePath": "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
         "env": {
-          "LATTICE_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
+          "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER": "case-registry-output-v1"
         },
         "declaredEnvironmentKeys": [
+          "PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER",
           "LATTICE_VALIDATION_SHARD_ADAPTER"
         ],
         "assurance": "story-selectable",
