@@ -640,7 +640,7 @@
       "desc": "doc-code-drift: docs/CLI.md:5 presents Proof-or-Stop CLI 0.3.5 as the current product entry point, while package.json:3, packages/main/package.json:10, packages/main/src/core/proof-or-stop-brand.ts:12, and live proof-or-stop --version all report 0.3.268. The explicitly historical 0.3.5 migration section may remain when labeled as history, but the top-level current-version statement is stale and contradicts CHK-008 user-visible version convergence.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-08-31T23:07:22.408Z",
@@ -688,7 +688,11 @@
         "packages/main/src/core/proof-or-stop-brand.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 4c88119ad2: docs/CLI.md current entrypoint states 0.3.268 while preserving separately labeled historical migration text; version-bump smoke passes 86 assertions.",
+      "resolvedAt": "2026-08-31T23:37:28.255Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-025",
