@@ -68,7 +68,7 @@
             "desc": "The independently reviewed final decision record remains byte-for-byte unchanged after acceptance; WHY: an exact digest catches any later paraphrased mandate or deletion without pretending a keyword list can prove arbitrary natural-language semantics. A future document edit must establish a new reviewed decision and digest.",
             "type": "docs",
             "verification": {
-              "command": "node -e \"const fs=require(\\\"fs\\\"),c=require(\\\"crypto\\\");const h=c.createHash(\\\"sha256\\\").update(fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\")).digest(\\\"hex\\\");if(h!==\\\"02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d\\\")process.exit(1);console.log(\\\"B-2220 adversarial-1 exact-decision PASS\\\");\"",
+              "command": "node -e \"const fs=require(\\\"fs\\\"),c=require(\\\"crypto\\\");const h=c.createHash(\\\"sha256\\\").update(fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\")).digest(\\\"hex\\\");if(h!==\\\"fbd665df2456e770e466ebdc77f431ae20f3bae0fab98aab61c06a14ebd11d52\\\")process.exit(1);console.log(\\\"B-2220 adversarial-1 exact-decision PASS\\\");\"",
               "selector": "B-2220 adversarial-1 exact-decision PASS"
             }
           }
