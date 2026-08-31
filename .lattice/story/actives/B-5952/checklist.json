@@ -6,7 +6,45 @@
       "context": "The isolated command node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js fails identically on main and B-1fa6 with dynamicBindingBuilds=804 (synthetic=419, repo=385) against a stale absolute ceiling of 800. Adjust the source-of-truth assertion with documented headroom, rebuild dist, and prove the smoke still enforces boundedness.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After the source-of-truth ceiling is changed and packages/main is rebuilt, node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exits 0 and emits its PASS line with dynamicBindingBuilds/builds=804 (synthetic=419, repo=385). The source names and documents a finite ceiling strictly above 804 but no greater than 850, so the current inventory is explicitly accepted with at most 46 builds of fixed headroom rather than by deleting or weakening the assertion.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A clean packages/main rebuild succeeds, the generated dist smoke contains the same ceiling and failure semantics as packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts, and the targeted smoke passes from rebuilt dist at the tested HEAD. A diff from the recorded B-5952 fork/base shows no change to docs/requirements/decisions/dynamic-finding-system-execution-plan.md.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The finite-bound contract is checked at both sides of the boundary in an isolated temporary copy or deterministic harness: the configured ceiling is accepted and ceiling+1 is rejected with a nonzero result and a diagnostic naming the observed build count and ceiling. This proves absolute boundedness remains enforced independently of the current 804 sample.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Two clean rebuild-and-smoke runs at unchanged HEAD are deterministic: source and dist remain bound, the targeted command remains PASS, and the measured current inventory does not gain unexplained headroom through cache or order variance. Any justified inventory-count drift must update the documented baseline and evidence instead of silently widening the ceiling.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutation proof in an isolated temporary copy lowers the ceiling below 804 or injects one build beyond the configured ceiling; rebuilt dist must fail the targeted smoke. Replacing the finite comparison with an unbounded condition, a very large sentinel, a relative-only check, or warning-only behavior must also fail the characterization test.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Source/dist drift and scope contamination are fail-closed: a source-only ceiling change without the required dist rebuild, a dist-only threshold edit, or mismatched source/dist assertions is rejected by the binding check; any diff to docs/requirements/decisions/dynamic-finding-system-execution-plan.md fails the docs-scope check even when the targeted smoke otherwise passes.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }

@@ -1,0 +1,22 @@
+{
+  "task": "Repair the stale absolute dynamic-binding instrumentation ceiling that blocks current main validation at 804 builds.",
+  "outcome": "User sees the retired-authority vocabulary guard print PASS with a still-bounded dynamic binding build count, allowing the documentation Story to proceed through TEST.",
+  "facts": [
+    "Current main and B-1fa6 independently reproduce 804 dynamic binding builds against ceiling 800",
+    "The assertion is located in packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "Generated dist must be rebuilt from the TypeScript source",
+    "The repair must remain independent of the B-1fa6 document-only scope"
+  ],
+  "constraints": [
+    "Keep an explicit absolute upper bound",
+    "Do not change production command behavior",
+    "Do not edit the Dynamic Finding plan",
+    "Verify the targeted smoke and preserve source/dist binding"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+  ],
+  "timestamp": "2026-08-31T02:35:41.516Z"
+}
