@@ -288,7 +288,7 @@
       "desc": "packages/main/src/tasks/prompt-registry-smoke.ts:124-210 semantic-equivalence bypass (high): the 13 committed inverse mutations each bite, but each is paired to a narrow surface regex rather than the prohibited semantic class. A read-only probe against the exact committed validator accepted 13/13 equivalent paraphrases while `--review-finding-triage-only` still passed, including `A reviewer is allowed to invoke gap_log`, inverted dismissal/out_of_scope wording, `Scope follows severity`, superseded-envelope reviewRunId `stays valid`, passive reviewer repair/story_create/scope expansion, applicability-driven severity lowering, plural `Routed findings are resolved`, evidence-free routing without a high/critical noun, `This prompt determines whether the REVIEW gate blocks`, disjoint-files wording, and canonical-duplicate wording with reversed token order. Thus the test does not prove the required prohibitions and a contract containing equivalent contradictory instructions can still be made green by refreshing the five approved digests. Replace phrase-shape matching with a bounded semantic contract representation or add robust inverse/paraphrase mutation coverage that fails on these equivalent forms.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T22:21:50.213Z",
@@ -296,7 +296,11 @@
       "reviewRunId": "B-9a49:RR-011",
       "_hash": "44d2bbc7cbf5ac52a2455a832e07282aa3f407cf9471c65ab1292fd75f55da08",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 21d9b2c9af7f9dadf8f3eb780719ae518b021baa. The canonical REVIEW triage contract now has an independently hard-coded SHA-256 approval and must remain the exact terminal contract in every reviewer body. The semantic smoke rejects both the original 13 contradiction mutations and 13 meaning-equivalent paraphrases, so regenerating a baseline alone cannot bless contradictory additions.",
+      "resolvedAt": "2026-08-31T22:46:40.082Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-015",
