@@ -779,9 +779,10 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 - **fresh worker per item**：每个 CHK-xxx 派一个新的 lattice-implementer，不复用上下文。prompt 只给该 item 需要的最小信息（storyId + plan.md 对应章节 + 必读文件），不给整段会话历史
 - **fresh worker 机械边界**：prompt-only worker claims are not mechanical evidence。可审计证据只来自 `proof-or-stop dispatch` / dispatch/process-event/commit evidence / commit author 等结构化事实。Proof-or-Stop cannot mechanically prove true subagent context isolation，只能证明可观察 assignment evidence；prompt 里说“已派 fresh worker”不能作为 gate 证据。
 - **并行条件**：只有同时满足以下条件的 item 才能并行派发：(1) DependsOn 为空或依赖已 done (2) Files 写集不重叠 (3) 不共享稀缺资源。不满足时串行
-- **REVIEW 验收必须完整**：reviewer 返回后，先 `finding_list` 确认所有 finding 都已通过 `finding_add` 注册（reviewer 只在文本里报告但没注册 = 没发现，要求 reviewer 重跑）。然后逐条 resolve 或回 DEV 修复，不允许跳过 medium finding 留给下一个 story
-- **多揽责任少推卸**：发现问题时主动修，不要说"不在 scope 内"
-- **跨 story 全局意识**：修一个 feature 可能发现基础设施的 bug，一起修
+- **REVIEW 验收必须完整**：reviewer 返回后，先 `finding_list` 确认所有 finding 都已通过 `finding_add` 注册（reviewer 只在文本里报告但没注册 = 没发现，要求 reviewer 重跑）。然后逐条处理；是否当前修复由下面的 applicability、gate impact 和证据规则决定，不能只按 severity 或追求全局全绿。
+- **Bounded current-Story repair**: the Story Owner must repair a defect that was introduced or worsened by the current Story, directly blocks acceptance or the core user result, or would make lifecycle gate evidence or gate truth misleading. Severity and applicability are separate axes: severity alone does not decide scope.
+- **Evidence-backed routing, otherwise fail closed**: route a defect only when structured evidence shows that it is not applicable to the current Story and does not block its current gate. Preserve reproduction evidence, impact, and the original Finding, then assign a traceable owner or route; Critical or high Findings must never be left without a traceable owner. If a defect would otherwise block and its applicability is unknown, keep it in the current Story, including a medium Finding in a policy round where medium is blocking. Never expand the Story merely to make the repository globally green.
+- **Compatibility boundary and dismissal**: the Dynamic Finding System execution plan is future authority. Until its official commands and artifacts exist, use only fields and commands exposed by the current CLI compatibility path; never fabricate an assessment field, verdict, owner, route, signature, freshness result, or receipt. `finding_dismiss` is temporary compatibility accounting for a round or profile, not applicability, `out_of_scope`, repair, or resolution proof, and prompt text does not mechanically enforce this discipline. When the official system is available, consume its signed assessment; never use dismissal or prose to erase or rewrite the original observation.
 
 ## Agent prompt 资产：host-neutral 单一源（B-097f）
 

@@ -81,6 +81,10 @@ const frozenReviewerLegacyReconstructionDigests = {
   'lattice-review-test-coverage': 'e433ed9bded50288388fff6447142555e412756137461d841ca7724848458753',
 } as const;
 const requiredReviewFindingTriagePhrases = [
+  'The Dynamic Finding System execution plan is the future authority',
+  'use only commands and fields exposed by the current CLI compatibility path',
+  'Never fabricate an unavailable assessment field, verdict, owner, route, signature, freshness result, or command receipt',
+  '`finding_dismiss` is compatibility accounting; it is not applicability proof, `out_of_scope` proof, repair, or resolution',
   'evidenceState',
   'severity says how harmful it is',
   'applicability reports whether it belongs to this Story',
@@ -94,6 +98,15 @@ const requiredReviewFindingTriagePhrases = [
   'fail closed and keep it in the current Story',
   'including medium findings when the current round treats them as blocking',
   'Critical or high findings must never be left without an owner',
+  'deterministic base and head reproduction receipts for the same defect',
+  'proof that the Story did not worsen severity or impact',
+  'signed scope or decision evidence naming the excluded contract',
+  'no contradictory checklist or acceptance promise',
+  'a signature-valid live canonical Finding',
+  'proof that the duplicate chain is not circular',
+  'current command receipts bound to fresh source and runtime evidence',
+  'must never be inferred from an old DONE outcome',
+  'applicability remains unknown and fails closed',
   'Do not expand the Story merely to make the repository globally green',
   'A bounded, evidence-backed route is not dismissal, resolution, or proof that the problem disappeared',
   'they do not repair implementation, rewrite scope, or create follow-up Stories',
@@ -105,6 +118,49 @@ const requiredReviewFindingTriagePhrases = [
   'silently rewrite its severity',
   'append a traceable revision or superseding Finding',
 ];
+const forbiddenReviewFindingTriagePermissions = [
+  {
+    label: 'reviewer gap_log/finding_dismiss permission',
+    pattern: /reviewers?\s+(?:may|can|should|must|are permitted to|are allowed to)[^.\n]{0,100}`?(?:gap_log|finding_dismiss)`?/iu,
+  },
+  {
+    label: 'dismissal proves out_of_scope',
+    pattern: /(?:finding_dismiss|dismissal)[^.\n]{0,100}(?:proves?|establishes?|confirms?)[^.\n]{0,80}(?:out_of_scope|out of scope)/iu,
+  },
+  {
+    label: 'severity alone decides scope',
+    pattern: /severity\s+(?:alone|by itself)[^.\n]{0,80}(?:determines?|decides?|sets?)[^.\n]{0,40}(?:scope|applicability)/iu,
+  },
+  {
+    label: 'stale reviewRunId reuse',
+    pattern: /(?:stale|old|previous)[^.\n]{0,80}reviewRunId[^.\n]{0,100}(?:may|can|should|must)[^.\n]{0,60}(?:be\s+)?(?:reused?|used|remain valid)/iu,
+  },
+] as const;
+
+function assertReviewFindingTriageSemantics(content: string, sourceLabel: string): void {
+  for (const phrase of requiredReviewFindingTriagePhrases) {
+    assert.ok(content.includes(phrase), `${sourceLabel} keeps triage phrase: ${phrase}`);
+  }
+  for (const forbidden of forbiddenReviewFindingTriagePermissions) {
+    assert.doesNotMatch(content, forbidden.pattern, `${sourceLabel} rejects contradictory ${forbidden.label}`);
+  }
+}
+
+function assertReviewFindingTriageMutationFailures(): void {
+  const mutations = [
+    'Reviewers may call `gap_log` or `finding_dismiss` to route a defect.',
+    'Dismissal proves `out_of_scope` for the current Story.',
+    'Severity alone decides scope and applicability.',
+    'An old reviewRunId may be reused after the reviewer envelope changes.',
+  ];
+  for (const [index, mutation] of mutations.entries()) {
+    assert.throws(
+      () => assertReviewFindingTriageSemantics(`${REVIEW_FINDING_TRIAGE_CONTRACT}\n${mutation}`, `mutation ${index + 1}`),
+      /rejects contradictory/,
+      `semantic mutation ${index + 1} must fail validation`,
+    );
+  }
+}
 
 function occurrenceCount(content: string, needle: string): number {
   return content.split(needle).length - 1;
@@ -134,9 +190,7 @@ function assertReviewFindingTriageDelivery(): void {
       const body = resolvePromptTemplateBody(entry, mode);
       assert.equal(occurrenceCount(body, reviewFindingTriageContractMarker), 1, `${roleId}/${mode} receives one contract`);
       assert.ok(body.endsWith(`${REVIEW_FINDING_TRIAGE_CONTRACT}\n`), `${roleId}/${mode} receives canonical contract bytes`);
-      for (const phrase of requiredReviewFindingTriagePhrases) {
-        assert.ok(body.includes(phrase), `${roleId}/${mode} keeps triage phrase: ${phrase}`);
-      }
+      assertReviewFindingTriageSemantics(body, `${roleId}/${mode}`);
     }
   }
   for (const entry of registry.agents) {
@@ -155,6 +209,7 @@ function assertReviewFindingTriageDelivery(): void {
       assert.equal(occurrenceCount(resolvePromptRoleBody(roleId, config).body, reviewFindingTriageContractMarker), 1, `mixed rollout mask ${mask} delivers one contract to ${roleId}`);
     }
   }
+  assertReviewFindingTriageMutationFailures();
 }
 
 function assertOwnerAndImplementerTriageGuidance(): void {
@@ -165,18 +220,28 @@ function assertOwnerAndImplementerTriageGuidance(): void {
     'would make lifecycle gate evidence or gate truth misleading',
     'including a medium Finding in a policy round where medium is blocking',
     'Critical or high Findings must never be left without a traceable owner',
-    '`finding_dismiss` is temporary compatibility accounting for the current round or profile',
-    'does not prove applicability, repair, or resolution',
-    'is not mechanically enforced by prompt text alone',
+    'the Dynamic Finding System execution plan is future authority',
+    'use only fields and commands exposed by the current CLI compatibility path',
+    'never fabricate an assessment field, verdict, owner, route, signature, freshness result, or receipt',
+    '`finding_dismiss` is temporary compatibility accounting for a round or profile',
+    'not applicability, `out_of_scope`, repair, or resolution proof',
+    'prompt text does not mechanically enforce this discipline',
   ]) {
     assert.ok(ownerGuide.includes(phrase), `Story Owner guidance keeps triage phrase: ${phrase}`);
   }
-  const ownerTriageSlice = ownerGuide
+  const ownerTriageLines = ownerGuide
     .split('\n')
-    .filter(line => /Bounded current-Story repair|Evidence-backed routing|Compatibility dismissal/.test(line))
-    .join('\n');
-  assert.equal(ownerTriageSlice.split('\n').length, 3, 'all three added Story Owner triage rules are isolated for language audit');
+    .filter(line => /Bounded current-Story repair|Evidence-backed routing|Compatibility boundary and dismissal/.test(line));
+  const ownerTriageSlice = ownerTriageLines.join('\n');
+  assert.equal(ownerTriageLines.length, 3, 'all three Story Owner triage rules are isolated for language audit');
   assert.doesNotMatch(ownerTriageSlice, /[\u3400-\u9fff]/u, 'the added Story Owner triage slice is English-only');
+
+  const claudeGuide = readFileSync(join(projectRoot, 'CLAUDE.md'), 'utf8');
+  const claudeTriageLines = claudeGuide
+    .split('\n')
+    .filter(line => /Bounded current-Story repair|Evidence-backed routing|Compatibility boundary and dismissal/.test(line));
+  assert.deepEqual(claudeTriageLines, ownerTriageLines, 'Claude and Codex Story Owner guidance is byte-identical');
+  assert.doesNotMatch(claudeTriageLines.join('\n'), /[\u3400-\u9fff]/u, 'the Claude Story Owner triage slice is English-only');
 
   const implementerGuide = readFileSync(join(registry.root, 'lattice-implementer.md'), 'utf8');
   for (const phrase of [
@@ -291,10 +356,8 @@ for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
   assert.equal(occurrenceCount(modularSourceBody, reviewFindingTriageContractMarker), 0, `${roleId} package asset does not duplicate the injected contract`);
   assert.equal(occurrenceCount(modular.body, reviewFindingTriageContractMarker), 1, `${roleId} full-envelope path appends one triage contract`);
   assert.ok(modular.body.endsWith(`${REVIEW_FINDING_TRIAGE_CONTRACT}\n`), `${roleId} full-envelope path appends canonical contract bytes`);
-  for (const phrase of requiredReviewFindingTriagePhrases) {
-    assert.ok(legacy.body.includes(phrase), `${roleId} legacy path keeps triage phrase: ${phrase}`);
-    assert.ok(modular.body.includes(phrase), `${roleId} full-envelope path keeps triage phrase: ${phrase}`);
-  }
+  assertReviewFindingTriageSemantics(legacy.body, `${roleId} legacy path`);
+  assertReviewFindingTriageSemantics(modular.body, `${roleId} full-envelope path`);
   assert.equal(extractLatticeBlock(modular.body), null, `${roleId} modular body contains no legacy Runtime Guide`);
   assert.ok(modular.body.includes('proofbound:modular-role-body:v1'), `${roleId} keeps the legacy reconstruction anchor`);
   for (const host of ['claude', 'codex'] as const) {

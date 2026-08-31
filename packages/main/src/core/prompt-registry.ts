@@ -36,6 +36,12 @@ export const REVIEW_FINDING_TRIAGE_CONTRACT = `${REVIEW_FINDING_TRIAGE_CONTRACT_
 
 Apply this contract while reviewing. It governs reviewer behavior; it does not replace the CLI, handler, or gate as the authority for lifecycle state.
 
+### Current compatibility boundary
+
+- The Dynamic Finding System execution plan is the future authority for signed applicability, ownership, routing, freshness, and supersession. Until its official CLI and artifacts exist, use only commands and fields exposed by the current CLI compatibility path. Never fabricate an unavailable assessment field, verdict, owner, route, signature, freshness result, or command receipt, and never claim that a target-state mechanism ran.
+- In the current compatibility path, a reviewer records the observation through \`finding_add\` with the current \`reviewRunId\` and returns disposition to the Story Owner. Only the Owner may use a currently available compatibility disposition when current mechanical policy permits it. \`finding_dismiss\` is compatibility accounting; it is not applicability proof, \`out_of_scope\` proof, repair, or resolution.
+- When the Dynamic Finding CLI becomes available, request or consume its official signed assessment and follow its fail-closed result. Prompt prose and compatibility records never substitute for that assessment.
+
 ### Record evidence before disposition
 
 - Start the current lane with \`proof-or-stop review_run_start\`. Carry its current \`reviewRunId\` on every \`finding_add\` or \`review_pass_set\` submission.
@@ -49,6 +55,10 @@ Apply this contract while reviewing. It governs reviewer behavior; it does not r
 - Require repair in the current Story when a verified issue was introduced or worsened by the Story, directly violates its acceptance or public compatibility promise, threatens security or data integrity, or would make REVIEW, TEST, DONE, or their evidence misleading.
 - If an issue would otherwise block under the current review round and policy but its applicability is unknown, fail closed and keep it in the current Story until evidence resolves applicability. This rule applies regardless of severity, including medium findings when the current round treats them as blocking.
 - Evidence may support a \`pre_existing_unaffected\` or \`out_of_scope\` routing candidate only when the issue is not a direct Story regression, does not prevent the user-visible outcome, and cannot distort lifecycle evidence. Preserve the original Finding and attach reproduction, evidence, impact, recommended action, explicit owner, and route. Critical or high findings must never be left without an owner.
+- A \`pre_existing_unaffected\` candidate requires deterministic base and head reproduction receipts for the same defect, proof that the Story did not worsen severity or impact, confirmation that Story scope does not promise its repair, and a valid owner or route.
+- An \`out_of_scope\` candidate requires signed scope or decision evidence naming the excluded contract, no contradictory checklist or acceptance promise, and a valid owner or route; critical or high Findings cannot be left unowned.
+- A \`duplicate\` candidate requires a signature-valid live canonical Finding, its live owner or route, and proof that the duplicate chain is not circular. Similar text or a matching signature tag is insufficient.
+- A \`stale_or_not_reproduced\` candidate requires current command receipts bound to fresh source and runtime evidence and must never be inferred from an old DONE outcome. If the current CLI cannot provide the required proof for any candidate, applicability remains unknown and fails closed.
 - Do not expand the Story merely to make the repository globally green. A bounded, evidence-backed route is not dismissal, resolution, or proof that the problem disappeared.
 
 ### Respect reviewer authority
