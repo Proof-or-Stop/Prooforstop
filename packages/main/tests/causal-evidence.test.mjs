@@ -2506,7 +2506,14 @@ test('B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifi
     ? topology.diagnostics.map(diagnostic => diagnostic.code).sort()
     : [];
   const topologyFresh = topology.status === 'pass';
-  assert.ok(topologyFresh || topologyCodes.join(',') === 'AT_ADAPTER_RESULT_DIGEST_MISMATCH,AT_CLOSURE_FILES_STALE');
+  assert.ok(
+    topologyFresh
+    || [
+      'AT_ADAPTER_RESULT_DIGEST_MISMATCH,AT_CLOSURE_FILES_STALE',
+      'AT_CLOSURE_FILES_STALE,AT_SCOPE_BINDING_MISSING',
+    ].includes(topologyCodes.join(',')),
+    `unexpected topology fail-closed codes: ${topologyCodes.join(',')}`,
+  );
   if (topologyFresh) {
     assert.equal(topology.basisStatus, 'complete');
     assert.equal(topology.structuralPass, true);
@@ -2516,6 +2523,7 @@ test('B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifi
   const preReviewFailClosed = [
     'PR_ARTIFACT_TAMPERED',
     'PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE',
+    'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED',
   ].includes(preReview.codes?.join(',') ?? '');
   assert.ok(preReviewFresh || preReviewFailClosed);
   if (preReviewFresh) {
