@@ -881,6 +881,25 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-033",
+      "desc": "doc-code-drift: packages/main/src/core/artifact-release.ts:9-11, :69-74 and packages/main/src/core/capability-release.ts:16-18 were mechanically rewritten from the historical retired state-directory literal to the canonical .proof-or-stop spelling without updating the surrounding explanation. They now claim that .proof-or-stop was the deprecated hardcoded directory, that the canonical ledger path no longer held the ledger, and that path.startsWith(.proof-or-stop/) recognized only a deprecated directory; the current constants and isStateDirPath behavior make those statements false. Preserve canonical-only active prose without rewriting history: describe the prior value generically as the retired state directory (or another truthful token-free phrase), while keeping PROOF_OR_STOP_STATE_DIR as the current implementation.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-08-31T23:46:21.884Z",
+      "reviewRound": "2026-08-31T23:37:04.185Z",
+      "reviewRunId": "B-022e:RR-055",
+      "_hash": "ad8ee3b862cd8bbfb024339cdee611a03b56d4eddf795642c495012ce1dcbf2f",
+      "files": [
+        "packages/main/src/core/artifact-release.ts",
+        "packages/main/src/core/capability-release.ts"
+      ],
+      "signatureTag": "missing|ts|code-drift-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
