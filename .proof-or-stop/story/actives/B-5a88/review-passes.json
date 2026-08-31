@@ -23319,6 +23319,30 @@
         "scanEscalationReason": null
       },
       "_hash": "c42114ec7d53e2fac21900c4898cfa0ef2c32c791c067d8b5af304b9a8c791c2"
+    },
+    {
+      "id": "B-5a88:RP-387",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-anchor for storyFilesHash bump: only diff since RP-382 (my prior pass) is commit c750f2876d, a purely additive 58-line CLAUDE.md doc section (defect-triage rules), no code/identifiers/gate logic touched. No source moved; prior quality findings (F-500 pure-function purity, F-501 provider discriminants) remain settled/deferred. Confirmed via git show c750f2876d --stat.",
+      "createdAt": "2026-08-31T10:35:30.174Z",
+      "reviewRound": "2026-08-31T10:13:26.593Z",
+      "reviewRunId": "B-5a88:RR-956",
+      "envelopeId": "ea876d4046b258bb84fdb186057b067dcb373f9934bc2612ba554461552722b0",
+      "writerSessionId": "claude-b5a88-1788161424",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/checklist.json",
+          ".proof-or-stop/story/actives/B-5a88/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c4edfea617f346b775aaeb5814349b230ff46e7e252d050a00cda5699438875c"
     }
   ]
 }
