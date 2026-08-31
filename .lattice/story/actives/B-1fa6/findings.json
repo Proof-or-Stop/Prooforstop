@@ -783,6 +783,21 @@
       "_hash": "bc381879de3d487830e3684aadfb93b50feecab3ebc2241218fe2f06dc06a9be",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-039",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:3048-3050,3107-3108 — MEDIUM: the scorecard says genuine repair must be reported and never credited as Dynamic Finding savings, but Manual Finding-operation reduction counts avoided repair-related operations toward its >=50% promotion threshold. This permits the efficiency claim to be inflated by repair work the contract explicitly excludes. Limit that numerator to classification/triage/adjudication/reproduction/routing/assessment workflow operations and report genuine repair separately.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T08:57:51.777Z",
+      "reviewRound": "2026-08-31T08:47:53.205Z",
+      "reviewRunId": "B-1fa6:RR-043",
+      "_hash": "3761b5a1871ccd28ba53d35b96e3a6c5edd297aad204a20817eaab87caae1d80",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
