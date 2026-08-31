@@ -29,7 +29,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:549,678-704,795-835,904-925,976-1010 — signed route acceptance is a mandatory safety input but no RouteReceipt contract exists. CandidateRoute and FindingDeferralDisposition carry only routeReceiptId; FindingLedgerReceipt proves persistence and explicitly does not attest content truth, while no modeled record binds the candidate/finding/deferral, target Story or B-META gap, owner identity/authority, acceptance decision, freshness, signature, and revocation/closure state. append_route_receipt and atomic-commit prose therefore cannot establish the repeated claim that the existing target/owner accepted the route, and the gate/scorecard cannot validate owner acceptance without inventing semantics in implementation. Add an explicit signed RouteReceipt schema plus writer authority, validation/freshness/revocation rules, references from the manifest and ledger receipt, and Story 2/3 ownership/tests; otherwise defer-with-proof can degrade into an unowned waiver despite the stated policy.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-31T00:33:22.381Z",
@@ -40,7 +40,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f741bf8754: FindingRouteReceipt now binds exact source subject, target state/scope, target-authorized owner/lease/policy, decision, expiry/revocation, policy digest, hash, and signature; section 7.3 defines authority and freshness.",
+      "resolvedAt": "2026-08-31T00:48:11.573Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-003",
