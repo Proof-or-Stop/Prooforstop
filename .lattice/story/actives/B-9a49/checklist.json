@@ -1297,14 +1297,15 @@
         },
         {
           "intentRef": "CHK-004:edge:english-only-slices",
-          "kind": "logic_test",
+          "kind": "docs_check",
           "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
-          "note": "Current focused tool-executed semantic smoke proves the newly added public Agent-facing contract and guidance slices are English-only while retaining exact delivery and semantic checks.",
-          "headHash": "9dd098a0030e85687c646238f9b13d2934fbabea",
-          "materialHash": "ff1f61597c55aa003274d1ade0ba30cd5e46d7b6e8db7f83a6fdb9cd079ed8fc",
-          "storyFilesHash": "b65c2da734cc14c45a23c5180d54e67246de2180df8462a3ddf572a977179e42",
+          "result": "pass",
+          "note": "Tool-executed pinned verifier confirms the repaired must intent against the current source and selected proof output.",
           "mechanical": false,
-          "timestamp": "2026-08-31T21:24:40.817Z"
+          "headHash": "c5b204327aeb506d4855ea8c24913fc4a02d2f0c",
+          "materialHash": "8b96cfaf1b019fc2449b25b70785dc1fcdce52199f99b07ed336ad87bf0e4360",
+          "storyFilesHash": "46edcd4c47ce89700af76be53e38b53b76cd16b86627bf1b7b1758ed07f2e93a",
+          "timestamp": "2026-08-31T22:07:43.754Z"
         },
         {
           "intentRef": "CHK-004:edge:compatibility-and-outcomes",
