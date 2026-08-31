@@ -23404,6 +23404,36 @@
       },
       "readDiagnostics": [],
       "_hash": "ea31e28caaa31b3afd238115bc144241811e2d90288f7da4e43393664d96a6b7"
+    },
+    {
+      "id": "B-5a88:RP-390",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test-coverage re-anchor for round 2026-08-31T11:31:20.622Z. Independently confirmed via checklist_get that all 39 must verificationIntent records (13 items) have valid pass evidence with tool-owned receipts (mechanical=true, 0 waivers, 0 missing, 0 failing), including CHK-013's named intentRefs. Diff ac951bcedd..HEAD touches only story-metadata files from parallel reviewer lanes (review-passes.json/review-runs.json/process-events.jsonl/prompt-envelopes.json), no story-owned source or test files, so this is unrelated whole-tree drift, not a coverage regression. No blocker.",
+      "createdAt": "2026-08-31T11:38:39.466Z",
+      "reviewRound": "2026-08-31T11:31:20.622Z",
+      "reviewRunId": "B-5a88:RR-959",
+      "envelopeId": "877706489370d15710327407a779880939f187be9e1fea733fa0135545b3803e",
+      "writerSessionId": "claude-b5a88-1788161424",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a88/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a88/background.md",
+          ".proof-or-stop/story/actives/B-5a88/plan.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/truth-source.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "767d930f756ec9469d72aa28506a7fcf327e4a8ffdb9a337cc521cdc6df17d98"
     }
   ]
 }
