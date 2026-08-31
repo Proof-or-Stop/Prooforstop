@@ -665,6 +665,59 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-025",
+      "desc": "doc-code-drift: .proof-or-stop/story/actives/B-022e/scope-contract.json:413-427 acknowledges docs/requirements/decisions/dynamic-finding-system-execution-plan.md as unrelated main-sync carry-in and states that B-022e did not modify its content. Git history contradicts that signed explanation: later B-022e commit c7a29f6563 changed that document by 23 insertions and 22 deletions while rewriting its package-scope example. Reclassify and review the actual B-022e-owned documentation delta, or revert it to the independently merged content; the current acknowledgement is no longer truthful.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-08-31T23:07:24.659Z",
+      "reviewRound": "2026-08-31T22:53:47.816Z",
+      "reviewRunId": "B-022e:RR-051",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-022e/scope-contract.json",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/artifact-release.ts",
+          "packages/main/src/core/capability-release.ts",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "README.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "scripts/verify-proof-or-stop-pack-boundary.mjs"
+        ],
+        "scanEscalationReason": "Story-level identity cutover required all checklist relatedDocs plus focused canonical-role, historical provenance, rewritten Git-policy pin, append-only release-ledger, and acknowledged main-sync documentation review."
+      },
+      "_hash": "68662bf7a57ac267d2eb5cdddc3c92f99c2f7570fc7bbfe46ab72ac489c6a89b",
+      "files": [
+        ".proof-or-stop/story/actives/B-022e/scope-contract.json",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "missing|json|code-drift-proof",
+      "signatureTagSource": "auto"
     }
   ]
 }
