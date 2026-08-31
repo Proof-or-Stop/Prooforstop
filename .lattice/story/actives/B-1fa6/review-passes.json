@@ -279,6 +279,34 @@
         "scanEscalationReason": "Targeted Round 7 re-review of commit 0974481b67 and resolved findings F-019, F-020, and F-022; inspected the full commit diff and all affected contract, Story Required tests, rollout, scorecard, risk, and acceptance sections."
       },
       "_hash": "a64881cd86a2930e8b2a1ea0e6b1a454f5420e76f30be0c50298b4b50a0c930c"
+    },
+    {
+      "id": "B-1fa6:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Pure-docs diff: 0 source-code exported symbols extracted. Compared 14 changed Markdown contract sections covering InitialProgressBaselineSet schema/authority, acyclic routeSubjectDigest hashing, initial receipt-plus-set atomic persistence, exact deferral/manifest/CAS bindings, same-kind verifier-derived renewal baseline, present/absent semantics, unchanged-code positive cases, negative caller/missing/tampered/wrong-kind/wrong-subject/no-op/regressive/unrelated cases, Story 1/2/3 ownership, DAG, rollout, scorecard, risks, and acceptance. F-023 resolution is supported and no documentation inconsistency remains.",
+      "createdAt": "2026-08-31T02:05:21.795Z",
+      "reviewRound": "2026-08-31T02:03:25.834Z",
+      "reviewRunId": "B-1fa6:RR-023",
+      "envelopeId": "81158547ff2532352609f95485ca04f713022bb710a83e94d6f1d1cbabbdaba5",
+      "writerSessionId": "sess-7445e232624ef93d0772babad60d0ccf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/step3-review-budget-breaker-handoff.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "171ad63c770d7983a672be4b6022b0e8a8651c2edf7709a255c07bef4437cc20"
     }
   ]
 }
