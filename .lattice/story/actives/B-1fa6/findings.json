@@ -71,6 +71,21 @@
       ],
       "signatureTag": "adversarial|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-005",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:938-943,1012-1018 [high] The shared predicate applies effectiveBlockingSeverities and round decay before applicability/deferral, so a high Finding becomes advisory in Round 3 and a low/medium protected-surface Finding can remain non-blocking even though Path C says every high/critical or protected-surface risk must be fixed with fresh Green before the blocker clears. Refusing deferral cannot enforce mandatory repair when the old predicate has already returned false. Specify one mechanically enforceable rule: either preserve existing decay and narrow the Path C claim to only prevent defer_with_proof, or add a registered protected/high hard-floor predicate with tests showing all consumers agree and rollback restores the prior rule.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T00:34:37.279Z",
+      "reviewRound": "2026-08-31T00:31:14.768Z",
+      "reviewRunId": "B-1fa6:RR-008",
+      "_hash": "62d3f242628edbfeabb30b729d9f8ac48a6b7016985f88546d32527520ddc2ec",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
