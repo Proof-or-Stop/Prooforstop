@@ -11126,9 +11126,9 @@
       "epochId": "B-45a0:RIE-140",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-31T20:19:23.055Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-31T22:36:53.046Z",
-      "updatedAt": "2026-08-31T22:36:53.046Z",
+      "updatedAt": "2026-08-31T22:41:18.301Z",
       "cutoff": {
         "headHash": "d2aeaa241832536d659b8554896a81736218afa0",
         "materialHash": "6d96761e24fabeb191351d28a0fa127f81793c6c1fd5723a5fb2e50738958b10",
@@ -11139,7 +11139,10 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-45a0:RIE-140:RCP-001",
-      "_hash": "420064487b8039e896b7ab66df892bd0f1f41067b04d6aabd5421cbf286308c1"
+      "cancelledAt": "2026-08-31T22:41:18.301Z",
+      "cancelReason": "Cancelling the unconsumed empty-wave receipt B-45a0:RIE-140:RCP-001. Root cause identified in packages/main/src/core/review-inventory-epoch.ts:551-554: finalizedLiveAggregateError takes epoch.waves.at(-1) and requires it to exist, be completed, be saturated and carry newVerifiedFindingCount zero. RIE-140 was minted through the no-OPEN-epoch finalize path, so its waves array is empty, finalWave is undefined, and the DEV consume path can never accept it - it fails REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED by construction. Meanwhile review_inventory_begin refuses to open a new epoch while this receipt sits unconsumed, so the two commands point at each other. Cancelling the dead receipt breaks that deadlock so a real epoch with an actual saturated wave can be run.",
+      "terminalRunSequenceBoundary": 1165,
+      "_hash": "af7989367d9ecdac6a144a355677172666c14bf882185f1af6e74e2bcc864ccf"
     }
   ],
   "receipts": [
@@ -12895,7 +12898,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-31T22:36:53.046Z",
-      "_hash": "6666c39cc83492ec622cc35a0e402b9db7859a40abd9708b8633959ad55b4f66"
+      "invalidatedAt": "2026-08-31T22:41:18.301Z",
+      "invalidationReason": "Cancelling the unconsumed empty-wave receipt B-45a0:RIE-140:RCP-001. Root cause identified in packages/main/src/core/review-inventory-epoch.ts:551-554: finalizedLiveAggregateError takes epoch.waves.at(-1) and requires it to exist, be completed, be saturated and carry newVerifiedFindingCount zero. RIE-140 was minted through the no-OPEN-epoch finalize path, so its waves array is empty, finalWave is undefined, and the DEV consume path can never accept it - it fails REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED by construction. Meanwhile review_inventory_begin refuses to open a new epoch while this receipt sits unconsumed, so the two commands point at each other. Cancelling the dead receipt breaks that deadlock so a real epoch with an actual saturated wave can be run.",
+      "_hash": "8e686cb73c1e763216a450e3ec9540cf1d015f13d27bdff4da5f3e6b19bd83b8"
     }
   ],
   "criticReceipts": [
