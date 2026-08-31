@@ -184,6 +184,34 @@
         "scanEscalationReason": null
       },
       "_hash": "fe8568d81579033446020559946209e6bf4ad474e11d81ba0003623ea32759e1"
+    },
+    {
+      "id": "B-1fa6:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Execution-environment re-attestation under Node v26.8.1: review_run_start selected full/SAFETY_REQUIRES_FULL because the prior trusted envelope used Node v24.19.0. There are 0 material changed files, 0 new source symbols, and 0 new documentation paragraphs; the unchanged document and its previously completed full evidence/citation review remain valid, with no blocker introduced by the environment-only change.",
+      "createdAt": "2026-08-31T00:15:54.818Z",
+      "reviewRound": "2026-08-31T00:09:07.245Z",
+      "reviewRunId": "B-1fa6:RR-006",
+      "envelopeId": "d00a8db3b58fc238e979496cab3f6d172fe6868ae661ba279b5b50d917e8514b",
+      "writerSessionId": "sess-7445e232624ef93d0772babad60d0ccf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/step3-review-budget-breaker-handoff.md"
+        ],
+        "scanEscalationReason": "Execution-environment change from Node v24.19.0 to v26.8.1 forced full context; prior complete document review was reused because materialHash and changed-file set remained unchanged."
+      },
+      "_hash": "a60071dfd6f0f522d5eea88201bdfd1d3252560fff07d8e02fa28b86e9bbcf35"
     }
   ]
 }
