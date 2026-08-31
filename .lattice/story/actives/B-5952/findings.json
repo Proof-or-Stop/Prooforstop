@@ -257,6 +257,21 @@
       "resolvedAt": "2026-08-31T08:08:36.268Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5952:F-012",
+      "desc": ".lattice/story/actives/B-5952/proofstory.json:29 — wave4 acceptance basis remains structurally incomplete: AB-BOUND-REPAIR carries checklist/intent refs and an acceptance claim but no verificationTopology, while .lattice/story/actives/B-5952/acceptance-basis.json:1 still records basis.status=partial. Current verifier-owned reads therefore do not produce a passing authoritative chain: acceptance_topology_check --storyId=B-5952 --json returns status=inconclusive with AT_COVERAGE_BASIS_PARTIAL and AT_MISSING_TOPOLOGY; pre_review_check_read --storyId=B-5952 --json returns status=inconclusive with PR_POSITIVE_EVIDENCE_MISSING, PR_MUTATION_EVIDENCE_MISSING, PR_TRANSCRIPT_MISSING, and PR_AUTHORITY_INADMISSIBLE; acceptance_rollout_report_read and acceptance_rollout_check both return status=missing with AR_REPORT_MISSING. This re-attestation cannot truthfully claim the current signed PASS receipt / full 3x2 rollout basis required by the wave-4 boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T08:45:38.224Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-020",
+      "_hash": "6b2d455a81aa083eb0fe707e3144ca1f846ffa7292a03db0f168752812a4ac05",
+      "signatureTag": "missing|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
