@@ -449,7 +449,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:2113-2145 — HIGH: section 11 requires a checked-in finding_rollout_scorecard --json procedure whose computed thresholds authorize warn -> enforce, but none of the three future Story Deliverables/Required tests explicitly owns that command or tests its report computation. The implementation Stories can therefore all pass while the procedure is absent, miscounts numerator/denominator, omits HEAD/window/retry/exclusion metadata, parses protected storage, or promotes on incomplete/tampered events. Assign the scorecard to a Story (normally Story 1) and require deterministic fixture tests for every table row, exact numerator/denominator and threshold/rollback decision, required report metadata, CLI/read-only data boundary, missing/tampered evidence refusal, and enforce-entry refusal when any safety threshold or merged-state prerequisite is unmet.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-31T01:32:34.472Z",
@@ -460,7 +460,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "doc-promise-undelivered|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 0974481b67: Story 1 explicitly owns the checked-in read-only finding_rollout_scorecard JSON aggregator, while Story 2 and 3 expose signed query contracts; deterministic fixtures cover every metric row, exact numerator, denominator, threshold, rollback and metadata, and refuse incomplete, tampered, protected-storage or unmet-prerequisite inputs.",
+      "resolvedAt": "2026-08-31T01:46:10.943Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
