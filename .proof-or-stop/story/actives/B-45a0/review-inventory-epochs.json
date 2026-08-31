@@ -10433,9 +10433,9 @@
       "epochId": "B-45a0:RIE-129",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-31T02:29:23.056Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-08-31T03:41:10.040Z",
-      "updatedAt": "2026-08-31T03:41:10.040Z",
+      "updatedAt": "2026-08-31T04:34:22.001Z",
       "cutoff": {
         "headHash": "fbcd2e952ec7cfbb231bb9d4712cae0a5d061f1e",
         "materialHash": "3ef55149759d21499c5a6abb1c31b5eea17be3e0d8938a31f1a8f41c4c87b959",
@@ -10446,7 +10446,10 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-45a0:RIE-129:RCP-001",
-      "_hash": "ded431fce3b470ad0deb1b3a431974a6affd4d8d8ffdf4ed7ffe1f1faf008755"
+      "cancelledAt": "2026-08-31T04:34:22.001Z",
+      "cancelReason": "Receipt cutoff predates the F-441/F-442/F-438 repair commits; re-finalizing so the cutoff binds current material.",
+      "terminalRunSequenceBoundary": 1086,
+      "_hash": "c7508d8c8b8124ee5a6780d1138477b0abd3f45d02ca1916552768672b33133a"
     }
   ],
   "receipts": [
@@ -12052,7 +12055,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-08-31T03:41:10.040Z",
-      "_hash": "adffee7b302423f4e91403c42a40c26ec047e4d603e30b1d67153b529273ebf0"
+      "invalidatedAt": "2026-08-31T04:34:22.001Z",
+      "invalidationReason": "Receipt cutoff predates the F-441/F-442/F-438 repair commits; re-finalizing so the cutoff binds current material.",
+      "_hash": "a45287fc4370e747151e376f4c2787f69ea78423c559398ff77253d029721129"
     }
   ],
   "criticReceipts": [
