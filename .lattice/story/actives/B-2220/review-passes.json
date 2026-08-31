@@ -797,6 +797,28 @@
         "scanEscalationReason": "plan.md is absent; review_run_start supplied the full task/checklist/scope context and checklist_get supplied current evidence."
       },
       "_hash": "973c99c123bcbdabdc1a360208a74fdd39d7874cb2373bb7928e86be2e919d0e"
+    },
+    {
+      "id": "B-2220:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 7/7 verification intents covered, 0 must-gaps, 0 waivers. Independently verified current main is merged, receipt commit dae9be1 records a fresh CHK-001:happy:2 PASS, resolution commit f3958cd closes F-011, all six document selectors pass, and the exact pinned build-binding plus compiled smoke exits 0 with validation-evidence-buffer-smoke: PASS.",
+      "createdAt": "2026-08-31T22:40:43.676Z",
+      "reviewRound": "2026-08-31T22:36:50.515Z",
+      "reviewRunId": "B-2220:RR-037",
+      "envelopeId": "d672e469d67e3a53147406f450a542d972c254b3b5461daf87f336b94c001d94",
+      "writerSessionId": "sess-e790a0ab6c0fdfb4d349d2ee0914e3e5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "The dispatch-listed .lattice/story/actives/B-2220/plan.md is absent; review_run_start supplied the full trusted task context, and every extant required or changed file was read fully."
+      },
+      "_hash": "de790df40727dc1ce1d61fa0460567ae20dc72943b747f154fa42509e7ea9d99"
     }
   ]
 }
