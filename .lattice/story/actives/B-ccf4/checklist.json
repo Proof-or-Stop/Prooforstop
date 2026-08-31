@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write the canonical Story-relevance dynamic validation tiers execution plan",
+      "context": "Specify current-state evidence, desired architecture, dynamic selection algorithm, impact-index generation, tier semantics, fail-closed widening, signed evidence bindings, CLI UX, rollout Stories, observability, rollback, and acceptance tests. This Story is documentation-only and must not implement the selector.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "docs/dev/test-coverage.md"
+      ],
+      "userSees": "A single canonical Markdown plan explains how Proof-or-Stop can derive fast and intermediate validation from each Story while preserving repository-full validation as the exhaustive safety boundary.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md"
+        ],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
