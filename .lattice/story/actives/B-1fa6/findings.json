@@ -902,6 +902,21 @@
       "_hash": "f7f8d0715fe10836c11e003eb79e902fa699c2037c001094b06d06b175766d26",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-044",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:2554-2557,3325-3333 — HIGH: 93ab5605b4 updates the first Story 1 matrix to nine states but leaves the second required-test contract and the implementation acceptance summary at the old seven-state exact set, still omitting re_attestation_required and expired. This means F-030/F-033 are only partially fixed and the plan can still satisfy one authoritative acceptance list without proving both new states fail closed. Make both remaining lists reference the canonical nine-state set (or REQUIRED_ASSESSMENT_INVALID) and include the round-3 fixtures.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T09:12:33.997Z",
+      "reviewRound": "2026-08-31T09:05:58.911Z",
+      "reviewRunId": "B-1fa6:RR-047",
+      "_hash": "2592eed97f3c58a6ec38e4022eda7a53eb5e971bad80f6b1383f721b135faad5",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
