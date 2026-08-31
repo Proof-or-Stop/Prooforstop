@@ -774,6 +774,29 @@
         "scanEscalationReason": null
       },
       "_hash": "525ae1a4e82c452380a27a186eabff05cd7a88a00e602cc12b5ab06d34a83ccd"
+    },
+    {
+      "id": "B-2220:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Round 8 re-review found no quality blocker in the two changed product files. Independently confirmed current main 7889cf4 is merged via 5e8401e, CHK-001:happy:2 build binding plus compiled smoke exits 0 with validation-evidence-buffer-smoke: PASS, decision digest is 02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d, dae9be1 records the refreshed receipt, and f3958cd resolves F-011. The reported done_prepare/gap_log framework behavior is outside this changed-files-only reviewer contract and was not filed as a B-2220 finding.",
+      "createdAt": "2026-08-31T22:40:08.797Z",
+      "reviewRound": "2026-08-31T22:36:50.515Z",
+      "reviewRunId": "B-2220:RR-036",
+      "envelopeId": "6d811346400266bd82c25af57910051393134da3955b2ec5eb4c3a7678c23c58",
+      "writerSessionId": "sess-b3821f7d5c8ec95ab19fcc3f8e47b021",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/checklist.json"
+        ],
+        "scanEscalationReason": "plan.md is absent; review_run_start supplied the full task/checklist/scope context and checklist_get supplied current evidence."
+      },
+      "_hash": "973c99c123bcbdabdc1a360208a74fdd39d7874cb2373bb7928e86be2e919d0e"
     }
   ]
 }
