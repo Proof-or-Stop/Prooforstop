@@ -22739,6 +22739,34 @@
         "scanEscalationReason": null
       },
       "_hash": "ebad7731ee30189bf1eecf7363e9a4f01d20b171a3256000ed634ab03f6e6047"
+    },
+    {
+      "id": "B-45a0:RP-471",
+      "agent": "lattice-review-quality",
+      "note": "Wave 4 acceptance-surface scrutiny for F-428/F-429/F-430 resolutions. Code commits e3a6186f7f/f2e648606d confirmed unchanged since RP-462/RP-467 (git diff f2e648606d..HEAD shows zero non-.proof-or-stop/non-docs-story files). Independently re-verified the 50-refreshed-evidence claim: fresh --live-proof re-execution (after clean npm --prefix packages/main run build) reproduces the exact same gzip caseRecords byte-for-byte as the stored pre-review-check.json, confirming the 30 mutation cases were genuinely re-executed (not re-signed) and are deterministic against current source. Independently confirmed acceptance_rollout_check (mode=enforce status=pass blocking=false receipt=current quorum=full-3x2) and acceptance_topology_check (status=pass, structural pass=yes) both hold right now. One medium finding (F-432) registered: pre_review_check specifically had already gone stale by the time it was dispatched -- acceptance-basis.json was regenerated 82s after pre-review-check.json was signed, and a fresh pre_review_check_read at the exact reviewed HEAD reproducibly FAILs with PR_ARTIFACT_TAMPERED/PR_COVERAGE_BASIS_CHANGED. Not a gate bypass (mode=observe, blocking=false either way) but the resolution narrative overstates durability of that one surface. No dead code, type-safety, or I/O-isolation issues found in scope (no source files changed to review beyond the prior passes).",
+      "createdAt": "2026-08-31T02:41:05.652Z",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "reviewRunId": "B-45a0:RR-1064",
+      "envelopeId": "ecfbea943f4ff280dafeb0c8daeca69d7fcdc011cad3ddd74892fb93f7bc8d81",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/findings.json",
+          ".proof-or-stop/story/actives/B-45a0/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7161f83c5dbcd3710353c4a1d23474bd317617931429b960465c7d630979da54"
     }
   ]
 }
