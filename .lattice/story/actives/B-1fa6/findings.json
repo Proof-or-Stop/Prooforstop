@@ -947,6 +947,21 @@
       "_hash": "67a85768083f8bca31cd4da16d8241b99e0000a4c1c21f83e179948aff108e9f",
       "signatureTag": "adversarial|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-047",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1890-1894,2501-2509,2525-2528,3132 — HIGH: F-036 is only partially integrated. Story 1 transition prose now includes not_reproduced_under_current_witness, but the mandatory-floor exclusion bullet and rollout scorecard clean-initial control set still enumerate only pre_existing_unaffected/out_of_scope/duplicate. Consequently enforce qualification can omit the new verdict’s clean-initial control and does not prove clean-initial equals missing→fresh, leaving the original path-dependent latch risk outside the scorecard. Include target-bound not_reproduced_under_current_witness in every integrity-release/non-mandatory statement and in the scorecard transition plus clean-initial numerator/denominator/rollback fixtures.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T09:13:36.789Z",
+      "reviewRound": "2026-08-31T09:05:58.911Z",
+      "reviewRunId": "B-1fa6:RR-047",
+      "_hash": "2dba62ae404e0f9369171a332c6b2063360a78288b50d6f6c109e7e05e7496e4",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
