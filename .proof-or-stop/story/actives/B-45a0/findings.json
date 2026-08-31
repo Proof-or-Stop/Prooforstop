@@ -24732,6 +24732,43 @@
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-460",
+      "desc": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md Section 9 Rule 10 self-contradicts its own rule attribution for the quote \"never a silent pass\": it first attributes the quote to Rule 9 (per Rule 9's \"never a silent pass\") then immediately appends a parenthetical correction \"(Rule 3, not Rule 9 -- Rule 9 governs coverage-basis freshness)\" in the SAME clause instead of substituting the correction into the primary attribution. The correction is factually right: the quote is at line 1256 under Rule 3 (materialHash-only drift), not Rule 9 (coverage-basis freshness, lines 1268-1272). All underlying CODE citations in Rule 10 (core/pre-review-check.ts PR_COVERAGE_BASIS_CHANGED, acceptanceCoverageBasisSemanticDigest, verifyAcceptanceBasisReceipt) were verified accurate -- this is a prose/logic self-contradiction, not doc-vs-code drift. Family/root-cause: docs-self-contradictory-rule-attribution",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-31T12:31:52.109Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1128",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "9c0431b67c17afac7cb500facbc904cd8c21487a42f4998135bb300a2c9152dc"
+      },
+      "readDiagnostics": [],
+      "_hash": "c185ffa42c7c7fbf163f13a44e6fdac9090ce06edfd546f5bc913ce5e53f6682",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
