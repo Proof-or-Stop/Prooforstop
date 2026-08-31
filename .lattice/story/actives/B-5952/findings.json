@@ -95,7 +95,7 @@
       "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:895-914 [high] The committed control smoke does not execute the promised hard-cap self-characterization. It calls the helper for exact 808, actual 809 against ceiling 808, and measured 804 against ceiling 803, but never calls it with a ceiling above MAX_DYNAMIC_BINDING_BUILD_CEILING. Nevertheless CHK-001:edge:finite-bound-actual says the control receipt covers the absolute 850 cap, and the F-002/F-003 resolutions say commit f8d635f74e self-characterizes >850 before PASS. The separate sentinel-900 mutant proves the helper rejects a changed artifact; it does not make those claims about the unmodified control true. Add an explicit assert.throws for MAX_DYNAMIC_BINDING_BUILD_CEILING+1 before PASS, rebuild dist, rerun the edge receipt, and correct both resolution texts.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T03:30:48.590Z",
@@ -106,7 +106,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit f195cb782f adds an explicit committed-control assert.throws using MAX_DYNAMIC_BINDING_BUILD_CEILING + 1 and checks the exact finite-integer diagnostic before PASS. Rebuilt dist contains the same assertion and the targeted smoke passes at builds=804. This resolution corrects the earlier F-002/F-003 prose: the >850 control characterization is provided by f195cb782f, not f8d635f74e.",
+      "resolvedAt": "2026-08-31T07:33:10.980Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5952:F-005",
