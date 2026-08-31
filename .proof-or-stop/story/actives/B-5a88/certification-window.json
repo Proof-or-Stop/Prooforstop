@@ -241,9 +241,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-5a88:CW-013",
       "storyId": "B-5a88",
-      "state": "BLOCKED",
+      "state": "CANCELLED",
       "createdAt": "2026-08-26T15:15:56.648Z",
-      "updatedAt": "2026-08-26T15:15:56.648Z",
+      "updatedAt": "2026-08-31T10:54:17.296Z",
       "blockerCode": "pre_cert_blocking_findings_open",
       "blockerDetail": "Open verified blocking findings: B-5a88:F-450, B-5a88:F-451",
       "inventory": {
@@ -252,7 +252,9 @@
         "authority": "inventory-completeness-only",
         "authorizesTest": false
       },
-      "_hash": "e1c373e1b559c339ea3d56761c0f88df1de11066fe7153a86ca47a2e3edbd689"
+      "cancelledAt": "2026-08-31T10:54:17.296Z",
+      "cancelReason": "CW-013 is a stale snapshot from 2026-08-26T15:15 bound to the long-cancelled inventory epoch RIE-112; its recorded blockerDetail cites F-450/F-451 as open, but both are now status=resolved (verified) and the underlying defect is fixed in code - packages/main/src/cli.ts:17 calls loadCanonicalLabEntrypoint() and node packages/main/dist/cli.js lab_create --help succeeds, with scripts/verify-global-lab-entrypoint.mjs passing all 5 checks. A fresh window must be begun against current facts.",
+      "_hash": "f2c88d068084c32bdd59432bd155152c680cb349cf8ab73f131e9cc60118bc63"
     }
   ],
   "receipts": [
