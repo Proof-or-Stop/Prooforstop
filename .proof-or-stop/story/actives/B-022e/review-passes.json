@@ -470,6 +470,29 @@
         "scanEscalationReason": null
       },
       "_hash": "ce38a13263ca3f4101cc031ab62b8a38a2f78e85f878fb13b123da1bd15a5ad5"
+    },
+    {
+      "id": "B-022e:RP-017",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Serial coverage re-sign passed from concept commit a8cac50: the current SAFE_INCREMENTAL diff pack has changedFiles=[] and no product drift from the previously reviewed F-013 fix. evidence_inspect reports fresh, staleRefs=0, transcriptRefs=1, and 30/30 fresh evidence refs; the CHK-007 pack-boundary transcript remains fresh at storyFilesHash 716e81cc26ac6967e784901ae15fd6600d4fd94d7928ea948d13030d7186d7fe. F-013 remains resolved. F-002 remains the accepted verified medium non-blocking deferred advisory. No product code was modified.",
+      "createdAt": "2026-08-31T09:32:04.005Z",
+      "reviewRound": "2026-08-31T09:21:04.599Z",
+      "reviewRunId": "B-022e:RR-037",
+      "envelopeId": "d2b4a133da7b11243529099800911afe083fcdca711895d05769bbe4200f61d8",
+      "writerSessionId": "sess-7e9eac50d15b4e6186c393729457a89c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/evidence/live-smoke-transcript.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5f65a4434387d420b738c8fcfe6d59aff1aba6a96bddaeb2f5b50c205936bad5"
     }
   ]
 }
