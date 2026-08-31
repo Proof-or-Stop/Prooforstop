@@ -326,6 +326,29 @@
       },
       "readDiagnostics": [],
       "_hash": "4fcbb352608e49a61cae8650d63d43311c1e71f9b531aeaf0e801feaa2a5eece"
+    },
+    {
+      "id": "B-5952:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "No scoped quality blocker for the B-5952 baseline repair. git diff main...HEAD shows the only implementation diff remains packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts; the rest of the current branch delta is story metadata. In that file, the change introduces a small assertDynamicBindingBuildBudget helper plus fixed ceilings 808 and 850, and the real smoke now self-checks exact-bound acceptance, ceiling+1 rejection, measured-minus-one rejection, and >850 rejection before enforcing the live 804 sample. I found no unused imports or dead symbols in the changed implementation, no unnecessary any-casts, no swallowed catch, and no new shell/bridge coupling. The current dist smoke still exits 0 at this review head with retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34, and evidence_inspect at head 62e2ef5d5a714e4e567ea30f712ae9362ffef6b3 reports all 7 active must refs fresh against materialHash 6c681470d49ab185e200c43d04da9ea6a777bbe8c074f2ec2410cb9570d66d1a with staleRefs=[]. This pass is limited to the enforced B-5952 baseline-repair scope and its local evidence surface; it does not claim broader release or production authority.",
+      "createdAt": "2026-08-31T08:53:06.087Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-025",
+      "envelopeId": "bb899d92425a2d716c516a571c6e28e6faa53e497b39cabfb7dea0bdf4c59403",
+      "writerSessionId": "sess-99e10822ebd43f64e2e5c770e2089728",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": "Scoped re-review followed the owner-provided B-5952 baseline-repair prompt and stayed inside the enforced implementation/evidence surface."
+      },
+      "_hash": "368d69f88b227a045f17a86b42607215b2c7878f685e240fe90906753f98d425"
     }
   ]
 }
