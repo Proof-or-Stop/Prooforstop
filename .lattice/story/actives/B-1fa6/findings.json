@@ -1035,6 +1035,21 @@
       "_hash": "b7255ab658dc5316798906c5bd3a5ffb081495924e98e51b9f3ff35c578bf352",
       "signatureTag": "adversarial|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-051",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1545-1581,1638-1653 [high] F-042/F-046 remain incomplete: FindingDeferralDisposition.expiresAt is a gate-bound expiry, but the new expiryClosure rule mechanically enumerates only assessment, receipt, policy, and runtime inputs and never names deferral/disposition expiry. A signed snapshot can therefore omit the active deferral expiry while keeping the listed set internally consistent, allowing unchanged-byte commit CAS after the deferral boundary. Require enumeration/minimum derivation over every active deferral/disposition expiry as well, bind its exact ID/hash in the snapshot input set, and add an omission/boundary race fixture specifically for deferral expiry.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T12:03:38.622Z",
+      "reviewRound": "2026-08-31T09:31:08.288Z",
+      "reviewRunId": "B-1fa6:RR-049",
+      "_hash": "bdad06cd3c6edea126b8764ee6b0a7e9c7f8e5c0b087f91041e54074c0a02703",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
