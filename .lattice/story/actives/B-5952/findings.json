@@ -38,7 +38,7 @@
       "desc": "B-5952 CHK-001 edge/adversarial verification receipts do not execute the promised finite-bound mutations. The edge command merely checks JavaScript tautologies `c<=c` and `!((c+1)<=c)` after reading the constant; the adversarial command only greps the comparator and evaluates constant-false `804<=803`, so neither rebuilds/runs a ceiling+1, below-804, unbounded, relative-only, or warning-only mutant. The source/dist+doc receipt is also stored non-mechanical without an execution receipt. Independently, `pre_review_check_read {storyId:B-5952}` currently reports FAIL with PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, and PR_AUTHORITY_INADMISSIBLE. Replace the tautological probes with isolated executable mutations that first fail, restore the committed control, then pass, and record verifier-admissible receipts.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T02:55:15.407Z",
@@ -60,7 +60,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "tautological-mutation-proof",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Replaced the tautological probes with committed and tool-executed causal checks. Commit f8d635f74e adds assertDynamicBindingBuildBudget and executes exact-ceiling acceptance, ceiling+1 rejection, measured-1 rejection, and >850 rejection before the smoke PASS. Receipt CHK-001:adversarial:guard-mutants executes the real generated artifact with an unbounded comparator and sentinel ceiling 900, requires both mutant runs to fail, restores the bytes, and requires the 804 control to pass. Receipt CHK-001:adversarial:binding-scope-mutants now has mechanical=true/result=pass and proves source-only, dist-only, and protected-document mutations are rejected with restored passing controls.",
+      "resolvedAt": "2026-08-31T03:24:15.404Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5952:F-003",
