@@ -23855,6 +23855,35 @@
         "scanEscalationReason": null
       },
       "_hash": "008c2b9e8bef760af86a3e9472302e24741b7ed0112ec2330b59f285d2079964"
+    },
+    {
+      "id": "B-45a0:RP-502",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified concept-deletion residue at HEAD cdadcb7 (epoch B-45a0:RI-110). evidence-freshness.ts dropped local duplicates of isStoryMetadataPath/isMaterialExcludedPath (now imported+re-exported from core/material-path-policy.ts, single canonical definition) and mergeBaseWithMain/changedStoryFilesBetween/objectIdsAtRef (now homed solely in core/story-aware-validation.ts). Repo-wide grep found zero residual duplicate definitions or stray references; only additional hit in full non-JSON diff scan was a value-only constant change and a reformatted type-only import, neither a concept deletion. No blocking concept-deletion residue found.",
+      "createdAt": "2026-08-31T12:32:02.621Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1127",
+      "envelopeId": "a1414e63d54ffddec66b00dab7c9cca3021f375a9c0cab0b8c15c98403e7832c",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/core/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bc8a8e4f3d10583eacf42f4260cfd7a9be4e69b754a037a376ba8792eea5f0dd"
     }
   ]
 }
