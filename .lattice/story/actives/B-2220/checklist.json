@@ -87,95 +87,17 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-001:happy:0",
-          "kind": "docs_check",
-          "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const must=[\\\"## Decision after B-3434\\\",\\\"Decision: decline the writer-owned canonical boundary as not currently justified.\\\",\\\"No follow-up story is planned or owned.\\\",\\\"this document is not an active work order.\\\"];if(!must.every(x=>s.includes(x)))process.exit(1);console.log(\\\"B-2220 happy-0 PASS\\\");\"",
-          "result": "pass",
-          "note": "Fresh receipt after final verifier pinning and executable smoke-contract alignment.",
-          "headHash": "101513dc32a6212b0d8718b716efdf6615a73a58",
-          "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
-          "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T00:08:25.720Z"
-        },
-        {
-          "intentRef": "CHK-001:happy:1",
-          "kind": "docs_check",
-          "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const must=[\\\"B-3434 remains accepted.\\\",\\\"## What ships\\\",\\\"**The measured numbers**\\\",\\\"smokeExpected=158 measured=158 hypothetical4SpaceStore=168 smokeStillPasses=true\\\",\\\"inherited-toJSON-real-store: calls=3 reported=67 withinBound=true disk=31457342 exceedsBound=true\\\",\\\"## Known limitations\\\",\\\"B-3434:F-033\\\",\\\"B-3434:F-035\\\",\\\"B-3434:F-036\\\",\\\"B-3434:F-037\\\"];if(!must.every(x=>s.includes(x)))process.exit(1);console.log(\\\"B-2220 happy-1 PASS\\\");\"",
-          "result": "pass",
-          "note": "Fresh receipt after final verifier pinning and executable smoke-contract alignment.",
-          "headHash": "101513dc32a6212b0d8718b716efdf6615a73a58",
-          "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
-          "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T00:08:25.720Z"
-        },
-        {
-          "intentRef": "CHK-001:edge:0",
-          "kind": "docs_check",
-          "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const exact=\\\"it does not establish input consistency, semantic consistency or evidence truth\\\";if(!s.includes(exact))process.exit(1);console.log(\\\"B-2220 edge-0 PASS\\\");\"",
-          "result": "pass",
-          "note": "Fresh receipt after final verifier pinning and executable smoke-contract alignment.",
-          "headHash": "101513dc32a6212b0d8718b716efdf6615a73a58",
-          "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
-          "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T00:08:25.720Z"
-        },
-        {
-          "intentRef": "CHK-001:edge:1",
-          "kind": "docs_check",
-          "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const must=[\\\"production path begins accepting stateful or untrusted record objects\\\",\\\"store serialisation format changes independently\\\",\\\"normal validation evidence repeatedly approaches the configured advisory or bound\\\",\\\"a real measure/write mismatch occurs\\\",\\\"release, compliance or threat-model requirement demands a hard on-disk byte bound\\\",\\\"Reconsideration requires a new human-approved story\\\"];if(!must.every(x=>s.includes(x)))process.exit(1);console.log(\\\"B-2220 edge-1 PASS\\\");\"",
-          "result": "pass",
-          "note": "Fresh receipt after final verifier pinning and executable smoke-contract alignment.",
-          "headHash": "101513dc32a6212b0d8718b716efdf6615a73a58",
-          "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
-          "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T00:08:25.720Z"
-        },
-        {
-          "intentRef": "CHK-001:adversarial:0",
-          "kind": "docs_check",
-          "command": "node -e \"const fs=require(\\\"fs\\\");const s=fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\",\\\"utf8\\\");const modal=\\\"(?:must(?!\\\\\\\\s+not)|should|shall|needs? to)\\\";const bad=[new RegExp(\\\"(?:follow-up owner|owner of the follow-up)[^\\\\\\\\n]*(?:TBD|unassigned|assigned)\\\",\\\"i\\\"),new RegExp(\\\"(?:follow-up story|proposal|boundary|new story)[^\\\\\\\\n]*(?:\\\"+modal+\\\"|work order)\\\",\\\"i\\\"),new RegExp(\\\"(?:\\\"+modal+\\\")[^\\\\\\\\n]*(?:follow-up story|proposal|boundary|new story)\\\",\\\"i\\\"),/this document is the work order/i];if(bad.some(r=>r.test(s)))process.exit(1);console.log(\\\"B-2220 adversarial-0 PASS\\\");\"",
-          "result": "pass",
-          "note": "Fresh receipt after final verifier pinning and executable smoke-contract alignment.",
-          "headHash": "101513dc32a6212b0d8718b716efdf6615a73a58",
-          "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
-          "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T00:08:25.720Z"
-        },
-        {
-          "intentRef": "CHK-001:adversarial:1",
-          "kind": "docs_check",
-          "command": "node -e \"const fs=require(\\\"fs\\\"),c=require(\\\"crypto\\\");const h=c.createHash(\\\"sha256\\\").update(fs.readFileSync(\\\"docs/requirements/decisions/validation-evidence-artifact-growth.md\\\")).digest(\\\"hex\\\");if(h!==\\\"02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d\\\")process.exit(1);console.log(\\\"B-2220 adversarial-1 exact-decision PASS\\\");\"",
-          "result": "pass",
-          "note": "Fresh receipt after final verifier pinning and executable smoke-contract alignment.",
-          "headHash": "101513dc32a6212b0d8718b716efdf6615a73a58",
-          "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
-          "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T00:08:25.720Z"
-        },
-        {
           "intentRef": "CHK-001:happy:2",
           "kind": "logic_test",
           "command": "node --input-type=module -e \"import { verifyBuildBinding } from './scripts/full-suite-build-binding.mjs'; verifyBuildBinding(process.cwd()); await import('./packages/main/dist/tasks/validation-evidence-buffer-smoke.js');\"",
           "result": "pass",
-          "note": "Fresh build-binding and full-smoke receipt after the complete section-10c wording audit for F-007/F-008/F-009.",
-          "headHash": "101513dc32a6212b0d8718b716efdf6615a73a58",
+          "note": "After F-010 wording corrections, build binding and the complete compiled smoke passed; output ends validation-evidence-buffer-smoke: PASS and explicitly limits the result to the check-time candidate record.",
+          "headHash": "8e7550f710c4247356ab7a34830ea72d8ff06626",
           "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
           "storyFilesHash": "eb45a53f1dc8d26db37bc92c68377d12a21b39141fb11c50e104c63e85eedee8",
           "mechanical": false,
           "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-31T00:08:25.720Z"
+          "timestamp": "2026-08-31T00:09:10.223Z"
         }
       ],
       "userSeesSnapshot": {
