@@ -1067,6 +1067,9 @@ interface AssessmentIntegrityState {
   headHash: string;
   materialHash: string;
   storyFilesHash: string;
+  scopeDigest: string;
+  runtimeEvidenceDigest: string;
+  processPolicyDigest: string;
   derivedAt: string;
   verifierId: string;
   stateHash: string;
@@ -1562,7 +1565,8 @@ interpretations:
 ```ts
 isDynamicFindingBlocking(
   finding,
-  assessmentState,
+  verifiedAssessmentState,
+  assessmentIntegrityState,
   mandatoryRepairState,
   deferralState,
   deferralLineageState,
@@ -1575,11 +1579,11 @@ isDynamicFindingBlocking(
   ) then true
   else if assessmentIntegrityFloorBlocks(
     finding,
-    assessmentState
+    assessmentIntegrityState
   ) then true
   else if mandatoryRepairFloorBlocks(
     finding,
-    assessmentState,
+    verifiedAssessmentState,
     mandatoryRepairState
   ) then true
   else finding.status === 'open'
@@ -1588,10 +1592,20 @@ isDynamicFindingBlocking(
     && !isAdvisoryThisRound(finding.severity, round)
     && applicabilityAndDispositionBlocks(
       finding,
-      assessmentState,
+      verifiedAssessmentState,
       deferralState
     )
 ```
+
+`verifiedAssessmentState` is the signed assessment reader's validated projection,
+not a caller-supplied/raw assessment object. The assessment signer/verifier uses
+the raw assessment only to mint or validate `AssessmentIntegrityState`; the
+predicate never re-derives integrity from that raw input. In enforce,
+`assessmentIntegrityFloorBlocks` accepts only the signature-valid,
+story/finding/head/material/story-files/scope/runtime/process-policy-bound
+`AssessmentIntegrityState` returned by its registered reader. A missing,
+invalid, mismatched, or unavailable integrity state is itself a fail-closed
+`blocking_invalid` result; no consumer may substitute a local derivation.
 
 The verifier-derived lineage check is deliberately first and derives claim
 existence independently from immutable deferral records plus the canonical
@@ -1647,12 +1661,13 @@ REQUIRED_ASSESSMENT_INVALID = {
 The **assessment-integrity floor** is a verifier-derived transient projection,
 not a `MandatoryRepairClassification` and not evidence that the Finding is
 applicable. It exists when a Finding is verified, open, high/critical, and its
-required assessment is in `REQUIRED_ASSESSMENT_INVALID`. It runs before
+registered signer/verifier/reader derives a signed `AssessmentIntegrityState`
+whose required assessment is in `REQUIRED_ASSESSMENT_INVALID`. It runs before
 severity and round/advisory policy, so none of those policies can decay or
 bypass it. Here, "non-decaying" means only that ordinary severity, round, and
 advisory rules cannot waive missing integrity evidence; it does not mean the
 projection is permanent or that Red/root-cause/fix/Green is required to release
-it. The verifier recomputes it from the latest assessment state:
+it. The verifier recomputes and signs it from the validated assessment reader:
 
 - a later fresh, signed, strongly proven `pre_existing_unaffected`,
   `out_of_scope`, or `duplicate` verdict that passes its independent proof
@@ -2059,11 +2074,15 @@ review status, convergence diagnostics, and transition refusal must not disagree
 about the blocker set. Review assurance and escalation floors remain intact;
 the new projection must not lower their current guarantee.
 
-Because verified-Finding applicability, mandatory repair, deferral, and
-freshness change REVIEW/TEST/DONE blocker state, their writers, signed artifacts,
-triage-completeness semantics, and shared runtime predicate are L4 process
-facts. Story 2 route acceptance is a required signed semantic dependency but
-remains non-gate; only Story 1's deferral binds its receipt into L4 state.
+Because verified-Finding applicability, assessment integrity, mandatory repair,
+deferral, and freshness change REVIEW/TEST/DONE blocker state, their writers,
+signed artifacts, triage-completeness semantics, and shared runtime predicate
+are L4 process facts. `AssessmentIntegrityState` is a Story 1 L4 artifact: its
+signer, verifier, and reader bind the exact Finding, Story, assessment, head,
+material, story-files, scope, runtime-evidence, and process-policy digests, and
+its only gate consumer is the registered `isDynamicFindingBlocking` dependency.
+Story 2 route acceptance is a required signed semantic dependency but remains
+non-gate; only Story 1's deferral binds its receipt into L4 state.
 `CandidateRoute`, standalone `FindingRouteReceipt`, every
 `InitialProgressBaseline`, and `InitialProgressBaselineSet` are explicitly
 outside that authority boundary; their non-gate semantics must be mechanically
@@ -2075,7 +2094,12 @@ preserved. Future implementation must update:
 - the command catalog/registry and phase allow-lists
 - `scripts/verify-process-fact-contract.mjs`
 
-The registry/contract verifier must explicitly enumerate Story 2's non-gate
+`PROCESS_FACT_LEVELS`, `COMMAND_POLICIES`, and the process-fact registry must
+explicitly register the `AssessmentIntegrityState` derive/sign, verify, and read
+operations; its L4 artifact and required semantics; the exact
+`REQUIRED_ASSESSMENT_INVALID` seven-state set; its release/convert/remain state
+machine; and `isDynamicFindingBlocking` as its sole shared-predicate gate
+consumer. The registry/contract verifier must also explicitly enumerate Story 2's non-gate
 route accept/reject/revoke handlers and `FindingRouteReceipt` artifact separately
 from the non-gate `progress_baseline` entry/set capture, sign, verify, and read
 handlers/artifacts, and all of those must be separate
@@ -2084,11 +2108,13 @@ handlers. It must register Story 1's exact receipt-hash/profile dependency,
 source-assessment hash, CAS apply handler, `DeferralLineageState`,
 `MaterialDriftReattestation`, initial-baseline ID/hash CAS,
 `MandatoryRepairClassification`, `DeferralExpiryPolicy`, cumulative-lineage
-reader, every shared-predicate consumer, and negative tests proving no direct
-resolve/dismiss or per-consumer path bypasses the floor. The registered shared
-predicate must consume verifier-derived lineage state before status/severity/
-round policy and must not depend on successful classification-audit persistence
-for its invalid-lineage floor. The dependency verifier must reject any Story 2
+reader, `AssessmentIntegrityState` reader dependency, every shared-predicate
+consumer, and negative tests proving no direct resolve/dismiss or per-consumer
+path bypasses either floor. The registered shared predicate must consume the
+signature-valid integrity state and verifier-derived lineage state before
+status/severity/round policy, and must not depend on successful
+classification-audit persistence for its invalid-lineage floor. The dependency
+verifier must reject any Story 2
 command/artifact import from Story 1 and any Story 3 import from Story 2 or
 Story 1.
 Story 2's target-authorized baseline-set capture/signer/verifier and Story 3's
@@ -2104,12 +2130,14 @@ Exact command names remain subject to normal CLI design review. Atomic/idempoten
 persistence, route-receipt validity, non-decay, finite expiry, and fail-closed
 fallback are required registered semantics.
 Prompt guidance is not sufficient. The contract verifier must reject a new gate
-consumer that bypasses the shared predicate or accepts a candidate route or
-advisory historical record as evidence.
+consumer that bypasses the shared predicate, consumes raw/caller assessment data
+instead of the registered integrity-state reader, or accepts a candidate route
+or advisory historical record as evidence.
 
 The checked-in verifier must use mutation fixtures, not presence-only grep:
 inject a new process-registry, command-policy, and phase-allowlist gate consumer
-that directly consumes `CandidateRoute`, a standalone `FindingRouteReceipt`, an
+that directly consumes `CandidateRoute`, a standalone `FindingRouteReceipt`, raw
+or caller-provided assessment data, an
 `InitialProgressBaseline`, an `InitialProgressBaselineSet`, or historical
 advisory/candidate data as blocker, pass, or unblock evidence, and independently
 inject a consumer that bypasses `isDynamicFindingBlocking`; every mutation must
@@ -2118,7 +2146,8 @@ fixtures must separately make Story 3 import Story 2, Story 3 import Story 1,
 and Story 2 import Story 1; every mutation fails, while the delivery DAG
 `Story 3 -> Story 2 -> Story 1` passes. Enforce entry also registers the
 read-only scorecard artifact/command and must refuse when either mutation suite
-or dependency contract is not green.
+or dependency contract, including the integrity-state registry contract, is not
+green.
 The same contract suite mutates `DeferralExpiryPolicy` signature, signer,
 digest, version, effective time, V1 constants/ceiling, supersession, and each
 disposition binding; an implementation that accepts or silently rebinds any
@@ -2130,6 +2159,13 @@ unknown dependency as `unrelated_re_attested` fails qualification.
 Baseline mutations remove or flip `gateEvidence`, change its authority/profile,
 or disguise an entry/set as a receipt or L4 profile; every registry,
 command-policy, and phase-allowlist variant must fail before enforce.
+Integrity-state mutations independently alter its signature, signer/verifier,
+Finding/Story/assessment IDs and hash, head/material/story-files/scope/runtime/
+process-policy bindings, each of the exact seven invalid states, or the signed
+state-to-assessment correspondence. They also remove the state, forge a
+release/convert/remain transition, or inject a direct registry/command-policy/
+phase-allowlist consumer. Every mutation must refuse enforce; only the registered
+reader's state may reach the one shared predicate.
 
 ## 8. Seven-problem ownership matrix
 
@@ -2177,7 +2213,8 @@ authoritative artifacts and cannot alter lifecycle output.
 - Verifier-derived `AssessmentIntegrityState` and
   `assessmentIntegrityFloorBlocks`, using the exact
   `REQUIRED_ASSESSMENT_INVALID` set and the release/convert/remain transitions;
-  it is gate-consumed but never persisted as a confirmed repair obligation.
+  it is gate-consumed only through the registered reader and one shared
+  predicate, but never persisted as a confirmed repair obligation.
 - `MandatoryRepairClassification` classify/close signer, verifier, reader, and
   non-decaying floor; resolve/dismiss handler integration requires fresh
   Red/repro, root-cause, fix, Green, and closure evidence.
@@ -2232,6 +2269,11 @@ authoritative artifacts and cannot alter lifecycle output.
   with exactly `missing`, `stale`, `unsigned`, `tampered`, `mismatched`,
   `incomplete`, and `unknown` required assessments. Every cell remains blocking
   in the pre-round assessment-integrity floor.
+- Integrity-state signer/verifier/reader fixtures bind signature, Finding, Story,
+  assessment ID/hash, head, material, story-files, scope, runtime evidence, and
+  process policy. They reject each seven-state mismatch, missing state, forged
+  release/convert/remain transition, raw/caller assessment bypass, and every
+  direct consumer outside `isDynamicFindingBlocking`.
 - Transition fixtures start from the same missing-assessment state and prove:
   missing -> fresh signed strong `pre_existing_unaffected`, `out_of_scope`, or
   `duplicate` releases the temporary integrity floor and becomes non-blocking;
@@ -2687,6 +2729,16 @@ forbidden reverse import independently.
 | `warn` | Story 3 atomic persistence/query contract accepted; Story 2 candidate/identity/supersession plus non-gate route/query semantics accepted; observe qualification thresholds met | Story 2 may append standalone signed target route receipts, atomically append an initial receipt with its four-kind baseline set, and later CAS-bound candidate routes; Story 1 appends only non-authoritative triage/mandatory/deferral/re-attestation proposals; no new L4 artifact affects lifecycle | Existing predicate only; every route receipt and every baseline entry/set carries and verifies its non-gate marker | Old blocker set plus proposed exact receipt/baseline tuple and CAS result, ledger-derived claimed-lineage floor, material-drift pending/re-attestation result, policy/progress projection results, protected-surface/closure gaps, and read-only scorecard JSON/refusal reasons | Return to observe on data/persistence defect; advance only after merged-state qualification and complete scorecard evidence |
 | `enforce` | All three Stories accepted in the acyclic order; signed current-material assessment; runtime receipt; assessment-integrity and mandatory-repair process-fact contracts; Story 2 target-authorized receipt and signed complete non-gate initial baseline set; exact receipt/baseline CAS; baseline authority-marker and direct-consumer mutations green; gate-consumed material-drift re-attestation contract; authentic effective V1 policy; legacy compatibility; gate/dependency mutations and adversarial/rollback tests green; complete `finding_rollout_scorecard --json` passes every safety threshold, qualification window, and merged prerequisite | Atomic/idempotent standalone non-gate receipt/candidate route and atomic initial receipt-plus-baseline set; separate Story 1 CAS atomically writes L4 deferral plus manifest/action; expiry policy, re-attestation, and audit records remain append-only | Ledger-derived claimed-lineage invalid or pending-re-attestation state first, then assessment-integrity floor, then mandatory-repair classification floor, then ordinary shared-predicate policy; route receipts/candidates/baseline entries/sets alone remain non-authoritative and only Story 1's signed L4 disposition/lineage projection can consume them into gate state | Effective integrity/mandatory/blocker sets, integrity release-or-convert transition, repair closure/release chain, expected/current receipt and baseline tuple with CAS result, policy binding, kind-specific progress projection, signed material-drift re-attestation state, scorecard evidence/refusal, candidate recall, freshness, kill switch | Any safety threshold, scorecard evidence, baseline marker/direct-consumer mutation, registry/dependency mutation, or merged-prerequisite failure immediately refuses/ends enforce and restores previous predicate; records remain append-only |
 
+Observe and warn may render only proposed/diagnostic integrity conclusions; they
+must not mint or consume `AssessmentIntegrityState` as a lifecycle authority.
+Enforce additionally requires the signature-valid `AssessmentIntegrityState`
+signer/verifier/reader, its L4 artifact and required semantics in
+`PROCESS_FACT_LEVELS`, `COMMAND_POLICIES`, and the process-fact registry, and
+the contract-verifier proof that the registered state reaches every consumer only
+through `isDynamicFindingBlocking`. Any integrity-state signature, binding,
+state/assessment correspondence, direct-consumer, or registry mutation refuses
+or ends enforce and restores the previous predicate.
+
 The feature-state downgrade is a policy switch, not a data rollback. Disabling
 enforce must restore the previous authoritative blocker predicate and treat all
 assessment/candidate/mandatory-repair/route-receipt/deferral records as advisory.
@@ -2805,7 +2857,7 @@ merged-state dependency review.
 | --- | --- | --- | --- | --- |
 | False non-blocking high/critical | Adjudicated high/critical verdicts classified non-blocking by the system but applicable by independent qualification / all system-proposed non-blocking high/critical verdicts | Scorecard join of signed proposal, reviewer adjudication, and current repro receipt | **0**, including adversarial set | Any one event |
 | Stale/tampered rejection | Stale/tampered/mismatched test cases rejected / all injected stale/tampered/mismatched cases | Deterministic negative suite plus receipt-verifier events | 100% | Any accepted case |
-| Required-assessment integrity fail-closed | Verified open high/critical cases in `REQUIRED_ASSESSMENT_INVALID` that remain blocked by the assessment-integrity floor / all injected verified open high/critical required-assessment cases in exactly `{missing, stale, unsigned, tampered, mismatched, incomplete, unknown}`; fresh-valid controls are reported separately and excluded from this denominator | Shared-predicate and live-warn Cartesian fixtures for both severities at round 3 across all seven states; transition fixtures for missing -> fresh-strong-non-applicable release, missing -> fresh-applicable conversion to mandatory repair, and missing -> weak/invalid non-applicable continued blocking; separate clean-initial fresh-valid-strong `pre_existing_unaffected`/`out_of_scope`/`duplicate` controls | 100% of the exact invalid-set denominator blocks; 100% of valid strong controls release or start outside the integrity floor; 100% of fresh applicable transitions enter mandatory repair | Any invalid-set cell becomes non-blocking, any weak/invalid non-applicable transition releases, any fresh applicable transition fails to enter mandatory repair, or any clean/transitioned fresh-valid-strong non-applicable control is rejected |
+| Required-assessment integrity fail-closed | Signature-valid `AssessmentIntegrityState` rows for verified open high/critical cases in `REQUIRED_ASSESSMENT_INVALID` that remain blocked by the assessment-integrity floor / all injected verified open high/critical required-assessment cases in exactly `{missing, stale, unsigned, tampered, mismatched, incomplete, unknown}`; fresh-valid controls are reported separately and excluded from this denominator | Shared-predicate and live-warn Cartesian fixtures for both severities at round 3 across all seven states; signer/verifier/reader and story/finding/assessment/head/material/story-files/scope/runtime/process-policy binding mutations; missing-state, state/assessment mismatch, raw/caller bypass, and direct-consumer registry mutations; transition fixtures for missing -> fresh-strong-non-applicable release, missing -> fresh-applicable conversion to mandatory repair, and missing -> weak/invalid non-applicable continued blocking; separate clean-initial fresh-valid-strong `pre_existing_unaffected`/`out_of_scope`/`duplicate` controls | 100% of the exact invalid-set denominator blocks; 100% of valid strong controls release or start outside the integrity floor; 100% of fresh applicable transitions enter mandatory repair; 100% of state/binding/registry mutations refuse enforce | Any invalid-set cell becomes non-blocking, any missing/forged/mismatched state or raw/caller/direct-consumer bypass is accepted, any weak/invalid non-applicable transition releases, any fresh applicable transition fails to enter mandatory repair, or any clean/transitioned fresh-valid-strong non-applicable control is rejected |
 | Mandatory-repair floor and closure integrity | Applicable high/critical and known/unknown protected-surface obligations that remain blocked until complete Red/root-cause/fix/Green closure, plus ledger-derived claimed lineages with missing/stale/expired/exhausted/tampered/unknown state that remain blocked until their separate strong lineage release or complete repair closure / all injected confirmed mandatory-repair and claimed-lineage cases | Shared-predicate, ledger claim scan, no-replacement/omitted-lineage, scope/story-files/material/runtime drift, exact-boundary clock, classification-write failure, reader/writer race, stale/tamper, lineage strong-release, and mandatory-repair closure mutation suite | 100%; zero assessment-omission, direct-status, audit-write, or lineage bypasses; zero confirmed repair obligation released without complete closure | Any claimed lineage erased by assessment state, any confirmed mandatory-repair obligation accepted with only a non-applicable verdict, any decayed/bypassed floor, any audit-write failure that opens the gate, or any weak/incomplete lineage release or repair closure accepted |
 | Non-blocking classification precision | Independently confirmed correct non-blocking verdicts / all reviewed non-blocking verdicts | Stratified reviewer gold set; disclose severity and verdict mix | >=98% overall and 100% high/critical safety | <98% overall or any high/critical safety miss |
 | Candidate-to-verified conversion | Candidates promoted to verified Findings / all terminally adjudicated candidates, per detector/version | Candidate ledger and promotion receipts | Descriptive, not maximized; each detector preregisters a baseline band before warn | Absolute drift >10 percentage points without an explained corpus/version change pauses promotion |
@@ -2916,7 +2968,7 @@ operator's lab request is not authority to rename utils.
 | Failure scenario | Trigger | Consequence | Mitigation / stop rule |
 | --- | --- | --- | --- |
 | A real high/critical issue is classified non-blocking | Missing/weak scope evidence, model confidence, or bad duplicate owner is accepted | False green REVIEW/TEST transition | Fail closed; zero-event safety threshold; immediate enforce -> warn kill switch |
-| Assessment integrity is waived or latched into repair | A required high/critical assessment in the exact invalid set reaches round policy, or a later strong non-applicable proof cannot release the temporary projection | False green, or an unrelated Story is forced to perform Red-to-Green repair without applicable evidence | Derived assessment-integrity floor before round policy; exact seven-state Cartesian matrix; release/convert/remain transitions plus clean initial controls; any bypass or latched valid control stops enforce |
+| Assessment integrity is waived or latched into repair | A required high/critical assessment in the exact invalid set reaches round policy, a raw/caller assessment bypasses the signed integrity reader, the signed state has an invalid binding, or a later strong non-applicable proof cannot release the temporary projection | False green, or an unrelated Story is forced to perform Red-to-Green repair without applicable evidence | Registered L4 signer/verifier/reader artifact consumed only by the shared predicate; exact seven-state and binding Cartesian matrix; release/convert/remain transitions plus clean initial controls; any raw/direct-consumer bypass or latched valid control stops enforce |
 | Mandatory repair decays, is assessment-erased, or status-bypassed | A confirmed applicable/protected/invalid-deferral obligation is confused with the temporary integrity projection, a replacement omits old deferral state, the repair floor runs after ordinary predicates, or classification audit append fails/races | Applicable high/critical/protected-surface or previously deferred defect clears without strong release/repair proof | Ledger/canonical claim scan first; assessment-integrity floor second; mandatory-repair classification floor third; exact-boundary/drift/write-failure/race tests; only the repair closure/release contract clears the confirmed obligation; any bypass stops enforce |
 | A correct assessment survives changed runtime bytes | Receipt omits artifact/build binding | False blocker or false pass | Story 3 runtime receipt prerequisite; mutation/tamper campaign; no enforce without 100% rejection |
 | Parallel reviewers lose or alias records | New record path bypasses shared transaction | Audit evidence disappears | Story 3 first; concurrency/idempotency tests; contract verifier requires atomic persistence |
@@ -3005,6 +3057,13 @@ The program is complete only when all of the following are true in merged state:
   proof contract; a fresh applicable verdict converts to mandatory repair; a
   weak or invalid verdict remains blocked. Clean initial and transition controls
   must have identical final results.
+- The assessment-integrity floor receives only a signature-valid, L4-registered
+  `AssessmentIntegrityState` from its signer/verifier/reader, bound to the
+  Finding, Story, assessment, head, material, story-files, scope, runtime, and
+  process policy. Its seven invalid states, state/assessment correspondence,
+  release/convert/remain transitions, missing-state behavior, and sole
+  `isDynamicFindingBlocking` consumer are mutation-tested; raw/caller data and
+  every unregistered direct consumer refuse enforce.
 - Applicable verified critical/high and known/unknown protected-surface risks
   create a signed non-decaying mandatory-repair floor checked before status,
   severity, and round policy; only fresh Red/repro, root-cause, fix, Green, and
