@@ -545,8 +545,8 @@ non-responsibilities.
 
 | Contract | Definition |
 | --- | --- |
-| Inputs | Proposed Finding, candidate route, assessment, deferral, supersession, manifest, route, and receipt mutations; actor/session; idempotency key; expected prior digest |
-| Records | Immutable ledger entries, unique IDs, transaction/commit digest, `FindingLedgerReceipt`, signed route receipt, lock/lease diagnostics |
+| Inputs | Proposed Finding, candidate route, assessment, mandatory-repair classification/closure, deferral, supersession, manifest, `FindingRouteReceipt`, and ledger-receipt mutations; actor/session; idempotency key; expected prior digest |
+| Records | Immutable ledger entries, unique IDs, transaction/commit digest, persisted signed `FindingRouteReceipt`, `FindingLedgerReceipt`, lock/lease diagnostics |
 | Authority | Authoritative only for persistence integrity: whether exact bytes were durably committed once. It does not attest that the content is true. |
 | Outputs | Exactly-once append result, durable ID, previous/new ledger digest, replay result, explicit conflict/refusal |
 | Non-responsibilities | Detector precision, semantic equivalence, severity, applicability, routing judgment, or freshness interpretation |
@@ -561,7 +561,7 @@ main/B-META write coordination without nested-lock deadlock.
 | Contract | Definition |
 | --- | --- |
 | Inputs | Detector outputs, reviewer suspicions, current source anchors, Finding history through the stable accessor/CLI port, source-lineage records, supersession-aware historical rows |
-| Records | `DetectorSignal`, `CandidateFinding`, non-authoritative `CandidateRoute`, `CanonicalDefect`, derived historical index, candidate-to-Finding promotion receipt |
+| Records | `DetectorSignal`, `CandidateFinding`, non-authoritative `CandidateRoute`, `CanonicalDefect`, `CanonicalDefectSupersession`, derived historical index, candidate-to-Finding promotion receipt |
 | Authority | Signals, candidates, auto signatures, recall hits, and the index are advisory. A designated reviewer plus CLI may confirm identity or promote a currently verified Finding, but historical identity alone has no gate authority. |
 | Outputs | Deduped/grouped candidates, evidence-bearing suspected routes, canonical defect suggestions/confirmations, ranked historical candidates, affected symbols/contracts, current canonical historical row, and trigger-matched recall candidates for candidate routes and routed deferrals |
 | Non-responsibilities | Current-Story applicability, lifecycle blocking, runtime artifact freshness, durable-write correctness, or fixing detector implementation quality |
@@ -569,15 +569,19 @@ main/B-META write coordination without nested-lock deadlock.
 Source-lineage identity and semantic defect identity are separate fields.
 Several derived records may share one canonical source without describing the
 same defect, and several independent sources may describe one semantic defect.
+Canonical identity also does not require a known root cause: a stable trigger,
+reproduction shape, and affected contract may establish identity while the cause
+is still unknown or hypothesized. Later correction is append-only supersession,
+not an in-place invented cause.
 
 ### 5.3 Dynamic Applicability
 
 | Contract | Definition |
 | --- | --- |
-| Inputs | One verified/open Finding, target Story, signed scope contract/digest, base/head evidence, current diff/touchpoints, canonical owner, routing candidates, review run, freshness verdicts |
-| Records | Signed `FindingApplicabilityAssessment`, signed `FindingDeferralDisposition`, signed batch disposition manifest, reviewer override/adjudication with reason |
+| Inputs | One verified/open Finding, target Story, signed scope contract/digest, base/head evidence, current diff/touchpoints, protected-surface risk classification, canonical owner, routing candidates, review run, freshness verdicts |
+| Records | Signed `FindingApplicabilityAssessment`, `MandatoryRepairClassification`, `FindingRouteReceipt`, `FindingDeferralDisposition`, versioned `DeferralExpiryPolicy`, signed batch disposition manifest, reviewer override/adjudication with reason |
 | Authority | Advisory in observe/warn. In enforce, only the designated CLI writer plus eligible current reviewer may mint the signed L4 assessment consumed by the shared predicate. |
-| Outputs | `applicable`, `pre_existing_unaffected`, `out_of_scope`, `duplicate`, `stale_or_not_reproduced`, or `unknown`; optional defer-with-proof disposition after `applicable`; owner/route; evidence references; gate projection |
+| Outputs | `applicable`, `pre_existing_unaffected`, `out_of_scope`, `duplicate`, `stale_or_not_reproduced`, or `unknown`; non-decaying mandatory-repair floor for applicable high/critical or protected-surface risk; optional defer-with-proof after eligible low/medium; target-authorized route acceptance/revocation; evidence references; gate projection |
 | Non-responsibilities | Changing Finding truth/severity/status, declaring semantic identity from similarity, proving bytes were stored, producing runtime receipts, or deleting the underlying issue |
 
 Applicability is target-specific and expiring. A Finding may be applicable to
@@ -590,8 +594,8 @@ verdict.
 
 | Contract | Definition |
 | --- | --- |
-| Inputs | Candidate-route/assessment/deferral signatures and bindings, current `headHash`, `materialHash`, `storyFilesHash`, scope digest, runtime receipts, predecessor/successor Finding records, route-owner state, source hashes |
-| Records | `RuntimeEvidenceReceipt`, `FindingSupersession`, candidate-route/deferral freshness and expiry evaluation, canonical-current-record projection, re-attestation advisory |
+| Inputs | Candidate-route/assessment/mandatory-repair/route-receipt/deferral signatures and bindings, `DeferralExpiryPolicy`, current `headHash`, `materialHash`, `storyFilesHash`, scope digest, runtime receipts, predecessor/successor Finding records, route-owner/lease/policy state, source hashes, clock |
+| Records | `RuntimeEvidenceReceipt`, `FindingSupersession`, route-receipt revocation/freshness, mandatory-repair closure freshness, candidate-route/deferral expiry evaluation, canonical-current-record projection, re-attestation advisory |
 | Authority | Runtime receipts and signed assessment freshness are authoritative only for the evidence they bind. Supersession is authoritative for historical record selection after signature/chain validation. Historical content remains non-authoritative for a new Story until revalidated. |
 | Outputs | fresh, valid-with-re-attestation-advisory, stale, expired, tampered, missing; canonical current historical record; exact invalidation/reopen reason |
 | Non-responsibilities | Deciding whether a detector hit is a defect, whether two sources are semantically equivalent, assigning severity, or persisting records without the ledger component |
@@ -616,8 +620,12 @@ detector/reviewer observation
   -> target-Story base/head/scope/owner analysis
   -> RuntimeEvidenceReceipt where execution uses mutable artifacts
   -> FindingApplicabilityAssessment          [signed, current, L4 in enforce]
+  -> MandatoryRepairClassification           [applicable high/critical or
+                                                protected-surface risk; L4 floor]
+  -> Red/repro -> root cause -> fix -> Green  [mandatory floor closure]
+  -> or FindingRouteReceipt                  [target authority accepts/rejects]
   -> optional FindingDeferralDisposition      [applicable low/medium only;
-                                                existing owner + route receipt]
+                                                accepted route + finite expiry]
   -> batch disposition manifest              [atomic/idempotent apply]
   -> one shared blocking predicate
   -> REVIEW/TEST/DONE consumers
@@ -704,12 +712,66 @@ interface CandidateRoute extends AdvisoryAuthority {
   signature: string;
 }
 
+type RouteAcceptanceAuthority =
+  | 'target_story_owner'
+  | 'target_command_policy_actor'
+  | 'b_meta_canonical_audit'
+  | 'main_write_authority';
+
+interface FindingRouteReceipt {
+  schemaVersion: 1;
+  routeReceiptId: string;
+  source: {
+    subjectKind: 'candidate_finding' | 'finding_assessment';
+    subjectId: string;
+    subjectHash: string;
+    storyId: string;
+  };
+  target: {
+    kind: 'existing_story' | 'b_meta_gap';
+    id: string;
+    state:
+      | 'planned'
+      | 'active'
+      | 'done'
+      | 'discarded'
+      | 'audit_open'
+      | 'audit_closed';
+    scopeDigest: string;
+  };
+  owner: {
+    identity: string;
+    authority: RouteAcceptanceAuthority;
+    leaseId?: string;
+    authorityPolicyVersion: string;
+  };
+  decision: 'accepted' | 'rejected';
+  acceptedAt?: string;
+  rejectedAt?: string;
+  expiresAt: string;
+  revokedAt?: string;
+  revocationReason?:
+    | 'owner_changed'
+    | 'target_closed_unfixed'
+    | 'target_scope_changed'
+      | 'authority_policy_changed'
+      | 'target_rejected';
+  supersedesRouteReceiptId?: string;
+  policyDigest: string;
+  signedBy: string;
+  signedByAuthority: RouteAcceptanceAuthority;
+  receiptHash: string;
+  signature: string;
+}
+
 interface CanonicalDefect extends AdvisoryAuthority {
   schemaVersion: 1;
   canonicalDefectId: string;
   title: string;
   triggerCondition: string;
-  rootCause: string;
+  rootCauseState: 'unknown' | 'hypothesized' | 'confirmed';
+  rootCause?: string;
+  identityEvidenceRefs: string[];
   affectedSymbols: string[];
   affectedContracts: string[];
   memberFindingIds: string[];
@@ -719,6 +781,20 @@ interface CanonicalDefect extends AdvisoryAuthority {
   confirmedAt?: string;
   sourceLineageKeys: string[];
   identityDigest: string;
+}
+
+interface CanonicalDefectSupersession extends AdvisoryAuthority {
+  schemaVersion: 1;
+  canonicalSupersessionId: string;
+  predecessorCanonicalDefectId: string;
+  successorCanonicalDefectId: string;
+  reason: 'root_cause_corrected' | 'identity_split' | 'identity_merged';
+  evidenceRefs: string[];
+  predecessorHash: string;
+  successorHash: string;
+  effectiveAt: string;
+  recordHash: string;
+  signature: string;
 }
 
 interface FindingApplicabilityAssessment {
@@ -757,6 +833,11 @@ interface FindingApplicabilityAssessment {
     worsenedByStory: boolean;
     receiptIds: string[];
   };
+  protectedSurfaceEvaluation: Array<{
+    surface: DeferredProtectedSurface;
+    state: 'clear' | 'known_risk' | 'unknown';
+    evidenceRefs: string[];
+  }>;
   reviewRunId: string;
   reviewRound: string;
   scopeDigest: string;
@@ -789,6 +870,61 @@ type FindingRecheckTrigger =
   | 'owner_invalid'
   | 'target_closed_unfixed'
   | 'expiry_reached';
+
+interface MandatoryRepairClassification {
+  schemaVersion: 1;
+  mandatoryRepairId: string;
+  storyId: string;
+  findingId: string;
+  assessmentId: string;
+  state: 'required' | 'closure_proven';
+  reasons: Array<
+    | 'critical_or_high'
+    | 'protected_surface_known_risk'
+    | 'protected_surface_unknown_risk'
+  >;
+  severityAtClassification: 'critical' | 'high' | 'medium' | 'low';
+  protectedSurfaceRisks: Array<{
+    surface: DeferredProtectedSurface;
+    state: 'known' | 'unknown';
+    evidenceRefs: string[];
+  }>;
+  classificationEvidenceRefs: string[];
+  closure?: {
+    redOrReproductionEvidenceRefs: string[];
+    rootCauseEvidenceRefs: string[];
+    fixEvidenceRefs: string[];
+    greenEvidenceRefs: string[];
+    closureEvidenceRefs: string[];
+  };
+  supersedesMandatoryRepairId?: string;
+  reviewRunId: string;
+  scopeDigest: string;
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  runtimeReceiptIds: string[];
+  policyDigest: string;
+  classifiedBy: string;
+  classifiedAt: string;
+  classificationHash: string;
+  signature: string;
+}
+
+interface DeferralExpiryPolicy {
+  schemaVersion: 1;
+  policyVersion: 'v1';
+  severityCeilingSeconds: {
+    medium: 604800; // 7 * 24 hours
+    low: 2592000; // 30 * 24 hours
+  };
+  hardCeilingSeconds: 2592000;
+  effectiveAt: string;
+  policyDigest: string;
+  signedBy: string;
+  signedByAuthority: 'command_policy_authority';
+  signature: string;
+}
 
 interface FindingDeferralDisposition {
   schemaVersion: 1;
@@ -829,7 +965,10 @@ interface FindingDeferralDisposition {
   runtimeReceiptIds: string[];
   affectedContractRefs: string[];
   recheckTriggers: FindingRecheckTrigger[];
+  expiryPolicyVersion: 'v1';
+  policyDigest: string;
   expiresAt: string;
+  supersedesDeferralId?: string;
   createdBy: string;
   createdAt: string;
   deferralHash: string;
@@ -885,11 +1024,13 @@ interface FindingDispositionManifest {
     expectedAssessmentHash: string;
     action:
       | 'retain_blocker'
+      | 'mandatory_repair'
       | 'route'
       | 'canonical_duplicate'
       | 'defer_with_proof'
       | 'retain_unknown';
     deferralId?: string;
+    mandatoryRepairId?: string;
     routeReceiptId?: string;
   }>;
   scopeDigest: string;
@@ -908,8 +1049,11 @@ interface FindingLedgerReceipt {
     | 'append_finding'
     | 'append_candidate_route'
     | 'append_assessment'
+    | 'append_mandatory_repair'
+    | 'append_deferral_expiry_policy'
     | 'append_deferral'
     | 'append_route_receipt'
+    | 'append_canonical_defect_supersession'
     | 'append_supersession'
     | 'apply_manifest';
   recordIds: string[];
@@ -926,6 +1070,12 @@ The existing `Finding` remains the verified observation type. A candidate is
 not a Finding. A canonical defect is not an applicability verdict. A ledger
 receipt proves persistence, not truth. A runtime receipt proves what was run,
 not whether the resulting problem belongs to the Story.
+`CanonicalDefect.rootCause` is present only when the paired state is
+`hypothesized` or `confirmed`; those states require a non-empty cause plus
+evidence, while `unknown` requires the field to be absent. A deferral's
+`canonicalDefectId` proves stable semantic identity, not a known cause, and must
+never force callers to fabricate one. Cause corrections use a new canonical
+record/supersession link with evidence.
 
 ## 7. Shared gate contract
 
@@ -935,13 +1085,54 @@ Enforcement must extend one shared predicate rather than adding per-consumer
 interpretations:
 
 ```ts
-isDynamicFindingBlocking(finding, assessmentState, deferralState, policy, round) =
-  finding.status === 'open'
-  && policy.effectiveBlockingSeverities.includes(finding.severity)
-  && isEvidenceStateBlocking(finding.evidenceState)
-  && !isAdvisoryThisRound(finding.severity, round)
-  && applicabilityAndDispositionBlocks(finding, assessmentState, deferralState)
+isDynamicFindingBlocking(
+  finding,
+  assessmentState,
+  mandatoryRepairState,
+  deferralState,
+  policy,
+  round
+) =
+  if mandatoryRepairFloorBlocks(
+    finding,
+    assessmentState,
+    mandatoryRepairState
+  ) then true
+  else finding.status === 'open'
+    && policy.effectiveBlockingSeverities.includes(finding.severity)
+    && isEvidenceStateBlocking(finding.evidenceState)
+    && !isAdvisoryThisRound(finding.severity, round)
+    && applicabilityAndDispositionBlocks(
+      finding,
+      assessmentState,
+      deferralState
+    )
 ```
+
+The mandatory-repair check is deliberately first. For a verified Finding with a
+fresh `applicable` assessment, `critical`/`high` severity, any known or unknown
+protected-surface risk, or a missing protected-surface evaluation creates a
+non-decaying floor. The floor remains blocking even when severity would fall out
+of `effectiveBlockingSeverities`, `isAdvisoryThisRound` would return true, or an
+invalid direct write marked the Finding resolved. A missing, stale, unsigned,
+tampered, or incomplete required classification/closure also blocks.
+
+The only clearing state is a fresh signed superseding
+`MandatoryRepairClassification(state='closure_proven')` containing Red/current
+reproduction, root-cause, fix, Green, and closure evidence bound to current
+source/runtime material. Resolution/dismissal handlers must refuse an active
+floor; they may clear/resolve only after that closure validator passes. A fresh
+strong non-applicable verdict (`pre_existing_unaffected`, `out_of_scope`, or
+`duplicate`) does not create this floor and continues through its independent
+proof contract. In warn/rollback mode the new classification is advisory and
+the exact previous predicate is restored.
+
+For `state='required'`, `closure` must be absent. For
+`state='closure_proven'`, `supersedesMandatoryRepairId` must name the active
+required record and every closure evidence array must be non-empty, current,
+signature-valid, and mutually bound to the same Finding, Story, source/runtime
+material, and repair. The validator rejects a closure-only first record,
+self-supersession, cycles, stale evidence, or a partial chain.
 
 `applicabilityAndDispositionBlocks` is:
 
@@ -960,8 +1151,9 @@ fresh non-blocking verdict with all required proof          -> false
 Thus applicability can remove a blocker only with stronger structured proof.
 It cannot create a shortcut around the current evidence/severity/round policy.
 In particular, an unknown high or critical Finding never becomes non-blocking
-merely because classification failed. Current round-decay semantics continue to
-apply; unknown does not create an extra downgrade.
+merely because classification failed. Outside the mandatory floor, current
+round-decay semantics continue to apply; unknown does not create an extra
+downgrade.
 
 Legacy Findings with no assessment remain readable. In enforce mode, a missing
 assessment projects to `unknown`; any Finding blocked by the previous predicate
@@ -1008,6 +1200,11 @@ following are mandatory:
   is insufficient.
 - `recheckTriggers` and `expiresAt` are present. The route and deferral are
   committed atomically through the ledger; neither may exist alone.
+- `expiryPolicyVersion` and `policyDigest` bind the disposition to the current
+  signed `DeferralExpiryPolicy`. Version 1 permits at most 7 * 24 hours for
+  medium and 30 * 24 hours for low, with a hard 30-day ceiling. Validation
+  requires `createdAt < expiresAt <= createdAt + severity ceiling` and the route
+  receipt must remain accepted and valid through `expiresAt`.
 
 **Path C — current-Story mandatory repair.** A verified applicable
 `critical`/`high` Finding cannot be deferred. Neither can any Finding with known
@@ -1015,7 +1212,10 @@ or uncertain data-integrity, security/privacy, package publish/clean-install,
 primary CLI entrypoint, Agent-resolution, historical-evidence-integrity, or
 lifecycle-gate impact, regardless of assigned severity. The current Story must
 record Red/reproduction evidence, establish root cause, fix the defect, and
-record fresh Green evidence before the blocker can clear.
+record fresh Green/closure evidence before the blocker can clear. A signed
+`MandatoryRepairClassification(state='required')` represents this non-decaying
+floor until a fresh superseding `closure_proven` record validates the complete
+chain.
 
 Deferral is a disposition after `applicable`, not another applicability verdict.
 It does not mean `out_of_scope`, `pre_existing_unaffected`, `duplicate`,
@@ -1025,16 +1225,60 @@ status do not change. It remains open and operator-visible as advisory with its
 canonical defect, reason, owner, target, expiry, and recall triggers.
 
 Triage is complete only when every otherwise-blocking open Finding has a valid
-current assessment and every `defer_with_proof` manifest action has a matching
-signed deferral plus route receipt. A valid deferred low/medium Finding does not
-block the current Story. A missing, invalid, expired, tampered, ownerless, or
-partially applied deferral restores the previous authoritative predicate; it is
-never interpreted as a waiver, pass, or terminal Finding outcome.
+current assessment, every applicable mandatory condition has a matching fresh
+classification/manifest action, and every `defer_with_proof` action has a
+matching signed deferral plus route receipt. A valid deferred low/medium Finding
+does not block the current Story. A missing, invalid, expired, tampered,
+ownerless, or partially applied deferral restores the previous authoritative
+predicate; it is never interpreted as a waiver, pass, or terminal Finding
+outcome.
 Candidate-route completeness is audited separately: valid and invalid candidate
 routes produce the same gate decision, so neither can substitute for Finding
 triage or act as a waiver.
 
-### 7.3 Proof required for a non-blocking verdict
+### 7.3 Target-side route acceptance and finite expiry
+
+`FindingRouteReceipt` is semantic proof that the named target accepted or
+rejected the exact source subject; it is not merely a source-Story routing note
+or a ledger commit receipt. The source Story cannot self-sign target acceptance.
+
+- For `existing_story`, only the target-authorized Story owner or an actor
+  authorized for that target by current command policy may accept. The receipt
+  binds the active owner identity plus its lease ID or authority-policy version.
+- For `b_meta_gap`, only the canonical B-META audit authority or main-write
+  authority may accept. A current-Story reviewer, author, or generic ledger
+  writer is insufficient.
+- `acceptedAt` is required only for `decision='accepted'`; `rejectedAt` is
+  required only for rejection, and the opposite timestamp must be absent.
+  Source kind/ID/hash/Story, target kind/ID/state/scope, owner identity/authority,
+  policy digest, and signer authority must all match.
+- Wrong target, owner, signer, source hash, or policy digest; a stale/closed
+  target; owner/lease/policy change; explicit revocation; expiry; tamper; or a
+  partial route/receipt commit makes the receipt invalid. It cannot authorize a
+  candidate route or deferral.
+- Rejection or later revocation is a new signed receipt naming the predecessor
+  in `supersedesRouteReceiptId`; immutable accepted bytes are never edited in
+  place. `revokedAt` requires `revocationReason` and a predecessor. The latest
+  fresh valid receipt in that chain is authoritative.
+
+Story 1 owns the semantic acceptance/rejection/revocation commands, signer and
+verifier, target-authority checks, and freshness reader. Story 3 only persists
+the signed bytes atomically and proves exactly-once commit; its ledger receipt
+cannot confer target acceptance. Story 2 consumes valid current route receipts
+for recall but cannot mint them.
+
+Deferral renewal is append-only. `expiresAt` is never edited or extended in
+place. Continuing beyond the current expiry requires a fresh applicability
+assessment, a new target acceptance/route receipt, and a new deferral that names
+the old row in `supersedesDeferralId`; the expired predecessor remains auditable.
+V1 parses strict UTC timestamps against the CLI's trusted clock and rejects an
+invalid/future `createdAt`, non-monotonic timestamps, overflow, or an already
+overdue proposal.
+At the exact expiry boundary the old deferral is invalid, the previous blocker
+predicate resumes, and candidate recall is emitted exactly once for that trigger
+set.
+
+### 7.4 Proof required for a non-blocking verdict
 
 | Verdict | Minimum proof before it may be non-blocking |
 | --- | --- |
@@ -1047,7 +1291,7 @@ triage or act as a waiver.
 File disjointness, model confidence, historical similarity, a signature tag,
 source-lineage equality, or an old out-of-scope result is insufficient.
 
-### 7.4 Freshness and recall rules
+### 7.5 Freshness and recall rules
 
 - Matching `materialHash`, `storyFilesHash`, scope digest, and required runtime
   receipts: fresh.
@@ -1062,6 +1306,9 @@ source-lineage equality, or an old out-of-scope result is insufficient.
   stale.
 - Missing current `storyFilesHash`: strict `materialHash` fallback.
 - Invalid assessment or receipt signature/hash: tampered and fail closed.
+- A rejected, revoked, expired, wrong-authority, owner/lease/policy-stale, or
+  target-closed `FindingRouteReceipt` is invalid. A deferral cannot outlive its
+  route receipt or its V1 severity ceiling.
 - Creating or starting the target Story/gap, scope drift, material or
   `storyFilesHash` drift, runtime-binding drift, a changed affected contract,
   severity escalation, owner invalidation, target closure without a Green fix,
@@ -1072,7 +1319,7 @@ source-lineage equality, or an old out-of-scope result is insufficient.
 - The prior route is historical candidate context only. It cannot directly
   block, unblock, or recreate a gate-consumed assessment.
 
-### 7.5 Consumers and process-fact contract
+### 7.6 Consumers and process-fact contract
 
 The implementation Story must first re-run this source search to discover the
 complete current consumer set:
@@ -1098,9 +1345,10 @@ review status, convergence diagnostics, and transition refusal must not disagree
 about the blocker set. Review assurance and escalation floors remain intact;
 the new projection must not lower their current guarantee.
 
-Because verified-Finding applicability, deferral, authoritative routing, and
-freshness change REVIEW blocker state, their writers, signed artifacts,
-triage-completeness semantics, and shared runtime predicate are L4 process facts.
+Because verified-Finding applicability, mandatory repair, deferral,
+target-authorized routing, and freshness change REVIEW/TEST/DONE blocker state,
+their writers, signed artifacts, triage-completeness semantics, and shared
+runtime predicate are L4 process facts.
 `CandidateRoute` is explicitly outside that authority boundary; if registered,
 its `non_authoritative`/`gateEvidence=false` semantics must be mechanically
 preserved. Future implementation must update:
@@ -1111,8 +1359,15 @@ preserved. Future implementation must update:
 - the command catalog/registry and phase allow-lists
 - `scripts/verify-process-fact-contract.mjs`
 
-Atomic/idempotent persistence, route-receipt validity, and fail-closed deferral
-fallback must also be registered as required semantics.
+The registry/contract verifier must explicitly enumerate the future semantic
+handlers for route accept/reject/revoke, mandatory-repair classify/close, and
+deferral create/supersede; their command-policy actor authority; the signed
+`FindingRouteReceipt`, `MandatoryRepairClassification`, and
+`DeferralExpiryPolicy` artifacts; every shared-predicate consumer; and negative
+tests proving no direct resolve/dismiss or per-consumer path bypasses the floor.
+Exact command names remain subject to normal CLI design review. Atomic/idempotent
+persistence, route-receipt validity, non-decay, finite expiry, and fail-closed
+fallback are required registered semantics.
 Prompt guidance is not sufficient. The contract verifier must reject a new gate
 consumer that bypasses the shared predicate or accepts a candidate route or
 advisory historical record as evidence.
@@ -1136,9 +1391,10 @@ Secondary mitigation is named without creating duplicate ownership.
 
 ### 9.1 Story 1 — Dynamic Finding Applicability
 
-**Objective.** Add target-Story verdict, owner/routing, defer-with-proof, batch
-disposition, signed freshness binding, and the shared gate predicate. This is
-the product-facing Dynamic Finding behavior.
+**Objective.** Add target-Story verdict, target-authorized route acceptance,
+mandatory-repair floor, defer-with-proof with finite expiry, batch disposition,
+signed freshness binding, and the shared gate predicate. This is the
+product-facing Dynamic Finding behavior.
 
 **Included component responsibility.** Own the Dynamic Applicability component
 and the assessment-consumer portion of Freshness and Supersession. Consume, but
@@ -1158,9 +1414,17 @@ authoritative artifacts and cannot alter lifecycle output.
 
 - `FindingApplicabilityAssessment` schema, signer/verifier, append-only reader,
   and current projection.
+- `MandatoryRepairClassification` classify/close signer, verifier, reader, and
+  non-decaying floor; resolve/dismiss handler integration requires fresh
+  Red/repro, root-cause, fix, Green, and closure evidence.
+- `FindingRouteReceipt` semantic acceptance/rejection/revocation commands,
+  target-authority and command-policy validation, owner/lease/policy freshness,
+  and exact source/target binding. Story 3 supplies storage only.
 - `FindingDeferralDisposition` signer/verifier and eligibility policy, including
   acceptance-impact, current-Story regression, protected-surface, target-owner,
   route-receipt, expiry, and recheck-trigger validation.
+- Signed/versioned `DeferralExpiryPolicy`, V1 7-day medium and 30-day low
+  ceilings, hard 30-day ceiling, immutable expiry, and superseding renewal.
 - Read-only consumption of Story 2 `CandidateRoute` records with a hard
   non-authoritative/no-gate boundary.
 - Exact verdict/basis/owner/route enums and proof validators.
@@ -1176,11 +1440,27 @@ authoritative artifacts and cannot alter lifecycle output.
 **Required tests.**
 
 - Applicable verified blocker remains blocking.
+- Applicable verified critical/high and applicable known/unknown/missing
+  protected-surface evaluation create a mandatory floor before severity/round
+  decay; changing `effectiveBlockingSeverities` or `isAdvisoryThisRound` cannot
+  clear it.
+- Missing/stale/tampered classification and a direct resolved/dismissed write
+  without a fresh closure remain blocking; closure requires non-empty current
+  Red/repro, root-cause, fix, Green, and closure evidence.
+- Fresh strongly proven `pre_existing_unaffected`, `out_of_scope`, or
+  `duplicate` remains outside the mandatory floor; warn rollback reproduces the
+  exact old predicate.
 - Suspected low/medium observations may be routed as candidates with uncertainty,
   evidence, a live existing target/owner, and a signed route receipt; the route
   needs no promotion, root cause, or Green evidence and never changes a gate.
 - Missing candidate uncertainty/evidence/route rejects the route, while
   disproven observations are released by counter-evidence rather than deferral.
+- Existing-Story acceptance succeeds only for its target-authorized
+  owner/command-policy actor; B-META acceptance succeeds only for canonical
+  audit/main-write authority. A source-Story author cannot self-sign either.
+- Wrong source kind/ID/hash/Story, target, target scope/state, owner, signer,
+  lease/policy, rejection/revocation, expiry, tamper, or target closure
+  invalidates the route; partial route/receipt commit is never accepted.
 - Eligible low/medium defer-with-proof remains open/advisory but does not block
   the current Story; it has current reproducible failure evidence, no direct
   acceptance/verificationIntent impact, was not introduced or worsened by the
@@ -1202,6 +1482,11 @@ authoritative artifacts and cannot alter lifecycle output.
 - Invalid, expired, tampered, partially applied, or trigger-matched deferral
   restores the previous predicate and cannot act as a waiver; manifest triage
   fails when a deferred row lacks its signed route receipt.
+- V1 accepts `createdAt < expiresAt` only within 7 days for medium and 30 days
+  for low; exact-boundary expiry, clock skew/overdue input, and a route receipt
+  expiring earlier all fail closed and emit exactly-once recall.
+- Renewal cannot edit an old expiry: it requires a new assessment, new target
+  acceptance, and a superseding deferral; retries remain idempotent.
 - Rollback to warn restores the exact previous authoritative predicate.
 - Existing review assurance floor, escalation, certification, readiness, and
   convergence surfaces report the same blocker set.
@@ -1234,11 +1519,14 @@ identity/supersession writes. A read-only benchmark prototype may precede Story
 
 - `DetectorSignal`, `CandidateFinding`, non-authoritative `CandidateRoute`,
   `CanonicalDefect`, and promotion contracts.
+- Canonical defect identity with `rootCauseState=unknown|hypothesized|confirmed`
+  and optional root cause; trigger/reproduction/affected-contract evidence may
+  establish identity before cause is known.
 - Stable access through Finding/store/CLI ports; no direct protected-storage
   parsing.
 - Confirmed versus suggested identity and source-lineage separation.
-- `FindingSupersession`, cycle detection, tamper checks, and canonical-current
-  lookup.
+- `FindingSupersession`, `CanonicalDefectSupersession`, cycle detection, tamper
+  checks, and canonical-current lookup.
 - Versioned historical index keyed by exact paths, symbols, contracts,
   canonical defect ID, source lineage, and outcome.
 - Candidate/deferred-route recall keyed by candidate or canonical defect, target
@@ -1257,26 +1545,37 @@ identity/supersession writes. A read-only benchmark prototype may precede Story
 - CandidateRoute is rejected when uncertainty, evidence, existing owner/target,
   or route receipt is missing; a valid route remains non-authoritative and
   produces no lifecycle transition delta.
+- Recall consumes only a fresh accepted Story 1 route receipt; rejected,
+  revoked, expired, wrong-owner/signer/target, or tampered receipts remain
+  historical context and cannot generate an authoritative assessment.
 - Promotion requires current source/reproduction evidence and eligible reviewer
   authority.
 - Same canonical source is deduped as provenance but not assumed to be the same
   semantic defect.
 - Same semantic defect can link independent sources only after confirmation.
+- `rootCauseState=unknown` forbids a fabricated root-cause string yet permits
+  identity from trigger/reproduction/affected contract; later cause correction
+  is a signed `CanonicalDefectSupersession` and preserves the predecessor;
+  cycles, missing nodes, or hash/signature mismatch are rejected.
+- `hypothesized`/`confirmed` require a non-empty cause and evidence; an empty
+  identity evidence set is rejected in every state.
 - F-030/F-031-shaped chain returns successor, retains predecessor, rejects
   cycles, missing nodes, signature mismatch, and contradictory successors.
 - Historical DONE/outcome/tag/playbook never blocks or unblocks a current Story.
 - Starting/creating the routed target, matching its scope or affected contract,
   severity escalation, owner invalidation, target closure without a Green fix,
-  expiry, or relevant hash/runtime drift recalls the deferred defect exactly
-  once as a candidate and requires a new current assessment.
+  expiry, or relevant hash/runtime drift recalls the routed candidate/defect
+  exactly once as a candidate; only a fresh promotion permits a new current
+  assessment.
 - A historical route/deferral alone cannot enter a lifecycle blocker set or
   recreate an assessment.
 - Exact package/symbol/path lookup outperforms coarse tag-only baseline on the
   preregistered set without lowering high/critical safety.
 
-**Non-goals.** No applicability gate; no runtime artifact receipts; no direct
-Finding resolution; no claim of perfect recall; no embeddings/remote index
-without separate evidence and scope; no bulk rewrite of legacy Findings.
+**Non-goals.** No applicability gate; no route-receipt signer or acceptance
+command; no runtime artifact receipts; no direct Finding resolution; no claim
+of perfect recall; no embeddings/remote index without separate evidence and
+scope; no bulk rewrite of legacy Findings.
 
 ### 9.3 Story 3 — Finding Ledger and Runtime Evidence Integrity
 
@@ -1300,7 +1599,8 @@ than adding an uncoordinated lock tree.
 **Deliverables.**
 
 - Shared atomic append/transaction primitive for Finding, candidate route,
-  assessment, deferral, supersession, route, manifest, and receipt records.
+  assessment, mandatory-repair, expiry-policy, deferral, supersession, route,
+  manifest, and receipt records.
 - Unique ID allocator independent of mutable array length.
 - Idempotency key, expected-prior digest/CAS behavior, durable commit receipt,
   replay result, and explicit conflict.
@@ -1314,13 +1614,16 @@ than adding an uncoordinated lock tree.
 **Required tests.**
 
 - 100 concurrent unique Finding appends -> exactly 100 unique durable rows.
-- Concurrent mixed Finding/candidate-route/assessment/deferral/route/manifest
-  writes lose nothing and preserve referential integrity.
-- A suspected candidate route and its accepted target receipt commit atomically;
-  crash, conflict, or rejection leaves no accepted half-route visible.
-- A deferral and its accepted target route commit atomically; crash, conflict,
-  or rejection leaves neither half visible, and retry returns the same deferral,
-  route, and receipt IDs.
+- Concurrent mixed Finding/candidate-route/assessment/mandatory-repair/
+  expiry-policy/deferral/route/manifest writes lose nothing and preserve
+  referential integrity.
+- Mandatory-repair classify/close and expiry-policy records are append-only,
+  unique, idempotent, and never half-visible with their manifest references.
+- A suspected candidate route and its prevalidated signed target receipt commit
+  atomically; crash, conflict, or rejection leaves no half-route visible.
+- A deferral and its prevalidated signed target route commit atomically; crash,
+  conflict, or rejection leaves neither half visible, and retry returns the same
+  deferral, route, and receipt IDs.
 - Replaying all 100 idempotency keys -> same IDs, zero new rows.
 - Two writers with a stale expected digest receive an explicit conflict; neither
   silently overwrites the other.
@@ -1333,8 +1636,9 @@ than adding an uncoordinated lock tree.
 - No nested-lock deadlock with current Finding and B-META write paths.
 
 **Non-goals.** No detector classification, canonical defect judgment,
-applicability verdict, routing decision, historical recall, lifecycle gate
-enforcement, lab rename, or claim that a receipt proves semantic correctness.
+applicability verdict, target-authority/routing decision, route semantic signer
+or verifier, expiry-policy judgment, historical recall, lifecycle gate
+enforcement, lab rename, or claim that persistence proves semantic acceptance.
 
 ### 9.4 Dependency DAG and reconciliation
 
@@ -1363,7 +1667,7 @@ Component-to-Story reconciliation:
 | Finding Ledger Integrity | Story 3 |
 | Candidate and Defect Identity | Story 2 |
 | Dynamic Applicability | Story 1 |
-| Freshness and Supersession | Story 2: historical supersession; Story 3: runtime receipts; Story 1: assessment freshness consumption |
+| Freshness and Supersession | Story 2: historical supersession/recall; Story 3: runtime receipts and atomic bytes; Story 1: assessment, mandatory-repair, route-receipt, and deferral-expiry freshness |
 
 No component or failure class is orphaned. No failure class has two primary
 owners. The complete program covers P1-P7 at the structural level described in
@@ -1391,6 +1695,9 @@ the existing review assurance floor to make the combination pass.
 - Legacy text that says "deferred", `accepted_risk`, or `superseded` is not a
   `FindingDeferralDisposition`; only the new signed structure can affect current
   triage, and no historical row is rewritten to manufacture one.
+- Legacy routing prose is not a `FindingRouteReceipt`, and legacy identity prose
+  never implies a confirmed root cause. Derived canonical records start with
+  `rootCauseState='unknown'` unless evidence supports a stronger state.
 - Resolve supersession chains during lookup, while preserving predecessor
   access and audit history.
 - All new records are additive and versioned. Older binaries can ignore them
@@ -1400,14 +1707,15 @@ the existing review assurance floor to make the combination pass.
 
 | State | Entry criteria | Permitted writes | Gate authority | Operator-visible output | Exit / rollback |
 | --- | --- | --- | --- | --- | --- |
-| `observe` | Read-only classifier/index prototype passes structural tests | None; stdout/report only. Benchmark artifacts, if explicitly exported outside lifecycle state, remain non-authoritative. | Existing `isFindingBlocking` only | Candidate groups/routes, proposed verdicts/deferrals, missing candidate uncertainty/evidence/route proof, missing verified-deferral reproduction/route proof, high/critical repair gaps, predicted blocker delta, latency | Exit to warn after labeled replay shows no safety violation and Story 3/2 dependencies needed by persisted advice are ready; kill switch simply disables output |
-| `warn` | Story 3 atomic persistence accepted; Story 2 candidate/identity/supersession accepted; observe qualification thresholds met | Append non-authoritative candidate-route/triage/deferral proposals and reviewer overrides with audit lineage; no L4 assessment or deferral may affect lifecycle | Existing predicate only; advice cannot change transition result | Old blocker set plus proposed dynamic set, reasons, candidate uncertainty/evidence/route gaps, protected-surface/deferral gaps, stale/unknown/overdue warnings, override audit | Return to observe on data/persistence defect; advance only after merged-state enforce qualification |
-| `enforce` | All three Stories accepted; signed current-material assessment; runtime receipt; shared predicate/process-fact contract; legacy compatibility; adversarial and rollback tests green | Atomic/idempotent candidate route, L4 assessment, deferral, route receipt, and manifest records plus audit records | Shared `isDynamicFindingBlocking` only; candidate routes remain non-authoritative | Effective blocker set, candidate route/recall state, verdict/evidence/owner, deferral eligibility/expiry/triggers, freshness state, advisory whole-tree drift, kill-switch state | Any safety threshold breach immediately changes feature state to warn and restores previous predicate; records remain append-only |
+| `observe` | Read-only classifier/index prototype passes structural tests | None; stdout/report only. Benchmark artifacts, if explicitly exported outside lifecycle state, remain non-authoritative. | Existing `isFindingBlocking` only | Candidate groups/routes, predicted mandatory floors, proposed verdicts/deferrals, target-authority/receipt gaps, expiry-policy violations, high/critical closure gaps, predicted blocker delta, latency | Exit to warn after labeled replay shows no safety violation and Story 3/2 dependencies needed by persisted advice are ready; kill switch simply disables output |
+| `warn` | Story 3 atomic persistence accepted; Story 2 candidate/identity/supersession accepted; observe qualification thresholds met | Append non-authoritative candidate-route/triage/mandatory-repair/route-receipt/deferral proposals and reviewer overrides with audit lineage; no new L4 artifact may affect lifecycle | Existing predicate only; advice cannot change transition result | Old blocker set plus proposed floor, route-authority and expiry outcomes, protected-surface/closure gaps, stale/unknown/overdue warnings, override audit | Return to observe on data/persistence defect; advance only after merged-state enforce qualification |
+| `enforce` | All three Stories accepted; signed current-material assessment; runtime receipt; mandatory-floor/process-fact contract; target-authorized route receipt; V1 expiry policy; legacy compatibility; adversarial and rollback tests green | Atomic/idempotent candidate route, L4 assessment, mandatory-repair, route receipt, expiry policy, deferral, and manifest records plus audit records | Mandatory floor first, then shared `isDynamicFindingBlocking`; candidate routes remain non-authoritative | Effective mandatory/blocker sets, closure chain, route signer/owner/target state, deferral policy/expiry/triggers, candidate recall, freshness, advisory drift, kill switch | Any safety threshold breach immediately changes feature state to warn and restores previous predicate; records remain append-only |
 
 The feature-state downgrade is a policy switch, not a data rollback. Disabling
 enforce must restore the previous authoritative blocker predicate and treat all
-assessment/candidate/deferral records as advisory. It must not delete Findings,
-assessments, deferrals, routes, receipts, supersession links, or audit lineage.
+assessment/candidate/mandatory-repair/route-receipt/deferral records as advisory.
+It must not delete Findings, assessments, classifications, deferrals, routes,
+receipts, policies, supersession links, or audit lineage.
 Re-enabling requires freshness evaluation; no old assessment or deferral is
 silently rebound.
 
@@ -1415,6 +1723,9 @@ silently rebound.
 
 - Enforce -> warn produces the same transition decision as the pre-feature
   predicate for a frozen fixture corpus.
+- In enforce, mandatory critical/high/protected-surface fixtures remain blocking
+  after severity/round decay and direct status mutation; in warn the same corpus
+  returns exactly to the old predicate.
 - Advisory records never become evidence after downgrade.
 - Invalid or partial suspected-candidate routes remain non-authoritative and
   cannot create, clear, or restore a blocker.
@@ -1423,6 +1734,9 @@ silently rebound.
   the dependent assessments and deferrals.
 - An invalid, expired, ownerless, partially applied, or trigger-matched deferral
   restores the previous predicate and is never converted into a waiver.
+- Wrong-authority/revoked route receipts and V1 boundary/over-ceiling deferrals
+  fail closed; renewal creates new assessment/acceptance/deferral rows and never
+  mutates the predecessor.
 - Whole-tree-only drift is surfaced for re-attestation and is never silently
   classified by the host.
 - Rollback/recovery performs no historical record rewrite or deletion.
@@ -1453,22 +1767,27 @@ exists, the CLI-only corpus procedure in section 3 is the reproducible baseline.
 Qualification window for warn -> enforce: at least 20 Finding-bearing Stories
 and 200 independently adjudicated candidate/assessment cases over at least 30
 days, including every proposed suspected-candidate route, every proposed
-deferral, every high/critical proposed non-blocking verdict, and a targeted
-adversarial suite. Promotion requires all safety thresholds and the merged-state
-dependency review.
+mandatory-repair classification/closure and route receipt, every proposed
+deferral/renewal, every high/critical proposed non-blocking verdict, and a
+targeted adversarial suite. Promotion requires all safety thresholds and the
+merged-state dependency review.
 
 | Metric | Numerator / denominator | Collection | Promotion threshold | Rollback threshold |
 | --- | --- | --- | --- | --- |
 | False non-blocking high/critical | Adjudicated high/critical verdicts classified non-blocking by the system but applicable by independent qualification / all system-proposed non-blocking high/critical verdicts | Scorecard join of signed proposal, reviewer adjudication, and current repro receipt | **0**, including adversarial set | Any one event |
 | Stale/tampered rejection | Stale/tampered/mismatched test cases rejected / all injected stale/tampered/mismatched cases | Deterministic negative suite plus receipt-verifier events | 100% | Any accepted case |
 | Unknown high/critical fail-closed | Otherwise-blocking high/critical unknown cases that remain blocking / all such unknown cases | Shared predicate fixture and live warn comparison | 100% | Any downgrade caused by unknown |
+| Mandatory-repair floor and closure integrity | Applicable high/critical or known/unknown protected-surface cases that remain blocking through severity/round decay and clear only with a fresh complete closure / all injected mandatory cases | Shared-predicate, resolve/dismiss-handler, stale/tamper, and closure mutation suite | 100%; zero direct-status bypasses | Any decayed/bypassed floor or any incomplete/stale closure accepted |
 | Non-blocking classification precision | Independently confirmed correct non-blocking verdicts / all reviewed non-blocking verdicts | Stratified reviewer gold set; disclose severity and verdict mix | >=98% overall and 100% high/critical safety | <98% overall or any high/critical safety miss |
 | Candidate-to-verified conversion | Candidates promoted to verified Findings / all terminally adjudicated candidates, per detector/version | Candidate ledger and promotion receipts | Descriptive, not maximized; each detector preregisters a baseline band before warn | Absolute drift >10 percentage points without an explained corpus/version change pauses promotion |
+| Canonical root-cause honesty | Canonical identities whose `rootCauseState` and optional value match reviewed evidence / all independently reviewed canonical identities | Identity gold set plus supersession audit | 100%; unknown cause remains representable | Any fabricated cause, cause present with `unknown`, or in-place cause rewrite |
 | Duplicate/routed disposition accuracy | Correct canonical duplicate or valid routed-owner decisions / all independently reviewed duplicate/routed decisions | Manifest, canonical lookup, route target validation | >=98%; 100% of real high/critical non-blocking issues have a valid owner | Any unowned high/critical or <98% |
 | Suspected-candidate route completeness and isolation | Low/medium candidate routes with explicit uncertainty, current evidence, live existing target/owner, signed receipt, expiry/triggers, and zero gate delta / all proposed suspected routes | Candidate/route ledger join, target validation, and frozen-gate before/after comparison | 100% complete and 100% zero gate delta; no promotion/root-cause/Green prerequisite | Any incomplete route accepted, any candidate promoted implicitly, or any gate delta |
+| Route-receipt authority and freshness | Receipts accepted by the exact target-authorized owner/policy actor with matching source/target/hash/scope and live lease/policy / all acceptance proposals and adversarial receipts | Story/B-META authority lookup, command-policy decision log, signature/freshness verifier, and revocation suite | 100% valid; source Story self-sign acceptance is always rejected | Any wrong signer/owner/target/hash, stale/closed target, revocation, tamper, or partial commit accepted |
 | Deferral route completeness | Deferred rows with a live existing target, owner, accepted signed route receipt, expiry, and complete recheck triggers / all proposed deferred rows | Atomic manifest/route ledger join plus target existence/owner validation | 100% | Any orphan, missing receipt, partial commit, or closed-unfixed target accepted as valid |
 | False deferral | Independently adjudicated deferred rows that require current repair or touch a protected surface / all system-proposed deferrals | Current reproducible failure evidence, acceptance/verificationIntent diff, introduced/worsened analysis, protected-surface campaign, and independent disposition review | **0**; critical/high proposals are mechanically ineligible; root cause may remain for the target Story | Any one event or any protected-surface risk deferred |
 | Stale/overdue/reopened deferral handling | Triggered, expired, owner-invalid, or target-closed-unfixed deferrals recalled as candidates and made non-authoritative / all such deferrals injected or observed | Freshness/expiry evaluator events joined to candidate recall and gate decisions | 100%, exactly-once candidate recall per trigger set | Any stale/overdue row remains non-blocking, any missed recall, or duplicate recall changes gate state |
+| Deferral expiry-policy compliance | V1 deferrals satisfying `createdAt < expiresAt` and the medium/low/hard ceilings, with immutable superseding renewal / all proposed deferrals and renewals | Signed policy join, deterministic clock-boundary suite, ledger supersession, and exactly-once recall events | 100%; medium <=7 days, low <=30 days, hard ceiling 30 days | Any over-ceiling/expired row accepted, in-place renewal, missed boundary recall, or duplicate recall changes gate state |
 | Manual Finding-operation reduction | Avoided individual resolve/dismiss commands on batch-eligible rows / baseline individual operations for matched Story class | Process events; matched before/after or randomized warn cohort | >=50% on Finding-heavy cohort with safety floor intact | Safety breach, or no reduction after two windows |
 | Review convergence | Median change in genuine review-round count and REVIEW elapsed time for matched Story classes | Phase/process events; runs/lanes reported separately | >=30% reduction in either round count or elapsed review time, with simple-Story regression <=10% | >10% simple-Story regression for two windows or any safety breach |
 | Triage latency | p50/p95 wall time from candidate-set freeze to signed proposed manifest; retries separately reported | Monotonic timing in scorecard, fixed qualification corpus/hardware | p50 <=2s and p95 <=5s for the 2,273-Finding-scale qualification corpus | p95 >10s for two windows or timeouts >1% |
@@ -1563,11 +1882,15 @@ operator's lab request is not authority to rename utils.
 | Failure scenario | Trigger | Consequence | Mitigation / stop rule |
 | --- | --- | --- | --- |
 | A real high/critical issue is classified non-blocking | Missing/weak scope evidence, model confidence, or bad duplicate owner is accepted | False green REVIEW/TEST transition | Fail closed; zero-event safety threshold; immediate enforce -> warn kill switch |
+| Mandatory repair decays or is status-bypassed | Floor check runs after severity/round/status predicates, or resolve/dismiss ignores closure | Applicable high/critical/protected-surface defect clears without repair proof | First predicate check; signed L4 classification; resolve/dismiss refusal; complete fresh Red/root-cause/fix/Green closure; any bypass stops enforce |
 | A correct assessment survives changed runtime bytes | Receipt omits artifact/build binding | False blocker or false pass | Story 3 runtime receipt prerequisite; mutation/tamper campaign; no enforce without 100% rejection |
 | Parallel reviewers lose or alias records | New record path bypasses shared transaction | Audit evidence disappears | Story 3 first; concurrency/idempotency tests; contract verifier requires atomic persistence |
 | Historical similarity becomes authority | Recall/tag/playbook is read by gate | Old context silently changes lifecycle | Hard `authority=non_authoritative`, `gateEvidence=false`; process-fact verifier rejects dependency |
 | Suspected routing is mistaken for verification or deferral | Candidate route is read as a promoted Finding, verified repair obligation, or gate fact | Unverified work silently blocks/unblocks a Story or disappears from review | Separate `CandidateRoute` schema; explicit uncertainty/evidence/receipt; atomic append; hard non-authoritative/no-gate contract; recall before any new assessment |
+| Source Story self-signs target acceptance | Receipt signer/owner/target authority is not checked or a ledger writer is treated as semantic authority | Work is exported to a target that never accepted it | Target-authorized Story actor or canonical B-META/main-write authority only; exact source/target/lease/policy binding; rejection/revocation/freshness tests |
 | Deferral becomes an unowned waiver | Reproduction or acceptance/protected-surface analysis is incomplete, route receipt is missing, owner disappears, or target closes unfixed | An applicable defect silently falls out of current repair and future recall | Verified low/medium plus current reproduction only; atomic route+deferral; expiry/trigger recall; invalid state restores old predicate; any false deferral stops enforce |
+| Deferral becomes indefinite | Missing ceiling, clock-boundary bug, or in-place `expiresAt` edit renews authority | Open applicable work stays advisory forever | Signed V1 7-day medium/30-day low policy; hard 30-day ceiling; immutable superseding renewal; exact-boundary and exactly-once recall tests |
+| Canonical identity fabricates a cause | Root cause is required before investigation has established it | False lineage and bad future routing become durable history | `rootCauseState`; optional cause; trigger/repro/contract identity; append-only correction/supersession; any fabricated cause stops promotion |
 | Review work does not converge after filtering/routing | Genuine defects remain or task is ill-posed | Dynamic system is blamed or used to waive work | Keep existing `stall_resolution_set` adjudication; stop promising further efficiency and replan/split when convergence backstop fires |
 
 If Story 3 cannot prove lossless idempotent writes, Story 2 may remain a read-only
@@ -1575,9 +1898,10 @@ prototype and Story 1 may not persist or enforce. If Story 2 cannot establish
 supersession-aware identity with measured retrieval, Story 1 may assess only
 current Findings without historical auto-suggestion and may not claim P3/P5/P7
 coverage. If the qualification set finds one false non-blocking high/critical
-decision, one candidate-route gate delta, one false deferral, or one
-protected-surface Finding accepted for deferral, enforce stops regardless of
-efficiency gains.
+decision, one mandatory-floor bypass, one unauthorized route acceptance, one
+candidate-route gate delta, one false/over-ceiling deferral, one fabricated
+canonical root cause, or one protected-surface Finding accepted for deferral,
+enforce stops regardless of efficiency gains.
 
 ## 14. Code and decision anchors
 
@@ -1618,15 +1942,29 @@ The program is complete only when all of the following are true in merged state:
 - Runtime execution evidence binds the bytes actually executed to source and
   command.
 - Applicability is target-Story-specific, signed, fresh, and routed.
+- Applicable verified critical/high and known/unknown protected-surface risks
+  create a signed non-decaying mandatory-repair floor checked before status,
+  severity, and round policy; only fresh Red/repro, root-cause, fix, Green, and
+  closure evidence permits resolution/clearance.
+- Fresh strongly proven pre-existing/out-of-scope/duplicate verdicts remain
+  independent of the mandatory floor, and warn rollback restores the exact old
+  predicate.
 - Suspected low/medium observations may take the separate non-authoritative
   candidate-routing path with explicit uncertainty, evidence, a live existing
   target/owner, and a signed route receipt; this requires no promotion, root
   cause, or Green evidence and can never affect a gate.
+- Every accepted route receipt binds the exact source subject and target state/
+  scope to a current target-authorized owner/command-policy actor; B-META uses
+  canonical audit/main-write authority. Rejection, revocation, owner/lease/policy
+  drift, target closure, expiry, or tamper removes its authority.
 - Defer-with-proof is a disposition inside the four-component design, not a new
   verdict/component: only verified applicable low/medium Findings with current
   reproducible failure evidence, no acceptance or protected-surface impact, no
   current regression, and an existing receipted owner/route may use it. Root
   cause, repair, and Green evidence may remain for that target Story.
+- V1 deferral expiry is finite (medium <=7 days, low <=30 days, hard ceiling 30
+  days); renewal is a new assessment, target acceptance, and superseding
+  deferral, never an in-place edit, and boundary recall is exactly once.
 - Deferred Findings retain truth, severity, and open status; invalid, expired,
   tampered, overdue, trigger-matched, or ownerless deferrals restore the old
   predicate and are recalled only as non-authoritative candidates.
@@ -1634,6 +1972,9 @@ The program is complete only when all of the following are true in merged state:
   protected-surface risks complete Red/reproduction, root cause, fix, and Green
   evidence in the current Story; disproven Findings are released only by
   counter-evidence.
+- Canonical semantic identity may precede cause discovery;
+  `rootCauseState='unknown'` carries no fabricated cause, and later correction
+  preserves history through supersession.
 - Every non-blocking real high/critical issue has a valid owner.
 - Missing/stale/tampered/unknown cannot downgrade an otherwise blocking Finding.
 - One shared predicate drives every blocker consumer and is registered as an L4
