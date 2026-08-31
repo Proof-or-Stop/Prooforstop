@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-1fa6:F-001",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:938-943,1012-1018,1189-1191 — defer-with-proof gate contradiction: Path C promises that every known or uncertain protected-surface risk must complete Red -> root cause -> fix -> Green in the current Story regardless of assigned severity, but the only authoritative predicate first requires policy.effectiveBlockingSeverities.includes(finding.severity) and its inputs contain no protected-surface state. A low/medium protected-surface Finding excluded by the current severity policy therefore returns non-blocking before applicabilityAndDispositionBlocks runs; protectedSurfaceImpact exists only inside a deferral record, which an ineligible Path-C Finding will not have. The Story tests repeat the promise without specifying a gate-consumed protected-risk fact or severity-elevation rule. Define a signed protected-surface classification available for every applicable Finding and make the shared predicate enforce it independently of ordinary severity/round decay (or narrow the prose to mere deferral ineligibility); otherwise the advertised mandatory Red-to-Green safety floor is not mechanically expressible.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-31T00:33:07.657Z",
+      "reviewRound": "2026-08-31T00:31:14.768Z",
+      "reviewRunId": "B-1fa6:RR-007",
+      "_hash": "b13f959382f83e9c851668ba89ea62f58ccc938855c0f2b09351a341a9fb851d",
+      "files": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "packages/main/src/core/advisory.ts",
+        "packages/main/src/core/types.ts"
+      ],
+      "signatureTag": "adversarial|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
