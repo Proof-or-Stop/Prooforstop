@@ -768,6 +768,21 @@
       "_hash": "638827f4e2c4cd6bd12cbd13f68d9b388f66f0e282615d297fac56b39ae0bf59",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-038",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1496-1512,1565-1573,2931-2936 — MEDIUM: migration appends a signed LegacyFindingIdentityBinding but FindingLedgerReceipt.operation has no append_legacy_identity_binding operation, and the prose incorrectly exempts the binding as commit metadata to avoid receipt recursion. The binding is gate-relevant identity state, not the ledger receipt itself; without a first-class idempotent/CAS ledger operation, concurrent first-read/backfill can create duplicate recordIds or an unreceipted identity mapping. Add an explicit atomic idempotent binding operation; only FindingLedgerReceipt itself should be non-recursively receipted.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T08:57:50.190Z",
+      "reviewRound": "2026-08-31T08:47:53.205Z",
+      "reviewRunId": "B-1fa6:RR-043",
+      "_hash": "bc381879de3d487830e3684aadfb93b50feecab3ebc2241218fe2f06dc06a9be",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
