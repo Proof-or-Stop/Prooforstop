@@ -464,7 +464,7 @@
       "desc": "historical-provenance-regression: packages/main/src/core/acceptance-topology.ts:152 replaced the intentionally bounded ['proof-or-stop','lattice']/bin-lattice historical parser with duplicate canonical entries. acceptanceMatrixEvidenceProvenance now returns null for recorded 'lattice acceptance_matrix' and 'node bin/lattice.js acceptance_matrix' commands (verified against dist), even though lines 189-195 say legacy rows must remain classified; this can let historical L0 matrix output escape the non-evidentiary guard. Restore the retired spelling only inside this explicit historical-verification parser and keep it unavailable as an executable alias.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-31T23:03:12.343Z",
@@ -511,7 +511,11 @@
         "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|historical-provenance-regression",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 4c88119ad2 and strengthened by edc7596cfa: the bounded historical parser recognizes the four retired acceptance_matrix command forms while no executable lattice alias is restored; focused topology smoke passes.",
+      "resolvedAt": "2026-08-31T23:37:25.252Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-022",
