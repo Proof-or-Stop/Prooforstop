@@ -657,6 +657,28 @@ proof-or-stop scope_question_resolve '{
 - **PLAN→DEV gate**：`story_review` 把未 resolved 的 OQ 作为 blocker（`type: scope_open_question_unresolved`），必须全部 resolve 才能进 DEV
 - 老 scope-check.json 无 `openQuestions` 字段时视为空集，不触发 gate
 
+### acceptance basis 与 pre_review_check 的顺序约束（B-45a0 F-435/F-438）
+
+**先 `acceptance_basis_generate`，再 `pre_review_check`，顺序不能反。**
+
+`pre_review_check` 会把当时的 plan `basisDigest` 快照进 `priorPlanBasisDigest`，
+而 `basisDigest` 覆盖 `binding`（headHash/materialHash/storyFilesHash）与 `receiptRef`。
+所以事后再跑一次 `acceptance_basis_generate`——哪怕 acceptance 语义完全没变——也会移动那个 digest，
+把刚拿到的 PASS 打成 `PR_COVERAGE_BASIS_CHANGED`（通常伴随 `PR_ARTIFACT_TAMPERED`），
+而 `storyFilesHash` 根本没动。
+
+这是**操作顺序陷阱，不是代码缺陷**：fail-closed 符合 Section 9 Rule 9「never a silent pass」。
+但补救只能靠重跑 `pre_review_check`，而它是 `allowedPhases: ['DEV']`——
+在 REVIEW 撞上这个的 story 无法自愈，必须回 DEV。
+
+代码里已有 `acceptanceCoverageBasisSemanticDigest`（剥掉 `basisDigest`/`binding`/`receiptRef`）
+专门识别这种 hash-only rebinding，`verifyAcceptanceBasisReceipt` 也在用；
+但要接进 `PR_COVERAGE_BASIS_CHANGED` 的比较需要持久化一个 semantic digest，
+因为 `priorPlanBasisDigest` 只存原始 hash。
+
+真相源：`docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md`
+Section 9 Rule 10。
+
 ### TEST→DONE 硬门槛（delivery-check）
 
 TEST 阶段自动 spawn `lattice-review-delivery` 产出 `delivery-check.json`。`story_advance DONE` 校验：
