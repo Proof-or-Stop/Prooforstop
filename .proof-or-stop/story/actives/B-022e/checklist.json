@@ -1037,7 +1037,7 @@
           "command": "node scripts/verify-global-lab-entrypoint.mjs",
           "result": "pass",
           "note": "Final CLI and Lab behavior passes with identity GREEN and offline package transcript.",
-          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "headHash": "da62feedaaf5a5e03071abb5f54f6bf9b26a2156",
           "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
           "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
@@ -1049,7 +1049,7 @@
             "executedAt": "2026-08-31T05:18:09.443Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T05:18:37.928Z"
+          "timestamp": "2026-08-31T05:20:19.588Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -1058,7 +1058,7 @@
           "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
           "result": "pass",
           "note": "Canonical surfaces succeed while retired identities stay absent.",
-          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "headHash": "da62feedaaf5a5e03071abb5f54f6bf9b26a2156",
           "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
           "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
@@ -1070,7 +1070,7 @@
             "executedAt": "2026-08-31T05:18:09.615Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T05:18:37.929Z"
+          "timestamp": "2026-08-31T05:20:19.762Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -1079,7 +1079,7 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
           "result": "pass",
           "note": "Residue and allowlist mutation suite is sensitive and non-vacuous.",
-          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "headHash": "da62feedaaf5a5e03071abb5f54f6bf9b26a2156",
           "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
           "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
@@ -1091,7 +1091,7 @@
             "executedAt": "2026-08-31T05:16:42.350Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T05:18:37.929Z"
+          "timestamp": "2026-08-31T05:20:19.936Z"
         },
         {
           "intentRef": "CHK-007:pack-boundary-transcript:0",
@@ -1101,10 +1101,10 @@
           "command": "node scripts/verify-proof-or-stop-pack-boundary.mjs",
           "result": "pass",
           "note": "CLI-captured network-disabled four-tarball clean-install transcript supplements CHK-003:edge:0, CHK-003:adversarial:0, CHK-004:happy:0, CHK-004:adversarial:0, CHK-005:adversarial:0, CHK-007:happy:0, and CHK-007:edge:0 without changing their immutable pins.",
-          "headHash": "e7fe6c1eb94430d125aaa361b123e6dc15c6fa05",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
-          "timestamp": "2026-08-31T04:52:14.979Z"
+          "headHash": "da62feedaaf5a5e03071abb5f54f6bf9b26a2156",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
+          "timestamp": "2026-08-31T05:20:20.104Z"
         }
       ]
     },
