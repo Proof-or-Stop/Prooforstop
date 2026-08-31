@@ -1111,6 +1111,63 @@
       },
       "readDiagnostics": [],
       "_hash": "2e0acfde85c84c42808abb1e151ad4bfc651520a56f8b3dcc10816d8e39948da"
+    },
+    {
+      "id": "B-1fa6:RP-032",
+      "agent": "lattice-review-docs",
+      "note": "Merge-main fresh review: 0 exported symbols in main...HEAD and 50 heading-scoped sections compared for the pure-doc candidate. Merge a9f063ba75 preserves the previously fully reviewed target blob 51dc5b3f066309da3c0d1e46ed84913a35dd0390 and does not change any relatedDoc. Current manifests/verifier still pair canonical @proof-or-stop/core with unrenamed @lattice/lab; the historical-name parenthetical, no-lab-rename boundary, five internal doc-path anchors, seven problems, four components, three Story contracts, ownership matrix, and reconciliation remain consistent. No doc-code drift or promised-current implementation blocker found.",
+      "createdAt": "2026-08-31T22:45:22.588Z",
+      "reviewRound": "2026-08-31T21:15:39.856Z",
+      "reviewRunId": "B-1fa6:RR-067",
+      "envelopeId": "3f83eaf1dc37f8f35e8c75253bc2c2783500cfe0391f464d7c093020073f257a",
+      "writerSessionId": "sess-1b5ccf1a6b63dd2042cd4874a2fb9932",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1fa6/background.md",
+          ".lattice/story/actives/B-1fa6/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/step3-review-budget-breaker-handoff.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-1fa6/checklist.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/advisory.ts",
+          "packages/main/src/core/cluster-compute.ts",
+          "packages/main/src/handlers/finding.ts",
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "7bec5cd274c30db34dce134fa42fd1d1b9bdd993d25ab3692ee7b18f9e2dd80c"
+      },
+      "readDiagnostics": [],
+      "_hash": "4e7c16ef228aa2fa5baaa8a635fd0c8dd2c28ea9b4332767b436b44b3b54b911"
     }
   ]
 }
