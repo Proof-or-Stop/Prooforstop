@@ -45,6 +45,13 @@ export interface RecordArtifactReleaseResult {
   record?: ArtifactReleaseRecordV1;
 }
 
+export class ArtifactReleaseLedgerError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ArtifactReleaseLedgerError';
+  }
+}
+
 export function normalizeArtifactReleasePath(path: string): string {
   return path.replace(/\\/g, '/').replace(/^\.?\//, '').replace(/\/+/g, '/').trim();
 }
@@ -147,6 +154,43 @@ export function resolveArtifactReleaseLedgerRoot(metadataRoot: string): string {
   return resolveProjectGitRoot(root, config.gitRoot) ?? root;
 }
 
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+export function artifactReleaseRecordValidationErrors(value: unknown): string[] {
+  if (!isPlainRecord(value)) return ['record must be an object'];
+  const errors: string[] = [];
+  const requiredStrings = ['id', 'idempotencyKey', 'storyId', 'createdAt', 'mainCommit', 'artifactSetDigest', 'claimBoundary'] as const;
+  for (const field of requiredStrings) if (!isNonEmptyString(value[field])) errors.push(`${field} must be a non-empty string`);
+  if (value.schemaVersion !== ARTIFACT_RELEASE_SCHEMA_VERSION) errors.push(`schemaVersion must be ${ARTIFACT_RELEASE_SCHEMA_VERSION}`);
+  if (isNonEmptyString(value.id) && !/^AR-[a-f0-9]{24}$/u.test(value.id)) errors.push('id must be AR-<24 lowercase hex>');
+  if (isNonEmptyString(value.storyId) && !/^B-[A-Za-z0-9][A-Za-z0-9-]*$/u.test(value.storyId)) errors.push('storyId must be a B-* Story id');
+  if (isNonEmptyString(value.createdAt) && Number.isNaN(Date.parse(value.createdAt))) errors.push('createdAt must be an ISO-compatible timestamp');
+  if (isNonEmptyString(value.mainCommit) && value.mainCommit !== 'uncommitted' && !/^[a-f0-9]{40}$/u.test(value.mainCommit)) errors.push('mainCommit must be a full lowercase Git SHA or uncommitted');
+  if (!Number.isInteger(value.changedPathCount) || (value.changedPathCount as number) < 0) errors.push('changedPathCount must be a non-negative integer');
+  if (!Array.isArray(value.paths) || value.paths.length === 0 || value.paths.some(path => !isNonEmptyString(path))) {
+    errors.push('paths must be a non-empty array of non-empty strings');
+  } else {
+    const normalized = uniqueSortedNormalizedPaths(value.paths as string[]);
+    if (JSON.stringify(normalized) !== JSON.stringify(value.paths)) errors.push('paths must be normalized, unique, and sorted');
+    if (value.changedPathCount !== value.paths.length) errors.push('changedPathCount must equal paths.length');
+  }
+  if (isNonEmptyString(value.artifactSetDigest) && !/^sha256:[a-f0-9]{64}$/u.test(value.artifactSetDigest)) errors.push('artifactSetDigest must be sha256:<64 lowercase hex>');
+  if (typeof value.runtimeSemverChanged !== 'boolean') errors.push('runtimeSemverChanged must be boolean');
+  if (!Array.isArray(value.notes) || value.notes.length === 0 || value.notes.some(note => !isNonEmptyString(note))) errors.push('notes must be a non-empty array of non-empty strings');
+  if (isNonEmptyString(value.idempotencyKey) && isNonEmptyString(value.storyId) && isNonEmptyString(value.mainCommit) && isNonEmptyString(value.artifactSetDigest)) {
+    const expectedKey = `${value.storyId}:${value.mainCommit}:${value.artifactSetDigest}`;
+    if (value.idempotencyKey !== expectedKey) errors.push('idempotencyKey does not match storyId/mainCommit/artifactSetDigest');
+    if (isNonEmptyString(value.id) && value.id !== `AR-${sha256Hex(expectedKey).slice(0, 24)}`) errors.push('id does not match idempotencyKey');
+  }
+  return errors;
+}
+
 export function readArtifactReleaseLedger(root: string): ArtifactReleaseRecordV1[] {
   const file = artifactReleaseLedgerPath(root);
   if (!existsSync(file)) return [];
@@ -157,8 +201,12 @@ export function readArtifactReleaseLedger(root: string): ArtifactReleaseRecordV1
     if (!line) continue;
     try {
       const parsed = JSON.parse(line) as ArtifactReleaseRecordV1;
-      if (parsed.schemaVersion === ARTIFACT_RELEASE_SCHEMA_VERSION) records.push(parsed);
+      if (parsed.schemaVersion !== ARTIFACT_RELEASE_SCHEMA_VERSION) continue;
+      const errors = artifactReleaseRecordValidationErrors(parsed);
+      if (errors.length > 0) throw new ArtifactReleaseLedgerError(`artifact release ledger line ${index + 1}: ${errors.join('; ')}`);
+      records.push(parsed);
     } catch (e: any) {
+      if (e instanceof ArtifactReleaseLedgerError) throw e;
       throw new Error(`artifact release ledger parse failed at line ${index + 1}: ${e?.message ?? e}`);
     }
   }

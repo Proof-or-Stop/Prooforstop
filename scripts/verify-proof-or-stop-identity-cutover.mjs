@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, statSync } from 'node:fs';
-import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
@@ -14,6 +15,7 @@ const CURRENT_LEGACY_CONTEXT_MANIFEST_PATH = 'scripts/proof-or-stop-identity-cur
 const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = '4b57856dec08f4bc46dfc86d98647b1f71eabcbec9ad531f3284fe83fe1fc475';
 const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 163;
 const POLICY_PATH = 'docs/requirements/decisions/proof-or-stop-identity-cutover.md';
+const STORY_INIT_COMMIT = '1bde8a8280d68fe652dadfcdf42aad5190350ba7';
 // Rewritten from 1dab23ae287f by the authorized repository-wide Git identity
 // rewrite. The tree and one-path policy-commit boundary are verified below.
 const POLICY_COMMIT = 'f245fd614c728ce6027bd3a08f25eda4de32429c';
@@ -188,6 +190,10 @@ const EXACT_FROZEN_ROWS = [
   ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_OWNER_SESSION_ADAPTER_SESSION', 1, 'c09043e6c49514c606d0e9bf8f277633d1859ebd494cfed1f43b40bc106460c3'],
   ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_OWNER_SESSION_ADAPTER_TASK', 1, 'f54c46b498f1d1647014a5c7584bf4bf9aac76c43af1aaffb7de6db62abf811c'],
   ['persisted_schema', 'scripts/verify-process-fact-contract.mjs', 'LATTICE_SESSION_ID', 1, '95c69d3e9bd3b405a5e8a7a28b3b7d15da63b4dbb615d1dbf643717244552ef0'],
+  ['migration_input', 'packages/main/src/core/acceptance-topology.ts', 'lattice acceptance_matrix', 1, 'e00117fac7f8941f1334c3a2ac0f9ed8bccfa52e2bb546d07cd907ab9b98d3b7'],
+  ['migration_input', 'packages/main/src/core/acceptance-topology.ts', 'bin/lattice', 1, 'fcb8e41c228b96e553f807e1427d4506988e6edb39cfa7dc431102718a3f782f'],
+  ['compatibility_fixture', 'packages/main/tests/acceptance-topology-provenance.test.mjs', 'lattice acceptance_matrix', 1, 'e289de43360d9d12e87862b2304cab26b869a9ad08f3772d7d6bb59ca43719bc'],
+  ['compatibility_fixture', 'packages/main/tests/acceptance-topology-provenance.test.mjs', 'bin/lattice', 1, 'cee7076229d43b1211bdc0ed3d497b732a6edc9f67819ce1eb0ebc4247841b52'],
 ].map(([className, path, token, expectedOccurrences, contextSha256], index) => ({
   id: `frozen-current-${String(index + 1).padStart(2, '0')}`,
   class: className, path, token, expectedOccurrences, contextSha256,
@@ -197,6 +203,10 @@ const EXACT_FROZEN_ROWS = [
       : 'Existing experiment.v1 schema namespace remains frozen while active package routing is canonical.'
     : className === 'signature_salt'
       ? 'Historical signatures bind this exact salt at this exact verification occurrence.'
+      : className === 'migration_input'
+        ? 'The non-evidentiary provenance parser recognizes this exact retired producer spelling only when reading frozen historical acceptance records.'
+        : className === 'compatibility_fixture'
+          ? 'The focused compatibility regression pins this exact retired producer spelling and proves it does not restore an active runtime alias.'
       : 'Exact historical decision title or filename reference remains linked to immutable provenance.',
   disposition: 'frozen',
   verificationCommand: 'internal:verify-exact-frozen-occurrence',
@@ -208,7 +218,7 @@ const CURRENT_LEGACY_CONTEXT_ROWS = JSON.parse(readFileSync(
   'utf8',
 ));
 EXACT_ALLOWLIST.push(...CURRENT_LEGACY_CONTEXT_ROWS);
-const EXPECTED_EXACT_ALLOWLIST_COUNT = 245;
+const EXPECTED_EXACT_ALLOWLIST_COUNT = 249;
 
 const FROZEN_SALTS = [
   'lattice-review-integrity-v1',
@@ -316,6 +326,63 @@ const FROZEN_FILE_BASELINES = [
 ];
 const FROZEN_FILE_BASELINE_PATHS = new Set(FROZEN_FILE_BASELINES.map((row) => row.path));
 const EXPECTED_FROZEN_FILE_BASELINE_COUNT = 35;
+const APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE = [
+  {
+    path: '.proof-or-stop/artifact-releases.jsonl',
+    recordId: 'AR-a4fd1904b0ea65c53d1e65d6',
+    recordSha256: 'bc5aa92c2275711abb26f84689a648fa8cbbb033b12cd557cb342044cc8d85c0',
+    reason: 'B-5952 release provenance was appended after the identity baseline and preserves its historical pre-cutover Story path note.',
+    retiredTokens: ['.lattice/story/'].map((token) => ({
+      token,
+      expectedOccurrences: 1,
+      reason: 'Exact historical lifecycle path text inside the byte-pinned B-5952 release record.',
+    })),
+  },
+  {
+    path: '.proof-or-stop/capability-releases.jsonl',
+    recordId: 'PCR-eb2e6d5df1151d676403f1c9',
+    recordSha256: '6cc64b7028983ca9db8cd0c9fbd35986d63ff56d2281226fd323e8b0ba407784',
+    reason: 'B-5952 capability provenance was appended after the identity baseline and records the exact changed paths from its pre-cutover Story branch.',
+    retiredTokens: [
+      '.lattice/story/actives/B-5952/acceptance-basis.json',
+      '.lattice/story/actives/B-5952/certification-window.json',
+      '.lattice/story/actives/B-5952/checklist.json',
+      '.lattice/story/actives/B-5952/closeout-write-receipts.jsonl',
+      '.lattice/story/actives/B-5952/decision.json',
+      '.lattice/story/actives/B-5952/delivery-check.json',
+      '.lattice/story/actives/B-5952/dev-memory-preflight-ack.json',
+      '.lattice/story/actives/B-5952/done-required-evidence.json',
+      '.lattice/story/actives/B-5952/evidence/live-smoke-transcript.json',
+      '.lattice/story/actives/B-5952/findings.json',
+      '.lattice/story/actives/B-5952/index.json',
+      '.lattice/story/actives/B-5952/init-check.json',
+      '.lattice/story/actives/B-5952/intent-collision.json',
+      '.lattice/story/actives/B-5952/original-intent-snapshot.json',
+      '.lattice/story/actives/B-5952/plan.md',
+      '.lattice/story/actives/B-5952/pre-review-check.json',
+      '.lattice/story/actives/B-5952/process-events.jsonl',
+      '.lattice/story/actives/B-5952/process-metrics.json',
+      '.lattice/story/actives/B-5952/prompt-envelopes.json',
+      '.lattice/story/actives/B-5952/proofstory.json',
+      '.lattice/story/actives/B-5952/red-evidence.json',
+      '.lattice/story/actives/B-5952/review-inventory-epochs.json',
+      '.lattice/story/actives/B-5952/review-passes.json',
+      '.lattice/story/actives/B-5952/review-runs.json',
+      '.lattice/story/actives/B-5952/review.json',
+      '.lattice/story/actives/B-5952/scope-boundary.json',
+      '.lattice/story/actives/B-5952/scope-check.json',
+      '.lattice/story/actives/B-5952/scope-contract.json',
+      '.lattice/story/actives/B-5952/scope-freeze-check.json',
+      '.lattice/story/actives/B-5952/summary.json',
+      '.lattice/story/actives/B-5952/test-evidence.json',
+      '.lattice/story/actives/B-5952/understanding.json',
+    ].map((token) => ({
+      token,
+      expectedOccurrences: 1,
+      reason: 'Exact historical changed-path token inside the byte-pinned B-5952 capability release record.',
+    })),
+  },
+];
 
 const CONCEPT_PROVENANCE_ROWS = JSON.parse(readFileSync(
   new URL('./proof-or-stop-identity-concept-provenance.json', import.meta.url),
@@ -716,6 +783,109 @@ function isProtectedArtifact(path) {
     || path.startsWith('tests/fixtures/');
 }
 
+function isPlainRecord(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isNonEmptyString(value) {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function normalizedUniquePaths(paths) {
+  return [...new Set(paths.map((path) => path.replace(/\\/gu, '/').replace(/^\.?\//u, '').replace(/\/+/gu, '/').trim()).filter(Boolean))].sort();
+}
+
+function appendOnlyReleaseRecordStructureErrors(schemaVersion, value) {
+  if (!isPlainRecord(value)) return ['record must be an object'];
+  const errors = [];
+  const requireStrings = (fields) => {
+    for (const field of fields) if (!isNonEmptyString(value[field])) errors.push(`${field} must be a non-empty string`);
+  };
+  const validateCommon = (idPattern, idLabel) => {
+    requireStrings(['id', 'idempotencyKey', 'storyId', 'createdAt', 'mainCommit']);
+    if (isNonEmptyString(value.id) && !idPattern.test(value.id)) errors.push(`id must be ${idLabel}`);
+    if (isNonEmptyString(value.storyId) && !/^B-[A-Za-z0-9][A-Za-z0-9-]*$/u.test(value.storyId)) errors.push('storyId must be a B-* Story id');
+    if (isNonEmptyString(value.createdAt) && Number.isNaN(Date.parse(value.createdAt))) errors.push('createdAt must be an ISO-compatible timestamp');
+    if (isNonEmptyString(value.mainCommit) && value.mainCommit !== 'uncommitted' && !/^[a-f0-9]{40}$/u.test(value.mainCommit)) errors.push('mainCommit must be a full lowercase Git SHA or uncommitted');
+    if (typeof value.runtimeSemverChanged !== 'boolean') errors.push('runtimeSemverChanged must be boolean');
+    if (!Array.isArray(value.notes) || value.notes.length === 0 || value.notes.some((note) => !isNonEmptyString(note))) errors.push('notes must be a non-empty array of non-empty strings');
+  };
+  if (value.schemaVersion !== schemaVersion) errors.push(`schemaVersion must be ${schemaVersion}`);
+  if (schemaVersion === 'proofbound.artifact-release.v1') {
+    validateCommon(/^AR-[a-f0-9]{24}$/u, 'AR-<24 lowercase hex>');
+    requireStrings(['artifactSetDigest', 'claimBoundary']);
+    if (!Number.isInteger(value.changedPathCount) || value.changedPathCount < 0) errors.push('changedPathCount must be a non-negative integer');
+    if (!Array.isArray(value.paths) || value.paths.length === 0 || value.paths.some((path) => !isNonEmptyString(path))) {
+      errors.push('paths must be a non-empty array of non-empty strings');
+    } else {
+      if (JSON.stringify(normalizedUniquePaths(value.paths)) !== JSON.stringify(value.paths)) errors.push('paths must be normalized, unique, and sorted');
+      if (value.changedPathCount !== value.paths.length) errors.push('changedPathCount must equal paths.length');
+    }
+    if (isNonEmptyString(value.artifactSetDigest) && !/^sha256:[a-f0-9]{64}$/u.test(value.artifactSetDigest)) errors.push('artifactSetDigest must be sha256:<64 lowercase hex>');
+    if (isNonEmptyString(value.storyId) && isNonEmptyString(value.mainCommit) && isNonEmptyString(value.artifactSetDigest)) {
+      const expectedKey = `${value.storyId}:${value.mainCommit}:${value.artifactSetDigest}`;
+      if (value.idempotencyKey !== expectedKey) errors.push('idempotencyKey does not match artifact identity inputs');
+      if (isNonEmptyString(value.id) && value.id !== `AR-${sha256(expectedKey).slice(0, 24)}`) errors.push('id does not match idempotencyKey');
+    }
+  } else if (schemaVersion === 'proofbound.product-capability-release.v1') {
+    validateCommon(/^PCR-[a-f0-9]{24}$/u, 'PCR-<24 lowercase hex>');
+    requireStrings(['capabilityId', 'capabilityVersion', 'capabilityDigest']);
+    if (value.capabilityName !== undefined && !isNonEmptyString(value.capabilityName)) errors.push('capabilityName must be a non-empty string when present');
+    if (!new Set(['experiment-launch-control', 'workflow-control', 'evidence-control', 'memory-control', 'documentation-control', 'other']).has(value.capabilityKind)) errors.push('capabilityKind is invalid');
+    if (isNonEmptyString(value.capabilityDigest) && !/^sha256:[a-f0-9]{64}$/u.test(value.capabilityDigest)) errors.push('capabilityDigest must be sha256:<64 lowercase hex>');
+    if (isNonEmptyString(value.capabilityVersion) && value.capabilityVersion !== value.capabilityDigest?.replace(/^sha256:/u, '').slice(0, 12)) errors.push('capabilityVersion does not match capabilityDigest');
+    if (value.artifactReleaseId !== undefined && (!isNonEmptyString(value.artifactReleaseId) || !/^AR-[a-f0-9]{24}$/u.test(value.artifactReleaseId))) errors.push('artifactReleaseId is invalid');
+    if (value.artifactSetDigest !== undefined && (!isNonEmptyString(value.artifactSetDigest) || !/^sha256:[a-f0-9]{64}$/u.test(value.artifactSetDigest))) errors.push('artifactSetDigest is invalid');
+    if (!Array.isArray(value.changedPaths) || value.changedPaths.length === 0 || value.changedPaths.some((path) => !isNonEmptyString(path))) {
+      errors.push('changedPaths must be a non-empty array of non-empty strings');
+    } else if (JSON.stringify(normalizedUniquePaths(value.changedPaths)) !== JSON.stringify(value.changedPaths)) {
+      errors.push('changedPaths must be normalized, unique, and sorted');
+    }
+    if (!new Set(['non-runtime-capability', 'runtime-capability']).has(value.activationBoundary)) errors.push('activationBoundary is invalid');
+    if (value.authority !== 'non_authoritative') errors.push("authority must be 'non_authoritative'");
+    if (value.gateEvidence !== false) errors.push('gateEvidence must be false');
+    if (isNonEmptyString(value.storyId) && isNonEmptyString(value.capabilityId) && isNonEmptyString(value.capabilityDigest)) {
+      const expectedKey = `${value.storyId}:${value.capabilityId}:${value.capabilityDigest}`;
+      if (value.idempotencyKey !== expectedKey) errors.push('idempotencyKey does not match capability identity inputs');
+      if (isNonEmptyString(value.id) && value.id !== `PCR-${sha256(expectedKey).slice(0, 24)}`) errors.push('id does not match idempotencyKey');
+    }
+  } else {
+    errors.push(`unsupported append-only ledger schema ${schemaVersion}`);
+  }
+  return errors;
+}
+
+function retiredTokenCounts(text) {
+  const counts = new Map();
+  for (const match of text.matchAll(TOKEN_PATTERN)) counts.set(match[0], (counts.get(match[0]) ?? 0) + 1);
+  return counts;
+}
+
+function validateAppendOnlySuffixProvenance(row, line, record) {
+  const errors = [];
+  const counts = retiredTokenCounts(line);
+  const pin = APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE.find((candidate) => candidate.path === row.path && candidate.recordId === record.id);
+  if (counts.size === 0) {
+    if (pin) errors.push(`frozen baseline ${row.id}: stale retired-identity provenance pin for suffix record ${record.id}`);
+    return errors;
+  }
+  if (!pin) return [`frozen baseline ${row.id}: suffix record ${record.id || '<missing-id>'} contains unclassified retired identity tokens`];
+  if (!pin.reason || pin.reason.length < 20) errors.push(`frozen baseline ${row.id}: suffix record ${record.id} provenance rationale is missing`);
+  if (sha256(line) !== pin.recordSha256) errors.push(`frozen baseline ${row.id}: suffix record ${record.id} digest changed`);
+  const expected = new Map();
+  for (const tokenRow of pin.retiredTokens) {
+    if (!tokenRow.token || /[*?\[\]{}]/u.test(tokenRow.token) || !tokenRow.reason || tokenRow.reason.length < 20 || !Number.isInteger(tokenRow.expectedOccurrences) || tokenRow.expectedOccurrences <= 0) {
+      errors.push(`frozen baseline ${row.id}: suffix record ${record.id} has malformed exact token provenance`);
+      continue;
+    }
+    if (expected.has(tokenRow.token)) errors.push(`frozen baseline ${row.id}: suffix record ${record.id} has duplicate token provenance ${tokenRow.token}`);
+    expected.set(tokenRow.token, tokenRow.expectedOccurrences);
+  }
+  for (const [token, count] of counts) if (expected.get(token) !== count) errors.push(`frozen baseline ${row.id}: suffix record ${record.id} token ${token} count ${count}, expected ${expected.get(token) ?? 0}`);
+  for (const [token, count] of expected) if (counts.get(token) !== count) errors.push(`frozen baseline ${row.id}: suffix record ${record.id} pinned token ${token} is stale`);
+  return errors;
+}
+
 function verifyAppendOnlyJsonlPrefix(row, frozenBytes, currentBytes) {
   const errors = [];
   if (sha256(frozenBytes) !== row.byteSha256) {
@@ -742,6 +912,7 @@ function verifyAppendOnlyJsonlPrefix(row, frozenBytes, currentBytes) {
     return errors;
   }
   const lines = text.slice(0, -1).split('\n');
+  const seenPinnedRecords = new Set();
   for (const [index, line] of lines.entries()) {
     if (!line) {
       errors.push(`frozen baseline ${row.id}: appended JSONL record ${index + 1} is empty`);
@@ -749,14 +920,15 @@ function verifyAppendOnlyJsonlPrefix(row, frozenBytes, currentBytes) {
     }
     try {
       const record = JSON.parse(line);
-      if (!record || Array.isArray(record) || typeof record !== 'object') {
-        errors.push(`frozen baseline ${row.id}: appended JSONL record ${index + 1} is not an object`);
-      } else if (record.schemaVersion !== row.appendOnlyJsonlSchemaVersion) {
-        errors.push(`frozen baseline ${row.id}: appended JSONL record ${index + 1} has schemaVersion ${JSON.stringify(record.schemaVersion)}, expected ${row.appendOnlyJsonlSchemaVersion}`);
-      }
+      for (const error of appendOnlyReleaseRecordStructureErrors(row.appendOnlyJsonlSchemaVersion, record)) errors.push(`frozen baseline ${row.id}: appended JSONL record ${index + 1} ${error}`);
+      errors.push(...validateAppendOnlySuffixProvenance(row, line, record));
+      if (APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE.some((pin) => pin.path === row.path && pin.recordId === record.id)) seenPinnedRecords.add(record.id);
     } catch {
       errors.push(`frozen baseline ${row.id}: appended JSONL record ${index + 1} is invalid JSON`);
     }
+  }
+  for (const pin of APPEND_ONLY_LEDGER_SUFFIX_PROVENANCE.filter((candidate) => candidate.path === row.path)) {
+    if (!seenPinnedRecords.has(pin.recordId)) errors.push(`frozen baseline ${row.id}: pinned suffix provenance record ${pin.recordId} is missing`);
   }
   return errors;
 }
@@ -807,6 +979,51 @@ function verifyFrozenFiles(root, tracked, baselines = FROZEN_FILE_BASELINES) {
     }
   }
   return errors;
+}
+
+function selfTestAppendRecord(schemaVersion) {
+  const mainCommit = 'a'.repeat(40);
+  if (schemaVersion === 'proofbound.artifact-release.v1') {
+    const storyId = 'B-selftest';
+    const artifactSetDigest = `sha256:${'b'.repeat(64)}`;
+    const idempotencyKey = `${storyId}:${mainCommit}:${artifactSetDigest}`;
+    return {
+      schemaVersion,
+      id: `AR-${sha256(idempotencyKey).slice(0, 24)}`,
+      idempotencyKey,
+      storyId,
+      createdAt: '2026-08-31T00:00:00.000Z',
+      mainCommit,
+      changedPathCount: 1,
+      paths: ['docs/self-test.md'],
+      artifactSetDigest,
+      runtimeSemverChanged: false,
+      claimBoundary: 'provenance-only self-test record',
+      notes: ['Canonical append-only verifier self-test.'],
+    };
+  }
+  const storyId = 'B-selftest';
+  const capabilityId = 'docs-self-test';
+  const capabilityDigest = `sha256:${'c'.repeat(64)}`;
+  const idempotencyKey = `${storyId}:${capabilityId}:${capabilityDigest}`;
+  return {
+    schemaVersion,
+    id: `PCR-${sha256(idempotencyKey).slice(0, 24)}`,
+    idempotencyKey,
+    storyId,
+    createdAt: '2026-08-31T00:00:00.000Z',
+    mainCommit,
+    capabilityId,
+    capabilityVersion: capabilityDigest.slice('sha256:'.length, 'sha256:'.length + 12),
+    capabilityKind: 'documentation-control',
+    capabilityDigest,
+    changedPaths: ['docs/self-test.md'],
+    runtimeSemverChanged: false,
+    activationBoundary: 'non-runtime-capability',
+    authority: 'non_authoritative',
+    gateEvidence: false,
+    notes: ['Canonical append-only verifier self-test.'],
+  };
 }
 
 function isConceptProvenancePath(path) {
@@ -1085,7 +1302,11 @@ function scanActiveResidue(root, files) {
   return [...deduped.values()].sort((a, b) => `${a.class}\0${a.path}\0${a.line}\0${a.token}`.localeCompare(`${b.class}\0${b.path}\0${b.line}\0${b.token}`));
 }
 
-function verifyOrdering(root) {
+function verifyOrdering(root, options = {}) {
+  const storyInitCommit = options.storyInitCommit ?? STORY_INIT_COMMIT;
+  const policyCommit = options.policyCommit ?? POLICY_COMMIT;
+  const policyPath = options.policyPath ?? POLICY_PATH;
+  const scriptPath = options.scriptPath ?? SCRIPT_PATH;
   const errors = [];
   const isAncestor = (older, newer) => {
     try {
@@ -1095,29 +1316,49 @@ function verifyOrdering(root) {
       return false;
     }
   };
-  if (!isAncestor(POLICY_COMMIT, 'HEAD')) errors.push(`ordering: policy commit ${POLICY_COMMIT} is not an ancestor of HEAD`);
-  const policyPaths = git(['show', '--format=', '--name-only', POLICY_COMMIT], { cwd: root }).trim().split('\n').filter(Boolean);
-  if (policyPaths.length !== 1 || policyPaths[0] !== POLICY_PATH) {
-    errors.push(`ordering: policy commit must contain only ${POLICY_PATH}`);
+  const storyInitIsAncestor = isAncestor(storyInitCommit, 'HEAD');
+  const policyIsAncestor = isAncestor(policyCommit, 'HEAD');
+  if (!storyInitIsAncestor) errors.push(`ordering: Story init commit ${storyInitCommit} is not an ancestor of HEAD`);
+  if (!policyIsAncestor) errors.push(`ordering: policy commit ${policyCommit} is not an ancestor of HEAD`);
+  let policyPaths = [];
+  try {
+    policyPaths = git(['show', '--format=', '--name-only', policyCommit], { cwd: root }).trim().split('\n').filter(Boolean);
+  } catch {
+    errors.push(`ordering: policy commit ${policyCommit} cannot be inspected`);
   }
-  const introductions = git(['log', '--diff-filter=A', '--format=%H', '--', SCRIPT_PATH], { cwd: root }).trim().split('\n').filter(Boolean);
+  if (policyPaths.length !== 1 || policyPaths[0] !== policyPath) {
+    errors.push(`ordering: policy commit must contain only ${policyPath}`);
+  }
+  const introductions = git(['log', '--diff-filter=A', '--format=%H', '--', scriptPath], { cwd: root }).trim().split('\n').filter(Boolean);
   if (introductions.length !== 1) {
     errors.push(`ordering: expected exactly one committed RED verifier introduction, found ${introductions.length}`);
     return errors;
   }
   const redCommit = introductions[0];
-  if (!isAncestor(POLICY_COMMIT, redCommit)) errors.push('ordering: RED verifier commit does not descend from policy commit');
+  const policyBeforeRed = isAncestor(policyCommit, redCommit);
+  if (!policyBeforeRed) errors.push('ordering: RED verifier commit does not descend from policy commit');
   if (!isAncestor(redCommit, 'HEAD')) errors.push('ordering: RED verifier commit is not an ancestor of HEAD');
   const redPaths = git(['show', '--format=', '--name-only', redCommit], { cwd: root }).trim().split('\n').filter(Boolean).sort();
-  const expectedRedPaths = ['package.json', SCRIPT_PATH].sort();
+  const expectedRedPaths = ['package.json', scriptPath].sort();
   if (JSON.stringify(redPaths) !== JSON.stringify(expectedRedPaths)) {
     errors.push(`ordering: RED commit changed unexpected paths: ${redPaths.join(', ')}`);
   }
-  const intermediate = git(['log', '--format=%H', `${POLICY_COMMIT}..${redCommit}^`], { cwd: root }).trim().split('\n').filter(Boolean);
-  for (const commit of intermediate) {
-    const paths = git(['show', '--format=', '--name-only', commit], { cwd: root }).trim().split('\n').filter(Boolean);
-    const forbidden = paths.filter((path) => !path.startsWith('.lattice/story/actives/B-022e/') && !path.startsWith('.proof-or-stop/story/actives/B-022e/'));
-    if (forbidden.length > 0) errors.push(`ordering: pre-RED commit ${commit.slice(0, 12)} changed production/non-story paths: ${forbidden.join(', ')}`);
+  const forbiddenOrderingPaths = (paths) => paths.filter((path) => !path.startsWith('.lattice/story/actives/B-022e/') && !path.startsWith('.proof-or-stop/story/actives/B-022e/'));
+  if (storyInitIsAncestor && isAncestor(storyInitCommit, policyCommit)) {
+    const prePolicy = git(['log', '--format=%H', `${storyInitCommit}..${policyCommit}^`], { cwd: root }).trim().split('\n').filter(Boolean);
+    for (const commit of prePolicy) {
+      const forbidden = forbiddenOrderingPaths(git(['show', '--format=', '--name-only', commit], { cwd: root }).trim().split('\n').filter(Boolean));
+      if (forbidden.length > 0) errors.push(`ordering: pre-policy commit ${commit.slice(0, 12)} changed production/non-story paths: ${forbidden.join(', ')}`);
+    }
+  } else if (storyInitIsAncestor) {
+    errors.push('ordering: policy commit does not descend from Story init commit');
+  }
+  if (policyBeforeRed) {
+    const intermediate = git(['log', '--format=%H', `${policyCommit}..${redCommit}^`], { cwd: root }).trim().split('\n').filter(Boolean);
+    for (const commit of intermediate) {
+      const forbidden = forbiddenOrderingPaths(git(['show', '--format=', '--name-only', commit], { cwd: root }).trim().split('\n').filter(Boolean));
+      if (forbidden.length > 0) errors.push(`ordering: pre-RED commit ${commit.slice(0, 12)} changed production/non-story paths: ${forbidden.join(', ')}`);
+    }
   }
   try {
     const packageAtRed = JSON.parse(git(['show', `${redCommit}:package.json`], { cwd: root }));
@@ -1128,6 +1369,43 @@ function verifyOrdering(root) {
     errors.push('ordering: cannot parse package.json at RED commit');
   }
   return errors;
+}
+
+function createOrderingSelfTestFixture(productionBeforePolicy = false, productionBeforeRed = false) {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-ordering-self-test-'));
+  git(['init', '-b', 'main'], { cwd: root });
+  git(['config', 'user.email', 'ordering@example.test'], { cwd: root });
+  git(['config', 'user.name', 'Ordering Self Test'], { cwd: root });
+  const write = (path, content) => {
+    mkdirSync(dirname(resolve(root, path)), { recursive: true });
+    writeFileSync(resolve(root, path), content, 'utf8');
+  };
+  write('.proof-or-stop/story/actives/B-022e/index.json', '{"storyId":"B-022e","phase":"INIT"}\n');
+  git(['add', '.'], { cwd: root });
+  git(['commit', '-m', 'story init'], { cwd: root });
+  const storyInitCommit = git(['rev-parse', 'HEAD'], { cwd: root }).trim();
+  if (productionBeforePolicy) {
+    write('packages/main/src/too-early.ts', 'export const migratedBeforePolicy = true;\n');
+    git(['add', '.'], { cwd: root });
+    git(['commit', '-m', 'production before policy'], { cwd: root });
+  }
+  write(POLICY_PATH, '# Cutover policy\n');
+  git(['add', POLICY_PATH], { cwd: root });
+  git(['commit', '-m', 'policy only'], { cwd: root });
+  const policyCommit = git(['rev-parse', 'HEAD'], { cwd: root }).trim();
+  if (productionBeforeRed) {
+    write('packages/main/src/too-early.ts', 'export const migratedBeforeRed = true;\n');
+    git(['add', '.'], { cwd: root });
+    git(['commit', '-m', 'production before RED'], { cwd: root });
+  }
+  write('package.json', `${JSON.stringify({ scripts: { 'test:proof-or-stop-identity-cutover': EXPECTED_PACKAGE_SCRIPT } }, null, 2)}\n`);
+  write(SCRIPT_PATH, '#!/usr/bin/env node\n');
+  git(['add', 'package.json', SCRIPT_PATH], { cwd: root });
+  git(['commit', '-m', 'RED verifier'], { cwd: root });
+  const redCommit = git(['rev-parse', 'HEAD'], { cwd: root }).trim();
+  const policyTree = git(['show', '-s', '--format=%T', policyCommit], { cwd: root }).trim();
+  const unrelatedPolicyCommit = git(['commit-tree', policyTree, '-m', 'unrelated policy root'], { cwd: root }).trim();
+  return { root, storyInitCommit, policyCommit, redCommit, unrelatedPolicyCommit };
 }
 
 function runSelfTest(root, files) {
@@ -1236,17 +1514,36 @@ function runSelfTest(root, files) {
   expect(verifyFrozenFiles(root, tracked, changedFrozenDigest).some((error) => error.includes('byte mutation')), 'changed frozen digest did not fail');
   const missingFrozenRow = FROZEN_FILE_BASELINES.slice(1);
   expect(verifyFrozenFiles(root, tracked, missingFrozenRow).some((error) => error.includes('row count')), 'missing frozen baseline row did not fail');
-  const appendOnlyRow = FROZEN_FILE_BASELINES.find((row) => row.appendOnlyJsonlSchemaVersion);
-  expect(Boolean(appendOnlyRow), 'append-only frozen prefix row is missing');
-  const appendOnlyPrefix = git(['cat-file', 'blob', appendOnlyRow.gitBlobOid], { cwd: root, encoding: null });
-  const validAppend = Buffer.from(`${JSON.stringify({ schemaVersion: appendOnlyRow.appendOnlyJsonlSchemaVersion, id: 'post-freeze-record' })}\n`);
-  expect(verifyAppendOnlyJsonlPrefix(appendOnlyRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, validAppend])).length === 0, 'valid complete JSONL append did not preserve the frozen prefix');
-  const mutatedPrefix = Buffer.from(appendOnlyPrefix);
+  const appendOnlyRows = FROZEN_FILE_BASELINES.filter((row) => row.appendOnlyJsonlSchemaVersion);
+  expect(appendOnlyRows.length === 2, 'both append-only frozen prefix rows are required');
+  for (const appendOnlyRow of appendOnlyRows) {
+    const appendOnlyPrefix = git(['cat-file', 'blob', appendOnlyRow.gitBlobOid], { cwd: root, encoding: null });
+    const syntheticRow = { ...appendOnlyRow, path: `${appendOnlyRow.path}.synthetic-self-test` };
+    const validRecord = selfTestAppendRecord(appendOnlyRow.appendOnlyJsonlSchemaVersion);
+    const validAppend = Buffer.from(`${JSON.stringify(validRecord)}\n`);
+    expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, validAppend])).length === 0, `valid complete ${appendOnlyRow.appendOnlyJsonlSchemaVersion} append did not preserve the frozen prefix`);
+    const missingRequired = { ...validRecord };
+    delete missingRequired.mainCommit;
+    const missingRequiredAppend = Buffer.from(`${JSON.stringify(missingRequired)}\n`);
+    expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, missingRequiredAppend])).some((error) => error.includes('mainCommit must be a non-empty string')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted a missing required field`);
+    const requiredPathField = appendOnlyRow.appendOnlyJsonlSchemaVersion === 'proofbound.artifact-release.v1' ? 'paths' : 'changedPaths';
+    const emptyRequiredPaths = { ...validRecord, [requiredPathField]: [] };
+    if (requiredPathField === 'paths') emptyRequiredPaths.changedPathCount = 0;
+    const emptyRequiredPathsAppend = Buffer.from(`${JSON.stringify(emptyRequiredPaths)}\n`);
+    expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, emptyRequiredPathsAppend])).some((error) => error.includes('must be a non-empty array')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted an empty required path array`);
+    const retiredPayload = { ...validRecord, notes: [...validRecord.notes, 'new .lattice/injected identity'] };
+    const retiredAppend = Buffer.from(`${JSON.stringify(retiredPayload)}\n`);
+    expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, retiredAppend])).some((error) => error.includes('unclassified retired identity tokens')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted a new retired-token payload`);
+    const wrongSchemaAppend = Buffer.from(`${JSON.stringify({ ...validRecord, schemaVersion: 'wrong.schema.v1' })}\n`);
+    expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, wrongSchemaAppend])).some((error) => error.includes('schemaVersion')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted another schema`);
+    expect(verifyAppendOnlyJsonlPrefix(syntheticRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, validAppend.subarray(0, validAppend.length - 1)])).some((error) => error.includes('truncated')), `append-only ${appendOnlyRow.appendOnlyJsonlSchemaVersion} row accepted a truncated appended record`);
+  }
+  const firstAppendOnlyRow = appendOnlyRows[0];
+  const firstAppendOnlyPrefix = git(['cat-file', 'blob', firstAppendOnlyRow.gitBlobOid], { cwd: root, encoding: null });
+  const mutatedPrefix = Buffer.from(firstAppendOnlyPrefix);
   mutatedPrefix[0] ^= 1;
-  expect(verifyAppendOnlyJsonlPrefix(appendOnlyRow, appendOnlyPrefix, Buffer.concat([mutatedPrefix, validAppend])).some((error) => error.includes('immutable JSONL prefix changed')), 'append-only row accepted a frozen-prefix mutation');
-  expect(verifyAppendOnlyJsonlPrefix(appendOnlyRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, validAppend.subarray(0, validAppend.length - 1)])).some((error) => error.includes('truncated')), 'append-only row accepted a truncated appended record');
-  const wrongSchemaAppend = Buffer.from(`${JSON.stringify({ schemaVersion: 'wrong.schema.v1' })}\n`);
-  expect(verifyAppendOnlyJsonlPrefix(appendOnlyRow, appendOnlyPrefix, Buffer.concat([appendOnlyPrefix, wrongSchemaAppend])).some((error) => error.includes('schemaVersion')), 'append-only row accepted an appended record from another schema');
+  const firstValidAppend = Buffer.from(`${JSON.stringify(selfTestAppendRecord(firstAppendOnlyRow.appendOnlyJsonlSchemaVersion))}\n`);
+  expect(verifyAppendOnlyJsonlPrefix({ ...firstAppendOnlyRow, path: `${firstAppendOnlyRow.path}.synthetic-self-test` }, firstAppendOnlyPrefix, Buffer.concat([mutatedPrefix, firstValidAppend])).some((error) => error.includes('immutable JSONL prefix changed')), 'append-only row accepted a frozen-prefix mutation');
   const experimentMutation = EXPERIMENT_PROVENANCE_ROWS.map((row, index) => index === 0
     ? { ...row, byteSha256: '0'.repeat(64) }
     : row);
@@ -1281,6 +1578,53 @@ function runSelfTest(root, files) {
       .some((error) => error.includes('manifest byte digest changed')),
     'current legacy context manifest byte mutation did not fail',
   );
+
+  const orderingFixtures = [];
+  try {
+    const positiveOrdering = createOrderingSelfTestFixture();
+    orderingFixtures.push(positiveOrdering.root);
+    const orderingOptions = {
+      storyInitCommit: positiveOrdering.storyInitCommit,
+      policyCommit: positiveOrdering.policyCommit,
+      policyPath: POLICY_PATH,
+      scriptPath: SCRIPT_PATH,
+    };
+    expect(verifyOrdering(positiveOrdering.root, orderingOptions).length === 0, 'valid decision-before-RED ordering fixture did not pass');
+    expect(
+      verifyOrdering(positiveOrdering.root, { ...orderingOptions, policyCommit: positiveOrdering.unrelatedPolicyCommit })
+        .some((error) => error.includes('not an ancestor') || error.includes('does not descend')),
+      'non-ancestor rewritten policy pin did not fail ordering verification',
+    );
+    expect(
+      verifyOrdering(positiveOrdering.root, { ...orderingOptions, policyCommit: '0'.repeat(40) })
+        .some((error) => error.includes('cannot be inspected')),
+      'unknown rewritten policy SHA did not fail ordering verification',
+    );
+    const prePolicyProduction = createOrderingSelfTestFixture(true, false);
+    orderingFixtures.push(prePolicyProduction.root);
+    expect(
+      verifyOrdering(prePolicyProduction.root, {
+        storyInitCommit: prePolicyProduction.storyInitCommit,
+        policyCommit: prePolicyProduction.policyCommit,
+        policyPath: POLICY_PATH,
+        scriptPath: SCRIPT_PATH,
+      }).some((error) => error.includes('pre-policy commit') && error.includes('production/non-story paths')),
+      'production migration before the decision did not fail ordering verification',
+    );
+    const preRedProduction = createOrderingSelfTestFixture(false, true);
+    orderingFixtures.push(preRedProduction.root);
+    expect(
+      verifyOrdering(preRedProduction.root, {
+        storyInitCommit: preRedProduction.storyInitCommit,
+        policyCommit: preRedProduction.policyCommit,
+        policyPath: POLICY_PATH,
+        scriptPath: SCRIPT_PATH,
+      }).some((error) => error.includes('pre-RED commit') && error.includes('production/non-story paths')),
+      'production migration between the decision and RED did not fail ordering verification',
+    );
+  } finally {
+    for (const fixtureRoot of orderingFixtures) rmSync(fixtureRoot, { recursive: true, force: true });
+  }
 
   if (failures.length > 0) {
     for (const failure of failures) console.error(`SELF-TEST FAIL: ${failure}`);

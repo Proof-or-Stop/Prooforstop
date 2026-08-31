@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import {
   ARTIFACT_RELEASE_LEDGER_REL_PATH,
+  ArtifactReleaseLedgerError,
   artifactReleaseLedgerPath,
   computeArtifactSetDigest,
   createArtifactReleaseRecordForTest,
@@ -376,6 +377,25 @@ try {
     assert.equal(records[0].runtimeSemverChanged, true);
     assert.ok(records[0].claimBoundary.includes('provenance-only'));
     assert.ok(readFileSync(artifactReleaseLedgerPath(root), 'utf-8').includes('"schemaVersion"'));
+  });
+
+  check('reader FAILS CLOSED on missing or inconsistent required release fields', () => {
+    const invalidRoot = mkdtemp('artifact-release-ledger-invalid-');
+    cleanup.push(invalidRoot);
+    const record = createArtifactReleaseRecordForTest({
+      root,
+      storyId: 'B-invalid',
+      mainCommit: head,
+      changedPaths: ['docs/release.md'],
+      runtimeSemverChanged: false,
+      now: '2026-07-05T00:05:00.000Z',
+    });
+    write(invalidRoot, ARTIFACT_RELEASE_LEDGER_REL_PATH, `${JSON.stringify({ ...record, changedPathCount: 2 })}\n`);
+    assert.throws(() => readArtifactReleaseLedger(invalidRoot), ArtifactReleaseLedgerError);
+    write(invalidRoot, ARTIFACT_RELEASE_LEDGER_REL_PATH, `${JSON.stringify({ ...record, idempotencyKey: '' })}\n`);
+    assert.throws(() => readArtifactReleaseLedger(invalidRoot), ArtifactReleaseLedgerError);
+    write(invalidRoot, ARTIFACT_RELEASE_LEDGER_REL_PATH, `${JSON.stringify({ ...record, paths: [], changedPathCount: 0 })}\n`);
+    assert.throws(() => readArtifactReleaseLedger(invalidRoot), ArtifactReleaseLedgerError);
   });
 
   check('already-recorded dirty ledger retry commits the existing row durably', () => {

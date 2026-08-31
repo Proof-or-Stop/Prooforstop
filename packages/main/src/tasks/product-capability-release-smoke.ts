@@ -236,6 +236,17 @@ check('reader FAILS CLOSED on gateEvidence !== false', () => {
   assert.throws(() => readCapabilityReleaseLedger(root), CapabilityReleaseLedgerError);
 });
 
+check('reader FAILS CLOSED on missing or inconsistent required release fields', () => {
+  const root = mkdtemp('capability-release-required-');
+  const record = createCapabilityReleaseRecordForTest({ ...B785E_OPTS, root });
+  writeCapabilityReleaseLedgerForTest(root, [{ ...record, changedPaths: undefined } as any]);
+  assert.throws(() => readCapabilityReleaseLedger(root), CapabilityReleaseLedgerError);
+  writeCapabilityReleaseLedgerForTest(root, [{ ...record, capabilityVersion: '000000000000' } as any]);
+  assert.throws(() => readCapabilityReleaseLedger(root), CapabilityReleaseLedgerError);
+  writeCapabilityReleaseLedgerForTest(root, [{ ...record, changedPaths: [] } as any]);
+  assert.throws(() => readCapabilityReleaseLedger(root), CapabilityReleaseLedgerError);
+});
+
 check('reader FAILS CLOSED on malformed JSON', () => {
   const root = mkdtemp('capability-release-malformed-');
   write(root, CAPABILITY_RELEASE_LEDGER_REL_PATH, '{not valid json\n');
