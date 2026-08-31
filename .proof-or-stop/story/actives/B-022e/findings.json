@@ -316,7 +316,7 @@
       "desc": "Canonical PROOF_OR_STOP.md is never recognized as full-mode evidence: detectManagedAssetMode lowercases every directory entry but compares against mixed-case proofOrStop.md. Repro after rebuilding with Node v24: node packages/main/dist/tasks/validation-protocol-smoke.js fails because a temp root containing canonical PROOF_OR_STOP.md is classified assetMode=global-thin, omits PROOF_OR_STOP.md from managed drift, and recommends creating .proof-or-stop/Proof-or-Stop.md plus .proof-or-stop/proof-or-stop.json. This is an active identity/config cutover defect and can make proof-or-stop check target the wrong managed-asset topology; fix the comparison to the actual lowercase canonical filename and retain the existing stale-local-edit fail-closed assertions.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-31T13:50:39.670Z",
@@ -328,7 +328,11 @@
         "packages/main/src/tasks/validation-protocol-smoke.ts"
       ],
       "signatureTag": "edge|ts|canonical-proof-stop",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 2e9d9bbafa: detectManagedAssetMode now compares the lowercased directory inventory with proof_or_stop.md, and validation-protocol-smoke asserts canonical PROOF_OR_STOP.md selects full mode. Build, focused assertion, identity cutover, packed clean-install, and 29/29 refreshed checklist evidence pass on Node v24.19.0.",
+      "resolvedAt": "2026-08-31T14:03:57.026Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-015",
