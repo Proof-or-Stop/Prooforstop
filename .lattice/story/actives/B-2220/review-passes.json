@@ -630,6 +630,38 @@
       },
       "readDiagnostics": [],
       "_hash": "75a2333575bf60896b6ac93343a886cba974d3ba229f85a2539d8abed3af659f"
+    },
+    {
+      "id": "B-2220:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final test-coverage review passed at current HEAD with F-010 fix 101513dc32 included. Checklist reports 7 intents and 7 passing evidence records, 0 failures, 0 waivers. Independently reran six document intents; exact SHA-256 02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d matches the smoke pin, and a paraphrased active-mandate mutation changes the digest and is rejected. Build binding plus full compiled smoke exited 0. Runtime output contains the narrowed candidate/check-time statements and omits all three former false actual-file guarantee statements identified by F-010.",
+      "createdAt": "2026-08-31T00:14:02.867Z",
+      "reviewRound": "2026-08-31T00:10:59.937Z",
+      "reviewRunId": "B-2220:RR-029",
+      "envelopeId": "873df381fca67b57a214e2a0cc43a6932f689402c29837e335d5a96c9d37a078",
+      "writerSessionId": "sess-6928f41b93cb8967f5dbd0c32cd93147",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "3f5d6837f030b3fe18deca9a51e80ec9ed1bf19698b800deeb837e7d6126ac78"
     }
   ]
 }
