@@ -639,6 +639,26 @@
         "scanEscalationReason": null
       },
       "_hash": "fcfb5c9943b861af07168636574700d14d3897f5411ad218b071bdb67c7c719a"
+    },
+    {
+      "id": "B-022e:RP-023",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 10 incremental quality re-review passes. Product files are unchanged from the prior trusted F-014 review; direct Node v24 probe still proves mixed-case canonical PROOF_OR_STOP.md selects full. CLI evidence inspection reports the supplemental pack transcript present-fresh, current storyFilesHash, and only prior TEST evidence stale for replacement in TEST. Checklist inspection reports 29 mechanical rows with 29 receipts; every receipt has exitCode 0, selectorMatched true, a SHA-256 output digest, and the current storyFilesHash. Rebinding commits changed only story metadata and did not alter gate code, manufacture authority, or weaken receipt validation.",
+      "createdAt": "2026-08-31T14:33:44.275Z",
+      "reviewRound": "2026-08-31T14:30:13.313Z",
+      "reviewRunId": "B-022e:RR-045",
+      "envelopeId": "38e1f284afcb819f72f5ce57f97c93c8d209ae50ac2ab3e3d77aba1ab72813fb",
+      "writerSessionId": "sess-e3699543f7807b21c9895ed661564de2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "715bf94e088bdf81456a04f466d6f050fe955ff1e068d92da326d2ae28ece51e"
     }
   ]
 }
