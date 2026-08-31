@@ -436,6 +436,27 @@
       "resolvedAt": "2026-08-31T15:00:46.071Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5952:F-021",
+      "desc": "doc-code-drift: docs/requirements/decisions/testing-infra.md:40 (also :115 and :124-127) describes lattice.config.json as the canonical project config and even names that same filename as the ignored legacy config. The changed regression code now correctly treats proof-or-stop.config.json as canonical and lattice.config.json as the legacy read-compatible fallback, matching docs/CLI.md:923 and proof-or-stop-identity-migration.md:18. This text therefore misstates config discovery and doctor/runtime-scan behavior. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-31T22:04:13.787Z",
+      "reviewRound": "2026-08-31T21:58:54.586Z",
+      "reviewRunId": "B-5952:RR-058",
+      "_hash": "29be6816d95c37d41c0035a4b984d04917c73f5e05f69c79698d29e39f8d7a7a",
+      "files": [
+        "docs/requirements/decisions/testing-infra.md",
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+        "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+        "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
