@@ -51,7 +51,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:548-580,678-704,816-820,1004-1010 [high] route-authority gap: defer-with-proof can clear an otherwise-blocking verified Finding only when a signed routeReceiptId proves the target/owner accepted the route, but the plan defines no RouteReceipt record, signer/eligible accepting authority, target-state/hash binding, or verifier contract. Finding Ledger Integrity explicitly proves persistence only and disclaims routing judgment; Candidate and Defect Identity owns advisory routing only; Dynamic Applicability only defines assessment/deferral authority. A bare ID therefore cannot mechanically prove owner acceptance and leaves a circular/unowned L4 dependency that an implementation could fabricate or validate inconsistently. Define the receipt schema and authority boundary, assign its semantic writer/verifier to Story 1 or Story 2 while Story 3 owns only atomic persistence, and add tamper/wrong-target/wrong-owner/stale-target negative tests before allowing deferral to affect the gate.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T00:33:46.095Z",
@@ -59,7 +59,11 @@
       "reviewRunId": "B-1fa6:RR-009",
       "_hash": "b8bdfbea4c3323d76e4fbf6b220f598d3637a4009977808faec588ba4a5e3fc1",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f741bf8754: Story 1 owns route semantic acceptance/signer/verifier and target-authority validation, Story 3 owns atomic persistence only, and Story 2 consumes fresh receipts for advisory recall.",
+      "resolvedAt": "2026-08-31T00:48:12.643Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-004",
