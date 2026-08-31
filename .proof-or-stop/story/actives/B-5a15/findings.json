@@ -16844,7 +16844,7 @@
       "desc": "CHK-001..CHK-005: all 53 verificationEvidence rows (including all 22 priority=must intents) are stale at the current review identity. Representative evidence at .proof-or-stop/story/actives/B-5a15/checklist.json:151-152 records result=pass with headHash=adf734ece6d541106128be463c371ca20f5063d0, materialHash=6fa000cd7134518c5c6d5125edb44007f358f98304c0a2610985b9785fb3b618, and storyFilesHash=5fcafebe6d865bcf6b47fba0b42bc947677a20ed5b2fb79a95a296f186e630ea, while signed run B-5a15:RR-733 is bound to current HEAD fe2141c09d75a78235fb2694f8d200c3db4cad21, materialHash e6206a5bc1f4e84f3ec5170a44721d322d584fde025daccfae497ef71fe2c3a8, and storyFilesHash cf261cf7ae7b0e3f2eb1829ee05207cb44bf7109f9fdf804e82db9effc0d4cb2. Stale evidence cannot cover any happy, edge, or adversarial intent or support REVIEW->TEST until refreshed and re-recorded.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-25T20:13:51.417Z",
@@ -16921,14 +16921,18 @@
         ".proof-or-stop/story/actives/B-5a15/checklist.json"
       ],
       "signatureTag": "missing|json|verificationevidence-rows-including",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-earned all 53 checklist verificationEvidence rows as mechanical receipt-backed evidence in commit cf66eab611; compact audit confirms 53 total, 53 mechanical, and 53 receipt-backed rows.",
+      "resolvedAt": "2026-08-26T09:37:33.759Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-318",
       "desc": "CHK-003 / packages/main/tests/causal-evidence.test.mjs:1454-1507: the new F-314 certification-domain test imports and calls deriveCertificationDomainInputHashes and buildCertificationDecision directly, but never calls currentCertificationIdentity or createCertificationWindowHandlers.certification_window_begin/status. It therefore proves the exported domain derivation/decision helpers on a temporary Git repository, but does not prove that the production handler captures causalInputHashes in the signed frozen CertificationWindow or that refreshCertificationWindowLineage consumes the decision at the gate. The production wiring is at packages/main/src/handlers/certification-window.ts:253-285 and :297-391. Add a handler-level mutation regression that admits a window, mutates only packages/main/tests, reads certification_window_status, and asserts the persisted signed window invalidates the declared test/downstream closure while an unaffected domain remains fresh.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-25T20:14:40.378Z",
@@ -17006,14 +17010,18 @@
         "packages/main/src/handlers/certification-window.ts"
       ],
       "signatureTag": "missing|mjs|packages-main-tests",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added the production CertificationWindow handler mutation regression at packages/main/tests/causal-evidence.test.mjs:1524-1639; current node --test packages/main/tests/causal-evidence.test.mjs passes 21/21, including unrelated-drift advisory preservation and changed-domain invalidation.",
+      "resolvedAt": "2026-08-26T09:38:02.608Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-319",
       "desc": "CHK-005: the stored DONE-required acceptance artifact is an explicit failed full-suite result. .proof-or-stop/story/actives/B-5a15/done-required-evidence.json:5 is status=FAIL, and :75-91 records the root full test suite npm test with exitCode=1 and reason command-failed. This is also bound to an older headHash f6ddfdfe28ff17b5a56bdf115ad9cb03f3b7b8b5, materialHash 20ffa1d8bce0e5aba8d0c70d32f32cce39d83bc241928f8164e7f75af2c05b09, and storyFilesHash e15c317b440b82e00101249b9fd8143a3bbcdbfffd2932e7f73bc02bd6788b88, so there is no current-HEAD full-suite PASS supporting the CHK-005 plan requirement at .proof-or-stop/story/actives/B-5a15/plan.md:88-92. Refresh and pass the root suite before treating metrics/assurance coverage as complete.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-25T20:15:24.028Z",
@@ -17091,14 +17099,18 @@
         ".proof-or-stop/story/actives/B-5a15/plan.md"
       ],
       "signatureTag": "missing|json|stored-required-acceptance",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Canonical root npm test -- --jobs 2 passed all 58/58 full-suite members on the current implementation after the closeout causal-input fixture, runner timeout, and guard-pin fixes.",
+      "resolvedAt": "2026-08-31T17:02:31.040Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-320",
       "desc": "high: RI-048/current HEAD fe2141c09d75a78235fb2694f8d200c3db4cad21: packages/main/src/core/certification-window.ts:775-781 accepts a signed causalDecision=advisory with storyFilesHashAdvisory and suppresses materialHash drift, but :528-545 renders only frozen identity/state/blocker/next and :864-880 returns the unchanged ADMITTED/RUNNING window. packages/main/src/handlers/certification-window.ts:383-391 discards currentCertificationIdentity after refresh, so certification_window_status/begin emits no explicit whole-tree materialHash drift or re-attestation warning. This violates docs/requirements/decisions/story-files-hash-material-drift.md:62-64 and CHK-003 operator-visible advisory contract: a valid unrelated-drift advisory must be surfaced or the window must fail closed; otherwise specialized evidence remains silently accepted as normal. Verified against RI-048 cutoff head 55a1e00343aa6fb9e4327ff4b444fc79bfc367bf and current HEAD fe2141c09d75a78235fb2694f8d200c3db4cad21.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-25T20:24:50.416Z",
@@ -17185,14 +17197,18 @@
         "docs/requirements/decisions/story-files-hash-material-drift.md"
       ],
       "signatureTag": "missing|ts|high-current-head",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Implemented operator-visible whole-tree material drift advisory propagation through CertificationWindow status/begin; the production handler regression at packages/main/tests/causal-evidence.test.mjs:1524-1639 passes in the current 21/21 causal suite.",
+      "resolvedAt": "2026-08-26T09:38:05.456Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-321",
       "desc": "Acceptance basis is not admissible for B-5a15: acceptance_basis returned status=invalid with receiptVerification.ok=false and code AT_ADAPTER_RESULT_DIGEST_MISMATCH, reporting basis semantic discovery digest mismatch, closure files hash mismatch, snapshot seal digest mismatch, and evidence storyFilesHash mismatch. acceptance_topology_check independently returned status=fail, structuralPass=false, result=inconclusive_basis_unverified, and diagnostic AT_CLOSURE_FILES_STALE. The verifier-owned PLAN topology cannot be relied upon until the basis is regenerated and rechecked.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-26T06:11:10.791Z",
@@ -17226,14 +17242,18 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|ts|acceptance-basis-admissible",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Regenerated the verifier-owned acceptance basis and rechecked acceptance_topology_check: status=pass, structuralPass=true, basisStatus=complete, diagnostics empty.",
+      "resolvedAt": "2026-08-26T09:38:07.472Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-322",
       "desc": "The verifier-owned executable pre-review artifact is not admissible: pre_review_check_read returned FAIL with code PR_ARTIFACT_TAMPERED. Although its summary reported plannedActual=complete, executableEvidence=current, mutations=biting, transcript=related, and authority=admissible, the canonical read verifier rejected the artifact and instructed that it be discarded and reissued through proof-or-stop pre_review_check. The required pre-review provenance therefore cannot support a clean review result.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-26T06:11:38.529Z",
@@ -17267,14 +17287,18 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "adversarial|ts|verifier-owned-executable",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Reissued the verifier-owned pre-review artifact through pre_review_check; current read reports status=pass, plannedActual=complete, executableEvidence=current, mutations=biting, transcript=related, authority=admissible, and no codes.",
+      "resolvedAt": "2026-08-26T09:38:09.447Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-323",
       "desc": "The verifier-owned acceptance basis remains stale after commit 55a1e00343: acceptance_topology_check reports AT_ADAPTER_RESULT_DIGEST_MISMATCH and AT_CLOSURE_FILES_STALE, while pre_review_check_read reports PR_ARTIFACT_TAMPERED. DEV must regenerate the verifier-owned basis and pre-review artifact before this review can be admitted.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-topology-critic",
       "createdAt": "2026-08-26T06:38:53.395Z",
@@ -17316,7 +17340,11 @@
         "packages/main/src/core/acceptance-topology.ts"
       ],
       "signatureTag": "missing|ts|verifier-owned-acceptance",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Regenerated the acceptance basis and pre-review artifact after the implementation commits; current acceptance_topology_check and pre_review_check both pass with complete basis and no diagnostics/codes.",
+      "resolvedAt": "2026-08-26T09:38:11.589Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }

@@ -357,7 +357,7 @@ const approvedLegacyDeliveryCompatUsages = new Map<string, {
 
 const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   [LEGACY_DELIVERY_COMPAT_MODULE, 'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98'],
-  ['packages/main/src/core/closeout-trust.ts', '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887'],
+  ['packages/main/src/core/closeout-trust.ts', '06c5151f3fa1dbfd15b1e802024a6c40c2fcca1d0ee0ac7f6734af2de9a91a28'],
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
   ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
@@ -372,7 +372,7 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-1e1f: repinned after persistSyntheticAdmittedWindowForTest; approved call shapes/occurrence counts unchanged.
   // B-5a15: repinned after the closeout smoke seeded its verifier owner lease;
   // approved compatibility call shapes and occurrence counts remain unchanged.
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', '144e824d0eb927b00b4f8be4adaee39c61c5af8d16a34878a2025199c1c8162d'],
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'f98d7b1de183e1d520ecb84aae89a65c3784ddde745eae4ac6ad066b4878591f'],
   // B-1507 CHK-001: repinned after verification_run was added to
   // MILESTONE_STATUS_APPEND_COMMANDS in cli-engine.ts. The approved non-literal
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this

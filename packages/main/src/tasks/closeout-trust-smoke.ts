@@ -45,6 +45,7 @@ import { createStoryActor, evaluateReviewVerdict, getGuardFailureReason, getStat
 import type { Finding, ReviewRun } from '../core/types.js';
 import { resetConfigCache } from '../core/config.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 import { createTestHandlers } from '../handlers/test.js';
 import { createTestStoryHandlers } from '../handlers/test-story.js';
 import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
@@ -449,6 +450,8 @@ try {
   const baselineHead = currentGitHead(repo)!;
   const baselineMaterial = currentMaterialHash(repo, 'HEAD', repo)!;
   const baselineStoryFiles = currentStoryFilesHash(repo, 'HEAD', repo)!;
+  const baselineCausalInputHashes = deriveCertificationDomainInputHashes(repo, 'HEAD', repo);
+  assert.ok(baselineCausalInputHashes, 'synthetic certification fixture must derive causal input hashes');
   const runtimeBinding = computeReviewScopeBinding({ contract: runtimeContract, diffPack: emptyDiff, ledger: runtimeLedger, slicePlan: runtimePlan })!;
   const run = {
     reviewRunId: `${runtimeStoryId}:RR-001`, storyId: runtimeStoryId, agent: 'lattice-review-quality', lane: 'lattice-review-quality',
@@ -552,7 +555,12 @@ try {
   assert.equal(evaluateOptionalLiveSmokeTranscript(store, runtimeStoryId).status, 'valid', 'a passing capture restores valid executed evidence');
   createDeliveryContextPackHandlers(handlerCtx).delivery_context_pack({ storyId: runtimeStoryId, write: true });
   assertWriterReceipt('evidence/delivery-context-pack.json', 'delivery_context_pack');
-  persistSyntheticAdmittedWindowForTest({ store, storyId: runtimeStoryId, projectRoot: repo });
+  persistSyntheticAdmittedWindowForTest({
+    store: store,
+    storyId: runtimeStoryId,
+    projectRoot: repo,
+    causalInputHashes: baselineCausalInputHashes,
+  });
   await createDoneRequiredValidationHandlers(handlerCtx).done_required_validate({ storyId: runtimeStoryId });
   assertWriterReceipt('done-required-evidence.json', 'done_required_validate');
   console.log('PASS canonical DONE-required lineage recorded');
