@@ -22621,7 +22621,7 @@
       "desc": "concept-cleanup: lattice identity rename incomplete for validate gate result 'provider' discriminants. See verifier.ts/validate-channel.ts/validate-concept.ts/validate-lint.ts hardcoded provider:'lattice-*' literals emitted into 'proof-or-stop validate --json' output; not covered by CHK-001..013; small fix blast radius.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-08-31T07:46:31.773Z",
@@ -22669,7 +22669,11 @@
       "readDiagnostics": [],
       "_hash": "5f617c71e45330282585c0cd519200f1e25821b83612cca312409dad31fc3df2",
       "signatureTag": "missing|unknown|concept-cleanup-lattice",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Correct observation, deliberately deferred as out of B-5a88 scope; NOT dismissed as a false positive. Independently verified the literals are real and user-visible: validate-channel.ts emits provider:'lattice-channel' at 11 sites (44, 461, 473, 485, 503, 520, 567, 615, 656, 687 + the doc comment at 14); verifier.ts emits provider:'lattice-verifier-reused' (694), 'lattice-verifier-reuse-persistence' (724, 752, 800, 824), 'lattice-verifier-executed-persistence' (909), 'lattice-verifier-gates' (1294) and 'lattice-verifier-no-validation-entry' (1338, 1366). Scope judgement: none of B-5a88's 13 checklist items claim these values. Unlike a prose rename, they have live exact-string consumers -- packages/main/src/tasks/validate-focused-full-layering-smoke.ts:59 and :65 compare provider === 'lattice-verifier-configured-commands' and its -focused variant, and packages/main/src/handlers/recover-evidence.ts reads provider back out of persisted validation evidence. Per docs/requirements/decisions/brand-rename-mapping.md the RENAMED-additive vs FROZEN call turns on whether a value's historical bytes are directly verified, so these need a per-discriminant decision plus dual-read for already-persisted validation traces. That is a coordinated producer + consumer + persisted-evidence migration, i.e. its own scoped unit of work, and doing it inside B-5a88 would expand scope and risk breaking evidence reuse/recovery. Follow-up is required; note that 'proof-or-stop gap_log' currently cannot archive this to the B-META backlog because that backlog's provenance chain is unextendable (invalid_binding_shape), which is a pre-existing framework issue independent of this story -- so this finding record is the durable handoff.",
+      "resolvedAt": "2026-08-31T07:48:37.269Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
