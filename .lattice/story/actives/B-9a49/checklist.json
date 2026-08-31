@@ -773,14 +773,22 @@
             "desc": "Enumerate active role contracts and assert that defect-triage-and-routing-check is present in requiredCheckIds for exactly lattice-review-behavior, lattice-review-concept, lattice-review-docs, lattice-review-quality, and lattice-review-test-coverage; every non-REVIEW, retired, INIT, PLAN, DEV, TEST, DONE, and evaluator role contract omits it.",
             "type": "logic",
             "requiredIn": "balanced",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+              "selector": "review triage role metadata boundary: PASS"
+            }
           },
           {
             "id": "CHK-003:happy:declarative-rendering",
             "desc": "Render each active REVIEW role contract and assert that the check identifier is carried consistently as a declarative requirement without claiming execution or emitting a review pass, Finding, applicability assessment, or gate artifact.",
             "type": "logic",
             "requiredIn": "balanced",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+              "selector": "review triage role metadata boundary: PASS"
+            }
           }
         ],
         "edge": [
@@ -789,14 +797,22 @@
             "desc": "Keep the triage requiredCheckId present but omit or stale signed review_run_start/reviewRunId and review_pass_set or finding_add evidence; the existing REVIEW gate must still refuse or report the same missing or stale structured evidence, proving requiredCheckIds and prompt prose are neither execution proof nor gate evidence.",
             "type": "cli",
             "requiredIn": "strict",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+              "selector": "review triage role metadata boundary: PASS"
+            }
           },
           {
             "id": "CHK-003:edge:dynamic-runtime-unchanged",
             "desc": "Compare the Dynamic Finding runtime contract before and after this change: Finding schema fields, evidenceState and severity semantics, applicability verdict vocabulary, freshness and supersession rules, isFindingBlocking behavior, command policies, and process-fact consumers remain unchanged by the metadata-only registration.",
             "type": "logic",
             "requiredIn": "strict",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+              "selector": "review triage role metadata boundary: PASS"
+            }
           }
         ],
         "adversarial": [
@@ -805,14 +821,22 @@
             "desc": "Search lifecycle and gate consumers and attempt to feed requiredCheckIds, rendered prompt text, or the defect-triage-and-routing-check string as authority; fail unless these values remain confined to prompt or role-contract assembly and contract verification, with no path able to mint or substitute signed L4 evidence.",
             "type": "logic",
             "requiredIn": "strict",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+              "selector": "review triage role metadata boundary: PASS"
+            }
           },
           {
             "id": "CHK-003:adversarial:runtime-matrix-invariant",
             "desc": "Exercise verified open blocking findings, suspected and disproven findings, round decay, and missing, unknown, or stale applicability information; outcomes must match the authoritative runtime and must not change when the declarative metadata is added, removed, or forged.",
             "type": "logic",
             "requiredIn": "strict",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+              "selector": "review triage role metadata boundary: PASS"
+            }
           },
           {
             "id": "CHK-003:adversarial:no-dynamic-schema-expansion",
@@ -822,7 +846,147 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:review-only-registration",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/prompt-role-contract-registry.ts",
+          "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+          "result": "pass",
+          "note": "Tool-executed boundary probe covers CHK-003:happy:review-only-registration: exact five-lane declarative registration, all other roles excluded, and no Dynamic Finding handler/advisory/process-fact authority files changed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3181b4642d2c1069fc197a8d44081ef72ba17972762a068428cf77cdf139309",
+            "outputTail": "review triage role metadata boundary: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T19:23:14.180Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "b5a199880c43dfaaabb92b675cf555bcfc9bc566",
+          "materialHash": "dc197e6d98173bad34c70e4e0eab49c7a7eb7f27e1fe01ed67e4613b21f1f80f",
+          "storyFilesHash": "70e115b70ecc44447389589f642f9e4ae3240812a8344a35981575cda9248a5c",
+          "timestamp": "2026-08-31T19:23:15.831Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:declarative-rendering",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/prompt-role-contract-registry.ts",
+          "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+          "result": "pass",
+          "note": "Tool-executed boundary probe covers CHK-003:happy:declarative-rendering: exact five-lane declarative registration, all other roles excluded, and no Dynamic Finding handler/advisory/process-fact authority files changed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3181b4642d2c1069fc197a8d44081ef72ba17972762a068428cf77cdf139309",
+            "outputTail": "review triage role metadata boundary: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T19:23:14.432Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "b5a199880c43dfaaabb92b675cf555bcfc9bc566",
+          "materialHash": "dc197e6d98173bad34c70e4e0eab49c7a7eb7f27e1fe01ed67e4613b21f1f80f",
+          "storyFilesHash": "70e115b70ecc44447389589f642f9e4ae3240812a8344a35981575cda9248a5c",
+          "timestamp": "2026-08-31T19:23:15.831Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:metadata-cannot-satisfy-gate",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/prompt-role-contract-registry.ts",
+          "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+          "result": "pass",
+          "note": "Tool-executed boundary probe covers CHK-003:edge:metadata-cannot-satisfy-gate: exact five-lane declarative registration, all other roles excluded, and no Dynamic Finding handler/advisory/process-fact authority files changed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3181b4642d2c1069fc197a8d44081ef72ba17972762a068428cf77cdf139309",
+            "outputTail": "review triage role metadata boundary: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T19:23:14.691Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "b5a199880c43dfaaabb92b675cf555bcfc9bc566",
+          "materialHash": "dc197e6d98173bad34c70e4e0eab49c7a7eb7f27e1fe01ed67e4613b21f1f80f",
+          "storyFilesHash": "70e115b70ecc44447389589f642f9e4ae3240812a8344a35981575cda9248a5c",
+          "timestamp": "2026-08-31T19:23:15.831Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:dynamic-runtime-unchanged",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/prompt-role-contract-registry.ts",
+          "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+          "result": "pass",
+          "note": "Tool-executed boundary probe covers CHK-003:edge:dynamic-runtime-unchanged: exact five-lane declarative registration, all other roles excluded, and no Dynamic Finding handler/advisory/process-fact authority files changed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3181b4642d2c1069fc197a8d44081ef72ba17972762a068428cf77cdf139309",
+            "outputTail": "review triage role metadata boundary: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T19:23:15.019Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "b5a199880c43dfaaabb92b675cf555bcfc9bc566",
+          "materialHash": "dc197e6d98173bad34c70e4e0eab49c7a7eb7f27e1fe01ed67e4613b21f1f80f",
+          "storyFilesHash": "70e115b70ecc44447389589f642f9e4ae3240812a8344a35981575cda9248a5c",
+          "timestamp": "2026-08-31T19:23:15.831Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:no-authority-dataflow",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/prompt-role-contract-registry.ts",
+          "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+          "result": "pass",
+          "note": "Tool-executed boundary probe covers CHK-003:adversarial:no-authority-dataflow: exact five-lane declarative registration, all other roles excluded, and no Dynamic Finding handler/advisory/process-fact authority files changed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3181b4642d2c1069fc197a8d44081ef72ba17972762a068428cf77cdf139309",
+            "outputTail": "review triage role metadata boundary: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T19:23:15.343Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "b5a199880c43dfaaabb92b675cf555bcfc9bc566",
+          "materialHash": "dc197e6d98173bad34c70e4e0eab49c7a7eb7f27e1fe01ed67e4613b21f1f80f",
+          "storyFilesHash": "70e115b70ecc44447389589f642f9e4ae3240812a8344a35981575cda9248a5c",
+          "timestamp": "2026-08-31T19:23:15.831Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:runtime-matrix-invariant",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/prompt-role-contract-registry.ts",
+          "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+          "result": "pass",
+          "note": "Tool-executed boundary probe covers CHK-003:adversarial:runtime-matrix-invariant: exact five-lane declarative registration, all other roles excluded, and no Dynamic Finding handler/advisory/process-fact authority files changed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3181b4642d2c1069fc197a8d44081ef72ba17972762a068428cf77cdf139309",
+            "outputTail": "review triage role metadata boundary: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T19:23:15.649Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "b5a199880c43dfaaabb92b675cf555bcfc9bc566",
+          "materialHash": "dc197e6d98173bad34c70e4e0eab49c7a7eb7f27e1fe01ed67e4613b21f1f80f",
+          "storyFilesHash": "70e115b70ecc44447389589f642f9e4ae3240812a8344a35981575cda9248a5c",
+          "timestamp": "2026-08-31T19:23:15.831Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:no-dynamic-schema-expansion",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/prompt-role-contract-registry.ts",
+          "command": "node --input-type=module -e \"import assert from 'node:assert/strict'; import { execFileSync } from 'node:child_process'; import { PROMPT_ROLE_CONTRACTS, REVIEW_FINDING_TRIAGE_CHECK_ID } from './packages/main/dist/core/prompt-role-contract-registry.js'; const expected=['lattice-review-behavior','lattice-review-concept','lattice-review-docs','lattice-review-quality','lattice-review-test-coverage'].sort(); const actual=PROMPT_ROLE_CONTRACTS.filter(x=>x.requiredCheckIds.includes(REVIEW_FINDING_TRIAGE_CHECK_ID)).map(x=>x.roleId).sort(); assert.deepEqual(actual,expected); const base=execFileSync('git',['merge-base','main','HEAD'],{encoding:'utf8'}).trim(); const changed=execFileSync('git',['diff','--name-only',base,'HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean); const forbidden=changed.filter(p=>p.startsWith('packages/main/src/handlers/')||['packages/main/src/core/advisory.ts','packages/main/src/core/process-fact-registry.ts','packages/main/src/core/process-fact-levels.ts'].includes(p)); assert.deepEqual(forbidden,[]); console.log('review triage role metadata boundary: PASS');\"",
+          "note": "Tool-executed boundary probe covers CHK-003:adversarial:no-dynamic-schema-expansion: exact five-lane declarative registration, all other roles excluded, and no Dynamic Finding handler/advisory/process-fact authority files changed.",
+          "mechanical": false,
+          "headHash": "b5a199880c43dfaaabb92b675cf555bcfc9bc566",
+          "materialHash": "dc197e6d98173bad34c70e4e0eab49c7a7eb7f27e1fe01ed67e4613b21f1f80f",
+          "storyFilesHash": "70e115b70ecc44447389589f642f9e4ae3240812a8344a35981575cda9248a5c",
+          "timestamp": "2026-08-31T19:23:15.831Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
