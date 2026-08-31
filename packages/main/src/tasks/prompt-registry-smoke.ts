@@ -73,6 +73,11 @@ const qualityProofMetadataPhrases = [
   'not receipt-backed production proof',
 ];
 const reviewFindingTriageContractMarker = '<!-- proofbound:review-finding-triage-contract:v1 -->';
+// Independent semantic approval boundary. This digest is intentionally kept in
+// the smoke instead of the generated prompt baseline: changing the production
+// contract requires a deliberate semantic-test review, and `--write` baseline
+// refreshes cannot approve extra or contradictory reviewer instructions.
+const approvedReviewFindingTriageContractSha256 = '66c3b113d98c127db56b8b3315d91d5e05ab8eea8e94444ad1ac6820f7a6cce9';
 const frozenReviewerLegacyReconstructionDigests = {
   'lattice-review-behavior': '45efbfe90d7705408ed95f0111b2108b5e39fc9397aeb7d99eda600db2ea3fe0',
   'lattice-review-concept': '846023d241693435c995900e5869b13e838795718143f2fab14e7a8f7f23eb5d',
@@ -177,6 +182,22 @@ const forbiddenReviewFindingTriagePermissions = [
 ] as const;
 
 function assertReviewFindingTriageSemantics(content: string, sourceLabel: string): void {
+  assert.equal(
+    createHash('sha256').update(REVIEW_FINDING_TRIAGE_CONTRACT).digest('hex'),
+    approvedReviewFindingTriageContractSha256,
+    'production REVIEW triage contract matches the independently approved canonical contract',
+  );
+  assert.equal(
+    occurrenceCount(content, reviewFindingTriageContractMarker),
+    1,
+    `${sourceLabel} contains exactly one canonical REVIEW triage contract`,
+  );
+  const deliveredContract = content.slice(content.indexOf(reviewFindingTriageContractMarker)).trimEnd();
+  assert.equal(
+    createHash('sha256').update(deliveredContract).digest('hex'),
+    approvedReviewFindingTriageContractSha256,
+    `${sourceLabel} ends at the independently approved canonical REVIEW triage contract`,
+  );
   for (const phrase of requiredReviewFindingTriagePhrases) {
     assert.ok(content.includes(phrase), `${sourceLabel} keeps triage phrase: ${phrase}`);
   }
@@ -186,7 +207,7 @@ function assertReviewFindingTriageSemantics(content: string, sourceLabel: string
 }
 
 function assertReviewFindingTriageMutationFailures(): void {
-  const mutations = [
+  const originalMutations = [
     'Reviewers may call `gap_log` or `finding_dismiss` to route a defect.',
     'Dismissal proves `out_of_scope` for the current Story.',
     'Severity alone decides scope and applicability.',
@@ -201,10 +222,27 @@ function assertReviewFindingTriageMutationFailures(): void {
     'File disjointness alone proves `pre_existing_unaffected` applicability.',
     'An unsigned, stale, ownerless Finding may serve as the canonical duplicate target.',
   ];
-  for (const [index, mutation] of mutations.entries()) {
+  const paraphraseMutations = [
+    'A reviewer is allowed to invoke `gap_log` or `finding_dismiss`.',
+    'An out-of-scope classification can be inferred from dismissal.',
+    'Scope follows severity without further applicability evidence.',
+    'The reviewRunId from the superseded envelope stays valid.',
+    'A reviewer is authorized to patch the code before reporting.',
+    'The review lane is permitted to invoke `story_create`.',
+    'The Story can be widened by reviewers until the repository is green.',
+    'Applicability evidence may lower the original Finding severity.',
+    'Routed findings are resolved when they stop blocking.',
+    'A blocker may be routed even if it lacks evidence and has no owner.',
+    'This prompt determines whether the REVIEW gate blocks.',
+    'Disjoint files are sufficient to establish `pre_existing_unaffected`.',
+    'A canonical duplicate target may be an unsigned, stale, unowned Finding.',
+  ];
+  assert.equal(originalMutations.length, 13, 'the original semantic mutation inventory remains complete');
+  assert.equal(paraphraseMutations.length, 13, 'the independent reviewer paraphrase mutation inventory remains complete');
+  for (const [index, mutation] of [...originalMutations, ...paraphraseMutations].entries()) {
     assert.throws(
       () => assertReviewFindingTriageSemantics(`${REVIEW_FINDING_TRIAGE_CONTRACT}\n${mutation}`, `mutation ${index + 1}`),
-      /rejects contradictory/,
+      /independently approved canonical REVIEW triage contract|rejects contradictory/,
       `semantic mutation ${index + 1} must fail validation`,
     );
   }
@@ -263,6 +301,7 @@ function assertReviewFindingTriageDelivery(): void {
 function assertOwnerAndImplementerTriageGuidance(): void {
   const ownerGuide = readFileSync(join(projectRoot, 'AGENTS.md'), 'utf8');
   for (const phrase of [
+    'Every Finding reported only in reviewer prose must be redispatched for structured registration',
     'introduced or worsened by the current Story',
     'directly blocks acceptance or the core user result',
     'would make lifecycle gate evidence or gate truth misleading',
@@ -272,22 +311,23 @@ function assertOwnerAndImplementerTriageGuidance(): void {
     'use only fields and commands exposed by the current CLI compatibility path',
     'never fabricate an assessment field, verdict, owner, route, signature, freshness result, or receipt',
     '`finding_dismiss` is temporary compatibility accounting for a round or profile',
-    'not applicability, `out_of_scope`, repair, or resolution proof',
-    'prompt text does not mechanically enforce this discipline',
+    'does not prove applicability, repair, or resolution',
+    'does not prove `out_of_scope`',
+    'is not mechanically enforced by prompt text alone',
   ]) {
     assert.ok(ownerGuide.includes(phrase), `Story Owner guidance keeps triage phrase: ${phrase}`);
   }
   const ownerTriageLines = ownerGuide
     .split('\n')
-    .filter(line => /Bounded current-Story repair|Evidence-backed routing|Compatibility boundary and dismissal/.test(line));
+    .filter(line => /REVIEW Finding handling|Bounded current-Story repair|Evidence-backed routing|Compatibility boundary and dismissal/.test(line));
   const ownerTriageSlice = ownerTriageLines.join('\n');
-  assert.equal(ownerTriageLines.length, 3, 'all three Story Owner triage rules are isolated for language audit');
+  assert.equal(ownerTriageLines.length, 4, 'all four Story Owner triage rules are isolated for language audit');
   assert.doesNotMatch(ownerTriageSlice, /[\u3400-\u9fff]/u, 'the added Story Owner triage slice is English-only');
 
   const claudeGuide = readFileSync(join(projectRoot, 'CLAUDE.md'), 'utf8');
   const claudeTriageLines = claudeGuide
     .split('\n')
-    .filter(line => /Bounded current-Story repair|Evidence-backed routing|Compatibility boundary and dismissal/.test(line));
+    .filter(line => /REVIEW Finding handling|Bounded current-Story repair|Evidence-backed routing|Compatibility boundary and dismissal/.test(line));
   assert.deepEqual(claudeTriageLines, ownerTriageLines, 'Claude and Codex Story Owner guidance is byte-identical');
   assert.doesNotMatch(claudeTriageLines.join('\n'), /[\u3400-\u9fff]/u, 'the Claude Story Owner triage slice is English-only');
 
