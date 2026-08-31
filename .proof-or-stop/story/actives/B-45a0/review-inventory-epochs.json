@@ -10450,6 +10450,29 @@
       "cancelReason": "Receipt cutoff predates the F-441/F-442/F-438 repair commits; re-finalizing so the cutoff binds current material.",
       "terminalRunSequenceBoundary": 1086,
       "_hash": "c7508d8c8b8124ee5a6780d1138477b0abd3f45d02ca1916552768672b33133a"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-45a0:RIE-130",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-08-31T04:34:23.190Z",
+      "updatedAt": "2026-08-31T04:35:03.042Z",
+      "cutoff": {
+        "headHash": "aa515da6b3ab2f0f99c89e566f3409480c8415dc",
+        "materialHash": "152d285150e7eb6440ad92edd7b90c6e5ede4e36e55c477b88c2301d45ad9d47",
+        "storyFilesHash": "79a8c1edf92cfb4e2f46744a54dca22304378468fc929c0acda401a929572224"
+      },
+      "scopeDigest": "0375089ce5e5bd4b3195859e9b2599ff079e816826dbc75844f8a1e79b9bd186",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-45a0:RIE-130:RCP-001",
+      "cancelledAt": "2026-08-31T04:35:03.042Z",
+      "cancelReason": "Receipt lacks a saturated final wave; beginning a fresh epoch to earn one against the repaired tree.",
+      "terminalRunSequenceBoundary": 1086,
+      "_hash": "947e11ed3632f10b00342ceb209a1a7f1f940f6d94913708961598418cad2eec"
     }
   ],
   "receipts": [
@@ -12058,6 +12081,30 @@
       "invalidatedAt": "2026-08-31T04:34:22.001Z",
       "invalidationReason": "Receipt cutoff predates the F-441/F-442/F-438 repair commits; re-finalizing so the cutoff binds current material.",
       "_hash": "a45287fc4370e747151e376f4c2787f69ea78423c559398ff77253d029721129"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-45a0:RIE-130:RCP-001",
+      "epochId": "B-45a0:RIE-130",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "cutoff": {
+        "headHash": "aa515da6b3ab2f0f99c89e566f3409480c8415dc",
+        "materialHash": "152d285150e7eb6440ad92edd7b90c6e5ede4e36e55c477b88c2301d45ad9d47",
+        "storyFilesHash": "79a8c1edf92cfb4e2f46744a54dca22304378468fc929c0acda401a929572224"
+      },
+      "scopeDigest": "0375089ce5e5bd4b3195859e9b2599ff079e816826dbc75844f8a1e79b9bd186",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-08-31T04:34:23.190Z",
+      "invalidatedAt": "2026-08-31T04:35:03.042Z",
+      "invalidationReason": "Receipt lacks a saturated final wave; beginning a fresh epoch to earn one against the repaired tree.",
+      "_hash": "b2e380e9557c1dde1c1ec944045816f7308b460753578ed9eb2d36532ceb264a"
     }
   ],
   "criticReceipts": [
