@@ -18072,6 +18072,45 @@
       ],
       "createdAt": "2026-08-31T23:16:54.404Z",
       "_hash": "65dfd3f27c028d308795b910090e9a3d4e5f3e9f11b5152e622a6931ea16e584"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-114:CRIT-02",
+      "epochId": "B-45a0:RI-114",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "19a6685517716e983bbfd18334e284457103a7f4",
+        "materialHash": "6d96761e24fabeb191351d28a0fa127f81793c6c1fd5723a5fb2e50738958b10",
+        "storyFilesHash": "8c241e49512b1da79933cb51085e17e56620aa3670e4e5a3c8d3cded6569d989"
+      },
+      "aggregateFindingSetDigest": "4c2063a564b3edb528ee2277f5c3fd7c129a0f00246bf8d87a8b2d7dcf3a8285",
+      "requiredLaneCoverageDigest": "e1382eb78a235d49011785f604e88d1dc2c3d0026d72b0b772e3289d434969e7",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-1178",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-526"
+      ],
+      "readEvidenceDigest": "b89975ffb7aaca7e3aeb8376fb52acf3de0658485b09ba478958014edeb5f5dc",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-468",
+          "disposition": "verified_family",
+          "familyKey": "chk014-wave4-binding-claims-false-at-head",
+          "canonicalFindingId": "B-45a0:F-466",
+          "reason": "Independently re-verified live: acceptance-basis.json receipt.storyFilesHash=443e3e20... and acceptance-rollout-report.json binding.headHash=8cd7e6ef... both stale vs current storyFilesHash=8c241e49...; ran acceptance_topology_check --storyId=B-45a0 myself and it fails with diagnostic AT_SCOPE_BINDING_MISSING (scope-contract digest mismatch; evidence storyFilesHash does not match current story-owned file state). Same signatureTag missing|json|bind-wave-acceptance as baseline F-466; confirmed re-report of the same family, not a new one."
+        },
+        {
+          "findingId": "B-45a0:F-469",
+          "disposition": "verified_family",
+          "familyKey": "validation-inventory-count-doc-drift-112-vs-116",
+          "canonicalFindingId": "B-45a0:F-467",
+          "reason": "Independently re-ran scripts/verify-validation-inventory.mjs at current HEAD: current-main inventory reports 116, while the three named docs (dynamic-validation-enforcement-evidence.md, dynamic-validation-operations.md, story-aware-dynamic-validation-current-main-characterization.md) still state 112 (58 full-only + 54 story-selectable). Same signatureTag missing|md|code-drift-docs as baseline F-467; confirmed re-report of the same family, not a new one."
+        }
+      ],
+      "createdAt": "2026-08-31T23:46:47.611Z",
+      "_hash": "bac4178ab85b7635816c1c36e008361cfb812521dbaf760a3685d041693d6c27"
     }
   ]
 }
