@@ -222,7 +222,7 @@
       "desc": ".lattice/story/actives/B-5952/decision.json:7-46, .lattice/story/actives/B-5952/findings.json:161-179 [high] The 808 policy is still not causally justified on the auditable story evidence surface. decision.json now states 796 baseline, synthetic 419 stability, repo 377->385 growth, and eight exact added files as the reason 808 preserves prior four-build headroom, but a repo search at this HEAD finds those measurements only inside F-007 resolvedReason prose. No current checklist verification command, evidence artifact, or bound receipt records the claimed detached-worktree causal harness or exposes its map/diff for later review. The code change itself is narrowly scoped to the smoke budget helper, but the story still overclaims why 808 is safe; record the causal harness as structured evidence or weaken the justification/resolution until it is auditable.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-31T07:42:50.765Z",
@@ -230,7 +230,11 @@
       "reviewRunId": "B-5952:RR-010",
       "_hash": "c73bedd16492a308b103b87b903956dc1ef5e877b69196bc840df36ca8b06eaa",
       "signatureTag": "missing|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The causal justification is now on the auditable checklist evidence surface rather than only decision/finding prose. CHK-001:adversarial:causal-baseline-map is a must intent with a reproducible exact-baseline/current command and current passing receipt; evidence_inspect exposes the command and fresh material/story-files binding. The command mechanically rejects any deviation from 796/804, 419/419, 377/385, the exact eight +1 paths, zero removals, or zero duplicate counts.",
+      "resolvedAt": "2026-08-31T08:08:35.142Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5952:F-011",
