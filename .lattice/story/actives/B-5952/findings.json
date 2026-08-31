@@ -400,7 +400,7 @@
       "desc": ".lattice/story/actives/B-5952/checklist.json:415 — lifecycle-blocking high: this Story modifies packages/main/src/core/codex-adapter-checks.ts, but its unchanged narrative at line 6 does not arm storyRequiresCodexEvidence; an independent call at current HEAD returned required=false and summarizeCodexEvidence status=not-required, and process-events.jsonl contains no codex_adapter_verification. The adapter change can therefore reach REVIEW/DONE without the mandatory current verify_codex evidence, creating a lifecycle false-green. Update the Story boundary so adapter evidence is mechanically required, run node bin/proof-or-stop.js verify_codex under the bound Node v26 environment, and require a fresh passing event before re-review.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T12:26:09.284Z",
@@ -408,7 +408,11 @@
       "reviewRunId": "B-5952:RR-036",
       "_hash": "283f1d207ecd1e4d5d6f8f9856a9aa7eeaf07c0c0991dbce78f7dd9bed461b31",
       "signatureTag": "missing|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The formal INIT reopen updated frozen checklist context so storyRequiresCodexEvidence returns required=true. node bin/proof-or-stop.js verify_codex under Node v26 passed, and summarizeCodexEvidence now returns status=passing with a fresh codex_adapter_verification process event.",
+      "resolvedAt": "2026-08-31T12:45:19.475Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
