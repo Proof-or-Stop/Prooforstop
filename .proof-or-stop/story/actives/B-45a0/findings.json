@@ -24530,6 +24530,51 @@
       ],
       "signatureTag": "missing|ts|quality-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-455",
+      "desc": "Independent topology-critic verification confirms Wave 4 acceptance surfaces are not admissible at current HEAD 38cae53fc4f8d7f255c46de5183418adac116353. acceptance_basis reports top-level status=invalid with receiptVerification.ok=false code=AT_SCOPE_BINDING_MISSING (diagnostics: basis semantic discovery digest mismatch, scope-contract digest mismatch, closure files hash mismatch, snapshot seal digest mismatch, freshness mismatch on storyFilesHash) because the persisted receipt is bound to a stale PLAN-phase snapshot (headHash=4448ecbf0d427710504c01b0b79a45b90c8eab14) rather than current HEAD. acceptance_topology_check independently reports status=fail structuralPass=false with AT_CLOSURE_FILES_STALE and AT_SCOPE_BINDING_MISSING, matching the same stale binding. pre_review_check_read reports top-level status=fail ok=false codes=[PR_ARTIFACT_TAMPERED,PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE,PR_CUTOFF_UNBOUND] while its embedded nested artifact self-reports status=pass codes=[] -- corroborates B-45a0:F-452 (inverted receipt semantics) and additionally shows the outer wrapper is fail-closed and correctly overrides the embedded pass. acceptance_rollout_report_read and acceptance_rollout_check both report ok=false status=fail mode=enforce blocking=true diagnostics=[AR_REPORT_STALE] receipt=stale; the embedded report.binding.headHash=f101e24c164544f7e70653b0fd20908f166fc103 belongs to a different, older paired-replay campaign (stories B-cb0x/B-cc0x, issuedAt 2026-07-23) and does not match this story current HEAD, so its embedded verdict=pass full-3x2 (codex-cli+claude-cli) cannot be treated as current rollout evidence for B-45a0. None of the four Wave 4 checks is currently admissible; the acceptance topology basis must be regenerated at current HEAD/materialHash before this epoch can finalize.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-31T11:52:34.326Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1121",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        }
+      ],
+      "_hash": "d1d8fa2dc3e78dd80be73101f017be1906bcbcbee436f44f2768490a4bc5deb7",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|independent-topology-critic",
+      "signatureTagSource": "auto"
     }
   ]
 }
