@@ -28,74 +28,401 @@
           {
             "desc": "Assemble each of lattice-review-behavior, lattice-review-concept, lattice-review-docs, lattice-review-quality, and lattice-review-test-coverage in full-envelope mode and prove that every result contains exactly one byte-identical canonical Finding triage contract with the current review_run_start -> reviewRunId -> finding_add or review_pass_set protocol.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "desc": "Assemble the same five REVIEW roles through legacy-full-context and prove that the identical canonical triage contract is appended exactly once in every result while the role-specific legacy body remains selected.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "desc": "Inspect the canonical contract and prove that evidenceState, severity, applicability candidate, and gate impact are independent axes; routing requires evidence plus an owner; the machine remains authoritative for blocking; and disproven, duplicate, and stale_or_not_reproduced are separate outcomes.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Exercise mixed per-role rollout selections across the five REVIEW roles and prove every selected prompt receives one complete contract regardless of envelope path, with neither omission nor double injection.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "desc": "Prove the fail-closed rule is expressed in terms of the current round policy: when applicability is unknown, missing, stale, or untrusted, a Finding that would otherwise block remains blocking, including medium severity in a policy round where medium blocks.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "desc": "Prove a non-current-Story disposition is allowed only with structured applicability evidence and a traceable owner or route, and that high or critical Findings cannot be left unowned.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "desc": "Prove the contract preserves the original Finding observation, evidence state, severity, and history: a non-blocking applicability candidate does not resolve or dismiss the Finding and any later severity correction requires append-only revision or supersession rather than silent mutation.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Enumerate every active non-REVIEW, compatibility, and retired role and prove none receives the canonical REVIEW triage contract or the defect-triage routing behavior by substring coincidence or broad common-policy injection.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "desc": "Delete or alter any required protocol command or ordering rule and prove the prompt contract test fails, including review_run_start first, current signed reviewRunId binding, finding_add for a Finding, and review_pass_set only for a valid no-blocker outcome.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "desc": "Inject wording that lets severity alone decide Story scope, lets an applicability assessment rewrite severity, or equates deferral with finding_dismiss or resolution, and prove semantic validation rejects it.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "desc": "Inject wording that permits a reviewer to repair implementation, call finding_dismiss, call story_create, call gap_log, or expand the Story merely to make all checks green, and prove semantic validation rejects every permission. gap_log remains a main-Agent or human archive for Proof-or-Stop framework gaps, never a general product-defect routing or backlog shortcut.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "desc": "Replace the distinct outcomes with a generic deferred or closed result and prove validation fails unless disproven remains an evidence-truth result, duplicate identifies a canonical live owner, and stale_or_not_reproduced cites current freshness-bound counter-evidence.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "desc": "Attempt to route an otherwise-blocking unknown-applicability Finding without evidence or owner, or claim that prompt prose itself changes the lifecycle gate, and prove the contract remains fail-closed and non-evidentiary.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused GREEN smoke covers CHK-001:happy:0 with registry-driven assertions for all five REVIEW lanes, both envelope modes, exact-once delivery, mixed rollout, non-REVIEW isolation, protocol order, and semantic prohibitions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:51:44.736Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa09960b6c698aded1f21e33d8271a532a1f26fd",
+          "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5",
+          "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+          "timestamp": "2026-08-31T14:51:48.052Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused GREEN smoke covers CHK-001:happy:1 with registry-driven assertions for all five REVIEW lanes, both envelope modes, exact-once delivery, mixed rollout, non-REVIEW isolation, protocol order, and semantic prohibitions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:51:45.020Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa09960b6c698aded1f21e33d8271a532a1f26fd",
+          "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5",
+          "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+          "timestamp": "2026-08-31T14:51:48.052Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused GREEN smoke covers CHK-001:happy:2 with registry-driven assertions for all five REVIEW lanes, both envelope modes, exact-once delivery, mixed rollout, non-REVIEW isolation, protocol order, and semantic prohibitions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:51:45.296Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa09960b6c698aded1f21e33d8271a532a1f26fd",
+          "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5",
+          "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+          "timestamp": "2026-08-31T14:51:48.052Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused GREEN smoke covers CHK-001:edge:0 with registry-driven assertions for all five REVIEW lanes, both envelope modes, exact-once delivery, mixed rollout, non-REVIEW isolation, protocol order, and semantic prohibitions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:51:45.575Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa09960b6c698aded1f21e33d8271a532a1f26fd",
+          "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5",
+          "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+          "timestamp": "2026-08-31T14:51:48.052Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused GREEN smoke covers CHK-001:edge:1 with registry-driven assertions for all five REVIEW lanes, both envelope modes, exact-once delivery, mixed rollout, non-REVIEW isolation, protocol order, and semantic prohibitions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:51:45.833Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa09960b6c698aded1f21e33d8271a532a1f26fd",
+          "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5",
+          "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+          "timestamp": "2026-08-31T14:51:48.052Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused GREEN smoke covers CHK-001:edge:2 with registry-driven assertions for all five REVIEW lanes, both envelope modes, exact-once delivery, mixed rollout, non-REVIEW isolation, protocol order, and semantic prohibitions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:51:46.089Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa09960b6c698aded1f21e33d8271a532a1f26fd",
+          "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5",
+          "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+          "timestamp": "2026-08-31T14:51:48.052Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused GREEN smoke covers CHK-001:edge:3 with registry-driven assertions for all five REVIEW lanes, both envelope modes, exact-once delivery, mixed rollout, non-REVIEW isolation, protocol order, and semantic prohibitions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:51:46.350Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa09960b6c698aded1f21e33d8271a532a1f26fd",
+          "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5",
+          "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+          "timestamp": "2026-08-31T14:51:48.052Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused GREEN smoke covers CHK-001:adversarial:0 with registry-driven assertions for all five REVIEW lanes, both envelope modes, exact-once delivery, mixed rollout, non-REVIEW isolation, protocol order, and semantic prohibitions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:51:46.604Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa09960b6c698aded1f21e33d8271a532a1f26fd",
+          "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5",
+          "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+          "timestamp": "2026-08-31T14:51:48.052Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused GREEN smoke covers CHK-001:adversarial:1 with registry-driven assertions for all five REVIEW lanes, both envelope modes, exact-once delivery, mixed rollout, non-REVIEW isolation, protocol order, and semantic prohibitions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:51:46.876Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa09960b6c698aded1f21e33d8271a532a1f26fd",
+          "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5",
+          "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+          "timestamp": "2026-08-31T14:51:48.052Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused GREEN smoke covers CHK-001:adversarial:2 with registry-driven assertions for all five REVIEW lanes, both envelope modes, exact-once delivery, mixed rollout, non-REVIEW isolation, protocol order, and semantic prohibitions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:51:47.142Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa09960b6c698aded1f21e33d8271a532a1f26fd",
+          "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5",
+          "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+          "timestamp": "2026-08-31T14:51:48.052Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused GREEN smoke covers CHK-001:adversarial:3 with registry-driven assertions for all five REVIEW lanes, both envelope modes, exact-once delivery, mixed rollout, non-REVIEW isolation, protocol order, and semantic prohibitions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:51:47.405Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa09960b6c698aded1f21e33d8271a532a1f26fd",
+          "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5",
+          "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+          "timestamp": "2026-08-31T14:51:48.052Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused GREEN smoke covers CHK-001:adversarial:4 with registry-driven assertions for all five REVIEW lanes, both envelope modes, exact-once delivery, mixed rollout, non-REVIEW isolation, protocol order, and semantic prohibitions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:51:47.661Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa09960b6c698aded1f21e33d8271a532a1f26fd",
+          "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5",
+          "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+          "timestamp": "2026-08-31T14:51:48.052Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:5",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Tool-executed focused GREEN smoke covers CHK-001:adversarial:5 with registry-driven assertions for all five REVIEW lanes, both envelope modes, exact-once delivery, mixed rollout, non-REVIEW isolation, protocol order, and semantic prohibitions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:51:47.918Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa09960b6c698aded1f21e33d8271a532a1f26fd",
+          "materialHash": "13d95e0ef47e83181e2f29c1497f0fc4c52e0e7e754b70c721864c0588ba07b5",
+          "storyFilesHash": "618cfbc759eaf551d0f3f0c726a3f7dceb25a087dbf300ada2be393b79cdb211",
+          "timestamp": "2026-08-31T14:51:48.052Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
