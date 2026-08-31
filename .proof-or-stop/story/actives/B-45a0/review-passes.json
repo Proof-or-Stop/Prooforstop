@@ -24462,6 +24462,36 @@
       },
       "readDiagnostics": [],
       "_hash": "43ed9bc5cf84bbbfe83534865deb1f5ea5d870d5f8ba7ae03a4ce2df3d29cc30"
+    },
+    {
+      "id": "B-45a0:RP-523",
+      "agent": "lattice-review-concept",
+      "note": "Wave 2 (RI-114) re-scan: no code change since wave-1 RP-519 (only story metadata/bookkeeping delta in git diff main...HEAD --stat; sole material file packages/graph/scripts/verify-no-project-writes.mjs is byte-identical to prior review, purely additive comment + one added regex alternative, original (node_modules|dist|\\.git) alternative intact). Precedent packages/main/src/handlers/story-aware-validation.ts:725 still drops .proof-or-stop/runtime/validation-traces/ from residue for the same reason cited. isStoryMetadataPath/isMaterialExcludedPath remain single-sourced in core/material-path-policy.ts (evidence-freshness.ts re-exports only; validate-channel.ts same-named fn is pre-existing 1-arg forwarding shim, out of scope). mergeBaseWithMain/changedStoryFilesBetween: zero residue (renamed to resolveStoryMergeBase/resolveStoryChangedFiles). objectIdsAtRef: exactly 1 def + 1 use. Stray local isMaterialExcludedPath in lattice-baseline-smoke.ts:422 remains pre-existing and out of scope. koala: 0 hits in packages/*/src. scope_contract_check: unchanged warn (55 warnings, mode=enforce), 0 blocking. No new concept-deletion residue family found this wave; do not attest to the four Wave-4 acceptance-evaluator failures at this HEAD, which remain a separate open item outside this lane concept-residue scope.",
+      "createdAt": "2026-08-31T23:23:18.784Z",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "reviewRunId": "B-45a0:RR-1173",
+      "envelopeId": "e1d1289967625abdd166b841caf6356856d9bc23c9dbe4ef9e9ebb87d458dda0",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-path-policy.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/handlers/validate-channel.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/",
+          "lattice.config.json",
+          "packages/main/src/tasks/",
+          "proof-or-stop.config.json",
+          "scripts/"
+        ],
+        "scanEscalationReason": "none: full grep-based concept residue scan covered all identified rename/deletion targets from wave 1; no new concept-word deletions or replacements detected in this wave requiring full-tree escalation"
+      },
+      "_hash": "49f39f80856751d526c507ca41ea11490e87148752ff6a38743aa0a278d66646"
     }
   ]
 }
