@@ -822,7 +822,19 @@ export function persistFinalizedReviewInventoryUnlocked(args: {
     const seq = String(data.epochs.length + 1).padStart(3, '0');
     const epochId = `${args.storyId}:RIE-${seq}`;
     const receiptId = `${epochId}:RCP-001`;
-    const scopeDigest = reviewInventoryDigest(args.cutoff);
+    // B-45a0: this MUST be the acceptance-subject digest, not a digest of the
+    // cutoff. consumeReviewInventoryReceipt compares epoch/receipt scopeDigest
+    // against reviewInventoryAcceptanceSubjectDigestForStore, so writing
+    // reviewInventoryDigest(args.cutoff) here put the two in different digest
+    // domains and made every receipt minted by this no-OPEN-epoch path
+    // permanently unconsumable: consume failed with "effective ProofStory/
+    // checklist acceptance subject changed after finalize" while the subject
+    // had not changed at all. Measured on B-45a0: live subject digest
+    // 0375089c… stayed byte-stable across cancel+finalize, while the stored
+    // value 1b0e8855… recomputed exactly as reviewInventoryDigest(cutoff).
+    // The OPEN-epoch path (currentScope in handlers/review-inventory.ts) always
+    // used the subject digest; only this shortcut diverged.
+    const scopeDigest = reviewInventoryAcceptanceSubjectDigestForStore(args.store, args.storyId);
     const emptyDigest = reviewInventoryDigest([]);
     const unsignedEpoch: Omit<ReviewInventoryEpoch, '_hash'> = {
       schemaVersion: REVIEW_INVENTORY_EPOCH_SCHEMA,
