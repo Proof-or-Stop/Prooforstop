@@ -102,6 +102,26 @@
           "materialHash": "6c681470d49ab185e200c43d04da9ea6a777bbe8c074f2ec2410cb9570d66d1a",
           "storyFilesHash": "0a810d9ec23f5da95a914068afc3fb1a0ae6450c1f286365fd2487b0f25849aa",
           "timestamp": "2026-08-31T07:57:40.636Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Fresh rebuilt-dist binding receipt after PLAN evidence repair.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c8eae8f55779d6313237e89c393784e42dd4b9b59f3db9db4187ef913f29c2dd",
+            "outputTail": "\n> @proof-or-stop/core@0.3.267 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T07:57:53.731Z",
+            "timeoutMs": 290000
+          },
+          "headHash": "cbb37dfab5d1da839a42fb64f5625abd7d75fb11",
+          "materialHash": "6c681470d49ab185e200c43d04da9ea6a777bbe8c074f2ec2410cb9570d66d1a",
+          "storyFilesHash": "0a810d9ec23f5da95a914068afc3fb1a0ae6450c1f286365fd2487b0f25849aa",
+          "timestamp": "2026-08-31T07:57:53.872Z"
         }
       ]
     }
