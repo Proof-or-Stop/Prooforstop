@@ -193,6 +193,21 @@
       "_hash": "84258da3174b3b9ff03a622cc5562721c8a0bb6ec2dc4115ec96f57a81a0d382",
       "signatureTag": "adversarial|unknown|lattice-story-actives",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5952:F-009",
+      "desc": ".lattice/story/actives/B-5952/findings.json:161-179 [high] F-007 is marked resolved/fixed with resolveEvidenceStrength=strong, but the claimed detached-worktree causal harness is still not on the story evidence surface. A repo search at this HEAD finds the cited B5952_CAUSAL PASS output, baseline/current commit hashes, and repo-map digests only inside this resolvedReason prose; checklist.json and the changed evidence artifacts expose no bound command/receipt that a later reviewer can audit. That recreates the exact prose-only closure problem F-007 identified, so the resolution cannot honestly remain strong/fixed until the harness output is recorded as structured evidence outside this narrative field.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T07:37:22.634Z",
+      "reviewRound": "2026-08-31T07:32:26.785Z",
+      "reviewRunId": "B-5952:RR-008",
+      "_hash": "730c3d14f439db4fcddb8865eeae0387958194121cbbc8097b5174fc1c4ef31f",
+      "signatureTag": "missing|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
