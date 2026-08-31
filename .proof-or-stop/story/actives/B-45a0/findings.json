@@ -25190,6 +25190,62 @@
       ],
       "signatureTag": "missing|json|bind-wave-acceptance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-45a0:F-469",
+      "desc": "doc-code-drift: re-verified at wave 2 (no code/docs changes since wave 1). docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:6, docs/requirements/decisions/dynamic-validation-operations.md:30, and docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md:18-19 still assert the current root validation inventory is 112 commands (58 full-only + 54 story-selectable). Re-running node scripts/verify-validation-inventory.mjs at current HEAD 3b85e7dc2dcc6098fb49a1701e418e3afa079e22 still shows current-main inventory: 116 (58 full-only + 58 story-selectable). Same root cause as B-45a0:F-467 (unrelated sibling merge 5b5c80530e added 4 rows after these docs were written); no code hardcodes 112 as a gate assertion. Same family as B-45a0:F-467, not a new defect.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-31T23:34:15.347Z",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "reviewRunId": "B-45a0:RR-1176",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+          "docs/requirements/decisions/dynamic-validation-operations.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "d419d0020fe761b36ae300f83b5652167da77c21a599b8dd2984f288e138e529"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        }
+      ],
+      "_hash": "0f9e29884b7914bca7987ef9a070834dee6d527627164d91646ba90e480a2da0",
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "proof-or-stop.config.json",
+        "packages/main/src/core/story-aware-validation.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
