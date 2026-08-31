@@ -25147,6 +25147,49 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-45a0:F-468",
+      "desc": "CHK-014 ('Bind Wave 4 acceptance gates to executable current-head evidence') claims all 4 Wave-4 verifier-owned checks are bound, but at current HEAD a64386ec both acceptance-basis.json.receipt.storyFilesHash (443e3e20...) and acceptance-rollout-report.json.binding.headHash (8cd7e6ef...) predate current story state (current storyFilesHash=8c241e49...). Live re-run of 'node bin/proof-or-stop.js acceptance_topology_check --storyId=B-45a0 --json' at this HEAD still fails with diagnostic AT_SCOPE_BINDING_MISSING (scope-contract digest mismatch; evidence storyFilesHash does not match current story-owned file state). Checklist verificationEvidence for CHK-011:happy:0 and CHK-014:happy:1 both carry result:pass but mechanical:false with nonMechanicalReason stating the receipt was invalidated by verification_evidence_refresh_stale and never re-earned. Nothing has changed since wave 1 (RR-1169/F-466); this is a wave-2 re-confirmation of the same open family, not a new defect. Severity high: this makes already-registered evidence false-positive (pass claimed for unverified state), which is acceptance-blocking per CLAUDE.md defect-triage step 2. Fix path: return to DEV, regenerate acceptance basis, reissue pre_review_check, regenerate acceptance rollout report, re-run the two pinned commands via verification_run so CHK-011:happy:0 and CHK-014:happy:1 carry real mechanical receipts, then return to REVIEW.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T23:31:02.604Z",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "reviewRunId": "B-45a0:RR-1175",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0c4d0ba1dd3f526714056be1871278650625bdf2467faa078708dc5ae4be4f08",
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "signatureTag": "missing|json|bind-wave-acceptance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
