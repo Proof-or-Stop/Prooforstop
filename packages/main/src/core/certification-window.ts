@@ -788,16 +788,14 @@ export function detectCertificationWindowMaterialDrift(
   if (current.storyFilesHash && frozen.storyFilesHash && current.storyFilesHash !== frozen.storyFilesHash) {
     return { drifted: true, reason: 'storyFilesHash changed' };
   }
-  if (!allowSpecializedUnrelatedDrift && current.materialHash && frozen.materialHash && current.materialHash !== frozen.materialHash) {
-    return { drifted: true, reason: 'materialHash changed' };
-  }
-  if (allowSpecializedUnrelatedDrift && current.materialHash && frozen.materialHash && current.materialHash !== frozen.materialHash) {
-    return {
-      drifted: false,
-      advisory: {
-        code: PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY,
-        detail: 'Whole-tree materialHash drifted while storyFilesHash remained unchanged; specialized evidence remains usable only with mandatory re-attestation. Stored hashes are not rewritten.',
-      },
+  let advisory: CertificationWindowStatusProjection['advisory'] | undefined;
+  if (current.materialHash && frozen.materialHash && current.materialHash !== frozen.materialHash) {
+    if (!allowSpecializedUnrelatedDrift) {
+      return { drifted: true, reason: 'materialHash changed' };
+    }
+    advisory = {
+      code: PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY,
+      detail: 'Whole-tree materialHash drifted while storyFilesHash remained unchanged; specialized evidence remains usable only with mandatory re-attestation. Stored hashes are not rewritten.',
     };
   }
   if (
@@ -814,7 +812,7 @@ export function detectCertificationWindowMaterialDrift(
   ) {
     return { drifted: true, reason: 'test identity changed' };
   }
-  return { drifted: false };
+  return { drifted: false, ...(advisory ? { advisory } : {}) };
 }
 
 export function persistInvalidatedCertificationWindow(args: {
