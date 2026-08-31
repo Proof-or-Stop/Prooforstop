@@ -208,6 +208,21 @@
       "_hash": "730c3d14f439db4fcddb8865eeae0387958194121cbbc8097b5174fc1c4ef31f",
       "signatureTag": "missing|unknown|lattice-story-actives",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5952:F-010",
+      "desc": ".lattice/story/actives/B-5952/decision.json:7-46, .lattice/story/actives/B-5952/findings.json:161-179 [high] The 808 policy is still not causally justified on the auditable story evidence surface. decision.json now states 796 baseline, synthetic 419 stability, repo 377->385 growth, and eight exact added files as the reason 808 preserves prior four-build headroom, but a repo search at this HEAD finds those measurements only inside F-007 resolvedReason prose. No current checklist verification command, evidence artifact, or bound receipt records the claimed detached-worktree causal harness or exposes its map/diff for later review. The code change itself is narrowly scoped to the smoke budget helper, but the story still overclaims why 808 is safe; record the causal harness as structured evidence or weaken the justification/resolution until it is auditable.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T07:42:50.765Z",
+      "reviewRound": "2026-08-31T07:32:26.785Z",
+      "reviewRunId": "B-5952:RR-010",
+      "_hash": "c73bedd16492a308b103b87b903956dc1ef5e877b69196bc840df36ca8b06eaa",
+      "signatureTag": "missing|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
