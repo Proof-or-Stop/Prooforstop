@@ -10516,7 +10516,7 @@
       "reviewRound": "2026-08-31T02:29:23.056Z",
       "state": "OPEN",
       "begunAt": "2026-08-31T04:46:23.384Z",
-      "updatedAt": "2026-08-31T05:00:17.895Z",
+      "updatedAt": "2026-08-31T05:13:25.124Z",
       "cutoff": {
         "headHash": "eebc412c2bb0a550b45370886bd293867e6d0453",
         "materialHash": "7369d073fe106294376f8e649d813f135f8c9d443def3aa1c5f00ab7d395c49d",
@@ -10590,10 +10590,70 @@
           "criticDigest": "e351f1c5b59a9b964cf2d9a9656bd2fe4b362acc0fde7f763d190a8c9bba1001",
           "saturated": false,
           "nextRunSequenceBoundary": 1095
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-08-31T05:00:17.895Z",
+          "completedAt": "2026-08-31T05:13:25.124Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-1096",
+              "terminal": "pass",
+              "hostIdentity": "c8a8789d384bf064716a5b205525e7c09e33bf15e8b96a588ae83e359694b0ce",
+              "promptIdentity": "7bceb1b45ea99e2cb6bf3498c2f8e102d36f188f7e93d0f6a22507f733d18e8f",
+              "evidenceIds": [
+                "B-45a0:RP-488"
+              ],
+              "coverageDigest": "754f0ac75bd547ab5d4b5db7734ad09e920a06885d84037c0394b04aa56800b3"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-1097",
+              "terminal": "finding",
+              "hostIdentity": "c8a8789d384bf064716a5b205525e7c09e33bf15e8b96a588ae83e359694b0ce",
+              "promptIdentity": "b9bfabe48a31a58f4746aed4b5f30208e3a14e0be1c9937ad0d3dbd14a924af4",
+              "evidenceIds": [
+                "B-45a0:F-447"
+              ],
+              "coverageDigest": "779c0e935fd4f50d7db2eae2b916f9b3e3b3673bb07a892d340154caec98ff16"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-1098",
+              "terminal": "pass",
+              "hostIdentity": "c8a8789d384bf064716a5b205525e7c09e33bf15e8b96a588ae83e359694b0ce",
+              "promptIdentity": "071b499b986f0629ca786f2442d0b5903ade221d38785eb9f4807bb5fe3d467e",
+              "evidenceIds": [
+                "B-45a0:RP-490"
+              ],
+              "coverageDigest": "972e569ebd564b0a067a2fe73f24ae00050aaeaaf2cb91bc87c08ade26c5b52a"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-1099",
+              "terminal": "pass",
+              "hostIdentity": "c8a8789d384bf064716a5b205525e7c09e33bf15e8b96a588ae83e359694b0ce",
+              "promptIdentity": "277c2b6e62af2f716bc121f7b45073c06715ae63925c57e07f6e2c0ab6c6faff",
+              "evidenceIds": [
+                "B-45a0:RP-489"
+              ],
+              "coverageDigest": "314a5897693592d3e81a569751540cf51ff70bf02cc04b2db105847073cbb8be"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "dyn5-shard-env-var-deprecated-brand-prefix",
+            "story-aware-validation-config-source-comment-residue"
+          ],
+          "verifiedFindingSetDigest": "1e6964ec8bd23c06d034cd4398e0780e7c2b28de0ecfc6fd1534aa0963791660",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "472397ba07ede96767a396ebbe0941731170d5c66f881592fc7ba420c9548e32",
+          "saturated": false,
+          "nextRunSequenceBoundary": 1100
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "9528cc04b0220cd088d77f5e82ce7253c17d9052bc11a8187558fe0eac6c07b0"
+      "_hash": "6289921191cdd0c2f0db50721c1ba9285b0781eb9457f75ce109c8097664bc83"
     }
   ],
   "receipts": [
@@ -17012,6 +17072,37 @@
       ],
       "createdAt": "2026-08-31T04:59:59.734Z",
       "_hash": "0fd97d960390267c5f5f32e5320d75e58ae2804d6c05b24117ea01b9b209d358"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-108:CRIT-02",
+      "epochId": "B-45a0:RI-108",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "eebc412c2bb0a550b45370886bd293867e6d0453",
+        "materialHash": "7369d073fe106294376f8e649d813f135f8c9d443def3aa1c5f00ab7d395c49d",
+        "storyFilesHash": "3f024d55e8753d7202c4c8b8e203709c9ac271222846672777f0ca737bb09abf"
+      },
+      "aggregateFindingSetDigest": "1e6964ec8bd23c06d034cd4398e0780e7c2b28de0ecfc6fd1534aa0963791660",
+      "requiredLaneCoverageDigest": "f448062fef8b7ccaada69fae95541e7f81fb25c05a98f4c23e4c76ce7c02b7b8",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-1100",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-491"
+      ],
+      "readEvidenceDigest": "d34c2682c4b9868885173d53b9aacbe80e7a3ed88b70dc97c50dddd15a5ed872",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-447",
+          "disposition": "verified_family",
+          "familyKey": "dyn5-shard-env-var-deprecated-brand-prefix",
+          "reason": "Independently re-derived: grep confirms 11 distinct LATTICE_VALIDATION_* names (SHARD_ID/DOMAIN/SENTINEL/CASE_IDS/CASE_REGISTRY/CASE_REGISTRY_DIGEST/ADAPTER_DIGEST/DIR/ADAPTER, PROJECT_ROOT, CASE_TIMEOUT_MS) across handlers/story-aware-validation.ts and the two task adapter/runner files, 0 PROOF_OR_STOP_VALIDATION_* counterparts. brand-rename-mapping.md rules LATTICE_* env vars must read-both-prefer-new via readBrandEnv; these vars are set as raw object-literal env keys, bypassing readBrandEnv entirely, and are new in this story (no prior LATTICE_VALIDATION_* usage), so there is no legacy-compat justification. Distinct files, distinct mechanism, and distinct subject matter from F-446 (comment residue, already accounted for in prior wave) and from F-441/F-444 (config-file path resolution) and from F-437/F-439/F-440 (pre_review_check_read status-field ambiguity). This is a genuinely new verified family this wave, not a fold-in."
+        }
+      ],
+      "createdAt": "2026-08-31T05:12:42.999Z",
+      "_hash": "2787d92d4b0a5417075f07ad829907c9c0254e09087f36008eba3d34c809a5b7"
     }
   ]
 }
