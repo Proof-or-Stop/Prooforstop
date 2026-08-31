@@ -708,6 +708,21 @@
       "_hash": "808ebba5883810058a6ee01425a8a1a11815226d387393cf8d3fc677bff3521f",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-034",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:2883-2890 — MEDIUM: the Safe sequence says step 2 implements/accepts Story 2 on 3A and that both authoritative contracts pass, then step 3 again says to implement/accept Story 2 authoritative identity/lineage. This duplicates and contradicts the milestone boundary. State step 2 as 3B plus read-only Story 2/Story 1 work, then make Story 2 authoritative delivery a single later step, or explicitly allow 3B and authoritative Story 2 in parallel without repeating it.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T08:55:13.658Z",
+      "reviewRound": "2026-08-31T08:47:53.205Z",
+      "reviewRunId": "B-1fa6:RR-043",
+      "_hash": "c313872e11df5a73044e8b067b43cb32d5399bd0782e970fc1e1ab62297f3f90",
+      "signatureTag": "edge|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
