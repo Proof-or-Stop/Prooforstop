@@ -47,6 +47,56 @@
               "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
               "selector": "retired authority vocabulary guard PASS builds=804"
             }
+          },
+          {
+            "id": "CHK-001:edge:canonical-root-validate-timeout",
+            "desc": "From a clean checkout whose repository marker is canonical proof-or-stop.config.json, node packages/main/dist/tasks/validate-command-timeout-smoke.js discovers the real repository root and exits 0; its temporary fixtures that intentionally provide only legacy lattice.config.json still resolve configured timeout overrides and retain their existing assertions. WHY: proves canonical root migration without breaking legacy fixture compatibility.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+              "selector": "validate-command-timeout smoke passed:"
+            }
+          },
+          {
+            "id": "CHK-001:edge:canonical-root-blob-ceiling",
+            "desc": "From the same clean canonical checkout with proof-or-stop.config.json and no repository-root lattice.config.json, node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs locates the repository root, executes the real blob-buffer classification suite, and exits 0 with its PASS line instead of failing root discovery. WHY: pins canonical root discovery on the standalone RED regression.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+              "selector": "red-b3434-blob-buffer-ceiling: PASS"
+            }
+          },
+          {
+            "id": "CHK-001:edge:missing-lattice-envelope-snapshot",
+            "desc": "When the red-evidence envelope smoke snapshots a fixture before a .lattice directory exists, the missing tree is represented deterministically and does not throw ENOENT; after fixture initialization its non-empty before/after manifest contract still detects mutations, and node packages/main/dist/tasks/red-evidence-envelope-smoke.js exits 0 with its OK line. WHY: missing runtime state must be an explicit snapshot state, not a crash or a weakened read-only assertion.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+              "selector": "red-evidence-envelope-smoke: OK"
+            }
+          },
+          {
+            "id": "CHK-001:edge:missing-lattice-readonly-snapshot",
+            "desc": "When the W2d read-only regression encounters an absent .lattice tree, snapshotting returns the same deterministic missing-state representation on repeated reads rather than throwing; once its fixture creates .lattice, the aggregate file-manifest comparison remains meaningful, canonical proof-or-stop.config.json resolves the registered smoke, its legacy temporary lattice.config.json fixture still works, and node packages/main/tests/red/red-w2d-command-readonly.mjs exits 0 with PASS.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-command-readonly.mjs",
+              "selector": "red-w2d-command-readonly: PASS"
+            }
+          },
+          {
+            "id": "CHK-001:edge:canonical-root-init-signature",
+            "desc": "From a clean checkout containing canonical proof-or-stop.config.json but no repository-root lattice.config.json, node packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs reads its current validation registration, reaches the GREEN signature-domain verdict, and exits 0; the isolated repositories it creates with legacy lattice.config.json continue to bootstrap and exercise the same CLI flow. WHY: canonical registration lookup must not invalidate legacy test projects.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+              "selector": "GREEN: both verdict fields are inside the signature domain"
+            }
           }
         ],
         "adversarial": [
@@ -78,6 +128,16 @@
             "verification": {
               "command": "node -e \"const fs=require('fs'),cp=require('child_process'),path=require('path'),os=require('os'),crypto=require('crypto');const repo=process.cwd(),base='0abf3d859dada2286870025b7093715d261855d4',git='/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback/git';const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'b5952-causal-'));const wt=path.join(tmp,'base');const run=(file,args,opts={})=>{const r=cp.spawnSync(file,args,{cwd:opts.cwd||repo,encoding:'utf8',maxBuffer:100*1024*1024,timeout:opts.timeout||300000,env:process.env});if(r.status!==0)throw new Error(file+' failed '+r.status+' '+String(r.stderr).slice(-2000));return r.stdout};const mapFor=root=>{const p=path.join(root,'packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js'),q=path.join(path.dirname(p),'.b5952-map-'+process.pid+'.js'),s=fs.readFileSync(p,'utf8'),i=s.lastIndexOf('process.stdout.write');if(i<0)throw new Error('map marker missing');fs.writeFileSync(q,s.slice(0,i)+'process.stdout.write(\\\"B5952_MAP=\\\"+JSON.stringify([...typeProgramInstrumentation.dynamicBindingBuildFiles.entries()].sort())+\\\"\\\\\\\\n\\\");\\\\n'+s.slice(i));try{const out=run(process.execPath,[q],{cwd:root}),line=out.split('\\\\n').find(v=>v.startsWith('B5952_MAP='));if(!line)throw new Error('map output missing');return JSON.parse(line.slice(10));}finally{fs.rmSync(q,{force:true})}};const norm=p=>{for(const mark of ['/packages/','/bin/']){const i=p.lastIndexOf(mark);if(i>=0)return p.slice(i+1)}return p};try{run(git,['worktree','add','--detach',wt,base],{timeout:60000});fs.symlinkSync(fs.realpathSync(path.join(repo,'node_modules')),path.join(wt,'node_modules'),'dir');run(process.execPath,['scripts/build-main-with-binding.mjs'],{cwd:wt,timeout:300000});const rawA=mapFor(wt),rawB=mapFor(repo),syntheticA=rawA.filter(([p])=>p.includes('dynamic-code-control-')),syntheticB=rawB.filter(([p])=>p.includes('dynamic-code-control-')),a=rawA.filter(([p])=>!p.includes('dynamic-code-control-')).map(([p,n])=>[norm(p),n]).sort((x,y)=>x[0].localeCompare(y[0])),b=rawB.filter(([p])=>!p.includes('dynamic-code-control-')).map(([p,n])=>[norm(p),n]).sort((x,y)=>x[0].localeCompare(y[0])),am=new Map(a),bm=new Map(b),added=b.filter(([p,n])=>!am.has(p)||am.get(p)!==n),removed=a.filter(([p,n])=>!bm.has(p)||bm.get(p)!==n),dupes=[...a,...b].filter(([,n])=>n!==1),digest=x=>crypto.createHash('sha256').update(JSON.stringify(x)).digest('hex'),expected=['packages/main/src/core/brand-paths.ts','packages/main/src/core/certification-window.ts','packages/main/src/core/review-inventory-epoch.ts','packages/main/src/handlers/certification-window.ts','packages/main/src/tasks/adapter-session-env.ts','packages/main/src/tasks/brand-path-resolver-smoke.ts','packages/main/src/tasks/certification-window-smoke.ts','packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts'],result={baselineCommit:run(git,['rev-parse',base]).trim(),currentCommit:run(git,['rev-parse','HEAD']).trim(),baselineBuilds:rawA.reduce((n,v)=>n+v[1],0),currentBuilds:rawB.reduce((n,v)=>n+v[1],0),baselineSynthetic:syntheticA.length,currentSynthetic:syntheticB.length,baselineRepo:a.length,currentRepo:b.length,baselineRepoMapSha256:digest(a),currentRepoMapSha256:digest(b),added,removed,duplicateCounts:dupes,expectedAddedExact:JSON.stringify(added.map(v=>v[0]))===JSON.stringify(expected)};if(result.baselineBuilds!==796||result.currentBuilds!==804||result.baselineSynthetic!==419||result.currentSynthetic!==419||result.baselineRepo!==377||result.currentRepo!==385||added.length!==8||removed.length!==0||dupes.length!==0||!result.expectedAddedExact)throw new Error('causal mismatch '+JSON.stringify(result));console.log('B5952_CAUSAL_MAP '+JSON.stringify(result));console.log('B5952_CAUSAL PASS baseline=796 current=804 synthetic=419/419 repo=377/385 delta=8 exactAdded=true removed=0 duplicateCounts=0');}finally{try{run(git,['worktree','remove','--force',wt],{timeout:60000})}catch{}fs.rmSync(tmp,{recursive:true,force:true})}\"",
               "selector": "B5952_CAUSAL PASS baseline=796 current=804 synthetic=419/419 repo=377/385 delta=8 exactAdded=true removed=0 duplicateCounts=0"
+            }
+          },
+          {
+            "id": "CHK-001:adversarial:heartbeat-timeout-classification",
+            "desc": "A fake global fallback heartbeat killed by its armed budget is reported as a hard failure with [heartbeat_command_timeout], the effective timeout budget, and the override remedy, never as generic heartbeat command failed; a prompt non-zero fallback remains the generic failure class and is never relabelled timeout. node packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js must exit 0 with the bounded-and-attributed PASS line. WHY: timeout handling must diagnose timing separately without granting broken fallbacks amnesty.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+              "selector": "codex heartbeat timeout smoke passed: timeout reported distinctly; broken fallback still fails; override bounded + attributed"
             }
           }
         ]
