@@ -1018,6 +1018,52 @@
       },
       "readDiagnostics": [],
       "_hash": "7bbe72ae4650621a018b45f2dc7e8183092ca35383bbe611cc2898784dcb4af5"
+    },
+    {
+      "id": "B-5952:RP-033",
+      "agent": "lattice-review-docs",
+      "note": "Extracted 8 changed declaration names; found 0 documentation paragraphs that reference them as code identifiers, so no code-to-doc drift. Reverse-checked the 1 changed decision paragraph: it only pairs historical @lattice/core with canonical @proof-or-stop/core, matches the identity-migration decision and passing package-rename verifier, and does not add a B-3434 writer-owned boundary or alter Dynamic Finding semantics.",
+      "createdAt": "2026-08-31T20:57:43.124Z",
+      "reviewRound": "2026-08-31T20:53:15.083Z",
+      "reviewRunId": "B-5952:RR-055",
+      "envelopeId": "1916ef4f9c3de49ebae0a95932dce71c59d87c5951c02b2e6b2cc0024e58011f",
+      "writerSessionId": "sess-00f489766a542a0d5f40b0b29dd2fb86",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/plan.md",
+          "scripts/verify-core-package-rename.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/checklist.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ff7eadea8fbb77f51fb4c73f31cf30e87de81afaa4ce667cb9dbde256074c704"
+      },
+      "readDiagnostics": [],
+      "_hash": "3e2083433196f58833166b8624ebfa26f05b176518ca0411449e9c442a926621"
     }
   ]
 }
