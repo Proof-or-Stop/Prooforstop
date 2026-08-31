@@ -23109,6 +23109,41 @@
         "scanEscalationReason": null
       },
       "_hash": "099674801273dad6b2f90c5eb0623a86b838e176be4aff2ca5f3055a295e7380"
+    },
+    {
+      "id": "B-5a88:RP-380",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-anchor pass: git diff c750f2876d^..HEAD outside .proof-or-stop/ shows only CLAUDE.md changed (process-doc defect-triage rules addition, no lattice-to-proof-or-stop identifier text, no code). Confirmed no source moved since prior RP-378 pass. F-501/F-500/F-499 remain settled as previously judged; schemaVersion literals and FROZEN items unchanged. No new concept-deletion residue found.",
+      "createdAt": "2026-08-31T09:55:24.621Z",
+      "reviewRound": "2026-08-31T08:14:01.165Z",
+      "reviewRunId": "B-5a88:RR-948",
+      "envelopeId": "fae88a1ad5c7757a52d05667083086036d226381c02b72a29c7e4a5e5f16952c",
+      "writerSessionId": "claude-b5a88-1788161424",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "packages/main/src/core/agent-role-identity.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8455cd54388d0c8de995c7ac492ede16bbbe095c421994994eb69c099becf8e2"
+      },
+      "readDiagnostics": [],
+      "_hash": "e5b2eb5994eaa3c819878c56defca695bffe0f87775233d374a7f4238178a3a8"
     }
   ]
 }
