@@ -217,6 +217,21 @@
       "_hash": "32844c70c79aebf61b34a75e5b5944013a530cb851eb050b473bd27558973238",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9a49:F-011",
+      "desc": "packages/main/src/core/prompt-registry.ts:69 doc-promise-undelivered (high): the temporal fix is incomplete. Lines 39-43 correctly say Dynamic Finding applicability/supersession is future authority and unavailable fields/receipts must not be fabricated, but the unconditional final rule still says new evidence must append a traceable revision or superseding Finding and trigger fresh applicability and gate-impact evaluation. The current CLI exposes finding_add/list/resolve/dismiss/cluster but no applicability assessment, supersession/revision, or fresh-applicability command, and the authoritative plan marks those records/commands as future Stories. All five REVIEW lanes therefore still receive an impossible current instruction unless this sentence is explicitly conditioned on the official system becoming available or replaced with a current-compatibility action. This falsifies the temporal-boundary portion of F-001/F-005 resolution. severity=high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-31T21:31:06.618Z",
+      "reviewRound": "2026-08-31T21:25:00.925Z",
+      "reviewRunId": "B-9a49:RR-008",
+      "_hash": "c68a650a1f540545ef785a1c68b4b30a8b2d132684461754091ba6080cdbc3b6",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
