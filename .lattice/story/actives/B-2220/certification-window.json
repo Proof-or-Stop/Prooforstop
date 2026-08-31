@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-2220:CW-001",
+      "storyId": "B-2220",
+      "state": "ADMITTED",
+      "createdAt": "2026-08-31T23:52:55.103Z",
+      "updatedAt": "2026-08-31T23:52:55.103Z",
+      "frozen": {
+        "headHash": "1fc5c52d938761fab9ba85179a77661467c50658",
+        "materialHash": "632d314bb1bb8282e40f0adf29868f71a632f42738d94abde26e7720fdad6e09",
+        "storyFilesHash": "6ab6bae5ef24b15fc2c4c3ecb70b8a1c3b78c04a0e3ecfe4272171f1a47ebc10",
+        "expectedMainSha": "7889cf4888b2cfdea8655d349ba88fee0ff20e38",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-2220:RIE-001",
+        "receiptId": "B-2220:RIE-001:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-2220:PRECERT-001",
+      "_hash": "a692121fb6fbd710d6c70073a3be2bef2ea508e25a9b23f4f0b72eb614c928e2"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-2220:PRECERT-001",
+      "windowId": "B-2220:CW-001",
+      "storyId": "B-2220",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "1fc5c52d938761fab9ba85179a77661467c50658",
+        "materialHash": "632d314bb1bb8282e40f0adf29868f71a632f42738d94abde26e7720fdad6e09",
+        "storyFilesHash": "6ab6bae5ef24b15fc2c4c3ecb70b8a1c3b78c04a0e3ecfe4272171f1a47ebc10",
+        "expectedMainSha": "7889cf4888b2cfdea8655d349ba88fee0ff20e38",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-2220:RIE-001",
+      "inventoryReceiptId": "B-2220:RIE-001:RCP-001",
+      "createdAt": "2026-08-31T23:52:55.103Z",
+      "_hash": "3569d5e9497f377772e55b329742833405f349a7a859f3fddcef2f5f95f104a6"
+    }
+  ]
+}
