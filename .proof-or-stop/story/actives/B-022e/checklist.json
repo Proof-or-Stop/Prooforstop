@@ -74,19 +74,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Cutover verifier proves exhaustive policy and zero active residue.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0ff70de06a251fcfb312ec0f8fc080c4c488ba16435aa4f8c671742faa171057",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 245 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit 0889f89abbe7\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:46:38.951Z",
+            "executedAt": "2026-08-31T05:15:56.221Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.482Z"
+          "timestamp": "2026-08-31T05:18:37.927Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -95,19 +95,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Exact frozen paths and byte baselines pass without broad exemptions.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0ff70de06a251fcfb312ec0f8fc080c4c488ba16435aa4f8c671742faa171057",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 245 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit 0889f89abbe7\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:47:21.208Z",
+            "executedAt": "2026-08-31T05:16:38.485Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.482Z"
+          "timestamp": "2026-08-31T05:18:37.927Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -116,19 +116,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
           "result": "pass",
           "note": "Mutation self-test rejects missing, broadened, or stale evidence.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4eec10b9921bb8d3ba1afc68210fadb1e029fc7f8dc2501f84c0e68b763ac382",
             "outputTail": "PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:47:25.356Z",
+            "executedAt": "2026-08-31T05:16:42.350Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.482Z"
+          "timestamp": "2026-08-31T05:18:37.927Z"
         }
       ]
     },
@@ -223,19 +223,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Original committed RED target now passes at descendant GREEN.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0ff70de06a251fcfb312ec0f8fc080c4c488ba16435aa4f8c671742faa171057",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 245 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit 0889f89abbe7\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:46:38.951Z",
+            "executedAt": "2026-08-31T05:15:56.221Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -244,19 +244,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Same acceptance target passes without test replacement.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0ff70de06a251fcfb312ec0f8fc080c4c488ba16435aa4f8c671742faa171057",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 245 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit 0889f89abbe7\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:46:38.951Z",
+            "executedAt": "2026-08-31T05:15:56.221Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -265,19 +265,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Self-host migration preserves story and exact schema evidence.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0ff70de06a251fcfb312ec0f8fc080c4c488ba16435aa4f8c671742faa171057",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 245 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit 0889f89abbe7\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:48:07.350Z",
+            "executedAt": "2026-08-31T05:17:24.790Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -286,19 +286,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Frozen salts, source rows, and byte baselines remain unchanged.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0ff70de06a251fcfb312ec0f8fc080c4c488ba16435aa4f8c671742faa171057",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 245 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit 0889f89abbe7\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:48:49.512Z",
+            "executedAt": "2026-08-31T05:18:07.609Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -399,19 +399,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Package and lock identities contain no active legacy package edges.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0ff70de06a251fcfb312ec0f8fc080c4c488ba16435aa4f8c671742faa171057",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 245 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit 0889f89abbe7\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:46:38.951Z",
+            "executedAt": "2026-08-31T05:15:56.221Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -420,19 +420,19 @@
           "command": "node scripts/verify-global-lab-entrypoint.mjs",
           "result": "pass",
           "note": "Published Lab registration, help, create, dry-run, and core isolation pass.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a663ad2f3d87a7202fb441923a31bd3cad708e6f57fc142c7fe1ef11117ee04c",
             "outputTail": "ok versions\nok lab-help\nok lab-create\nok core-without-lab\nglobal lab entrypoint verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:48:51.409Z",
+            "executedAt": "2026-08-31T05:18:09.443Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -441,19 +441,19 @@
           "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
           "result": "pass",
           "note": "Legacy commands, wrappers, and aliases remain unresolvable.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
             "outputTail": "proof-or-stop-only absence smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:48:51.594Z",
+            "executedAt": "2026-08-31T05:18:09.615Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         }
       ]
     },
@@ -536,19 +536,19 @@
           "command": "node bin/proof-or-stop.js --version",
           "result": "pass",
           "note": "Canonical bin reports the synchronized shipped version.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "f6a00f33f9605a02d2596fccdcfec5d26cd148c3e27181ddccc18ff1eda84c2f",
             "outputTail": "Proof-or-Stop 0.3.268\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:48:52.056Z",
+            "executedAt": "2026-08-31T05:18:10.060Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -557,19 +557,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Indirect command guidance and generated surfaces have zero legacy command residue.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0ff70de06a251fcfb312ec0f8fc080c4c488ba16435aa4f8c671742faa171057",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 245 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit 0889f89abbe7\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:46:38.951Z",
+            "executedAt": "2026-08-31T05:15:56.221Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -578,19 +578,19 @@
           "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
           "result": "pass",
           "note": "Retired lattice bin and wrapper paths fail closed.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
             "outputTail": "proof-or-stop-only absence smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:48:51.594Z",
+            "executedAt": "2026-08-31T05:18:09.615Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         }
       ]
     },
@@ -699,19 +699,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Fresh runtime identity scan proves canonical environment, state, config, adapter, and Agent identities.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0ff70de06a251fcfb312ec0f8fc080c4c488ba16435aa4f8c671742faa171057",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 245 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit 0889f89abbe7\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:46:38.951Z",
+            "executedAt": "2026-08-31T05:15:56.221Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -720,19 +720,19 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "Canonical role registry binds the complete exact role and prompt set.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4879f65fcebc2604a96886b9e3026c10a787b40e9933bae9ece7ee170b48e648",
             "outputTail": "PASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:48:59.016Z",
+            "executedAt": "2026-08-31T05:18:16.750Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -741,19 +741,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
           "result": "pass",
           "note": "Historical bytes and provenance remain unchanged after active migration.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "0ff70de06a251fcfb312ec0f8fc080c4c488ba16435aa4f8c671742faa171057",
             "outputTail": "PASS identity-cutover\nPASS unchanged: 13 signature salts at 245 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\n[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit 0889f89abbe7\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\nPASS proof-or-stop packed clean-install boundary\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:47:21.208Z",
+            "executedAt": "2026-08-31T05:16:38.485Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
@@ -762,19 +762,19 @@
           "command": "node scripts/verify-runtime-fact-contract.mjs",
           "result": "pass",
           "note": "Canonical runtime paths and authorities are mechanically verified.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "edb14a9654ad6a6c476b9e504fa270382191634f16e68d1e9837a4aede982e55",
             "outputTail": "Runtime fact contract verified (entrypoint-authority, cli-entrypoint, global-core-realpath, project-local-bin, node-version, package-version, validate-source, external-reference-policy)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:49:00.105Z",
+            "executedAt": "2026-08-31T05:18:17.755Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -783,19 +783,19 @@
           "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
           "result": "pass",
           "note": "Retired role, env, path, config, and runtime identities cannot alias.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
             "outputTail": "proof-or-stop-only absence smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:48:51.594Z",
+            "executedAt": "2026-08-31T05:18:09.615Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.483Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -803,19 +803,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
           "result": "pass",
           "note": "Re-run the immutable adversarial self-test pin after restoring its exact acceptance selector.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4eec10b9921bb8d3ba1afc68210fadb1e029fc7f8dc2501f84c0e68b763ac382",
             "outputTail": "PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:49:04.513Z",
+            "executedAt": "2026-08-31T05:18:21.671Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.484Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         }
       ]
     },
@@ -903,19 +903,19 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "Current prompts and generated assets render all canonical roles.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4879f65fcebc2604a96886b9e3026c10a787b40e9933bae9ece7ee170b48e648",
             "outputTail": "PASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:49:11.501Z",
+            "executedAt": "2026-08-31T05:18:28.376Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.484Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -945,19 +945,19 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "Legacy role generation and prompt mutations are rejected.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4879f65fcebc2604a96886b9e3026c10a787b40e9933bae9ece7ee170b48e648",
             "outputTail": "PASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:49:18.497Z",
+            "executedAt": "2026-08-31T05:18:35.099Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.484Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         }
       ]
     },
@@ -1037,19 +1037,19 @@
           "command": "node scripts/verify-global-lab-entrypoint.mjs",
           "result": "pass",
           "note": "Final CLI and Lab behavior passes with identity GREEN and offline package transcript.",
-          "headHash": "e7fe6c1eb94430d125aaa361b123e6dc15c6fa05",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a663ad2f3d87a7202fb441923a31bd3cad708e6f57fc142c7fe1ef11117ee04c",
             "outputTail": "ok versions\nok lab-help\nok lab-create\nok core-without-lab\nglobal lab entrypoint verified\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:48:51.409Z",
+            "executedAt": "2026-08-31T05:18:09.443Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:52:14.458Z"
+          "timestamp": "2026-08-31T05:18:37.928Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -1058,19 +1058,19 @@
           "command": "node packages/main/dist/tasks/proof-or-stop-only-absence-smoke.js",
           "result": "pass",
           "note": "Canonical surfaces succeed while retired identities stay absent.",
-          "headHash": "e7fe6c1eb94430d125aaa361b123e6dc15c6fa05",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8f6ce56fd598ce3d60cc05eb4b989fa6620aca53c52b46df963fc6b76550a7f9",
             "outputTail": "proof-or-stop-only absence smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:48:51.594Z",
+            "executedAt": "2026-08-31T05:18:09.615Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:52:14.633Z"
+          "timestamp": "2026-08-31T05:18:37.929Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -1079,19 +1079,19 @@
           "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test",
           "result": "pass",
           "note": "Residue and allowlist mutation suite is sensitive and non-vacuous.",
-          "headHash": "e7fe6c1eb94430d125aaa361b123e6dc15c6fa05",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4eec10b9921bb8d3ba1afc68210fadb1e029fc7f8dc2501f84c0e68b763ac382",
             "outputTail": "PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:47:25.356Z",
+            "executedAt": "2026-08-31T05:16:42.350Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:52:14.803Z"
+          "timestamp": "2026-08-31T05:18:37.929Z"
         },
         {
           "intentRef": "CHK-007:pack-boundary-transcript:0",
@@ -1181,19 +1181,19 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "Version authorities agree on 0.3.268; lifecycle evidence is separately gate-enforced.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "af761eb4a1cd7fa8e6b2b3df37948a0fb085dad335eaeda36d9b9c839787aca6",
             "outputTail": "version-bump smoke passed: 86 assertions\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:49:18.882Z",
+            "executedAt": "2026-08-31T05:18:35.446Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.484Z"
+          "timestamp": "2026-08-31T05:18:37.929Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -1202,19 +1202,19 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Review, validation, delivery, and adapter facts are bound to lifecycle gates.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a69108452f6f1575d3112cf32924474214d28eea1f0ca55882426a7b94e57d08",
             "outputTail": "s; the assurance floor consumes host-verdict rounds emitted after quorum admission artifact=prompt-envelopes.json\n- artifact:proofstory.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=proofstory.json\n- artifact:red-evidence.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=red-evidence.json\n- artifact:review-inventory-epochs.json [L4/signed-artifact] producer=handlers/review-inventory gate=certification_window_begin artifact=review-inventory-epochs.json:signed\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\n- artifact:review-runs.json [L4/signed-artifact] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed\n- artifact:review.json [L4/signed-artifact] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed\n- artifact:scope-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed\n- artifact:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed\n- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json\n- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed\n- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed\n- artifact:scope-shrinkage-decision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=scope-shrinkage-decision.json\n- artifact:slice-plan.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json\n- artifact:spike.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json\n- artifact:story-evidence-binding [L4/artifact] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding\n- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- artifact:topology-critic-receipt.json [L3/signed-artifact] producer=handlers/proofstory.topology_critic_receipt_set gate=topology_critic_receipt_check CLI verification only artifact=topology-critic-receipt.json:signed\n- artifact:topology-exclusion-approvals.json [L3/signed-artifact] producer=handlers/proofstory.topology_exclusion_approval_set gate=topology_critic_receipt_set and topology_critic_receipt_check artifact=topology-exclusion-approvals.json:signed\n- audit [L2/command] producer=handlers/audit\n- autopilot_cancel [L1/command] producer=handlers/proof-or-stop-autopilot\n- autopilot_doctor [L0/command] producer=handlers/autopilot\n- autopilot_execute [L2/command] producer=handlers/autopilot\n- autopilot_policy_check [L0/command] p\n...[truncated 42970 chars]",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:49:21.470Z",
+            "executedAt": "2026-08-31T05:18:37.916Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.484Z"
+          "timestamp": "2026-08-31T05:18:37.929Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -1223,19 +1223,19 @@
           "command": "node packages/main/dist/tasks/version-bump-smoke.js",
           "result": "pass",
           "note": "Partial and mismatched version authority states are rejected.",
-          "headHash": "d1b6a041f5341c5dc7c46bcc9749e0f4af63400d",
-          "materialHash": "9d2b7597496a9a7ed285f63fa6c80488dd39f053023cb5d290ae626ed687a46d",
-          "storyFilesHash": "896e9a78823bd4e73cfd9a63d19e4192bb0f8c3e0179b0943fcc0164185da081",
+          "headHash": "5f707ac1eef079b6596f0bc8326568ae129dc9ad",
+          "materialHash": "9fe95dad0b76cae4bdc223bb0a4bf40ca902c00a1693747492933a73fceef923",
+          "storyFilesHash": "24c3d188379d1aabe3f2ac62071ef625a1729be50ae81338ba95a05163f034b6",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "af761eb4a1cd7fa8e6b2b3df37948a0fb085dad335eaeda36d9b9c839787aca6",
             "outputTail": "version-bump smoke passed: 86 assertions\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T04:49:18.882Z",
+            "executedAt": "2026-08-31T05:18:35.446Z",
             "timeoutMs": 270000
           },
-          "timestamp": "2026-08-31T04:49:21.484Z"
+          "timestamp": "2026-08-31T05:18:37.929Z"
         }
       ],
       "userSeesSnapshot": {
