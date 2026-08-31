@@ -23907,6 +23907,30 @@
         "scanEscalationReason": null
       },
       "_hash": "79035f9d03c3f355856f9188f5b7bdabe137716ca9bf31b098e8a9f5372241fe"
+    },
+    {
+      "id": "B-45a0:RP-504",
+      "agent": "lattice-review-docs",
+      "note": "Wave 2/3 saturation pass. Extracted 1025 unique exported symbols from git diff main...HEAD (Step 1); spot-checked the docs/code paragraphs already established clean across three prior waves (CLAUDE.md Defect triage discipline byte-identical to AGENTS.md MD5 656248c5cded4ead9b53dc84ad8d5053; docs/CLI.md env-var docs match story-aware-validation.ts:620-621; CLAUDE.md:1083-1086 citations resolve; pre_review_check allowedPhases at command-policy.ts:439; EVIDENCE_COMMAND_TIMEOUT_CAP_MS moved together in doc+code) and reconfirmed unchanged (Step 2/3). The single known defect (docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md Section 9 Rule 10, lines 1273-1294: primary attribution of the never-a-silent-pass quote to Rule 9 with the Rule-3 correction only appended parenthetically rather than substituted) is unchanged, byte-for-byte identical to prior wave, already registered and low-severity-deferred as B-45a0:F-460 bound to RR-1128 (same reviewRound). Per triage discipline this is record-and-defer (low severity, prose/logic not doc-vs-code drift, does not affect any gate or acceptance conclusion), so re-verifying it does not create a new blocker for this fresh run. No new inconsistency found; no new finding family introduced this wave.",
+      "createdAt": "2026-08-31T12:51:04.620Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1134",
+      "envelopeId": "0232acb58bc2c67dfb519ae50adb38058c9058402e7ccd19642730b50c75d960",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "87acb99d9e13314771d2d82bb12c981b4b293816ed6ac6b565d3e0d8b170bc87"
     }
   ]
 }
