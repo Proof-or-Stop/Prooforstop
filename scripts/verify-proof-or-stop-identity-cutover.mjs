@@ -16,6 +16,7 @@ const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 120;
 const POLICY_PATH = 'docs/requirements/decisions/proof-or-stop-identity-cutover.md';
 const POLICY_COMMIT = '1dab23ae287fb9364244a3a73156f62f1abdb6e8';
 const EXPECTED_PACKAGE_SCRIPT = 'node scripts/verify-proof-or-stop-identity-cutover.mjs';
+const SELF_TEST_PASS_SUMMARY = 'PASS identity-cutover self-test: current truth sources, active retired instructions, broad-directory exemptions, and missing/stale/broadened/token/path/context/digest/byte allowlist mutations all fail closed; exact historical rows remain accepted';
 const TRUTH_SOURCE_ENTRYPOINTS = ['AGENTS.md', 'CLAUDE.md', 'README.md', 'docs/requirements/NAV.md'];
 const EXPLICIT_HISTORICAL_DECISION_DOCS = new Set([
   'docs/requirements/decisions/authority-client-role.md',
@@ -1071,6 +1072,10 @@ function verifyOrdering(root) {
 function runSelfTest(root, files) {
   const failures = [];
   const expect = (condition, message) => { if (!condition) failures.push(message); };
+  expect(
+    SELF_TEST_PASS_SUMMARY.includes('all fail closed'),
+    'self-test PASS summary must retain the immutable acceptance selector `all fail closed`',
+  );
   const injections = [
     ['package', 'package.json', '@lattice/lab', '"@lattice/lab": "1.0.0"'],
     ['bin', 'packages/main/package.json', 'lattice', '"lattice": "dist/cli.js"'],
@@ -1191,7 +1196,7 @@ function runSelfTest(root, files) {
     process.exitCode = 1;
     return;
   }
-  console.log('PASS identity-cutover self-test: current truth sources and active retired instructions fail closed; broad-directory and missing/stale/broadened/token/path/context/digest/byte allowlist mutations fail closed; exact historical rows remain accepted');
+  console.log(SELF_TEST_PASS_SUMMARY);
 }
 
 function main() {
