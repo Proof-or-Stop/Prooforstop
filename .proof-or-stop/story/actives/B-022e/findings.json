@@ -785,6 +785,25 @@
       "_hash": "10d39fd2d5a54331b3789c9cf049661d75ea8b1a4b626accd0db15fd810c227a",
       "signatureTag": "adversarial|unknown|historical-provenance-regression",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-028",
+      "desc": "scripts/verify-proof-or-stop-identity-cutover.mjs:1316-1369 enforces that the policy commit changes exactly docs/requirements/decisions/proof-or-stop-identity-cutover.md, but the committed ordering self-test at :1579-1626 never constructs a policy commit containing that document plus an extra production file. Its fixtures cover valid ordering, a non-ancestor same-tree policy SHA, an uninspectable SHA, production before policy, and production between policy and RED; none fails specifically because policyPaths has more than one path. This leaves the original F-019 wrong-one-path case and the decision requirement that the policy be committed alone without mutation proof. WHY [medium]: current history/guard are correct, but deleting or weakening the policyPaths.length/path equality check would leave --self-test green while CHK-001:adversarial:0 still claims ordering sensitivity. Add a temporary-history fixture whose policy commit also changes a production path and assert the exact one-path diagnostic.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-08-31T23:42:16.768Z",
+      "reviewRound": "2026-08-31T23:37:04.185Z",
+      "reviewRunId": "B-022e:RR-052",
+      "_hash": "405867d81183e10c6cb13890f862a2f8baa8852b0a8c37a5bae95c507244b393",
+      "files": [
+        "scripts/verify-proof-or-stop-identity-cutover.mjs",
+        "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+      ],
+      "signatureTag": "adversarial|mjs|scripts-verify-proof",
+      "signatureTagSource": "auto"
     }
   ]
 }
