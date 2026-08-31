@@ -679,6 +679,24 @@
       ],
       "signatureTag": "edge|ts|proof-stop-serve",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-META-framework-audit:F-037",
+      "desc": "delivery-context-pack-smoke foreign-owner gate test is defeatable by an ambient canonical session id: the fixture sets LATTICE_SESSION_ID=sess-intruder but core/brand-env.ts gives PROOF_OR_STOP_SESSION_ID precedence, so the simulated intruder resolves to the lease owner and the gate correctly does not throw, failing the assertion. Produces a false FAIL (fails closed), never a false PASS.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-31T11:20:06.008Z",
+      "reviewRound": "",
+      "gapFingerprint": "64e35322d3fe42132bc0aa65a1d219220f1e25be6c6a53a7c5a99417da8d24a8",
+      "files": [
+        "packages/main/src/tasks/delivery-context-pack-smoke.ts:489",
+        "packages/main/src/core/brand-env.ts",
+        "packages/main/src/tasks/delivery-context-pack-smoke.ts"
+      ],
+      "_hash": "d3857c2cc74961632ec6378c3c10efdba6cea21a3e10da198bfe67cfe5f587d6"
     }
   ]
 }
