@@ -266,7 +266,7 @@
       "desc": "scripts/verify-proof-or-stop-identity-cutover.mjs:1095-1108 and docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md:202-244 — canonical-non-residue coverage [medium, nonblocking/deferred]: the self-test enumerates only story-init, quality, and topology-critic, while packages/main/src/core/agent-dispatch-registry.ts:50-153,315 exposes nine accepted proof-or-stop reviewer identities; behavior, concept, delivery, docs, scope-plan, and test-coverage are untested. A detached-worktree mutation adding only `proof-or-stop-review-concept` to TOKEN_PATTERN still produced the self-test PASS selector. The documentation's required-positive regex also includes `proof-or-stop-review-channel`, although the registry excludes that retired lane, then calls the result the active reviewer set. WHY: current runtime behavior is correct and full identity/residue/pack checks pass, so this is nonblocking and may be deferred, but the claimed all-active-reviewer regression fence is not mechanically complete; derive the samples from AGENT_DISPATCH_ACCEPTED_TYPES (excluding retired channel) or enumerate the exact authoritative set.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-08-31T05:30:06.724Z",
@@ -279,7 +279,11 @@
         "packages/main/src/core/agent-dispatch-registry.ts"
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Deferred under the human-approved B-022e scope rule because current runtime/scanner behavior is correct and the gap is only incomplete future-regression sampling. Preserve the verified mutation evidence in F-012 and mirror it to the follow-up audit backlog after B-022e closes; do not expand this identity cutover story.",
+      "resolvedAt": "2026-08-31T07:51:32.309Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
