@@ -24012,6 +24012,31 @@
         "scanEscalationReason": null
       },
       "_hash": "9ded402271fae81f376d3c8a381c895d1bae6ceb34fc76f5857c24b5fd73f53a"
+    },
+    {
+      "id": "B-45a0:RP-508",
+      "agent": "lattice-review-quality",
+      "note": "Verified fix for F-451/F-454/F-456/F-459 at commit a756969763: packages/main/src/handlers/verifier.ts:81 dropped the unused buildRevocationLedger symbol from a multi-symbol import; confirmed 0 remaining references (grep exit=1) and every other symbol on that line (appendReceiptRevocation, createValidationClosureCertificate, resolveDynamicMode, runObserveOracle, stableDigest, verifyValidationClosureCertificate + 3 type imports) has genuine call sites beyond the import statement. Confirmed buildRevocationLedger is not stranded dead code: it remains exported/used in core/story-aware-validation.ts (self-use), handlers/story-aware-validation.ts, and 2 smoke tests -- appendReceiptRevocation (append) is the distinct function actually called in verifier.ts, so the removal was correctly scoped to the one truly-unused symbol. npx tsc --noEmit -p packages/main exits 0. Since my prior PASS (B-45a0:RP-503 @ head bb87d5d5), review_incremental_context confirms only 2 files changed: verifier.ts (this fix) and the Rule 10 doc correction (docs lane finding, not mine) -- reviewed both, doc fix is internally consistent prose-only, no quality-lane concerns. No new dead code, type-safety, or I/O-isolation issues found in the incremental diff.",
+      "createdAt": "2026-08-31T14:20:37.676Z",
+      "reviewRound": "2026-08-31T14:10:34.153Z",
+      "reviewRunId": "B-45a0:RR-1141",
+      "envelopeId": "56e4bfa9e3d0c04d816d8f7ca59519eba670395f503aa422b431f79066667a3f",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/story-aware-validation.ts",
+          "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c1e16068ca6598f7380f10917062ad14cd28e2d855021a4bda2b00ecfc68fa87"
     }
   ]
 }
