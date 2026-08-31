@@ -4,7 +4,7 @@
     "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
     "storyId": "B-45a0",
     "phaseBasis": "plan",
-    "status": "complete",
+    "status": "partial",
     "generatedBy": {
       "verifier": "acceptance-coverage-basis-verifier",
       "command": "proof-or-stop acceptance_basis_generate",
@@ -29,10 +29,23 @@
           "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
         ],
-        "coverageClaim": "complete_for_scope",
-        "blindSpots": [],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-enforcement.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-observer.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-report.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-scheduling.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-selection.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-shadow.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-baseline-epoch.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-build-proof.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-catalog.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-closure-certificate.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-command-receipt.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-revocation-ledger.ts"
+        ],
         "provenanceRefs": [
-          "source-file:packages/main/src/cli/command-catalog.ts:sha256:ac9b08c8d5affe6edf0d60b5272e41a67db031eb3f627da554ea95a02b169152",
+          "source-file:packages/main/src/cli/command-catalog.ts:sha256:e24de2e8ff6e03176b9fd10520fddfb9b0df777551080bd2d42dbcdac95ca0a9",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:8b905cb9188c700a9b6fed1bfa989f2a7b5ffc76708aa4683f0529af70e8626c",
           "source-file:packages/main/src/handlers/scope-check.ts:sha256:daf8735ca090401162bb586dd39fcad69423e21c93f869f66a3ef0f42e9a1bf2",
           "source-file:packages/main/src/handlers/verifier.ts:sha256:a0a2bda844bad949864c4dd3e8b263b427809e518e673dca3725f0dd977fed59",
@@ -114,7 +127,7 @@
             "scope:file:scripts/verify-validation-catalog.mjs"
           ]
         },
-        "resultDigest": "sha256:f81cc6ecfcdd336d83327f6008ca45442daf702b30d6ddda769b7b00527d19bf"
+        "resultDigest": "sha256:64a80297788d0fa667f6e56b0436183f813e3fe5a2494fed0e510ce2d9fbc83b"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -126,8 +139,21 @@
           "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
         ],
-        "coverageClaim": "complete_for_scope",
-        "blindSpots": [],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-enforcement.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-observer.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-report.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-scheduling.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-selection.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-shadow.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-baseline-epoch.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-build-proof.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-catalog.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-closure-certificate.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-command-receipt.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-revocation-ledger.ts"
+        ],
         "provenanceRefs": [
           "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
           "process-fact:acceptance_basis_generate:d589e8b03849fe472cddac8dbeaacd5466e53cd46d96d44a1ef11c4632daa08c",
@@ -215,7 +241,7 @@
             "scope:file:scripts/verify-validation-catalog.mjs"
           ]
         },
-        "resultDigest": "sha256:1b32c15d53c814a59a79398d2c5591f0d4b99f3cea1f57c7c4e2d7bc4b1ae98c"
+        "resultDigest": "sha256:335b677ed5ce8ebd5ce5805def811f7e29bc2343550ab8057c8314f1f32233c7"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -481,10 +507,23 @@
           "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
           "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
         ],
-        "coverageClaim": "complete_for_scope",
-        "blindSpots": [],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-enforcement.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-observer.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-report.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-scheduling.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-selection.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-shadow.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-baseline-epoch.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-build-proof.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-catalog.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-closure-certificate.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-command-receipt.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/validation-revocation-ledger.ts"
+        ],
         "provenanceRefs": [
-          "source-file:docs/CLI.md:sha256:47ab23cf00703ca6a636f8d76d02fc57f13015aafac0587463f698b9d21363a9",
+          "source-file:docs/CLI.md:sha256:c83e666a5299a8c1f386293f256ec60d5c16004c48557eb627fe3207070a8016",
           "source-file:docs/requirements/NAV.md:sha256:c6cd05959a09023d90bb416b8dae3e7f389502a2521652a81f7cf4c327c3f78a",
           "source-file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:sha256:b7c087e068aa33b50f7d3e2cd5f10ab345ddcb4a10ba306e5e050e2ad2efa8d5",
           "source-file:docs/requirements/decisions/dynamic-validation-operations.md:sha256:cfc60fbf0c8b5e7369c7bb2ae05edb6f1653711508871ed7683412b854640af0",
@@ -495,35 +534,35 @@
           "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
           "source-file:packages/main/src/core/config.ts:sha256:a5b72bae8157a87c69cfc671cf06b2a5c6172a5861b99e5c6d55453860fdc087",
           "source-file:packages/main/src/core/dual-revision-impact-graph.ts:sha256:8d101533009b615078d2660099d1f398dba718f6d52df5598fc6fbc4b2e001c2",
-          "source-file:packages/main/src/core/dynamic-validation-enforcement.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
-          "source-file:packages/main/src/core/dynamic-validation-observer.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
-          "source-file:packages/main/src/core/dynamic-validation-report.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
-          "source-file:packages/main/src/core/dynamic-validation-scheduling.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
-          "source-file:packages/main/src/core/dynamic-validation-selection.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
-          "source-file:packages/main/src/core/dynamic-validation-shadow.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+          "source-file:packages/main/src/core/dynamic-validation-enforcement.ts:uninspectable",
+          "source-file:packages/main/src/core/dynamic-validation-observer.ts:uninspectable",
+          "source-file:packages/main/src/core/dynamic-validation-report.ts:uninspectable",
+          "source-file:packages/main/src/core/dynamic-validation-scheduling.ts:uninspectable",
+          "source-file:packages/main/src/core/dynamic-validation-selection.ts:uninspectable",
+          "source-file:packages/main/src/core/dynamic-validation-shadow.ts:uninspectable",
           "source-file:packages/main/src/core/evidence-freshness.ts:sha256:e50cab3362e4d092af241cedb215af49448770bccdb91d0710bd9433d2efb1cd",
           "source-file:packages/main/src/core/keyed-scheduler.ts:sha256:8f56a9e0dac1dedb63f93f5b2537851f18374826bc95cbda7cb6cb11b5d2d6f4",
           "source-file:packages/main/src/core/process-fact-registry.ts:sha256:311561ebeb62c8bccd946644895f77a4f8ccfe5b05d206c7037c9383c8974e45",
           "source-file:packages/main/src/core/runtime-artifact-registry.ts:sha256:aa1f8a62625b346cac8f3bb0f7efaa0bd262be90ead387960462e19cfb474161",
           "source-file:packages/main/src/core/runtime-fact-registry.ts:sha256:d4750e803c4ac8c4584f2d5821e67917f5febfb5452ad0e0ac72f5cadbc6f67e",
           "source-file:packages/main/src/core/story-change-resolver.ts:sha256:fdcadf5c4059dc5d248e319660e7f7469e9847db460bf96ae50fbb0c0d314531",
-          "source-file:packages/main/src/core/validation-baseline-epoch.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
-          "source-file:packages/main/src/core/validation-build-proof.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
-          "source-file:packages/main/src/core/validation-catalog.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
-          "source-file:packages/main/src/core/validation-closure-certificate.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
-          "source-file:packages/main/src/core/validation-command-receipt.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+          "source-file:packages/main/src/core/validation-baseline-epoch.ts:uninspectable",
+          "source-file:packages/main/src/core/validation-build-proof.ts:uninspectable",
+          "source-file:packages/main/src/core/validation-catalog.ts:uninspectable",
+          "source-file:packages/main/src/core/validation-closure-certificate.ts:uninspectable",
+          "source-file:packages/main/src/core/validation-command-receipt.ts:uninspectable",
           "source-file:packages/main/src/core/validation-evidence-admissibility.ts:sha256:ec8126769814e488ae578b0b7eba37e08880ff59e24d90d4b6376a04b09758dd",
           "source-file:packages/main/src/core/validation-evidence-reuse.ts:sha256:57df3554a61f506292a89035d1b6b534e03ed7cbdf3526fd204bf0a9665311c6",
           "source-file:packages/main/src/core/validation-execution-lock.ts:sha256:263f0ecb59b85b836b0e70e1cb396bcd692f0cc5831d164f52899938c16f4ced",
           "source-file:packages/main/src/core/validation-executor.ts:sha256:e8f68918ac2bf52d1f2f3787d19379013127fdab6dc5b0dccba64b18a4f9bb6f",
-          "source-file:packages/main/src/core/validation-revocation-ledger.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+          "source-file:packages/main/src/core/validation-revocation-ledger.ts:uninspectable",
           "source-file:packages/main/src/core/validation-runtime-tracer.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
           "source-file:packages/main/src/core/validation-selection-manifest.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
           "source-file:packages/main/src/core/validation-types.ts:sha256:daf222067199156b372250d185c2a14934e409c16297f8e78a0ad2be80684d82",
           "source-file:packages/main/src/handlers/phase-gates.ts:sha256:5b7fdf20d9d2490879e6a941c13610da6ffb2b70215cde19e197810c19a1ad0e",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:8b905cb9188c700a9b6fed1bfa989f2a7b5ffc76708aa4683f0529af70e8626c",
           "source-file:packages/main/src/handlers/scope-check.ts:sha256:daf8735ca090401162bb586dd39fcad69423e21c93f869f66a3ef0f42e9a1bf2",
-          "source-file:packages/main/src/handlers/story-aware-validation.ts:sha256:577430b5f48fb79c11d6a169725d4e6b1df3d1d8f18bffc93e96dc88092a1e81",
+          "source-file:packages/main/src/handlers/story-aware-validation.ts:sha256:a94ed5a3eeb781300118198317255b5682df838c3eb7d495fd16bc1976548d14",
           "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:7fb4fda1ff54740cbbd7e8060854006b3c232c4ff44b15633367a6eaa4841eb8",
           "source-file:packages/main/src/handlers/verifier.ts:sha256:a0a2bda844bad949864c4dd3e8b263b427809e518e673dca3725f0dd977fed59",
           "source-file:packages/main/src/tasks/done-required-validation-smoke.ts:sha256:59d69d428af7cf8ee75dda3dd2ccd85fd548a737e4757e41104fc0d5fec9a1b6",
@@ -620,7 +659,7 @@
             "scope:file:scripts/verify-validation-catalog.mjs"
           ]
         },
-        "resultDigest": "sha256:191d9a799c30d297adc103272da4b5eda3e2ed815d7e4a664931279a85b334a3"
+        "resultDigest": "sha256:6f951d5b66b02b026e37ff602f75ebab0cd9aec9959acd1f1689f247b0935de6"
       }
     ],
     "scopeRefs": [
@@ -838,47 +877,205 @@
       "planned:CHK-003:happy:0:VPP-CHK-003"
     ],
     "excludedPathRefs": [],
-    "blindSpots": [],
+    "blindSpots": [
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/dynamic-validation-enforcement.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/dynamic-validation-observer.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/dynamic-validation-report.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/dynamic-validation-scheduling.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/dynamic-validation-selection.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/dynamic-validation-shadow.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/validation-baseline-epoch.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/validation-build-proof.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/validation-catalog.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/validation-closure-certificate.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/validation-command-receipt.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/validation-revocation-ledger.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/dynamic-validation-enforcement.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/dynamic-validation-observer.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/dynamic-validation-report.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/dynamic-validation-scheduling.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/dynamic-validation-selection.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/dynamic-validation-shadow.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/validation-baseline-epoch.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/validation-build-proof.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/validation-catalog.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/validation-closure-certificate.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/validation-command-receipt.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/validation-revocation-ledger.ts",
+      "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-enforcement.ts",
+      "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-observer.ts",
+      "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-report.ts",
+      "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-scheduling.ts",
+      "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-selection.ts",
+      "source file is unreadable or disappeared: packages/main/src/core/dynamic-validation-shadow.ts",
+      "source file is unreadable or disappeared: packages/main/src/core/validation-baseline-epoch.ts",
+      "source file is unreadable or disappeared: packages/main/src/core/validation-build-proof.ts",
+      "source file is unreadable or disappeared: packages/main/src/core/validation-catalog.ts",
+      "source file is unreadable or disappeared: packages/main/src/core/validation-closure-certificate.ts",
+      "source file is unreadable or disappeared: packages/main/src/core/validation-command-receipt.ts",
+      "source file is unreadable or disappeared: packages/main/src/core/validation-revocation-ledger.ts"
+    ],
     "snapshotSeal": {
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
-      "inventoryDirectoryDigest": "sha256:02d73861a141fd5c1caabba224f0f8d67ab0b45f45882e773300e73c832eee27",
+      "inventoryDirectoryDigest": "sha256:56ab6d9a3a9e2a65e41efc97f41b7c0716ed1b8845b889c3f8794c6928c4550d",
       "inventoryDirectoryCount": 21,
-      "sourceSnapshotDigest": "sha256:ee529ecb1becd4cd1be12eb6d17a5ccc60c494f22bcf031fdbc8f05394e5356b",
-      "sourceSnapshotCount": 865,
+      "sourceSnapshotDigest": "sha256:cdb53cc55da3752ac9744ab05839fbd0a1c13ac4564087db69c9bca067405ef8",
+      "sourceSnapshotCount": 853,
       "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
-      "status": "complete",
-      "issues": [],
-      "sealDigest": "sha256:8a4f3f6ee1ed1390554cd2c18eab0a1481535c4ed623b72a56dff9db55685188"
+      "status": "partial",
+      "issues": [
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/dynamic-validation-enforcement.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/dynamic-validation-observer.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/dynamic-validation-report.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/dynamic-validation-scheduling.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/dynamic-validation-selection.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/dynamic-validation-shadow.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/validation-baseline-epoch.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/validation-build-proof.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/validation-catalog.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/validation-closure-certificate.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/validation-command-receipt.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/validation-revocation-ledger.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/dynamic-validation-enforcement.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/dynamic-validation-observer.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/dynamic-validation-report.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/dynamic-validation-scheduling.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/dynamic-validation-selection.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/dynamic-validation-shadow.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/validation-baseline-epoch.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/validation-build-proof.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/validation-catalog.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/validation-closure-certificate.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/validation-command-receipt.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/validation-revocation-ledger.ts"
+        }
+      ],
+      "sealDigest": "sha256:8e9aeb2bc1c2a3216d0f9d286aad1216411044745241311995415cd6e9279934"
     },
     "binding": {
-      "headHash": "5dee7587a85fbfe2f8456d9459d27dedd08bbc22",
-      "materialHash": "7d844f63c8b5e92caf825ae6da761b6b1de4b95c51753dcda24bbac28f04de53",
-      "storyFilesHash": "ba1a26505043cf105c9d998798275f5e2777d12022b3406bf5aa1a21f20a4a80",
+      "headHash": "22ce3a065c8f0e0ed3cd459593bb2b84f72c3a9a",
+      "materialHash": "276dc85075126301633b7381d1ab4fda74e11fadc60e80ef6d4135fa4cefc92b",
+      "storyFilesHash": "0767f04d3506307c720680d8a75030e26c8e96b3ef2db73e359823a1080f3d65",
       "scopeCheckDigest": "sha256:348c9f6183653761c39bfd0081b914ed9e595879d13933a83b85b771ab1a7254",
       "scopeContractDigest": "sha256:b3dcd0bc2d6775e4c22d5fd3ebd153e8ec73e19d75662fdd3c4ac3866b0b01a1",
-      "closureFilesHash": "sha256:8e7550c82ee7d0512ef60c4660db8fef5b801d699885d0072f6dc917fca5f39b"
+      "closureFilesHash": "sha256:7291bfb12485b031b1926d4bdd660c2e62f8a8b637e78245c8b9030a8981884f"
     },
-    "receiptRef": "receipt:coverage-basis:B-45a0:plan:a6613a54dcf0bf3a",
-    "basisDigest": "sha256:9e661a77883d5fe0b75c9715cd6bec6b7a9d907a16d93bfa82c0fd97e1fd9805"
+    "receiptRef": "receipt:coverage-basis:B-45a0:plan:06539624dbc79caa",
+    "basisDigest": "sha256:6361a0edeb29e04b07afd2126b1301a2c92be3bf3c1cc09d8297456aaf7c3d3f"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-45a0:plan:a6613a54dcf0bf3a",
+    "receiptRef": "receipt:coverage-basis:B-45a0:plan:06539624dbc79caa",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
     "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
     "storyId": "B-45a0",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:9e661a77883d5fe0b75c9715cd6bec6b7a9d907a16d93bfa82c0fd97e1fd9805",
+    "basisDigest": "sha256:6361a0edeb29e04b07afd2126b1301a2c92be3bf3c1cc09d8297456aaf7c3d3f",
     "topologyDigest": "sha256:0a71e566eebd058398e7b336dd448074eab68bd83d4383dd05a0305b70668102",
     "scopeCheckDigest": "sha256:348c9f6183653761c39bfd0081b914ed9e595879d13933a83b85b771ab1a7254",
     "scopeContractDigest": "sha256:b3dcd0bc2d6775e4c22d5fd3ebd153e8ec73e19d75662fdd3c4ac3866b0b01a1",
-    "headHash": "5dee7587a85fbfe2f8456d9459d27dedd08bbc22",
-    "materialHash": "7d844f63c8b5e92caf825ae6da761b6b1de4b95c51753dcda24bbac28f04de53",
-    "storyFilesHash": "ba1a26505043cf105c9d998798275f5e2777d12022b3406bf5aa1a21f20a4a80",
-    "closureFilesHash": "sha256:8e7550c82ee7d0512ef60c4660db8fef5b801d699885d0072f6dc917fca5f39b",
-    "sealDigest": "sha256:8a4f3f6ee1ed1390554cd2c18eab0a1481535c4ed623b72a56dff9db55685188",
+    "headHash": "22ce3a065c8f0e0ed3cd459593bb2b84f72c3a9a",
+    "materialHash": "276dc85075126301633b7381d1ab4fda74e11fadc60e80ef6d4135fa4cefc92b",
+    "storyFilesHash": "0767f04d3506307c720680d8a75030e26c8e96b3ef2db73e359823a1080f3d65",
+    "closureFilesHash": "sha256:7291bfb12485b031b1926d4bdd660c2e62f8a8b637e78245c8b9030a8981884f",
+    "sealDigest": "sha256:8e9aeb2bc1c2a3216d0f9d286aad1216411044745241311995415cd6e9279934",
     "workspaceIdentityDigest": "sha256:3982df8a3a496488d75aa257cf83262705901996a517a2a911848309f9519ccd",
-    "signature": "j8rsYb9D+nRvHbWz7l6G1Fdy7WH7jCuOAvCfduu+LcEj72qvFlYAHQpzXmwfjIhGpDsmz7c5Y+HF2pLnJFIEDw=="
+    "signature": "RqSnEMqEVAombmB8jlYuw/Jv/bNDalsAs+NRM/c3mq32WCfsCf/DEjEhIg0cxhPCMZ0NZ71VUd0qcVAXQTyuCA=="
   }
 }
