@@ -405,7 +405,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:968-985,1392-1398,1692-1695,1764-1777,2142 — HIGH: DeferralExpiryPolicy is promised as signed/versioned gate-consumed policy and each disposition binds policyVersion/policyDigest, but no future Required test mutates or rejects the policy signature, signer authority, policyDigest, version, effectiveAt, horizon constants, or a disposition rebound to a different policy. The existing 7/30-day behavior tests can all pass with a valid V1 fixture while an implementation accepts a forged/stale policy that extends medium or resets a lineage. Add negative/mutation tests proving unsigned/tampered/wrong-authority/wrong-version/not-yet-effective policy and policy-binding mismatch fail closed, and that a policy supersession cannot rebind existing rows or reset firstDeferredAt/count/horizon.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-31T01:32:32.927Z",
@@ -416,7 +416,11 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 0974481b67: Story 1 policy tests now mutate signature, authority, digest, version, effectiveAt, horizon constants, hard ceiling and row binding; policy supersession cannot rebind existing rows or reset firstDeferredAt, count or horizon.",
+      "resolvedAt": "2026-08-31T01:46:08.903Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1fa6:F-021",
