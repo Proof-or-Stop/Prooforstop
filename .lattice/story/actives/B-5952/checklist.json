@@ -368,20 +368,20 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
           "result": "pass",
-          "note": "Fresh mechanical receipt for the TEST-blocking baseline regression at committed HEAD.",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "8ebd15289a27b88fc026c12fdbe23268966fc9e757de9856e88974a8be217eac",
             "outputTail": "✓ codex heartbeat timeout smoke passed: timeout reported distinctly; broken fallback still fails; override bounded + attributed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T12:16:31.464Z",
+            "executedAt": "2026-08-31T14:57:09.148Z",
             "timeoutMs": 270000
           },
-          "headHash": "a3ef570d3730caea7da877a0da333d68587f159a",
-          "materialHash": "63292a573bf3271dcc1f220f9f9172c03919d79772485d71e28d8b5f05fe8e82",
-          "storyFilesHash": "65166487f29740c1f2342fc9ec7c73b09faac4f702cfa4ec1e27c2a3714785eb",
-          "timestamp": "2026-08-31T12:16:31.596Z"
+          "headHash": "ab8f837b50ea717e018f455c10753fd0cab924d7",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:57:09.275Z"
         },
         {
           "intentRef": "CHK-001:edge:canonical-root-init-signature",
