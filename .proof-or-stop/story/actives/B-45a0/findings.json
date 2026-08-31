@@ -24359,6 +24359,27 @@
       "resolvedAt": "2026-08-31T10:55:31.931Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-45a0:F-450",
+      "desc": "CHK-011:happy:0 evidence has gone stale again at current HEAD c6bc3b47a1856d5546ca14738cd2f90bd97597f5, distinct from F-448 (which covers CHK-014). The recorded verificationEvidence row for `node scripts/run-dynamic-validation-replay.mjs --verify-threshold` is real and was mechanically earned (headHash=8059be01032c27174d1b796d5a45ccc085418bb5, executedAt=2026-08-30T11:33:02.455Z, exitCode=0, selectorMatched=true, outputTail ends historical replay threshold PASS) -- I am not disputing that campaign happened or was necessary. But the paired-performance artifact it certified is bound to head=2c8ada46a5671a2e36fd5eb0606066549aa9cade (.proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json). Current HEAD is 7 commits ahead, including 84961f4252 (fix(validation): declare the canonical shard-adapter env key in both configs -- the F-449 fix, landed 2026-08-31T10:5x), which edits lattice.config.json and proof-or-stop.config.json, both catalog/inventory-digest inputs the paired campaign measured. Independently re-running the identical pinned command right now: `node scripts/run-dynamic-validation-replay.mjs --verify-threshold` exits 1 with `historical replay artifact rejected: paired-performance-head-stale; paired-performance-head-drift-nonadmissible` -- reproduced, stable, not transient. This is the exact REPLAY_ADMISSION_NONEXECUTING_PATHS fail-closed design working as intended (it correctly refuses to let a stale binding certify post-fix state), but it means CHK-011:happy:0 does NOT currently have a valid mechanical receipt at HEAD -- the checklist.json evidence row is stale relative to its own headHash the moment any producer-side config file changes again. This is the same recurring re-staling class already tracked across many prior CHK-011 findings (F-105/F-111/F-141/F-299/F-358/F-370/F-372/F-374/F-416/F-418/F-423/F-427, most cyclically resolved-then-reopened as HEAD advances) and the same structural pattern F-433/F-439/F-440/F-448 document for CHK-014 -- but this specific instance, caused specifically by the F-449 fix commit, has not been filed or re-earned yet. Re-running the campaign (or at minimum re-running --verify-threshold once the paired artifact is regenerated against current HEAD) is required before CHK-011:happy:0 can be trusted as current.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-31T11:00:29.739Z",
+      "reviewRound": "2026-08-31T10:45:30.796Z",
+      "reviewRunId": "B-45a0:RR-1110",
+      "_hash": "00f971416696835d2e03566242bc88742df5f97c4572698edb383dfb859e2b2a",
+      "files": [
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json",
+        "lattice.config.json",
+        "proof-or-stop.config.json",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json"
+      ],
+      "signatureTag": "missing|json|happy-evidence-gone",
+      "signatureTagSource": "auto"
     }
   ]
 }
