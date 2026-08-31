@@ -847,6 +847,45 @@
       },
       "readDiagnostics": [],
       "_hash": "c29a4385af1862672ff5e1114f7934ca51da46765782767d192ad79d78108115"
+    },
+    {
+      "id": "B-5952:RP-029",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 12 test coverage passed: F-020 contradiction is removed across checklist context, understanding, decision, plan, scope boundary, ProofStory, and intents; CHK-001:happy:1 and CHK-001:adversarial:binding-scope-mutants have current tool-owned passing receipts; all 13 must intents are mechanical PASS with no waiver or gap.",
+      "createdAt": "2026-08-31T19:23:32.355Z",
+      "reviewRound": "2026-08-31T15:00:25.549Z",
+      "reviewRunId": "B-5952:RR-047",
+      "envelopeId": "073ca87472829ca713b5fbeb9c56ec10abdd0f4805289552f3075a3297be36b4",
+      "writerSessionId": "sess-02d5b56fcf032732de8cf7ae201d5eb6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/decision.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/proofstory.json",
+          ".lattice/story/actives/B-5952/scope-boundary.json",
+          ".lattice/story/actives/B-5952/understanding.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6eeeabcd839f3d6b8bbfdf6bdf7ef02bd8e71e8c909dede294bff7c3ffd46498"
+      },
+      "readDiagnostics": [],
+      "_hash": "eb453a04badac2c88bca66be4bb8fce2f314902128eeaf7834d382715931adfc"
     }
   ]
 }
