@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ccf4",
+  "allowedCommands": [
+    "git add docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md",
+    "git commit*",
+    "git diff*",
+    "git status*",
+    "node *",
+    "proof-or-stop *",
+    "rg *",
+    "sed *",
+    "wc *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-ccf4",
+    "docs/requirements/decisions/story-relevance-dynamic-validation-tiers-execution-plan.md"
+  ],
+  "excludedCommands": [
+    "git push*",
+    "npm --prefix packages/main test",
+    "npm test"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "proof-or-stop.config.json",
+    "scripts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Documentation-only plan. No runtime, test, config, gate, or child-story implementation is authorized.",
+  "createdAt": "2026-08-31T19:21:49.102Z",
+  "updatedAt": "2026-08-31T19:21:49.102Z",
+  "_hash": "1389e623b194a6ab49f6138e71f97c9e1170dbe3520dc41e8acf6d09ca4b973b"
+}

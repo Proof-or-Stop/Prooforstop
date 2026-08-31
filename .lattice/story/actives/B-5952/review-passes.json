@@ -1,0 +1,1290 @@
+{
+  "passes": [
+    {
+      "id": "B-5952:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "No quality blocker. The tracked implementation diff is limited to the retired-authority smoke source, defines DYNAMIC_BINDING_BUILD_CEILING exactly once at 820, and uses that same constant for both the <= assertion and diagnostic. Current generated dist contains the identical constant/comparator/message, verifyBuildBinding passes with current source/dist digests, and the targeted dist smoke independently exits 0 with builds=804. packages/main and the protected Dynamic Finding document are clean outside the one allowed source diff; no core, handlers, cli, document, or runtime behavior source crossed scope.",
+      "createdAt": "2026-08-31T02:56:41.185Z",
+      "reviewRound": "2026-08-31T02:52:42.602Z",
+      "reviewRunId": "B-5952:RR-002",
+      "envelopeId": "f3ab9a9a5a693e69a022ee742158101aab9bcad0e0c42418ee87416d259f821e",
+      "writerSessionId": "sess-e1ceb646d7aa33ebd4b72cc740c486e3",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ed90f4aefcdc879ecbce28967e4b6b088038d792a7eeb4337a8b8b6c4fc7bb7b"
+    },
+    {
+      "id": "B-5952:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: all six current must intents have matching current-material mechanical receipts. The built-in guard receipt executes exact-boundary, ceiling+1, and measured-minus-one checks; guard mutants actually execute unbounded and 900 variants, restore bytes in finally, and require the 804 control; binding/scope mutants actually execute source-only, dist-only, and protected-doc mutations, restore bytes, and rerun clean controls. Explicit custom intent IDs prevent legacy positional tautology evidence from matching current coverage.",
+      "createdAt": "2026-08-31T03:27:01.869Z",
+      "reviewRound": "2026-08-31T03:23:55.455Z",
+      "reviewRunId": "B-5952:RR-006",
+      "envelopeId": "c451eba34f24ab04538c77c3a16a470ca107b5923cd44d1b22fab21c959f1fb9",
+      "writerSessionId": "sess-2baf090929090602b4b2e7192019435a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7dedd69bacf52acc029f8c19848cd51824df954032a2274fad912d69973f8e6c"
+    },
+    {
+      "id": "B-5952:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Independent re-review found no blocker. Detached 0abf3d replay measured 796=419 synthetic+377 repo; current replay measured 804=419+385 repo, with exactly eight new repo paths at +1 each and no existing-path increase/decrease/removal. Ceiling 808 therefore preserves four builds of headroom. The finite-budget helper enforces integer 1..850 and actual<=ceiling; exact/+1/measured-minus-one characterizations plus the non-no-op comparator and sentinel-900 mutation receipts fail closed and restore the control. Source/dist binding and protected Dynamic Finding document mutation receipts also reject each mutant and restore bytes. Scope contract remains pass and product scope remains the single assertion source plus generated dist.",
+      "createdAt": "2026-08-31T03:31:04.136Z",
+      "reviewRound": "2026-08-31T03:23:55.455Z",
+      "reviewRunId": "B-5952:RR-005",
+      "envelopeId": "b3cd99972a66f0789d614c7d6beb6a02501fbbc5f6f578e63723a0ea54ec8fad",
+      "writerSessionId": "sess-0f6547b31860e7dd5b584eec8b76f1a3",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1ed1c090c8e797efa703ea9f76ddb970a0e6ab7a337d12c6fe11e327cb31abed"
+    },
+    {
+      "id": "B-5952:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Final quality re-review passed. F-008 through F-011 are now coherently closed on the active story surface: CHK-001 publishes the JSON-parsing binding-scope-mutants-v2 pin, the causal-baseline-map must intent is present with a fresh structured evidence ref, evidence_inspect --format=json exposes both commands and freshness against current material/storyFiles hashes, and the committed smoke still self-characterizes exact bound, measured-minus-one, and >850 hard-cap rejection before PASS. No stale quality blocker or promised-but-undelivered review-surface language remains in the changed files reviewed this round.",
+      "createdAt": "2026-08-31T08:10:20.487Z",
+      "reviewRound": "2026-08-31T08:07:59.883Z",
+      "reviewRunId": "B-5952:RR-011",
+      "envelopeId": "51a3e579ccdc84160be25a7b4af3ad5204220a6e825dbcf03e86873f424f7bb7",
+      "writerSessionId": "sess-99e10822ebd43f64e2e5c770e2089728",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/findings.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/review-passes.json",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "76b29ecf2ec1661174e01bf3b5d2c00b8c8cec4099b7003aaf3d595aa733dbd7"
+    },
+    {
+      "id": "B-5952:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "No concept blocker this round. The current checklist evidence surface now carries a fresh causal-baseline-map receipt that mechanically binds 796/804, 419/419, 377/385, the exact eight added files, and zero removals or duplicate counts, so 808 is no longer justified only by prose. Scope also remains narrow to the smoke source plus rebuilt dist, with core/handlers/cli and persistent Dynamic Finding document edits excluded. proofstory ref drift is already recorded in scope-check and does not negate the current causal evidence surface.",
+      "createdAt": "2026-08-31T08:10:36.189Z",
+      "reviewRound": "2026-08-31T08:07:59.883Z",
+      "reviewRunId": "B-5952:RR-012",
+      "envelopeId": "ed5371314d597f3f4e94546b0f7a9da1df271e06361e59f0412df0e867360612",
+      "writerSessionId": "sess-3ffde344b0dce95a551651f8a3e90c31",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/decision.json",
+          ".lattice/story/actives/B-5952/findings.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/proofstory.json",
+          ".lattice/story/actives/B-5952/review.json",
+          ".lattice/story/actives/B-5952/scope-check.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d5541fdae522a7178c86afb06efb52b6ed2f889f8b68019be75b7ebbe1af7dcc"
+    },
+    {
+      "id": "B-5952:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified 7/7 must intents have mechanical pass evidence, freshness is current at head fc99ce352ce65be050a896a69d0bee544015aa8d with staleRefs=0, and I re-ran the smoke, v2 JSON scope mutation harness, and causal baseline map successfully.",
+      "createdAt": "2026-08-31T08:12:54.599Z",
+      "reviewRound": "2026-08-31T08:07:59.883Z",
+      "reviewRunId": "B-5952:RR-014",
+      "envelopeId": "f6303dcc137defac454b75b5e763ebe7d96053cf1ae9dca24d57758326daee73",
+      "writerSessionId": "sess-2f0c0618963446d2f37d4c68b98cd519",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "52efe509f0e8fc07cacafbfda6540610db02b49b81dd6d799149ec5423508583"
+    },
+    {
+      "id": "B-5952:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "No concept blocker this round. The ProofStory contract now binds to the seven existing canonical CHK-001 intent ids already present on the checklist evidence surface, so the causal 796/804 and 377/385 claim remains tied to the detached causal-baseline-map receipt rather than stale positional refs. Scope also remains unchanged and narrow: only the smoke source plus rebuilt dist are in scope, while persistent Dynamic Finding document edits and core/handlers/cli changes remain excluded.",
+      "createdAt": "2026-08-31T08:20:05.411Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-016",
+      "envelopeId": "a420e59c7e6938a04ccb89344e07058de269f255af7e4eabfecf521d28802da0",
+      "writerSessionId": "sess-3ffde344b0dce95a551651f8a3e90c31",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/proofstory.json",
+          ".lattice/story/actives/B-5952/scope-contract.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "4c05c421af6cec7b614fa5fbbd552d584c6c223ab527233d0bd947274ca810ae"
+    },
+    {
+      "id": "B-5952:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Incremental quality re-review passed with no new blocker. review_run_start marked this round eligible via trusted prior bindings with changedFiles=[], and current completeness surfaces show no scope/claim regression after binding refs were corrected to the seven canonical intent IDs. pre_review_check_read checked at 2026-08-31T08:18:06.466Z reports total=8, covered=6, excluded=2, gaps=0, orphanSuspect=0, drift=0, including explicit coverage that acceptance binding now references the current canonical custom verification intent ids rather than stale positional refs. evidence_inspect at head 5516fa9 reports freshness.status=fresh, staleRefs=[], and exposes the current structured commands for the seven active verification refs, including the v2 JSON scope mutation and causal baseline map. scope-check summary remains gaps=0, and no changed-file claim or scope regression is present in this round. This pass is limited to local review/completeness assurance and does not claim production authority or release readiness beyond the recorded local evidence surfaces.",
+      "createdAt": "2026-08-31T08:20:45.490Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-015",
+      "envelopeId": "42d9389707218d9635240ac1ea528266003b295db16bf05c21cf7ad8b78d97b9",
+      "writerSessionId": "sess-99e10822ebd43f64e2e5c770e2089728",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/pre-review-check.json",
+          ".lattice/story/actives/B-5952/scope-check.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/acceptance-basis.json",
+          ".lattice/story/actives/B-5952/review.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "25b32898c0e0f98b56d4ef83b529ad78ca67f8c4eebe1db4d50671aa7a0b6618"
+    },
+    {
+      "id": "B-5952:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: completeness check reports PASS with 0 gaps, evidence_inspect is fresh at current review head, and CHK-001 has 7 must intents covered by 7 passing mechanical evidence rows including the v2 binding-scope mutant and causal baseline map receipts.",
+      "createdAt": "2026-08-31T08:21:27.048Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-018",
+      "envelopeId": "8677ea222d8b87f5f6fc91f0e977a2a4c6b98a4f1975bcde3b5cdb8c4921e9b7",
+      "writerSessionId": "sess-2f0c0618963446d2f37d4c68b98cd519",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6c1953ccc158bf8a101b34b3e608c7c9d506e3625a081e009ceddd7b78b6fb31"
+    },
+    {
+      "id": "B-5952:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage re-attestation passed: I reread the current story files and checklist, evidence_inspect is fresh at head d6360851819eca8abb8c7c3eb15175f3a0b97a92 with staleRefs=0, proofstory_review_completeness_check reports PASS with 0 gaps, and CHK-001 still has 7 must intents covered by 7 passing mechanical evidence rows including binding-scope-mutants-v2 and B5952_CAUSAL.",
+      "createdAt": "2026-08-31T08:42:35.833Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-019",
+      "envelopeId": "0bf4ef750a16e1112229c172336eaa65b0d13fb38dfb80aabb516801ca6da984",
+      "writerSessionId": "sess-2f0c0618963446d2f37d4c68b98cd519",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "validate --json remained owner-gated under the active foreign lease, so re-attestation used current story_get/checklist_get/evidence_inspect/proofstory_review_completeness_check outputs as the authoritative review basis."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d688f74605dad752b06450244a226e77583099f9ed70d0b3d56c1c9599096cb7"
+    },
+    {
+      "id": "B-5952:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: independently reread the current story/checklist artifacts, current head d412bdd1354e4eacb814f8174eda24ace30896e4 remains stable, evidence_inspect is fresh with staleRefs=0, proofstory_review_completeness_check reports PASS with 0 gaps, and CHK-001 still has 7 must intents covered by 7 passing mechanical evidence rows including guard-mutants, binding-scope-mutants-v2, and B5952_CAUSAL receipts. validate --json was attempted per prompt but remained owner-gated by the active story lease.",
+      "createdAt": "2026-08-31T08:44:24.044Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-022",
+      "envelopeId": "99a2669107b7faf9370dd969f1e0c3309d5ff44507e2169207048c8001a49716",
+      "writerSessionId": "sess-2f0c0618963446d2f37d4c68b98cd519",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Per the authoritative prompt I attempted validate --json, but it remained owner-gated by the active story lease; coverage re-attestation therefore used the current story_get/checklist_get/evidence_inspect/proofstory_review_completeness_check outputs plus the reread story artifacts."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fbb2895a3afcf86d19b16107df747341bc24e6189f681b8bb1960947338a9e76"
+    },
+    {
+      "id": "B-5952:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Scoped concept re-review passed: this baseline repair changes one smoke assertion into a bounded helper plus explicit self-characterization, but does not delete or replace any repository concept en masse. Within B-5952 scope I found no concept residue blocker and no promised-but-undelivered scoped addition; checklist evidence is receipt-backed for the bounded ceiling, mutation probes, binding/scope probe, and causal baseline map.",
+      "createdAt": "2026-08-31T08:52:09.732Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-023",
+      "envelopeId": "d1a2632e3a5a383fe2ffd9be393a429597d445e5ebcf3c33b0b00c9f58eaa2c3",
+      "writerSessionId": "sess-3ffde344b0dce95a551651f8a3e90c31",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4fcbb352608e49a61cae8650d63d43311c1e71f9b531aeaf0e801feaa2a5eece"
+    },
+    {
+      "id": "B-5952:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "No scoped quality blocker for the B-5952 baseline repair. git diff main...HEAD shows the only implementation diff remains packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts; the rest of the current branch delta is story metadata. In that file, the change introduces a small assertDynamicBindingBuildBudget helper plus fixed ceilings 808 and 850, and the real smoke now self-checks exact-bound acceptance, ceiling+1 rejection, measured-minus-one rejection, and >850 rejection before enforcing the live 804 sample. I found no unused imports or dead symbols in the changed implementation, no unnecessary any-casts, no swallowed catch, and no new shell/bridge coupling. The current dist smoke still exits 0 at this review head with retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34, and evidence_inspect at head 62e2ef5d5a714e4e567ea30f712ae9362ffef6b3 reports all 7 active must refs fresh against materialHash 6c681470d49ab185e200c43d04da9ea6a777bbe8c074f2ec2410cb9570d66d1a with staleRefs=[]. This pass is limited to the enforced B-5952 baseline-repair scope and its local evidence surface; it does not claim broader release or production authority.",
+      "createdAt": "2026-08-31T08:53:06.087Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-025",
+      "envelopeId": "bb899d92425a2d716c516a571c6e28e6faa53e497b39cabfb7dea0bdf4c59403",
+      "writerSessionId": "sess-99e10822ebd43f64e2e5c770e2089728",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": "Scoped re-review followed the owner-provided B-5952 baseline-repair prompt and stayed inside the enforced implementation/evidence surface."
+      },
+      "_hash": "368d69f88b227a045f17a86b42607215b2c7878f685e240fe90906753f98d425"
+    },
+    {
+      "id": "B-5952:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: scoped B-5952 re-review at head 85611b8ec57ddd7ad6915335c5e2bb5fce5d7c8e found CHK-001 still has 7 must intents covered by 7 passing mechanical evidence rows, evidence_inspect is fresh with staleRefs=0, and proofstory_review_completeness_check reports PASS with 0 gaps. Per user constraint I reviewed only the baseline-repair task context and enforced scope, and did not treat unrelated Wave-4 observe-only diagnostics on excluded paths as a B-5952 coverage finding. validate --json was attempted under takeover but was capacity-blocked and then interrupted to avoid another stale post-review writer after head drift.",
+      "createdAt": "2026-08-31T08:53:31.436Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-026",
+      "envelopeId": "75c14bb3d87b2ed446fd6fb1415769f74c888f3addc7e8decbb41ae6d5875ce9",
+      "writerSessionId": "sess-2f0c0618963446d2f37d4c68b98cd519",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "I attempted proof-or-stop validate --story=B-5952 --json --forceTakeover per the canonical prompt, but it was blocked on shared validation capacity and was interrupted once head drift made it unsafe to leave a pending writer running; the scoped coverage conclusion therefore binds to the reread story artifacts plus current story_get/checklist_get/evidence_inspect/proofstory_review_completeness_check outputs at head 85611b8ec57ddd7ad6915335c5e2bb5fce5d7c8e."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "54184375e4f1927c264f735f7f7a8abe5713d68bd6e032df534afb4a6e3a92f6"
+    },
+    {
+      "id": "B-5952:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Final scoped concept review passed: this baseline repair changes one smoke assertion into a bounded helper plus explicit self-characterization, but does not delete or replace any repository concept en masse. Within B-5952 scope I found no concept residue blocker and no promised-but-undelivered scoped addition; the checklist still carries receipt-backed evidence for the bounded ceiling, deterministic smoke runs, mutation probes, binding/scope probe, and causal baseline map.",
+      "createdAt": "2026-08-31T08:57:06.433Z",
+      "reviewRound": "2026-08-31T08:55:38.265Z",
+      "reviewRunId": "B-5952:RR-028",
+      "envelopeId": "d91777e669ce8eea80857c6f9444b1af41f57619aa234df8c8249379461280c7",
+      "writerSessionId": "sess-3ffde344b0dce95a551651f8a3e90c31",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "788fdb51230033e38461c09d8b48661f24d067c561a7f43dbd9849c8dfad8b7d"
+    },
+    {
+      "id": "B-5952:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: final clean-round scoped re-review at head 2a12ff4c3bf5dbb17eb05d36eaad5e6745dd058b confirmed CHK-001 still has 7 must intents covered by 7 passing mechanical evidence rows, evidence_inspect is fresh with staleRefs=0, and proofstory_review_completeness_check reports PASS with 0 gaps. Per the higher-priority user constraint I reviewed only the B-5952 baseline-repair task context and enforced scope, and did not convert unrelated observe-only/nonblocking Wave-4 diagnostic readers on excluded paths into a B-5952 finding.",
+      "createdAt": "2026-08-31T08:57:33.158Z",
+      "reviewRound": "2026-08-31T08:55:38.265Z",
+      "reviewRunId": "B-5952:RR-030",
+      "envelopeId": "4bdc18b096a45a1a4eda3b8c155317be465033788dccb55ad269f690437209f8",
+      "writerSessionId": "sess-2f0c0618963446d2f37d4c68b98cd519",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7f43d138fd60fe9edf24ce9e76fe9522db4f6fbe9153dd887a831d05574ed054"
+    },
+    {
+      "id": "B-5952:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Final clean-round scoped quality review passed for the B-5952 baseline repair. The implementation diff in scope remains limited to packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts, where the change introduces a small assertDynamicBindingBuildBudget helper plus fixed ceilings 808 and 850, and the real smoke now self-characterizes exact-bound acceptance, ceiling+1 rejection, measured-minus-one rejection, and >850 rejection before enforcing the live 804 sample. I found no unused imports or dead symbols in the changed implementation, no unnecessary any-casts, no swallowed catch, and no new shell/bridge coupling. The current dist smoke independently exits 0 at this review head with retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34. evidence_inspect at head 531de5fc0e7e44a5d26d1d715ea1e870f6ccce17 reports all 7 active must refs fresh against materialHash 6c681470d49ab185e200c43d04da9ea6a777bbe8c074f2ec2410cb9570d66d1a with staleRefs=[]. This pass is intentionally limited to the enforced B-5952 baseline-repair scope and its local evidence surface.",
+      "createdAt": "2026-08-31T08:57:37.748Z",
+      "reviewRound": "2026-08-31T08:55:38.265Z",
+      "reviewRunId": "B-5952:RR-027",
+      "envelopeId": "5498bb608e98462ca576ab832c198fd7e2fe42ab63bddba75b346b393b4fdbac",
+      "writerSessionId": "sess-99e10822ebd43f64e2e5c770e2089728",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": "Final clean-round scoped review stayed within the owner-provided B-5952 baseline-repair prompt and excluded unrelated observe-only Wave-4 diagnostics."
+      },
+      "_hash": "4636b59b86f081a1d9b11c2846658c2c84d9d60b50f02f70b8d790ce2a59d7a3"
+    },
+    {
+      "id": "B-5952:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Scoped test-coverage review passed: all 7 must verification intents (2 happy, 2 edge, 3 adversarial) have concrete mechanical PASS evidence bound to storyFilesHash 0a810d9 and materialHash 6c68147; 0 must gaps, 0 waivers. Reviewed only the B-5952 instrumentation-bound source/dist scope and excluded protected Wave-4/runtime areas.",
+      "createdAt": "2026-08-31T09:04:50.093Z",
+      "reviewRound": "2026-08-31T08:59:48.174Z",
+      "reviewRunId": "B-5952:RR-032",
+      "envelopeId": "6c124154e5ee0c2e2f951cb04483c3e59cfbfe547f9bad6bcf00e6d4f6df8174",
+      "writerSessionId": "sess-0b7b831900cbff87db3911967c7900f3",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/scope-contract.json",
+          "scripts/verify-full-suite-build-binding.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "13f5dce487db8e26eb082e0758ba11e616ced5349406f9ff5f3431422aea6e53"
+    },
+    {
+      "id": "B-5952:RP-019",
+      "agent": "lattice-review-quality",
+      "note": "Scoped quality review passed at HEAD 6cf0eeb. The implementation diff is limited to packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts: the 808 ceiling and 850 hard cap are centralized in a live typed helper, exact/+1/measured-minus-one/hard-cap checks execute before the real assertion, and generated dist has matching constants, comparator, diagnostics, and calls. No dead code, unsafe cast, swallowed catch, I/O-boundary crossing, proof-metadata semantic change, or undelivered scoped promise was found. The protected Dynamic Finding decision document has zero diff; unrelated observe-only Wave-4 rollout readers were excluded per the operator scope. No validate command was run.",
+      "createdAt": "2026-08-31T09:05:17.998Z",
+      "reviewRound": "2026-08-31T08:59:48.174Z",
+      "reviewRunId": "B-5952:RR-031",
+      "envelopeId": "406dfe4feb61ea2926599e3d5213b853ba49ecff55a014e1f273722efdd224b5",
+      "writerSessionId": "sess-b2dd2138f9022fef84de6dad0fe96c30",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": "Scoped story-level quality review followed the owner-provided B-5952 baseline-repair boundary and excluded unrelated observe-only Wave-4 rollout requirements."
+      },
+      "_hash": "a0e1992c8395a73ffe0f1ed0769a3ab057a8fa0f4dbe1eeac4c85f1a0c6e83e8"
+    },
+    {
+      "id": "B-5952:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Scoped concept review passed. The only material change preserves the dynamic-binding finite-budget concept while replacing the stale literal 800 assertion with a named 808 ceiling, a hard cap of 850, and matching source/dist helper semantics. Repository scan found no live-source residue of the retired literal assertion; historical 800 references are prior RED/review evidence and remain valid history. No concept deletion or mass replacement, no scoped promised-but-undelivered addition, and no Wave-4 expansion applies. HEAD moved after run start only through B-5952 reviewer metadata commits; scoped source, dist, protected document, materialHash, and storyFilesHash remained unchanged.",
+      "createdAt": "2026-08-31T09:05:54.505Z",
+      "reviewRound": "2026-08-31T08:59:48.174Z",
+      "reviewRunId": "B-5952:RR-033",
+      "envelopeId": "dfebff0516be7562c8b537608f7342254203c58779f0fa1be34e682623631044",
+      "writerSessionId": "sess-2933a72b126374f20b603a7492f382e0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/decision.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/proofstory.json",
+          ".lattice/story/actives/B-5952/scope-boundary.json",
+          ".lattice/story/actives/B-5952/scope-check.json",
+          ".lattice/story/actives/B-5952/scope-contract.json",
+          ".lattice/story/actives/B-5952/understanding.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/acceptance-basis.json",
+          ".lattice/story/actives/B-5952/pre-review-check.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7b41126e409a30b615a4cca317dc8fa15e573d090e9d59f929f0430b24a90d45"
+    },
+    {
+      "id": "B-5952:RP-021",
+      "agent": "lattice-review-concept",
+      "note": "Fresh post-resolution concept review: F-014 through F-019 are mechanically resolved. The two must descriptions now match explicit legacy storyDir plus non-empty manifest behavior; background, plan, understanding, checklist context, touchpoints, and enforced scope coherently bound the 804 ceiling plus exactly six TEST blockers; all seven bounded commands and source/dist binding passed independently; storyRequiresCodexEvidence=true and summarizeCodexEvidence=passing under Node v26. No concept deletion/replacement residue, promised-but-undelivered requirement, current critical/high blocker, or traceable medium/low deferral was found. Wave-4 observe-only text is outside this Story.",
+      "createdAt": "2026-08-31T12:51:15.957Z",
+      "reviewRound": "2026-08-31T12:44:33.706Z",
+      "reviewRunId": "B-5952:RR-040",
+      "envelopeId": "9882c311dcd6596e6bec019a0cd88f384077d0637515fae1b438ae823c400b08",
+      "writerSessionId": "sess-a06b70be9e2c9c7e0bde574834ab7209",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/understanding.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/core/codex-adapter-checks.js",
+          "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "265d76b92db1cd9fed95da6aa5936bd594fafef00e6e2a225d03ed1921fd6ed7"
+    },
+    {
+      "id": "B-5952:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: audited all 13 must intents against 13 current-storyFilesHash mechanical PASS receipts with zero waivers; independently reran the original smoke and all six TEST blockers under Node v26. The two corrected fixture-manifest intents now truthfully match explicit storyDir, StoryStore-created non-empty .lattice state, and aggregate manifest assertions. Understanding, plan, checklist context, and scope consistently name the same six blockers; storyRequiresCodexEvidence returned required=true and summarizeCodexEvidence returned passing.",
+      "createdAt": "2026-08-31T12:51:23.459Z",
+      "reviewRound": "2026-08-31T12:44:33.706Z",
+      "reviewRunId": "B-5952:RR-038",
+      "envelopeId": "9a836deac1a004c4c848fb2782fb9e60d6244c4bd17d40b963bece5685e77c19",
+      "writerSessionId": "sess-10a4bde5b0884f31e1c9fb6dc5cb4a62",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/understanding.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/acceptance-basis.json",
+          ".lattice/story/actives/B-5952/pre-review-check.json",
+          ".lattice/story/actives/B-5952/process-events.jsonl",
+          ".lattice/story/actives/B-5952/scope-check.json",
+          "packages/main/dist/core/codex-adapter-checks.js",
+          "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6298544b3592d4c6ec8b812ce25721166d5f58e3bc7546354576d53fa9da7016"
+    },
+    {
+      "id": "B-5952:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "No blocker after auditing the bounded source/test diff, F-014 through F-019 resolutions, all seven target command reruns, source/dist build binding, scope contract, and fresh mandatory Codex adapter evidence under Node v26. The two corrected intents now match explicit storyDir plus non-empty manifest behavior; current storyRequiresCodexEvidence is true and summarizeCodexEvidence is passing.",
+      "createdAt": "2026-08-31T12:53:16.233Z",
+      "reviewRound": "2026-08-31T12:44:33.706Z",
+      "reviewRunId": "B-5952:RR-039",
+      "envelopeId": "2765b76a00082879c083ec8f44b10a12c8de3c8fce585cec4a2a1747d14967a5",
+      "writerSessionId": "sess-1ad448d8a76414374e558546ec11f7ea",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/understanding.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/findings.json",
+          ".lattice/story/actives/B-5952/pre-review-check.json",
+          ".lattice/story/actives/B-5952/process-events.jsonl",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8bb4b0515ef496019c6d5f5d5fbd4e40f7d5fec152401dfb834bbe3cbe568fe8"
+    },
+    {
+      "id": "B-5952:RP-024",
+      "agent": "lattice-review-quality",
+      "note": "Round 10 incremental quality review found no blocker. review_run_start selected ELIGIBLE_NO_MATERIAL_CHANGE with trusted prior binding to B-5952:RP-023 after the TEST anchor reset and merge-main only. I re-read the story specification and current main...HEAD hunks: the Unix global CLI probe preserves caller PATH via a non-login shell; the bounded 808/850 instrumentation helper is live and self-characterized; canonical-config and explicit legacy storyDir fixture repairs remain coherent. No dead code, unused new symbol, unsafe cast, swallowed catch, I/O boundary violation, proof-metadata semantic change, or promised-but-undelivered README/CLAUDE behavior was introduced. The Wave 4 acceptance-topology commands are outside this unchanged scoped diff, so this pass makes no receipt or production-authority claim for them. No validation command was rerun during this review-only round.",
+      "createdAt": "2026-08-31T13:33:17.750Z",
+      "reviewRound": "2026-08-31T13:28:41.780Z",
+      "reviewRunId": "B-5952:RR-043",
+      "envelopeId": "3e14cea50e62328a7e10a2d9abddda37b28454aacbe370e48476939b202b911d",
+      "writerSessionId": "sess-fde422f0feb5b59e45bcbaf424c93930",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1d2c0829e31cf8fd02209934b2a8bf78691cd786fcfdf39c373e6ae3799294ac"
+    },
+    {
+      "id": "B-5952:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: Round 10 incremental basis has no material code or intent changes; all 13 must intents retain one concrete mechanical PASS receipt at the current storyFilesHash, zero waivers, and stored routine validation reports trusted-story-metadata-descendant PASS with 13/13 covered. Required Codex adapter verification is present and passing; no blocker.",
+      "createdAt": "2026-08-31T13:34:40.018Z",
+      "reviewRound": "2026-08-31T13:28:41.780Z",
+      "reviewRunId": "B-5952:RR-041",
+      "envelopeId": "1a1e66b300acbef55e3278ddc605d52b92d86105f6eb6defc13e9f74053dc671",
+      "writerSessionId": "sess-5a9d6f6312e38038ade0f5019af795b7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/scope-contract.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/process-events.jsonl",
+          ".lattice/story/actives/B-5952/review-passes.json",
+          ".lattice/story/actives/B-5952/review-runs.json",
+          ".lattice/story/actives/B-5952/scope-check.json",
+          ".lattice/story/actives/B-5952/test-evidence.json",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e97bf36f4b615a0980c6db217f5d4036c13f2e8ee503bdf542bd63d1c5b5c213"
+    },
+    {
+      "id": "B-5952:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Round 10 incremental concept re-attestation after TEST anchor reset and merge-main only: the trusted basis reports no changed implementation files, affected contracts, claims, intents, finding deltas, or unresolved findings since RP-021. Required story files and the integrated diff remain coherent; repository scans found no source residue of the retired inline 800 budget, canonical config checks intentionally preserve explicitly named legacy fixtures, and the Codex adapter PATH change is still bounded to its declared production path. Intervening commits contain only merge-main and review/certification metadata. No promised-but-undelivered part, critical/high or acceptance/lifecycle blocker, or evidence-backed medium/low B-5952 issue was found. F-012 remains a strongly dismissed false positive because Wave-4 rollout is observe-only, diagnostic, and outside this Story claim/scope.",
+      "createdAt": "2026-08-31T13:36:07.396Z",
+      "reviewRound": "2026-08-31T13:28:41.780Z",
+      "reviewRunId": "B-5952:RR-042",
+      "envelopeId": "b14557b763891213eac5c8bcd7adaf3069ab6e8699d6257bb79a4fd336711936",
+      "writerSessionId": "sess-8a586f39a0cd9c9ad3a7bf160a956595",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/core/codex-adapter-checks.js",
+          "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b04e8b0bb2072be976b54d38cd65950bd54e52aa3606202597fe83b5aaef9f29"
+    },
+    {
+      "id": "B-5952:RP-027",
+      "agent": "lattice-review-quality",
+      "note": "Round 11 quality re-review found no blocker: the protected-doc change is one truthful historical rename annotation, the explicit scope re-plan admits only that document while preserving Dynamic Finding/B-3434 semantics, git diff --check passes, and node scripts/verify-core-package-rename.mjs passes with deprecatedCoreNameWithoutCanonical=0. No dead code, type-safety, I/O isolation, proof-metadata, or promised-but-undelivered issue is introduced by this repair.",
+      "createdAt": "2026-08-31T14:00:53.286Z",
+      "reviewRound": "2026-08-31T13:56:26.777Z",
+      "reviewRunId": "B-5952:RR-045",
+      "envelopeId": "7378f17f7be44913dfae88bf34fed699fd79b4d9e66782450f205c687391ddf3",
+      "writerSessionId": "sess-5db2634a9aa0d8d6e037d03673cf4298",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 17909
+        },
+        "digest": "eb4e41c3f8f0f4f39d4d536ee170849e5da241867edb81816ac9d2ea2415635e"
+      },
+      "readDiagnostics": [],
+      "_hash": "4b8df6c02a775ea497eebf3c947e0957fe1377a8753e00671044f4feeb4851e7"
+    },
+    {
+      "id": "B-5952:RP-028",
+      "agent": "lattice-review-concept",
+      "note": "Round 11 targeted concept review found no blocker. The repair commit changes only one historical sentence by pairing @lattice/core with its later canonical replacement @proof-or-stop/core; normalization against the repair parent is byte-identical, and verify-core-package-rename reports deprecatedCoreNameWithoutCanonical=0. The B-3434 test diff changes only canonical/legacy repository-config discovery. No Dynamic Finding behavior, B-3434 blob semantics, concept contract, or promised-but-undelivered behavior changed.",
+      "createdAt": "2026-08-31T14:02:21.233Z",
+      "reviewRound": "2026-08-31T13:56:26.777Z",
+      "reviewRunId": "B-5952:RR-046",
+      "envelopeId": "4c1ca4c873b697ff5a2476823115a20bc6c238fa98f52cb73edec04edf473dad",
+      "writerSessionId": "sess-5fe98c6914e95e6ef5edb7e43b404d76",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          "scripts/verify-core-package-rename.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6eeeabcd839f3d6b8bbfdf6bdf7ef02bd8e71e8c909dede294bff7c3ffd46498"
+      },
+      "readDiagnostics": [],
+      "_hash": "c29a4385af1862672ff5e1114f7934ca51da46765782767d192ad79d78108115"
+    },
+    {
+      "id": "B-5952:RP-029",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 12 test coverage passed: F-020 contradiction is removed across checklist context, understanding, decision, plan, scope boundary, ProofStory, and intents; CHK-001:happy:1 and CHK-001:adversarial:binding-scope-mutants have current tool-owned passing receipts; all 13 must intents are mechanical PASS with no waiver or gap.",
+      "createdAt": "2026-08-31T19:23:32.355Z",
+      "reviewRound": "2026-08-31T15:00:25.549Z",
+      "reviewRunId": "B-5952:RR-047",
+      "envelopeId": "073ca87472829ca713b5fbeb9c56ec10abdd0f4805289552f3075a3297be36b4",
+      "writerSessionId": "sess-02d5b56fcf032732de8cf7ae201d5eb6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/decision.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/proofstory.json",
+          ".lattice/story/actives/B-5952/scope-boundary.json",
+          ".lattice/story/actives/B-5952/understanding.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6eeeabcd839f3d6b8bbfdf6bdf7ef02bd8e71e8c909dede294bff7c3ffd46498"
+      },
+      "readDiagnostics": [],
+      "_hash": "eb453a04badac2c88bca66be4bb8fce2f314902128eeaf7834d382715931adfc"
+    },
+    {
+      "id": "B-5952:RP-030",
+      "agent": "lattice-review-concept",
+      "note": "Round 12 claim audit found no blocker. The only changed decision document is dynamic-finding-system-execution-plan.md, whose diff adds only the historical @lattice/core to @proof-or-stop/core pairing; verify-core-package-rename passes with zero stranded legacy names. Plan, checklist, scope-boundary, scope-contract, understanding, decision, and ProofStory acceptance claim consistently admit exactly that annotation and exclude all other Dynamic Finding or B-3434 semantic changes. No promised-but-undelivered concept change or incomplete deletion was found; legacy lattice.config.json references in changed fixtures are intentional compatibility coverage.",
+      "createdAt": "2026-08-31T19:24:50.966Z",
+      "reviewRound": "2026-08-31T15:00:25.549Z",
+      "reviewRunId": "B-5952:RR-049",
+      "envelopeId": "77a45b6869271e877ad6b94eecf96b72a105d21c51dc1fb21ff8f4d6c9c2393d",
+      "writerSessionId": "sess-71d45a678613ee4ca4a2e272d4fec9a7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/decision.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          ".lattice/story/actives/B-5952/proofstory.json",
+          ".lattice/story/actives/B-5952/scope-boundary.json",
+          ".lattice/story/actives/B-5952/scope-contract.json",
+          ".lattice/story/actives/B-5952/understanding.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6eeeabcd839f3d6b8bbfdf6bdf7ef02bd8e71e8c909dede294bff7c3ffd46498"
+      },
+      "readDiagnostics": [],
+      "_hash": "a4ca124fc912fb76f8f0129a56a12b84bfb195f01d8fc5170b90f551bd5d11d8"
+    },
+    {
+      "id": "B-5952:RP-031",
+      "agent": "lattice-review-docs",
+      "note": "Docs review PASS: Step 1 extracted 8 declaration tokens; Step 2 compared 4 relevant documentation paragraphs/sections after excluding generic local-name grep noise. The one-line §12.1 annotation accurately pairs historical @lattice/core with @proof-or-stop/core, matches the authoritative identity-migration decision and passing package-rename verifier, and changes no Dynamic Finding or B-3434 semantics. plan.md, scope-boundary.json, scope-contract.json, scope-check.json, and proofstory.json consistently limit the exception and keep handlers/CLI excluded. No promised-but-undelivered command, field, env, config, or behavior was introduced.",
+      "createdAt": "2026-08-31T19:25:05.318Z",
+      "reviewRound": "2026-08-31T15:00:25.549Z",
+      "reviewRunId": "B-5952:RR-050",
+      "envelopeId": "79c9ea4701959b0a701bcae2b1e1421693fca6ab258cf06ffc8232b915e956c6",
+      "writerSessionId": "sess-9cf60a45b31581d1cf8cfa003a08ec7f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/proofstory.json",
+          ".lattice/story/actives/B-5952/scope-boundary.json",
+          ".lattice/story/actives/B-5952/scope-check.json",
+          ".lattice/story/actives/B-5952/scope-contract.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ff7eadea8fbb77f51fb4c73f31cf30e87de81afaa4ce667cb9dbde256074c704"
+      },
+      "readDiagnostics": [],
+      "_hash": "882de82dd2345a3d071801184f448cb275d96cfa4bd320b12a9a74405007cf16"
+    },
+    {
+      "id": "B-5952:RP-032",
+      "agent": "lattice-review-quality",
+      "note": "Round 12 quality PASS: reviewed the complete main...HEAD product diff and story contract; exact decision-doc change is only the historical @lattice/core to @proof-or-stop/core pairing and does not alter Dynamic Finding or B-3434 semantics. All 13 mechanical receipts are current for storyFilesHash da09395a and materialHash 3754272f with exit 0 and matched selectors. Independently reran the argv-safe happy:1 build/verifier wrapper and the fail-closed mutation; exact document SHA-256 was restored and no product file became dirty. Scope gate PASS with 0 unacknowledged violations, no unrelated handler/CLI/proof-metadata or new README/CLAUDE promises.",
+      "createdAt": "2026-08-31T19:25:29.978Z",
+      "reviewRound": "2026-08-31T15:00:25.549Z",
+      "reviewRunId": "B-5952:RR-048",
+      "envelopeId": "2e78f995049295f39a0d234c2160116dd5630e72a6909a692aea86f015c96beb",
+      "writerSessionId": "sess-239850a0a4c15721d83d92e921bfeb4d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "7bbe72ae4650621a018b45f2dc7e8183092ca35383bbe611cc2898784dcb4af5"
+    },
+    {
+      "id": "B-5952:RP-033",
+      "agent": "lattice-review-docs",
+      "note": "Extracted 8 changed declaration names; found 0 documentation paragraphs that reference them as code identifiers, so no code-to-doc drift. Reverse-checked the 1 changed decision paragraph: it only pairs historical @lattice/core with canonical @proof-or-stop/core, matches the identity-migration decision and passing package-rename verifier, and does not add a B-3434 writer-owned boundary or alter Dynamic Finding semantics.",
+      "createdAt": "2026-08-31T20:57:43.124Z",
+      "reviewRound": "2026-08-31T20:53:15.083Z",
+      "reviewRunId": "B-5952:RR-055",
+      "envelopeId": "1916ef4f9c3de49ebae0a95932dce71c59d87c5951c02b2e6b2cc0024e58011f",
+      "writerSessionId": "sess-00f489766a542a0d5f40b0b29dd2fb86",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/plan.md",
+          "scripts/verify-core-package-rename.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5952/checklist.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ff7eadea8fbb77f51fb4c73f31cf30e87de81afaa4ce667cb9dbde256074c704"
+      },
+      "readDiagnostics": [],
+      "_hash": "3e2083433196f58833166b8624ebfa26f05b176518ca0411449e9c442a926621"
+    },
+    {
+      "id": "B-5952:RP-034",
+      "agent": "lattice-review-quality",
+      "note": "Round 13 quality PASS: independently reviewed the complete main...HEAD product diff, CHK-001 contract, plan, and current incremental binding. The prior quality pass commit ec201d5b to current HEAD contains no B-5952 product-file change (only unrelated Story metadata), matching review_run_start SAFE_INCREMENTAL with changedFiles=[]; git diff --check passes. The finite 808/850 guard remains fail-closed, canonical-config fixture changes preserve legacy compatibility, Unix global CLI lookup preserves caller PATH without changing Windows, and the one-line decision-doc package-name pairing adds no Dynamic Finding/B-3434 behavior promise. No dead code, unsafe cast, swallowed implementation error, I/O-layer violation, proof-metadata asymmetry, or promised-but-undelivered behavior found.",
+      "createdAt": "2026-08-31T20:58:00.355Z",
+      "reviewRound": "2026-08-31T20:53:15.083Z",
+      "reviewRunId": "B-5952:RR-052",
+      "envelopeId": "1007b0aef1435432877e52b5d3b358470d7b0d3385c03a64bdcc101a0509bc62",
+      "writerSessionId": "sess-b4583192a3bb6c151734043087eee398",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4f7bf8900921287697c0016063dde29600e47f684cfbf480b4c629098e71f670"
+    },
+    {
+      "id": "B-5952:RP-035",
+      "agent": "lattice-review-concept",
+      "note": "Round 13 concept review found no blocking issue: no concept was deleted or replaced incompletely; the retired-authority bound remains finite at 808 with absolute cap 850, canonical config discovery preserves explicit legacy fallback, and the sole Dynamic Finding decision-doc edit only pairs historical @lattice/core with the implemented @proof-or-stop/core name without changing Dynamic Finding or B-3434 semantics. Repository-wide targeted residue scans and the complete decision document were reviewed; no promised-but-undelivered behavior was introduced.",
+      "createdAt": "2026-08-31T20:59:18.669Z",
+      "reviewRound": "2026-08-31T20:53:15.083Z",
+      "reviewRunId": "B-5952:RR-054",
+      "envelopeId": "01cc7f285ff4621bd686327b814d2a0ed42835e42590292c404747300245d466",
+      "writerSessionId": "sess-3d8a95daabc07d2788c7778fccb5e9b8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "03fa500fbbde37a99f7924691944db9f48062e2198c17900cf9d56ba0a186bba"
+    },
+    {
+      "id": "B-5952:RP-036",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 13 test coverage PASS: audited all 13 must intents (2 happy, 7 edge, 4 adversarial) against 13 unique mechanical PASS receipts; no missing, extra, duplicate, waiver, failed, or non-mechanical evidence. CLI intent_coverage_check enforce returned pass with gaps=[]; independent guard execution returned builds=804; actual comparator/ceiling mutants and package-pairing mutant were rejected with exact restoration and passing controls. Current review_run reports no material change and binds storyFilesHash da09395; no coverage blocker found.",
+      "createdAt": "2026-08-31T21:03:00.612Z",
+      "reviewRound": "2026-08-31T20:53:15.083Z",
+      "reviewRunId": "B-5952:RR-053",
+      "envelopeId": "06a7199d249e0e361480c3ef29c3aee30cb02dcdffdada0459c946f940351ebb",
+      "writerSessionId": "sess-6c2f5d6dd9c8d22ac62a076902c1a14d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/dist/core/codex-adapter-checks.js",
+          "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "scripts/verify-core-package-rename.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6eeeabcd839f3d6b8bbfdf6bdf7ef02bd8e71e8c909dede294bff7c3ffd46498"
+      },
+      "readDiagnostics": [],
+      "_hash": "ab1ef0fc262a81659231814b84b6cf5f3f81f52a74185b5adfa9e158fe4d7d48"
+    },
+    {
+      "id": "B-5952:RP-037",
+      "agent": "lattice-review-quality",
+      "note": "Round 14 quality PASS after the metadata-only TEST to DEV to REVIEW anchor reset. Independently reviewed the complete main...HEAD product diff and CHK-001 integrated contract without relying on earlier passes. The finite 808/850 binding-build guard is fail-closed and self-characterized; canonical project-config repairs retain explicit legacy-fixture compatibility; Unix global CLI discovery preserves caller PATH via non-login sh while Windows remains unchanged; the one-line decision-document annotation introduces no unimplemented behavior. No dead code, unsafe cast, swallowed implementation error, I/O isolation violation, proof-metadata asymmetry, or promised-but-undelivered behavior found. git diff --check passed; independent retired-authority and heartbeat-timeout smokes passed, including builds=804.",
+      "createdAt": "2026-08-31T22:04:11.383Z",
+      "reviewRound": "2026-08-31T21:58:54.586Z",
+      "reviewRunId": "B-5952:RR-057",
+      "envelopeId": "533eda97781c9bb78ad65c1115614f4578eb56180b280a920ce951daf663c5ea",
+      "writerSessionId": "sess-d9dd913de73dc18b823989517d33dda3",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5a85f68063368e6558bb007df3a5621398ca04c8950c1809252a1a4a329cb7fe"
+    },
+    {
+      "id": "B-5952:RP-038",
+      "agent": "lattice-review-concept",
+      "note": "Round 14 independent concept review found no blocker. The integrated change preserves the finite dynamic-binding guard at ceiling 808 with absolute cap 850 and leaves no live-source residue of the retired inline 800 assertion. Repository-wide scans confirm canonical proof-or-stop.config.json discovery retains intentional read-both/legacy-fixture compatibility, and the historical @lattice/core mention is paired with implemented @proof-or-stop/core semantics. The remaining sh -lc probes are separate generated PreToolUse hook resolvers, not the caller-PATH-sensitive global-fallback heartbeat path changed here. No concept deletion/replacement is incomplete and no promised-but-undelivered behavior was introduced. The injected Wave-4 rollout text remains observe-only diagnostic context explicitly outside B-5952 scope, not a claimed Story PASS.",
+      "createdAt": "2026-08-31T22:04:12.608Z",
+      "reviewRound": "2026-08-31T21:58:54.586Z",
+      "reviewRunId": "B-5952:RR-056",
+      "envelopeId": "aa02736c1335fd0cbe5885aca8af6fed68be98d23ced9607cc3ebac2131e1046",
+      "writerSessionId": "sess-97d5302257fa7ce0c7007d8dde537a55",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "scripts/verify-core-package-rename.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ea4a8591a4d3b53d20de7b3faab1c4d1701d8f554fb4872196e564a7a0c652f9"
+    },
+    {
+      "id": "B-5952:RP-039",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 14 test coverage PASS: independently audited all 13 must intents (2 happy, 7 edge, 4 adversarial) against 13 unique mechanical PASS receipts; no missing, duplicate, waiver, failed, or non-mechanical evidence. Enforce-mode intent_coverage_check returned pass with gaps=[]; eight safe executable checks were independently rerun and passed, while mutation receipts were source-audited without rewriting tracked files. Routine validation records 120/120 required commands PASS, and all evidence binds current storyFilesHash da09395; no coverage blocker found.",
+      "createdAt": "2026-08-31T22:07:34.988Z",
+      "reviewRound": "2026-08-31T21:58:54.586Z",
+      "reviewRunId": "B-5952:RR-059",
+      "envelopeId": "78e414ded1c8340c27beb7f9c3b43c019e46123941cdce0d9989aaff5f29b3e2",
+      "writerSessionId": "sess-c29de34b97da970cd12cf95a3c7425e7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5952/background.md",
+          ".lattice/story/actives/B-5952/checklist.json",
+          ".lattice/story/actives/B-5952/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/dist/core/codex-adapter-checks.js",
+          "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "scripts/verify-core-package-rename.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "afee74a9df0cb00faaaaf48c586ca693b29d3901dfbc59786c60ba5faf377b8c"
+    }
+  ]
+}

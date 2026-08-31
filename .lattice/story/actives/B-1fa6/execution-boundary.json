@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1fa6",
+  "allowedCommands": [
+    "git status, diff, and log",
+    "proof-or-stop read-only, status, and Story lifecycle commands",
+    "rg",
+    "TypeScript and Markdown verification scripts applicable to documentation"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "docs/requirements/decisions",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean",
+    "git push",
+    "git reset --hard",
+    "rm"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/story",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Documentation-only execution boundary for the Dynamic Finding System plan.",
+  "createdAt": "2026-08-30T22:22:49.083Z",
+  "updatedAt": "2026-08-30T22:22:49.083Z",
+  "_hash": "abb48a24c38c1fdbd9f32e9501dce9987dd4eaea3f6ca1c96ef1d7321d314651"
+}

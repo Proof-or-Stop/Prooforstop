@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1fa6",
+  "mode": "maintenance",
+  "allowed": [
+    "Create one canonical Markdown execution-plan document under docs/requirements/decisions",
+    "Define four architecture components and three future implementation Story specifications",
+    "Use read-only CLI-derived historical Finding evidence and existing source and decision documents"
+  ],
+  "excluded": [
+    "Child Story creation",
+    "Direct Story-storage or fixture edits",
+    "Package identity changes",
+    "Runtime, schema, and gate implementation"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "The user explicitly requested only the detailed Markdown plan in this turn; runtime changes, child Story creation, and package renames remain future work.",
+  "createdAt": "2026-08-30T22:26:37.153Z",
+  "updatedAt": "2026-08-30T22:26:37.153Z",
+  "_hash": "97d15dc39d2d16c0bc6c22f5e880ee302bc194475b270b298583be4dfe42af1b"
+}

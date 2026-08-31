@@ -509,7 +509,10 @@ try {
     git(['init', '-q']);
     git(['config', 'user.email', 'red@w2d.local']);
     git(['config', 'user.name', 'red-w2d']);
-    writeFileSync(join(root, 'proof-or-stop.config.json'), `${JSON.stringify({ redEvidence: { pinnedPath: ['/usr/bin'] } }, null, 2)}\n`);
+    writeFileSync(join(root, 'proof-or-stop.config.json'), `${JSON.stringify({
+      storyDir: '.proof-or-stop/story/actives',
+      redEvidence: { pinnedPath: ['/usr/bin'] },
+    }, null, 2)}\n`);
 
     const storyId = 'B-w2d';
     const store = new StoryStore(root);

@@ -1,0 +1,36 @@
+{
+  "storyId": "B-1fa6",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "package.json",
+    "packages/**",
+    "scripts/**",
+    "bin/**"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/Runtime or schema implementation",
+    "packages/main/src/Child Story creation",
+    "packages/main/src/Package identity changes"
+  ],
+  "scopeChangeReason": "Initial documentation-only scope contract derived from the accepted user request and PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-30T22:42:41.462Z",
+  "updatedAt": "2026-08-30T22:42:41.462Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+    "package.json": "package.json",
+    "packages/**": "packages/**",
+    "scripts/**": "scripts/**",
+    "bin/**": "bin/**",
+    "packages/main/src/Runtime or schema implementation": "Runtime or schema implementation",
+    "packages/main/src/Child Story creation": "Child Story creation",
+    "packages/main/src/Package identity changes": "Package identity changes"
+  }
+}
