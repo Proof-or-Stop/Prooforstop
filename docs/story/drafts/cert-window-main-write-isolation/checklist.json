@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make heavy certification deterministic across concurrent main writes",
+      "context": "Reproduce with expectedMainSha captured at window admission, then commit another Story init to main during done_required_validate. Either hold/coordinate the main-write lock for the relevant window or reject/restart deterministically before consuming results; preserve multi-session progress and avoid a global long-held lock if a bounded drift check suffices.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
