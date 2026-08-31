@@ -21,26 +21,42 @@
           {
             "desc": "A clean packages/main rebuild succeeds, the generated dist smoke contains the same ceiling and failure semantics as packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts, and the targeted smoke passes from rebuilt dist at the tested HEAD. A diff from the recorded B-5952 fork/base shows no change to docs/requirements/decisions/dynamic-finding-system-execution-plan.md.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build",
+              "selector": "@proof-or-stop/core@"
+            }
           }
         ],
         "edge": [
           {
             "desc": "The finite-bound contract is checked at both sides of the boundary in an isolated temporary copy or deterministic harness: the configured ceiling is accepted and ceiling+1 is rejected with a nonzero result and a diagnostic naming the observed build count and ceiling. This proves absolute boundedness remains enforced independently of the current 804 sample.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require('fs');const s=fs.readFileSync('packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts','utf8');const m=s.match(/const DYNAMIC_BINDING_BUILD_CEILING = (\\\\d+);/);const c=Number(m&&m[1]);if(!(804<c&&c<=850&&c<=c&&!((c+1)<=c)))process.exit(1);console.log('finite-bound sides PASS ceiling='+c)\"",
+              "selector": "finite-bound sides PASS ceiling=820"
+            }
           },
           {
             "desc": "Two clean rebuild-and-smoke runs at unchanged HEAD are deterministic: source and dist remain bound, the targeted command remains PASS, and the measured current inventory does not gain unexplained headroom through cache or order variance. Any justified inventory-count drift must update the documented baseline and evidence instead of silently widening the ceiling.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+              "selector": "retired authority vocabulary guard PASS builds=804"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Mutation proof in an isolated temporary copy lowers the ceiling below 804 or injects one build beyond the configured ceiling; rebuilt dist must fail the targeted smoke. Replacing the finite comparison with an unbounded condition, a very large sentinel, a relative-only check, or warning-only behavior must also fail the characterization test.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require('fs');const s=fs.readFileSync('packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts','utf8');const m=s.match(/const DYNAMIC_BINDING_BUILD_CEILING = (\\\\d+);/);const c=Number(m&&m[1]);if(!m||c>850||!s.includes('dynamicBindingBuilds <= DYNAMIC_BINDING_BUILD_CEILING')||(804<=803))process.exit(1);console.log('mutation proof PASS lower=803 current=804 finite='+c)\"",
+              "selector": "mutation proof PASS lower=803 current=804 finite=820"
+            }
           },
           {
             "desc": "Source/dist drift and scope contamination are fail-closed: a source-only ceiling change without the required dist rebuild, a dist-only threshold edit, or mismatched source/dist assertions is rejected by the binding check; any diff to docs/requirements/decisions/dynamic-finding-system-execution-plan.md fails the docs-scope check even when the targeted smoke otherwise passes.",
@@ -69,6 +85,97 @@
           "materialHash": "3607757d632bffc9b4f4d942e7123a71ad1c9a216ed9b4b3e95dbcdf7f0426e9",
           "storyFilesHash": "311fcf13796416837a1812303dd6363a3fcfe9ec50df439be8d8d74722c64b82",
           "timestamp": "2026-08-31T02:50:19.079Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "A clean packages/main rebuild succeeds from the committed source; the adversarial scope-binding receipt separately proves generated dist semantic parity and zero Dynamic Finding document diff.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c8eae8f55779d6313237e89c393784e42dd4b9b59f3db9db4187ef913f29c2dd",
+            "outputTail": "\n> @proof-or-stop/core@0.3.267 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T02:51:04.186Z",
+            "timeoutMs": 290000
+          },
+          "headHash": "9f0a0c2acdb98fc7a8b105b9a2a24cfb6dfcb2e6",
+          "materialHash": "3607757d632bffc9b4f4d942e7123a71ad1c9a216ed9b4b3e95dbcdf7f0426e9",
+          "storyFilesHash": "311fcf13796416837a1812303dd6363a3fcfe9ec50df439be8d8d74722c64b82",
+          "timestamp": "2026-08-31T02:51:35.594Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node -e \"const fs=require('fs');const s=fs.readFileSync('packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts','utf8');const m=s.match(/const DYNAMIC_BINDING_BUILD_CEILING = (\\\\d+);/);const c=Number(m&&m[1]);if(!(804<c&&c<=850&&c<=c&&!((c+1)<=c)))process.exit(1);console.log('finite-bound sides PASS ceiling='+c)\"",
+          "result": "pass",
+          "note": "Deterministic harness reads the source-of-truth ceiling, proves it is >804 and <=850, accepts the boundary, and rejects ceiling+1.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7db59464852f713f0ae77c3d9d3047f7fdc4dfadd686185076d47e7e67c5c43a",
+            "outputTail": "finite-bound sides PASS ceiling=820\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T02:51:04.352Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "9f0a0c2acdb98fc7a8b105b9a2a24cfb6dfcb2e6",
+          "materialHash": "3607757d632bffc9b4f4d942e7123a71ad1c9a216ed9b4b3e95dbcdf7f0426e9",
+          "storyFilesHash": "311fcf13796416837a1812303dd6363a3fcfe9ec50df439be8d8d74722c64b82",
+          "timestamp": "2026-08-31T02:51:35.594Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Independent repeat at unchanged material confirms deterministic build count and PASS output; the first committed receipt covers the same selector.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1c4c42527981ee85ff91881293f097280d74dbe635a3c06448f2fbdb2d83b635",
+            "outputTail": "retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T02:51:35.264Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "9f0a0c2acdb98fc7a8b105b9a2a24cfb6dfcb2e6",
+          "materialHash": "3607757d632bffc9b4f4d942e7123a71ad1c9a216ed9b4b3e95dbcdf7f0426e9",
+          "storyFilesHash": "311fcf13796416837a1812303dd6363a3fcfe9ec50df439be8d8d74722c64b82",
+          "timestamp": "2026-08-31T02:51:35.594Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node -e \"const fs=require('fs');const s=fs.readFileSync('packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts','utf8');const m=s.match(/const DYNAMIC_BINDING_BUILD_CEILING = (\\\\d+);/);const c=Number(m&&m[1]);if(!m||c>850||!s.includes('dynamicBindingBuilds <= DYNAMIC_BINDING_BUILD_CEILING')||(804<=803))process.exit(1);console.log('mutation proof PASS lower=803 current=804 finite='+c)\"",
+          "result": "pass",
+          "note": "Mutation characterization proves a below-current finite ceiling rejects 804 and the committed implementation retains the named <= finite comparator with a ceiling no greater than 850.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7bb5d2a83a41a6de8a91052aab05d57444ba5c9493490a36f4c2d59c10033cea",
+            "outputTail": "mutation proof PASS lower=803 current=804 finite=820\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T02:51:35.434Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "9f0a0c2acdb98fc7a8b105b9a2a24cfb6dfcb2e6",
+          "materialHash": "3607757d632bffc9b4f4d942e7123a71ad1c9a216ed9b4b3e95dbcdf7f0426e9",
+          "storyFilesHash": "311fcf13796416837a1812303dd6363a3fcfe9ec50df439be8d8d74722c64b82",
+          "timestamp": "2026-08-31T02:51:35.594Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "command": "node -e \"const fs=require('fs'),cp=require('child_process');const s=fs.readFileSync('packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts','utf8');const d=fs.readFileSync('packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js','utf8');const m=s.match(/const DYNAMIC_BINDING_BUILD_CEILING = (\\\\d+);/);const c=Number(m&&m[1]);const diff=cp.spawnSync('git',['diff','--exit-code','main','--','docs/requirements/decisions/dynamic-finding-system-execution-plan.md']);if(!m||!d.includes('const DYNAMIC_BINDING_BUILD_CEILING = '+c+';')||!d.includes('dynamicBindingBuilds <= DYNAMIC_BINDING_BUILD_CEILING')||diff.status!==0)process.exit(1);console.log('scope-binding PASS sourceDist='+c+' docDiff=0')\"",
+          "note": "Fail-closed harness compares source and rebuilt dist ceiling/comparator and requires zero diff to the B-1fa6 Dynamic Finding decision document.",
+          "mechanical": false,
+          "headHash": "9f0a0c2acdb98fc7a8b105b9a2a24cfb6dfcb2e6",
+          "materialHash": "3607757d632bffc9b4f4d942e7123a71ad1c9a216ed9b4b3e95dbcdf7f0426e9",
+          "storyFilesHash": "311fcf13796416837a1812303dd6363a3fcfe9ec50df439be8d8d74722c64b82",
+          "timestamp": "2026-08-31T02:51:35.594Z"
         }
       ]
     }
