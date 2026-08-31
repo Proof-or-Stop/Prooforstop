@@ -1042,25 +1042,41 @@
             "id": "CHK-004:happy:red-green-same-contract",
             "desc": "Run the focused prompt-delivery contract test before implementation and capture a genuine RED caused by the missing REVIEW triage contract, then run the same assertions after implementation and capture GREEN; the RED and GREEN records must identify the command, relevant failing or passing assertion, source revision, and ordering so a harness syntax error, missing build artifact, or post-hoc weakened assertion cannot count.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+              "selector": "review finding triage registry delivery smoke: PASS"
+            }
           },
           {
             "id": "CHK-004:happy:delivery-matrix",
             "desc": "From freshly built source, assemble all five active REVIEW lanes in both full-envelope and legacy-full-context modes and prove each selected body contains exactly one canonical triage contract, while an exhaustive registry-driven set of active non-REVIEW, compatibility, and retired roles contains none; include at least one mixed rollout configuration to prove per-role selection does not alter delivery.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+              "selector": "✓ prompt registry smoke passed: 17 agents rendered for claude and codex"
+            }
           },
           {
             "id": "CHK-004:happy:digest-baselines",
             "desc": "Regenerate prompt and role measurements from canonical assembled outputs, review the baseline diff, and make the prompt baseline verifier pass with every moved template, selected-body, semantic, render, and host-render digest attributable to an intentional changed surface; frozen reviewer legacy-body pins must remain unchanged when their legacy source bytes did not change.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:proof-or-stop-prompt-baseline",
+              "selector": "PASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority"
+            }
           },
           {
             "id": "CHK-004:happy:release-verification",
             "desc": "Run the focused prompt registry, full-context envelope, and prompt contract measurement smokes, both process-fact and runtime-fact contract verifiers, the prompt baseline verifier, the package type or build validation, and the story-bound local adapter command node bin/proof-or-stop.js verify_codex --storyId=B-9a49; all commands must pass against the same final committed source.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:runtime-fact-contract",
+              "selector": "Runtime fact contract verified"
+            }
           }
         ],
         "edge": [
@@ -1133,7 +1149,105 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:red-green-same-contract",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "result": "pass",
+          "note": "Accepted RED is recorded in red-evidence.json; the same canonical marker and semantic contract now pass on the final source without weakening assertions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "922d0c7badaf0a33f7ead82384440338c1e0b17900d3c33d1ef350f0fb6af731",
+            "outputTail": "review finding triage registry delivery smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T20:08:04.209Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "8473be63e80f384503d06861bfba048dd71c37ed",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:08:14.767Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:delivery-matrix",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Full registry render proves exact host delivery, while the embedded focused assertions cover five REVIEW lanes, both modes, mixed rollout, and non-REVIEW isolation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "499acd175d457b8a17290733d2de47050ce34526e028f34e0f435b8ef324fb64",
+            "outputTail": "✓ prompt registry smoke passed: 17 agents rendered for claude and codex\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T20:08:04.570Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "8473be63e80f384503d06861bfba048dd71c37ed",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:08:14.767Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:digest-baselines",
+          "kind": "logic_test",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "npm run test:proof-or-stop-prompt-baseline",
+          "result": "pass",
+          "note": "Baseline verifier binds all exact role bodies and rejects unapproved snapshot, matrix, role-count, and mutation drift.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6c40bc6b8a12ff3bb3a94b566b16daada75706d20264be3d4fc32a83131ae88f",
+            "outputTail": "\n> lattice@0.3.268 test:proof-or-stop-prompt-baseline\n> node scripts/verify-proof-or-stop-prompt-baseline.mjs\n\nPASS proof-or-stop prompt baseline: independent approval manifest binds all 17 exact role IDs and complete prompt bodies\nPASS proof-or-stop prompt baseline: roleCount=17 registry hashes verified\nPASS proof-or-stop prompt baseline: roleCount=17 registry snapshot integrity verified\nPASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 17 roles\nPASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected\nPASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 17 roles\nPASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected\nINFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited\nPASS proof-or-stop prompt baseline: legacy vocabulary findings classified\nINFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-file findings classified\nINFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit 12 exact references inside manifest-approved prompt bodies\nPASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write\nPASS proof-or-stop prompt baseline: deterministic 17-role PromptMeasurementRecord sidecar verified without refresh authority\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T20:08:12.460Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "8473be63e80f384503d06861bfba048dd71c37ed",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:08:14.767Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:release-verification",
+          "kind": "logic_test",
+          "file": "scripts/verify-runtime-fact-contract.mjs",
+          "command": "npm --prefix packages/main run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Final runtime contract verification passed; companion build, registry, envelope, measurement, process-fact, baseline, version, and story-bound verify_codex checks passed on the same material.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "380c85e156c93b69ec1936267c727bd8d7d8bc0afb0e58df29d744726296247b",
+            "outputTail": "\n> @proof-or-stop/core@0.3.268 test:runtime-fact-contract\n> node ../../scripts/verify-runtime-fact-contract.mjs\n\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nRuntime fact contract verified (entrypoint-authority, cli-entrypoint, global-core-realpath, project-local-bin, node-version, package-version, validate-source, external-reference-policy)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T20:08:14.598Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "8473be63e80f384503d06861bfba048dd71c37ed",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:08:14.767Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:english-only-slices",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js --review-finding-triage-only",
+          "note": "Focused semantic smoke verifies the newly added public Agent-facing contract and guidance slices are English-only.",
+          "mechanical": false,
+          "headHash": "8473be63e80f384503d06861bfba048dd71c37ed",
+          "materialHash": "9a0f5da8fbfa4059489cd1fc6722ae4eedd8de7c7dfba83512f4f9621163b6b5",
+          "storyFilesHash": "211d18d12977be42d352497ab72e379e112c3f17e00fa57d068da65a697302da",
+          "timestamp": "2026-08-31T20:08:14.767Z"
+        }
+      ]
     }
   ]
 }
