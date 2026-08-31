@@ -400,6 +400,25 @@
         }
       ],
       "_hash": "5a65a3a60f2c3b630f59a8cdde15d3f6f0738c6e03d437a82e179d6ae24b2c2a"
+    },
+    {
+      "timestamp": "2026-08-31T14:51:43.003Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): Production/Emergency"
+        }
+      ],
+      "_hash": "74737519f75033ac17a0c9129fbc467efa9a721c908f7c90d4f29e4852674f7e"
     }
   ]
 }

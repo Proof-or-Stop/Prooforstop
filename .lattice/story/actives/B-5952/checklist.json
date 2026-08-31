@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Restore a bounded instrumentation ceiling for the current source inventory",
       "context": "The first full TEST run proved seven bounded baseline blockers: the 804 dynamic-binding ceiling plus six clean-main failures in canonical config root discovery, legacy red-evidence fixture storyDir, and Codex heartbeat timeout classification. Keep the existing 808/850 finite guard, repair only those six failures, preserve legacy fixture compatibility, and limit production behavior change to the Codex adapter path packages/main/src/core/codex-adapter-checks.ts using non-login Unix command discovery so caller PATH is honored. Because this touches the Codex adapter, fresh node bin/proof-or-stop.js verify_codex evidence is mandatory before REVIEW. DONE-required verification additionally exposed one stranded historical @lattice/core token in the Dynamic Finding decision document; allow only the one-line canonical-name pairing repair, with no Dynamic Finding or B-3434 decision semantic change. Handlers, CLI sources, and unrelated diagnostics remain out of scope.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-31T14:51:48.870Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -469,6 +469,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Execute the F-020-aligned verification intents and refresh stale evidence at the current committed candidate."
+    },
+    {
+      "timestamp": "2026-08-31T14:51:48.870Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Re-run all pinned evidence after correcting the CHK-001:happy:1 argv wrapper; no scope or implementation change."
     }
   ]
 }
