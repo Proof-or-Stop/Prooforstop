@@ -611,7 +611,7 @@
       "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1603-1605,1643-1646,2151-2156,2719 — The fail-closed qualification matrix is not internally identical. The normative prose includes an `incomplete` required assessment, but the pseudo-code case and Story 1 adversarial fixture omit `incomplete`. The scorecard numerator and denominator count only high/critical `unknown` cases, while its collection and rollback columns claim missing, stale, unsigned, tampered, mismatched, unknown, and invalid assessments. A future verifier or aggregator can therefore omit the incomplete case or report 100% using a denominator that excludes invalid variants. Use one exact named state set in the predicate, fixture, and scorecard numerator/denominator, including `incomplete`, and keep the fresh-valid non-applicable control outside that denominator.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T07:29:14.373Z",
@@ -619,7 +619,11 @@
       "reviewRunId": "B-1fa6:RR-030",
       "_hash": "a5e82f777612e2a25118180eb48243b264c843db4b0085e44ee81d2fbcaa7522",
       "signatureTag": "edge|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 6189f4b025. The exact invalid set is now missing, stale, unsigned, tampered, mismatched, incomplete, unknown across the type model, shared gate pseudocode, Story 1 acceptance and required tests, and the scorecard numerator, denominator, collection, thresholds, and rollback. Required tests cover high and critical at round 3 across all seven variants, exclude fresh valid controls, and include release, conversion, and remain-blocking transitions. Verification: git show --check --stat 6189f4b025 passed; structural document audit confirmed every exact-set and scorecard binding.",
+      "resolvedAt": "2026-08-31T07:55:50.791Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
