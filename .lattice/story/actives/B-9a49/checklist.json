@@ -12,7 +12,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Generated prompts for all five active REVIEW lanes visibly contain the same complete triage behavior in both supported envelope modes, while non-REVIEW prompts do not."
+      "userSees": "Generated prompts for all five active REVIEW lanes visibly contain the same complete triage behavior in both supported envelope modes, while non-REVIEW prompts do not.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",

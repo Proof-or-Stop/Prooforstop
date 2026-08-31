@@ -1,0 +1,34 @@
+{
+  "task": "Project the approved REVIEW Finding triage policy into active Agent prompts and role guidance without changing Dynamic Finding runtime authority.",
+  "outcome": "When the user inspects generated prompts, all five active REVIEW Agents show the same English triage rules in both supported envelope modes, non-REVIEW Agents do not show those rules, and verification reports that prompt metadata did not become lifecycle gate evidence.",
+  "facts": [
+    "The Dynamic Finding System execution plan is authoritative for schemas, applicability, gate impact, freshness, and supersession.",
+    "The five active REVIEW lanes are behavior, concept, docs, quality, and test-coverage.",
+    "Reviewer prompt bodies are assembled centrally by prompt-registry.ts in full-envelope and legacy-full-context modes.",
+    "Role-contract requiredCheckIds are declarative metadata and are not execution proof.",
+    "Current compatibility finding_dismiss behavior is not a substitute for applicability assessment.",
+    "The focused RED/GREEN path is npm --prefix packages/main run build followed by prompt-registry-smoke and prompt-full-context-envelope-smoke from dist; no new validate command is needed.",
+    "The prompt baseline verifier supports --write for generated baseline artifacts, while exact approval manifest hashes remain an explicit reviewed pin change in scripts/verify-proof-or-stop-prompt-baseline.mjs."
+  ],
+  "constraints": [
+    "All new prompt and tracked documentation prose must be English for open-source use.",
+    "Reviewer severity, evidence state, applicability candidate, and gate impact must remain separate axes.",
+    "Unknown applicability for a finding that would otherwise block must fail closed.",
+    "No reviewer repair, dismissal, follow-up Story creation, silent severity rewrite, or unilateral scope widening.",
+    "No Dynamic Finding runtime schema, handler, gate predicate, freshness, or supersession changes.",
+    "Use RED before implementation and prove GREEN afterward.",
+    "Run verify_codex because adapter prompt assets and assembly semantics change."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/templates/agents/lattice-implementer.md",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "AGENTS.md"
+  ],
+  "timestamp": "2026-08-31T14:05:42.128Z"
+}

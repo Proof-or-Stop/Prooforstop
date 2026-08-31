@@ -1,0 +1,84 @@
+{
+  "principles": [
+    "One canonical REVIEW contract must eliminate drift across five reviewer templates.",
+    "Agent guidance projects System semantics but never replaces mechanical gate facts.",
+    "Scope is determined by applicability and gate impact, not severity alone.",
+    "Tests must demonstrate delivery and isolation before digest pins are accepted."
+  ],
+  "drivers": [
+    "Five active reviewer lanes and two envelope paths need byte-consistent behavior.",
+    "Open-source English quality and compatibility with legacy prompt assembly are required.",
+    "The authoritative Dynamic Finding plan must remain unchanged."
+  ],
+  "options": [
+    {
+      "name": "Central resolver injection",
+      "pros": [
+        "Single source of truth",
+        "Covers both envelope modes",
+        "Avoids five-template drift",
+        "Supports non-REVIEW isolation"
+      ],
+      "cons": [
+        "Changes assembled prompt digests",
+        "Requires focused assembly tests and pin refresh"
+      ]
+    },
+    {
+      "name": "Edit each reviewer template",
+      "pros": [
+        "Behavior visible in each source template"
+      ],
+      "cons": [
+        "Duplicates policy five times",
+        "Higher drift risk",
+        "Legacy restoration hashes and templates all change"
+      ]
+    },
+    {
+      "name": "Owner-only guidance",
+      "pros": [
+        "Small change"
+      ],
+      "cons": [
+        "Reviewer behavior remains inconsistent",
+        "Does not satisfy five-lane acceptance"
+      ]
+    }
+  ],
+  "chosen": "Central resolver injection",
+  "rationale": "Resolve the selected base body first, then append one canonical contract only when the active role is one of the five modular REVIEW lanes. Keep Owner and implementer guidance at their own authority boundaries and add REVIEW-only declarative metadata.",
+  "preMortem": [
+    {
+      "scenario": "Contract leaks into Story Owner or implementer prompts",
+      "trigger": "Injection uses modular-role detection instead of reviewer-role detection",
+      "consequence": "Non-REVIEW Agents receive unauthorized reviewer behavior",
+      "mitigation": "Add adversarial isolation assertions for every non-REVIEW modular role in both modes."
+    },
+    {
+      "scenario": "Prompt prose is mistaken for a new gate implementation",
+      "trigger": "Documentation or metadata claims the triage check was executed or blocking changed",
+      "consequence": "Agent/System boundary becomes misleading",
+      "mitigation": "State declarative-only semantics and run process-fact contract verification without touching Dynamic Finding runtime files."
+    },
+    {
+      "scenario": "Legacy-full-context silently misses the contract",
+      "trigger": "Contract is appended only on the modular source path",
+      "consequence": "Mixed rollout produces divergent reviewer behavior",
+      "mitigation": "Resolve base body first and append after mode selection; assert both modes contain the same contract."
+    },
+    {
+      "scenario": "High/critical out-of-scope findings become silently dismissed",
+      "trigger": "Prompt equates routing or compatibility dismissal with resolution",
+      "consequence": "Serious defects lose ownership and audit history",
+      "mitigation": "Require evidence-backed route and owner, preserve original finding, and explicitly deny dismissal as applicability proof."
+    },
+    {
+      "scenario": "Digest refresh blesses an unintended prompt change",
+      "trigger": "Pins are updated before semantic assertions and RED/GREEN tests",
+      "consequence": "Baseline verifier goes green despite behavior regression",
+      "mitigation": "Run focused RED/GREEN semantic tests first, inspect generated diffs, then repin and rerun baselines."
+    }
+  ],
+  "timestamp": "2026-08-31T14:03:53.874Z"
+}
