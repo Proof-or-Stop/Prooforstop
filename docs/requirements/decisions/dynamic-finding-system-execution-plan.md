@@ -1207,7 +1207,8 @@ perform the rename.
 `docs/requirements/decisions/proof-or-stop-identity-migration.md`, under
 "Out of scope, verified untouched", states that sibling package names
 `@lattice/utils` and `@lattice/lab` were not renamed because the operator had
-enumerated `@lattice/core` specifically. That is an explicit historical scope
+enumerated `@lattice/core` (later replaced by `@proof-or-stop/core`)
+specifically. That is an explicit historical scope
 decision, not evidence that the lab package name was accidentally missed.
 
 At the point-in-time documentation HEAD, current code/package evidence is:

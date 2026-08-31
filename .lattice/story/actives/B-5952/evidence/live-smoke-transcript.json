@@ -1,0 +1,20 @@
+{
+  "storyId": "B-5952",
+  "expected": null,
+  "actual": {
+    "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "exitCode": 0,
+    "stdout": "retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-08-31T19:41:47.732Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "582d7f4e98af622face6dcb93e9d73bb4da8ff08",
+  "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1"
+}
