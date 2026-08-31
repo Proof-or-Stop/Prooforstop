@@ -1,47 +1,47 @@
 {
   "storyId": "B-5952",
-  "checkedAt": "2026-08-31T03:14:56.320Z",
+  "checkedAt": "2026-08-31T03:22:05.463Z",
   "features": [
     {
-      "feature": "Use the measured fixed ceiling 808: historical 796 under ceiling 800 and current 804 restore the original four-build headroom, with unchanged synthetic work and identified repository-inventory growth.",
+      "feature": "Use the measured fixed ceiling 808 based on historical 796/800 and current 804, preserving four-build headroom.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-5952/decision.json"
     },
     {
-      "feature": "Modify only packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts and regenerate packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js from source.",
+      "feature": "Modify only the retired-authority smoke TypeScript assertion source and regenerate its dist JavaScript from source.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-5952/plan.md"
     },
     {
-      "feature": "Run the actual smoke boundary self-characterization so the exact ceiling passes, ceiling+1 and measured-1 fail with diagnostics, and ceilings above hard cap 850 fail.",
+      "feature": "Execute the actual finite-bound self-characterization and causal comparator/unbounded/sentinel guard mutants with substitution checks and a restored passing control.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-5952/checklist.json"
     },
     {
-      "feature": "Execute causal comparator/unbounded/sentinel mutants and fail-closed source-only, dist-only, and protected-document mutations, assert substitutions occurred, require each mutant to fail, and restore a passing control.",
+      "feature": "Execute source-only, dist-only, and protected Dynamic Finding document mutations through the bound logic harness; require each mutation to be detected, restore all original bytes in finally, then rerun clean binding and scope controls.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-5952/checklist.json"
     },
     {
-      "feature": "Keep production handlers, core, CLI, runtime behavior, and unrelated implementation outside this instrumentation-only repair.",
+      "feature": "Production handlers, core, CLI, and unrelated runtime behavior changes.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Understanding forbids production behavior changes and the enforce scope explicitly excludes handlers/**, core/**, and cli/**.",
+      "excluded_by": "The enforce contract explicitly excludes handlers/**, core/**, and cli/**, and understanding forbids production behavior changes.",
       "source": ".lattice/story/actives/B-5952/scope-contract.json"
     },
     {
-      "feature": "Do not modify docs/requirements/decisions/dynamic-finding-system-execution-plan.md or contaminate the B-1fa6 documentation-only scope.",
+      "feature": "Persistent changes to docs/requirements/decisions/dynamic-finding-system-execution-plan.md or contamination of B-1fa6.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "The enforce scope lists the Dynamic Finding document in both protectedFiles and explicitExcludes, and the executable protected-document mutant must prove detection.",
+      "excluded_by": "The document remains in both protectedFiles and explicitExcludes; its temporary mutation is verification-only, detected by the scope gate, and byte-restored in finally.",
       "source": ".lattice/story/actives/B-5952/scope-contract.json"
     }
   ],
@@ -68,6 +68,6 @@
     "drift": 0
   },
   "reviewRound": "2026-08-31T02:52:42.602Z",
-  "_hash": "14c547a1f4a77812ca2e71130a37f8ea51dad757e9280f39c27143d6da97fc71",
+  "_hash": "00d4215a8ad6b64477ec8f9ba1bdecb49f36d84f9a4d44ab4e65f1b96c43b27e",
   "openQuestions": []
 }
