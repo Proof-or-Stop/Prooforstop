@@ -263,6 +263,24 @@
       "_hash": "8cb52ba98871586fea6616c857e9c715a1a6cdafd4444111a00fff0aece0339a",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1fa6:F-014",
+      "desc": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1113-1134,1163-1174,1237-1248,1339-1344 [high] Exhausted or invalid deferral lineage is promised as a non-decaying mandatory floor, but the first mandatoryRepairFloorBlocks call is not given deferralState/lineageState. Exhaustion is otherwise handled only by applicabilityAndDispositionBlocks after status, effective severity, evidence, and round short-circuits, where a low or round-decayed medium Finding returns non-blocking. The prose assumes a MandatoryRepairClassification is emitted at the clock boundary, but a missing/failed/racing append leaves the predicate no input from which to infer that this classification is required. Pass a derived signed/validated lineage exhaustion state into the first floor predicate (or make the floor reader derive it directly), and test missing classification/write failure at exact expiry, over-count, tamper, and severity-transition boundaries; fallback to the previous predicate is not fail-closed for low/decayed medium.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T01:09:41.144Z",
+      "reviewRound": "2026-08-31T01:06:09.081Z",
+      "reviewRunId": "B-1fa6:RR-013",
+      "_hash": "40438ce1d6d194e75c68531c679c54a3694a681acb77e31feed840ac2a6ea37d",
+      "files": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
