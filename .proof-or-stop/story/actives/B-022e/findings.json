@@ -358,7 +358,7 @@
       "desc": ".proof-or-stop/story/actives/B-022e/evidence/live-smoke-transcript.json is stale after the F-014 product delta: evidence_inspect at HEAD 55ec542 reports CHK-007:pack-boundary-transcript:0 bound to storyFilesHash 75fd57a4 while current storyFilesHash is 01b680a9. WHY: this transcript is the explicit executable four-tarball/network-disabled/sole-bin/package-and-role-negative proof supplementing CHK-003/004/005/007, and 2e9d9bb changes managed-assets code shipped inside the core tarball; a reviewer-only rerun (which currently exits 0) does not rebind the structured acceptance evidence. Remediation: recapture node scripts/verify-proof-or-stop-pack-boundary.mjs through proof-or-stop live_smoke_transcript --capture/--write, rebind CHK-007:pack-boundary-transcript:0 to the current storyFilesHash, then require evidence_inspect freshness=fresh, staleRefs excluding that intent, transcriptRefs nonempty, and a fresh signed coverage run.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-31T14:20:51.883Z",
@@ -372,7 +372,11 @@
         "packages/main/src/tasks/validation-protocol-smoke.ts"
       ],
       "signatureTag": "missing|json|proof-stop-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-captured the structured CHK-007 live pack-boundary transcript at current story-owned HEAD via live_smoke_transcript --capture=\"node scripts/verify-proof-or-stop-pack-boundary.mjs\" --write --format=json. Command exited 0 and verified exactly four product tarballs, offline install, canonical roles, and retired-role absence; artifact is present-fresh in commit 3095bc5fd2.",
+      "resolvedAt": "2026-08-31T14:22:48.581Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
