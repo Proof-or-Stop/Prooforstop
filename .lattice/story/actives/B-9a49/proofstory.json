@@ -229,7 +229,7 @@
             "id": "P-BOUNDARY-PRE-REVIEW-CHECK",
             "sourceRef": {
               "refKind": "existing",
-              "canonicalSourceRef": "process-fact:pre_review_check"
+              "canonicalSourceRef": "process-fact:acceptance_basis_generate"
             }
           }
         ],
@@ -238,7 +238,7 @@
             "id": "C-BOUNDARY-REVIEW-GATE",
             "sourceRef": {
               "refKind": "existing",
-              "canonicalSourceRef": "consumer:transition-orchestrator DEV to REVIEW executable gate"
+              "canonicalSourceRef": "consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
             },
             "producerRefs": [
               "P-BOUNDARY-PRE-REVIEW-CHECK"
@@ -372,5 +372,5 @@
   "diagnosticGaps": [],
   "note": "Acceptance bindings for the approved REVIEW Finding triage Agent-behavior projection.",
   "createdAt": "2026-08-31T14:38:19.652Z",
-  "updatedAt": "2026-08-31T23:48:52.297Z"
+  "updatedAt": "2026-08-31T23:49:17.679Z"
 }
