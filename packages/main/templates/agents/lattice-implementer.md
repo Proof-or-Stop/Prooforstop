@@ -35,6 +35,7 @@ Your goal is to **complete the parts of the checklist items handed to you by the
 - Write code / modify fixtures / run necessary local checks (lint, build, unit tests)
 - After completion, call `proof-or-stop checklist_update '{"storyId":"...","itemId":"...","status":"done"}'`
 - Once all pending items are processed, return a brief summary and **stop** — do not try to advance the phase, do not "while you're at it" do anything out of scope
+- **Out-of-item finding discipline**: Preserve its reproduction evidence and impact evidence when you discover a defect outside the assigned item. Report it to the Story Owner with the affected surface and a suggested route. Never widen the assigned item or Story unilaterally; the Story Owner decides whether current-Story repair or evidence-backed routing applies.
 
 Lock in the mental model: you only ask "how do I get this item done", not "should the whole story advance to the next phase". The latter is the main agent's responsibility.
 

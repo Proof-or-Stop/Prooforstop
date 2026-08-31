@@ -136,7 +136,33 @@ function assertReviewFindingTriageDelivery(): void {
   }
 }
 
+function assertOwnerAndImplementerTriageGuidance(): void {
+  const ownerGuide = readFileSync(join(projectRoot, 'AGENTS.md'), 'utf8');
+  for (const phrase of [
+    'introduced or worsened by the current Story',
+    'directly blocks acceptance or the core user result',
+    'would make lifecycle gate evidence or gate truth misleading',
+    'including a medium Finding in a policy round where medium is blocking',
+    'Critical or high Findings must never be left without a traceable owner',
+    '`finding_dismiss` is temporary compatibility accounting for the current round or profile',
+    'does not prove applicability, repair, or resolution',
+    'is not mechanically enforced by prompt text alone',
+  ]) {
+    assert.ok(ownerGuide.includes(phrase), `Story Owner guidance keeps triage phrase: ${phrase}`);
+  }
+
+  const implementerGuide = readFileSync(join(registry.root, 'lattice-implementer.md'), 'utf8');
+  for (const phrase of [
+    'Preserve its reproduction evidence and impact evidence',
+    'Report it to the Story Owner',
+    'Never widen the assigned item or Story unilaterally',
+  ]) {
+    assert.ok(implementerGuide.includes(phrase), `implementer guidance keeps triage phrase: ${phrase}`);
+  }
+}
+
 assertReviewFindingTriageDelivery();
+assertOwnerAndImplementerTriageGuidance();
 if (process.argv.includes('--review-finding-triage-only')) {
   console.log('review finding triage registry delivery smoke: PASS');
   process.exit(0);

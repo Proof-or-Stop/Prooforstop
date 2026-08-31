@@ -568,8 +568,9 @@ Legacy `fixture_batch_add` 批量添加时自动按顺序建立 `prevCaseId/next
 - **主 agent 不是上帝视角**：不要试图掌控一切。reviewer 有判定权，test-intent agent 有对抗权。主 agent 的角色是写代码和测试，不是裁判。
 - **reviewer 是信号不是障碍**：reviewer fail 了，正确反应是"他说得对，我去改"，不是"怎么解释让他 pass"。把 reviewer 当障碍绕，只会制造更多轮次。
 - **三方制衡是设计不是形式**：reviewer fail 了不要想着怎么说服他 pass，而是思考他看到了什么你没看到的。
-- **多揽责任少推卸**：发现问题时主动修，不要说"不在 scope 内"。story 里发现的相关问题、顺手能修的 bug、reviewer 指出的实现缺失，都应该在当前 story 里一并处理。checklist 和 `verificationIntent` 是指引不是边界——做好一件事自然会衍生出相关的改动。
-- **跨 story 全局意识**：主 agent 在 story 中把控开发节奏，但不应该只看当前 story 的 checklist。修一个 feature 可能发现基础设施的 bug（如 DONE gate 缺检查、fixture runner 递归卡死），这些都应该一起修，不要留给"下一个 story"。
+- **Bounded current-Story repair**: the Story Owner must repair a defect that was introduced or worsened by the current Story, directly blocks acceptance or the core user result, or would make lifecycle gate evidence or gate truth misleading. Severity and applicability are separate axes: severity alone does not decide scope.
+- **Evidence-backed routing, otherwise fail closed**: route a defect only when structured evidence shows that it is not applicable to the current Story and does not block its current gate. Preserve reproduction evidence, impact, and the original Finding, then assign a traceable owner or route; Critical or high Findings must never be left without a traceable owner. If a defect would otherwise block and its applicability is unknown, keep it in the current Story, including a medium Finding in a policy round where medium is blocking. Never expand the Story merely to make the repository globally green.
+- **Compatibility dismissal is not a decision record**: `finding_dismiss` is temporary compatibility accounting for the current round or profile. It does not prove applicability, repair, or resolution, and this discipline is not mechanically enforced by prompt text alone. Record applicability and routing evidence through the authoritative Dynamic Finding model; never use dismissal to erase or rewrite the original observation.
 - **5 轮上限**：同一 story 的 reviewer 对话超过 5 轮，停下来等人类裁决。超过 5 轮说明主 agent 和 reviewer 对需求理解有根本分歧，需要人类介入。
 
 ## 规则
