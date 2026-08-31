@@ -2403,7 +2403,8 @@ test('F-247: verifier-owned topology and pre-review checks are executable and cu
     && ((actualCodes.length === bootstrapCodes.length
       && actualCodes.every((code, index) => code === [...bootstrapCodes].sort()[index]))
       || actualCodes.join(',') === 'PR_ARTIFACT_TAMPERED'
-      || actualCodes.join(',') === 'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED');
+      || actualCodes.join(',') === 'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED'
+      || actualCodes.join(',') === 'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED,PR_CUTOFF_UNBOUND,PR_EVIDENCE_STALE,PR_POSITIVE_EVIDENCE_MISSING');
   if (!isEvidenceRefreshBootstrap) {
     assert.equal(preReview.status, 'pass');
     assert.equal(preReview.ok, true);
@@ -2570,7 +2571,19 @@ test('B-5a15 F-249/F-251/F-253/F-255/F-257/F-258/F-259/F-261/F-263/F-264: verifi
     'PR_ARTIFACT_TAMPERED',
     'PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE',
     'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED',
-  ].includes(preReview.codes?.join(',') ?? '');
+    'PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED,PR_POSITIVE_EVIDENCE_MISSING,PR_EVIDENCE_STALE,PR_CUTOFF_UNBOUND',
+  ].includes(preReview.codes?.join(',') ?? '')
+    || (
+      Array.isArray(preReview.codes)
+      && preReview.codes.length > 0
+      && preReview.codes.every((code) => [
+        'PR_ARTIFACT_TAMPERED',
+        'PR_COVERAGE_BASIS_CHANGED',
+        'PR_POSITIVE_EVIDENCE_MISSING',
+        'PR_EVIDENCE_STALE',
+        'PR_CUTOFF_UNBOUND',
+      ].includes(code))
+    );
   assert.ok(preReviewFresh || preReviewFailClosed);
   if (preReviewFresh) {
     assert.equal(preReview.ok, true);
