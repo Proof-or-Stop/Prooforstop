@@ -10150,9 +10150,9 @@
       "epochId": "B-45a0:RI-106",
       "storyId": "B-45a0",
       "reviewRound": "2026-08-31T02:29:23.056Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-08-31T02:51:13.643Z",
-      "updatedAt": "2026-08-31T03:23:02.193Z",
+      "updatedAt": "2026-08-31T03:36:06.150Z",
       "cutoff": {
         "headHash": "5b2510e0a7818c9616f23a49f3b65ab8164e88c7",
         "materialHash": "3ef55149759d21499c5a6abb1c31b5eea17be3e0d8938a31f1a8f41c4c87b959",
@@ -10288,10 +10288,76 @@
           "criticDigest": "15d54035d42c4af73efd315e1465cac99692375fb809fc3634a71dd8067151b7",
           "saturated": false,
           "nextRunSequenceBoundary": 1080
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-08-31T03:23:02.193Z",
+          "completedAt": "2026-08-31T03:35:18.661Z",
+          "lanes": [
+            {
+              "lane": "lattice-review-concept",
+              "reviewRunId": "B-45a0:RR-1081",
+              "terminal": "finding",
+              "hostIdentity": "58169dfe1f9794840765d0cc047538e3732a41e4d8c22c77168626bdce49b413",
+              "promptIdentity": "e7efabe3ae617703dab5383da02e1adb67df680580b19066d1a2af09611dce97",
+              "evidenceIds": [
+                "B-45a0:F-442"
+              ],
+              "coverageDigest": "92769bf7573372cc4f8d7b6f1134f21a68384399d8cc4ad530ad692643f34e0e"
+            },
+            {
+              "lane": "lattice-review-quality",
+              "reviewRunId": "B-45a0:RR-1082",
+              "terminal": "finding",
+              "hostIdentity": "58169dfe1f9794840765d0cc047538e3732a41e4d8c22c77168626bdce49b413",
+              "promptIdentity": "af54a200ef687ab2914732179fe712296b5286d8c8d1871452140e56cf03d040",
+              "evidenceIds": [
+                "B-45a0:F-441"
+              ],
+              "coverageDigest": "95cecf139cbbb45fa4c111bd1129130b84d3b24dcd4b7bd1a0b5bf854ec157ad"
+            },
+            {
+              "lane": "lattice-review-test-coverage",
+              "reviewRunId": "B-45a0:RR-1084",
+              "terminal": "pass",
+              "hostIdentity": "58169dfe1f9794840765d0cc047538e3732a41e4d8c22c77168626bdce49b413",
+              "promptIdentity": "3b743a2bf50dba88559749c1471992d9202333018b6989e2c475a3fa1b4cb7d6",
+              "evidenceIds": [
+                "B-45a0:RP-480"
+              ],
+              "coverageDigest": "d9baf923270d2e6cbf13a508b1ac519d9ccb3361a8a0ad05304713e11dc30a92"
+            },
+            {
+              "lane": "lattice-review-docs",
+              "reviewRunId": "B-45a0:RR-1083",
+              "terminal": "pass",
+              "hostIdentity": "58169dfe1f9794840765d0cc047538e3732a41e4d8c22c77168626bdce49b413",
+              "promptIdentity": "d3b774570270bcb2618374972c723c75eaabebbba58846b3bb842876a2327e97",
+              "evidenceIds": [
+                "B-45a0:RP-479"
+              ],
+              "coverageDigest": "f679d9dc98c448ffcf1ca7745b6f232d161c192aa995012caba82d14f5aac02e"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "acceptance-rollout-and-topology-basis-restaling-from-review-churn",
+            "pre-review-read-exit-code-value-blind-selector",
+            "rule-10-doc-fix-partial-propagation",
+            "story-aware-validation-config-resolution-duplication",
+            "unconsumed-validation-compat-shim-residue"
+          ],
+          "verifiedFindingSetDigest": "3524c31bb41c54e017d207e984ddaa83e6f830b82271e44413472f70c939004a",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "c5826984b3539c4a85235e72e6bed448f6491a3ecfe2022688d3eaf6a8f3cae4",
+          "saturated": false,
+          "nextRunSequenceBoundary": 1086
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "ec1425ef44ce99b78b0b28d18578940f5cc61cd88d4fa92e471498efd3ddb697"
+      "cancelledAt": "2026-08-31T03:36:06.150Z",
+      "cancelReason": "Wave budget exhausted at 3/3 with 5 verified finding families, none repairable from REVIEW. The three carried families (pre_review_check exit-code and value-blind selector desync; Rule-10 doc-fix landing in only 1 of 4 required locations; acceptance rollout and topology re-staling from pure review-inventory metadata churn) plus the two surfaced in wave 3 (config-resolution duplication bypassing pickProjectConfigPath, and 12 genuinely orphaned one-line re-export shims) all require DEV-only writers: acceptance_rollout_report and pre_review_check are both allowedPhases DEV, and no rollout-report generator exists in the REVIEW tool list. Three independent lanes plus the completeness critic each re-ran the five CHK-014 surfaces at different HEADs and reproduced identical diagnostics, and git log --name-only over 41 commits confirmed every change was story metadata or decision docs with zero touches under packages/main/src, establishing the re-staling as review churn rather than code regression. Cancelling to return to DEV, repair all five families with the writers that can actually run, and open a fresh epoch against settled output.",
+      "terminalRunSequenceBoundary": 1086,
+      "_hash": "a20f11ffd9d5e449f1348a865e2f01d9b1f8a7244f7e2f2757bc0efff85ef7a2"
     }
   ],
   "receipts": [
@@ -16522,6 +16588,43 @@
       ],
       "createdAt": "2026-08-31T03:21:48.276Z",
       "_hash": "a0c8d38e860084629d929aec09104e5354188566dd406d5c9ca6c3f69cec3ef6"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-45a0:RI-106:CRIT-03",
+      "epochId": "B-45a0:RI-106",
+      "storyId": "B-45a0",
+      "reviewRound": "2026-08-31T02:29:23.056Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "5b2510e0a7818c9616f23a49f3b65ab8164e88c7",
+        "materialHash": "3ef55149759d21499c5a6abb1c31b5eea17be3e0d8938a31f1a8f41c4c87b959",
+        "storyFilesHash": "473418728956538b08fefded663b4357221166e9fa5f702c2f99e5c3176c38b4"
+      },
+      "aggregateFindingSetDigest": "3524c31bb41c54e017d207e984ddaa83e6f830b82271e44413472f70c939004a",
+      "requiredLaneCoverageDigest": "d6398794919de489a14f91231c3059dbde2383b784a3909202148df30cea3b82",
+      "criticLane": "lattice-review-topology-critic",
+      "reviewRunId": "B-45a0:RR-1086",
+      "terminalEvidenceIds": [
+        "B-45a0:RP-482"
+      ],
+      "readEvidenceDigest": "0922c5e517004a10635af103204e6ba5efd6dacf4a1546918db0958311c3095b",
+      "findingDispositions": [
+        {
+          "findingId": "B-45a0:F-441",
+          "disposition": "verified_family",
+          "familyKey": "story-aware-validation-config-resolution-duplication",
+          "reason": "Independently re-verified: story-aware-validation.ts:273-276 (canonicalPath/legacyPath/configPath existsSync ternary) and line 320 (source field) reimplement the exact canonical/legacy read-both fallback that config.ts pickProjectConfigPath(dir) already implements, whose own comment documents it as the hardened fix for the B-cdf6 F-065/F-061/F-068 deprecated-literal-in-comparison regression shape. Distinct code surface and distinct risk (duplicated resolver logic that can silently drift on rename/new filename) from all three previously verified families: (1) pre-review-check exit-code/value-blind-selector desync (F-437), (2) Rule-10 doc-fix partial propagation (F-438), (3) rollout+topology re-staling from review-inventory churn (F-439/F-440). None of those concern config-file path resolution or story-aware-validation.ts. New verified family for this wave."
+        },
+        {
+          "findingId": "B-45a0:F-442",
+          "disposition": "verified_family",
+          "familyKey": "unconsumed-validation-compat-shim-residue",
+          "reason": "Independently re-derived the import graph myself (not trusting either the raw finding text of 14 orphaned or the dispatch context correction of 12/2) via grep across packages/main/src, packages/main/scripts, scripts/, packages/utils/src for relative-import references to each of the 14 files added by commit b3f5379f64. Confirmed: dynamic-validation-enforcement/observer/report/scheduling/selection/shadow.ts and validation-baseline-epoch/build-proof/catalog/closure-certificate/command-receipt/revocation-ledger.ts (12 files) are one-line export-star shims with zero importers anywhere in the tree. dual-revision-impact-graph.ts (56 lines, imported by handlers/story-aware-validation.ts, itself imports story-change-resolver.ts) and story-change-resolver.ts (16 lines, imported by both dual-revision-impact-graph.ts and handlers/story-aware-validation.ts) are real consumed modules with load-bearing logic, not shims. Corrected, independently-confirmed scope is 12 truly orphaned files, not 14; the underlying defect (unconsumed re-export residue implying an undocumented external-compat contract) is real for those 12. Distinct code surface and distinct risk from all three previously verified families (pre-review-check desync, Rule-10 doc-fix propagation, rollout/topology re-staling). New verified family for this wave, disposition scoped to the 12 genuinely orphaned files; raw finding count of 14 is factually overstated by 2 and should be corrected if resolved."
+        }
+      ],
+      "createdAt": "2026-08-31T03:35:08.456Z",
+      "_hash": "c9b816f9c17596ab4374dacd9f1944791edfe543c68e47ea3833e257342367e6"
     }
   ]
 }
