@@ -272,6 +272,21 @@
       "_hash": "6b2d455a81aa083eb0fe707e3144ca1f846ffa7292a03db0f168752812a4ac05",
       "signatureTag": "missing|unknown|lattice-story-actives",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5952:F-013",
+      "desc": ".lattice/story/actives/B-5952/review-passes.json:180 [high] RP-008 is now stale and overclaims current quality assurance. It says this round has no new blocker because pre_review_check_read reportedly had gaps=0/drift=0, but at the current review HEAD the verifier-owned chain disagrees: pre_review_check_read returns FAIL/PR_ARTIFACT_TAMPERED with PR_NEW_PATH_UNMAPPED, PR_COVERAGE_BASIS_CHANGED, PR_COVERAGE_INCONCLUSIVE, PR_POSITIVE_EVIDENCE_MISSING, PR_MUTATION_EVIDENCE_MISSING, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, and PR_CUTOFF_UNBOUND; acceptance_topology_check is still inconclusive (AT_COVERAGE_BASIS_PARTIAL, AT_MISSING_TOPOLOGY) while acceptance_rollout_report_read and acceptance_rollout_check both return missing with AR_REPORT_MISSING. Keeping a quality pass that treats prior local completeness as current closure is incoherent with the current gate-owned evidence surface and masks that there is still no current signed PASS receipt / full 3x2 rollout basis for the wave4 chain. Reissue the verifier artifacts and supersede the stale quality pass before claiming no blocker.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-31T08:46:52.423Z",
+      "reviewRound": "2026-08-31T08:18:54.975Z",
+      "reviewRunId": "B-5952:RR-021",
+      "_hash": "bdc6c778b478330314d82b2f4afd16e4dc8bc3f313bc7478b82e3b2d310f3799",
+      "signatureTag": "missing|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
