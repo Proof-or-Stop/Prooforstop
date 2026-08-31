@@ -24281,6 +24281,32 @@
       },
       "readDiagnostics": [],
       "_hash": "060d60c97ca68edd04367d617154053041beb3a1759d4a164513ddaced5b7b0d"
+    },
+    {
+      "id": "B-45a0:RP-517",
+      "agent": "lattice-review-quality",
+      "note": "Re-attestation of commit 9f5b0d96b1 (first packages/graph touch in this story): audited the PRUNED regex widening in verify-no-project-writes.mjs by (1) direct regex test against 7 cases confirming correct anchoring and no scope-creep; (2) verified the cited precedent in story-aware-validation.ts:725 is real and byte-identical, and found an even stronger existing precedent (runtime-artifact-registry.ts id=runtime-cache already covers the whole runtime/ prefix); (3) reproduced the exact measured claim in isolation (3 probe files pruned, 1-level-up canary still caught); (4) confirmed the added KNOWN BOUNDARY comment does not overclaim. Non-blocking observation recorded separately: commit touches packages/graph/scripts/verify-no-project-writes.mjs which is outside this story's declared scope contract (allowedModify/Create/Test), flagged for awareness, not a quality-lane blocker.",
+      "createdAt": "2026-08-31T22:17:04.391Z",
+      "reviewRound": "2026-08-31T20:19:23.055Z",
+      "reviewRunId": "B-45a0:RR-1152",
+      "envelopeId": "1c027b9ce9a3d375264c594e5478b1100b0d3ffa863c494d54f2c76f37c73211",
+      "writerSessionId": "claude-b45a0-fixed",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-45a0/background.md",
+          ".proof-or-stop/story/actives/B-45a0/checklist.json",
+          ".proof-or-stop/story/actives/B-45a0/plan.md",
+          "packages/graph/scripts/verify-no-project-writes.mjs",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/story-aware-validation.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e240744091495b5633c02ba690798e7419863ebfb1cf83cdfc2b9a1244d8a28a"
     }
   ]
 }
