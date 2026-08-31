@@ -245,10 +245,30 @@
       "phase": "DEV",
       "headHash": "cad37337bdc35e37c84a5609a4ea330d86962cb8",
       "materialHash": "220fd434eee2b224c348cb72adc842adfaff5307b6041f95620e6c368a9b9d59"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required exact current-authority documentation corrections for reviewer-verified F-001 and F-006; frozen historical provenance remains byte-bound and unchanged.",
+      "timestamp": "2026-08-31T03:03:36.037Z",
+      "paths": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "c86058fcf0d1a85bbcbf24abb43d955720743d2e",
+      "materialHash": "195a647ea8b51fe9ce800bbe97e1c922e8a563de1786aa2d1870977b1ea8734b"
     }
   ],
   "createdAt": "2026-08-30T21:48:39.503Z",
-  "updatedAt": "2026-08-31T01:31:59.852Z",
+  "updatedAt": "2026-08-31T03:03:36.037Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -360,6 +380,9 @@
     "experiments/runs/lab-reviewer-history-v1/run-002/patch.diff": "experiments/runs/lab-reviewer-history-v1/run-002/patch.diff",
     "experiments/tier-c-proof/probe-401.mjs": "experiments/tier-c-proof/probe-401.mjs",
     "lattice-experience-layer-v1.1-zh.md": "lattice-experience-layer-v1.1-zh.md",
-    "proof-or-stop-experience-layer-v1.1-zh.md": "proof-or-stop-experience-layer-v1.1-zh.md"
+    "proof-or-stop-experience-layer-v1.1-zh.md": "proof-or-stop-experience-layer-v1.1-zh.md",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "docs/requirements/decisions/story-lifecycle.md": "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/testing-infra.md": "docs/requirements/decisions/testing-infra.md"
   }
 }
