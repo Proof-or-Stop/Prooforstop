@@ -70,40 +70,40 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Rebuilt targeted smoke must pass at the committed green HEAD and report the independently reproduced current inventory under the finite ceiling.",
+          "note": "Tool-executed rebuilt smoke accepts the measured 804-build inventory under the finite 808 ceiling and emits the pinned PASS selector.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "1c4c42527981ee85ff91881293f097280d74dbe635a3c06448f2fbdb2d83b635",
             "outputTail": "retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T02:50:18.916Z",
+            "executedAt": "2026-08-31T03:16:21.116Z",
             "timeoutMs": 270000
           },
-          "headHash": "1d782d3d85b2de30ed0a132e96d26ef6b866252b",
-          "materialHash": "3607757d632bffc9b4f4d942e7123a71ad1c9a216ed9b4b3e95dbcdf7f0426e9",
-          "storyFilesHash": "311fcf13796416837a1812303dd6363a3fcfe9ec50df439be8d8d74722c64b82",
-          "timestamp": "2026-08-31T02:50:19.079Z"
+          "headHash": "029a97c3e1f5899c06a41cae15a5817120773bef",
+          "materialHash": "b675940198ae436f3970cbeb335e414e4da3df9096002e0be91ca703803dfa29",
+          "storyFilesHash": "c95208cbf5b5c6881179b3664c34e87b5887fe3980c5fab3fb73ccd23ead79a1",
+          "timestamp": "2026-08-31T03:17:24.766Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "manual_transcript",
           "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "A clean packages/main rebuild succeeds from the committed source; the adversarial scope-binding receipt separately proves generated dist semantic parity and zero Dynamic Finding document diff.",
+          "note": "Tool-executed clean package build regenerates dist from the committed source before the smoke and mutation receipts are accepted.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "c8eae8f55779d6313237e89c393784e42dd4b9b59f3db9db4187ef913f29c2dd",
             "outputTail": "\n> @proof-or-stop/core@0.3.267 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T02:51:04.186Z",
+            "executedAt": "2026-08-31T03:16:21.771Z",
             "timeoutMs": 290000
           },
-          "headHash": "9f0a0c2acdb98fc7a8b105b9a2a24cfb6dfcb2e6",
-          "materialHash": "3607757d632bffc9b4f4d942e7123a71ad1c9a216ed9b4b3e95dbcdf7f0426e9",
-          "storyFilesHash": "311fcf13796416837a1812303dd6363a3fcfe9ec50df439be8d8d74722c64b82",
-          "timestamp": "2026-08-31T02:51:35.594Z"
+          "headHash": "029a97c3e1f5899c06a41cae15a5817120773bef",
+          "materialHash": "b675940198ae436f3970cbeb335e414e4da3df9096002e0be91ca703803dfa29",
+          "storyFilesHash": "c95208cbf5b5c6881179b3664c34e87b5887fe3980c5fab3fb73ccd23ead79a1",
+          "timestamp": "2026-08-31T03:17:24.766Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -130,20 +130,20 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "Independent repeat at unchanged material confirms deterministic build count and PASS output; the first committed receipt covers the same selector.",
+          "note": "A second independently recorded tool execution at the same committed anchor confirms the measured 804 inventory is deterministic.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "1c4c42527981ee85ff91881293f097280d74dbe635a3c06448f2fbdb2d83b635",
             "outputTail": "retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-31T02:51:35.264Z",
+            "executedAt": "2026-08-31T03:17:24.632Z",
             "timeoutMs": 270000
           },
-          "headHash": "9f0a0c2acdb98fc7a8b105b9a2a24cfb6dfcb2e6",
-          "materialHash": "3607757d632bffc9b4f4d942e7123a71ad1c9a216ed9b4b3e95dbcdf7f0426e9",
-          "storyFilesHash": "311fcf13796416837a1812303dd6363a3fcfe9ec50df439be8d8d74722c64b82",
-          "timestamp": "2026-08-31T02:51:35.594Z"
+          "headHash": "029a97c3e1f5899c06a41cae15a5817120773bef",
+          "materialHash": "b675940198ae436f3970cbeb335e414e4da3df9096002e0be91ca703803dfa29",
+          "storyFilesHash": "c95208cbf5b5c6881179b3664c34e87b5887fe3980c5fab3fb73ccd23ead79a1",
+          "timestamp": "2026-08-31T03:17:24.766Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -175,6 +175,26 @@
           "materialHash": "3607757d632bffc9b4f4d942e7123a71ad1c9a216ed9b4b3e95dbcdf7f0426e9",
           "storyFilesHash": "311fcf13796416837a1812303dd6363a3fcfe9ec50df439be8d8d74722c64b82",
           "timestamp": "2026-08-31T02:51:35.594Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:finite-bound-actual",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "The committed smoke executes assertDynamicBindingBuildBudget self-characterization before PASS, covering exact ceiling, ceiling+1, measured-1, and the absolute 850 cap.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1c4c42527981ee85ff91881293f097280d74dbe635a3c06448f2fbdb2d83b635",
+            "outputTail": "retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T03:16:53.220Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "029a97c3e1f5899c06a41cae15a5817120773bef",
+          "materialHash": "b675940198ae436f3970cbeb335e414e4da3df9096002e0be91ca703803dfa29",
+          "storyFilesHash": "c95208cbf5b5c6881179b3664c34e87b5887fe3980c5fab3fb73ccd23ead79a1",
+          "timestamp": "2026-08-31T03:17:24.766Z"
         }
       ]
     }
