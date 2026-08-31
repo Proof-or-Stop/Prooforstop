@@ -210,6 +210,26 @@
       "resolvedAt": "2026-08-31T04:21:50.456Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-010",
+      "desc": "scripts/verify-proof-or-stop-identity-cutover.mjs:674-676 and scripts/proof-or-stop-identity-current-legacy-contexts.json:6: concept-cleanup/spec-boundary [high] — the Round 3 semantic-context fix contradicts the approved cutover contract. docs/requirements/decisions/proof-or-stop-identity-cutover.md:162-165 explicitly forbids broad allowlist tokens and names `lattice` as the example, but 19 of the 120 new rows use the forbidden broad tokens `lattice`, `Lattice`, `LATTICE`, `LATTICE_`, or `.lattice`; validateExactRows then exempts every CURRENT_LEGACY_CONTEXT_ROWS object from hasBroadToken rejection. The current rows are exact-path/context-digest bound and their present prose is mostly historical/migration material, but no later reviewed decision amends the policy to authorize this second allowlist shape. WHY: GREEN is obtained by weakening a mechanical rule fixed before RED, so the claimed policy-compliant exact frozen boundary is false even though residue=[]; either represent the retained bytes with policy-compliant non-broad exact rows/ranges, or adopt an explicit superseding decision and mutation contract before allowing semantic-context broad tokens.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-08-31T04:33:21.884Z",
+      "reviewRound": "2026-08-31T04:21:34.264Z",
+      "reviewRunId": "B-022e:RR-012",
+      "_hash": "8df1f083b3ffa44b920272abb84a78fd18e9bf8ef728091b7df620366b0f6069",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs",
+        "scripts/proof-or-stop-identity-current-legacy-contexts.json"
+      ],
+      "signatureTag": "missing|md|scripts-verify-proof",
+      "signatureTagSource": "auto"
     }
   ]
 }
