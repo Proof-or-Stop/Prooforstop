@@ -70,7 +70,7 @@
           },
           {
             "id": "CHK-001:edge:missing-lattice-envelope-snapshot",
-            "desc": "When the red-evidence envelope smoke snapshots a fixture before a .lattice directory exists, the missing tree is represented deterministically and does not throw ENOENT; after fixture initialization its non-empty before/after manifest contract still detects mutations, and node packages/main/dist/tasks/red-evidence-envelope-smoke.js exits 0 with its OK line. WHY: missing runtime state must be an explicit snapshot state, not a crash or a weakened read-only assertion.",
+            "desc": "The isolated legacy lattice.config.json fixture explicitly sets storyDir=.lattice/story/actives, StoryStore creates a non-empty .lattice tree before snapshot, the aggregate before/after manifest remains meaningful, and node packages/main/dist/tasks/red-evidence-envelope-smoke.js exits 0 with its OK line.",
             "type": "cli",
             "priority": "must",
             "verification": {
@@ -80,7 +80,7 @@
           },
           {
             "id": "CHK-001:edge:missing-lattice-readonly-snapshot",
-            "desc": "When the W2d read-only regression encounters an absent .lattice tree, snapshotting returns the same deterministic missing-state representation on repeated reads rather than throwing; once its fixture creates .lattice, the aggregate file-manifest comparison remains meaningful, canonical proof-or-stop.config.json resolves the registered smoke, its legacy temporary lattice.config.json fixture still works, and node packages/main/tests/red/red-w2d-command-readonly.mjs exits 0 with PASS.",
+            "desc": "The isolated legacy lattice.config.json fixture explicitly sets storyDir=.lattice/story/actives, its non-empty aggregate .lattice manifest is compared, canonical registered smoke resolution plus legacy config compatibility remain exercised, and node packages/main/tests/red/red-w2d-command-readonly.mjs exits 0 with PASS.",
             "type": "cli",
             "priority": "must",
             "verification": {
