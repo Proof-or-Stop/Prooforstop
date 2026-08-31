@@ -290,7 +290,7 @@
       "desc": "CHK-007:pack-boundary-transcript:0 is stale and not admissible at the current story-owned state. evidence_inspect reports overall status=stale because the supplemental manual transcript remains bound to storyFilesHash 24c3d188..., while current storyFilesHash is 716e81cc.... The 29 pinned mechanical receipts were correctly re-executed at product HEAD 5151f10 and their fresh identity-verifier output includes the four-tarball offline pack, so the tiny NUL-escape/.gitattributes product delta has adequate regression coverage; however, that fresh mechanical proof cannot replace the separate transcript freshness binding. WHY: REVIEW/TEST must not consume an explicitly stale structured evidence ref. Recapture the pack-boundary live-smoke transcript at the current storyFilesHash, or replace/remove the supplemental ref through the supported evidence workflow, then rerun evidence_inspect and the coverage lane.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-08-31T09:10:41.244Z",
@@ -305,7 +305,11 @@
         ".gitattributes"
       ],
       "signatureTag": "missing|json|pack-boundary-transcript",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Recaptured node scripts/verify-proof-or-stop-pack-boundary.mjs through live_smoke_transcript --capture/--write at the final product material, then re-persisted CHK-007 custom transcript evidence at current storyFilesHash. evidence_inspect now reports freshness=fresh, staleRefs=0, transcriptRefs=1.",
+      "resolvedAt": "2026-08-31T09:21:21.577Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
