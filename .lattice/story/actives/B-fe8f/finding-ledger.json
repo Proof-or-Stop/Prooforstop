@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "0b59292bd76f1127c57806eca7437244956870915d36ee121da487c47d61332e",
+  "committedLedgerDigest": "6b4b98d64d099ef9f7e237f3b4cb07b5982664d8f3f47963c14f0d9490ffca04",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -218,6 +218,36 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-01T16:09:12.019Z"
+    },
+    {
+      "recordId": "lr_mtiv4ffe_1b89_e2d84eefda6f45d1b734b2b2eb268147",
+      "recordType": "finding",
+      "idempotencyKey": "B-fe8f:RR-005:quality:canonical-build-lock-toctou",
+      "payload": {
+        "id": "B-fe8f:F-009",
+        "desc": "packages/main/src/handlers/finding-ledger.ts:994-1005,1131-1165 checks the canonical proper-lockfile mutex once, then runs build/execution under a different Story runtime mkdir lock. The canonical mutex is neither acquired nor rechecked at commit. Deterministic repro: pause the adapter inside its buildCommand after the initial check, acquire scripts/build-lock.mjs withBuildLock(root), resume while holding that canonical lock through CLI exit; finding_runtime_evidence_run exits 0 and persists a runtime_evidence_receipt. Thus a build that starts in the check-to-run window is accepted, so the build-in-progress refusal is not one atomic boundary with receipt production.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "lattice-review-quality",
+        "createdAt": "2026-09-01T16:09:23.713Z",
+        "reviewRound": "2026-09-01T15:58:09.955Z",
+        "reviewRunId": "B-fe8f:RR-005",
+        "_hash": "b51eac35183b91c2de77b8ee2df9c6f782dca2eb3b8d4e92ade37eff246b6694",
+        "files": [
+          "packages/main/src/handlers/finding-ledger.ts",
+          "scripts/build-lock.mjs",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "signatureTag": "adversarial|ts|packages-main-handlers",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "972f9fa9182f125acb19e09ab54670c99a7cf7cfa3ead1ea66267689aca4700a",
+      "priorDigest": "0b59292bd76f1127c57806eca7437244956870915d36ee121da487c47d61332e",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-01T16:09:23.738Z"
     }
   ],
   "receipts": [
@@ -501,6 +531,48 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "904614c913795d2f54852364f1b941226244966d8963bd700440f0f1b17b9e67",
         "signature": "e9JIH3AGV3/CS2WwJ7U31Z2sr0/EXct8VKWPgjrdgA22DU2D001L1RW7O+bjyTaGNz9Fw5+gH2JojDFwUTJEBQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtiv4ffe_1b89_ef8cf88b317e48178670d9db76dabbba",
+      "operation": "append_finding",
+      "idempotencyKey": "B-fe8f:RR-005:quality:canonical-build-lock-toctou",
+      "requestDigest": "84aa86df90493a2eb5b87fe582f046255243515a0a1534cef4327a795e376e6d",
+      "recordIds": [
+        "lr_mtiv4ffe_1b89_e2d84eefda6f45d1b734b2b2eb268147"
+      ],
+      "priorLedgerDigest": "0b59292bd76f1127c57806eca7437244956870915d36ee121da487c47d61332e",
+      "committedLedgerDigest": "6b4b98d64d099ef9f7e237f3b4cb07b5982664d8f3f47963c14f0d9490ffca04",
+      "writerSessionId": "sess-1a6791642f2d968201c9cfffc53aed24",
+      "writerFenceToken": "73c60806-9fd6-4262-be47-d651cadb8799",
+      "committedAt": "2026-09-01T16:09:23.738Z",
+      "replayed": false,
+      "exactRequestDigest": "fd727d8c608c820d2e36bfe1a300cc0bb8ae169dff5be8390d4a4cfe35aee3c1",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtiv4ffe_1b89_ef8cf88b317e48178670d9db76dabbba",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "B-fe8f:RR-005:quality:canonical-build-lock-toctou",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtiv4ffe_1b89_e2d84eefda6f45d1b734b2b2eb268147"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "0b59292bd76f1127c57806eca7437244956870915d36ee121da487c47d61332e",
+        "committedLedgerDigest": "6b4b98d64d099ef9f7e237f3b4cb07b5982664d8f3f47963c14f0d9490ffca04",
+        "replayed": false,
+        "committedAt": "2026-09-01T16:09:23.738Z",
+        "writerSessionId": "sess-1a6791642f2d968201c9cfffc53aed24",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "73c60806-9fd6-4262-be47-d651cadb8799",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "73ea8a30979e8bb44ac8e1d3bc2ab0d83201aec6694f3d9d9e6e41827cbb7fa3",
+        "signature": "GLWhABLTwaVpWiLZWF90PjEm5DSTGH4fZ0nguxCp9Yumq1OfztNL2RkRspMMXY2u1mZ20AbeThDb8CAulk0aDA=="
       }
     }
   ]

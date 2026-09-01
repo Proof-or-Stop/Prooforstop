@@ -150,6 +150,28 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiv46dv_176o_02f1e1f9cdee4376be6f45ff0b2b16c8",
       "ledgerCommitReceiptId": "lrc_mtiv46dv_176o_23a3fe21b00547c8afa7a6cee8632bda"
+    },
+    {
+      "id": "B-fe8f:F-009",
+      "desc": "packages/main/src/handlers/finding-ledger.ts:994-1005,1131-1165 checks the canonical proper-lockfile mutex once, then runs build/execution under a different Story runtime mkdir lock. The canonical mutex is neither acquired nor rechecked at commit. Deterministic repro: pause the adapter inside its buildCommand after the initial check, acquire scripts/build-lock.mjs withBuildLock(root), resume while holding that canonical lock through CLI exit; finding_runtime_evidence_run exits 0 and persists a runtime_evidence_receipt. Thus a build that starts in the check-to-run window is accepted, so the build-in-progress refusal is not one atomic boundary with receipt production.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-09-01T16:09:23.713Z",
+      "reviewRound": "2026-09-01T15:58:09.955Z",
+      "reviewRunId": "B-fe8f:RR-005",
+      "_hash": "b51eac35183b91c2de77b8ee2df9c6f782dca2eb3b8d4e92ade37eff246b6694",
+      "files": [
+        "packages/main/src/handlers/finding-ledger.ts",
+        "scripts/build-lock.mjs",
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtiv4ffe_1b89_e2d84eefda6f45d1b734b2b2eb268147",
+      "ledgerCommitReceiptId": "lrc_mtiv4ffe_1b89_ef8cf88b317e48178670d9db76dabbba"
     }
   ]
 }
