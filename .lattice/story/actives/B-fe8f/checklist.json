@@ -195,20 +195,20 @@
           "kind": "logic_test",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
-          "note": "Historical RED selector re-executed at immutable GREEN anchor b236538; current sparse-ID fix is verified separately by Story3 GREEN smoke.",
+          "note": "Replayed immutable RED witness at historical GREEN anchor; current remediation is verified independently by Story3 GREEN smoke.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a68bad9e202ae11fe13cb27d0a712cb2eeee511ab07b5b95e1a7679bf63baa31",
             "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T14:37:33.643Z",
+            "executedAt": "2026-09-01T15:02:01.643Z",
             "timeoutMs": 270000
           },
-          "headHash": "0a1c4d64c6cede28d43b2f890850d36aa612864f",
-          "materialHash": "5a9cfa1a5f65248ad5d45a7756adb089d413e8868b080c6a1e3fbdcc790ab69b",
-          "storyFilesHash": "619f1710092a1b2ad3bb2dd2858ffa40cb1d941c0db7330e23ee3d07f65181e0",
-          "timestamp": "2026-09-01T14:37:33.774Z"
+          "headHash": "70d7ee3789b3d92a6328b240d54aea0ad02a6b51",
+          "materialHash": "224423682eee99ddcb7d5a6354b4e12f2eb22434578e3a3a7d0efae23b63209b",
+          "storyFilesHash": "87bf434ed2144199d3a9508f243187bb754ff3c07bb785950e4ac14f414b9033",
+          "timestamp": "2026-09-01T15:02:01.797Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
