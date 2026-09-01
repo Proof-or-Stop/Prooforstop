@@ -1288,9 +1288,9 @@
                     "id": "CHK-004-evidence-enforcement",
                     "role": "consumer",
                     "expectedArtifactKind": "source_file",
-                    "expectedFileRef": "packages/main/src/handlers/checklist.ts",
-                    "expectedSymbolOrFact": "enforceAndStampEvidence",
-                    "fileDeclarationRef": "CHK-004:files:modify:1"
+                    "expectedFileRef": "packages/main/src/handlers/verifier.ts",
+                    "expectedSymbolOrFact": "createValidationCausalPreflightGate",
+                    "fileDeclarationRef": "CHK-004:files:modify:2"
                   }
                 ],
                 "outputFactRef": "CausalPreflightReport.ready"
