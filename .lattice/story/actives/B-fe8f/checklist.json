@@ -52,6 +52,24 @@
               "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
               "selector": "red.production_unchanged: PASS"
             }
+          },
+          {
+            "desc": "The actual B-fe8f pre-fix failure is recorded through the official red_evidence_create command with its trigger, acceptance target, baseline HEAD/material hash, failing command, observed failure and expected GREEN command; a private test-only record is insufficient.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "selector": "red.official_evidence_create: PASS"
+            }
+          },
+          {
+            "desc": "The official red_green_relation_create path persists baseline and current command specs plus the immutable assertion/pattern binding used to compare RED and GREEN.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "selector": "red.relation_create: PASS unchangedAssertionBound=true"
+            }
           }
         ],
         "edge": [
@@ -81,6 +99,15 @@
               "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
               "selector": "red.primitive_scope: PASS"
             }
+          },
+          {
+            "desc": "Evaluating the newly created red_green_relation in the pre-fix state proves the baseline failure and the still-failing current target while retaining the same assertion digest; missing relation refs or digest mismatch fail closed.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "selector": "red.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true"
+            }
           }
         ],
         "adversarial": [
@@ -109,6 +136,15 @@
             "verification": {
               "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
               "selector": "red.green_substitution_refused: PASS"
+            }
+          },
+          {
+            "desc": "Changing the red_green_relation assertion, failure pattern, command spec, probe reference or relation digest after RED creation is rejected rather than evaluated as the original relation.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "selector": "red.relation_mutation_refused: PASS"
             }
           }
         ]
