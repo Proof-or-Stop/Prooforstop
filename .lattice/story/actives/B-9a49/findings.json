@@ -848,7 +848,7 @@
       "desc": "doc-code-drift: the open-source Agent projection omits the current exact assessment-plan authority binding. The proposal at lines 79-94 and 146-170, canonical REVIEW contract at packages/main/src/core/prompt-registry.ts:43,50,65-69, and Owner guidance use only generic disposition/disposition-plan prose; neither the proposal nor delivered contract contains `assessmentDispositionPlan`. The current Dynamic Finding authority distinguishes the final assessment `dispositionPlan` union at dynamic-finding-system-execution-plan.md:1103-1109 and 2068-2074 from the signed deferral copy `FindingDeferralDisposition.assessmentDispositionPlan=defer_with_proof` at 1380-1390; manifest/deferral verification binds `expectedAssessmentDispositionPlan` and `assessmentDispositionPlan` to the exact final assessment and route tuple at 1642-1655. This is related to F-036 but is the narrower public-document/assembled-prompt naming and cross-artifact binding gap. Evidence: `rg` finds `assessmentDispositionPlan` in the authority plan but not in the proposal or canonical contract, while focused prompt tests PASS. Remediation: name the final assessment `dispositionPlan` and the deferral/manifest `assessmentDispositionPlan` / `expectedAssessmentDispositionPlan` bindings exactly in the future-authority explanation and tests, while preserving the current compatibility CLI prohibition on fabricating unavailable fields or claiming the target-state mechanism ran.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-09-01T16:47:22.278Z",
@@ -865,7 +865,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "missing|md|code-drift-open",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in bcf5de33f367e3157efaeac65720a7bf5b3bc32f. Future-authority guidance now distinguishes final-assessment dispositionPlan from FindingDeferralDisposition.assessmentDispositionPlan='defer_with_proof' and manifest expectedAssessmentDispositionPlan, while retaining the explicit current-CLI no-fabrication boundary. English/mirror, prompt registry, baseline, process/runtime fact checks pass.",
+      "resolvedAt": "2026-09-01T23:21:37.906Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-039",
