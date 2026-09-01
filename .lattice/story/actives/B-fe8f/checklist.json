@@ -1699,8 +1699,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-01T10:50:38.624Z",
       "endTime": null,
       "userSees": "The terminal prints \"registry.story3_fact_contract: PASS\", \"query.protected_read_only: PASS signedRows=true pathsExposed=0\", and \"registry.persistence_non_authority: PASS lifecycleDelta=0\".",
       "excludes": [
@@ -2130,6 +2130,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Independent commits dae717d640 and 02ab7826df passed build, all 13 mechanical runtime intents, prior 23 selectors, real CLI run/verify, catalog and ownership contracts."
+    },
+    {
+      "timestamp": "2026-09-01T10:50:38.624Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin Story 3 process-fact levels, protected read-only query, and mechanical dependency lifecycle gate after runtime evidence contract is green."
     }
   ]
 }
