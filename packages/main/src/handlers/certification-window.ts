@@ -87,6 +87,33 @@ function readInventoryPair(
 
 const CERTIFICATION_INPUT_IDS = CAUSAL_DEPENDENCY_DOMAINS.map(domain => `certification:${domain}`);
 
+/**
+ * B-5a15 F-325: real causal edges between the certification domains.
+ *
+ * The previous shape was `dependencyIds: [CAUSAL_DEPENDENCY_DOMAINS[index - 1]]`, i.e. a
+ * straight chain following ARRAY DECLARATION ORDER. That is not a causal relationship: a
+ * test-only change invalidated build-input, manifest-semantic, integration AND
+ * review-subject, contradicting CHK-003:edge:0's requirement that each domain has a
+ * distinct invalidation boundary and only the declared dependent closure goes stale.
+ *
+ * Each entry lists the domains a node is DOWNSTREAM of, derived from what
+ * CERTIFICATION_DOMAIN_PATH_RULES actually classifies into each domain:
+ *  - build-input    (lockfiles, tsconfig, *.config.json) compiles everything -> upstream of all
+ *  - source         (packages/main/src, excl. tasks) is exercised by tests and driven by bins
+ *  - manifest-semantic (host adapter dirs) is consumed by the integration entrypoints
+ *  - test           (tests/, src/tasks/) is terminal: nothing is built from it
+ *  - integration    (bin/, scripts/, .githooks/, sibling packages) is terminal
+ *  - review-subject (docs/, AGENTS|CLAUDE|README) is terminal and compiles from nothing
+ */
+const CERTIFICATION_DOMAIN_DEPENDENCIES: Readonly<Record<CausalDependencyDomain, readonly CausalDependencyDomain[]>> = {
+  'build-input': [],
+  'source': ['build-input'],
+  'manifest-semantic': ['build-input'],
+  'test': ['build-input', 'source'],
+  'integration': ['build-input', 'source', 'manifest-semantic'],
+  'review-subject': [],
+};
+
 const CERTIFICATION_DOMAIN_PATH_RULES: ReadonlyArray<readonly [CausalDependencyDomain, RegExp]> = [
   ['test', /^packages\/main\/(?:tests\/|src\/tasks\/)/],
   ['build-input', /(?:^|\/)(?:package(?:-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|bun\.lockb|tsconfig(?:\.[^/]+)?\.json|lattice\.config\.json|proof-or-stop\.config\.json)$/],
@@ -157,7 +184,9 @@ export function buildCertificationDecision(
     id: `certification-${domain}`,
     domain,
     inputIds: [CERTIFICATION_INPUT_IDS[index]],
-    ...(index > 0 ? { dependencyIds: [`certification-${CAUSAL_DEPENDENCY_DOMAINS[index - 1]}`] } : {}),
+    ...(CERTIFICATION_DOMAIN_DEPENDENCIES[domain].length > 0
+      ? { dependencyIds: CERTIFICATION_DOMAIN_DEPENDENCIES[domain].map(dep => `certification-${dep}`) }
+      : {}),
     recordedInputHashes: { [CERTIFICATION_INPUT_IDS[index]]: previousInputHashes[CERTIFICATION_INPUT_IDS[index]] ?? '' },
   }));
   const contextDigests = causalDependencyContextDigests(nodes, currentInputHashes);
