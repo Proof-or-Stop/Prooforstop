@@ -1,0 +1,59 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "RED: reproduce ledger and runtime-evidence integrity failures",
+      "context": "Before implementation, create executable failing evidence for duplicate IDs under concurrency, lost updates, idempotency replay divergence, crash or torn writes, stale runtime hash acceptance, and environment mismatch acceptance. Preserve observed RED outputs and bind them to the pre-fix source hash.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement Story 3A fenced exactly-once Finding ledger writes",
+      "context": "Add per-story fenced lock discipline, deterministic unique Finding IDs, idempotency keys, atomic temp-write plus fsync plus rename, persisted nextFenceToken, and fail-closed append-nothing semantics without changing identity or applicability policy.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Bind later ledger consumers to exact input bytes and CAS state",
+      "context": "Persist rawInputHash, normalizedInputHash, writtenStateHash, postCommitLedgerHash, writer identity, lock token, and expected prior state so classification, routing, supersession, and reconciliation can reject stale reads or replay drift.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement Story 3B signed RuntimeEvidenceReceipt freshness",
+      "context": "Define signed runtime receipts bound to command, exit, stdout/stderr digests, started/finished times, toolchain, environment, base/head/material/story-files hashes, and authoritative mode. Gate consumers must reject stale, malformed, unsigned, or non-authoritative receipts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "GREEN: prove ledger atomicity and runtime freshness contracts",
+      "context": "Turn every RED case GREEN and add adversarial concurrency, replay, crash recovery, migration, signature, hash drift, non-authority, dependency-boundary, scorecard, and rollback or kill-switch verification evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

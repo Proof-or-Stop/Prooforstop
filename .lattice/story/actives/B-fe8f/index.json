@@ -1,0 +1,41 @@
+{
+  "storyId": "B-fe8f",
+  "name": "dynamic-finding-ledger-runtime-integrity",
+  "title": "Finding Ledger and Runtime Evidence Integrity",
+  "description": "Implement Section 9.3 of the accepted Dynamic Finding execution plan. Deliver Story 3A fenced exactly-once Finding ledger writes and Story 3B signed runtime-evidence freshness as the first dependency in the implementation sequence. RED must first reproduce historical duplicate IDs, lost updates, replay divergence, crash or torn-write exposure, and stale or environment-mismatched runtime evidence; GREEN must prove the committed contracts, migrations, adversarial cases, and gate behavior.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+  "keywords": [
+    "finding-ledger-integrity",
+    "runtime-evidence-receipt",
+    "exactly-once",
+    "fenced-cas",
+    "dynamic-finding"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-09-01T08:12:55.547Z",
+  "startedAt": "2026-09-01T08:12:55.547Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-01T08:12:56.143Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-926732d65bb5e74c324cbadbf4d314bc",
+      "agent": "main"
+    }
+  ]
+}
