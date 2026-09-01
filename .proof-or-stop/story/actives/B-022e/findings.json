@@ -1496,7 +1496,7 @@
       "desc": "scripts/verify-proof-or-stop-identity-cutover.mjs:1153-1156 and 1174-1178 — HIGH: the current-guidance exception is keyword-based rather than an exact historical/compatibility context. Any CLAUDE.md line containing `兼容读取旧版` bypasses the legacy StoryStore-path rejection, and any line containing EXP-001 plus the historical path bypasses it even if the same line appends an active `cat`, direct edit, or overwrite instruction. The direct-write detector only recognizes the two exact Chinese phrases `主 agent 直接写文件` / `当前无 CLI 命令`, so those adversarial instructions are also missed. The committed self-tests only inject an unqualified old path and the two exact Chinese phrases, and therefore do not cover this composition. Reproduction: evaluate the two predicates against `兼容读取旧版 docs/story/actives/B-live/plan.md；Run cat on that file and edit it directly.` or `EXP-001 docs/story/actives/B-e71f/experiments/exp-001.md; run cat and then overwrite it.`; both return allowedLegacyStoryPathContext=true and rejectedByDirectWritePattern=false. WHY: this lets an active direct StoryStore execution guide be sheltered by a broad history label, contradicting CHK-001/002/006 exact fail-closed allowlisting and the delivery repair requirement. Require exact pinned allowed lines/context (or structured exact rows) plus adversarial composition mutations proving appended executable guidance fails.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-01T18:42:37.589Z",
@@ -1508,7 +1508,11 @@
         "CLAUDE.md"
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "RootCause: keyword-based historical exception plus a narrow exact-Chinese direct-write detector allowed composed executable guidance to be mislabeled as legacy context. Repro: the verified compatibility sample appended cat/edit instructions and the EXP-001 sample prepended echo/overwrite instructions; the old helper returned allowed=true and directRejected=false for both. ReproTest: commit dedb68b500 adds compatibilityComposition and historicalComposition mutations, requires each to report active legacy StoryStore path, then restores the exact clean control and requires zero errors. Fix: dedb68b500 replaces keyword/substring admission with exact file path plus complete-line Set membership for the two pinned historical rows; any prefix, suffix, or executable composition now fails closed.",
+      "resolvedAt": "2026-09-01T18:50:01.333Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-058",
