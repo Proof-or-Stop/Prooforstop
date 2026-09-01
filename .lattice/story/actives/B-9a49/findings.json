@@ -469,7 +469,7 @@
       "desc": "semantic-contract-pre-marker-bypass: packages/main/src/tasks/prompt-registry-smoke.ts:240 scopes digest and heading/normative-manifest validation to content.slice(marker), while lines 321-325 exercise the 99feb51a digest-refreshed paraphrases only after the marker. Production assembly appends the canonical contract after the reviewer role body at packages/main/src/core/prompt-registry.ts:345, so placing the same contradiction before the marker leaves the approved canonical digest and manifest unchanged. Exact read-only probe at HEAD 0dfa620 constructed mutation + canonical contract and applied the checked-in 13 forbidden regexes: 13/13 were accepted (acceptedIndexes 1..13). The ordinary focused/build/baseline suites still pass, proving a false-green path. This violates and blocks CHK-004:adversarial:test-weakening and CHK-004:adversarial:semantic-collapse, which require semantic rejection even when digest pins are refreshed. Add pre-marker mutation assertions for all 13 cases or otherwise enforce the independent semantic prohibitions across the complete assembled reviewer body.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-31T23:20:30.700Z",
@@ -477,7 +477,11 @@
       "reviewRunId": "B-9a49:RR-020",
       "_hash": "634bcd1528342d5cfafefad63fca112cf369c77bd05feb19b95865c58de845d7",
       "signatureTag": "adversarial|unknown|semantic-contract-marker",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 0cef13f by applying semantic prohibition validation to the complete assembled reviewer body, including content before the canonical marker. The refreshed CHK-004 adversarial test-weakening and semantic-collapse receipts are mechanical passes at the current storyFilesHash, and the final registered live proof reports mutations=biting with authority=admissible.",
+      "resolvedAt": "2026-09-01T08:40:15.955Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
