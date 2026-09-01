@@ -1566,6 +1566,67 @@
         "scanEscalationReason": null
       },
       "_hash": "97ac6198c231f4ba3aa17c70ca08efb8c3f2887df3bc3460a529783cbce8646a"
+    },
+    {
+      "id": "B-022e:RP-045",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Round 23 docs freshness review at 2091145 found no blocker. The signed basis is SAFE_INCREMENTAL from RP-041 with changedFiles, impactedFiles, affectedContracts, currentClaims, and findingDeltas empty; intervening commits affect only B-022e reviewer/process metadata. Step 1's exact prescribed shell extracted 1,631 declaration tokens (the stricter identifier parser deduplicated 1,628). Step 2 enumerated 3,158 unique heading-bounded reference paragraphs across 165 non-StoryStore docs; semantic comparison remained narrowed to the same 8 identity/version/rollout sections. Active prompts, README/AGENTS/CLAUDE/CLI, generated agent assets, and PLAN remain consistent: Proof-or-Stop/proof-or-stop only, canonical proof-or-stop-review-story-init, retired strings confined to explicit mapping/negative/frozen provenance, root/Core/Utils 0.3.268, Lab 0.3.65 with Core ^0.3.65, and Utils floor ^0.3.268. Wave 4 text requires genuine codex-cli+claude-cli full-3x2 and correctly states mode-invariant diagnostics, enforce-only blocking, history-preserving rollback, Wave 3A exclusion, and non-Authority scope; live report/check remain observe/missing/nonblocking, so there is no false PASS claim. Identity, prompt baseline, packed role, active prose, and frozen-history checks pass.",
+      "createdAt": "2026-09-01T13:27:53.745Z",
+      "reviewRound": "2026-09-01T12:54:50.425Z",
+      "reviewRunId": "B-022e:RR-106",
+      "envelopeId": "0346e6880aedf80928deb5309350486ccfce174bc5b8bcd3ff3179f06f892bda",
+      "writerSessionId": "sess-c460ad9a5bf1138237803db4c9d4aff7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+          "README.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": "The identity cutover mechanically changes broad active prose and exported identifiers; repository-wide exact residue and prompt verification was required to distinguish active documentation from frozen historical/provenance occurrences, while semantic paragraph review remained narrowed to identity, version, and Wave 4 claims."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "2dc5cf68c7155cd4e750efef63241dd9019257b18fea428f70418405f295da2c"
+      },
+      "readDiagnostics": [],
+      "_hash": "1319bdf82a03f768319d779f56b49e53ec499bb3c47b68f6ef665ea4f1e33304"
     }
   ]
 }
