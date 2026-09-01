@@ -18740,6 +18740,23 @@
       "resolvedAt": "2026-09-01T11:33:39.727Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a15:F-343",
+      "desc": "packages/main/src/core/evidence-freshness.ts:188 isStoryMetadataPath lowercases the candidate path but compares it against NON-lowercased prefixes, so on a case-sensitive filesystem a real source file whose path differs from a metadata prefix only by case is wrongly classified as story metadata and SILENTLY DROPPED from the storyFilesHash material (the filter at :506 excludes it). Direction is OVER-exclusion, which is the dangerous one: a genuine code change under such a path would not move storyFilesHash, so evidence earned against the older tree would keep reporting FRESH instead of going stale - a false-fresh in the value that binds review passes, causal receipts, delivery/init/scope checks and the DONE gate. REPRO (run against packages/main/dist): isStoryMetadataPath('Docs/Story/my-component.tsx') returns TRUE, and isStoryMetadataPath('DOCS/STORY/legit-source.ts') returns TRUE, even though on a case-sensitive filesystem neither is the story metadata directory. Control cases behave correctly: 'docs/storybook/config.ts' and 'docs/story-utils/helper.ts' both return FALSE, so the prefix matching itself is sound - only the case folding is wrong. NOTE ON DISCOVERY: I first hypothesised the opposite direction (that capitalised metadata paths would be under-excluded) and probed it; all six such cases returned TRUE, disproving that hypothesis. The over-exclusion direction above is what the probe actually established. BLAST RADIUS: latent. git ls-files finds no path in this repo matching a metadata prefix under different casing, so it is not exploitable today, and macOS default filesystems are case-insensitive so the paths could not coexist there anyway. It becomes live on a case-sensitive filesystem (Linux CI, or macOS with a case-sensitive volume) the moment any story adds a source directory whose name case-folds onto 'docs/story/', '.proof-or-stop/story/', or 'docs/framework-audit/'. RECOMMENDED HANDLING: compare case-sensitively (drop the .toLowerCase() on both sides), or lowercase the prefixes too and document the trade-off explicitly. The config-derived storyDir branch at :193 already lowercases its prefix, so the two halves of this function are internally inconsistent. WHY NOT FIXED HERE: medium severity, not fireable in this repo, no lifecycle gate distorted today, and no B-5a15 checklist item claims path-classification behavior - fixing it would be unbounded scope creep per the defect-triage rules. ESCALATE IF: any story introduces such a path, or the project moves canonical CI to a case-sensitive filesystem.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-09-01T15:39:57.623Z",
+      "reviewRound": "2026-09-01T13:31:42.515Z",
+      "_hash": "3ffe01bcefdb24499b713ad12ec677bb02d122a6347d1b7239f8caa782383315",
+      "files": [
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
