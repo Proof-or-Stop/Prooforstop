@@ -256,7 +256,7 @@ export function readChangedFiles(projectRoot: string): string[] {
  * additions, modifications, copies, rename destinations, untracked files and
  * arbitrary missing paths never enter this set.
  */
-export function readRetiredRepoRootDiffPaths(projectRoot: string): string[] {
+export function readRetiredRepoRootDiffPaths(gitCwd: string): string[] {
   const paths = new Set<string>();
   const addNameStatus = (output: string): void => {
     const fields = output.split('\0');
@@ -291,7 +291,7 @@ export function readRetiredRepoRootDiffPaths(projectRoot: string): string[] {
   ]) {
     try {
       addNameStatus(execFileSync('git', args, {
-        cwd: projectRoot,
+        cwd: gitCwd,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
       }));
