@@ -128,7 +128,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Finding ledger integrity reports unique durable allocation, same-ID idempotent replay, explicit stale-CAS conflict, and deterministic crash recovery.",
+      "userSees": "The terminal prints \"ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\", \"ledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\", and \"ledger.crash_recovery: PASS halfVisible=0\".",
       "excludes": [
         "No canonicalDefectId or semantic duplicate policy.",
         "No applicability or route authorization decision."
