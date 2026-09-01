@@ -471,6 +471,32 @@
       },
       "readDiagnostics": [],
       "_hash": "fb46f8c669e9c34e3a0aacf9d7231b70495fcaede8afaf80ba4fc4002a203466"
+    },
+    {
+      "id": "B-9a49:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test-coverage review passed after current-material re-attestation: no open findings; source/tests unchanged since RR-046 except CLI-authored resolution metadata; exactly 60 must intents retain 60 mechanical passing receipted evidence records bound to RR-050 materialHash/storyFilesHash; prior discriminating RED snapshots, current full and conditional five-role assembly matrix, F-035 unsafe/safe polarity cases, non-REVIEW isolation, pre-review current PASS, rollout current full-3x2 PASS, and protected-runtime zero-diff remain valid.",
+      "createdAt": "2026-09-01T15:16:21.364Z",
+      "reviewRound": "2026-09-01T15:02:52.118Z",
+      "reviewRunId": "B-9a49:RR-050",
+      "envelopeId": "27c98246f8da4eb5b018efb8d2c1598ce40858db162768459ff4c842102f1420",
+      "writerSessionId": "sess-d96c6903da31c39e185f3c8728bbee59",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/advisory.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "18af320ecd5064782c63c55dfc443a0ae7c693bc690d4d30079a741592d16364"
     }
   ]
 }
