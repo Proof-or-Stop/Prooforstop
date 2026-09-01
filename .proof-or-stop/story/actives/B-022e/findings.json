@@ -1176,7 +1176,7 @@
       "desc": "Current `proof-or-stop evidence_inspect --storyId=B-022e --format=json` reports freshness.status=stale with staleRefs=[CHK-007:pack-boundary-transcript:0] because its storyFilesHash no longer matches the current story-owned state after c2d51f9780 changed the nested Lab clean-install/pack boundary. The 29 standard happy/edge/adversarial intent rows are fresh and the configured 120-command validation is PASS, but this separate manual transcript explicitly supplements CHK-003/004/005/007 clean-tarball and canonical-role claims and remains inadmissible. WHY: the exact packed boundary changed in this fix, so an older transcript cannot prove the final nested `lab help` tarball behavior. Re-capture the canonical live_smoke_transcript/pack-boundary command at the final storyFilesHash and rebind CHK-007:pack-boundary-transcript:0 before the next coverage pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-01T08:49:04.142Z",
@@ -1189,7 +1189,11 @@
         "scripts/verify-proof-or-stop-pack-boundary.mjs"
       ],
       "signatureTag": "missing|json|current-proof-stop",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by canonical live_smoke_transcript recapture on current product HEAD: node scripts/verify-proof-or-stop-identity-cutover.mjs exited 0 and the present-fresh artifact records identity policy, four-tarball offline clean-install, package/bin/role identities, and canonical role registry output.",
+      "resolvedAt": "2026-09-01T09:36:29.517Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-044",
