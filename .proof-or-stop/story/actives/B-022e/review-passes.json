@@ -2195,6 +2195,65 @@
       },
       "readDiagnostics": [],
       "_hash": "9f4a32a288b9f8d478d0571bd3f5e146e59bb0c92f6f6a0f98723a725c5a4971"
+    },
+    {
+      "id": "B-022e:RP-058",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 27 test-coverage passed: all 29 happy/edge/adversarial intents have one unique non-failing mechanical evidence record (0 gaps, 0 waivers). F-056 committed regression directly enforces CLI-only source, Claude, Codex, and assembled story-init surfaces; rejects retired docs/story/actives, canonical StoryStore path, init sidecar, echo/Edit/direct-write forms; and passes classifier/scanner, exact prompt hash, manifest mutation, baseline source/assembled restore, and role-matrix drift probes. Existing intent receipts are storyFilesHash-stale after the F-056 material change and must be refreshed by the host; that is freshness debt, not missing executable coverage.",
+      "createdAt": "2026-09-01T17:57:06.534Z",
+      "reviewRound": "2026-09-01T17:46:09.237Z",
+      "reviewRunId": "B-022e:RR-124",
+      "envelopeId": "973b7cc29b903b5a0042eb6ba1cd6e60fa8a0aea0e369f8116422ee05f50ff78",
+      "writerSessionId": "sess-c460ad9a5bf1138237803db4c9d4aff7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "README.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b2c4cabe680aec94c90a0c1e2ed23f91691a596d08985b6060eb18921a555fe9"
+      },
+      "readDiagnostics": [],
+      "_hash": "47bc2a8faa95ba4f56f7381462e0bfe5a299710aa69054baabec5534bb5e56b4"
     }
   ]
 }
