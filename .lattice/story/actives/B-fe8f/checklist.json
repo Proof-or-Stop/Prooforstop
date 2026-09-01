@@ -352,7 +352,7 @@
     {
       "id": "CHK-004",
       "title": "Implement content-addressed RuntimeEvidenceReceipt and artifact stability checks",
-      "context": "Implement the exact Section 6 RuntimeEvidenceReceipt signer/verifier and build-execution adapter, binding storyId, source HEAD/material, build policy and build/execution command digests, content-addressed command/stdout/stderr/environment/artifact-manifest blobs, redacted allowlisted environment with excluded names and policy digest, artifact path/digest/sourceHead and realpath policy, timestamps, exit and output digests, toolchain, command canonicalization, producer, key/algorithm/trust-root/key-freshness fields, receipt hash and signature. Refuse build-in-progress, unsupported trust or storage assumptions, tamper, stale source/artifact/environment/command, and artifacts that mutate before, during, or after execution via a post-run stability check.",
+      "context": "Implement the exact Section 6 RuntimeEvidenceReceipt signer/verifier plus real CLI build-execution adapter through finding_runtime_evidence_run and finding_runtime_evidence_verify. Bind source/material, commands, content-addressed outputs/environment/artifact manifest, realpath, toolchain and trust. Persist append_runtime_receipt through the Story 3A exactly-once ledger so crash/replay returns the original runtime record and ledger receipt IDs. Refuse build-in-progress, unsupported trust/storage assumptions, tamper, stale source/artifact/environment/command, and artifacts that mutate before, during, or after execution.",
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
@@ -366,7 +366,9 @@
       "files": {
         "modify": [
           "packages/main/src/core/types.ts",
-          "packages/main/src/core/evidence/artifact-store.ts"
+          "packages/main/src/core/evidence/artifact-store.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/registry.ts"
         ],
         "create": [
           "packages/main/src/core/runtime-evidence-receipt.ts"
