@@ -1,55 +1,90 @@
 {
   "storyId": "B-9a49",
-  "checkedAt": "2026-08-31T23:39:07.089Z",
+  "checkedAt": "2026-09-01T00:10:08.397Z",
   "features": [
     {
-      "feature": "Deliver one canonical English Finding-triage contract to all five active REVIEW lanes in both full-envelope and legacy-full-context modes, with non-REVIEW isolation.",
+      "feature": "Deliver one byte-identical canonical Finding triage contract to all five active REVIEW lanes in full-envelope and legacy-full-context modes while excluding every non-REVIEW role.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "background.md; plan.md CHK-001; checklist CHK-001"
+      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-001"
     },
     {
-      "feature": "Give the Story Owner and implementer bounded evidence-preserving routing guidance without unilateral scope expansion or machine-authority claims.",
+      "feature": "Preserve current reviewer protocol and separate evidence state, severity, applicability candidate, and gate impact; fail closed on untrusted applicability and require evidence-backed owned routing without reviewer repair, dismissal, Story creation, gap logging, severity rewrite, or unilateral scope expansion.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-001"
+    },
+    {
+      "feature": "Keep disproven, duplicate, and stale-or-not-reproduced as distinct outcomes that preserve Finding history.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-001"
+    },
+    {
+      "feature": "Align Story Owner and implementer guidance with applicability and gate truth while preventing unbounded implementation scope expansion.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "understanding.json constraints; plan.md CHK-002; checklist CHK-002"
+      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-002"
     },
     {
-      "feature": "Register REVIEW-only declarative triage metadata without turning prompt text or requiredCheckIds into lifecycle evidence.",
+      "feature": "Describe compatibility dismissal as temporary round or profile accounting rather than applicability proof or resolution.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-002"
+    },
+    {
+      "feature": "Register REVIEW-only declarative triage metadata without letting prompt prose or metadata become gate evidence or redefine Dynamic Finding authority.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "understanding.json facts/constraints; plan.md CHK-003; checklist CHK-003"
+      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-003"
     },
     {
-      "feature": "Retain genuine RED-to-GREEN, semantic-mutation, English/open-source, baseline, process/runtime-fact, build, and verify_codex verification.",
+      "feature": "Prove stale in-flight reviewer envelopes require a fresh review_run_start and redispatch, and keep all added prompt and tracked documentation prose suitable for English-language open source.",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "plan.md CHK-004; checklist CHK-004; B-9a49:F-021"
+      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-004"
     },
     {
-      "feature": "Repair F-020 by reconciling truthful existing producer-to-consumer topology edges with verifier-owned basis paths, without weakening structural validation.",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Use the same focused contract for RED and GREEN, then verify prompt delivery, isolation, digest integrity, process and runtime contracts, build output, and Codex adapter compatibility.",
+      "covered_by": "CHK-004",
+      "status": "covered",
       "excluded_by": null,
-      "source": "B-9a49:F-020; packages/main/src/core/acceptance-coverage-basis.ts:141-166,482-558; packages/main/src/core/acceptance-topology.ts:430-537"
+      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-004"
     },
     {
-      "feature": "Do not fabricate plannedPathDeclarations for already-existing process-fact paths merely to make acceptance coverage green.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "The authoritative acceptance-topology plan reserves planned declarations for frozen genuinely new paths bound to declared checklist files; existing verifier-discovered paths must reconcile truthfully.",
-      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:363-400,770-818"
+      "feature": "Repair F-020 by reconciling truthful existing process-fact producer-to-consumer topology edges with verifier-owned canonical basis paths without weakening structural validation.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-005"
     },
     {
-      "feature": "Do not expand into Dynamic Finding handlers, advisory gate predicates, process-fact registries, schemas, freshness, supersession, or applicability authority.",
+      "feature": "Require current signed topology PASS, admissible live pre-review proof, and current full-3x2 signed rollout proof for the F-020 repair, with exact registry consumerGate matching and fail-closed negative controls.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-005.verificationIntent"
+    },
+    {
+      "feature": "Change Dynamic Finding schemas, handlers, shared blocking predicates, process-fact registries, freshness, supersession, severity, or applicability authority.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "The current understanding and enforce-mode scope contract explicitly protect advisory.ts, process-fact-registry.ts, process-fact-levels.ts, and packages/main/src/handlers; the current diff contains no protected-path hunks.",
-      "source": "understanding.json constraints; scope_contract_show; dynamic-finding-system-execution-plan.md"
+      "excluded_by": "The Story understanding, decision, and enforced scope contract explicitly preserve Dynamic Finding runtime authority and protect or exclude handlers, advisory gate logic, and process-fact registry files.",
+      "source": ".lattice/story/actives/B-9a49/understanding.json#constraints"
+    },
+    {
+      "feature": "Modify acceptance-topology structural validation, accept caller-authored consumer aliases, or fabricate plannedPathDeclarations for already-existing process-fact paths.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-005 explicitly forbids these shortcuts and the enforced scope contract excludes packages/main/src/core/acceptance-topology.ts.",
+      "source": ".lattice/story/actives/B-9a49/checklist.json#CHK-005.excludes"
     }
   ],
   "readManifest": {
@@ -59,42 +94,26 @@
       ".lattice/story/actives/B-9a49/decision.json",
       ".lattice/story/actives/B-9a49/plan.md",
       ".lattice/story/actives/B-9a49/understanding.json",
-      "packages/main/src/core/acceptance-coverage-basis.ts",
-      "packages/main/src/core/acceptance-topology.ts",
-      "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      "AGENTS.md"
     ],
     "filesTriagedByName": [
       "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
       "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
       "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
       "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
-      "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      "docs/requirements/decisions/role-separation.md"
     ],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 7,
-    "covered": 4,
+    "total": 12,
+    "covered": 10,
     "excluded": 2,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "2026-08-31T23:13:35.921Z",
-  "_hash": "886adc78fc089e70b5fce514eaae4352288a152b3e27e22566e6c113078fae7d",
-  "openQuestions": [
-    {
-      "id": "SQ-F020-CANONICAL-PATH-OWNER",
-      "q": "Should the F-020 extension authorize packages/main/src/core/acceptance-coverage-basis.ts (and its focused basis smoke) as the production owner of canonical edge reconciliation, and remove acceptance-topology.ts unless a separately demonstrated validator change is required?",
-      "evidence": "The mismatch-producing sourceRefValue/topologyPaths and the AT_TOPOLOGY_OUTSIDE_BASIS reverse check are local to acceptance-coverage-basis.ts. acceptance-topology.ts validates required graph shape and intent mappings; no current source diff demonstrates that changing it can normalize verifier-owned basis paths without weakening the contract.",
-      "sourcePointers": [
-        "B-9a49:F-020",
-        "packages/main/src/core/acceptance-coverage-basis.ts",
-        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
-      ],
-      "resolution": "Resolved by correcting the scope owner to packages/main/src/core/acceptance-coverage-basis.ts and its focused proofstory-acceptance-basis smoke, while explicitly excluding acceptance-topology.ts. This targets the sourceRefValue/topologyPaths/reconcile canonicalization mismatch without weakening structural totality or fabricating plannedPathDeclarations.",
-      "resolvedAt": "2026-08-31T23:39:47.151Z"
-    }
-  ]
+  "_hash": "b9258eead631a42ff8d0ca48e45d588fca382fd29ae4b4996db15cc389dc981e",
+  "openQuestions": []
 }
