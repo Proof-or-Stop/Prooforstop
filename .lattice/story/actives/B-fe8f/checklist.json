@@ -172,23 +172,23 @@
         },
         {
           "intentRef": "CHK-001:edge:1",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
-          "note": "Post-GREEN tool execution preserves the immutable RED assertion and proves the selector now passes on the final implementation.",
+          "note": "Historical RED selector re-executed at immutable GREEN anchor b236538; current sparse-ID fix is verified separately by Story3 GREEN smoke.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a68bad9e202ae11fe13cb27d0a712cb2eeee511ab07b5b95e1a7679bf63baa31",
             "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T12:11:53.163Z",
+            "executedAt": "2026-09-01T14:37:30.703Z",
             "timeoutMs": 270000
           },
-          "headHash": "b236538812256f1cb01f9c1299f62f3dab897648",
-          "materialHash": "dacc9b3821d526628cd087c87072045330f28a35a9ffd15363d92370beb99220",
-          "storyFilesHash": "98d8c29e893bb4dbc594543e74b9a51c7a873729f418a341c913a395726051f1",
-          "timestamp": "2026-09-01T12:11:58.560Z"
+          "headHash": "e3a28990b54142efdd71b4b9e328b49600a77e0b",
+          "materialHash": "5a9cfa1a5f65248ad5d45a7756adb089d413e8868b080c6a1e3fbdcc790ab69b",
+          "storyFilesHash": "619f1710092a1b2ad3bb2dd2858ffa40cb1d941c0db7330e23ee3d07f65181e0",
+          "timestamp": "2026-09-01T14:37:30.844Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
