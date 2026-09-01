@@ -10,7 +10,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "RED audit reports which current lock/store behaviors already pass and prints a concrete failing contract plus pre-fix HEAD for each remaining ledger or runtime-evidence gap.",
+      "userSees": "The terminal prints \"red.audit_summary: current primitives classified; preFixHead=<sha>\" and, only for proven gaps, \"red.genuine_contract_failure: <reason-code>\".",
       "excludes": [
         "Do not manufacture a failing race already prevented by current locking.",
         "Do not implement the GREEN fix in the RED commit."
