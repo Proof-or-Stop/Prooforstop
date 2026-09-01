@@ -18068,6 +18068,54 @@
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-331",
+      "desc": "completeness-gap (topology critic, epoch B-5a15:RI-051 wave 1/3): the three reporting lanes (concept RR-780, quality RR-778, test-coverage RR-779) collectively left the Wave 4 verifier-owned acceptance surface UNREVIEWED, and that surface holds the only currently BLOCKING verdict. Independently executed all four canonical read-only surfaces at HEAD 62f8d51: (1) acceptance_topology_check = pass, basis complete, structuralPass=yes, blocking=no, authority=diagnostic_only; (2) pre_review_check_read = FAIL with PR_ARTIFACT_TAMPERED, PR_COVERAGE_BASIS_CHANGED, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE (mode=observe so blocking=false); (3) acceptance_rollout_report_read = FAIL, receipt=stale, quorum=full-3x2, AR_REPORT_STALE; (4) acceptance_rollout_check = FAIL promotionEligible=false, mode=ENFORCE, blocking=TRUE, receipt=stale, AR_REPORT_STALE. Surface (4) is the decisive omission: it is the only surface in enforce mode with blocking=true, and keyword-scanning all six raw findings of this wave for rollout / AR_REPORT / 3x2 / quorum / enforce / acceptance_rollout returns ZERO hits, so no lane in this wave touched it. The rollout receipt is stale rather than missing and quorum reads full-3x2, so this is a freshness re-binding need (the receipt no longer binds current HEAD), not the degraded-3x1 condition the envelope forbids. The six raw findings are each genuine and each concern DEV-side implementation (causal DAG edge shape F-325, rerun-evidence producer F-327, brand-path regex F-326, finding hygiene F-328, evidence integrity F-329, predicate coverage F-330); none establishes or refutes current acceptance admissibility. Consequently this wave cannot support any acceptance PASS claim: the envelope requires a current signed rollout receipt and the current receipt is stale under an enforce-mode blocking gate. Remediation: regenerate and re-verify the rollout report/receipt against current HEAD and reissue pre_review_check, then re-read all four surfaces before REVIEW->TEST.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-09-01T07:03:48.608Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-782",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "542676f1309810edfa5243ac9d1f981239d2e66aea652b4398c0f108b703ded3",
+      "files": [
+        ".proof-or-stop/story/actives/B-5a15/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "signatureTag": "missing|json|completeness-topology-critic",
+      "signatureTagSource": "auto"
     }
   ]
 }
