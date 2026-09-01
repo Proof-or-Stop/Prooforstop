@@ -18248,7 +18248,7 @@
       "desc": "packages/main/src/core/evidence-freshness.ts:505,535 [high] currentStoryFilesHash ordering regression: extracting currentStoryFileHashEntries changed the hash ordering from a locale-independent byte sort to a locale-sensitive localeCompare, making storyFilesHash both DIFFERENT from main and ENVIRONMENT-DEPENDENT. On main the entries were composed first (path NUL objectId) and then ordered by a bare .sort() (UTF-16 code-unit order); that trailing .sort() was authoritative, and the pre-existing localeCompare inside changedStoryFilesBetween (line 477) was inert because its order was overwritten. The refactor deletes that trailing .sort() and returns entries pre-sorted by left.path.localeCompare(right.path) at line 505, which currentStoryFilesHash now consumes verbatim at line 535. Two consequences, both reproduced. (1) ORDER/HASH CHANGE: for paths [src/a_b.ts, src/a-b.ts, src/A.ts, src/ab.ts] the old order is A.ts,a-b.ts,a_b.ts,ab.ts and the new order is a_b.ts,a-b.ts,A.ts,ab.ts, yielding sha 6fb89972a802063e... vs 55e75b39781df206...; localeCompare folds case and treats - and _ as punctuation, so any story touching paths differing only by case or by -/_ now hashes differently than main computed. (2) NON-DETERMINISM: localeCompare is collation-dependent - LC_ALL=sv_SE.UTF-8 sorts [z.ts,a-umlaut.ts,a.ts] as a.ts,z.ts,a-umlaut.ts while LC_ALL=en_US.UTF-8 sorts a.ts,a-umlaut.ts,z.ts, so two machines or a small-ICU build can compute DIFFERENT storyFilesHash for an identical tree. storyFilesHash is the binding material for review passes, causal receipts, delivery/init/scope checks and the DONE gate, so a locale-dependent value can spuriously invalidate every signed artifact or mask a real story-owned change. Fix: keep byte-stable ordering authoritative - either sort the composed path NUL objectId strings with a bare .sort() as before, or use a codepoint comparator instead of localeCompare - and pin a regression test over a path set containing case-only and -/_ variants.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-01T08:53:12.690Z",
@@ -18300,7 +18300,11 @@
         "packages/main/src/core/evidence-freshness.ts"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED in commit f5c6f8a2f6. ROOT CAUSE: commit 55a1e00343 (this story's own work) extracted currentStoryFileHashEntries from currentStoryFilesHash and dropped main's bare byte .sort(), which promoted a previously-inert localeCompare at evidence-freshness.ts:477 into the authoritative ordering for the storyFilesHash material. FIX: both ordering sites (477 and 505) now use explicit byte comparison, with a comment recording why localeCompare must never be used there. VERIFICATION: (1) hash parity with main restored - the four-path fixture src/a_b.ts, src/a-b.ts, src/A.ts, src/ab.ts hashes to 0417feaa513a under both main's .sort() and the fix, where the localeCompare ordering gave be2f91e313ce; (2) locale invariance - the same paths now sort identically under LC_ALL=en_US.UTF-8 and LC_ALL=sv_SE.UTF-8, whereas localeCompare ordered src/ä.ts differently between them; (3) recursive tsc clean; (4) causal-evidence suite unchanged at 19/21.",
+      "resolvedAt": "2026-09-01T09:12:39.090Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-335",
