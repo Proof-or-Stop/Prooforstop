@@ -1,45 +1,52 @@
 {
   "schemaVersion": "lattice.scope_freeze_check.v1",
   "storyId": "B-9a49",
-  "checkedAt": "2026-09-01T11:08:33.779Z",
-  "mode": "maintenance",
+  "checkedAt": "2026-09-01T11:12:38.546Z",
+  "mode": "feature",
   "status": "pass",
-  "scopeBoundaryHash": "849764fbf9fd4f8166fead9c96f5fb2ab29f9ba9b33fce91d430139fb525ebb0",
+  "scopeBoundaryHash": "84e34780c0a57d450515ea9a24e6a861ad34bf47126009dda7d6ed08f4b1af3f",
   "executionBoundaryHash": "b3b17481bf7010023f4f74c826213aaea4f622d91fc3707dbddaf469c0ffa8ab",
-  "freshnessHash": "f53647b9df62dd18582d3c24a89bfecb8f2e36fa552d1cd2bec51299e75df55b",
+  "freshnessHash": "bee459d80d1b9217b7764add77033d73d1aa913d804e2c4968c6099ba92620b4",
   "effectiveExcludedKeywords": [
-    "Do not grant reviewers authority to repair findings, dismiss findings, create follow-up Stories, or widen Story scope.",
-    "Do not implement or change Dynamic Finding schemas, applicability records, gate predicates, freshness, supersession, lifecycle handlers, or finding status semantics.",
-    "Do not inject the REVIEW triage contract into non-REVIEW prompts or change unrelated Agent behavior.",
-    "Do not treat prompt prose or role metadata as gate evidence or proof that a check ran."
+    "Changing current finding_dismiss or gap_log runtime behavior",
+    "Creating or pushing remote feature branches",
+    "Dynamic Finding runtime schemas, handlers, command surfaces, applicability writers, shared blocking predicates, freshness, supersession, process-fact registries, or lifecycle gate implementation",
+    "Injecting REVIEW-only instructions into non-REVIEW roles",
+    "Unrelated repository defects that do not block this Story acceptance"
   ],
   "keywordHits": [
     {
-      "keyword": "Do not grant reviewers authority to repair findings, dismiss findings, create follow-up Stories, or widen Story scope.",
+      "keyword": "Changing current finding_dismiss or gap_log runtime behavior",
       "source": "scopeBoundary.excluded",
-      "text": "Do not grant reviewers authority to repair findings, dismiss findings, create follow-up Stories, or widen Story scope.",
+      "text": "Changing current finding_dismiss or gap_log runtime behavior",
       "excluded": true
     },
     {
-      "keyword": "Do not implement or change Dynamic Finding schemas, applicability records, gate predicates, freshness, supersession, lifecycle handlers, or finding status semantics.",
+      "keyword": "Creating or pushing remote feature branches",
       "source": "scopeBoundary.excluded",
-      "text": "Do not implement or change Dynamic Finding schemas, applicability records, gate predicates, freshness, supersession, lifecycle handlers, or finding status semantics.",
+      "text": "Creating or pushing remote feature branches",
       "excluded": true
     },
     {
-      "keyword": "Do not inject the REVIEW triage contract into non-REVIEW prompts or change unrelated Agent behavior.",
+      "keyword": "Dynamic Finding runtime schemas, handlers, command surfaces, applicability writers, shared blocking predicates, freshness, supersession, process-fact registries, or lifecycle gate implementation",
       "source": "scopeBoundary.excluded",
-      "text": "Do not inject the REVIEW triage contract into non-REVIEW prompts or change unrelated Agent behavior.",
+      "text": "Dynamic Finding runtime schemas, handlers, command surfaces, applicability writers, shared blocking predicates, freshness, supersession, process-fact registries, or lifecycle gate implementation",
       "excluded": true
     },
     {
-      "keyword": "Do not treat prompt prose or role metadata as gate evidence or proof that a check ran.",
+      "keyword": "Injecting REVIEW-only instructions into non-REVIEW roles",
       "source": "scopeBoundary.excluded",
-      "text": "Do not treat prompt prose or role metadata as gate evidence or proof that a check ran.",
+      "text": "Injecting REVIEW-only instructions into non-REVIEW roles",
+      "excluded": true
+    },
+    {
+      "keyword": "Unrelated repository defects that do not block this Story acceptance",
+      "source": "scopeBoundary.excluded",
+      "text": "Unrelated repository defects that do not block this Story acceptance",
       "excluded": true
     }
   ],
   "repeatDiscardOverlaps": [],
   "issues": [],
-  "_hash": "2f6877a5a1ced1caa64b2842e77546d4a65b60bd67c0773ad89442581fe8ff09"
+  "_hash": "5c69b4b020f5f37e9fa1a235cee0a6b1a5a3923092d2c24b42373851533166a1"
 }
