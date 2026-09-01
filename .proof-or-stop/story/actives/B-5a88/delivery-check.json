@@ -1,0 +1,126 @@
+{
+  "storyId": "B-5a88",
+  "checkedAt": "2026-08-31T18:17:29.016Z",
+  "headHash": "96968ef97091652538ca313ada17573b286d007e",
+  "materialHash": "2fac880039ac361d91f02df17766115d341f02ac3c1a2f6198a5bfcf82f70f87",
+  "storyFilesHash": "d114d364f27fb92370632dd8564b1c753391a3126741a2a1536b04e9b6310b99",
+  "reviewRound": "2026-08-31T17:28:40.980Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#role-and-delivery-identities",
+      "promise": "Project workflow guidance names proof-or-stop-* as the canonical implementer, reviewer, evaluator, and delivery-review roles, with lattice-* retained only as compatibility read aliases.",
+      "verifiedBy": "diff/grep against current tree",
+      "evidence": "CLAUDE.md role table and prompt-registry sections state proof-or-stop-* is canonical and 13 lattice- prefixed roles are compatibility-read-only aliases that cannot be new writes; packages/main/src/core/agent-role-identity.ts exports canonicalAgentRoleId/legacyAgentRoleIds/agentRoleIdsEqual implementing the normalization; brand-role-migration.test.mjs (379 lines) is assertion-bearing. Re-verified: file unchanged since prior signing (git diff --stat 5b4c29beae..HEAD -- CLAUDE.md is empty)."
+    },
+    {
+      "docPath": "README.md#cli",
+      "promise": "The public CLI and package use proof-or-stop as the canonical command and no longer publish the lattice npm bin alias.",
+      "verifiedBy": "grep on package.json bin field plus README text",
+      "evidence": "README.md states the lattice npm alias and wrapper files were removed. packages/main/package.json bin field contains only {\"proof-or-stop\": \"dist/cli.js\"}; grep for a lattice bin key across package.json and packages/*/package.json returns zero matches. bin-alias-migration.test.mjs covers this. Re-verified unchanged since prior signing."
+    },
+    {
+      "docPath": "docs/CLI.md#compatibility",
+      "promise": "CLI documentation teaches proof-or-stop commands, canonical reviewer identities, and the canonical @proof-or-stop/lab package while documenting only bounded legacy reads.",
+      "verifiedBy": "grep on docs/CLI.md",
+      "evidence": "docs/CLI.md states legacy role IDs remain readable only where compatibility requires; names canonical proof-or-stop-review-topology-critic and proof-or-stop-review-scope-plan roles; documents lattice.config.json as read-only legacy; documents @proof-or-stop/lab as the canonical lab package. Re-verified unchanged since prior signing."
+    },
+    {
+      "docPath": "docs/host-run-usage.md#reviewer-prompt",
+      "promise": "Host-run examples and active reviewer lanes use proof-or-stop-review-* while lattice-review-* remains only an explicitly canonicalized compatibility input.",
+      "verifiedBy": "grep on docs/host-run-usage.md",
+      "evidence": "Host_run examples use proof-or-stop-review-concept/quality/test-coverage/behavior/docs as the enabled lane names; lattice-review-* is explicitly marked as retired-channel/non-enterable, consistent with legacy compatibility framing. Re-verified unchanged since prior signing."
+    },
+    {
+      "docPath": ".proof-or-stop-codex/README.md#managed-assets",
+      "promise": "Codex-managed agent assets and prompt registry output use the canonical proof-or-stop role and template identity.",
+      "verifiedBy": "read of .proof-or-stop-codex/README.md",
+      "evidence": "File states project state path .proof-or-stop/, project config proof-or-stop.config.json, Codex adapter .proof-or-stop-codex/ and manifest .proof-or-stop-codex/proof-or-stop.json as canonical writes, with .lattice/ and lattice.config.json named explicitly as legacy-read-only compatibility spellings; wrapper entrypoint is bin/proof-or-stop-codex.js. Re-verified unchanged since prior signing."
+    },
+    {
+      "docPath": "docs/requirements/decisions/brand-rename-mapping.md#verdicts",
+      "promise": "The rename matrix records active migrations for roles, managed markers, artifact schemas, remote approval schema, package identities, and bin alias with explicit compatibility boundaries.",
+      "verifiedBy": "grep on brand-rename-mapping.md",
+      "evidence": "Records RENAMED-with-legacy-read-compatibility verdicts for @lattice/core to @proof-or-stop/core, root package lattice to proof-or-stop, and lattice.remote-push-approval.v1 to proof-or-stop.remote-push-approval.v1, each naming the concrete writer file and compatibility-read boundary; corresponding migration tests (package-identity-migration.test.mjs, release-push-approval-migration.test.mjs) are present in the diff and assertion-bearing. Re-verified unchanged since prior signing."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-or-stop-identity-migration.md#agent-role-verdict-supersession",
+      "promise": "New writes emit proof-or-stop identities and exact lattice spellings remain reader-only compatibility for historical roles, markers, schemas, and approvals.",
+      "verifiedBy": "grep on proof-or-stop-identity-migration.md",
+      "evidence": "States proof-or-stop-* role IDs are emitted for new writes while lattice-* role IDs remain compatibility-only reads; section Agent-role verdict supersession (B-5a88) names the canonical proof-or-stop-* role ID as the only spelling emitted by new writes; legacy-role-alias-sunset.test.mjs (57 lines, 13 assertions) covers refusal of retired identities for new PLAN dispatch. Re-verified unchanged since prior signing."
+    },
+    {
+      "docPath": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md#role-matrix",
+      "promise": "Prompt baseline documentation remains synchronized with the canonical role registry and its measured prompt assets.",
+      "verifiedBy": "grep on proof-or-stop-prompt-overlap-matrix.md",
+      "evidence": "Names proof-or-stop-review-delivery as active in TEST/DONE, describing exactly this reviewer contract (git diff, source grep, delivery_check_set, avoiding process-events/reviewer-outputs/test-evidence); role-prompt-measurement-baseline.json and prompt-role-migration.test.mjs (183 lines) are in the changed test surface. Re-verified unchanged since prior signing."
+    },
+    {
+      "docPath": "packages/main/templates/agents/proof-or-stop-review-delivery.md#delivery-check",
+      "promise": "The delivery reviewer role is named proof-or-stop-review-delivery and is the legal producer of the signed delivery-check artifact.",
+      "verifiedBy": "read of the template this reviewer is executing",
+      "evidence": "Template frontmatter names proof-or-stop-review-delivery; body Identity section states the role writes a signed delivery-check.json via delivery_check_set that the DONE gate verifies and the main agent cannot forge. This is the exact template consumed for this review, confirming registry/CLAUDE.md/prompt-overlap-matrix alignment. Re-verified via proof-or-stop agent_prompt --role=proof-or-stop-review-delivery in this session."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "brand-role-migration.test.mjs (379 lines) and prompt-role-migration.test.mjs (183 lines) are assertion-bearing and present in the diff. Checklist verificationEvidence for CHK-001 shows 3/3 must intents (happy/edge/adversarial) with mechanical receipts (exitCode 0, selectorMatched true), covering canonical role emission, legacy suffix normalization, and rejection of legacy PLAN verification-intent dispatch identities. Files unchanged since prior signing."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "managed-marker-migration.test.mjs (86 lines) present and assertion-bearing. Checklist verificationEvidence shows 3/3 must intents with mechanical pass receipts covering new-write markers, malformed/nested-marker rejection, and template-level absence of legacy markers. Files unchanged since prior signing."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "artifact-schema-migration.test.mjs (446 lines, 55 assert. calls) is the largest and most substantial migration test in the diff, covering canonical schema writes, exact legacy compatibility reads, unknown-version rejection, and historical CLI reads per its checklist context. Files unchanged since prior signing."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "release-push-approval-migration.test.mjs (100 lines, 15 assert. calls) present; .githooks/pre-push diff shows the hook now documents legacy-read compatibility for .proof-or-stop/tmp/remote-push-approval.json alongside the deprecated .lattice/tmp path per CLAUDE.md updated pre-push section. Files unchanged since prior signing."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "package.json / package-lock.json changed at root; version-bump-smoke.ts and worktree-authority-smoke.ts present in diff to cover root package identity and self-host detection. Files unchanged since prior signing."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "lab-brand-migration.test.mjs (75 lines, 10 assert. calls) present; packages/utils/package.json, packages/lab/package.json, and their package-lock.json files are changed in the diff, consistent with @proof-or-stop/utils and @proof-or-stop/lab scoped renames. Files unchanged since prior signing."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "bin-alias-migration.test.mjs (32 lines, 12 assert. calls) present. Mechanically re-verified independent of the test file: grep for a lattice bin key across package.json and packages/*/package.json returns zero matches; packages/main/package.json bin field contains only proof-or-stop. Files unchanged since prior signing."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "f081-f085-canonical-role-boundaries.test.mjs (154 lines) present, covering canonical reviewer lanes, legacy suffix compatibility, and rejection of near-match identities per its filename and checklist context; agent-dispatch-registry-smoke.ts changed in the diff. Files unchanged since prior signing."
+    },
+    {
+      "featureId": "CHK-009",
+      "transcript": "legacy-role-alias-sunset.test.mjs (57 lines, 13 assert. calls) present; delivery-check-freshness-smoke.ts changed in the diff, consistent with delivery-lane identity normalization coverage. Files unchanged since prior signing."
+    },
+    {
+      "featureId": "CHK-010",
+      "transcript": "legacy-role-alias-sunset.test.mjs (57 lines, 13 assert. calls) is the primary coverage for this item per its filename and the checklist stated scope of machine-defined legacy alias sunset; init-check-required-agents-smoke.ts changed in the diff. Files unchanged since prior signing."
+    },
+    {
+      "featureId": "CHK-011",
+      "transcript": "artifact-schema-migration.test.mjs (446 lines) covers canonical and legacy schema recognition and unknown-version refusal; delivery-check-freshness-smoke.ts and evidence-freshness related core files (packages/main/src/core/evidence-freshness.ts, stale-detector.ts) changed in the diff for the freshness-matrix consumer side. Files unchanged since prior signing."
+    },
+    {
+      "featureId": "CHK-012",
+      "transcript": "artifact-schema-migration.test.mjs includes historical-read coverage per its 446-line scope; done-prepare-generated-metadata.ts changed in the diff, consistent with archived-story-signature-readability handling without rewriting persisted bytes. Files unchanged since prior signing."
+    },
+    {
+      "featureId": "CHK-013",
+      "transcript": "Re-verified live against the current tree in this session: .proof-or-stop/story/actives/B-5a88/acceptance-rollout-report.json report.verdict is pass, and its signed receipt block has verdict pass with materialHash 2fac880039ac361d91f02df17766115d341f02ac3c1a2f6198a5bfcf82f70f87, matching the current tree materialHash reported by lifecycle_check at this review time -- a fresh, current-head-bound PASS, not a stale snapshot. metrics block shows mislabeled3x1Count: 0 (no degraded 3x1 rollout), falsePassCount: 0, falseBlockRate: 0, omissionDetectionRate: 1, matchedPairCount 6 / baselineSampleCount 6 / candidateSampleCount 6, consistent with a genuine full rollout rather than a degraded quorum. proofstory-acceptance-topology-smoke.ts and proofstory-acceptance-basis-smoke.ts are present in the diff as the executable coverage for this item."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Re-signing after a pure metadata/provenance drift, not new work: source diff (packages/, scripts/, bin/, .githooks/) is byte-identical to my prior signed review (git diff --stat 5b4c29beae..HEAD -- packages/ scripts/ bin/ .githooks/ is empty). All 9 documentation promises re-confirmed unchanged against the current tree. All 13 checklist items remain done with substantial assertion-bearing migration test files in the diff. CHK-013 Wave 4 rollout claim was independently re-checked against the current acceptance-rollout-report.json: report.verdict=pass, receipt materialHash 2fac880039ac361d91f02df17766115d341f02ac3c1a2f6198a5bfcf82f70f87 matches current lifecycle_check materialHash exactly, metrics still show zero degraded-3x1 mislabeling and zero false-pass/false-block. Findings F-500 (low, accepted_risk, unused type-guard export) and F-501 (medium, accepted_risk, validate-gate lattice-* provider discriminant, 41 occurrences/9 files) remain properly deferred with full repro/blast-radius/handling analysis on the finding and mirrored in B-5a88-FOLLOWUP-STORIES.md; F-502 (unused import) was genuinely fixed in place. Neither deferred finding is claimed by any of the 9 docs promises verified above, so the deferrals do not contradict anything delivered here. No unresolved TODOs found. The separate stale_done_required_validation lifecycle_check blocker belongs to a different gate lane (done-required-validation, owner=host), not to this delivery-check lane."
+  },
+  "_hash": "7f397c911db2a130ad49e1100e6ddf266d6a8f90316aaec463cb5491b5f2d1cc"
+}

@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
 import type { AdmissibilityReasonCode } from './proof-admissibility.js';
+import { PROOF_BINDING_SCHEMA, PROOF_BINDING_SCHEMA_LEGACY } from './artifact-schema.js';
 
-export const PROOF_BINDING_SCHEMA_VERSION = 'lattice.proof_binding.v1' as const;
+export const PROOF_BINDING_SCHEMA_VERSION = PROOF_BINDING_SCHEMA;
 
 export interface StrictShapeResult {
   ok: boolean;
@@ -14,6 +15,11 @@ export interface ProofBindingDigestResult {
   digest: string;
   payload: Record<string, unknown>;
 }
+
+const PROOF_BINDING_READ_SCHEMA_VERSIONS = [
+  PROOF_BINDING_SCHEMA_VERSION,
+  PROOF_BINDING_SCHEMA_LEGACY,
+] as const;
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
@@ -69,6 +75,18 @@ export function strictProofShape(
 export function buildProofBindingDigestPayload(
   payload: Record<string, unknown>,
 ): ProofBindingDigestResult {
+  const digest = digestProofBindingPayload(payload, [PROOF_BINDING_SCHEMA_VERSION]);
+  return {
+    schemaVersion: PROOF_BINDING_SCHEMA_VERSION,
+    digest: `sha256:${digest}`,
+    payload,
+  };
+}
+
+function digestProofBindingPayload(
+  payload: Record<string, unknown>,
+  acceptedSchemaVersions: readonly string[],
+): string {
   const strict = strictProofShape(payload, [
     'schemaVersion',
     'artifactKind',
@@ -96,15 +114,10 @@ export function buildProofBindingDigestPayload(
   if (!strict.ok) {
     throw new Error(`proof binding payload shape invalid: ${strict.details.join('; ')}`);
   }
-  if (payload.schemaVersion !== PROOF_BINDING_SCHEMA_VERSION) {
+  if (!acceptedSchemaVersions.includes(payload.schemaVersion as string)) {
     throw new Error(`unsupported proof binding schemaVersion: ${String(payload.schemaVersion)}`);
   }
-  const digest = createHash('sha256').update(stableJson(payload), 'utf8').digest('hex');
-  return {
-    schemaVersion: PROOF_BINDING_SCHEMA_VERSION,
-    digest: `sha256:${digest}`,
-    payload,
-  };
+  return createHash('sha256').update(stableJson(payload), 'utf8').digest('hex');
 }
 
 export function verifyProofBindingDigest(
@@ -112,7 +125,7 @@ export function verifyProofBindingDigest(
   expectedDigest: string,
 ): StrictShapeResult {
   try {
-    const actual = buildProofBindingDigestPayload(payload).digest;
+    const actual = `sha256:${digestProofBindingPayload(payload, PROOF_BINDING_READ_SCHEMA_VERSIONS)}`;
     if (actual !== expectedDigest) {
       return { ok: false, reasons: ['digest_mismatch'], details: [`expected ${expectedDigest}, got ${actual}`] };
     }

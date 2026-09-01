@@ -33,7 +33,7 @@ function setupRepo(prefix = 'lattice-push-approval-'): string {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'push-approval@test']);
   git(root, ['config', 'user.name', 'Push Approval Test']);
-  write(root, '.gitignore', '.lattice/tmp/\n.lattice/\n');
+  write(root, '.gitignore', '.lattice/tmp/\n.lattice/\n.proof-or-stop/tmp/\n.proof-or-stop/\n');
   write(root, 'README.md', '# temp\n');
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',

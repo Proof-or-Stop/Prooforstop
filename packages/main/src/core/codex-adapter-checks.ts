@@ -3,8 +3,11 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import {
-  LATTICE_CODEX_ADAPTER_MANIFEST,
+  CODEX_ADAPTER_MANIFEST_OWNER,
+  LEGACY_CODEX_ADAPTER_MANIFEST_OWNER,
+  PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST,
   CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
+  isCodexAdapterManifestOwner,
   listAgentPromptFiles,
   renderProofOrStopCodexAdapterManifest,
   type CodexPromptMode,
@@ -19,13 +22,15 @@ import { isManagedGlobalThinRoot, loadConfig } from './config.js';
 import { PROOF_OR_STOP_DEPRECATED_BIN, PROOF_OR_STOP_PRIMARY_BIN } from './lattice-brand.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
+  canonicalPromptRegistrySchemaVersion,
+  normalizePromptRegistryManifest,
   promptRegistryManifest,
   readPromptRegistry,
   renderPromptEntryForHost,
 } from './prompt-registry.js';
 import type { StoryStore } from './store.js';
 import type { ProcessEvent } from './types.js';
-import { readBrandEnv } from './brand-env.js';
+import { applyBrandEnv, readBrandEnv } from './brand-env.js';
 
 import { ADAPTER_DIR_NAMES, PROOF_OR_STOP_ADAPTER_DIR, PROOF_OR_STOP_MANIFEST_FILENAME, adapterDirCandidates, adapterManifestCandidates, PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
 
@@ -80,7 +85,7 @@ export const LOCAL_CODEX_VERIFY_COMMAND = 'node bin/proof-or-stop-codex.js verif
 export const LOCAL_MAIN_VERIFY_COMMAND = 'node bin/proof-or-stop.js verify_codex';
 export const GLOBAL_THIN_CODEX_VERIFY_COMMAND = 'proof-or-stop codex verify';
 export const LOCAL_INIT_VERIFY_COMMAND = 'proof-or-stop init --verify-codex';
-export const GLOBAL_CODEX_FALLBACK_COMMAND = 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop';
+export const GLOBAL_CODEX_FALLBACK_COMMAND = 'PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop';
 export const DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS = 10_000;
 // The global fallback runs the real installed `proof-or-stop session_brief`, which can
 // traverse a large repo before writing its heartbeat. Keep local wrapper probes
@@ -422,7 +427,7 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
   const manifestPath = join(root, selection.relPath);
   const actual = readText(manifestPath);
   const expected = renderProofOrStopCodexAdapterManifest();
-  const expectedIdentity = LATTICE_CODEX_ADAPTER_MANIFEST;
+  const expectedIdentity = PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST;
   let parsed: unknown;
   try {
     parsed = JSON.parse(actual);
@@ -435,22 +440,25 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
     return null;
   }
   if (
-    parsed?.adapterOwner !== expectedIdentity.adapterOwner ||
+    !isCodexAdapterManifestOwner(parsed?.adapterOwner) ||
     parsed?.adapterKind !== expectedIdentity.adapterKind ||
     parsed?.activitySource !== expectedIdentity.activitySource
   ) {
     push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} has invalid adapter identity`, LOCAL_INIT_VERIFY_COMMAND);
     return null;
   }
+  const parsedForComparison = normalizeLegacyCodexAdapterManifest(parsed);
   if (parsed.promptMode === 'registry') {
     const expectedRegistry = promptRegistryManifest();
-    const actualRegistry = parsed.promptRegistry;
+    const actualRegistry = parsedForComparison.promptRegistry;
     if (!isRecord(actualRegistry)) {
       push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} registry mode is missing promptRegistry metadata`, LOCAL_INIT_VERIFY_COMMAND);
       return 'registry';
     }
+    const normalizedActualRegistry = normalizePromptRegistryManifest(actualRegistry);
+    const actualSchemaVersion = canonicalPromptRegistrySchemaVersion(actualRegistry.schemaVersion);
     const mismatches = (['schemaVersion', 'source', 'agentCount', 'materialHash'] as const)
-      .filter(key => actualRegistry[key] !== expectedRegistry[key]);
+      .filter(key => (key === 'schemaVersion' ? actualSchemaVersion : normalizedActualRegistry?.[key]) !== expectedRegistry[key]);
     if (mismatches.length > 0) {
       push(
         checks,
@@ -464,7 +472,11 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
       return 'registry';
     }
     const expectedRegistryManifest = renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' });
-    if (actual !== expectedRegistryManifest) {
+    const normalizedManifest = {
+      ...parsedForComparison,
+      promptRegistry: normalizedActualRegistry,
+    };
+    if (`${JSON.stringify(normalizedManifest, null, 2)}\n` !== expectedRegistryManifest) {
       push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proof-or-Stop registry template`, LOCAL_INIT_VERIFY_COMMAND);
       return 'registry';
     }
@@ -475,12 +487,30 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
     push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} has unsupported promptMode=${String(parsed.promptMode)}`, LOCAL_INIT_VERIFY_COMMAND);
     return null;
   }
-  if (actual !== expected) {
+  if (`${JSON.stringify(parsedForComparison, null, 2)}\n` !== expected) {
     push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proof-or-Stop template`, LOCAL_INIT_VERIFY_COMMAND);
     return 'legacy-mirror';
   }
   push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} matches Proof-or-Stop template`);
   return 'legacy-mirror';
+}
+
+function normalizeLegacyCodexAdapterManifest(parsed: Record<string, unknown>): Record<string, unknown> {
+  if (parsed.adapterOwner !== LEGACY_CODEX_ADAPTER_MANIFEST_OWNER) return parsed;
+  const normalize = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(normalize);
+    if (!value || typeof value !== 'object') {
+      if (typeof value !== 'string') return value;
+      if (value === LEGACY_CODEX_ADAPTER_MANIFEST_OWNER) return CODEX_ADAPTER_MANIFEST_OWNER;
+      return value
+        .replace(/\bLATTICE_ACTIVITY_/g, 'PROOF_OR_STOP_ACTIVITY_')
+        .replace(/\bLATTICE_OWNER_SESSION_ADAPTER_/g, 'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_')
+        .replace(/\bLATTICE_CODEX_ENTRYPOINT\b/g, 'PROOF_OR_STOP_CODEX_ENTRYPOINT')
+        .replace(/\bglobal lattice CLI\b/g, 'global proof-or-stop CLI');
+    }
+    return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, normalize(entry)]));
+  };
+  return normalize(parsed) as Record<string, unknown>;
 }
 
 function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
@@ -561,7 +591,7 @@ function checkPromptRegistry(checks: CodexAdapterCheck[]): void {
 }
 
 function checkExcludedAssets(root: string, checks: CodexAdapterCheck[]): void {
-  const offenders = LATTICE_CODEX_ADAPTER_MANIFEST.excludedRuntimeAssets.filter(asset => existsSync(join(root, asset)));
+  const offenders = PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST.excludedRuntimeAssets.filter(asset => existsSync(join(root, asset)));
   const lowerHooks = join(root, '.codex', 'hooks');
   // B-cc10 CHK-002: check the hooks-alias exclusion under EVERY accepted adapter
   // dir spelling. Checking one spelling would let the offending directory hide
@@ -697,15 +727,16 @@ function runHeartbeat(
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
       timeout: timeoutMs,
-      env: {
+      env: applyBrandEnv({
         ...process.env,
-        LATTICE_ACTIVITY_SOURCE: id === 'local-wrapper-heartbeat' ? 'not-codex' : 'codex',
-        LATTICE_ACTIVITY_RECORD_READONLY: '1',
-        LATTICE_ACTIVITY_SESSION: session,
         CODEX_THREAD_ID: id === 'local-wrapper-heartbeat' ? session : '',
         PROOF_OR_STOP_AGENT: 'main',
-        LATTICE_CODEX_ENTRYPOINT: expectedEntrypoint,
-      },
+      }, {
+        ACTIVITY_SOURCE: id === 'local-wrapper-heartbeat' ? 'not-codex' : 'codex',
+        ACTIVITY_RECORD_READONLY: '1',
+        ACTIVITY_SESSION: session,
+        CODEX_ENTRYPOINT: expectedEntrypoint,
+      }),
     });
   } catch (e: any) {
     // B-cdf6 (B-META F-013): a KILLED heartbeat is a distinct failure from a heartbeat

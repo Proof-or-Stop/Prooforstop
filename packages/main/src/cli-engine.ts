@@ -34,7 +34,6 @@ import { getGuardFailureReason } from './core/machine.js';
 import {
   formatLatticeVersionLine,
   detectProofOrStopBrand,
-  PROOF_OR_STOP_BIN_NAMES,
 } from './core/lattice-brand.js';
 import { PROOF_OR_STOP_DIR } from './core/lattice-paths.js';
 import { renderChecklistDerivedLedger, CHECKLIST_DERIVED_HEADER } from './core/milestone-status.js';
@@ -68,7 +67,7 @@ import {
   printToolHelp,
   printValidationFailure,
 } from './cli/help-renderer.js';
-import { normalizeNestedSpaceAlias } from './cli/alias-normalizer.js';
+import { normalizeNestedSpaceAlias, STRIPPABLE_BIN_TOKENS } from './cli/alias-normalizer.js';
 import { commitInitCheckMetadataAndMergeMain } from './cli/init-check-metadata-sync.js';
 import { dispatchRecoverEvidenceWithStructuredFailure } from './cli/recover-evidence-dispatch.js';
 import { dispatchUsageSweepAlertWithExit } from './handlers/usage-sweep.js';
@@ -752,7 +751,7 @@ export async function runCli(opts?: {
     arg = argv[1];
     // B-cdf6 CHK-002: forgive a pasted redundant bin token under EITHER name,
     // so `proof-or-stop proof-or-stop --version` behaves like `lattice lattice --version`.
-  } else if (PROOF_OR_STOP_BIN_NAMES.includes(cmd) && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
+  } else if (STRIPPABLE_BIN_TOKENS.includes(cmd) && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
     argv.splice(0, argv.length, 'version');
     cmd = 'version';
     arg = undefined;

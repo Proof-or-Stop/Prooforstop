@@ -83,9 +83,9 @@ async function main() {
   check(checksSource.includes("const CANONICAL_CORE_PACKAGE_NAME = '@proof-or-stop/core'"), 'runtime checks should resolve @proof-or-stop/core as canonical');
   check(!checksSource.includes('@lattice-agent/core'), 'runtime checks must not resolve retired @lattice-agent/core');
   check(!checksSource.includes('@koala-agent/core'), 'runtime checks must not resolve @koala-agent/core fallback');
-  check(registrySource.includes('command -v lattice'), 'cli-entrypoint repair hint should use lattice');
+  check(registrySource.includes('command -v proof-or-stop'), 'cli-entrypoint repair hint should use proof-or-stop');
   check(!registrySource.includes('command -v lattice || command -v koala'), 'cli-entrypoint repair hint must not include koala fallback');
-  check(registrySource.includes('node_modules/.bin/lattice'), 'project-local-bin guidance should prefer lattice local bins');
+  check(registrySource.includes('node_modules/.bin/proof-or-stop'), 'project-local-bin guidance should prefer proof-or-stop local bins');
   check(!registrySource.includes('node_modules/.bin/koala'), 'project-local-bin guidance must not include koala local bins');
   check(doctorSource.includes('runRuntimeEnvironmentChecks'), 'doctor should call runRuntimeEnvironmentChecks');
   check(doctorSource.includes('runtime,'), 'doctor JSON should expose runtime');
@@ -195,14 +195,14 @@ async function main() {
       check(report.externalReferencePolicy.actual.policy === 'reference-only', 'external-reference-policy should be policy-only');
       check(report.projectLocalBin.status === 'pass', 'project-local-bin should pass when no project-local bin exists');
       check(report.projectLocalBin.actual.present === false, 'project-local-bin should record absent local bin');
-      check(report.cliEntrypoint.expected === 'lattice executable on PATH', 'cli-entrypoint expected text should be lattice-only');
-      check((report.cliEntrypoint.warnings ?? []).some((warning) => warning.includes('lattice') && !warning.includes('koala')), 'missing CLI warning should mention lattice only');
+      check(report.cliEntrypoint.expected === 'proof-or-stop executable on PATH', 'cli-entrypoint expected text should be proof-or-stop-only');
+      check((report.cliEntrypoint.warnings ?? []).some((warning) => warning.includes('proof-or-stop') && !warning.includes('koala')), 'missing CLI warning should mention proof-or-stop only');
 
       const pathBinDir = join(tmp, 'path-bin');
       mkdirSync(pathBinDir, { recursive: true });
-      const latticeBin = join(pathBinDir, process.platform === 'win32' ? 'lattice.cmd' : 'lattice');
-      writeFileSync(latticeBin, process.platform === 'win32' ? '@echo off\r\n' : '#!/bin/sh\nexit 0\n');
-      if (process.platform !== 'win32') chmodSync(latticeBin, 0o755);
+      const proofOrStopBin = join(pathBinDir, process.platform === 'win32' ? 'proof-or-stop.cmd' : 'proof-or-stop');
+      writeFileSync(proofOrStopBin, process.platform === 'win32' ? '@echo off\r\n' : '#!/bin/sh\nexit 0\n');
+      if (process.platform !== 'win32') chmodSync(proofOrStopBin, 0o755);
       const oldPath = process.env.PATH;
       const oldWindowsPath = process.env.Path;
       try {
@@ -211,9 +211,9 @@ async function main() {
         const latticeOnlyPathReport = checksModule.runRuntimeEnvironmentChecks(tmp, {
           globalNpmRootResolver: () => null,
         });
-        check(latticeOnlyPathReport.cliEntrypoint.status === 'pass', 'cli-entrypoint should pass when PATH exposes lattice only');
-        check(latticeOnlyPathReport.cliEntrypoint.actual.path === latticeBin, 'cli-entrypoint should resolve lattice before any legacy koala fallback');
-        check(!existsSync(join(pathBinDir, process.platform === 'win32' ? 'koala.cmd' : 'koala')), 'lattice-only PATH smoke should not create a koala binary');
+        check(latticeOnlyPathReport.cliEntrypoint.status === 'pass', 'cli-entrypoint should pass when PATH exposes proof-or-stop only');
+        check(latticeOnlyPathReport.cliEntrypoint.actual.path === proofOrStopBin, 'cli-entrypoint should resolve proof-or-stop before any legacy fallback');
+        check(!existsSync(join(pathBinDir, process.platform === 'win32' ? 'koala.cmd' : 'koala')), 'proof-or-stop-only PATH smoke should not create a koala binary');
       } finally {
         if (oldPath === undefined) delete process.env.PATH;
         else process.env.PATH = oldPath;
@@ -221,22 +221,22 @@ async function main() {
         else process.env.Path = oldWindowsPath;
       }
 
-      const staleKoalaName = process.platform === 'win32' ? 'koala.cmd' : 'koala';
+      const staleLatticeName = process.platform === 'win32' ? 'lattice.cmd' : 'lattice';
       const localBinDir = join(tmp, 'node_modules', '.bin');
-      const staleKoalaBin = join(localBinDir, staleKoalaName);
+      const staleLatticeBin = join(localBinDir, staleLatticeName);
       mkdirSync(localBinDir, { recursive: true });
-      writeFileSync(staleKoalaBin, 'local koala');
+      writeFileSync(staleLatticeBin, 'local lattice');
       const staleKoalaReport = checksModule.runRuntimeEnvironmentChecks(tmp, {
         commandResolver: () => null,
         globalNpmRootResolver: () => null,
       });
-      check(staleKoalaReport.projectLocalBin.status === 'pass', 'project-local-bin should ignore stale koala-only local bin');
-      check(staleKoalaReport.projectLocalBin.actual.path.endsWith(process.platform === 'win32' ? 'lattice.cmd' : 'lattice'), 'project-local-bin should inspect lattice path only');
-      check(staleKoalaReport.projectLocalBin.actual.present === false, 'project-local-bin should not count koala-only local bin as present');
+      check(staleKoalaReport.projectLocalBin.status === 'pass', 'project-local-bin should ignore stale lattice-only local bin');
+      check(staleKoalaReport.projectLocalBin.actual.path.endsWith(process.platform === 'win32' ? 'proof-or-stop.cmd' : 'proof-or-stop'), 'project-local-bin should inspect the canonical proof-or-stop path only');
+      check(staleKoalaReport.projectLocalBin.actual.present === false, 'project-local-bin should not count a legacy lattice-only local bin as present');
 
-      const localBinName = process.platform === 'win32' ? 'lattice.cmd' : 'lattice';
+      const localBinName = process.platform === 'win32' ? 'proof-or-stop.cmd' : 'proof-or-stop';
       const localBin = join(localBinDir, localBinName);
-      writeFileSync(localBin, 'local lattice');
+      writeFileSync(localBin, 'local proof-or-stop');
       const matchingLocalBinReport = checksModule.runRuntimeEnvironmentChecks(tmp, {
         commandResolver: () => localBin,
         globalNpmRootResolver: () => null,
@@ -245,8 +245,8 @@ async function main() {
       check(matchingLocalBinReport.projectLocalBin.actual.matchesEntrypoint === true, 'project-local-bin should record matching local bin realpath');
       check(matchingLocalBinReport.projectLocalBin.actual.shadowsEntrypoint === false, 'project-local-bin should not shadow when realpaths match');
 
-      const activeCli = join(tmp, 'active-lattice');
-      writeFileSync(activeCli, 'active lattice');
+      const activeCli = join(tmp, 'active-proof-or-stop');
+      writeFileSync(activeCli, 'active proof-or-stop');
       const mismatchedLocalBinReport = checksModule.runRuntimeEnvironmentChecks(tmp, {
         commandResolver: () => activeCli,
         globalNpmRootResolver: () => null,

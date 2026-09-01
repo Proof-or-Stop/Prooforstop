@@ -59,13 +59,13 @@ type VersionOverrides = {
 function makeFixture(version: string, over?: VersionOverrides): string {
   const dir = mkdtempSync(join(tmpdir(), 'version-bump-smoke-'));
   mkdirSync(join(dir, 'packages/main/src/core'), { recursive: true });
-  writeFileSync(join(dir, VERSION_SYNC_FILES.rootPackageJson), `{\n  "name": "lattice",\n  "version": "${over?.root ?? version}",\n  "description": ""\n}\n`);
+  writeFileSync(join(dir, VERSION_SYNC_FILES.rootPackageJson), `{\n  "name": "proof-or-stop",\n  "version": "${over?.root ?? version}",\n  "description": ""\n}\n`);
   writeFileSync(join(dir, VERSION_SYNC_FILES.rootPackageLock), JSON.stringify({
-    name: 'lattice',
+    name: 'proof-or-stop',
     version: over?.rootLock ?? version,
     lockfileVersion: 3,
     packages: {
-      '': { name: 'lattice', version: over?.rootLockPackage ?? over?.rootLock ?? version },
+      '': { name: 'proof-or-stop', version: over?.rootLockPackage ?? over?.rootLock ?? version },
       'packages/main': { name: '@proof-or-stop/core', version: over?.rootLockMainPackage ?? over?.rootLock ?? version },
     },
   }, null, 2) + '\n');
@@ -134,6 +134,26 @@ void (async () => {
     check('lockfile drift error names root lockfile value', lockDriftMsg.includes('root lockfile=0.9.8'));
     const f3lockEntry = fixture('0.9.9', { mainLockPackage: '0.9.8' });
     throws('packages/main package-lock package entry drift -> applyPatchBump throws', () => applyPatchBump(f3lockEntry));
+
+    // 3b. Root package identity must stay internally consistent while the old
+    //     root name remains readable for pre-migration checkouts.
+    const f3identity = fixture('0.9.9');
+    const identityLockPath = join(f3identity, VERSION_SYNC_FILES.rootPackageLock);
+    const identityLock = readJson(identityLockPath);
+    identityLock.packages[''].name = 'lattice';
+    writeFileSync(identityLockPath, JSON.stringify(identityLock, null, 2) + '\n');
+    throws('root package/lock identity drift -> readSyncedVersion throws', () => readSyncedVersion(f3identity));
+    const f3legacy = fixture('0.9.9');
+    const legacyPackagePath = join(f3legacy, VERSION_SYNC_FILES.rootPackageJson);
+    const legacyPackage = readJson(legacyPackagePath);
+    legacyPackage.name = 'lattice';
+    writeFileSync(legacyPackagePath, JSON.stringify(legacyPackage, null, 2) + '\n');
+    const legacyLockPath = join(f3legacy, VERSION_SYNC_FILES.rootPackageLock);
+    const legacyLock = readJson(legacyLockPath);
+    legacyLock.name = 'lattice';
+    legacyLock.packages[''].name = 'lattice';
+    writeFileSync(legacyLockPath, JSON.stringify(legacyLock, null, 2) + '\n');
+    check('legacy root package identity remains readable', readSyncedVersion(f3legacy) === '0.9.9');
 
     // 4. The bump gate matches watched CLI/runtime inputs, skips metadata-only and
     //    offline experiment harnesses. It also watches bounded CLI capability
@@ -260,7 +280,7 @@ void (async () => {
     const fnest = fixture('0.9.9');
     writeFileSync(
       join(fnest, VERSION_SYNC_FILES.rootPackageJson),
-      `{\n  "name": "lattice",\n  "engines": { "version": "0.9.9" },\n  "version": "0.9.9"\n}\n`,
+      `{\n  "name": "proof-or-stop",\n  "engines": { "version": "0.9.9" },\n  "version": "0.9.9"\n}\n`,
     );
     applyPatchBump(fnest);
     const nestPkg = JSON.parse(readFileSync(join(fnest, VERSION_SYNC_FILES.rootPackageJson), 'utf-8'));
@@ -330,13 +350,13 @@ void (async () => {
     const fverWrong = fixture('0.9.9');
     throws('verify wrong-value -> applyPatchBump throws', () => applyPatchBump(fverWrong, {
       afterWriteForTest: () => {
-        writeFileSync(join(fverWrong, VERSION_SYNC_FILES.rootPackageJson), `{\n  "name": "lattice",\n  "version": "7.7.7"\n}\n`);
+        writeFileSync(join(fverWrong, VERSION_SYNC_FILES.rootPackageJson), `{\n  "name": "proof-or-stop",\n  "version": "7.7.7"\n}\n`);
         writeFileSync(join(fverWrong, VERSION_SYNC_FILES.rootPackageLock), JSON.stringify({
-          name: 'lattice',
+          name: 'proof-or-stop',
           version: '7.7.7',
           lockfileVersion: 3,
           packages: {
-            '': { name: 'lattice', version: '7.7.7' },
+            '': { name: 'proof-or-stop', version: '7.7.7' },
             'packages/main': { name: '@proof-or-stop/core', version: '7.7.7' },
           },
         }, null, 2) + '\n');
