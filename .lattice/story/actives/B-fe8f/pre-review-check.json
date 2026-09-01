@@ -2,15 +2,15 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-fe8f",
   "mode": "observe",
-  "cutoffAt": "2026-09-01T13:14:15.486Z",
-  "planBasisDigest": "sha256:bf68021e5fc9365176d694e3e5c5ea706e16bf5a69c468e1c89bc656ebc0d84a",
+  "cutoffAt": "2026-09-01T15:57:26.234Z",
+  "planBasisDigest": "sha256:d97a657ec3f0f1a4e541ae965d9c7bbaa01cb8b66a63483a516c5f2b0c3cbc50",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-fe8f",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:bf68021e5fc9365176d694e3e5c5ea706e16bf5a69c468e1c89bc656ebc0d84a",
+      "priorPlanBasisDigest": "sha256:d97a657ec3f0f1a4e541ae965d9c7bbaa01cb8b66a63483a516c5f2b0c3cbc50",
       "status": "partial",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
@@ -38,14 +38,17 @@
             "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
             "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
           ],
-          "coverageClaim": "complete_for_scope",
-          "blindSpots": [],
+          "coverageClaim": "partial",
+          "blindSpots": [
+            "handler factory createFindingLedgerHandlers from packages/main/src/handlers/finding-ledger.ts lacks exact registerBatch(factory(ctx))",
+            "unregistered handler factory createFindingLedgerHandlers"
+          ],
           "provenanceRefs": [
-            "source-file:packages/main/src/cli/command-catalog.ts:sha256:326844c812b705a72427380ac77789caaa336099b1729c495fa5c386c083e979",
-            "source-file:packages/main/src/handlers/finding-ledger.ts:sha256:6bc8c44f180e29f62bf7f6447a87b271040187b9a781cc71f384bad5d9068ecb",
-            "source-file:packages/main/src/handlers/finding.ts:sha256:1d30377b5d2aec1f72b428e09d3f7eb4b9faa497be255074169bf0f0dcfae7d0",
+            "source-file:packages/main/src/cli/command-catalog.ts:sha256:b09e641abbdc39dbc2a86fdbf13b9622b189903a4d7c03984a127f0f3405f748",
+            "source-file:packages/main/src/handlers/finding-ledger.ts:sha256:0a0f7eb2cf353ab8e3eae5fb7ecec20f9609567eb10ea04be6d83c6269aa3ad8",
+            "source-file:packages/main/src/handlers/finding.ts:sha256:922111d08a63171cdc3d04236b440cf2528d715c5303e122428251a0ab9de478",
             "source-file:packages/main/src/handlers/proofstory.ts:sha256:06fa735b5348452cfb65d75c2fe5221693294e8d0f584f401b98e4e7924fd330",
-            "source-file:packages/main/src/registry.ts:sha256:b5990be530d15936ec77149eb061f36b2e88fd35d4babd09d3ea6f731c5aa636",
+            "source-file:packages/main/src/registry.ts:sha256:5815a8d7319c959c40ba197166bdac3e333e72c8b3abf0e4d19c37e75743c9ac",
             "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
           ],
           "asymmetryPolicy": {
@@ -81,7 +84,7 @@
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:c75e29a9655120add88de08b25d2a4eec7312ee8d99d81594047296e62b51c69"
+          "resultDigest": "sha256:1f278123910e8009d2616807ad970799c5c909eaec2461cd60da9ee6b3ef2e0a"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -96,8 +99,10 @@
             "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
             "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
           ],
-          "coverageClaim": "complete_for_scope",
-          "blindSpots": [],
+          "coverageClaim": "partial",
+          "blindSpots": [
+            "handler factory createFindingLedgerHandlers from packages/main/src/handlers/finding-ledger.ts lacks exact registerBatch(factory(ctx))"
+          ],
           "provenanceRefs": [
             "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
             "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
@@ -110,11 +115,11 @@
             "source-file:packages/main/src/core/pre-review-check.ts:sha256:c3beb9d8b06fbecd208b442f12b753682390a851969f4c73d1db98509535cf00",
             "source-file:packages/main/src/core/pre-review-live-proof.ts:sha256:ea1f1f2175640d18170dd1e41e8a3886e6761c17054ab4d8f99a8bf429cd0880",
             "source-file:packages/main/src/handlers/proofstory.ts:sha256:06fa735b5348452cfb65d75c2fe5221693294e8d0f584f401b98e4e7924fd330",
-            "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:b43f5c91e74c8849588abb53ead643cd16ba0a200c8b907a467408c3d7657698",
-            "source-file:packages/main/src/registry.ts:sha256:b5990be530d15936ec77149eb061f36b2e88fd35d4babd09d3ea6f731c5aa636",
+            "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:f670f7b5312806a63d7da2a81408ed276c38339adf2b936285757a36e693765f",
+            "source-file:packages/main/src/registry.ts:sha256:5815a8d7319c959c40ba197166bdac3e333e72c8b3abf0e4d19c37e75743c9ac",
             "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
             "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
-            "source-file:scripts/verify-process-fact-contract.mjs:sha256:7eb559374e1e0f9cce2a5e1bce6ab0ffa1cbe9278e8b3e7abfcd9de44a330914"
+            "source-file:scripts/verify-process-fact-contract.mjs:sha256:fb4e917ce240865c410789407dcb3016ef3932cb51432161761f80dfab95bb92"
           ],
           "asymmetryPolicy": {
             "kind": "exhaustive",
@@ -149,7 +154,7 @@
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:abc49e1059671cc2cc8b9b4a535550002ee594fe809dd6dab1cb0ab4c496c4f5"
+          "resultDigest": "sha256:d11a0bd2fad3ca6db7d8d3ac6bdaf2a6280a860500cda5a8fea15a9a332550f4"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -282,37 +287,39 @@
             "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
             "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
           ],
-          "coverageClaim": "complete_for_scope",
-          "blindSpots": [],
+          "coverageClaim": "partial",
+          "blindSpots": [
+            "handler factory createFindingLedgerHandlers from packages/main/src/handlers/finding-ledger.ts lacks exact registerBatch(factory(ctx))"
+          ],
           "provenanceRefs": [
             "source-file:package-lock.json:sha256:238f4a2f15cd5475091d6add4d060a3bb9ce54173b11d9240ef3eff2a0fd911d",
             "source-file:package.json:sha256:4d56b9bc8fbb16d18798b5ae253f5dd2b3a711a0ba185a262d5208b8174f6621",
-            "source-file:packages/main/package.json:sha256:3f21e7e35120fe3ef6d386d4605b83b8e2078ba136f227a1a1bd1f561854c46f",
-            "source-file:packages/main/src/cli/command-catalog.ts:sha256:326844c812b705a72427380ac77789caaa336099b1729c495fa5c386c083e979",
+            "source-file:packages/main/package.json:sha256:5fb2edaaa5f9295cae1874cd39ccade41245064bc18ecd78d1e6c66647f3e032",
+            "source-file:packages/main/src/cli/command-catalog.ts:sha256:b09e641abbdc39dbc2a86fdbf13b9622b189903a4d7c03984a127f0f3405f748",
             "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
             "source-file:packages/main/src/core/command-policy.ts:sha256:a4a63061068b5b49ec04138110ed83a89b84da9dde6453b827ba8599e6ef6b45",
             "source-file:packages/main/src/core/config.ts:sha256:4d77de36cd01e82ef0ad5f50af42e2e4d38a1fe152666623d89e44680e63524d",
-            "source-file:packages/main/src/core/evidence/artifact-store.ts:sha256:e7e4ce4fc09e1bd38cef77de3c20cc65e987a65de5bb3f4b89116f74a0182353",
-            "source-file:packages/main/src/core/finding-ledger.ts:sha256:db029611be27726deaa62e18e179e85b9e0d270ce1089330965e9b0ea57fd424",
+            "source-file:packages/main/src/core/evidence/artifact-store.ts:sha256:9577d6eb2311df8e5696998512db74aa6217da830db7bc793cc2d371042fab51",
+            "source-file:packages/main/src/core/finding-ledger.ts:sha256:e4a6fb6fda045d80f06dcdb5dd6041a5e455afd23e75bcc7e0160147485367f3",
             "source-file:packages/main/src/core/lattice-brand.ts:sha256:6c061b806ed7779ba186b2a796c60824fd7892e8d6d48c5fb2ac267afbe195f9",
-            "source-file:packages/main/src/core/mkdir-lock.ts:sha256:9e6f0adca9f3e89902a847b28adc380ef2f0f36c132d88f52d38ce3cabd81d77",
+            "source-file:packages/main/src/core/mkdir-lock.ts:sha256:8dfe44be34a86471bb663466695d3cdec6ccf7cc4e6349990c5ce5eb0cf63f9d",
             "source-file:packages/main/src/core/pre-review-check.ts:sha256:c3beb9d8b06fbecd208b442f12b753682390a851969f4c73d1db98509535cf00",
             "source-file:packages/main/src/core/pre-review-live-proof.ts:sha256:ea1f1f2175640d18170dd1e41e8a3886e6761c17054ab4d8f99a8bf429cd0880",
-            "source-file:packages/main/src/core/process-fact-levels.ts:sha256:f81f6d869e009f8db7dc134c7b1f33bfd30f57f0777599ca689c8b868577859e",
-            "source-file:packages/main/src/core/process-fact-registry.ts:sha256:9a7e98bbf5de98de49a0ba7b1834510f2d6b36e63edf8c78d95575cf42e7ab82",
+            "source-file:packages/main/src/core/process-fact-levels.ts:sha256:33c3160546702aee06a86b7461511b5c22e4da13b37c3d67564ef8e00b7c431e",
+            "source-file:packages/main/src/core/process-fact-registry.ts:sha256:0205e40f7efad4ccc1b346969183595ba9b1a272fea3912cae706161c2dd7294",
             "source-file:packages/main/src/core/runtime-evidence-receipt.ts:sha256:ed40135ba1d1658b9a97024c56ff115330cb2504e0fd585472ddc3bb2cffba39",
             "source-file:packages/main/src/core/store.ts:sha256:a6dc2b6088e70773bced58a0610a93f537c948616044b4e1626682b82041f3b0",
             "source-file:packages/main/src/core/types.ts:sha256:8bbac442ffdfa934cf5ebb267ec87af185dce0c1d41e584b86e1e72afbdd6cad",
-            "source-file:packages/main/src/handlers/finding-ledger.ts:sha256:6bc8c44f180e29f62bf7f6447a87b271040187b9a781cc71f384bad5d9068ecb",
-            "source-file:packages/main/src/handlers/finding.ts:sha256:1d30377b5d2aec1f72b428e09d3f7eb4b9faa497be255074169bf0f0dcfae7d0",
+            "source-file:packages/main/src/handlers/finding-ledger.ts:sha256:0a0f7eb2cf353ab8e3eae5fb7ecec20f9609567eb10ea04be6d83c6269aa3ad8",
+            "source-file:packages/main/src/handlers/finding.ts:sha256:922111d08a63171cdc3d04236b440cf2528d715c5303e122428251a0ab9de478",
             "source-file:packages/main/src/handlers/proofstory.ts:sha256:06fa735b5348452cfb65d75c2fe5221693294e8d0f584f401b98e4e7924fd330",
-            "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:b43f5c91e74c8849588abb53ead643cd16ba0a200c8b907a467408c3d7657698",
-            "source-file:packages/main/src/registry.ts:sha256:b5990be530d15936ec77149eb061f36b2e88fd35d4babd09d3ea6f731c5aa636",
-            "source-file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts:sha256:95a09c4f30e42abb5bc6ac26a06ba4f057df8ba269e05e1a0c434121754c5a4f",
+            "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:f670f7b5312806a63d7da2a81408ed276c38339adf2b936285757a36e693765f",
+            "source-file:packages/main/src/registry.ts:sha256:5815a8d7319c959c40ba197166bdac3e333e72c8b3abf0e4d19c37e75743c9ac",
+            "source-file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts:sha256:e3327977ae36811e655a14794978387e3767e8c0550ac14e7c31932008cef9f0",
             "source-file:packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:sha256:16499ed91e097dcba33d607c756007c11031235de6e7dc9aa23f42641063b423",
             "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
             "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
-            "source-file:scripts/verify-process-fact-contract.mjs:sha256:7eb559374e1e0f9cce2a5e1bce6ab0ffa1cbe9278e8b3e7abfcd9de44a330914"
+            "source-file:scripts/verify-process-fact-contract.mjs:sha256:fb4e917ce240865c410789407dcb3016ef3932cb51432161761f80dfab95bb92"
           ],
           "asymmetryPolicy": {
             "kind": "exhaustive",
@@ -347,7 +354,7 @@
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:2ff3433ba70cfd0366ef3fe24a69236dcdbd736fa1aba2448d48ec3fc232f7a2"
+          "resultDigest": "sha256:8f599adc7b0799dfe108025f6d816bfc465aa78026378906d38f22e2c9a3e3bd"
         }
       ],
       "scopeRefs": [
@@ -467,19 +474,21 @@
       ],
       "excludedPathRefs": [],
       "blindSpots": [
+        "handler factory createFindingLedgerHandlers from packages/main/src/handlers/finding-ledger.ts lacks exact registerBatch(factory(ctx))",
         "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
         "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
         "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
         "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
         "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
         "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate",
+        "unregistered handler factory createFindingLedgerHandlers"
       ],
       "snapshotSeal": {
         "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
         "inventoryDirectoryDigest": "sha256:3105b5205dc4a0d56f6e78b3b43fba858cdb87ce8ff234aeac7159c14c5f3aba",
         "inventoryDirectoryCount": 21,
-        "sourceSnapshotDigest": "sha256:80a2faa85c8257bf6ba1a566d2ead1006ea95b0ce2819e97a06c31a4b5003dbb",
+        "sourceSnapshotDigest": "sha256:8704a41fe74667a2b5876788d19181c77dc8e8192c26dbcf430c803387bcfaa5",
         "sourceSnapshotCount": 829,
         "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
         "status": "partial",
@@ -520,535 +529,542 @@
             "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
           }
         ],
-        "sealDigest": "sha256:0b9bfb5bf17c5d26941b6675a4f42dcf84601be3a00c5f5b65fae038b7b44de0"
+        "sealDigest": "sha256:5169e9eaece930ee210f212997ae5430fd717db02f15339c2c46f04e5dbebac6"
       },
       "binding": {
-        "headHash": "e2fdd7cf2ac0a0dc3754509afa4a4de3752b63fc",
-        "materialHash": "dacc9b3821d526628cd087c87072045330f28a35a9ffd15363d92370beb99220",
-        "storyFilesHash": "98d8c29e893bb4dbc594543e74b9a51c7a873729f418a341c913a395726051f1",
+        "headHash": "5cf90bd81b392df15d756ac12fe1c3db02c772fe",
+        "materialHash": "560f1c769c34868fadf372de0d9fb144f86bf842ff978c82740eb7824786b295",
+        "storyFilesHash": "3b67b90ef90027def801ebb09466410dbe3f009f80f1e6a64d36c3c5fab01f07",
         "scopeCheckDigest": "sha256:6878fcd1db2f638f58dd89f9846c44d93b5475d5b0cb92afaeebe8fc1b49eb92",
-        "scopeContractDigest": "sha256:e5a890b74a41c26e85b81abd69694148e4d62512338e4f0cb3b3761c8532367d",
-        "closureFilesHash": "sha256:3db7bff03c61d4b49cd401fa6e91412feb7ba4babbf7818dce971d213d675312"
+        "scopeContractDigest": "sha256:73e1628454428671903dbe73cde2af013195f6d2713dbf93308d3eb60179aa01",
+        "closureFilesHash": "sha256:b7294c160cf07fd7ca5f3ef8761b9eacb7e1938f1893a93a533c4c0caad5d05a"
       },
-      "receiptRef": "receipt:coverage-basis:B-fe8f:pre_review:17fa9060160d9b50",
-      "basisDigest": "sha256:22b679def0c11088aad1c4c556fe1f2cfbbc33fd4d1dfa3a4b8fbc3675bcbed8"
+      "receiptRef": "receipt:coverage-basis:B-fe8f:pre_review:59b7034c8e415e31",
+      "basisDigest": "sha256:82b9fbc1b04d605c2ad1de71dbe3599e8e39f57d3997d891a95039fd19531478"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-      "receiptRef": "receipt:coverage-basis:B-fe8f:pre_review:17fa9060160d9b50",
+      "receiptRef": "receipt:coverage-basis:B-fe8f:pre_review:59b7034c8e415e31",
       "issuer": "acceptance-coverage-basis-verifier",
       "issuerKeyId": "sha256:f4ff36c006003589257466d51b93dbde761b171216fe5d18f8b33a5c0f6167eb",
       "signerPublicKey": "tjxYGaesOrQdcymh+37gs6yiu4zRFO+t/N+Zc0kMV78=",
       "storyId": "B-fe8f",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:22b679def0c11088aad1c4c556fe1f2cfbbc33fd4d1dfa3a4b8fbc3675bcbed8",
+      "basisDigest": "sha256:82b9fbc1b04d605c2ad1de71dbe3599e8e39f57d3997d891a95039fd19531478",
       "topologyDigest": "sha256:80f899a6331ce896d652d56b5268b894632aefab95c3b0409a12224e3fb6d3af",
       "scopeCheckDigest": "sha256:6878fcd1db2f638f58dd89f9846c44d93b5475d5b0cb92afaeebe8fc1b49eb92",
-      "scopeContractDigest": "sha256:e5a890b74a41c26e85b81abd69694148e4d62512338e4f0cb3b3761c8532367d",
-      "headHash": "e2fdd7cf2ac0a0dc3754509afa4a4de3752b63fc",
-      "materialHash": "dacc9b3821d526628cd087c87072045330f28a35a9ffd15363d92370beb99220",
-      "storyFilesHash": "98d8c29e893bb4dbc594543e74b9a51c7a873729f418a341c913a395726051f1",
-      "closureFilesHash": "sha256:3db7bff03c61d4b49cd401fa6e91412feb7ba4babbf7818dce971d213d675312",
-      "sealDigest": "sha256:0b9bfb5bf17c5d26941b6675a4f42dcf84601be3a00c5f5b65fae038b7b44de0",
+      "scopeContractDigest": "sha256:73e1628454428671903dbe73cde2af013195f6d2713dbf93308d3eb60179aa01",
+      "headHash": "5cf90bd81b392df15d756ac12fe1c3db02c772fe",
+      "materialHash": "560f1c769c34868fadf372de0d9fb144f86bf842ff978c82740eb7824786b295",
+      "storyFilesHash": "3b67b90ef90027def801ebb09466410dbe3f009f80f1e6a64d36c3c5fab01f07",
+      "closureFilesHash": "sha256:b7294c160cf07fd7ca5f3ef8761b9eacb7e1938f1893a93a533c4c0caad5d05a",
+      "sealDigest": "sha256:5169e9eaece930ee210f212997ae5430fd717db02f15339c2c46f04e5dbebac6",
       "workspaceIdentityDigest": "sha256:9a1fbd2abf1b464dc46a05fa5b6b34444b3ea56e9a6a53f009f20a73a99b6fec",
-      "signature": "MCNESnUkOudgz/afC9lyVCF+WGhbCKKm7YupJ66E8q1qGKp2v/69r8q3M5BMsveLp6D7VVp2ucK15XbXQAlOCg=="
+      "signature": "jZFxmcfw2CyCPhFZ0YipLMWth19DZfM+0RZPEFuUZj1BV7ChrzW8iFML/cOJqEepeU0V8Jr+7xTbB/7ZeHiuCw=="
     }
   },
   "topologyDigest": "sha256:80f899a6331ce896d652d56b5268b894632aefab95c3b0409a12224e3fb6d3af",
   "scopeCheckDigest": "sha256:6878fcd1db2f638f58dd89f9846c44d93b5475d5b0cb92afaeebe8fc1b49eb92",
-  "scopeContractDigest": "sha256:e5a890b74a41c26e85b81abd69694148e4d62512338e4f0cb3b3761c8532367d",
-  "storyFilesHash": "98d8c29e893bb4dbc594543e74b9a51c7a873729f418a341c913a395726051f1",
-  "closureFilesHash": "sha256:3db7bff03c61d4b49cd401fa6e91412feb7ba4babbf7818dce971d213d675312",
+  "scopeContractDigest": "sha256:73e1628454428671903dbe73cde2af013195f6d2713dbf93308d3eb60179aa01",
+  "storyFilesHash": "3b67b90ef90027def801ebb09466410dbe3f009f80f1e6a64d36c3c5fab01f07",
+  "closureFilesHash": "sha256:b7294c160cf07fd7ca5f3ef8761b9eacb7e1938f1893a93a533c4c0caad5d05a",
   "evidenceRefs": [
     {
       "intentRef": "CHK-001:adversarial:0",
       "itemId": "CHK-001",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:255caa4f7851af3beca7595a456cc107ca8d47bcd226781adcffb95e934e829b"
+      "evidenceDigest": "sha256:412ff8c0bc7d2a0ce98db88b5d45da0819dbb9d2809de938950447425ce34673"
     },
     {
       "intentRef": "CHK-001:adversarial:1",
       "itemId": "CHK-001",
       "evidenceIndex": 5,
-      "kind": "manual_transcript",
-      "evidenceDigest": "sha256:895425cb9b80e4362b0e4e3fa2acdc14314667f0e763c4559b63f7e1deff8bc0"
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:cdef59af708171c86f9d64a20246c424dbb6928c01132b536bd09b1db8919935"
     },
     {
       "intentRef": "CHK-001:adversarial:2",
       "itemId": "CHK-001",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:528f2051b05c9b39a6111445fa372fb84fb16172c00f69881a25134cde58399d"
+      "evidenceDigest": "sha256:865c1728b9d5415b467ab47e47348ce6773fbd8579c97451db513f2449e39b1f"
     },
     {
       "intentRef": "CHK-001:adversarial:3",
       "itemId": "CHK-001",
       "evidenceIndex": 7,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:3b0656d5f3649c7266d53bda3423e16a7be6efbb4e8c2ad568e9dc8506017619"
+      "evidenceDigest": "sha256:e5c38ebd06f695a3598940f42f53045656011eb2fa6bb3022694de794af96058"
     },
     {
       "intentRef": "CHK-001:edge:0",
       "itemId": "CHK-001",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:210c4ac3df1e48c29b2549c6dbcd7d89a332f10124230340a168bd0bd3c78615"
+      "evidenceDigest": "sha256:81dac26b6f1acf812f6eb75e5c71e7ef041d4356860c0389d5417750d3ddb13a"
     },
     {
       "intentRef": "CHK-001:edge:1",
       "itemId": "CHK-001",
       "evidenceIndex": 1,
-      "kind": "manual_transcript",
-      "evidenceDigest": "sha256:5dc0e5d49ec23c22e46ae09cc75f5f920af47ebd1fb33e5a74dc93ba6c848882"
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:00450ff046b801bcf1b757c8b331b72f873f4f4dd149658f54b77909ed1f4e82"
     },
     {
       "intentRef": "CHK-001:edge:2",
       "itemId": "CHK-001",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:950e906ff03b8916dce4e2c5c84cedd2c92e0f5efda5d762544273e45a8ce6ef"
+      "evidenceDigest": "sha256:debfba9d3edd9159c1b80f06dac2970db00991ef77e767673428c1007b7f2e6e"
     },
     {
       "intentRef": "CHK-001:edge:3",
       "itemId": "CHK-001",
       "evidenceIndex": 3,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:b0d108f2b879deb60994d2b8389ad8ab5adddd0e6f9b1d99a60c5c871f8b88f0"
+      "evidenceDigest": "sha256:889c3de584624f4b8a0548ef50858dfeb04530d36c0ff15729d2441a23620cec"
     },
     {
       "intentRef": "CHK-001:happy:0",
       "itemId": "CHK-001",
       "evidenceIndex": 8,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:d718778f990eefe04e4f5bca9f154fc5dea9fbd3f092bcc7c6966ca5f3f885fb"
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:9bb9b014674a176533cd6706329120b4773b3ec3d7f87b76695c74b60b6075cf"
     },
     {
       "intentRef": "CHK-001:happy:1",
       "itemId": "CHK-001",
       "evidenceIndex": 9,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:313c2a98f871b4f5e5b181dcb9fd38b86663b0a313d82484677512b58492564d"
+      "evidenceDigest": "sha256:df08485742cd130d70fce22c20ca736a2d3bb0cc4716db12663718c4a05005e9"
+    },
+    {
+      "intentRef": "CHK-001:happy:2",
+      "itemId": "CHK-001",
+      "evidenceIndex": 10,
+      "kind": "docs_check",
+      "evidenceDigest": "sha256:d6580adc1bd1f1bddb1944b5013c32bbe8305fcfff6cd6a9fea194d128b0af27"
     },
     {
       "intentRef": "CHK-001:happy:3",
       "itemId": "CHK-001",
       "evidenceIndex": 11,
-      "kind": "manual_transcript",
-      "evidenceDigest": "sha256:ef130fe8decfc1e51f963f71223f5ac6f5b7da77c906d82fd713f3a28bf22f31"
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:73a65d6920d1e45c14e07bda4593e592869ea194c682bc2dca4400f64c8452a0"
     },
     {
       "intentRef": "CHK-001:happy:4",
       "itemId": "CHK-001",
       "evidenceIndex": 12,
-      "kind": "manual_transcript",
-      "evidenceDigest": "sha256:9543f28d3274d27c29fa52b0871d6268de75b6f0845780550dca44f4a5c16f11"
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:19606afe9b8dd5038984a4fedaa0ff43637756a9b55053d6ded27e2b513b4dfb"
     },
     {
       "intentRef": "CHK-002:adversarial:0",
       "itemId": "CHK-002",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:87a8c3e4d0f4bb2a79ebbc3c06282ffff233d85d5cc79ac0a6d708587e988799"
+      "evidenceDigest": "sha256:c6dfcc410a386a660ab9ad5725303e5186fe88f971178b6d7cf6ccd2a38e9cf0"
     },
     {
       "intentRef": "CHK-002:adversarial:1",
       "itemId": "CHK-002",
       "evidenceIndex": 7,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:356fdd3573369643d5f85bf108271c72d86a4e1f8abff5eeb3a6041092a0c7dd"
+      "evidenceDigest": "sha256:5543468ab81b2864964267bfd5958b9e2e1092a2893800c54e35f20164f89cfa"
     },
     {
       "intentRef": "CHK-002:adversarial:2",
       "itemId": "CHK-002",
       "evidenceIndex": 8,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:073560272b290781e4d5b3ece766a8ab766740cef7c6a23e3c7fd9d40d4153c4"
+      "evidenceDigest": "sha256:5682b7135dfd5a293a59e4f04980e75f7ff27228349a80c0ac2774654239ad4d"
     },
     {
       "intentRef": "CHK-002:edge:0",
       "itemId": "CHK-002",
       "evidenceIndex": 3,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:70c236419555f3123a039fe7e45a4ed94775bef257fb5c0b280d3f73689a3a77"
+      "evidenceDigest": "sha256:5fcf82b4879423d9bdc9503c470fcaffcfb6e6be5ba3c470b92a274f3133f0f7"
     },
     {
       "intentRef": "CHK-002:edge:1",
       "itemId": "CHK-002",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:80e6a87c5c15a64fd8bc765187afb0b2408dfbfb4231cbc1ad7a3bc71f2faa76"
+      "evidenceDigest": "sha256:6fc86ed545cd174fabbae4811c728526d8e0843d870388a185688c2d1a3c75c9"
     },
     {
       "intentRef": "CHK-002:edge:2",
       "itemId": "CHK-002",
       "evidenceIndex": 5,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:2c94eb2f2606332c308762e65576c2442a3b7aff56c9ddd050948b912ead8825"
+      "evidenceDigest": "sha256:45f9f66278a8114c53b91b777a29377bb7db94590a192e76b4be2c3805043dd8"
     },
     {
       "intentRef": "CHK-002:happy:0",
       "itemId": "CHK-002",
       "evidenceIndex": 0,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:5272965a4647f1f1c753734d9734419bfe36c8d3b5ba1de0b9cf66ba306e3a84"
+      "evidenceDigest": "sha256:a21b1d18ec8625409d7f0dfc2e2086a9c1266b11aca9acbe8e60d66e9bf8e622"
     },
     {
       "intentRef": "CHK-002:happy:1",
       "itemId": "CHK-002",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:aa8bd4c97ed9e7145157baed644a2755b8cf540e27515371e17a64740bdfb03a"
+      "evidenceDigest": "sha256:568b8b99213739daa9ee3186ef15de3bd70d0b4ab7cc4f79b8a4cd8941ae35c1"
     },
     {
       "intentRef": "CHK-002:happy:2",
       "itemId": "CHK-002",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:5965276c1e03d164c8b1ddfcab828d762ebfec7984f67e32bf9abc60773e5372"
+      "evidenceDigest": "sha256:0544947229521a98b73c98d2c23d195305c68d4f62f09ded7773505690a33cba"
     },
     {
       "intentRef": "CHK-003:adversarial:0",
       "itemId": "CHK-003",
       "evidenceIndex": 10,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:71db40bfd2732a2eacf32603442a3cf31cb1cf2d5bf3473d9ee17d89c9c0eb8a"
+      "evidenceDigest": "sha256:3ddb808ad58f4cd06ec938700379c1c99f3d461e0c31c51772a7be5e09a9c998"
     },
     {
       "intentRef": "CHK-003:adversarial:1",
       "itemId": "CHK-003",
       "evidenceIndex": 11,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:eabe0aeecd1b465951c873503741e44686ff6fd23f804c6f274a18ea8522fc2d"
+      "evidenceDigest": "sha256:4b735ced743c3555b8959cb27e7c494054a2ce9cadb1adef01c8d0364fdf14bb"
     },
     {
       "intentRef": "CHK-003:adversarial:2",
       "itemId": "CHK-003",
       "evidenceIndex": 12,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:12058e782b2c416bbc033a5249785d3bb752a2c5a689854d28d5ca4f53528373"
+      "evidenceDigest": "sha256:d0611aa4b6b91da45e8bbb1316c05eda9e4245a14c1b8d3fc1b10372bdd05b14"
     },
     {
       "intentRef": "CHK-003:adversarial:3",
       "itemId": "CHK-003",
       "evidenceIndex": 13,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:d4b9bf5cd5820c2e43bcbb6c043c9b08283e136ab39b43112b70af16829dd2df"
+      "evidenceDigest": "sha256:f49eec0bd3e89fbde62a020d3ede93ab2376a318cb92b665136c8d5d2369f624"
     },
     {
       "intentRef": "CHK-003:edge:0",
       "itemId": "CHK-003",
       "evidenceIndex": 5,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:7a707356ea2c6bd0ddf3c5920f0c32c8b4445881f77ebe97f96a00d48c8151c1"
+      "evidenceDigest": "sha256:b16e1a921fd63a225741f79da9c86b487ce9dae1e7878075ac15ddc8adb8027b"
     },
     {
       "intentRef": "CHK-003:edge:1",
       "itemId": "CHK-003",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:9380ab7b75bdd872cce5aa652aa387101b818b289ac56b4c6e15b9b1efaa2d64"
+      "evidenceDigest": "sha256:7bd68a66357e713a35d0c384e5175d4b722e7780221d7a965c6aaf4169f69b7d"
     },
     {
       "intentRef": "CHK-003:edge:2",
       "itemId": "CHK-003",
       "evidenceIndex": 7,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:5cbfcac851d2703802fea7d2437f2b4a7c4e12bda4368ad6e97cf15a3790f936"
+      "evidenceDigest": "sha256:57d2fed748eebbf202c19326773d093c57ab0731f4d895ae241773ec05411b83"
     },
     {
       "intentRef": "CHK-003:edge:3",
       "itemId": "CHK-003",
       "evidenceIndex": 8,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:e797a3a0bff30cc5557f268084924fe271ca92b2a60c45104b8382d1374bbe13"
+      "evidenceDigest": "sha256:d4dae1c2cb835df818371a9658a8364d424a50939040d27192cce5647f621d68"
     },
     {
       "intentRef": "CHK-003:edge:4",
       "itemId": "CHK-003",
       "evidenceIndex": 9,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:082bf98bd79895db815a2de50c054859eaec18379695fe81cbde37a63ac3618e"
+      "evidenceDigest": "sha256:39c413dd629f3ef56ce83d7ca5f8c256a83846fcd8d13f7fb070dbe02713570e"
     },
     {
       "intentRef": "CHK-003:happy:0",
       "itemId": "CHK-003",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:6d2e6f02701271ef3cd285f21aaadfa8ea187822c49b2c5331ab3b70624d2373"
+      "evidenceDigest": "sha256:221bcefb978d35aecdbad7cefe1b793347ee4151e33ef41865755c73574116b4"
     },
     {
       "intentRef": "CHK-003:happy:1",
       "itemId": "CHK-003",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:ccd78cd1fd39f85527bef2dedd5ce2487216863aa568831a3a159b248674e72d"
+      "evidenceDigest": "sha256:fff365bae501c2cc291e9ce45f8cbf060d3018cc150ed62a93ffb4c7eefd9faf"
     },
     {
       "intentRef": "CHK-003:happy:2",
       "itemId": "CHK-003",
       "evidenceIndex": 2,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:0f5d97d0be3ab793b428b9d9bc31a4cc890ef7819406e400edcb67575d38eda5"
+      "evidenceDigest": "sha256:0e2a767aba89c0894e031ad8b52cd2a25de28891ec9097d5d3e0831e58ceac6c"
     },
     {
       "intentRef": "CHK-003:happy:3",
       "itemId": "CHK-003",
       "evidenceIndex": 3,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:1d4d79ef8c7c9b8f3ce403165467b729ff986a9d2d9c23f73510203e84aadfd0"
+      "evidenceDigest": "sha256:a7f4213e2241cbc0d3dd7d1306d44cf3f37d756745533d2b7b54345b72271ede"
     },
     {
       "intentRef": "CHK-003:happy:4",
       "itemId": "CHK-003",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:5a3e1565cd8df66a8f39b4d09829c63a021b3943e67311d6637626b0fc8a7201"
+      "evidenceDigest": "sha256:c1de0172ac8c64779bb43b26aee75c8dad40c770d8ed0279a45dc743c224fdc0"
     },
     {
       "intentRef": "CHK-004:adversarial:0",
       "itemId": "CHK-004",
       "evidenceIndex": 9,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:1676795b9999637f066f04de3698efb95b1f07d63c4e3168b5c6c0b5d578e7ee"
+      "evidenceDigest": "sha256:178c53553f489b0ec380edacf166c0980fc05a491e37a9fe08b1f22df2ba9cdb"
     },
     {
       "intentRef": "CHK-004:adversarial:1",
       "itemId": "CHK-004",
       "evidenceIndex": 10,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:4cca08b5afdd54c0b4892728f82489a98bfd4a0357baa87f6b5178fd43d08356"
+      "evidenceDigest": "sha256:c1cf7e464c5249c440dbe57d1f03b57ddf79b40939e09cfeaeec778ad738e3c0"
     },
     {
       "intentRef": "CHK-004:adversarial:2",
       "itemId": "CHK-004",
       "evidenceIndex": 11,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:ddd885d063a7a72108eac5cf44f047af3a1fc87e24496a87ce845d6765574e64"
+      "evidenceDigest": "sha256:0d6b94dfcc8e0b1bf66b3ecb11fe1b7792f24942cee33a23a8d6c1af5d4b4d5e"
     },
     {
       "intentRef": "CHK-004:adversarial:3",
       "itemId": "CHK-004",
       "evidenceIndex": 12,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:8b4e738c86aa9c833093905bc81c7d8234330cca0542a05c0761f8eb60b65071"
+      "evidenceDigest": "sha256:8f439eab0eddb056ef2b87d6a2123bf4eb81ac30a26892af6fdf71d793330390"
     },
     {
       "intentRef": "CHK-004:edge:0",
       "itemId": "CHK-004",
       "evidenceIndex": 5,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:b9ad3672bc215539557545ec4332a8e23b59b46094501c372c24efd0cf3b139c"
+      "evidenceDigest": "sha256:b923353de64526da4348d888543ee17f96471d905b147bb26c42e01186a525db"
     },
     {
       "intentRef": "CHK-004:edge:1",
       "itemId": "CHK-004",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:a62fb06367fa60bed78bb213b165958d2292d765bc41e5cde7ff18961d7f753f"
+      "evidenceDigest": "sha256:1a79cdda87a7ec0f6afbc3bdfc78f72d2e21052c34c5c9b86eacdaaca13c3098"
     },
     {
       "intentRef": "CHK-004:edge:2",
       "itemId": "CHK-004",
       "evidenceIndex": 7,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:52d88cd83c68e9612ee70ff5091d7dbb092a771a298eb72e9eb883ba2f5d6a45"
+      "evidenceDigest": "sha256:a9d2e61c79d1ffe55d7b73fad40c00d2da048819e8caf025f98efcfdd4dab692"
     },
     {
       "intentRef": "CHK-004:edge:3",
       "itemId": "CHK-004",
       "evidenceIndex": 8,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:2fd8284ccacf78c954981b4ba33c9204623fb2b59486527dcbf4ed29acd7b6a3"
+      "evidenceDigest": "sha256:d08670dc2205b801feec9c2ff09d390580af09173346138bec70b3a3ea935516"
     },
     {
       "intentRef": "CHK-004:happy:0",
       "itemId": "CHK-004",
       "evidenceIndex": 0,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:d078941d83da3c79ecf2532cca39d36cecfc063202f916fec212c085a5b293ef"
+      "evidenceDigest": "sha256:b697439805a6316b3e1c22bea579a0c87beaa4c0f0d0862d44f1a7079480c930"
     },
     {
       "intentRef": "CHK-004:happy:1",
       "itemId": "CHK-004",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:f066bc83e10429d48683b4612c337a710ba6fcbb8dcd575c785a20dbdf031c8d"
+      "evidenceDigest": "sha256:9613a31fd530d0207b1562e6750f0af71174bad76fe67a635e8a4773df0fc1a7"
     },
     {
       "intentRef": "CHK-004:happy:2",
       "itemId": "CHK-004",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:08e26749d17cac1df3a5aa0cb510a7d3f2f210b50ae2df477b1b262befbe3888"
+      "evidenceDigest": "sha256:4e6efd7fb9a4e14a84557d6e9d09bdc92aee33a106e9c173b73737abb7ec79e2"
     },
     {
       "intentRef": "CHK-004:happy:3",
       "itemId": "CHK-004",
       "evidenceIndex": 3,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:be3adf81c5af57440fdd25ed2ca8094a503edb2a568520a0bb9d3b54965b1c82"
+      "evidenceDigest": "sha256:dbe6cb34d705f68d872a998f96f137a26cc16cdfb952a701caf043f186a86f2e"
     },
     {
       "intentRef": "CHK-004:happy:4",
       "itemId": "CHK-004",
       "evidenceIndex": 4,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:1af9d718252405d3dfe2e29cc53d6e1ddc0a6b968772d4cf59631e744f7171db"
+      "evidenceDigest": "sha256:fb1b29d5e1c321b20790c034c12f59ec4c0891f345748d04c299852406ecade3"
     },
     {
       "intentRef": "CHK-005:adversarial:0",
       "itemId": "CHK-005",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:3ce593acc5c10ad2f39e32a1aac3ad68a74e6a7a4374a68193248871996190f6"
+      "evidenceDigest": "sha256:633ed9522382dd9ca981869fda92e17a0b12bbe866e9ceb5cffa106dc903a0e3"
     },
     {
       "intentRef": "CHK-005:adversarial:1",
       "itemId": "CHK-005",
       "evidenceIndex": 7,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:e02625cf097eb68ac5ab788dfea0583fee458f8816e9b46de28d3a16b706b2e1"
+      "evidenceDigest": "sha256:335c209647c05705a608592f90aa8dadadf1cb333662149ae6d7602dc4b27a09"
     },
     {
       "intentRef": "CHK-005:adversarial:2",
       "itemId": "CHK-005",
       "evidenceIndex": 8,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:afeb3d222c0a8355731c5df6045cf0a8476a3c6bece485c598e421922ffd48de"
+      "evidenceDigest": "sha256:baec1ab9cf9653e82226b8e1300128fffd7ce456197ae1f0cb5aeb95b15efb0d"
     },
     {
       "intentRef": "CHK-005:adversarial:3",
       "itemId": "CHK-005",
       "evidenceIndex": 9,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:e1cd07a8a4818adf55833f63862fbb62427a1e9cf1689516e9ce6c71c4e795bc"
+      "evidenceDigest": "sha256:87873b094db5a40db2fd7fa9a229cabe83a66c79d6ddc3bf9af8066518d2564c"
     },
     {
       "intentRef": "CHK-005:edge:0",
       "itemId": "CHK-005",
       "evidenceIndex": 3,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:c14a5232369c8d96c82da08587469d3c6cc88e2a628766327bffdc0afabb75fb"
+      "evidenceDigest": "sha256:d96f3fb5170ae861fd49d205e92ba4129d4610ff60595c828d0e0298489b4521"
     },
     {
       "intentRef": "CHK-005:edge:1",
       "itemId": "CHK-005",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:5f1a954f3266c74719a98c86cc249a2e090992ecb885f11200f8b0dbdd842814"
+      "evidenceDigest": "sha256:a0c273ce77fbdba3d7ab48d49cba444977fbd27c140cf176ebe36d177951dec5"
     },
     {
       "intentRef": "CHK-005:edge:2",
       "itemId": "CHK-005",
       "evidenceIndex": 5,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:cac19ffeff16712f7d10c1f53723ed112f5da8a8849d77fdb47bbf7eb70901e4"
+      "evidenceDigest": "sha256:401be22c779914486f29d20c8b730b012c1ce14f7d95d7a115bf13aac88ef32a"
     },
     {
       "intentRef": "CHK-005:happy:0",
       "itemId": "CHK-005",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:9d94ddb6ff269a03f68b137f4e3977119b5503b0fc2eb65a8b49599a6af34f3b"
+      "evidenceDigest": "sha256:161dbd3352e4565b90c3a602eac8f73a3781f15d593291335503d581cf9250d9"
     },
     {
       "intentRef": "CHK-005:happy:1",
       "itemId": "CHK-005",
       "evidenceIndex": 1,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:a9a8a6c66800842079ff16ad373f5f6077986149f22cf1f225a3955f3a4020c1"
+      "evidenceDigest": "sha256:8b4b2b72adfac66ff72f537b23f64aceb6ba5c4ffa6e9b77c9771bfd603dfec9"
     },
     {
       "intentRef": "CHK-005:happy:2",
       "itemId": "CHK-005",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:9a806a19c2f406c0b0262a89021093dd11f6ea8464fadc715f81a5a043f85add"
+      "evidenceDigest": "sha256:509951a6ac94117d1a77a6549a6407cf8a8ac5eb2a61ea711b65879f958661be"
     },
     {
       "intentRef": "CHK-006:adversarial:0",
       "itemId": "CHK-006",
       "evidenceIndex": 9,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:bc670f3f38018276cc4c7d15650667b06e470de8e6fed43dd17f59604aa1a44a"
+      "evidenceDigest": "sha256:63865ba79fb1a639140c1ec1e25c59a39eb8725419255989d9a8ad2f3c562a96"
     },
     {
       "intentRef": "CHK-006:adversarial:1",
       "itemId": "CHK-006",
       "evidenceIndex": 10,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:bbb5e991c7c1719d1ea76b448504cca4203a61d5cecbbb44e7f36212b1548ec4"
+      "evidenceDigest": "sha256:a0654c3ca9c73b31a6e2588cf6171eef636b60f57a2ec2e7002247dda88dc128"
     },
     {
       "intentRef": "CHK-006:adversarial:2",
       "itemId": "CHK-006",
       "evidenceIndex": 11,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:ded5f092805e865c18be0203d83efc6875bb87c991d7fb708587a1a0fed9f20c"
+      "evidenceDigest": "sha256:7921195ee7617f74a9c4e8fcd75b2e7a2674b0c948061ea1f25dc304859100b1"
     },
     {
       "intentRef": "CHK-006:edge:0",
       "itemId": "CHK-006",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:62e36b226e9386dc0c05c2f387091447a82891506849702b4f32c2581e2b6b77"
+      "evidenceDigest": "sha256:569a046e677eafae4a625593fa8928e8f3e16af97c1c0be8a7013d078c38ebc8"
     },
     {
       "intentRef": "CHK-006:edge:1",
       "itemId": "CHK-006",
       "evidenceIndex": 7,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:5409717f36d0943d81aa0f377edaab737c8b4b36bc8d32fdb431662837255335"
+      "evidenceDigest": "sha256:9ca76e787b7c069b8d7da25667f952c8f506dd1fbd6fc0b76f5cd68bfedb01fa"
     },
     {
       "intentRef": "CHK-006:edge:2",
       "itemId": "CHK-006",
       "evidenceIndex": 8,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:2dc2735d1b871abb517f061589c0c83c0d01f0b4e7026a3fd73ae7230d0320e3"
+      "evidenceDigest": "sha256:2985d40bc244f95b844177d344a20fb26aa764258d3cfefbb597e4add6c21f8b"
     },
     {
       "intentRef": "CHK-006:happy:0",
       "itemId": "CHK-006",
       "evidenceIndex": 0,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:c8c8eaf4b428a0dec01303c1b6d9fc589dcdf301aedb6c714e69e258a4bd883b"
+      "evidenceDigest": "sha256:95fa830d780766b4ddf30af34249a3fe360ac30d95103d14d03f434f439615ea"
     },
     {
       "intentRef": "CHK-006:happy:1",
       "itemId": "CHK-006",
       "evidenceIndex": 1,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:2dd3b37993e9a47b822a962b861d519c12cc8d54e473845013dc346cfd6bf324"
+      "evidenceDigest": "sha256:114ee051cb7b6bb861b1702f118bdaa1d61f46d9fcc1432052a3578e1155059d"
     },
     {
       "intentRef": "CHK-006:happy:2",
       "itemId": "CHK-006",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:bab2e47b866a26b5a9672dfd6fa7c47a804c69a5fb0cc6db56dbcca553dd9189"
+      "evidenceDigest": "sha256:192ba271cd3b0122ea505f2ac3415b5e0aeffa658f92328041f8b1c13737ed63"
     },
     {
       "intentRef": "CHK-006:happy:3",
       "itemId": "CHK-006",
       "evidenceIndex": 3,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:946a402bfef39db08073509d19db4ce2d1e5f72f53f020a225b27ac5d08c190d"
+      "evidenceDigest": "sha256:41930266a2e3c6451362d2f428080a4b28c832103f66a4cc66ac25c0a718d1a3"
     },
     {
       "intentRef": "CHK-006:happy:4",
       "itemId": "CHK-006",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:fe8446b21df28fbeb6758cf2d7d9087a276c13be2ea25bce102a4bb2d0746b0e"
+      "evidenceDigest": "sha256:44ae7ed51fd7856d59a16821c337c7371a8693046496f2c06d32f40574a1ee87"
     },
     {
       "intentRef": "CHK-006:happy:5",
       "itemId": "CHK-006",
       "evidenceIndex": 5,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:f8ce0b8c4877c47e971a3666663a618cc65af21a942f380080650db138d25b42"
+      "evidenceDigest": "sha256:4aabb7221bdb53c7aefb4c80ede75963847842eeb0598f251da806d55ae1dfab"
     }
   ],
   "executableProof": {
@@ -1072,7 +1088,6 @@
     "PR_NEW_PATH_UNMAPPED",
     "PR_COVERAGE_BASIS_CHANGED",
     "PR_COVERAGE_INCONCLUSIVE",
-    "PR_POSITIVE_EVIDENCE_MISSING",
     "PR_PRODUCTION_PATH_UNPROVEN",
     "PR_MUTATION_EVIDENCE_MISSING",
     "PR_MUTATION_DID_NOT_BITE",
@@ -1081,7 +1096,7 @@
     "PR_AUTHORITY_INADMISSIBLE"
   ],
   "status": "inconclusive",
-  "issuedAt": "2026-09-01T13:14:15.486Z",
+  "issuedAt": "2026-09-01T15:57:26.234Z",
   "signerPublicKey": "/X1ZTyM6s6k0Jhbm8ZjD1OjkCoDjf/fslfz1nOrPs2A=",
-  "signature": "9leiQwMDbIByha6A2heiaGMWE/m9zl1BYnW3iSzjwzPzSGlTVOaoXrr95hiIAfLC9VAwxlaLdoZjzRJveITeAA=="
+  "signature": "9gTKwQT1g8LynxdwYrUsiO/FsdiLr4CKT/GPPzhwIUhrUlo50yk60jEhKkShrIxBunYlPQ7K9r1FEy4WhNl+DA=="
 }
