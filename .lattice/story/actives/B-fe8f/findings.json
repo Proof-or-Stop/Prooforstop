@@ -84,8 +84,8 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiuvk55_1e94_e404e8912edc420d9ac44da4ebae99fe",
       "ledgerCommitReceiptId": "lrc_mtiuvk55_1e94_00fad2d8f5234a4d860d772bf6a628d0",
-      "resolvedAt": "2026-09-01T23:24:52.456Z",
       "resolvedReason": "finding_resolve, accepted-risk, and supersession mutations append signed fenced finding_lifecycle_transition records before projection; sequential lifecycle mutation and crash recovery selectors pass.",
+      "resolvedAt": "2026-09-01T23:24:52.456Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
@@ -94,7 +94,7 @@
       "desc": "packages/main/src/handlers/transition-orchestrator.ts:131-155 — the new dependency gate releases a prerequisite solely when dependency.phase === DONE; it never proves the dependency branch is merged into local main/current baseline. packages/main/src/core/partial-done-recovery.ts:123-151 explicitly models the real failure state phase=DONE while story/<id> is not an ancestor of main, so phase alone is not the accepted DONE-and-merged contract. The smoke fixture compounds this by directly writeStory(... phase:DONE) and calling the dependency released, which cannot prove merged-state behavior. A partial-DONE dependency can therefore authorize dependent DEV before its APIs exist on main. Fail closed on both canonical DONE and a mechanical merge/ancestry (or equivalent signed merged-capability) proof, and mutate the merge fact independently in the dependency regression.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-09-01T16:05:12.124Z",
@@ -104,7 +104,11 @@
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtiuz1as_5lc_3a2267533ce845628d2806ea5c5bb092",
-      "ledgerCommitReceiptId": "lrc_mtiuz1as_5lc_a7c02937bf5d42738794538c2a50efb1"
+      "ledgerCommitReceiptId": "lrc_mtiuz1as_5lc_a7c02937bf5d42738794538c2a50efb1",
+      "resolvedAt": "2026-09-01T23:24:54.199Z",
+      "resolvedReason": "Dependency release requires the prerequisite Story to be canonically DONE on main and its story branch ancestry merged; lifecycle_dependency_gate passes for B-03b7 and B-e6d9.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-006",
