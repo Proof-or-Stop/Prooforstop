@@ -883,6 +883,41 @@
       },
       "readDiagnostics": [],
       "_hash": "a7642edc9240edd8ae62c49a25e57a5bf2262d44df9b86d6c7685cae39e0af49"
+    },
+    {
+      "id": "B-022e:RP-030",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 15 coverage passed: f7bf366 preserves the original f245fd policy-order anchor while independently pinning current amended document bytes; ordering mutation self-tests and the full identity/pack verifier pass, 29 standard receipts plus the custom transcript are fresh, and no test or product drift followed f7bf366.",
+      "createdAt": "2026-09-01T01:14:58.159Z",
+      "reviewRound": "2026-09-01T01:11:43.385Z",
+      "reviewRunId": "B-022e:RR-069",
+      "envelopeId": "d0b9369409b2964db9015d00da4293b4d319cfdb6353357a16a8d67f203429bc",
+      "writerSessionId": "sess-7e22cf01f939864f19a38d6283010f65",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "README.md",
+          "scripts/verify-proof-or-stop-pack-boundary.mjs"
+        ],
+        "scanEscalationReason": "Full-envelope Round 15 re-review covered all checklist intents and focused the only story-owned amendment on policy chronology, immutable pre-RED ordering, current-byte provenance, evidence freshness, and unchanged clean-install coverage."
+      },
+      "_hash": "9503f6e5f4907ea9f8990134ac519b0d1e5113870e7be010b8fc7ab758c00898"
     }
   ]
 }
