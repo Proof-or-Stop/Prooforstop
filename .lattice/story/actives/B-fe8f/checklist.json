@@ -443,9 +443,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-01T09:53:50.749Z",
-      "endTime": null,
+      "endTime": "2026-09-01T09:53:51.664Z",
       "userSees": "The terminal prints \"ledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\", \"ledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\", and \"ledger.crash_recovery: PASS halfVisible=0\".",
       "excludes": [
         "No canonicalDefectId or semantic duplicate policy.",
@@ -753,7 +753,14 @@
           "storyFilesHash": "ac275d2b391ea2ad8543e3b29e3a451051218d97ca9c0a5ca40a1cfce7a1155f",
           "timestamp": "2026-09-01T09:53:38.490Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "c1c795f5ba2a5f010ae83b5b0177a0949291eb41510fb6feff79b08806f2eb60",
+        "storyFilesHash": "ac275d2b391ea2ad8543e3b29e3a451051218d97ca9c0a5ca40a1cfce7a1155f",
+        "headHash": "dbef48d3ce7d145e5f390754b0d73478b5647cc3",
+        "attestedAt": "2026-09-01T09:53:51.853Z",
+        "materialHash": "e0f799a12a8e7650481a5a2f079bd13b8efdec995973015807798c8a2b66fd2d"
+      }
     },
     {
       "id": "CHK-003",
@@ -1400,6 +1407,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Restore CHK-002 execution status after formal requirements reopen; implementation commit 134b57eea9 is already present."
+    },
+    {
+      "timestamp": "2026-09-01T09:53:51.664Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Commit 134b57eea9 passed build and all nine tool-executed ledger foundation intents."
     }
   ]
 }
