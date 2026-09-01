@@ -4,7 +4,7 @@
     "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
     "storyId": "B-5a15",
     "phaseBasis": "plan",
-    "status": "partial",
+    "status": "complete",
     "generatedBy": {
       "verifier": "acceptance-coverage-basis-verifier",
       "command": "proof-or-stop acceptance_basis_generate",
@@ -632,18 +632,7 @@
       "planned:CHK-005:happy:0:CHK-005-ledger-to-causal-metrics"
     ],
     "excludedPathRefs": [],
-    "blindSpots": [
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#causalCanonical->consumer:packages/main/src/handlers/verifier.ts#causalCanonical",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#causalDependencyContextDigests->consumer:packages/main/src/handlers/certification-window.ts#causalDependencyContextDigests",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#causalDigest->consumer:packages/main/src/handlers/certification-window.ts#causalDigest",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#effectiveCausalEnvironment->consumer:packages/main/src/handlers/verifier.ts#effectiveCausalEnvironment",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#evaluateCausalDependencies->consumer:packages/main/src/handlers/certification-window.ts#evaluateCausalDependencies",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#preflightCausalEvidence->consumer:packages/main/src/handlers/verifier.ts#preflightCausalEvidence",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#resolveCausalToolVersion->consumer:packages/main/src/handlers/verifier.ts#resolveCausalToolVersion",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#verifyCausalPreflight->consumer:packages/main/src/handlers/verifier.ts#verifyCausalPreflight",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/certification-window.ts#currentCertificationIdentity->consumer:packages/main/src/handlers/verifier.ts#currentCertificationIdentity",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/verifier.ts#configuredValidationCommands->consumer:packages/main/src/handlers/checklist.ts#configuredValidationCommands"
-    ],
+    "blindSpots": [],
     "snapshotSeal": {
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:89a08a5020b70f7cba475c3df9474f67c3ff791fa9a2f7caadf8f6cbac205a24",
@@ -651,90 +640,39 @@
       "sourceSnapshotDigest": "sha256:1ddaec98effa926796c219ad4e79d8cea0a48f4c3a3bb12dd4b228feffbe65ed",
       "sourceSnapshotCount": 830,
       "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
-      "status": "partial",
-      "issues": [
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#causalCanonical->consumer:packages/main/src/handlers/verifier.ts#causalCanonical"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#causalDependencyContextDigests->consumer:packages/main/src/handlers/certification-window.ts#causalDependencyContextDigests"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#causalDigest->consumer:packages/main/src/handlers/certification-window.ts#causalDigest"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#effectiveCausalEnvironment->consumer:packages/main/src/handlers/verifier.ts#effectiveCausalEnvironment"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#evaluateCausalDependencies->consumer:packages/main/src/handlers/certification-window.ts#evaluateCausalDependencies"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#preflightCausalEvidence->consumer:packages/main/src/handlers/verifier.ts#preflightCausalEvidence"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#resolveCausalToolVersion->consumer:packages/main/src/handlers/verifier.ts#resolveCausalToolVersion"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/causal-evidence.ts#verifyCausalPreflight->consumer:packages/main/src/handlers/verifier.ts#verifyCausalPreflight"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/certification-window.ts#currentCertificationIdentity->consumer:packages/main/src/handlers/verifier.ts#currentCertificationIdentity"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/verifier.ts#configuredValidationCommands->consumer:packages/main/src/handlers/checklist.ts#configuredValidationCommands"
-        }
-      ],
-      "sealDigest": "sha256:f5b084c1ce664af215ebca916c06ccf5be5b2ca9c6a7daae47c9c1f81c1ad2a2"
+      "status": "complete",
+      "issues": [],
+      "sealDigest": "sha256:042168c05ab7437c47a4a062ee592066332fad70fd0bb889ac59ec481ce795db"
     },
     "binding": {
-      "headHash": "59ec27e1f068d2ba38bb322674d4417acd2b4b37",
+      "headHash": "2cbd3f2f02feeec94a8264673ba15edc63f97c50",
       "materialHash": "baf3b78a5761d16e4017e14de41a2e1c729b5a9e881f1e72e3d79adf6c4cdd9c",
       "storyFilesHash": "0b5fe162a33dc0d860d14e355c345cc2318cf1091ca9bdbcd377c7609734a868",
       "scopeCheckDigest": "sha256:dd962ed6ed303ead91819555f25ab01762c8183354c6e5b7076d37b8c0e733b8",
       "scopeContractDigest": "sha256:bbaafa9ea63e2a951e78372213de1edd4271f3fe47a23493d4db6e8ec68954ae",
       "closureFilesHash": "sha256:b462fa38d2978e77b6e150a78f57fe81536f0a2e5f5ad8b663c22292ab6769bb"
     },
-    "receiptRef": "receipt:coverage-basis:B-5a15:plan:42c7690f6a91b381",
-    "basisDigest": "sha256:b48461df914b381180b5a637ae5bb80d215ef621edf0ddd701ec4cc6d7dd9480"
+    "receiptRef": "receipt:coverage-basis:B-5a15:plan:fa8a75bc9c0b9163",
+    "basisDigest": "sha256:96e3b93b1dec0d430b08bc8bd7ed08edb169224c3eaa879deeebad4d4010505c"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-5a15:plan:42c7690f6a91b381",
+    "receiptRef": "receipt:coverage-basis:B-5a15:plan:fa8a75bc9c0b9163",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
     "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
     "storyId": "B-5a15",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:b48461df914b381180b5a637ae5bb80d215ef621edf0ddd701ec4cc6d7dd9480",
-    "topologyDigest": "sha256:b99e7bc1326d36e845062da1ab5c893c358c4ae00cf7390b611c0fd7dbd125e1",
+    "basisDigest": "sha256:96e3b93b1dec0d430b08bc8bd7ed08edb169224c3eaa879deeebad4d4010505c",
+    "topologyDigest": "sha256:c06794b926a296e5bd3c9aa23b2f468d2c13b19c278bc0df791d017e8fdf55ae",
     "scopeCheckDigest": "sha256:dd962ed6ed303ead91819555f25ab01762c8183354c6e5b7076d37b8c0e733b8",
     "scopeContractDigest": "sha256:bbaafa9ea63e2a951e78372213de1edd4271f3fe47a23493d4db6e8ec68954ae",
-    "headHash": "59ec27e1f068d2ba38bb322674d4417acd2b4b37",
+    "headHash": "2cbd3f2f02feeec94a8264673ba15edc63f97c50",
     "materialHash": "baf3b78a5761d16e4017e14de41a2e1c729b5a9e881f1e72e3d79adf6c4cdd9c",
     "storyFilesHash": "0b5fe162a33dc0d860d14e355c345cc2318cf1091ca9bdbcd377c7609734a868",
     "closureFilesHash": "sha256:b462fa38d2978e77b6e150a78f57fe81536f0a2e5f5ad8b663c22292ab6769bb",
-    "sealDigest": "sha256:f5b084c1ce664af215ebca916c06ccf5be5b2ca9c6a7daae47c9c1f81c1ad2a2",
+    "sealDigest": "sha256:042168c05ab7437c47a4a062ee592066332fad70fd0bb889ac59ec481ce795db",
     "workspaceIdentityDigest": "sha256:502be69be3d8741b5a049f6ed4e08a9bea5b0c7a099a24169e0b2582e7422b78",
-    "signature": "pKCWfMijbGv9TF1PYEjw5i9k/fOgggbdz2k6EicNQbBCcATXhfnTE0L3XO9Qy26D23y+NzKeBI1Yg8dxozmwDA=="
+    "signature": "C9zXsTpvoiKQsfkwkAbYCT6dOWQa/qx7OacbDmrDiCbp9r4m7y1C9nzDlTCMj3CcC4rwsAilqj9AHhwtzmR3Bg=="
   }
 }
