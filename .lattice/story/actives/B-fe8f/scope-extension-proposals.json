@@ -1,6 +1,6 @@
 {
   "storyId": "B-fe8f",
-  "updatedAt": "2026-09-01T10:24:51.591Z",
+  "updatedAt": "2026-09-01T11:21:54.122Z",
   "proposals": [
     {
       "proposalId": "SEP-B-fe8f-001",
@@ -26,6 +26,32 @@
         "decidedAt": "2026-09-01T10:24:51.591Z",
         "rationale": "Accepted because these three files are the minimal production reachability surface for the already-approved real CLI commands; no new product behavior or process-fact authority is added.",
         "_hash": "a4f0b52e6d1ac31dc837bac8e81d3c8124b5f735dbe19ea7497ece43ff45fd2b"
+      }
+    },
+    {
+      "proposalId": "SEP-B-fe8f-002",
+      "storyId": "B-fe8f",
+      "proposedBy": "lattice-init-requirements-reviewer",
+      "proposedAt": "2026-09-01T11:21:41.818Z",
+      "proposal": "Add exactly packages/main/src/handlers/finding.ts to CHK-006 files.modify so GREEN convergence may refactor the existing finding_add withMetaFindingLock critical section to satisfy the unchanged CHK-001 RED source-contract assertion; no other scope is requested.",
+      "proposalTextHash": "e164f6381060acc864e14b81fc130bda37cbffe903ffbce5266d0c7482b860b0",
+      "reason": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:93 requires the literal source shape const id = withMetaFindingLock followed by store.writeFindings(args.storyId, data) and return fid. The current packages/main/src/handlers/finding.ts uses const ledgerCommit = withMetaFindingLock and returns a receipt object, so the immutable RED cannot pass without a narrowly scoped edit to finding.ts. CHK-006 currently permits only version files plus smoke, RED, and verifier test surfaces.",
+      "patch": {
+        "allowed": [],
+        "excluded": [],
+        "executionAllowedCommands": [],
+        "executionAllowedTools": [],
+        "executionExcludedCommands": [],
+        "executionExcludedTools": []
+      },
+      "status": "approved",
+      "_hash": "d6338d5b3c992c3781e870e076b1a68171b089aa9888c7353e99ee319845ecd2",
+      "decision": {
+        "decision": "approved",
+        "decidedBy": "jek",
+        "decidedAt": "2026-09-01T11:21:54.122Z",
+        "rationale": "Independent INIT reviewer proved the immutable CHK-001 RED cannot become GREEN without an equivalent production restructure in packages/main/src/handlers/finding.ts. Accept exactly that file for CHK-006; no additional behavior or Story 2/1 scope.",
+        "_hash": "e979e00d14840e58be01d8107df31a2fedd216aaae631ef9c3fab6dce9a1e0d7"
       }
     }
   ]
