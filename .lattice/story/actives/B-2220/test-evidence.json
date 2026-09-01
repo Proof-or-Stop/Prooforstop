@@ -1,0 +1,2037 @@
+{
+  "command": "proof-or-stop validate --story=B-2220 --json",
+  "output": "{\"provider\":\"lattice-verifier-reused\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0\",\"details\":[\"disposition=reused existingEvidenceBasis=fresh lineage=trusted-story-metadata-descendant\",\"identityDigest=c595b7e7535f9a09d4cc23c24775fcb4f52c84c01f45737a68d318f36fce89b8\",\"commandExecutions=0\",\"Verification intent coverage: 7/7 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/validation-evidence-artifact-growth.md) — The document explicitly records the post-B-3434 human decision that the writer-owned-boundary proposal is declined and not currently justified; WHY: the old unassigned work-order posture is the statement the user asked to change.\",\"  ✓ CHK-001:happy:1 [happy/must/docs] covered via docs_check (docs/requirements/decisions/validation-evidence-artifact-growth.md) — The document keeps B-3434 accepted and preserves the shipped mechanism, measurements, transcripts, and historical finding identifiers as known limitations; WHY: declining new work must not rewrite the completed story or claim the limitations were fixed.\",\"  ✓ CHK-001:happy:2 [happy/must/logic] covered via logic_test — The executable validation-evidence smoke accepts the current declined/no-active-follow-up decision, and a build-binding check proves the executed dist matches the edited source; WHY: the repository contract must agree with the decision document.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/validation-evidence-artifact-growth.md) — The decision explicitly states that measuring and writing one serialized byte string would not establish input consistency, semantic consistency, or evidence truth; WHY: this is the key limitation that makes the proposed refactor disproportionate.\",\"  ✓ CHK-001:edge:1 [edge/must/docs] covered via docs_check (docs/requirements/decisions/validation-evidence-artifact-growth.md) — The document gives concrete evidence-based reconsideration triggers rather than saying the proposal is abandoned forever; WHY: the choice should remain reversible if the risk profile changes.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/validation-evidence-artifact-growth.md) — Active stale mandates are absent: no unassigned owner, work-order declaration, or sentence saying a follow-up story should be scoped; WHY: leaving any of these would contradict the new disposition.\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/validation-evidence-artifact-growth.md) — The independently reviewed final decision record remains byte-for-byte unchanged after acceptance; WHY: an exact digest catches any later paraphrased mandate or deletion without pretending a keyword list can prove arbitrary natural-language semantics. A future document edit must establish a new reviewed decision and digest.\"],\"warnings\":[],\"timestamp\":\"2026-09-01T01:04:29.189Z\",\"commands\":[],\"disposition\":\"reused\",\"commandExecutions\":0,\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":7,\"reason\":\"verificationIntent entries present (7)\"},\"verificationCoverage\":{\"total\":7,\"required\":7,\"covered\":7,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The document explicitly records the post-B-3434 human decision that the writer-owned-boundary proposal is declined and not currently justified; WHY: the old unassigned work-order posture is the statement the user asked to change.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/validation-evidence-artifact-growth.md\",\"result\":\"pass\",\"note\":\"The declined/no-active-work-order statements are present in the reviewed decision document.\",\"headHash\":\"739a2c70058670843b727a041c04a2c341a015aa\",\"materialHash\":\"728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb\",\"storyFilesHash\":\"fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c\",\"mechanical\":false,\"timestamp\":\"2026-09-01T00:31:58.268Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The document keeps B-3434 accepted and preserves the shipped mechanism, measurements, transcripts, and historical finding identifiers as known limitations; WHY: declining new work must not rewrite the completed story or claim the limitations were fixed.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/validation-evidence-artifact-growth.md\",\"result\":\"pass\",\"note\":\"B-3434 acceptance and historical evidence remain in the reviewed decision document.\",\"headHash\":\"739a2c70058670843b727a041c04a2c341a015aa\",\"materialHash\":\"728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb\",\"storyFilesHash\":\"fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c\",\"mechanical\":false,\"timestamp\":\"2026-09-01T00:31:58.268Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The executable validation-evidence smoke accepts the current declined/no-active-follow-up decision, and a build-binding check proves the executed dist matches the edited source; WHY: the repository contract must agree with the decision document.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"logic_test\",\"command\":\"node --input-type=module -e \\\"import { verifyBuildBinding } from './scripts/full-suite-build-binding.mjs'; verifyBuildBinding(process.cwd()); await import('./packages/main/dist/tasks/validation-evidence-buffer-smoke.js');\\\"\",\"result\":\"pass\",\"note\":\"Fresh build binding and compiled B-2220 smoke pass after refreshing the decision measurements and reviewed digest.\",\"headHash\":\"739a2c70058670843b727a041c04a2c341a015aa\",\"materialHash\":\"728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb\",\"storyFilesHash\":\"fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"9c851cebc8a8d80b535b2d6df73b6df25537c72828c12a89587bc51c5e97004d\",\"outputTail\":\"✓ advisory and bound are fractions of the metadata read ceiling this story set\\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\\n✓ the candidate measurement applies the current two-space format (a duplicate of core/store.ts, not a pin of it)\\n✓ realistic 100-command artifact is unbounded and silent\\n    fileBytes=2520044 state=within_budget\\n✓ quote-heavy output is bounded against the candidate serialisation used at check time\\n    innerBytes=19549963 unboundedFile=38878844 boundedFile=19617042\\n✓ the oversized candidate record is reduced with visible markers and JSON contract intact\\n    fileBytes=148993 elidedCommandOutputs=300 elidedDetailLines=250200\\n✓ non-output bulk capped with a diagnostic count\\n    elidedCommandEntries=87 fileBytes=21325604\\n    unknown field: fileBytes=945 disposition=verdict_only\\n    key name: fileBytes=945 disposition=verdict_only\\n    verdict-bearing scalar: fileBytes=1115 disposition=verdict_only\\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\\n    cyclic: disposition=verdict_only withinBound=true\\n    BigInt: disposition=verdict_only withinBound=true\\n    always-throwing getter: disposition=verdict_only withinBound=true\\n    throwing proxy trap: disposition=verdict_only withinBound=true\\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\\n✓ an oversized non-object input is refused rather than given an invented verdict record\\n    fileBytes=31457741 disposition=refused\\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\\n    disposition=reduced fileBytes=16029900 detailsKept=180001\\n✓ an oversized array is refused rather than handed a verdict record it never carried\\n    unboundedFile=31500458 fileBytes=31500458 disposition=refused\\n✓ an unmeetable bound is refused, with text that reads as a refusal\\n    fileBytes=53489886 disposition=refused\\n✓ the size gate sees the candidate record with hash fields, and that bound result supplies the record passed to the writer\\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\\n✓ own volatile source values are snapshotted at check time; inherited prototype mutation remains outside this assertion\\n    fileBytes=1113 toJSONCallsDuringBounding=2\\n    object result: builds=10 record=null disposition=refused\\n    non-object result: builds=1 record=null disposition=refused\\n    array result: builds=1 record=null disposition=refused\\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\\n✓ advisory names measured size and limit and cannot be read as a failure\\n    fileBytes=22676844 state=advisory\\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\\n✓ CHK-004 disposition observed: outcome B shipped, its limitations remain recorded, and no writer-owned-boundary follow-up is currently active\\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18474 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\\nvalidation-evidence-buffer-smoke: PASS\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-09-01T00:31:58.252Z\",\"timeoutMs\":270000},\"timestamp\":\"2026-09-01T00:31:58.268Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The decision explicitly states that measuring and writing one serialized byte string would not establish input consistency, semantic consistency, or evidence truth; WHY: this is the key limitation that makes the proposed refactor disproportionate.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/validation-evidence-artifact-growth.md\",\"result\":\"pass\",\"note\":\"The reviewed decision explicitly limits byte identity and rejects broader consistency/truth claims.\",\"headHash\":\"739a2c70058670843b727a041c04a2c341a015aa\",\"materialHash\":\"728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb\",\"storyFilesHash\":\"fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c\",\"mechanical\":false,\"timestamp\":\"2026-09-01T00:31:58.268Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The document gives concrete evidence-based reconsideration triggers rather than saying the proposal is abandoned forever; WHY: the choice should remain reversible if the risk profile changes.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/validation-evidence-artifact-growth.md\",\"result\":\"pass\",\"note\":\"The reviewed decision lists concrete reopen triggers and requires new human approval.\",\"headHash\":\"739a2c70058670843b727a041c04a2c341a015aa\",\"materialHash\":\"728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb\",\"storyFilesHash\":\"fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c\",\"mechanical\":false,\"timestamp\":\"2026-09-01T00:31:58.268Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Active stale mandates are absent: no unassigned owner, work-order declaration, or sentence saying a follow-up story should be scoped; WHY: leaving any of these would contradict the new disposition.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/validation-evidence-artifact-growth.md\",\"result\":\"pass\",\"note\":\"The reviewed decision contains no stale active owner or mandatory follow-up work order.\",\"headHash\":\"739a2c70058670843b727a041c04a2c341a015aa\",\"materialHash\":\"728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb\",\"storyFilesHash\":\"fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c\",\"mechanical\":false,\"timestamp\":\"2026-09-01T00:31:58.268Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The independently reviewed final decision record remains byte-for-byte unchanged after acceptance; WHY: an exact digest catches any later paraphrased mandate or deletion without pretending a keyword list can prove arbitrary natural-language semantics. A future document edit must establish a new reviewed decision and digest.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/validation-evidence-artifact-growth.md\",\"result\":\"pass\",\"note\":\"The reviewed decision matches the exact independently reviewed SHA-256 digest.\",\"headHash\":\"739a2c70058670843b727a041c04a2c341a015aa\",\"materialHash\":\"728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb\",\"storyFilesHash\":\"fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c\",\"mechanical\":false,\"timestamp\":\"2026-09-01T00:31:58.268Z\"}}]},\"reuse\":{\"lineage\":\"trusted-story-metadata-descendant\",\"existingEvidenceBasis\":\"fresh\",\"refusalReasons\":[],\"identityDigest\":\"c595b7e7535f9a09d4cc23c24775fcb4f52c84c01f45737a68d318f36fce89b8\"}}",
+  "result": "PASS",
+  "timestamp": "2026-09-01T01:04:29.421Z",
+  "headHash": "ed7d3883c4fbdabfd6c3ebbcabd62b304765a08f",
+  "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+  "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+  "verificationCoverage": {
+    "total": 7,
+    "required": 7,
+    "covered": 7,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The document explicitly records the post-B-3434 human decision that the writer-owned-boundary proposal is declined and not currently justified; WHY: the old unassigned work-order posture is the statement the user asked to change.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "The declined/no-active-work-order statements are present in the reviewed decision document.",
+          "headHash": "739a2c70058670843b727a041c04a2c341a015aa",
+          "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+          "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+          "mechanical": false,
+          "timestamp": "2026-09-01T00:31:58.268Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The document keeps B-3434 accepted and preserves the shipped mechanism, measurements, transcripts, and historical finding identifiers as known limitations; WHY: declining new work must not rewrite the completed story or claim the limitations were fixed.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "B-3434 acceptance and historical evidence remain in the reviewed decision document.",
+          "headHash": "739a2c70058670843b727a041c04a2c341a015aa",
+          "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+          "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+          "mechanical": false,
+          "timestamp": "2026-09-01T00:31:58.268Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The executable validation-evidence smoke accepts the current declined/no-active-follow-up decision, and a build-binding check proves the executed dist matches the edited source; WHY: the repository contract must agree with the decision document.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "command": "node --input-type=module -e \"import { verifyBuildBinding } from './scripts/full-suite-build-binding.mjs'; verifyBuildBinding(process.cwd()); await import('./packages/main/dist/tasks/validation-evidence-buffer-smoke.js');\"",
+          "result": "pass",
+          "note": "Fresh build binding and compiled B-2220 smoke pass after refreshing the decision measurements and reviewed digest.",
+          "headHash": "739a2c70058670843b727a041c04a2c341a015aa",
+          "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+          "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9c851cebc8a8d80b535b2d6df73b6df25537c72828c12a89587bc51c5e97004d",
+            "outputTail": "✓ advisory and bound are fractions of the metadata read ceiling this story set\n✓ within_budget / advisory / bounded tiers with an inclusive, deterministic boundary\n✓ the candidate measurement applies the current two-space format (a duplicate of core/store.ts, not a pin of it)\n✓ realistic 100-command artifact is unbounded and silent\n    fileBytes=2520044 state=within_budget\n✓ quote-heavy output is bounded against the candidate serialisation used at check time\n    innerBytes=19549963 unboundedFile=38878844 boundedFile=19617042\n✓ the oversized candidate record is reduced with visible markers and JSON contract intact\n    fileBytes=148993 elidedCommandOutputs=300 elidedDetailLines=250200\n✓ non-output bulk capped with a diagnostic count\n    elidedCommandEntries=87 fileBytes=21325604\n    unknown field: fileBytes=945 disposition=verdict_only\n    key name: fileBytes=945 disposition=verdict_only\n    verdict-bearing scalar: fileBytes=1115 disposition=verdict_only\n✓ bulk outside the modelled dimensions falls back to an admissible record sized by construction\n    cyclic: disposition=verdict_only withinBound=true\n    BigInt: disposition=verdict_only withinBound=true\n    always-throwing getter: disposition=verdict_only withinBound=true\n    throwing proxy trap: disposition=verdict_only withinBound=true\n✓ cyclic, BigInt, throwing-getter and throwing-proxy inputs are bounded rather than propagated\n✓ an oversized non-object input is refused rather than given an invented verdict record\n    fileBytes=31457741 disposition=refused\n✓ heterogeneous density is reduced to fit rather than discarded for the stub\n    disposition=reduced fileBytes=16029900 detailsKept=180001\n✓ an oversized array is refused rather than handed a verdict record it never carried\n    unboundedFile=31500458 fileBytes=31500458 disposition=refused\n✓ an unmeetable bound is refused, with text that reads as a refusal\n    fileBytes=53489886 disposition=refused\n✓ the size gate sees the candidate record with hash fields, and that bound result supplies the record passed to the writer\n    hashDelta=232 withoutHashes=25165823 withHashes=refused\n✓ own volatile source values are snapshotted at check time; inherited prototype mutation remains outside this assertion\n    fileBytes=1113 toJSONCallsDuringBounding=2\n    object result: builds=10 record=null disposition=refused\n    non-object result: builds=1 record=null disposition=refused\n    array result: builds=1 record=null disposition=refused\n✓ a throwing builder yields an honest refusal rather than a second unguarded build\n✓ advisory names measured size and limit and cannot be read as a failure\n    fileBytes=22676844 state=advisory\n✓ advisory is log-only and bounding never mutates the caller result or its verdict\n✓ CHK-004 disposition observed: outcome B shipped, its limitations remain recorded, and no writer-owned-boundary follow-up is currently active\n    rationale=docs/requirements/decisions/validation-evidence-artifact-growth.md bytes=18474 findingIdsNamed=B-3434:F-001,B-3434:F-033,B-3434:F-034,B-3434:F-035,B-3434:F-036,B-3434:F-037\nvalidation-evidence-buffer-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T00:31:58.252Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-01T00:31:58.268Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The decision explicitly states that measuring and writing one serialized byte string would not establish input consistency, semantic consistency, or evidence truth; WHY: this is the key limitation that makes the proposed refactor disproportionate.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "The reviewed decision explicitly limits byte identity and rejects broader consistency/truth claims.",
+          "headHash": "739a2c70058670843b727a041c04a2c341a015aa",
+          "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+          "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+          "mechanical": false,
+          "timestamp": "2026-09-01T00:31:58.268Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The document gives concrete evidence-based reconsideration triggers rather than saying the proposal is abandoned forever; WHY: the choice should remain reversible if the risk profile changes.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "The reviewed decision lists concrete reopen triggers and requires new human approval.",
+          "headHash": "739a2c70058670843b727a041c04a2c341a015aa",
+          "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+          "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+          "mechanical": false,
+          "timestamp": "2026-09-01T00:31:58.268Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Active stale mandates are absent: no unassigned owner, work-order declaration, or sentence saying a follow-up story should be scoped; WHY: leaving any of these would contradict the new disposition.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "The reviewed decision contains no stale active owner or mandatory follow-up work order.",
+          "headHash": "739a2c70058670843b727a041c04a2c341a015aa",
+          "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+          "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+          "mechanical": false,
+          "timestamp": "2026-09-01T00:31:58.268Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The independently reviewed final decision record remains byte-for-byte unchanged after acceptance; WHY: an exact digest catches any later paraphrased mandate or deletion without pretending a keyword list can prove arbitrary natural-language semantics. A future document edit must establish a new reviewed decision and digest.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "result": "pass",
+          "note": "The reviewed decision matches the exact independently reviewed SHA-256 digest.",
+          "headHash": "739a2c70058670843b727a041c04a2c341a015aa",
+          "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+          "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+          "mechanical": false,
+          "timestamp": "2026-09-01T00:31:58.268Z"
+        }
+      }
+    ]
+  },
+  "commandExecution": {
+    "schema": "lattice.routine-validation-command-execution",
+    "version": 1,
+    "status": "PASS",
+    "complete": true,
+    "commandCount": 120,
+    "requiredFailureCount": 0,
+    "optionalFailureCount": 0
+  },
+  "disposition": "reused",
+  "routineValidationIdentity": {
+    "schema": "lattice.routine-validation-identity",
+    "version": 1,
+    "source": {
+      "kind": "configured",
+      "inputDigest": "b75647c10f98d268c5f10edc5f9945815277eb7276e51664ddbf584a74d15b13",
+      "entrypointDigest": null
+    },
+    "commands": [
+      {
+        "label": "configured validate.commands[0]",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 290000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[1]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[2]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[3]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/production-test-seam-guard.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[4]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-list-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[5]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/command-catalog-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[6]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-pass-discard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[7]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[8]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/verification-run-and-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[9]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[10]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[11]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[12]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[13]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validation-evidence-buffer-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[14]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[15]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[16]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[17]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[18]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[19]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-validation-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[20]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[21]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[22]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[23]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-head-drift-proof.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[24]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[25]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/version-bump-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[26]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[27]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[28]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[29]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[30]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[31]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[32]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[33]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[34]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[35]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[36]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[37]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-preflight-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[38]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/english-early-check-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[39]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/quorum-submit-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 1200000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[40]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[41]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[42]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-registry-contract.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[43]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[44]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[45]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[46]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[47]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[48]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[49]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[50]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[51]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[52]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[53]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-repeat-block-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 120000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[54]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[55]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/withdrawn-disposition-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[56]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-policy-canon-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[57]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-target-binding-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[58]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[59]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-chain-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[60]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[61]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-migration-scan.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[62]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[63]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[64]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[65]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[66]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[67]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[68]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-doc-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[69]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[70]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[71]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[72]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[73]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[74]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[75]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[76]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[77]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-lock-liveness.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[78]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-content-binding.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[79]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-reader-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[80]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[81]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[82]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[83]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-s3-differential-probe.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[84]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[85]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2a-canon-differential.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[86]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[87]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2b-binding-store.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[88]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[89]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[90]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[91]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-gate-guard.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[92]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-head-consistency.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[93]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[94]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[95]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[96]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[97]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[98]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/frozen-claim-drift-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[99]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[100]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "--issuer-mutations"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[101]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[102]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[103]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-f88e-downgrade-non-regression.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[104]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[105]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "dc38bd93b7a1430ff8f716be6703a3cf990603312a1585fdf9ad58d94c75c327",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[106]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/validate-plan-scheduling.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[107]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[108]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-parallel-equivalence-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[109]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "B-45a5 standing regression guard (was CHK-001's RED artifact): three clauses, all mandatory. (1) Both REVIEW-path gates must keep EXCLUDING an item-level withdrawal authorized by a confirmed decision. (2) Both must keep biting on everything that is NOT withdrawn, including an item that merely shares an authored verificationIntent id alias with a withdrawn one. (3) Both must keep REFUSING every UNBACKED withdrawal: a status flipped by hand with no decisionRef, a dangling decisionRef, a decisionRef naming a real decision that does not list the item, or a decision overwritten to decision=rejected / userConfirmed=false. Clause 3 is the safety-critical one: without it the withdrawal mechanism is forgeable by hand-editing a JSON status field. Exits 1 if any clause regresses, 2 if a control/premise breaks. CHK-003 removed the pre-fix optional flag, so this is now mandatory",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[111]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[112]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[113]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[114]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[115]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[116]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "B-8df9 REGRESSION: the INIT_CHECK verdict fields (agentResults + issues) stay inside the signature domain (waiver withdrawn in CHK-002; a regression now fails validate)",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 600000,
+        "optional": false,
+        "focus": [
+          "b8df9-init-check-signature"
+        ],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [
+          "b8df9-init-check-signature"
+        ],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[119]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-2220",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "90eb55c2309f8bcca279746a8820da3ec580f939aef5e85cf685778a11cff8e2",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      }
+    ],
+    "invocation": {
+      "full": null,
+      "focus": null,
+      "profile": "strict"
+    },
+    "verificationPolicyDigest": "26e4867278b0541e2b66303eaa3bca91bcf51e0184c3a3b89f3078597ab7bb25",
+    "runtime": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "node": "v26.8.1"
+    },
+    "digest": "c595b7e7535f9a09d4cc23c24775fcb4f52c84c01f45737a68d318f36fce89b8"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "storyId": "B-1fa6",
+  "expected": null,
+  "actual": {
+    "command": "node scripts/verify-core-package-rename.mjs",
+    "exitCode": 0,
+    "stdout": "corePackageName=@proof-or-stop/core\nok core package uses the canonical renamed name\ncliEngineExists=true\nok core build emitted dist/cli-engine.js (exit code alone is insufficient)\nutilsDependsOn=@proof-or-stop/core\nok packages/utils depends on @proof-or-stop/core\nok packages/utils no longer references the deprecated core name\nlabDependsOn=@proof-or-stop/core\nok packages/lab depends on @proof-or-stop/core\nok packages/lab no longer references the deprecated core name\nutilsDistExists=true\nok packages/utils built against the renamed core (cross-package resolution intact)\nrootPackageName=lattice\noq2BoundaryHeld=true\nok ROOT package name stays \"lattice\" (OQ-2 exclusion) while core is renamed\ndeprecatedCoreNameWithoutCanonical=0\nok every @lattice/core mention sits beside the canonical name (read-both), none stranded\n\ncore package rename verified\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-08-31T23:24:58.658Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "e6da7496c5b3da82330bf97b48a03e299693165c",
+  "materialHash": "a65e3c606dd8a88262da4e9f071b0cf86f57cbb58e845eabf49166d03b35c93d"
+}

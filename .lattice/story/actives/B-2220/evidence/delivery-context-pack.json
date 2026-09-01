@@ -1,0 +1,84 @@
+{
+  "storyId": "B-2220",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-2220/acceptance-basis.json",
+      ".lattice/story/actives/B-2220/certification-window.json",
+      ".lattice/story/actives/B-2220/checklist.json",
+      ".lattice/story/actives/B-2220/closeout-write-receipts.jsonl",
+      ".lattice/story/actives/B-2220/delivery-check.json",
+      ".lattice/story/actives/B-2220/dev-memory-preflight-ack.json",
+      ".lattice/story/actives/B-2220/done-required-evidence.json",
+      ".lattice/story/actives/B-2220/evidence/live-smoke-transcript.json",
+      ".lattice/story/actives/B-2220/findings.json",
+      ".lattice/story/actives/B-2220/index.json",
+      ".lattice/story/actives/B-2220/intent-collision.json",
+      ".lattice/story/actives/B-2220/original-intent-snapshot.json",
+      ".lattice/story/actives/B-2220/pre-review-check.json",
+      ".lattice/story/actives/B-2220/process-events.jsonl",
+      ".lattice/story/actives/B-2220/process-metrics.json",
+      ".lattice/story/actives/B-2220/prompt-envelopes.json",
+      ".lattice/story/actives/B-2220/proofstory.json",
+      ".lattice/story/actives/B-2220/review-inventory-epochs.json",
+      ".lattice/story/actives/B-2220/review-passes.json",
+      ".lattice/story/actives/B-2220/review-runs.json",
+      ".lattice/story/actives/B-2220/review.json",
+      ".lattice/story/actives/B-2220/scope-check.json",
+      ".lattice/story/actives/B-2220/scope-contract.json",
+      ".lattice/story/actives/B-2220/stall-adjudication.json",
+      ".lattice/story/actives/B-2220/summary.json",
+      ".lattice/story/actives/B-2220/test-evidence.json",
+      ".lattice/story/actives/B-2220/understanding.json",
+      ".proof-or-stop/dev-memory/finish-decisions/B-2220.json",
+      "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+    ],
+    "summary": " .../story/actives/B-2220/acceptance-basis.json     |  274 ++\n .../story/actives/B-2220/certification-window.json |  163 +\n .lattice/story/actives/B-2220/checklist.json       |  274 +-\n .../actives/B-2220/closeout-write-receipts.jsonl   |   15 +\n .lattice/story/actives/B-2220/delivery-check.json  |   52 +\n .../actives/B-2220/dev-memory-preflight-ack.json   |   14 +\n .../actives/B-2220/done-required-evidence.json     |   91 +\n .../B-2220/evidence/live-smoke-transcript.json     |   20 +\n .lattice/story/actives/B-2220/findings.json        |  359 ++\n .lattice/story/actives/B-2220/index.json           |  365 +-\n .../story/actives/B-2220/intent-collision.json     |   12 +\n .../actives/B-2220/original-intent-snapshot.json   |   13 +\n .../story/actives/B-2220/pre-review-check.json     |  423 ++\n .lattice/story/actives/B-2220/process-events.jsonl |  201 +\n .lattice/story/actives/B-2220/process-metrics.json |  359 ++\n .../story/actives/B-2220/prompt-envelopes.json     | 2880 ++++++++++++\n .lattice/story/actives/B-2220/proofstory.json      |   52 +\n .../actives/B-2220/review-inventory-epochs.json    |  116 +\n .lattice/story/actives/B-2220/review-passes.json   | 1252 +++++\n .lattice/story/actives/B-2220/review-runs.json     | 4782 ++++++++++++++++++++\n .lattice/story/actives/B-2220/review.json          |  351 ++\n .lattice/story/actives/B-2220/scope-check.json     |   92 +\n .lattice/story/actives/B-2220/scope-contract.json  |  207 +\n .../story/actives/B-2220/stall-adjudication.json   |    9 +\n .lattice/story/actives/B-2220/summary.json         |   56 +\n .lattice/story/actives/B-2220/test-evidence.json   | 2037 +++++++++\n .lattice/story/actives/B-2220/understanding.json   |   25 +\n .../dev-memory/finish-decisions/B-2220.json        |   11 +\n .../validation-evidence-artifact-growth.md         |   67 +-\n .../src/tasks/validation-evidence-buffer-smoke.ts  |  136 +-\n 30 files changed, 14612 insertions(+), 96 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "The document states: \"Decision after B-3434: decline the writer-owned canonical boundary as not currently justified.\" It also states: \"B-3434 remains accepted\" and \"Reconsider only if\" followed by evidence-based triggers."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": true,
+    "testFiles": [
+      "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "node --input-type=module -e \"import { verifyBuildBinding } from './scripts/full-suite-build-binding.mjs'; verifyBuildBinding(process.cwd()); await import('./packages/main/dist/tasks/validation-evidence-buffer-smoke.js');\""
+    ]
+  },
+  "candidateRouting": null,
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-09-01T00:50:07.676Z",
+    "headHash": "86611716a1cc3b4368824c92dbbe74abb0c090e1",
+    "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+    "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c"
+  },
+  "reviewRound": "2026-09-01T00:32:22.241Z",
+  "deliveryCheck": {
+    "status": "stale",
+    "ref": {
+      "source": "delivery-check.json",
+      "checkedAt": "2026-09-01T00:04:22.558Z",
+      "headHash": "657e4884475f2964b756553c28effc09f9a3266e",
+      "materialHash": "632d314bb1bb8282e40f0adf29868f71a632f42738d94abde26e7720fdad6e09",
+      "reviewRound": "2026-08-31T23:22:30.466Z",
+      "hash": "556353cf2d8651d5fd22b12ebed4c303cc7dbd5ff92632faa40ac4fdc3e857d7"
+    }
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}
