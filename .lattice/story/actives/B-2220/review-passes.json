@@ -1078,6 +1078,41 @@
       },
       "readDiagnostics": [],
       "_hash": "6b51309935b103a849ad0086eb3dc58a887b26a1b84be7be0d529584cc005d6c"
+    },
+    {
+      "id": "B-2220:RP-031",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 11 main-merge Prompt Envelope re-attestation passed: executed all 7 stored verificationIntent commands unchanged with 7/7 PASS, found 0 gaps and 0 waivers, verified build binding and compiled smoke, and confirmed canonical evidence inspection reports current validation evidence fresh for material 0e04c5d8.",
+      "createdAt": "2026-09-01T00:27:19.491Z",
+      "reviewRound": "2026-09-01T00:24:10.518Z",
+      "reviewRunId": "B-2220:RR-049",
+      "envelopeId": "bfce3b8feaab9b3c4ddbf0cce88f88e63343f2e9d3fba6143f7625f86beb6f67",
+      "writerSessionId": "sess-0ebbc917850513020ba8c17cf9a4e095",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "b7043657707d68642553a89037fc0fc518ce0da08c638c95bcc0845ed26a39fd"
     }
   ]
 }
