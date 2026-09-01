@@ -1881,6 +1881,48 @@
             "timeoutMs": 270000
           },
           "timestamp": "2026-09-01T08:30:37.001Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:live-pre-review-proof",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "The pinned acceptance-basis smoke proves the live pre-review producer and reader reject missing, stale, non-biting, unrelated, or caller-authored proof before the final Story-bound artifact is issued.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d5fbe7b86ad10243ef032eba9604100c84855fc2799b6058080e9efce4d8d55f",
+            "outputTail": "\n> lattice@0.3.268 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.268 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T08:32:08.877Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa0f125942d3a65c61f2c8d88f8372321e17fa12",
+          "materialHash": "15d0d66654c1db3c87212281ee8228678463e1bda44f94b5f55cb7510770585f",
+          "storyFilesHash": "d531c5e781c6e0211d51233ee09eed314316b0d8aca082922c06f5234d545a18",
+          "timestamp": "2026-09-01T08:37:02.857Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:signed-rollout-full-3x2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "The pinned acceptance-basis smoke verifies the signed rollout receipt contract; the persisted Story report is independently read as current full-3x2 before REVIEW.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d5fbe7b86ad10243ef032eba9604100c84855fc2799b6058080e9efce4d8d55f",
+            "outputTail": "\n> lattice@0.3.268 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.268 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T08:33:03.573Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa0f125942d3a65c61f2c8d88f8372321e17fa12",
+          "materialHash": "15d0d66654c1db3c87212281ee8228678463e1bda44f94b5f55cb7510770585f",
+          "storyFilesHash": "d531c5e781c6e0211d51233ee09eed314316b0d8aca082922c06f5234d545a18",
+          "timestamp": "2026-09-01T08:37:02.857Z"
         }
       ],
       "userSeesSnapshot": {
@@ -1958,7 +2000,72 @@
         "headHash": "14d2b2579e979e902e98e148ab8b8445b88480f6",
         "attestedAt": "2026-09-01T00:39:52.964Z",
         "materialHash": "3f6143c249c33b14a34338d477f417d67e4bec72b4b410f4266913548e414ac7"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:canonical-adapter-root",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+          "result": "pass",
+          "note": "The full pre-review smoke resolves the tracked canonical .proof-or-stop-codex/agents root and completes with the expected PASS selector.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0e6e5960685898a753e4b7ec8bc36ff25fbf4b41aea09316bc22044a302d3c6c",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nProofStory pre-review check smoke: PASS\n  producer/read/lifecycle verifier parity: PASS\n  planned→actual + executable/mutation/transcript/authority: PASS\n  tamper + equal-cutoff mutations: BITING\n  topology omission + observe/enforce/warn rollback: PASS\n  Wave 3A/Wave 4 leakage: absent\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T08:34:26.640Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa0f125942d3a65c61f2c8d88f8372321e17fa12",
+          "materialHash": "15d0d66654c1db3c87212281ee8228678463e1bda44f94b5f55cb7510770585f",
+          "storyFilesHash": "d531c5e781c6e0211d51233ee09eed314316b0d8aca082922c06f5234d545a18",
+          "timestamp": "2026-09-01T08:37:02.857Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:legacy-read-fallback",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+          "result": "pass",
+          "note": "The full pre-review smoke exercises canonical-first resolution and the bounded deprecated .lattice-codex/agents read fallback without legacy writes.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0e6e5960685898a753e4b7ec8bc36ff25fbf4b41aea09316bc22044a302d3c6c",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nProofStory pre-review check smoke: PASS\n  producer/read/lifecycle verifier parity: PASS\n  planned→actual + executable/mutation/transcript/authority: PASS\n  tamper + equal-cutoff mutations: BITING\n  topology omission + observe/enforce/warn rollback: PASS\n  Wave 3A/Wave 4 leakage: absent\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T08:35:44.060Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa0f125942d3a65c61f2c8d88f8372321e17fa12",
+          "materialHash": "15d0d66654c1db3c87212281ee8228678463e1bda44f94b5f55cb7510770585f",
+          "storyFilesHash": "d531c5e781c6e0211d51233ee09eed314316b0d8aca082922c06f5234d545a18",
+          "timestamp": "2026-09-01T08:37:02.857Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:missing-assets-fail-closed",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+          "result": "pass",
+          "note": "The full pre-review smoke removes both accepted asset roots in its fixture and verifies a bounded missing-assets failure instead of silent skip.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0e6e5960685898a753e4b7ec8bc36ff25fbf4b41aea09316bc22044a302d3c6c",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nProofStory pre-review check smoke: PASS\n  producer/read/lifecycle verifier parity: PASS\n  planned→actual + executable/mutation/transcript/authority: PASS\n  tamper + equal-cutoff mutations: BITING\n  topology omission + observe/enforce/warn rollback: PASS\n  Wave 3A/Wave 4 leakage: absent\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T08:37:02.700Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "fa0f125942d3a65c61f2c8d88f8372321e17fa12",
+          "materialHash": "15d0d66654c1db3c87212281ee8228678463e1bda44f94b5f55cb7510770585f",
+          "storyFilesHash": "d531c5e781c6e0211d51233ee09eed314316b0d8aca082922c06f5234d545a18",
+          "timestamp": "2026-09-01T08:37:02.857Z"
+        }
+      ]
     }
   ],
   "auditLog": [
