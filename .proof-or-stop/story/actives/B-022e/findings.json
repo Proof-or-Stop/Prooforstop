@@ -1128,7 +1128,7 @@
       "desc": "scripts/verify-global-lab-entrypoint.mjs:96-118 runs nested lab create/run/eval only against createTempProject(), whose initialized default branch has no active Story; only lab help at :84-95 happens to run from the B-022e story branch. The behavior added at packages/main/src/cli-engine.ts:856-876 requires each extension command to declare both ownership and allowed phases, with separate per-command maps in bin/bootstrap-runner.js:158-173 and packages/main/src/cli.ts:27-41. Removing or misclassifying lab_create, lab_run, or lab_eval in either map would leave the current global-Lab test green while those canonical nested commands again fail inside an active Story. WHY: this misses the exact lifecycle context that motivated the fix and can break required Lab verification during Story closeout. Add an active-Story end-to-end fixture that invokes real nested help/create/run/eval and mutation checks that absence of either ownership or allowedPhases fails closed rather than silently prefix/flat-falling back.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-01T08:48:06.923Z",
@@ -1142,7 +1142,11 @@
         "packages/main/src/cli.ts"
       ],
       "signatureTag": "missing|mjs|scripts-verify-global",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in cade1bf954: legal temporary story_create E2E covers DEV positive, REVIEW/TEST nested+flat create/run/eval refusal, compare read-only, missing metadata/handler, and core collision fail-closed.",
+      "resolvedAt": "2026-09-01T09:36:27.386Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-042",
