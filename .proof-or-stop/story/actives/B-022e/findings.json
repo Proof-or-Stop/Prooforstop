@@ -1104,7 +1104,7 @@
       "desc": "doc-promise-undelivered: scripts/verify-proof-or-stop-pack-boundary.mjs:1223-1226 now prints the unconditional exact line `PASS canonical identities`, but runBoundary verifies only manifest/bin identity, package resolution, dependency-tree scope, and the fixed Agent-role set. The script contains no retired LATTICE_* environment-key probe, legacy state/config/adapter path probe, or installed-runtime negative for those identity classes, so a packed runtime that reintroduced an old env reader or .lattice/lattice.config path could still emit this PASS. The source-tree identity verifier invokes this script afterward, but that separate static scan does not make the standalone packed-runtime claim true. Either narrow the line to the exact package/bin/role boundary actually demonstrated, or add clean-installed positive/negative probes for every identity class promised by CHK-005 before printing the broad PASS.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-01T08:47:04.095Z",
@@ -1117,7 +1117,11 @@
         "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
       ],
       "signatureTag": "missing|mjs|promise-undelivered-scripts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in cade1bf954: standalone pack claim is narrowed to PASS packed package/bin/role identities; broad PASS canonical identities is emitted only by the full-tree identity verifier after environment, path, config, adapter, and frozen-boundary checks.",
+      "resolvedAt": "2026-09-01T09:36:26.302Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-041",
