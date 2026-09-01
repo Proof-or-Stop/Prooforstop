@@ -137,10 +137,27 @@
       "headHash": "a09effae42bcfeed3b2f7ea204a5b8cd7f50214d",
       "materialHash": "632d314bb1bb8282e40f0adf29868f71a632f42738d94abde26e7720fdad6e09",
       "hunkDigest": "ff5ea2dee9c8e0f9d1345a8a707b5af7a06624d5fabbd0489177ba088b4cfe5d"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-017 requires the in-scope executable smoke digest to bind the fully corrected decision measurement table.",
+      "timestamp": "2026-09-01T00:32:17.518Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "aaf12649591c54839b727ddd023c50a27e565404",
+      "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+      "hunkDigest": "778545c775b3ab59ccc1ee6fe2fb218b7dd029c146b5eaf0b7586d18375e9d41"
     }
   ],
   "createdAt": "2026-08-30T22:57:42.914Z",
-  "updatedAt": "2026-08-31T23:15:22.487Z",
+  "updatedAt": "2026-09-01T00:32:17.518Z",
   "fileRules": [
     {
       "path": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
