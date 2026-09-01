@@ -335,6 +335,21 @@
       "resolvedAt": "2026-08-31T23:22:45.345Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2220:F-017",
+      "desc": "docs/requirements/decisions/validation-evidence-artifact-growth.md:51-54 — measurement-integrity: the section says these are current values from the compiled smoke, but Round 11 emitted 148993, 16029900, 945/945/1115, and 53489886 while the document records 148987, 16029894, 939-1109, and 53489880. The reviewed digest therefore freezes four stale rows even though the specifically requested three values and six occurrences remain correct; this makes the decision record measurement evidence false and blocks acceptance until the rows and digest-bound verification are refreshed together.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-09-01T00:26:25.145Z",
+      "reviewRound": "2026-09-01T00:24:10.518Z",
+      "reviewRunId": "B-2220:RR-048",
+      "_hash": "6c1815e5d2a6ad9b0b593a1a89cfb553ef193180f385f5d5c1016c002d5acc1a",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
