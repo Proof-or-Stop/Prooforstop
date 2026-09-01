@@ -305,6 +305,40 @@ assertCodexAgentPromptAssetResolution();
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 }
+
+function hermeticCliEnv(
+  sessionTask: string,
+  agent: string,
+  inherited: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv {
+  return {
+    ...inherited,
+    PROOF_OR_STOP_AGENT: agent,
+    LATTICE_AGENT: agent,
+    ...adapterSessionEnv(sessionTask, agent),
+  };
+}
+
+function assertHermeticCliAgentEnv(): void {
+  const sessionTask = 'sess-pre-review-env-contract';
+  const reviewer = 'lattice-review-quality';
+  const adapterEnv = adapterSessionEnv(sessionTask, reviewer);
+  const env = hermeticCliEnv(sessionTask, reviewer, {
+    PROOF_OR_STOP_AGENT: 'acceptance-rollout-verifier',
+    LATTICE_AGENT: 'inherited-producer',
+    PROOF_OR_STOP_SESSION_ID: 'inherited-session',
+    LATTICE_SESSION_ID: 'inherited-session',
+  });
+  assert.equal(env.PROOF_OR_STOP_AGENT, reviewer,
+    'an inherited canonical producer actor cannot override the requested reviewer lane');
+  assert.equal(env.LATTICE_AGENT, reviewer,
+    'the deprecated actor spelling agrees with the requested reviewer lane');
+  for (const [key, value] of Object.entries(adapterEnv)) {
+    assert.equal(env[key], value, `hermetic CLI environment preserves adapterSessionEnv key ${key}`);
+  }
+}
+
+assertHermeticCliAgentEnv();
 /**
  * `sessionTask` is a task LABEL, not a session id.
  *
@@ -322,11 +356,7 @@ function cli(root: string, command: string, args: Record<string, unknown>, allow
   try {
     return execFileSync(process.execPath, [latticeBin, '--root', root, command, JSON.stringify(args)], {
       cwd: root,
-      env: {
-        ...process.env,
-        LATTICE_AGENT: agent,
-        ...adapterSessionEnv(sessionTask, agent),
-      },
+      env: hermeticCliEnv(sessionTask, agent),
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
