@@ -236,7 +236,7 @@
     {
       "id": "CHK-003",
       "title": "Implement exact-record CAS and signed FindingLedgerReceipt consumers",
-      "context": "Implement the accepted FindingLedgerReceipt contract: schemaVersion, ledgerSchemaEpoch, minimumWriterCapability, receiptId, storyId, idempotencyKey, operation, recordIds, casBindings with expected record ID/hash and observed chain head ID/hash plus predicateDigest, priorLedgerDigest, committedLedgerDigest, replayed, committedAt, writer session/lease/fence token, trust fields, receiptHash, and signature. Later schema-neutral consumers must compare the exact referenced persisted record bytes and current chain state under the same fenced transaction; conflict writes no semantic records and idempotent replay returns the original record and receipt IDs.",
+      "context": "Implement the accepted FindingLedgerReceipt contract and exact-record CAS under the fenced transaction. Explicitly support append_assessment_proposal as one immutable exact-union proposal plus one non-recursive receipt, with verifier rejection for wrong authority/signature, altered payload, missing receipt, stale/expired proposal, and proposal/final divergence. Prove mandatory-repair classify/close and expiry-policy records are append-only, unique, idempotent, and never half-visible with manifest references. Later consumers compare exact persisted record bytes/current chain state; conflict writes no semantic records and replay returns original record and receipt IDs.",
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
