@@ -9,7 +9,25 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "RED audit reports which current lock/store behaviors already pass and prints a concrete failing contract plus pre-fix HEAD for each remaining ledger or runtime-evidence gap.",
+      "excludes": [
+        "Do not manufacture a failing race already prevented by current locking.",
+        "Do not implement the GREEN fix in the RED commit."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-002",

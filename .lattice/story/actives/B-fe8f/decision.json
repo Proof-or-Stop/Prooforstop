@@ -1,0 +1,87 @@
+{
+  "principles": [
+    "Fail closed before mutation whenever bytes, CAS state, signer trust, freshness or filesystem capability cannot be proven.",
+    "Keep the ledger schema-neutral: durable persistence authority is distinct from downstream semantic authority.",
+    "Use one canonical fenced transaction boundary and immutable content-addressed evidence rather than duplicated call-site locking.",
+    "Make replay and recovery deterministic, externally queryable and diagnosable without exposing protected storage paths.",
+    "Characterize existing correct behavior first, then write RED only for contracts the current implementation actually violates."
+  ],
+  "drivers": [
+    "Exactly-once behavior under concurrency, crash and retry is a prerequisite for both dependent Stories.",
+    "Runtime receipts must bind source and executed artifacts strongly enough that stale or tampered evidence cannot become gate truth.",
+    "The implementation must preserve current Finding compatibility and avoid any Story 2 or Story 1 dependency."
+  ],
+  "options": [
+    {
+      "name": "Canonical append-only ledger with fenced multi-record transactions",
+      "pros": [
+        "Supports every accepted record operation through one schema-neutral transaction and exact-record CAS contract.",
+        "Provides durable idempotency receipts, recovery, read-only signed query rows and a clean dependency surface for later Stories.",
+        "Lets finding_add reuse the same allocator and persistence boundary while preserving its human display contract."
+      ],
+      "cons": [
+        "Adds a new ledger artifact, content-addressed blob storage and migration/query surface.",
+        "Requires careful lock ordering, file and directory fsync behavior, and legacy read binding."
+      ]
+    },
+    {
+      "name": "Extend findings.json and current verification receipts in place",
+      "pros": [
+        "Fewer new files and less initial wiring.",
+        "Smaller apparent migration surface."
+      ],
+      "cons": [
+        "Cannot atomically represent mixed future record types or multi-record CAS transactions without coupling schemas.",
+        "Conflates display Finding identity, persistence receipt identity and semantic identity.",
+        "Current receipt shape cannot express the accepted artifact/source/trust/content-addressed bindings."
+      ]
+    },
+    {
+      "name": "Use process-events.jsonl as the Finding ledger",
+      "pros": [
+        "Reuses an append lock and existing event infrastructure.",
+        "Naturally append-only."
+      ],
+      "cons": [
+        "Process events are lifecycle telemetry, not a schema-neutral exact-byte transaction store.",
+        "Multi-record atomic commit, idempotency replay, exact CAS and protected query semantics would be awkward and risk granting telemetry unintended authority.",
+        "Would create nested lock and recovery coupling with existing Finding and lifecycle writes."
+      ]
+    }
+  ],
+  "chosen": "Canonical append-only ledger with fenced multi-record transactions",
+  "rationale": "It is the only option that satisfies the adopted exactly-once, multi-record CAS, receipt, recovery, protected-query and runtime-content-addressing contracts while keeping persistence authority separate from Story 2 and Story 1 semantics. Existing locks and Store patterns remain reusable beneath the canonical transaction rather than being replaced by a parallel hierarchy.",
+  "preMortem": [
+    {
+      "scenario": "Two processes both believe they own the writer after stale-lock recovery.",
+      "trigger": "A fixed lock path is reclaimed while an old holder resumes, or the fence token is not persisted and checked at commit.",
+      "consequence": "Both commits succeed, producing duplicate IDs, lost rows or a receipt for bytes that are no longer current.",
+      "mitigation": "Use never-reused acquisition identity plus persisted monotonic fence token; recheck fence and prior ledger digest immediately before atomic publication, and add paused-writer adversarial tests."
+    },
+    {
+      "scenario": "A crash reports success or leaves a receipt visible without all records.",
+      "trigger": "Receipt and semantic rows are written separately, rename is not durably acknowledged, or recovery trusts a partial temp file.",
+      "consequence": "Later Stories consume a half transaction or retry creates duplicate semantic records.",
+      "mitigation": "Serialize one full transaction snapshot, fsync temp file, atomic rename, fsync parent directory, verify installed digest, publish success only afterward, quarantine malformed temp state, and test process kill at every prepare/commit boundary."
+    },
+    {
+      "scenario": "Runtime evidence remains accepted after build output, source, environment, command or signer trust changes.",
+      "trigger": "Verification checks only stored receipt signature or HEAD and omits an artifact digest, allowlist policy, realpath, key freshness or post-run restat.",
+      "consequence": "Source-correct/runtime-wrong bytes can authorize later assessment or gate decisions.",
+      "mitigation": "Canonicalize and content-address every declared input/output, bind source/material/toolchain/trust policy, refuse build-in-progress, restat artifacts after execution, and return explicit stale/tampered/non-authoritative reason codes."
+    },
+    {
+      "scenario": "The new persistence registry accidentally grants semantic gate authority.",
+      "trigger": "A route, baseline, candidate, historical row or bare ledger receipt is registered as L4 pass/block/unblock evidence or a gate reads protected storage directly.",
+      "consequence": "Downstream semantics bypass identity and applicability verification.",
+      "mitigation": "Register persistence integrity and gate-eligible runtime evidence separately, encode non-gate markers, expose only signed query projections, and add registry/direct-consumer/marker mutation tests."
+    },
+    {
+      "scenario": "Ledger locking deadlocks an existing Finding or B-META path.",
+      "trigger": "finding_add holds its old lock while entering the new transaction, or lock acquisition order differs across normal and meta Stories.",
+      "consequence": "Review sessions hang and exactly-once writes never complete.",
+      "mitigation": "Define one lock order, make finding_add delegate rather than nest incompatible locks, reuse the reentrant main lock for B-META, and run contention/deadlock tests covering both paths."
+    }
+  ],
+  "timestamp": "2026-09-01T08:22:44.237Z"
+}
