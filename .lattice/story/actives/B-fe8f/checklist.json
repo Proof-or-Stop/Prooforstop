@@ -215,20 +215,20 @@
           "kind": "logic_test",
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
-          "note": "Replayed immutable RED witness at historical GREEN anchor; current remediation is verified independently by Story3 GREEN smoke.",
+          "note": "Replayed immutable RED witness at historical GREEN anchor after final B-fe8f fixture correction.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "a68bad9e202ae11fe13cb27d0a712cb2eeee511ab07b5b95e1a7679bf63baa31",
             "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-01T15:02:05.065Z",
+            "executedAt": "2026-09-01T15:20:38.476Z",
             "timeoutMs": 270000
           },
-          "headHash": "7d6d9f540c042450bdf894a1eab288fe63c762c4",
-          "materialHash": "224423682eee99ddcb7d5a6354b4e12f2eb22434578e3a3a7d0efae23b63209b",
-          "storyFilesHash": "87bf434ed2144199d3a9508f243187bb754ff3c07bb785950e4ac14f414b9033",
-          "timestamp": "2026-09-01T15:02:05.219Z"
+          "headHash": "81c4623acdcb9bd3156e2654a82fc1c4321ae453",
+          "materialHash": "560f1c769c34868fadf372de0d9fb144f86bf842ff978c82740eb7824786b295",
+          "storyFilesHash": "3b67b90ef90027def801ebb09466410dbe3f009f80f1e6a64d36c3c5fab01f07",
+          "timestamp": "2026-09-01T15:20:38.631Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
