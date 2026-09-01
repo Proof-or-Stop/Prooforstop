@@ -18301,6 +18301,50 @@
       ],
       "signatureTag": "edge|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-335",
+      "desc": "packages/main/src/core/causal-evidence.ts:1332,1406 [medium] evaluateCausalDependencies is the only signing site in the module that hardcodes process.cwd() as its authority root, instead of threading an explicit recorded root. Every other authority path binds a root deliberately: the receipt signs and verifies against key.identity.cwd / receipt.identity.cwd (735, 533), and the preflight records authorityRoot INSIDE the signed payload and re-derives it on verify (952, 1024, plus the report.authorityRoot === authorityRoot equality check), so a preflight signature is self-describing and cwd-independent. The dependency decision does neither: it signs with process.cwd() at 1332 and verifyCausalDependencyDecision re-derives the key from process.cwd() at 1406, with no authorityRoot recorded in decisionCore. Two reproduced consequences. (1) AMBIENT-KEY MINTING: calling evaluateCausalDependencies while cwd is outside any repo causes readOrCreateCausalAuthorityPrivateKey to CREATE a brand-new key under that directory - running it with cwd=/private/tmp created /private/tmp/.proof-or-stop/runtime/lattice-causal-evidence-authority-v1.key - and the resulting decision then self-verifies as valid under that foreign key, so gateAdmissible=true is signed by an authority unrelated to the project. (2) CWD-COUPLED FALSE TAMPER: a decision minted in the worktree verifies true there but returns false after process.chdir() elsewhere, and verifyCausalDependencyDecision has no way to distinguish that from real tampering - certification-window.ts:494/501 and 794 map a false return onto the blocker text \"CausalEvidence decision is missing or tampered\" and detectCertificationWindowMaterialDrift reports \"causal dependency decision is missing or tampered\". Today both are latent because currentCertificationIdentity builds and consumes the decision in one process whose cwd is the repo, so this is a robustness/maintainability defect rather than a live gate bypass - but it is one process.chdir(), one --root invocation, or one persisted decision away from either a spurious tamper blocker or an off-repo-signed decision, and it is inconsistent with the two sibling paths in the same file. Fix: mirror the preflight pattern - resolve the root from the decision context (storyId/project root) rather than ambient cwd, record it as an authorityRoot field inside the signed decisionCore, re-derive and equality-check it in verifyCausalDependencyDecision, and add a cross-cwd test asserting a decision stays verifiable after chdir and that an off-repo root cannot mint an accepted decision.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-01T08:54:07.889Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-787",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "cec9fa5e04cd51e9a49239c1ddf74c027289004a9110e67a7fe3191a61af93d5",
+      "files": [
+        "packages/main/src/core/causal-evidence.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
