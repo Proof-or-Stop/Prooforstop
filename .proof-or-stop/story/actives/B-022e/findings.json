@@ -947,6 +947,24 @@
       ],
       "signatureTag": "doc-code-drift|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-035",
+      "desc": "scripts/verify-proof-or-stop-identity-cutover.mjs:858-872 recursively scans both decoded JSON object keys and values, but the executable append-only mutation block at lines 1557-1562 only injects a Unicode-escaped retired token into a value. There is no committed Unicode-escaped retired-key mutation that would fail if the scan(key) branch regressed while scan(entry) stayed green. WHY: this exact encoding class already caused a verifier bypass; current behavior is correct, but CHK-007:adversarial:0 lacks regression coverage for the key half of the boundary. Reproduced by source audit plus passing `node scripts/verify-proof-or-stop-identity-cutover.mjs --self-test`, whose current assertions cover the escaped value only.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-01T00:24:16.388Z",
+      "reviewRound": "2026-09-01T00:13:36.641Z",
+      "reviewRunId": "B-022e:RR-061",
+      "_hash": "769d441a1876b7ac86a42c1ebb27fe1d538be282afdeef801331322dd73a1e01",
+      "files": [
+        "scripts/verify-proof-or-stop-identity-cutover.mjs"
+      ],
+      "signatureTag": "missing|mjs|scripts-verify-proof",
+      "signatureTagSource": "auto"
     }
   ]
 }
