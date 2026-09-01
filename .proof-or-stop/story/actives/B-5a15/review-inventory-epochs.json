@@ -6045,9 +6045,9 @@
       "epochId": "B-5a15:RIE-070",
       "storyId": "B-5a15",
       "reviewRound": "2026-08-31T20:13:27.698Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-09-01T09:45:49.585Z",
-      "updatedAt": "2026-09-01T09:45:49.585Z",
+      "updatedAt": "2026-09-01T09:46:38.494Z",
       "cutoff": {
         "headHash": "5aa18261aad66ff5dd383073ff7040a4476add93",
         "materialHash": "40bfd3f1471abb9891b7b81efd348758ef6bf3310f97f9bd770e5ef72a7db418",
@@ -6058,7 +6058,10 @@
       "maxWaves": 1,
       "waves": [],
       "receiptId": "B-5a15:RIE-070:RCP-001",
-      "_hash": "d705244a88fedc3c37fbccbb4eee3024d5847d6b6f5c3ce1c1bfbe51a303bc42"
+      "cancelledAt": "2026-09-01T09:46:38.494Z",
+      "cancelReason": "Receipt RIE-070 was minted before its own metadata commit landed, so the acceptance subject moved after finalize and remediation DEV refused it; re-mint on an already-clean tree.",
+      "terminalRunSequenceBoundary": 787,
+      "_hash": "6bb043345ffe28b4633cb51e7fc5a9cc963e56c1ee1a0f6bfe0155e1dd46d9e6"
     }
   ],
   "receipts": [
@@ -7034,7 +7037,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-09-01T09:45:49.585Z",
-      "_hash": "95919aaec1e9d3d077fad37256a1c988567a80b7fa1a4d6b550123cc4cbb0693"
+      "invalidatedAt": "2026-09-01T09:46:38.494Z",
+      "invalidationReason": "Receipt RIE-070 was minted before its own metadata commit landed, so the acceptance subject moved after finalize and remediation DEV refused it; re-mint on an already-clean tree.",
+      "_hash": "83771509243c3976b559dc60dd530fd86cb3543e0a55dd6b47efea5ef21b2989"
     }
   ],
   "criticReceipts": [
