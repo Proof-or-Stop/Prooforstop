@@ -25383,7 +25383,7 @@
       "desc": "The validation runtime tracer child_process wrapper (validation-runtime-tracer.cjs:123-131) replaces execFile with a bare wrapper function that does not carry over util.promisify.custom or other own properties of the original. Any traced descendant that uses util.promisify(execFile) silently gets the generic promisify fallback, which resolves with the bare stdout string instead of {stdout, stderr}. Concrete failure: run-proofstory-acceptance-rollout-cohort.mjs:168-182 destructures {stdout: output} from the resolved value, output becomes undefined, and .split throws TypeError, aborting the root full test suite (npm test 0/58) under done_required_validate while the identical suite passes 58/58 without the tracer. Reproduced deterministically by running proofstory-acceptance-rollout-smoke.js with NODE_OPTIONS=--require .../validation-runtime-tracer.cjs. Fix: copy own property descriptors (at minimum the util.promisify.custom symbol) from the original child_process function onto each wrapper so the tracer is transparent to promisify, plus a regression test that asserts promisify(execFile) still resolves {stdout, stderr} under the tracer.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-01T17:17:05.151Z",
@@ -25394,7 +25394,8 @@
         "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
       ],
       "signatureTag": "adversarial|cjs|validation-runtime-tracer",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-45a0:F-473@8532bbd"
     }
   ]
 }
