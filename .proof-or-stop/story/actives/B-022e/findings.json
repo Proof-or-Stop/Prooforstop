@@ -1404,6 +1404,21 @@
       "resolvedAt": "2026-09-01T12:04:31.714Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-053",
+      "desc": "packages/utils/package.json:3,17-18 and packages/main/package.json:10,17-20 — WHY: the newly published Utils runtime requires Core extension-api plus injected ctx.extensionRuntime, both introduced only at Core 0.3.268, but Utils remains version 0.3.65 and declares peer @proof-or-stop/core ^0.3.65. Semver confirms that range accepts 0.3.65, while c45cc496c7^ has neither the ./extension-api export nor runtime injection, so npm can admit a declared-compatible install that cannot run the documented Utils bootstrap. scripts/verify-proof-or-stop-pack-boundary.mjs:872-886 tests only the current exact Core tarball and therefore cannot detect the incompatible admitted lower bound; packages/utils/src/index.ts:4-16 also omits the required runCli import from the new public subpath. Align the published Utils version/peer lower bound with the first compatible Core and add a clean-consumer negative/compatibility-floor regression so the public package contract cannot false-pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-01T12:08:41.464Z",
+      "reviewRound": "2026-09-01T12:04:15.986Z",
+      "reviewRunId": "B-022e:RR-093",
+      "_hash": "9768d8c2d12f799d831343706261e1013ac6b6d8276a2a732e006c2d1e428729",
+      "signatureTag": "missing|unknown|packages-utils-package",
+      "signatureTagSource": "auto"
     }
   ]
 }
