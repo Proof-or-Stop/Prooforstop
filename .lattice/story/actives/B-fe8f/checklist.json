@@ -588,7 +588,7 @@
     {
       "id": "CHK-006",
       "title": "GREEN: prove ledger atomicity and runtime freshness contracts",
-      "context": "Turn every genuine RED case GREEN, preserve audit-characterized existing behavior, and add adversarial concurrency, 100 unique appends plus replay, mixed-record transactions, legacy binding, exact CAS conflict, revoke-versus-apply serialization, crash recovery, migration, signature and trust, hash drift, artifact mutation, non-authority, no-nested-lock-deadlock, dependency-boundary, deterministic scorecard, protected query, rollback, and kill-switch verification evidence.",
+      "context": "Turn every genuine RED case GREEN without weakening the original assertion or red_green_relation, preserve audit-characterized existing behavior, and run the full concurrency, transaction, runtime, registry, query, dependency, rollback and mutation matrix. Because this Story changes Proof-or-Stop CLI and runtime behavior, increment the patch version and synchronize package.json, lockfile and the runtime version constant as required by repository version discipline; verify proof-or-stop --version after merge preparation.",
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
@@ -603,7 +603,9 @@
       "files": {
         "modify": [
           "package.json",
-          "packages/main/package.json"
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/version.ts"
         ],
         "create": [
           "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
