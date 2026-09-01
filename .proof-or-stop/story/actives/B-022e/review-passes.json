@@ -2783,6 +2783,52 @@
         "scanEscalationReason": "Full context was required because the known execution environment changed; all current evidence bindings, exact intent mapping, validation status, configured suite size, and the absence of product drift were independently rechecked."
       },
       "_hash": "9526a0872e40f6e61716dd970de8a328a765d65b0aa072eaa562017c1a895269"
+    },
+    {
+      "id": "B-022e:RP-071",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round31 reviewer-requested full-context concept review passed: the complete main-to-story diff and identity replacement boundary were re-audited at current material; active Proof-or-Stop package, CLI, role, config, prompt, and documentation surfaces remain canonical, exact historical/provenance allowances remain fail-closed, F-057/F-058 composition mutations and clean controls pass, no product diff exists after the final fix, current validation is PASS, and 29/29 verification intents remain covered. Wave4 remains an observe-mode local assurance boundary and no Authority or production claim is made.",
+      "createdAt": "2026-09-01T19:21:41.074Z",
+      "reviewRound": "2026-09-01T19:12:48.879Z",
+      "reviewRunId": "B-022e:RR-142",
+      "envelopeId": "659ccfe870b4c04926d693a18b7d537358c7620b9adf2ad28c98c888e3960ee5",
+      "writerSessionId": "sess-c31b7ef7e8115fc1beb570b22221317c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/extension-admission.ts",
+          "packages/main/src/core/extension-runtime.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+          "packages/utils/package.json",
+          "proof-or-stop.config.json",
+          "README.md",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "scripts/verify-proof-or-stop-pack-boundary.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": "REVIEWER_REQUESTED_FULL: prior incremental concept envelope became invalid after later cross-lane metadata; the entire current diff, concept replacement boundary, evidence bindings, and promise-to-implementation mapping were re-audited without incremental eligibility dependence."
+      },
+      "_hash": "e3d1427a2e5faa74d8fad98d06c8bb3b79a9f054ac084a55eb031f4de7045c1b"
     }
   ]
 }
