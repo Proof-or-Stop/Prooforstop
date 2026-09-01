@@ -12317,6 +12317,62 @@
       },
       "readDiagnostics": [],
       "_hash": "277686bcbfc0abc3ed98a5093a24a763d15faf4d7cd13aa703fff7cec9e2eff3"
+    },
+    {
+      "id": "B-5a15:RP-251",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test-coverage review PASS at head 5a954e3. Coverage: 53 verificationIntent (22 must-priority), 0 must-gaps, 0 waivers, 0 fail-result evidence; all 53 evidence rows are logic_test, 51/53 mechanical. 51/53 pinned selectors were observed in the current suite output; the only 2 absent (CHK-004:happy:2, CHK-004:happy:3) are priority=should and belong to the DEV-gated acceptance-artifact tests already tracked as F-329/F-331. Re-verified the three updated F-336/F-337 production-graph expectations by independently recomputing reverse-reachability from CERTIFICATION_DOMAIN_DEPENDENCIES (all six closures match the asserted values exactly) and by mutation-testing the compiled dist the test loads: reverting the test->integration edge, reverting the integration->review-subject edge, and dropping manifest-semantic->integration each FAIL the assertions, so none encodes a bug and all three bite. Confirmed both premises in the tree: scripts/ classifies as integration and scripts/verify-process-fact-contract.mjs reads AGENTS.md plus docs/requirements/decisions/*.md as load-bearing assertion inputs; 69 test-domain files reference integration artifacts (commit understated 24). F-333 positive control re-verified: admit===true on the unmutated fixture, and neutering each of the four production checks (openBlockingFindingIds, missingRequiredIntents, dirtyNonRuntimePaths, PRE_CERT_CAUSAL_FRESHNESS_REQUIRED) individually fails the test, so no branch is vacuous. F-314's ['certification-test'] remains correct because it mutates a test-domain file and test stays terminal under the new edges. Full pinned suite reproduces 19 pass / 2 fail with exactly the two known F-247/F-249-series DEV-gated failures. Additionally probed for a fourth instance of the same under-invalidation class: 49 source-domain files reference doc paths, but the only one that hashes doc content at runtime (core/decision-doc-quorum.ts:132) is classification/diagnostic-only and hashes by git object-id against the same HEAD, holding no cached evidence that could go false-fresh, so no source->review-subject edge is missing. dist restored byte-identical after every mutation; no files edited. No new blocker.",
+      "createdAt": "2026-09-01T10:15:23.501Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-795",
+      "envelopeId": "ab4388aebc9ce823bbe71a29b723591c3cd7373acf0f9a6638c6c5d9e87ce170",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/decision-doc-quorum.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ddbdfc17633ff27afb5d1246815963c558c34c8789abe3ca00f6f8b280128b08"
+      },
+      "readDiagnostics": [],
+      "_hash": "8600728af8c6a0c515c5c19b469eff3d61d34d0ba79b01019d24a20bc5929ce5"
     }
   ]
 }
