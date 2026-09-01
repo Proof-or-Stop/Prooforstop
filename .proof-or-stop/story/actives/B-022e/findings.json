@@ -1022,6 +1022,28 @@
       "resolvedAt": "2026-09-01T01:11:52.832Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-037",
+      "desc": "packages/main/src/cli.ts:27-41 and bin/bootstrap-runner.js:158-172 declare lab_create and lab_run as mainSharedMutating but admit both in all active-Story phases. cli-engine.ts:856-869 then bypasses the normal phaseTools gate for those rows, while packages/lab/src/handlers/lab.ts:219-283 writes experiment configs/directories, creates sandboxes, and persists baseline/run artifacts; mainSharedMutating also intentionally avoids the per-Story owner lease. Therefore any session can run material-writing Lab operations during REVIEW/TEST and invalidate a supposedly frozen candidate instead of being forced back to DEV. The new tests exercise nested routing only without an active Story and do not catch this lifecycle escape. Keep read-only lab help/eval/compare/promote available broadly, but constrain mutating create/run to a justified lifecycle phase or make lifecycle/ownership arg-aware for genuinely non-writing dry-run behavior.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-01T08:45:46.567Z",
+      "reviewRound": "2026-09-01T08:42:04.267Z",
+      "reviewRunId": "B-022e:RR-072",
+      "_hash": "e70ca9f69cf967ee5cbfb9ebb7dcd4da855adee242537b7f21212f65023bf1bb",
+      "files": [
+        "packages/main/src/cli.ts",
+        "bin/bootstrap-runner.js",
+        "packages/main/src/cli-engine.ts",
+        "packages/lab/src/handlers/lab.ts",
+        "scripts/verify-global-lab-entrypoint.mjs"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-bootstrap",
+      "signatureTagSource": "auto"
     }
   ]
 }
