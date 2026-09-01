@@ -772,7 +772,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:183-407 — HIGH semantic-authority bypass remains after a89e7261d9. A fresh read-only probe built the real current B-9a49 StoryStore/FullTaskContext under signed run RR-044 and assembled lattice-review-test-coverage. The guard ACCEPTED equivalent unsafe authority: `The severity rating independently decides whether the current Story owns this defect.`, `When applicability has not been evaluated, the issue may leave this Story.`, and `A closed Finding is sufficient evidence that the issue is nonapplicable.` It also accepted `The seriousness score is the exclusive basis for assigning this defect to the Story.` and `Archiving the Finding proves it is outside the Story boundary.` while correctly rejecting a neighboring unauthorized-certification mutation. These are semantic equivalents of the required severity-only, unknown-applicability routing, and dismissal-as-applicability families, so an assembled signed REVIEW envelope can still carry contradictory authority through uncovered synonyms/speech acts. Add discriminating RED cases and bind the semantic families beyond the present finite wording list; rerun the real five-role probe and old-source mutation proof.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-09-01T14:18:34.631Z",
@@ -784,7 +784,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by expanding semantic families while preserving relation and polarity scoping. RED 2cde1d0c87 rejects the three uncovered unsafe synonyms after GREEN 3157799946; safe current-context regressions are proven by RED/GREEN pairs ad23ea558a to 7b5eb1262f, d41d8784f1 to db0308e7e1, and 93e05e8aab to eefef8a687. Current matrices reject unsafe 45 of 45 and accept safe 45 of 45 in quality review, with equivalent independent concept, test-coverage, and docs confirmation.",
+      "resolvedAt": "2026-09-01T15:14:37.789Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
