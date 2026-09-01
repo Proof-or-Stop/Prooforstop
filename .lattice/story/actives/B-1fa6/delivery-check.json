@@ -1,0 +1,70 @@
+{
+  "storyId": "B-1fa6",
+  "checkedAt": "2026-08-31T23:29:45.297Z",
+  "headHash": "e29965fe86abb134041ed34ef0a0230ef2590574",
+  "materialHash": "a65e3c606dd8a88262da4e9f071b0cf86f57cbb58e845eabf49166d03b35c93d",
+  "storyFilesHash": "1842410e15d01916803297d9d898108277c832a8578ac8d5bb23fa628021e5e2",
+  "reviewRound": "2026-08-31T21:15:39.856Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "promise": "Enumerate exactly seven historical Finding failure classes, each with reproducible evidence, mechanism, desired invariant, and current-status caveat.",
+      "status": "verified",
+      "verifiedBy": "Independent reverse scan of sections 3, 4, and 8 plus authorized finding_list and learning/source-lineage CLI queries.",
+      "evidence": "Sections 4 P1-P7 and section 8 map named B-cdf6/B-META incidents; current CLI returned every named Finding, while section 3 binds volatile corpus figures to 2026-08-30 and HEAD e3f9a311."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "promise": "Define exactly four components and one end-to-end authority boundary from detector signal through a fresh signed applicability decision to the shared gate.",
+      "status": "verified",
+      "verifiedBy": "Independent reverse scan of sections 1, 5, 6, 7, and 15.",
+      "evidence": "Finding Ledger Integrity, Candidate and Defect Identity, Dynamic Applicability, and Freshness and Supersession are separately specified; candidates and history remain non-authoritative until current evidence is minted."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "promise": "Decompose implementation into three Stories with explicit ownership, dependency order, inputs, outputs, and falsifiable acceptance criteria.",
+      "status": "verified",
+      "verifiedBy": "Independent reverse scan of sections 8 and 9.",
+      "evidence": "Story 1 Dynamic Finding Applicability, Story 2 Finding Identity and Historical Lineage, and Story 3 Finding Ledger and Runtime Evidence Integrity are allocated with Story 3A/3B internal sequencing and an acyclic dependency contract."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "promise": "Specify defer-with-proof without allowing it to become a waiver or bypass for current regressions, protected surfaces, or high/critical defects.",
+      "status": "verified",
+      "verifiedBy": "Independent reverse scan of sections 7.2, 7.3, 10, 13, and 15.",
+      "evidence": "Deferral is limited to current-reproduced verified applicable low/medium findings with no acceptance impact, no current regression, no protected-surface impact, a live target owner and signed receipt, exact CAS, expiry and recall. High/critical and protected-surface cases require Red, root cause, fix, Green, and closure."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "promise": "Preserve the package-name scope boundary while explaining how a future @lattice/lab to @proof-or-stop/lab rename becomes dynamically applicable.",
+      "status": "verified",
+      "verifiedBy": "Independent reverse scan of section 12 plus the canonical package rename guard.",
+      "evidence": "Section 12 pairs historical @lattice/core with canonical @proof-or-stop/core, keeps prior scope decisions intact, requires clean-install/package-resolution proof for a future lab rename, and excludes utils/root/frozen identities. verify-core-package-rename passed with deprecatedCoreNameWithoutCanonical=0."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "promise": "Define observe, warn, enforce, rollback, scorecard safety floors, stopping rules, and merged-state implementation acceptance.",
+      "status": "verified",
+      "verifiedBy": "Independent reverse scan of sections 10, 11, 13, and 15.",
+      "evidence": "Enforce is refused on missing prerequisites or any false non-blocking/false deferral/integrity failure; rollback restores the prior predicate; scorecard rows specify numerators, denominators, thresholds, and rollback triggers."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Current TEST evidence records proof-or-stop validate --story=B-1fa6 --json as PASS at 2026-08-31T23:23:06.344Z. proof-or-stop.config.json contains exactly 120 validate commands, and evidence_inspect reports the test evidence fresh with no stale refs."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "proof-or-stop live_smoke_transcript --storyId=B-1fa6 --json reports present-fresh and readiness status pass because the recorded command exited successfully. node scripts/verify-core-package-rename.mjs also passed and reported deprecatedCoreNameWithoutCanonical=0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "PASS: all six delivery promises are independently verified against the target document, authorized historical evidence, fresh 120-command TEST evidence, and a fresh successful live-smoke transcript. No document/code edits or unresolved delivery blockers were found."
+  },
+  "_hash": "1525f07276b09c4c31bd9da3047699ebb43566f8ef974418cfd31a587313c931"
+}
