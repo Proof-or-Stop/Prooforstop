@@ -479,7 +479,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Read-only ledger query returns signed row digests and exact scorecard inputs without filesystem paths; registry verification refuses any mutation that promotes persistence-only rows into blocker, pass or unblock authority.",
+      "userSees": "The terminal prints \"registry.story3_fact_contract: PASS\", \"query.protected_read_only: PASS signedRows=true pathsExposed=0\", and \"registry.persistence_non_authority: PASS lifecycleDelta=0\".",
       "excludes": [
         "No direct protected-storage parsing by downstream scorecards.",
         "No L4 authority for standalone candidate, route, baseline, historical or ledger receipt rows."
