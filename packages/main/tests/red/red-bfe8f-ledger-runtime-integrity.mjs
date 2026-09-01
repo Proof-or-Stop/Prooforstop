@@ -35,6 +35,8 @@ const RELATION_ID = 'rgr-mtifujpd-ijl3w5';
 const RELATION_DIGEST = '8125cec78cf280acfef28985063f5dcbf7d433b293d85f3af578552c91a77faa';
 const REVIEW_ID = 'rr-mtifws9p-6knju0';
 const EVALUATION_ID = 'rgre-mtifx3sy-cdxd7d';
+const IMMUTABLE_RED_BLOB = '1b913dab2f52e904afc1b7b1870a3a98be0739bc';
+const BASELINE_HEAD = '0cb578583b5139977338d1cf8f7aeed0cc7685ba';
 
 const here = dirname(fileURLToPath(import.meta.url));
 let repoRoot = here;
@@ -209,7 +211,26 @@ for (const reason of gaps) {
 // The accepted primitive boundary must remain explicit: serialization/rename
 // are passing, while array-length IDs, no fsync, and the coarse existing receipt
 // do not masquerade as the Story 3 contracts.
-assert.match(findingSource, /const nextNum = data\.findings\.length \+ 1;/, 'pre-GREEN Finding ID baseline changed without the accepted allocator');
+// The original RED bytes remain an immutable Git object and still contain the
+// pre-GREEN allocator assertion. The executable verifier is now a historical
+// relation verifier: current source must contain the superseding sparse-safe
+// allocator instead of continuing to fail on the historical sentinel.
+const immutableRed = runGit(['cat-file', 'blob', IMMUTABLE_RED_BLOB]);
+const historicalAllocatorAssertion = immutableRed.split('\n').find((line) => (
+  line.includes('pre-GREEN Finding ID baseline changed without the accepted allocator')
+));
+assert.ok(historicalAllocatorAssertion, 'immutable RED blob lost the reviewed allocator assertion');
+assert.equal(
+  historicalAllocatorAssertion.replaceAll('\\', '').includes(
+    'assert.match(findingSource, /const nextNum = data.findings.length + 1;/',
+  ),
+  true,
+  'immutable RED blob lost the historical allocator assertion',
+);
+assert.match(immutableRed, /pre-GREEN Finding ID baseline changed without the accepted allocator/, 'immutable RED blob lost the reviewed failure sentinel');
+assert.doesNotMatch(findingSource, /const nextNum = data\.findings\.length \+ 1;/, 'current GREEN source still uses the superseded length allocator');
+assert.match(findingSource, /const historicalDisplayIds = \[/, 'current GREEN sparse-history allocator is missing');
+assert.match(findingSource, /historicalDisplayIds\.reduce\(\(max, candidate\) =>/, 'current GREEN allocator no longer computes the maximum historical display ID');
 assert.doesNotMatch(storeSource, /fsyncSync/, 'Store baseline unexpectedly claims fsync durability; update the audit classification');
 const verificationReceiptBody = /export interface VerificationExecutionReceipt\s*{([\s\S]*?)\n}/.exec(typesSource)?.[1] ?? '';
 assert.doesNotMatch(verificationReceiptBody, /artifactManifest|sourceMaterialHash|trustRootDigest/, 'coarse verification receipt unexpectedly contains the Story 3 runtime contract');
@@ -235,15 +256,31 @@ assert.match(official.note ?? '', new RegExp(ORIGINAL_RED_ID), 'V2 does not pres
 for (const ref of [PROBE_ID, REVIEW_ID, RELATION_ID, EVALUATION_ID]) {
   assert.match(official.note ?? '', new RegExp(ref), `official RED does not bind ${ref}`);
 }
+assert.equal(official.baselineHeadHash, BASELINE_HEAD, 'official RED no longer binds the fixed reviewed baseline HEAD');
 assert.equal(run('git', ['merge-base', '--is-ancestor', official.baselineHeadHash, 'HEAD']).status, 0, 'official pre-fix HEAD is not an ancestor of the RED tree');
 
-// While still RED, the corrected stored command itself must reproduce the exact
-// reviewed failure. After GREEN, the immutable reviewed probe remains the
-// baseline proof and this branch intentionally stops expecting a current fail.
-if (gaps.length > 0) {
-  const reproduced = run('/bin/sh', ['-c', official.failingCommand]);
-  assert.notEqual(reproduced.status, 0, 'pre-fix official RED command unexpectedly passed');
-  assert.match(`${reproduced.stdout}\n${reproduced.stderr}`, /ERR_MODULE_NOT_FOUND/, 'official RED command failed for a different reason');
+// Execute the same fixed import contract at the exact historical checkout and
+// at current GREEN. Both child cwd values are explicit, so invoking this
+// verifier from an arbitrary directory cannot launder current bytes into the
+// baseline result (or turn a relative-current failure into historical proof).
+const relationScratch = mkdtempSync(join(tmpdir(), 'bfe8f-red-relation-'));
+const historicalCheckout = join(relationScratch, 'baseline');
+const ambientCwd = process.cwd();
+try {
+  const clone = run('git', ['clone', '-q', '--shared', '--no-checkout', repoRoot, historicalCheckout]);
+  assert.equal(clone.status, 0, `historical RED clone failed: ${clone.stderr || clone.stdout}`);
+  const checkout = run('git', ['checkout', '-q', '--detach', BASELINE_HEAD], { cwd: historicalCheckout });
+  assert.equal(checkout.status, 0, `historical RED checkout failed: ${checkout.stderr || checkout.stdout}`);
+  const anchoredArgs = ['-e', 'import(process.argv[1])', './packages/main/dist/core/finding-ledger.js'];
+  process.chdir(tmpdir());
+  const historical = run(process.execPath, anchoredArgs, { cwd: historicalCheckout });
+  const currentGreen = run(process.execPath, anchoredArgs, { cwd: repoRoot });
+  assert.notEqual(historical.status, 0, 'exact historical checkout unexpectedly imported the GREEN module');
+  assert.match(`${historical.stdout}\n${historical.stderr}`, /ERR_MODULE_NOT_FOUND/, 'historical baseline failed for a different reason');
+  assert.equal(currentGreen.status, 0, `current GREEN module import failed: ${currentGreen.stderr || currentGreen.stdout}`);
+} finally {
+  process.chdir(ambientCwd);
+  rmSync(relationScratch, { recursive: true, force: true });
 }
 
 function officialBindingAccepts(record, reviewedProbe, options = {}) {

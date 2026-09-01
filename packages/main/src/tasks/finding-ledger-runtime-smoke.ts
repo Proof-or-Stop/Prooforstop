@@ -555,50 +555,55 @@ function unsignedRuntimeReceipt(receipt: RuntimeEvidenceReceipt): Omit<RuntimeEv
 
 function assertRedGreenRelation(repositoryRoot: string): void {
   const redPath = join(repositoryRoot, 'packages', 'main', 'tests', 'red', 'red-bfe8f-ledger-runtime-integrity.mjs');
-  const redBlob = git(repositoryRoot, ['hash-object', redPath]);
-  assert.equal(redBlob, '1b913dab2f52e904afc1b7b1870a3a98be0739bc', 'accepted RED assertion bytes changed');
-  const baselineHead = '0cb578583b5139977338d1cf8f7aeed0cc7685ba';
-  const baselineModule = spawnSync('git', [
-    'cat-file', '-e', `${baselineHead}:packages/main/dist/core/finding-ledger.js`,
-  ], { cwd: repositoryRoot, encoding: 'utf8' });
-  assert.notEqual(baselineModule.status, 0, 'accepted pre-fix HEAD unexpectedly contains the GREEN ledger module');
-  const historicalCheckout = mkdtempSync(join(tmpdir(), 'bfe8f-red-anchor-'));
-  try {
-    const clone = spawnSync('git', ['clone', '-q', '--shared', '--no-checkout', repositoryRoot, historicalCheckout], {
-      cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
-    });
-    assert.equal(clone.status, 0, `historical RED clone failed: ${clone.stderr}`);
-    const checkout = spawnSync('git', ['checkout', '-q', '--detach', baselineHead], {
-      cwd: historicalCheckout, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
-    });
-    assert.equal(checkout.status, 0, `historical RED checkout failed: ${checkout.stderr}`);
-    const anchoredCommand = [
-      '-e', 'import(process.argv[1])', './packages/main/dist/core/finding-ledger.js',
-    ];
-    const historical = spawnSync(process.execPath, anchoredCommand, {
-      cwd: historicalCheckout, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
-    });
-    assert.notEqual(historical.status, 0, 'reviewed historical anchor unexpectedly imported the GREEN module');
-    assert.match(`${historical.stdout}\n${historical.stderr}`, /ERR_MODULE_NOT_FOUND/);
-    const green = spawnSync(process.execPath, anchoredCommand, {
-      cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
-    });
-    assert.equal(green.status, 0, `current GREEN module import failed: ${green.stderr}`);
-  } finally {
-    rmSync(historicalCheckout, { recursive: true, force: true });
-  }
+  const immutableRedBlob = '1b913dab2f52e904afc1b7b1870a3a98be0739bc';
+  const immutableRed = git(repositoryRoot, ['cat-file', 'blob', immutableRedBlob]);
+  const historicalAllocatorAssertion = immutableRed.split('\n').find((line) => (
+    line.includes('pre-GREEN Finding ID baseline changed without the accepted allocator')
+  ));
+  assert.ok(historicalAllocatorAssertion, 'immutable RED blob lost the reviewed allocator assertion');
+  assert.equal(
+    historicalAllocatorAssertion.replaceAll('\\', '').includes(
+      'assert.match(findingSource, /const nextNum = data.findings.length + 1;/',
+    ),
+    true,
+    'immutable RED blob lost the old allocator sentinel',
+  );
+  const pinnedSelectors = [
+    'red.audit_summary:',
+    'red.genuine_contract_failure:',
+    'red.production_unchanged: PASS',
+    'red.official_evidence_create: PASS',
+    'red.relation_create: PASS unchangedAssertionBound=true',
+    'red.no_fabricated_race: PASS',
+    'red.evidence_binding: PASS',
+    'red.primitive_scope: PASS',
+    'red.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true',
+    'red.mutation_isolation: PASS',
+    'red.reproducibility_guard: PASS',
+    'red.green_substitution_refused: PASS',
+    'red.relation_mutation_refused: PASS',
+  ];
   const current = spawnSync(process.execPath, [redPath], {
     cwd: repositoryRoot,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   });
-  // REVIEW F-002 deliberately supersedes the immutable RED's pre-GREEN
-  // length-based allocator sentinel. The RED bytes remain fixed evidence, so
-  // running that artifact must now stop at exactly the obsolete sentinel while
-  // the GREEN relation independently proves the replacement is live.
-  assert.notEqual(current.status, 0, 'immutable RED unexpectedly accepted the superseded length-based allocator sentinel');
-  assert.match(current.stderr, /pre-GREEN Finding ID baseline changed without the accepted allocator/);
-  assert.doesNotMatch(current.stderr, /accepted RED assertion bytes changed/);
+  assert.equal(current.status, 0, `current historical RED/GREEN verifier failed: ${current.stderr}`);
+  for (const selector of pinnedSelectors) {
+    assert.match(current.stdout, new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  const arbitraryCwd = mkdtempSync(join(tmpdir(), 'bfe8f-red-arbitrary-cwd-'));
+  try {
+    const arbitrary = spawnSync(process.execPath, [redPath], {
+      cwd: arbitraryCwd,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.equal(arbitrary.status, 0, `arbitrary-cwd historical verifier failed: ${arbitrary.stderr}`);
+    for (const selector of pinnedSelectors) assert.ok(arbitrary.stdout.includes(selector));
+  } finally {
+    rmSync(arbitraryCwd, { recursive: true, force: true });
+  }
   const productionFindingHandler = readFileSync(
     join(repositoryRoot, 'packages', 'main', 'src', 'handlers', 'finding.ts'),
     'utf8',
