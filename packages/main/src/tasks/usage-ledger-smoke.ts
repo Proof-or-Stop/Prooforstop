@@ -85,7 +85,7 @@ function check(label: string, fn: () => void): void {
   }
 }
 
-const LEDGER_ENV = { LATTICE_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
+const LEDGER_ENV = { PROOF_OR_STOP_USAGE_LEDGER: '1' } as NodeJS.ProcessEnv;
 
 /** Build a valid provider-reported record body (without integrity). */
 function validRecord(over: Partial<UsageLedgerRecordInput> = {}): UsageLedgerRecordInput {
@@ -387,19 +387,19 @@ try {
   // ----------------------------------------------------------------------
   check('CHK-006 flag default ON (no env) and parsing of truthy/falsy values', () => {
     assert.equal(isUsageLedgerEnabled({}), true);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '0' }), false);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '1' }), true);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: 'true' }), true);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: '0' }), false);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: '1' }), true);
+    assert.equal(isUsageLedgerEnabled({ PROOF_OR_STOP_USAGE_LEDGER: 'true' }), true);
   });
 
   check('CHK-006 flag OFF (explicit =0) => strict no-op (no file, no dir) even after 10 calls', () => {
     const dir = mkdtempSync(join(root, 'flagoff-'));
     for (let i = 0; i < 10; i += 1) {
-      const res = appendUsageRecord(dir, validRecord(), { env: { LATTICE_USAGE_LEDGER: '0' } });
+      const res = appendUsageRecord(dir, validRecord(), { env: { PROOF_OR_STOP_USAGE_LEDGER: '0' } });
       assert.equal(res.written, false);
     }
     assert.equal(existsSync(resolveLedgerPath(dir)), false);
-    assert.equal(existsSync(join(dir, '.lattice')), false, 'no directory created when flag OFF');
+    assert.equal(existsSync(join(dir, '.proof-or-stop')), false, 'no directory created when flag OFF');
   });
 
   check('CHK-006 flag ON => one line written', () => {
@@ -446,9 +446,9 @@ try {
     assert.equal(verifyLedgerChain(resolveLedgerPath(dir)).length, 3);
   });
 
-  check('CHK-002 writer creates .lattice/usage/ when absent', () => {
+  check('CHK-002 writer creates .proof-or-stop/usage/ when absent', () => {
     const dir = mkdtempSync(join(root, 'mkdir-'));
-    assert.equal(existsSync(join(dir, '.lattice')), false);
+    assert.equal(existsSync(join(dir, '.proof-or-stop')), false);
     appendUsageRecord(dir, validRecord(), { env: LEDGER_ENV });
     assert.equal(existsSync(resolveLedgerPath(dir)), true);
   });
@@ -533,7 +533,7 @@ try {
   // CHK-005: runtime-artifact classification
   // ----------------------------------------------------------------------
   check('CHK-005 path classifies as exclude + volatile + repairable, entry id=llm-usage-ledger', () => {
-    const p = '.lattice/usage/llm-usage.jsonl';
+    const p = '.proof-or-stop/usage/llm-usage.jsonl';
     const entry = findRuntimeArtifactEntry(p);
     assert.ok(entry, 'entry must be found');
     assert.equal(entry!.id, 'llm-usage-ledger');
@@ -545,13 +545,13 @@ try {
     assert.equal(isRepairableTrackedRuntimeArtifactPath(p), true);
   });
 
-  check('CHK-005 ignorePatterns include .lattice/usage/ (gitignored)', () => {
-    assert.ok(listRuntimeArtifactIgnorePatterns().includes('.lattice/usage/'));
+  check('CHK-005 ignorePatterns include .proof-or-stop/usage/ (gitignored)', () => {
+    assert.ok(listRuntimeArtifactIgnorePatterns().includes('.proof-or-stop/usage/'));
   });
 
   check('CHK-005 adjacent prefix file matches; story-evidence path does NOT match the ledger entry', () => {
-    assert.equal(findRuntimeArtifactEntry('.lattice/usage/other-file.jsonl')?.id, 'llm-usage-ledger');
-    const story = findRuntimeArtifactEntry('.lattice/story/actives/B-253e/usage.jsonl');
+    assert.equal(findRuntimeArtifactEntry('.proof-or-stop/usage/other-file.jsonl')?.id, 'llm-usage-ledger');
+    const story = findRuntimeArtifactEntry('.proof-or-stop/story/actives/B-253e/usage.jsonl');
     assert.notEqual(story?.id, 'llm-usage-ledger', 'matcher must not catch story evidence paths');
   });
 

@@ -22,7 +22,7 @@ export function appendRawProcessEventBytes(
   bytes: Buffer | string,
   // B-d877 R3 FIX B / R4 (codex #3): the RELOCATED append lock dir is now
   // MANDATORY. It must resolve under the gitignored shared
-  // `.lattice/locks/process-events/` prefix (via StoryStore.runtimeLockDirPath /
+  // `.proof-or-stop/locks/process-events/` prefix (via StoryStore.runtimeLockDirPath /
   // storyRuntimeLockPath) so a transient holder.json can NEVER be created inside
   // the git-tracked story dir and dirty the tree. Making it a required parameter
   // — with NO in-story-dir fallback default — means the compiler forces every

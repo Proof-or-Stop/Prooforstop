@@ -49,10 +49,10 @@ function assertPolicyContracts(): void {
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
   }, null, 2) + '\n');
 }
 
@@ -83,7 +83,7 @@ function seedStory(store: StoryStore): void {
 }
 
 function assertNoOverclaim(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-observability-contract-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-observability-contract-'));
   try {
     writeConfig(root);
     resetConfigCache();
@@ -118,8 +118,8 @@ function assertSourceBoundaries(): void {
   const combinedCore = `${projectionSource}\n${snapshotSource}`;
   assert.doesNotMatch(combinedCore, /\bsession_brief\s*\(/, 'projection/snapshot core must not call session_brief');
   assert.doesNotMatch(combinedCore, /\bstatus\s*\(/, 'projection/snapshot core must not call status');
-  assert.doesNotMatch(snapshotSource, /readFileSync|\.lattice\/story|docs\/story/, 'snapshot adapter must not directly read backing story JSON');
-  assert.doesNotMatch(snapshotHandlerSource, /\.lattice\/story|docs\/story/, 'snapshot handler must not directly read backing story JSON');
+  assert.doesNotMatch(snapshotSource, /readFileSync|\.proof-or-stop\/story|docs\/story/, 'snapshot adapter must not directly read backing story JSON');
+  assert.doesNotMatch(snapshotHandlerSource, /\.proof-or-stop\/story|docs\/story/, 'snapshot handler must not directly read backing story JSON');
   const retiredStoryProjectionCommand = ['story', 'authority', 'resolve'].join('_');
   assert.doesNotMatch(dashboardSource, new RegExp(`${retiredStoryProjectionCommand}|observability_snapshot`), 'M1 must not wire the terminal dashboard UI');
 }

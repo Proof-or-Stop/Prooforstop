@@ -54,15 +54,15 @@ function git(root: string, args: string[], author = 'Story 6 Matrix'): string {
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.', rootDir: '.', testsDir: 'tests', fixturesDir: 'tests/fixtures',
-    storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+    storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
     browser: { devCommand: 'node fake-browser.js' },
     promptEnvelope: {
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
       roles: {
-        'lattice-review-quality': 'legacy-full-context',
-        'lattice-review-concept': 'legacy-full-context',
+        'proof-or-stop-review-quality': 'legacy-full-context',
+        'proof-or-stop-review-concept': 'legacy-full-context',
       },
     },
   }, null, 2));
@@ -155,7 +155,7 @@ try {
 
   const snapshot = captureReviewRunSnapshot(root, { storyId, storyPhase: 'REVIEW' }, root);
   const run = makeRun({
-    storyId, reviewRunId: `${storyId}:RR-001`, agent: 'lattice-review-quality', reviewRound,
+    storyId, reviewRunId: `${storyId}:RR-001`, agent: 'proof-or-stop-review-quality', reviewRound,
     startedAt: '2026-07-21T03:00:30.000Z', headHash: snapshot.headHash, materialHash: snapshot.materialHash,
     storyFilesHash: snapshot.storyFilesHash,
   });
@@ -181,7 +181,7 @@ try {
   );
 
   const wrongLaneRun = makeRun({
-    storyId, reviewRunId: run.reviewRunId, agent: 'lattice-review-concept', reviewRound,
+    storyId, reviewRunId: run.reviewRunId, agent: 'proof-or-stop-review-concept', reviewRound,
     startedAt: run.startedAt, headHash: run.headHash, materialHash: run.materialHash, storyFilesHash: run.storyFilesHash,
   });
   store.writeReviewRuns(storyId, { runs: [wrongLaneRun] });
@@ -204,7 +204,7 @@ try {
   store.writeReviewPasses(storyId, { passes: [] });
   store.appendProcessEvent(storyId, {
     type: 'dispatch', storyId, phase: 'REVIEW', source: 'Story 6 audit-only control',
-    targetKind: 'story-dispatch', agentType: 'lattice-review-quality', promptEnvelopeId: 'a'.repeat(64),
+    targetKind: 'story-dispatch', agentType: 'proof-or-stop-review-quality', promptEnvelopeId: 'a'.repeat(64),
     promptEnvelopeDigest: 'b'.repeat(64), assembledPromptDigest: 'c'.repeat(64),
   });
   const auditOnlyEvidence = collectReviewerEvidenceState(store, storyId, root);
@@ -227,7 +227,7 @@ try {
   const ctx = { root, scanRoot: root, store } as never;
   const checklistHandlers = createChecklistHandlers(ctx);
   const authorityError = captureError(
-    () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', status: 'done', actor: 'lattice-review-quality' }),
+    () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', status: 'done', actor: 'proof-or-stop-review-quality' }),
     /agent_dispatch_mutation_denied/,
   );
   observedReasons.authority = /agent_dispatch_mutation_denied/.exec(String(authorityError))![0];
@@ -238,7 +238,7 @@ try {
   const findingHandlers = createFindingHandlers(ctx);
   assert.throws(
     () => findingHandlers.review_pass_set({
-      storyId, agent: 'lattice-implementer', reviewRunId: 'RR-denied', note: 'must not persist',
+      storyId, agent: 'proof-or-stop-implementer', reviewRunId: 'RR-denied', note: 'must not persist',
       readManifest: { routedCandidates: [], fullyRead: [], triaged: [] },
     }),
     /agent_dispatch_mutation_denied/,
@@ -264,7 +264,7 @@ try {
   store.writeDeliveryCheck(storyId, {
     storyId, checkedAt: '2026-07-21T03:04:00.000Z', headHash: snapshot.headHash,
     materialHash: snapshot.materialHash, storyFilesHash: snapshot.storyFilesHash, reviewRound,
-    agentId: 'lattice-review-delivery', docsPromises, realMachineTests, closingSelfCheck,
+    agentId: 'proof-or-stop-review-delivery', docsPromises, realMachineTests, closingSelfCheck,
     _hash: signDeliveryCheck(
       storyId, docsPromises, realMachineTests, closingSelfCheck, reviewRound,
       snapshot.materialHash, snapshot.storyFilesHash,

@@ -19,7 +19,7 @@ const ITEM_REVIEW_EVIDENCE = ['review-run', 'finding', 'review-pass'] as const;
  */
 export const AGENT_DISPATCH_REGISTRY = [
   {
-    canonicalName: 'lattice-implementer',
+    canonicalName: 'proof-or-stop-implementer',
     aliases: [],
     roleClass: 'implementer',
     allowedPhases: ['DEV', 'TEST_CASE'],
@@ -47,7 +47,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     evidenceOwnership: ['verification-intent'],
   },
   {
-    canonicalName: 'lattice-review-story-init',
+    canonicalName: 'proof-or-stop-review-story-init',
     aliases: [],
     roleClass: 'init-reviewer',
     allowedPhases: ['INIT'],
@@ -57,7 +57,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     promptBuilderByIdentifier: {},
     permittedMutations: ['init_check_set'],
     commitAllowed: false,
-    reviewerLane: 'lattice-review-story-init',
+    reviewerLane: 'proof-or-stop-review-story-init',
     evidenceOwnership: ['init-check'],
   },
   {
@@ -75,7 +75,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     evidenceOwnership: ['init-check'],
   },
   {
-    canonicalName: 'lattice-review-scope-plan',
+    canonicalName: 'proof-or-stop-review-scope-plan',
     aliases: [],
     roleClass: 'scope-reviewer',
     allowedPhases: ['PLAN'],
@@ -85,11 +85,11 @@ export const AGENT_DISPATCH_REGISTRY = [
     promptBuilderByIdentifier: {},
     permittedMutations: ['scope_check_save', 'topology_exclusion_approval_set'],
     commitAllowed: false,
-    reviewerLane: 'lattice-review-scope-plan',
+    reviewerLane: 'proof-or-stop-review-scope-plan',
     evidenceOwnership: ['scope-check', 'topology-exclusion-approval'],
   },
   {
-    canonicalName: 'lattice-review-topology-critic',
+    canonicalName: 'proof-or-stop-review-topology-critic',
     aliases: [],
     roleClass: 'scope-reviewer',
     allowedPhases: ['PLAN', 'DEV', 'REVIEW'],
@@ -99,17 +99,17 @@ export const AGENT_DISPATCH_REGISTRY = [
     promptBuilderByIdentifier: {},
     permittedMutations: ['topology_critic_receipt_set'],
     commitAllowed: false,
-    reviewerLane: 'lattice-review-topology-critic',
+    reviewerLane: 'proof-or-stop-review-topology-critic',
     evidenceOwnership: ['topology-critic-receipt'],
   },
   ...([
-    'lattice-review-concept',
-    'lattice-review-quality',
-    'lattice-review-behavior',
-    'lattice-review-docs',
+    'proof-or-stop-review-concept',
+    'proof-or-stop-review-quality',
+    'proof-or-stop-review-behavior',
+    'proof-or-stop-review-docs',
     // Retained for read-only historical classification. Runtime dispatch and
     // evidence eligibility reject it from the Prompt Role Contract registry.
-    'lattice-review-channel',
+    'proof-or-stop-review-channel',
   ] as const).map((canonicalName) => ({
     canonicalName,
     aliases: [],
@@ -125,7 +125,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     evidenceOwnership: ITEM_REVIEW_EVIDENCE,
   })),
   {
-    canonicalName: 'lattice-review-test-coverage',
+    canonicalName: 'proof-or-stop-review-test-coverage',
     aliases: [],
     roleClass: 'coverage-reviewer',
     allowedPhases: ['REVIEW'],
@@ -135,11 +135,11 @@ export const AGENT_DISPATCH_REGISTRY = [
     promptBuilderByIdentifier: {},
     permittedMutations: ITEM_REVIEW_MUTATIONS,
     commitAllowed: false,
-    reviewerLane: 'lattice-review-test-coverage',
+    reviewerLane: 'proof-or-stop-review-test-coverage',
     evidenceOwnership: ITEM_REVIEW_EVIDENCE,
   },
   {
-    canonicalName: 'lattice-review-delivery',
+    canonicalName: 'proof-or-stop-review-delivery',
     aliases: [],
     roleClass: 'delivery-reviewer',
     allowedPhases: ['TEST'],
@@ -149,11 +149,11 @@ export const AGENT_DISPATCH_REGISTRY = [
     promptBuilderByIdentifier: {},
     permittedMutations: ['delivery_check_set'],
     commitAllowed: false,
-    reviewerLane: 'lattice-review-delivery',
+    reviewerLane: 'proof-or-stop-review-delivery',
     evidenceOwnership: ['delivery-check'],
   },
   {
-    canonicalName: 'lattice-finding-repair',
+    canonicalName: 'proof-or-stop-finding-repair',
     aliases: [],
     roleClass: 'repairer',
     allowedPhases: ['DEV'],
@@ -167,7 +167,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     evidenceOwnership: ['finding-resolution'],
   },
   {
-    canonicalName: 'lattice-cluster-repair',
+    canonicalName: 'proof-or-stop-cluster-repair',
     aliases: [],
     roleClass: 'repairer',
     allowedPhases: ['DEV'],
@@ -312,13 +312,13 @@ for (const entry of AGENT_DISPATCH_REGISTRY) {
 }
 
 export const AGENT_DISPATCH_ACCEPTED_TYPES = Object.freeze(
-  [...byName.keys()].filter(name => name !== 'lattice-review-channel').sort(),
+  [...byName.keys()].filter(name => name !== 'proof-or-stop-review-channel').sort(),
 );
 
 /** Resolve one explicit type or the deliberate omitted-type implementer default. */
 export function resolveAgentDispatchType(agentType?: string): ResolvedAgentDispatchType {
   if (agentType === undefined) {
-    const entry = byName.get('lattice-implementer')!;
+    const entry = byName.get('proof-or-stop-implementer')!;
     return {
       entry,
       requestedType: undefined,
@@ -330,12 +330,12 @@ export function resolveAgentDispatchType(agentType?: string): ResolvedAgentDispa
   if (agentType.trim().length === 0) {
     throw new AgentDispatchRegistryError(
       'blank_agent_type',
-      `agentType must be omitted for the lattice-implementer default or be one of: ${AGENT_DISPATCH_ACCEPTED_TYPES.join(', ')}`,
+      `agentType must be omitted for the proof-or-stop-implementer default or be one of: ${AGENT_DISPATCH_ACCEPTED_TYPES.join(', ')}`,
       AGENT_DISPATCH_ACCEPTED_TYPES,
     );
   }
   const entry = byName.get(agentType);
-  if (!entry || entry.canonicalName === 'lattice-review-channel') {
+  if (!entry || entry.canonicalName === 'proof-or-stop-review-channel') {
     throw new AgentDispatchRegistryError(
       'unknown_agent_type',
       `${entry ? 'retired' : 'unknown'} agentType "${agentType}"; accepted types: ${AGENT_DISPATCH_ACCEPTED_TYPES.join(', ')}`,

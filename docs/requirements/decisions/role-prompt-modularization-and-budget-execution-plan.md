@@ -12,7 +12,7 @@ concurrent-writer masks (`11111`, `01010`, and `10101`) and all gate/mutation
 assertions. Canonical root testing runs the `10101` burn-in once because the
 historical twenty iterations are identical repetitions of that fixed mask.
 Soak testing retains the original twenty repetitions by setting
-`LATTICE_INCREMENTAL_STRESS=1`; this is an opt-in stress tier, not a substitute
+`PROOF_OR_STOP_INCREMENTAL_STRESS=1`; this is an opt-in stress tier, not a substitute
 for the deterministic canonical matrix.
 
 ## Decision
@@ -65,10 +65,10 @@ Use the canonical Proof-or-Stop decision-doc promotion flow, preserve the review
 
 ### 2. 背景与当前基线
 
-当前 `proof-or-stop-prompt-baseline.json` 记录 **17** 个角色的最终 `agent_prompt` 输出（`expectedRoleCount: 17`，由 `scripts/verify-proof-or-stop-prompt-baseline.mjs` 的 `EXPECTED_ROLE_COUNT` 钉住；其中 13 个带 `lattice-` 前缀，该前缀的迁移由 `proof-or-stop-agent-prompt-consolidation-execution-plan.md` 负责）。
+当前 `proof-or-stop-prompt-baseline.json` 记录 **17** 个角色的最终 `agent_prompt` 输出（`expectedRoleCount: 17`，由 `scripts/verify-proof-or-stop-prompt-baseline.mjs` 的 `EXPECTED_ROLE_COUNT` 钉住；其中 13 个带 `proof-or-stop-` 前缀）。
 
 这 16 项是历史兼容基线，不等于当前 active role 集合。其中
-`lattice-review-channel` 已退役，由 `proof-or-stop validate --channel` 的机械 gate
+`proof-or-stop-review-channel` 已退役，由 `proof-or-stop validate --channel` 的机械 gate
 接管；它只应保留在 compatibility/audit baseline 中，不得作为待迁移的 active
 reviewer 重新启用。
 
@@ -76,20 +76,20 @@ reviewer 重新启用。
 
 | 角色 | 当前字节数 | 当前行数 |
 |---|---:|---:|
-| `lattice-review-story-init` | 18,300 | 272 |
-| `lattice-review-scope-plan` | 14,896 | 207 |
-| `lattice-implementer` | 14,642 | 238 |
-| `lattice-review-behavior` | 14,270 | 186 |
-| `lattice-review-delivery` | 13,264 | 289 |
-| `lattice-review-channel` | 12,113 | 194 |
-| `lattice-review-docs` | 12,101 | 201 |
-| `lattice-review-quality` | 10,105 | 177 |
-| `lattice-review-concept` | 9,595 | 153 |
-| `lattice-evaluator` | 8,907 | 202 |
+| `proof-or-stop-review-story-init` | 18,300 | 272 |
+| `proof-or-stop-review-scope-plan` | 14,896 | 207 |
+| `proof-or-stop-implementer` | 14,642 | 238 |
+| `proof-or-stop-review-behavior` | 14,270 | 186 |
+| `proof-or-stop-review-delivery` | 13,264 | 289 |
+| `proof-or-stop-review-channel` | 12,113 | 194 |
+| `proof-or-stop-review-docs` | 12,101 | 201 |
+| `proof-or-stop-review-quality` | 10,105 | 177 |
+| `proof-or-stop-review-concept` | 9,595 | 153 |
+| `proof-or-stop-evaluator` | 8,907 | 202 |
 | `test-case-reviewer` | 8,767 | 155 |
 | `test-intent` | 7,572 | 168 |
-| `lattice-review-test-coverage` | 4,404 | 56 |
-| `lattice-evaluator-cli` | 4,375 | 120 |
+| `proof-or-stop-review-test-coverage` | 4,404 | 56 |
+| `proof-or-stop-evaluator-cli` | 4,375 | 120 |
 | `product-reviewer` | 3,262 | 92 |
 | `implementation-reviewer` | 2,158 | 83 |
 | **合计** | **158,731** | **2,793** |
@@ -417,7 +417,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 
 ### 7. 16 个角色的具体修改方案
 
-#### 7.1 `lattice-review-story-init`
+#### 7.1 `proof-or-stop-review-story-init`
 
 保留：
 
@@ -435,7 +435,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 
 目标：从 18.3 KB 降到不超过 12 KB。
 
-#### 7.2 `lattice-review-scope-plan`
+#### 7.2 `proof-or-stop-review-scope-plan`
 
 保留：
 
@@ -452,7 +452,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 
 目标：不超过 10 KB。
 
-#### 7.3 `lattice-implementer`
+#### 7.3 `proof-or-stop-implementer`
 
 保留：
 
@@ -470,7 +470,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 
 目标：不超过 10 KB。
 
-#### 7.4 `lattice-review-behavior`
+#### 7.4 `proof-or-stop-review-behavior`
 
 保留：
 
@@ -486,7 +486,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 
 目标：不超过 8 KB。
 
-#### 7.5 `lattice-review-delivery`
+#### 7.5 `proof-or-stop-review-delivery`
 
 保留：
 
@@ -504,7 +504,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 
 目标：从 13.3 KB / 289 行降到不超过 10 KB / 180 行。
 
-#### 7.6 `lattice-review-channel`
+#### 7.6 `proof-or-stop-review-channel`
 
 处理：
 
@@ -516,7 +516,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 - 现有 prompt 资产只为历史审计或兼容读取保留，不得产生可计入新 Story
   receipt/quorum 的 reviewer pass。
 
-#### 7.7 `lattice-review-docs`
+#### 7.7 `proof-or-stop-review-docs`
 
 保留：
 
@@ -532,7 +532,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 
 目标：不超过 8 KB。
 
-#### 7.8 `lattice-review-quality`
+#### 7.8 `proof-or-stop-review-quality`
 
 保留：
 
@@ -548,7 +548,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 
 目标：不超过 8 KB。
 
-#### 7.9 `lattice-review-concept`
+#### 7.9 `proof-or-stop-review-concept`
 
 保留：
 
@@ -563,7 +563,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 
 目标：不超过 8 KB。
 
-#### 7.10 `lattice-evaluator`
+#### 7.10 `proof-or-stop-evaluator`
 
 保留：
 
@@ -572,7 +572,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 
 抽取：
 
-- 与 `lattice-evaluator-cli` 共享的评分合同。
+- 与 `proof-or-stop-evaluator-cli` 共享的评分合同。
 - 通用 Runtime Guide。
 
 目标：不超过 7 KB。
@@ -601,7 +601,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 
 目标：不超过 6 KB。
 
-#### 7.13 `lattice-review-test-coverage`
+#### 7.13 `proof-or-stop-review-test-coverage`
 
 保留：
 
@@ -613,7 +613,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 
 目标：保持不超过 5 KB。
 
-#### 7.14 `lattice-evaluator-cli`
+#### 7.14 `proof-or-stop-evaluator-cli`
 
 保留：
 
@@ -621,7 +621,7 @@ Prompt Envelope 不另建一套 run/attempt authority：
 
 抽取：
 
-- 与 `lattice-evaluator` 重复的评分规则。
+- 与 `proof-or-stop-evaluator` 重复的评分规则。
 
 目标：不超过 4 KB。
 
@@ -1066,7 +1066,7 @@ tokens、review findings 和流程收敛数据。模型、token estimator、cont
   Prompt Envelope，保持现有 assembled prompt 内容不变。
 - 增加 bytes、lines、estimated tokens、重复率和三层输入成本报告。
 - 建立并冻结 active/compatibility/retired 状态，但不改变现有合法行为。
-- 将 `lattice-review-channel` 登记为 retired，并核对 baseline 的历史兼容
+- 将 `proof-or-stop-review-channel` 登记为 retired，并核对 baseline 的历史兼容
   分类；不重新启用或迁移其 prompt。
 - 冻结 `product-reviewer` 的 active INIT authority、
   `implementation-reviewer` 的 compatibility 状态，以及
@@ -1147,7 +1147,7 @@ tokens、review findings 和流程收敛数据。模型、token estimator、cont
   fd-based `O_NOFOLLOW` 路径/符号链接逃逸。生产证据 no-write 验证在临时隔离
   evidence root 中预置真实形状的 pass、finding、ReviewRun、verification、
   validation、lifecycle 和 process-event sentinel，复制并运行 replay/ledger/
-  analyze 入口，再递归比较整个 sandbox `.lattice` 树的前后状态：覆盖所有
+  analyze 入口，再递归比较整个 sandbox `.proof-or-stop` 树的前后状态：覆盖所有
   sibling Story、usage/activity/lifecycle/process-event 位置、目录成员、文件
   字节和 symlink target，并确认没有新增 artifact/event。mutation-bite 另行
   写入 sibling Story review pass 和独立 usage artifact，要求同一 detector
@@ -1240,7 +1240,7 @@ node scripts/verify-process-fact-contract.mjs
 - concept、quality、test-coverage、behavior、docs 五个 active reviewer 现已各有
   独立 `full-envelope` feature flag；未配置时仍选择冻结且内容寻址的
   `legacy-full-context` 正文。五个 flag 的 32 种组合均有机械覆盖，
-  `lattice-review-channel` 因 retired 明确不在 rollout 集合中。
+  `proof-or-stop-review-channel` 因 retired 明确不在 rollout 集合中。
 - package registry 物理保存模块化正文，不再携带旧共享 Runtime Guide；
   Claude/Codex full-asset 文件只保存 canonical role-specific thin bootstrap，
   bootstrap 本身不含任何 reviewer role body，并要求 reviewer 先调用
@@ -1285,7 +1285,7 @@ node scripts/verify-process-fact-contract.mjs
   unavailable provider usage 当成 0；Claude/Codex 的 input、output、
   cacheRead、cacheCreation、uncached、latency、providerProcessed 每一维均保留
   `unavailable(reason)`。
-- raw `lattice.config.json` 的重复顶层 `promptEnvelope`、重复 `roles` 容器和
+- raw `proof-or-stop.config.json` 的重复顶层 `promptEnvelope`、重复 `roles` 容器和
   重复逐角色 flag key 都会在 `JSON.parse` 前拒绝；错误 rollout
   version/mode、prototype key、unknown/retired role 继续 fail closed。真实
   handler 权限回归同时拒绝 main/implementer/wrong-lane pass、
@@ -1305,7 +1305,7 @@ node packages/main/dist/tasks/quorum-submit-smoke.js
 node experiments/role-prompt-ab-replay/selfcheck.mjs
 node scripts/verify-proof-or-stop-prompt-baseline.mjs
 node scripts/verify-process-fact-contract.mjs
-node bin/lattice.js verify_codex
+node bin/proof-or-stop.js verify_codex
 ```
 
 目标：
@@ -1468,7 +1468,7 @@ node bin/lattice.js verify_codex
 1. 所有 active 角色使用版本化 Runtime/Role Contract。
 2. assembled prompt 绑定 contract digest 和 context digest。
 3. incremental review 有机械 eligibility 和 full-review escalation。
-4. `lattice-review-channel` 保持 retired；legacy compatibility 角色从默认
+4. `proof-or-stop-review-channel` 保持 retired；legacy compatibility 角色从默认
    active 集合中隔离，但显式兼容可用。
 5. Prompt budget 进入 warn，并明确输出 enforce-readiness；enforce 是证据充分
    后另建的条件性后续，不是本计划强行承诺的终点。

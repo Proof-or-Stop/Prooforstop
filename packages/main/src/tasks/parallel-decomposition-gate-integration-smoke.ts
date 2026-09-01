@@ -125,8 +125,8 @@ const doneChecklist: ChecklistData = {
 };
 
 /**
- * Build a hermetic temp repo: lattice.config.json (balanced profile), an optional
- * .lattice/audit-config.json carrying parallelGate, the self story + a peer, their scope
+ * Build a hermetic temp repo: proof-or-stop.config.json (balanced profile), an optional
+ * .proof-or-stop/audit-config.json carrying parallelGate, the self story + a peer, their scope
  * contracts, and the self story's review.json. Returns the root + store + context.
  */
 function buildRepo(opts: {
@@ -153,13 +153,13 @@ function buildRepo(opts: {
    *  (a tier-2-wildcard-only peer that must NOT be named as a literal collision). */
   extraPeers?: Array<{ id: string; modify: string[]; create: string[] }>;
 }): { root: string; store: StoryStore; context: StoryMachineContext } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-pdgi-'));
-  write(root, 'lattice.config.json', JSON.stringify({
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-pdgi-'));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     workflow: { profile: opts.profile ?? 'balanced' },
@@ -219,7 +219,7 @@ function buildRepo(opts: {
 
   if (opts.corruptPeerStory) {
     // index.json EXISTS (so the id is still listed) but is NOT valid JSON => store.readStory throws.
-    write(root, '.lattice/story/actives/' + PEER_ID + '/index.json', '{ this is not valid json ::::');
+    write(root, '.proof-or-stop/story/actives/' + PEER_ID + '/index.json', '{ this is not valid json ::::');
   }
 
   const context: StoryMachineContext = { storyId: SELF_ID, store, projectRoot: root };

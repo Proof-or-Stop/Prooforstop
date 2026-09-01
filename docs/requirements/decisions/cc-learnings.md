@@ -157,7 +157,7 @@ These silent catches **cannot all be deleted** (some are reasonable ignores of t
    - **MUTATION** (git / fs.write / spawn failure): change to throw or return a structured error
 
 3. **title**: Create a health.ts module that provides the reportHealthIssue function
-   **context**: `export function reportHealthIssue(category: string, error: Error, context: Record<string, unknown>): void`. Append the issue to `~/.lattice/health.jsonl`, each containing timestamp / category / error.message / context. The failure itself also does not throw (to prevent the health module itself from crashing and dragging down the main flow).
+   **context**: `export function reportHealthIssue(category: string, error: Error, context: Record<string, unknown>): void`. Append the issue to `~/.proof-or-stop/health.jsonl`, each containing timestamp / category / error.message / context. The failure itself also does not throw (to prevent the health module itself from crashing and dragging down the main flow).
 
 4. **title**: Change the PERSIST class silent catches to reportHealthIssue
    **context**: For example, all the markLost silent catches in [worktree.ts](packages/main/src/handlers/worktree.ts), the writeLog silent catch in cli-engine.ts, and the _persistPending silent catch in context-assembler. Change to:
@@ -167,11 +167,11 @@ These silent catches **cannot all be deleted** (some are reasonable ignores of t
    }
    ```
 
-5. **title**: Change the MUTATION class silent catches to throw LatticeError
+5. **title**: Change the MUTATION class silent catches to throw ProofOrStopError
    **context**: For example, the worktree-creation call, the git-merge call, the fs.writeFileSync call. A failure must be perceivable by the upper layer.
 
 6. **title**: Add a new proof-or-stop doctor command
-   **context**: Scan `~/.lattice/health.jsonl`, output the health issues from the last 24 hours, grouped by category. Let the user periodically run doctor to see whether proof-or-stop itself has hidden problems.
+   **context**: Scan `~/.proof-or-stop/health.jsonl`, output the health issues from the last 24 hours, grouped by category. Let the user periodically run doctor to see whether proof-or-stop itself has hidden problems.
 
 7. **title**: fixture verifies the health issue is actually written
    **context**: Construct a scenario that triggers a PERSIST class failure (e.g. make the directory containing health.jsonl unwritable), call a proof-or-stop command, and assert that a subsequent doctor can see this issue.
@@ -196,7 +196,7 @@ These silent catches **cannot all be deleted** (some are reasonable ignores of t
 - Create: `packages/main/src/core/health.ts`
 - Create: `packages/main/src/handlers/doctor.ts`
 - Modify: all files containing a silent catch (the grep output list)
-- Modify: `packages/lattice/CLAUDE.md` add a fail-fast policy section
+- Modify: `CLAUDE.md` add a fail-fast policy section
 
 ---
 
@@ -261,7 +261,7 @@ Fix goal: give the agent a single-shot command that outputs a complete brief of 
 - Create: `packages/main/src/handlers/session.ts`
 - Modify: `packages/main/src/cli-engine.ts` MAIN_TOOLS array
 - Modify: `packages/main/src/registry.ts` createMainRegistry
-- Modify: `packages/lattice/CLAUDE.md` (add the session-opening convention)
+- Modify: `CLAUDE.md` (add the session-opening convention)
 
 ---
 
@@ -380,8 +380,8 @@ Fix goal: before each proof-or-stop command runs, first print a warning to stder
 6. **title**: runCli calls detectStaleState before dispatching the command
    **context**: Output each warning to stderr. Note: only detect when there is an active story, to avoid commands like proof-or-stop help being bothered.
 
-7. **title**: thresholds are configurable via lattice.config.json
-   **context**: config adds `staleThresholds: { phaseStale: 30, itemStale: 30, idleLattice: 60, bugStale: 1440 }` (unit: minutes)
+7. **title**: thresholds are configurable via proof-or-stop.config.json
+   **context**: config adds `staleThresholds: { phaseStale: 30, itemStale: 30, idleProofOrStop: 60, bugStale: 1440 }` (unit: minutes)
 
 8. **title**: fixture verifies the trigger condition of each rule
    **context**: Construct mocks of the 4 stale states and assert that the corresponding warning appears for each
@@ -421,8 +421,8 @@ This is also the key infrastructure for connecting the observer to proof-or-stop
 
 ### Checklist
 
-1. **title**: Add a hooks field definition to lattice.config.json
-   **context**: The LatticeConfig in core/config.ts adds:
+1. **title**: Add a hooks field definition to proof-or-stop.config.json
+   **context**: The ProofOrStopConfig in core/config.ts adds:
    ```ts
    hooks?: {
      preCommand?: Record<string /* commandName or "*" */, string[] /* shell commands */>
@@ -433,16 +433,16 @@ This is also the key infrastructure for connecting the observer to proof-or-stop
    ```
 
 2. **title**: Create the src/core/hooks.ts dispatch framework
-   **context**: Export `runHooks(stage: 'preCommand' | 'postCommand' | 'onError' | 'onPhaseChange', commandName: string, env: Record<string, string>): Promise<void>`. Match the commandName or the wildcard "*", and spawn the shell commands. Environment variables are passed to the hook script (LATTICE_STORY_ID, LATTICE_PHASE, LATTICE_COMMAND, LATTICE_ERROR, etc.).
+   **context**: Export `runHooks(stage: 'preCommand' | 'postCommand' | 'onError' | 'onPhaseChange', commandName: string, env: Record<string, string>): Promise<void>`. Match the commandName or the wildcard "*", and spawn the shell commands. Environment variables are passed to the hook script (PROOF_OR_STOP_STORY_ID, PROOF_OR_STOP_PHASE, PROOF_OR_STOP_COMMAND, PROOF_OR_STOP_ERROR, etc.).
 
 3. **title**: invoke the preCommand hooks in cli-engine.ts run()
    **context**: After parsing the args and validating, and before executing the handler, call runHooks('preCommand', cmd, env). If a hook returns a non-zero exit, decide whether to block the main command (default does not block, just outputs a warning)
 
 4. **title**: invoke the postCommand hooks in run()
-   **context**: After the handler finishes executing, call runHooks('postCommand', cmd, env). Add LATTICE_RESULT_JSON to the env
+   **context**: After the handler finishes executing, call runHooks('postCommand', cmd, env). Add PROOF_OR_STOP_RESULT_JSON to the env
 
 5. **title**: Add the onError hook to the error path of run()
-   **context**: When an error is caught, call runHooks('onError', cmd, env), adding LATTICE_ERROR to the env
+   **context**: When an error is caught, call runHooks('onError', cmd, env), adding PROOF_OR_STOP_ERROR to the env
 
 6. **title**: Add an onPhaseChange hook trigger in story-advance.ts
    **context**: After a phase transition succeeds, look up the hook by the "FROM->TO" format and call runHooks('onPhaseChange', `${oldPhase}->${newPhase}`, env)
@@ -454,7 +454,7 @@ This is also the key infrastructure for connecting the observer to proof-or-stop
    **context**: Add a section "Hooks" to docs/guide.md, containing a full configuration example and several common use cases (auto sync, telegram notify, auto backup)
 
 9. **title**: fixture verifies hook dispatch
-   **context**: Construct a temporary lattice.config.json containing an echo hook, run a proof-or-stop command, and assert the hook was executed (by checking the echo output)
+   **context**: Construct a temporary proof-or-stop.config.json containing an echo hook, run a proof-or-stop command, and assert the hook was executed (by checking the echo output)
 
 ### Test directions
 
@@ -464,7 +464,7 @@ This is also the key infrastructure for connecting the observer to proof-or-stop
 
 ### Acceptance
 
-- Configure a postCommand hook that writes a log to /tmp/lattice.log, run any command and observe the log being written
+- Configure a postCommand hook that writes a log to /tmp/proof-or-stop.log, run any command and observe the log being written
 - Observe the onPhaseChange hook being triggered during story_advance
 
 ### Touchpoints
@@ -473,7 +473,7 @@ This is also the key infrastructure for connecting the observer to proof-or-stop
 - Modify: `packages/main/src/core/config.ts` add the hooks field
 - Modify: the run function in `packages/main/src/cli-engine.ts:575-594`
 - Modify: `packages/main/src/handlers/story-advance.ts` add the onPhaseChange trigger
-- Create: `packages/lattice/docs/guide-hooks.md`
+- Create: `docs/guide-hooks.md`
 
 ---
 
@@ -643,7 +643,7 @@ CC has [src/migrations/](src/migrations/) to handle schema upgrades. Doing this 
 - Modify: `packages/main/src/core/types.ts`
 - Create: `packages/main/src/core/migrations.ts`
 - Modify: `packages/main/src/core/store.ts` readJson
-- Create: `packages/lattice/docs/requirements/decisions/schema-migration.md`
+- Create: `docs/requirements/decisions/schema-migration.md`
 
 ---
 
@@ -655,7 +655,7 @@ Two independent but both-P3 small improvements, merged into one story.
 
 **search command**: CC has ToolSearchTool that uses select/keyword to find tools. proof-or-stop has 40+ commands, and when the agent is unsure what a certain feature is called it has to grep through the help output.
 
-**call-stack recursion guard**: proof-or-stop already has the `__latticeTestAutoRunning` global flag to prevent test_auto recursion, but it only targets one command. It needs to be generalized into a call stack.
+**call-stack recursion guard**: proof-or-stop already has the `__proofOrStopTestAutoRunning` global flag to prevent test_auto recursion, but it only targets one command. It needs to be generalized into a call stack.
 
 ### Checklist
 
@@ -676,12 +676,12 @@ Two independent but both-P3 small improvements, merged into one story.
    **context**: tokenize supports both Chinese and English at the same time, to avoid the Chinese word for "decision" failing to match the English "decision"
 
 4. **title**: Implement a general call stack
-   **context**: The cli-engine.ts run() function pushes the command name onto `globalThis.__latticeCallStack` at the start, and pops it at the end. The fixture runner also pushes when calling `$handlers.foo()`.
+   **context**: The cli-engine.ts run() function pushes the command name onto `globalThis.__proofOrStopCallStack` at the start, and pops it at the end. The fixture runner also pushes when calling `$handlers.foo()`.
 
 5. **title**: recursion detection
    **context**: Before pushing, check whether the stack already contains this command name. If it does, throw `Recursion detected: ${stack.join(' → ')} → ${cmd}`
 
-6. **title**: Remove the old __latticeTestAutoRunning flag
+6. **title**: Remove the old __proofOrStopTestAutoRunning flag
    **context**: The general call stack already covers this case, and the old flag can be deleted. But first ensure the fixture runner also goes through the general stack
 
 7. **title**: fixture verifies recursion is detected
@@ -702,7 +702,7 @@ Two independent but both-P3 small improvements, merged into one story.
 
 - Modify: `packages/main/src/cli-engine.ts` add the search ToolDef + run() adds the call stack
 - Create: `packages/main/src/handlers/search.ts`
-- Modify: `packages/main/src/handlers/test-auto.ts` remove __latticeTestAutoRunning
+- Modify: `packages/main/src/handlers/test-auto.ts` remove __proofOrStopTestAutoRunning
 - Modify: `packages/main/src/handlers/test-runner-core.ts` the fixture runner adds the call-stack push
 
 ---
@@ -766,8 +766,8 @@ After each story lands, run this analysis:
 cat docs/story/activity.jsonl | jq -r '.tool' | sort | uniq -c | sort -rn
 
 # Story 2 verification: whether health.jsonl is being written reasonably
-ls ~/.lattice/health.jsonl
-wc -l ~/.lattice/health.jsonl
+ls ~/.proof-or-stop/health.jsonl
+wc -l ~/.proof-or-stop/health.jsonl
 
 # Story 3 verification: how many session_brief calls per day
 cat docs/story/activity.jsonl | grep session_brief | wc -l
@@ -786,7 +786,7 @@ Porting this "communication three-in-one" to proof-or-stop is the most valuable 
 
 ## B-5ea4 Retrospective (2026-04-08): Engineering Done ≠ Task Done
 
-A real-world lesson from the lattice-agent project's B-5ea4 (avatar-escalation-resume-loop). This story's engineering completeness was 9/9 but its user-value completeness was 0/5 — an instance of the proof-or-stop flow's **most severe blind spot**.
+A real-world lesson from the proof-or-stop-agent project's B-5ea4 (avatar-escalation-resume-loop). This story's engineering completeness was 9/9 but its user-value completeness was 0/5 — an instance of the proof-or-stop flow's **most severe blind spot**.
 
 ### What the engineering view saw (all green)
 - EscalationQueue added an answered event + answerPromise API → ✓
@@ -818,7 +818,7 @@ After reading this, the user would ask: "**Did it actually finish or not? What d
 
 ### What the proof-or-stop framework changed as a result
 
-1. **packages/lattice/CLAUDE.md** added a new chapter "User-Value Acceptance (takes precedence over technical-chain verification)", clearly writing "engineering done ≠ task done", the PLAN phase must produce a user-facing transcript, real-machine testing must switch perspective, and a 5-question DONE self-check checklist. The full B-5ea4 retrospective is also written there.
+1. **CLAUDE.md** added a new chapter "User-Value Acceptance (takes precedence over technical-chain verification)", clearly writing "engineering done ≠ task done", the PLAN phase must produce a user-facing transcript, real-machine testing must switch perspective, and a 5-question DONE self-check checklist. The full B-5ea4 retrospective is also written there.
 2. **story-advance.ts**'s PLAN/DEV/TEST/DONE phase hints all added a "⚠ user-value acceptance" reminder section, so every time the phase advances, the main agent is re-prompted once "do not only stare at the event log".
 3. **this cc-learnings.md** added this section as a permanent learning record of the proof-or-stop framework.
 
@@ -838,6 +838,6 @@ After reading this, the user would ask: "**Did it actually finish or not? What d
 - `/Users/xiaoxx/Documents/GitHub/CC/src/utils/attachments.ts:3266-3317` — the periodic reminder injection logic
 - `/Users/xiaoxx/Documents/GitHub/CC/src/services/compact/autoCompact.ts:67-70` — circuit-breaker example
 - `/Users/xiaoxx/Documents/GitHub/CC/src/tools.ts:191` — the cross-system cache key comment
-- `packages/lattice/packages/main/src/handlers/story-advance.ts:432-449` — the only existing nextStepHint reference
-- `packages/lattice/packages/main/src/cli-engine.ts:534-553` — the existing watchdog implementation
-- `packages/lattice/packages/main/src/cli-engine.ts:556-573` — the existing activity.jsonl write
+- `packages/main/src/handlers/story-advance.ts:432-449` — the only existing nextStepHint reference
+- `packages/main/src/cli-engine.ts:534-553` — the existing watchdog implementation
+- `packages/main/src/cli-engine.ts:556-573` — the existing activity.jsonl write

@@ -36,11 +36,11 @@ function git(cwd: string, args: string[]): void {
 
 function writeConfig(root: string): void {
   writeFileSync(
-    join(root, 'lattice.config.json'),
+    join(root, 'proof-or-stop.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       doneRequiredCommands: [
         { label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] },
@@ -52,12 +52,12 @@ function writeConfig(root: string): void {
 }
 
 function fixture(): { root: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-done-required-freshness-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-required-freshness-'));
   writeConfig(root);
   writeFileSync(join(root, 'README.md'), '# done required freshness fixture\n', 'utf-8');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json']);
   git(root, ['commit', '-m', 'base']);
 
   const store = new StoryStore(root);
@@ -158,7 +158,7 @@ function writeDoneEvidence(root: string, store: StoryStore): DoneRequiredEvidenc
 }
 
 function commitDoneMetadata(root: string): void {
-  git(root, ['add', '.lattice/story']);
+  git(root, ['add', '.proof-or-stop/story']);
   git(root, ['commit', '-m', 'commit done-required metadata']);
 }
 

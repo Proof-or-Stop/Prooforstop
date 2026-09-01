@@ -176,7 +176,7 @@ future proof verdict.
 | Layer 2 is not formally unlocked by the existing plan document. | `docs/requirements/decisions/unlock-layer2-ENG-suite.md` |
 | Local diagnostic artifacts cannot be formal Layer 2 proof. | `docs/requirements/decisions/unlock-layer2-ENG-suite.md` |
 | Formal root invariants require `localOnly=false`, `capabilityProof=true`, `formalProof=true`, clean claim target, fresh material hash, and no Authority overclaim. | `docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md` |
-| `baseline_suite_report` is read-only and must fail closed on malformed, stale, local-only, or authority-overclaim artifacts. | `packages/main/src/core/command-policy.ts` and `packages/main/src/core/lattice-baseline.ts` |
+| `baseline_suite_report` is read-only and must fail closed on malformed, stale, local-only, or authority-overclaim artifacts. | `packages/main/src/core/command-policy.ts` and `packages/main/src/core/proof-or-stop-baseline.ts` |
 | `authority_receipt_fetch` is fetch-only; it does not mint receipts or claim production DONE. | `packages/main/src/core/command-policy.ts` |
 
 ## 6. Required Decision Outcomes
@@ -200,7 +200,7 @@ Actions:
 
 1. Select target branch, HEAD, material hash, artifact root, and suite run id.
 2. Confirm no other session is modifying the same proof artifacts.
-3. Use a clean `.lattice/artifacts/baseline/...` root for this run.
+3. Use a clean `.proof-or-stop/artifacts/baseline/...` root for this run.
 4. Declare that the story scope is only F-009 resolution/disproof.
 
 Success criteria:

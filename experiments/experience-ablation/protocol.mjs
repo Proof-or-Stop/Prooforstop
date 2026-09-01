@@ -12,7 +12,7 @@
 //     kept OUTSIDE the hashed payload so re-freezing the same protocol at a
 //     different time yields the same hash (no Date.now anywhere near the hash).
 //
-// Artifact root (plan S12): <root>/.lattice/experiments/experience-ablation/<experimentId>/
+// Artifact root (plan S12): <root>/.proof-or-stop/experiments/experience-ablation/<experimentId>/
 //   protocol.json            — the frozen protocol (hashed payload + protocolHash + createdAt)
 //   memory-snapshot-hash.json — { memorySnapshotHash } recorded at freeze time
 //
@@ -27,7 +27,7 @@ import { join, relative } from 'node:path';
 export const PROTOCOL_SCHEMA_VERSION = 'proofbound.experience-ablation-protocol.v1';
 
 export function experimentRoot(root, experimentId) {
-  return join(root, '.lattice', 'experiments', 'experience-ablation', experimentId);
+  return join(root, '.proof-or-stop', 'experiments', 'experience-ablation', experimentId);
 }
 
 // --- canonical serialization -------------------------------------------------

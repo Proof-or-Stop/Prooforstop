@@ -59,7 +59,7 @@ function git(cwd: string, args: string[]): string {
 }
 
 function writeProofOrStopConfig(root: string): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({}, null, 2), 'utf-8');
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({}, null, 2), 'utf-8');
 }
 
 /**
@@ -236,6 +236,17 @@ check('reader FAILS CLOSED on gateEvidence !== false', () => {
   assert.throws(() => readCapabilityReleaseLedger(root), CapabilityReleaseLedgerError);
 });
 
+check('reader FAILS CLOSED on missing or inconsistent required release fields', () => {
+  const root = mkdtemp('capability-release-required-');
+  const record = createCapabilityReleaseRecordForTest({ ...B785E_OPTS, root });
+  writeCapabilityReleaseLedgerForTest(root, [{ ...record, changedPaths: undefined } as any]);
+  assert.throws(() => readCapabilityReleaseLedger(root), CapabilityReleaseLedgerError);
+  writeCapabilityReleaseLedgerForTest(root, [{ ...record, capabilityVersion: '000000000000' } as any]);
+  assert.throws(() => readCapabilityReleaseLedger(root), CapabilityReleaseLedgerError);
+  writeCapabilityReleaseLedgerForTest(root, [{ ...record, changedPaths: [] } as any]);
+  assert.throws(() => readCapabilityReleaseLedger(root), CapabilityReleaseLedgerError);
+});
+
 check('reader FAILS CLOSED on malformed JSON', () => {
   const root = mkdtemp('capability-release-malformed-');
   write(root, CAPABILITY_RELEASE_LEDGER_REL_PATH, '{not valid json\n');
@@ -314,7 +325,7 @@ check('M2 classifier (edge): packages/main/src runtime-only => NO capability rel
   assert.equal(classified, null);
 });
 
-check('M2 classifier (edge): .lattice / docs/story / root-manifest-only => NO capability release', () => {
+check('M2 classifier (edge): .proof-or-stop / docs/story / root-manifest-only => NO capability release', () => {
   const classified = classifyCapabilityRelease(
     [`${PROOF_OR_STOP_STATE_DIR}/story/actives/B-x/index.json`, 'docs/story/legacy.json', 'package.json', 'package-lock.json'],
     { isRuntimeBuildInput: isDoneMainRuntimeBuildInput },
@@ -403,7 +414,7 @@ check('M3 (happy): done_recover with experiment+doc changes records exactly one 
   assert.equal(git(root, ['status', '--short']), '');
 });
 
-check('M3 (edge): done_recover with .lattice-metadata-only material change records NO PCR', () => {
+check('M3 (edge): done_recover with .proof-or-stop-metadata-only material change records NO PCR', () => {
   // A story whose only non-lifecycle change is a runtime source file: no
   // capability-declaring docs/experiments path => classifier declines => no PCR.
   const { root, storyId } = makePartialDoneRecoveryFixture({

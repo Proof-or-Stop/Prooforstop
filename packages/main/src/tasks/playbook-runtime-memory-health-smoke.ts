@@ -36,9 +36,9 @@ function playbook(): Playbook {
 async function run(): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'pb-memory-health-'));
   try {
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       runtimeMemory: { requiredClasses: ['host-policy'] },
     }, null, 2));
@@ -61,9 +61,9 @@ async function run(): Promise<void> {
     assert.equal(pass.gateEvidence, false);
     assert.ok(pass.checks.some((check: any) => check.id === 'required-class:host-policy' && check.status === 'pass'));
 
-    write(root, 'lattice.config.json', JSON.stringify({
+    write(root, 'proof-or-stop.config.json', JSON.stringify({
       scanRoot: 'packages/main',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       runtimeMemory: { requiredClasses: ['missing-class'] },
     }, null, 2));
@@ -76,7 +76,7 @@ async function run(): Promise<void> {
     try {
       for (const rel of [
         'src/handlers/session.ts',
-        'src/handlers/lattice-handoff.ts',
+        'src/handlers/proof-or-stop-handoff.ts',
         'src/handlers/story-create.ts',
         'src/handlers/transition-orchestrator.ts',
         'src/handlers/done-closure.ts',
@@ -85,9 +85,9 @@ async function run(): Promise<void> {
       ]) {
         write(fakeSourceRoot, rel, `// weak legacy token only: ${rel} story_create story_advance done_closure final_response_check\n`);
       }
-      write(root, 'lattice.config.json', JSON.stringify({
+      write(root, 'proof-or-stop.config.json', JSON.stringify({
         scanRoot: 'packages/main',
-        storyDir: '.lattice/story/actives',
+        storyDir: '.proof-or-stop/story/actives',
         requirementsDir: 'docs/requirements',
         runtimeMemory: { requiredClasses: [] },
       }, null, 2));
@@ -124,8 +124,8 @@ async function run(): Promise<void> {
       {
         storyId: '../../outside',
         forbiddenPaths: [
-          join(root, '.lattice', 'outside.json'),
-          join(root, '.lattice', 'dev-memory', 'outside.json'),
+          join(root, '.proof-or-stop', 'outside.json'),
+          join(root, '.proof-or-stop', 'dev-memory', 'outside.json'),
         ],
       },
       {
@@ -134,7 +134,7 @@ async function run(): Promise<void> {
       },
       {
         storyId: 'B-bad/leaf',
-        forbiddenPaths: [join(root, '.lattice', 'dev-memory', 'finish-decisions', 'B-bad', 'leaf.json')],
+        forbiddenPaths: [join(root, '.proof-or-stop', 'dev-memory', 'finish-decisions', 'B-bad', 'leaf.json')],
       },
     ]) {
       assert.throws(

@@ -3,7 +3,7 @@
  *
  * Implements the cross-provider parts of "Multi-Provider Normalization" and the
  * "Required record constraints" (per-dimension absence rule, unavailable rule)
- * from docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md.
+ * from docs/requirements/decisions/proof-or-stop-llm-usage-ledger-execution-plan.md.
  *
  * These helpers are PURE: no fs, no dispatch, no Date.now(). They turn a raw
  * provider usage payload into a B-253e `LedgerUsage` and never infer a value the

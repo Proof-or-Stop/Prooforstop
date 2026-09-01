@@ -31,7 +31,7 @@
  *     fixture shapes the handler faces: (1) a wrapper-root non-git cwd — assert no
  *     `fatal: not a git repository` reaches the parent stderr; (2) a repo with a
  *     real `worktree-*` checked-out branch — assert the branch name triggers the
- *     nesting rejection. Does NOT shell to the global `lattice` binary.
+ *     nesting rejection. Does NOT shell to the global `proof-or-stop` binary.
  *
  * Prints ✓/✗; exits non-zero on first failure.
  */

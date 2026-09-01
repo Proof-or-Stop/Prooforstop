@@ -10,7 +10,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 
 export const OWNER_SESSION_TOKEN_DIR = `${PROOF_OR_STOP_DIR}/runtime/owner-session-tokens`;
 export const OWNER_SESSION_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1_000;

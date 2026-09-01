@@ -20,7 +20,7 @@
  *                          lane (round-decayed via isFindingBlocking).
  *   - The orchestrator launch INSTRUCTION for each lane that needs a (re-)run, in
  *     the canonical Agent subagent-spawn form
- *     `Agent({ subagent_type: "lattice-review-<lane>", prompt: "Review story <id> (<reason>)" })`
+ *     `Agent({ subagent_type: "proof-or-stop-review-<lane>", prompt: "Review story <id> (<reason>)" })`
  *     (matching transition-effects.ts). This is an instruction the orchestrator
  *     executes to spawn the reviewer subagent — a CLI cannot spawn one, so it is
  *     NOT a runnable `dispatch` CLI command.
@@ -176,9 +176,9 @@ function assertBoundary(args: ReviewerBatchArgs): void {
  * prompt (falling back to "baseline" when absent).
  */
 function laneLaunchInstruction(storyId: string, lane: string, reason: string): string {
-  const name = lane.startsWith('lattice-review-') ? lane.slice('lattice-review-'.length) : lane;
+  const name = lane.startsWith('proof-or-stop-review-') ? lane.slice('proof-or-stop-review-'.length) : lane;
   const why = reason && reason.trim() ? reason.trim() : 'baseline';
-  return `Agent({ subagent_type: "lattice-review-${name}", prompt: "Review story ${storyId} (${why})" })`;
+  return `Agent({ subagent_type: "proof-or-stop-review-${name}", prompt: "Review story ${storyId} (${why})" })`;
 }
 
 /**

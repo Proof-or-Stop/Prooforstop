@@ -128,7 +128,7 @@ confirms each host's real shell tool name.
 - No story exceeds the configured review budget without a recorded escalation /
   override.
 - All host-verdict writers, both evidence paths, aliases, and direct
-  `node bin/lattice.js` invocation reach the same enforcement boundary.
+  `node bin/proof-or-stop.js` invocation reach the same enforcement boundary.
 
 ## 5. Open items for the story sequence
 

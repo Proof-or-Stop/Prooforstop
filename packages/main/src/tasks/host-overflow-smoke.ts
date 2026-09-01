@@ -14,9 +14,9 @@ import {
   type HandoffReceiptSubmission,
   type HandoffWorktreeProjection,
   type HostDispatchProjection,
-} from '../core/lattice-handoff.js';
+} from '../core/proof-or-stop-handoff.js';
 import type { CapabilityProbe } from '../core/capabilities.js';
-import { buildLatticeHostStatus, buildLatticeHostStatusFromProbe, type LatticeHostStatus } from '../core/lattice-hosts.js';
+import { buildProofOrStopHostStatus, buildProofOrStopHostStatusFromProbe, type ProofOrStopHostStatus } from '../core/proof-or-stop-hosts.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -54,7 +54,7 @@ function createBranchCommit(
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: 'Docs/story/actives',
@@ -76,7 +76,7 @@ function dispatchFromHost(
     cliPath,
     '--root',
     root,
-    'lattice',
+    'proof-or-stop',
     'host',
     'dispatch',
     `--host=${host}`,
@@ -96,7 +96,7 @@ function initRepo(root: string): void {
   writeFileSync(join(root, 'README.md'), '# host overflow fixture\n');
   writeConfig(root);
   git(root, ['init']);
-  git(root, ['config', 'user.email', 'lattice@example.com']);
+  git(root, ['config', 'user.email', 'proofOrStop@example.com']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'fixture']);
@@ -132,7 +132,7 @@ function seedStory(store: StoryStore): void {
   store.writeChecklist('B-overflow', checklist);
 }
 
-function assertClaudeCodeStatus(result: LatticeHostStatus): void {
+function assertClaudeCodeStatus(result: ProofOrStopHostStatus): void {
   assert.equal(result.schemaVersion, 'lattice.host_status.v1');
   assert.equal(result.host, 'claude-code');
   assert.equal(result.overflowReady, true);
@@ -201,7 +201,7 @@ function assertPack(pack: HandoffPack, head: string): void {
   assert.ok(pack.executionInstructions.some(step => /Do not auto-merge/i.test(step)));
 }
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-host-overflow-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-host-overflow-'));
 try {
   initRepo(root);
   resetConfigCache();
@@ -210,15 +210,15 @@ try {
   const head = git(root, ['rev-parse', 'HEAD']);
   const ownerBranch = git(root, ['rev-parse', '--abbrev-ref', 'HEAD']);
 
-  const claudeStatus = buildLatticeHostStatus('claude-code');
+  const claudeStatus = buildProofOrStopHostStatus('claude-code');
   assertClaudeCodeStatus(claudeStatus);
-  const semanticStatus = buildLatticeHostStatusFromProbe(buildSemanticEditingProbe());
+  const semanticStatus = buildProofOrStopHostStatusFromProbe(buildSemanticEditingProbe());
   assert.equal(semanticStatus.host, 'semantic-editor');
   assert.equal(semanticStatus.overflowReady, true);
   assert.equal(semanticStatus.status, 'degraded');
   assert.equal(semanticStatus.readiness.shell, 'conditional');
   assert.equal(semanticStatus.readiness.worktree, 'conditional');
-  const runnerStatus = buildLatticeHostStatus('local-runner');
+  const runnerStatus = buildProofOrStopHostStatus('local-runner');
   assert.equal(runnerStatus.status, 'unavailable');
   assert.equal(runnerStatus.overflowReady, false);
   assert.match(runnerStatus.nextAction, /file-edit, shell\/pty, test-execution, and approval/i);
@@ -246,7 +246,7 @@ try {
   assert.equal(registry.has('handoff_receipt_submit'), true);
   assert.equal(registry.has('handoff_worktree_create'), true);
   assert.equal(registry.has('host_dispatch'), true);
-  assertClaudeCodeStatus(registry.get('host_status')!({ host: 'claude-code', json: true }) as LatticeHostStatus);
+  assertClaudeCodeStatus(registry.get('host_status')!({ host: 'claude-code', json: true }) as ProofOrStopHostStatus);
 
   const here = dirname(fileURLToPath(import.meta.url));
   const cliPath = join(here, '..', 'cli.js');
@@ -275,7 +275,7 @@ try {
     cliPath,
     '--root',
     root,
-    'lattice',
+    'proof-or-stop',
     'handoff',
     'worktree',
     'create',
@@ -418,7 +418,7 @@ Historical completion in another story.
     cliPath,
     '--root',
     root,
-    'lattice',
+    'proof-or-stop',
     'handoff',
     'receipt',
     'submit',

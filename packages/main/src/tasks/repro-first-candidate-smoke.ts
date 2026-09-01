@@ -30,15 +30,15 @@ import type {
   StoryEvidenceBindingPayload,
 } from '../core/evidence/types.js';
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-repro-smoke-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-repro-smoke-'));
 
-// Ensure .lattice/story structure exists for story_create (uses StoryStore)
-mkdirSync(join(root, '.lattice', 'story', 'actives'), { recursive: true });
+// Ensure .proof-or-stop/story structure exists for story_create (uses StoryStore)
+mkdirSync(join(root, '.proof-or-stop', 'story', 'actives'), { recursive: true });
 mkdirSync(join(root, 'docs', 'story', 'actives'), { recursive: true });
 
-// Minimal lattice.config.json so loadConfig works
+// Minimal proof-or-stop.config.json so loadConfig works
 writeFileSync(
-  join(root, 'lattice.config.json'),
+  join(root, 'proof-or-stop.config.json'),
   JSON.stringify({ scanRoot: 'docs/story' }),
   'utf8',
 );

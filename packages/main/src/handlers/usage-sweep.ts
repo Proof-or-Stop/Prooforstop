@@ -81,7 +81,7 @@ export interface UsageSweepAlertResult {
 
 export const NON_AUTHORITATIVE_HEADER =
   'NON-AUTHORITATIVE ESTIMATE — attribution from host transcript stores; not billing truth; ' +
-  'sessions lattice did not launch are estimates.';
+  'sessions proof-or-stop did not launch are estimates.';
 
 function normalizeString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
@@ -134,12 +134,12 @@ function renderHuman(report: UsageSweepReport): string {
           ? `${row.firstTimestamp ?? '?'} → ${row.lastTimestamp ?? '?'}`
           : '(no timestamps)';
       const stories = row.storyMentions.length > 0 ? row.storyMentions.join(',') : '-';
-      const latticeHint = row.latticeCwd ? ' [worktree-hint]' : '';
+      const proofOrStopHint = row.proofOrStopCwd ? ' [worktree-hint]' : '';
       lines.push(
         `  ${row.host.padEnd(6)} ${shortId.padEnd(8)} ${row.originLabel.padEnd(13)} ` +
           `~${fmt(rowTotalTokens(row))} tok | ${tokensSummary(row)}`,
       );
-      lines.push(`      cwd ${cwd}${latticeHint} | ${span} | stories ${stories}`);
+      lines.push(`      cwd ${cwd}${proofOrStopHint} | ${span} | stories ${stories}`);
     }
   }
 

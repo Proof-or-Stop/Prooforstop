@@ -106,8 +106,8 @@ export const BURN_ALERT_ENV_MAX = {
 
 /**
  * Resolve burn-alert thresholds from an env record (pure; handlers pass
- * process.env). LATTICE_BURN_ALERT_FILE_MB is given in MB and converted to
- * bytes; LATTICE_BURN_ALERT_RECENT_HOURS accepts 0 as the explicit
+ * process.env). PROOF_OR_STOP_BURN_ALERT_FILE_MB is given in MB and converted to
+ * bytes; PROOF_OR_STOP_BURN_ALERT_RECENT_HOURS accepts 0 as the explicit
  * "disable the doctor burn scan" switch.
  */
 export function resolveBurnAlertThresholds(
@@ -172,7 +172,7 @@ export function projectBurnAlertEvaluationForOutput(
         cwd: finding.cwd,
         originator: finding.originLabel,
         originLabel: finding.originLabel,
-        latticeCwd: false,
+        proofOrStopCwd: false,
         firstTimestamp: finding.firstTimestamp,
         lastTimestamp: finding.lastTimestamp,
         usage: null,
@@ -328,13 +328,13 @@ export function renderBurnFindingBlock(f: BurnAlertFinding): string[] {
   lines.push(`      tripped: ${f.reasons.join(', ')}`);
   lines.push(
     '      → Long-lived interactive thread re-paying its full context every turn. ' +
-      'Close/restart it; lattice cannot stop sessions it did not launch (advisory only, no gate).',
+      'Close/restart it; proof-or-stop cannot stop sessions it did not launch (advisory only, no gate).',
   );
   return lines;
 }
 
 export interface RenderHostBurnScanOptions {
-  /** True when the scan was skipped via LATTICE_BURN_ALERT_RECENT_HOURS=0. */
+  /** True when the scan was skipped via PROOF_OR_STOP_BURN_ALERT_RECENT_HOURS=0. */
   disabled: boolean;
   /** Keep actionable counts and a bounded sample; doctor --full retains every detail line. */
   brief?: boolean;

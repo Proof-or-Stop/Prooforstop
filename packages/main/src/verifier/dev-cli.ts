@@ -41,7 +41,7 @@ process.on('SIGINT', () => { cleanup(); process.exit(0); });
 process.on('SIGTERM', () => { cleanup(); process.exit(0); });
 
 // 1. Start core
-const coreEnv: Record<string, string> = { ...process.env as Record<string, string>, LATTICE_SERVE_PORT: String(wsPort) };
+const coreEnv: Record<string, string> = { ...process.env as Record<string, string>, PROOF_OR_STOP_SERVE_PORT: String(wsPort) };
 
 const core = spawn('npx', ['tsx', debugFile], {
   cwd: root,

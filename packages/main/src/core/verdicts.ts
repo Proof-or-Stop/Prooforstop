@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { canonicalDigest } from './authority-signing.js';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import {
   FINAL_HOST_REVIEW_PROMPT_PROFILE,
   buildFinalHostReviewPromptDigestInput,

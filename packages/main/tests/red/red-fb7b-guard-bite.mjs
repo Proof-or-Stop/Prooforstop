@@ -32,7 +32,7 @@ import { fileURLToPath } from 'node:url';
 
 function findRepoRoot(start) {
   let dir = start;
-  while (!existsSync(join(dir, 'proof-or-stop.config.json')) && !existsSync(join(dir, 'lattice.config.json')) && dir !== dirname(dir)) dir = dirname(dir);
+  while (!existsSync(join(dir, 'proof-or-stop.config.json')) && !existsSync(join(dir, 'proof-or-stop.config.json')) && dir !== dirname(dir)) dir = dirname(dir);
   return dir;
 }
 const repoRoot = findRepoRoot(dirname(fileURLToPath(import.meta.url)));
@@ -47,7 +47,7 @@ assert.ok(existsSync(RED_ABS), `repro-first RED missing: ${RED_REL}`);
 // fixed to accept both spellings, but this read still hardcoded the deprecated one, so it
 // threw ENOENT in a migrated worktree. Fixing a walk-up is not enough — every read anchored
 // to the resolved root has to accept the same set of names.
-const realConfigPath = ['proof-or-stop.config.json', 'lattice.config.json']
+const realConfigPath = ['proof-or-stop.config.json', 'proof-or-stop.config.json']
   .map((name) => join(repoRoot, name))
   .find((candidate) => existsSync(candidate)) ?? join(repoRoot, 'proof-or-stop.config.json');
 const realConfig = JSON.parse(readFileSync(realConfigPath, 'utf8'));
@@ -69,7 +69,7 @@ const GOOD_SCRIPTS = { pretest: 'node scripts/ensure-dist.mjs', test: 'node pack
 // replacement content (to bite a specific assertion); everything else is the real file.
 function makeFixture(pkgScripts, overrides = {}) {
   const root = mkdtempSync(join(tmpdir(), 'fb7b-guard-bite-'));
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ scanRoot: '.' }));
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.' }));
   writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'fixture', scripts: pkgScripts }));
   mkdirSync(join(root, 'bin'), { recursive: true });
   cpSync(join(repoRoot, 'bin', 'bootstrap-runner.js'), join(root, 'bin', 'bootstrap-runner.js'));
@@ -213,7 +213,7 @@ biteCase(
 biteCase(
   'packages/utils build is a bare tsc',
   GOOD_SCRIPTS,
-  { 'packages/utils/package.json': JSON.stringify({ name: '@lattice/utils', scripts: { build: 'tsc' } }) },
+  { 'packages/utils/package.json': JSON.stringify({ name: '@proof-or-stop/utils', scripts: { build: 'tsc' } }) },
   'GB-UTILSPKG-TSC-BIT',
 );
 

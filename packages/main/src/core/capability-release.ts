@@ -14,9 +14,10 @@ import { digestCanonicalJson } from './digest.js';
 import { readPlaybooks, writePlaybooks, withLearningStoreLock } from './learning-store.js';
 import type { Playbook, PlaybookLineage } from './experience-layer-types.js';
 
-// B-cc10: was hardcoded '.lattice/capability-releases.jsonl'. The ledger file itself moved with
-// CHK-003, so the constant pointed at a path that no longer holds it — the same
-// defect class as managed-assets.json and the gap-log paths.
+// B-cc10: this was hardcoded to the capability ledger under the retired state
+// directory. The ledger file itself moved with CHK-003, so the constant pointed
+// at a path that no longer holds it — the same defect class as managed-assets.json
+// and the gap-log paths.
 export const CAPABILITY_RELEASE_LEDGER_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/capability-releases.jsonl`;
 export const CAPABILITY_RELEASE_SCHEMA_VERSION = 'proofbound.product-capability-release.v1';
 
@@ -196,6 +197,54 @@ function assertNonAuthoritative(record: ProductCapabilityReleaseRecord, index: n
   }
 }
 
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+const CAPABILITY_KINDS = new Set<CapabilityKind>([
+  'experiment-launch-control', 'workflow-control', 'evidence-control', 'memory-control', 'documentation-control', 'other',
+]);
+const CAPABILITY_ACTIVATION_BOUNDARIES = new Set<CapabilityActivationBoundary>(['non-runtime-capability', 'runtime-capability']);
+
+export function capabilityReleaseRecordValidationErrors(value: unknown): string[] {
+  if (!isPlainRecord(value)) return ['record must be an object'];
+  const errors: string[] = [];
+  const requiredStrings = ['id', 'idempotencyKey', 'storyId', 'createdAt', 'mainCommit', 'capabilityId', 'capabilityVersion', 'capabilityDigest'] as const;
+  for (const field of requiredStrings) if (!isNonEmptyString(value[field])) errors.push(`${field} must be a non-empty string`);
+  if (value.schemaVersion !== CAPABILITY_RELEASE_SCHEMA_VERSION) errors.push(`schemaVersion must be ${CAPABILITY_RELEASE_SCHEMA_VERSION}`);
+  if (isNonEmptyString(value.id) && !/^PCR-[a-f0-9]{24}$/u.test(value.id)) errors.push('id must be PCR-<24 lowercase hex>');
+  if (isNonEmptyString(value.storyId) && !/^B-[A-Za-z0-9][A-Za-z0-9-]*$/u.test(value.storyId)) errors.push('storyId must be a B-* Story id');
+  if (isNonEmptyString(value.createdAt) && Number.isNaN(Date.parse(value.createdAt))) errors.push('createdAt must be an ISO-compatible timestamp');
+  if (isNonEmptyString(value.mainCommit) && value.mainCommit !== 'uncommitted' && !/^[a-f0-9]{40}$/u.test(value.mainCommit)) errors.push('mainCommit must be a full lowercase Git SHA or uncommitted');
+  if (value.capabilityName !== undefined && !isNonEmptyString(value.capabilityName)) errors.push('capabilityName must be a non-empty string when present');
+  if (!CAPABILITY_KINDS.has(value.capabilityKind as CapabilityKind)) errors.push('capabilityKind is invalid');
+  if (isNonEmptyString(value.capabilityDigest) && !/^sha256:[a-f0-9]{64}$/u.test(value.capabilityDigest)) errors.push('capabilityDigest must be sha256:<64 lowercase hex>');
+  if (isNonEmptyString(value.capabilityVersion) && !/^[a-f0-9]{12}$/u.test(value.capabilityVersion)) errors.push('capabilityVersion must be 12 lowercase hex');
+  if (value.artifactReleaseId !== undefined && (!isNonEmptyString(value.artifactReleaseId) || !/^AR-[a-f0-9]{24}$/u.test(value.artifactReleaseId))) errors.push('artifactReleaseId must be AR-<24 lowercase hex> when present');
+  if (value.artifactSetDigest !== undefined && (!isNonEmptyString(value.artifactSetDigest) || !/^sha256:[a-f0-9]{64}$/u.test(value.artifactSetDigest))) errors.push('artifactSetDigest must be sha256:<64 lowercase hex> when present');
+  if (!Array.isArray(value.changedPaths) || value.changedPaths.length === 0 || value.changedPaths.some(path => !isNonEmptyString(path))) {
+    errors.push('changedPaths must be a non-empty array of non-empty strings');
+  } else if (JSON.stringify(uniqueSortedCapabilityPaths(value.changedPaths as string[])) !== JSON.stringify(value.changedPaths)) {
+    errors.push('changedPaths must be normalized, unique, and sorted');
+  }
+  if (typeof value.runtimeSemverChanged !== 'boolean') errors.push('runtimeSemverChanged must be boolean');
+  if (!CAPABILITY_ACTIVATION_BOUNDARIES.has(value.activationBoundary as CapabilityActivationBoundary)) errors.push('activationBoundary is invalid');
+  if (value.authority !== 'non_authoritative') errors.push("authority must be 'non_authoritative'");
+  if (value.gateEvidence !== false) errors.push('gateEvidence must be false');
+  if (!Array.isArray(value.notes) || value.notes.length === 0 || value.notes.some(note => !isNonEmptyString(note))) errors.push('notes must be a non-empty array of non-empty strings');
+  if (isNonEmptyString(value.capabilityDigest) && isNonEmptyString(value.capabilityVersion) && value.capabilityVersion !== capabilityVersionFromDigest(value.capabilityDigest)) errors.push('capabilityVersion does not match capabilityDigest');
+  if (isNonEmptyString(value.storyId) && isNonEmptyString(value.capabilityId) && isNonEmptyString(value.capabilityDigest)) {
+    const expectedKey = `${value.storyId}:${value.capabilityId}:${value.capabilityDigest}`;
+    if (value.idempotencyKey !== expectedKey) errors.push('idempotencyKey does not match storyId/capabilityId/capabilityDigest');
+    if (isNonEmptyString(value.id) && value.id !== `PCR-${sha256Hex(expectedKey).slice(0, 24)}`) errors.push('id does not match idempotencyKey');
+  }
+  return errors;
+}
+
 /**
  * Fail-closed reader. Filters by schemaVersion, and THROWS (does not silently
  * drop) on a parse error or on any row whose authority/gateEvidence invariant is
@@ -218,6 +267,8 @@ export function readCapabilityReleaseLedger(root: string): ProductCapabilityRele
       );
     }
     if (parsed.schemaVersion !== CAPABILITY_RELEASE_SCHEMA_VERSION) continue;
+    const errors = capabilityReleaseRecordValidationErrors(parsed);
+    if (errors.length > 0) throw new CapabilityReleaseLedgerError(`capability release ledger line ${index + 1}: ${errors.join('; ')}`);
     assertNonAuthoritative(parsed, index);
     records.push(parsed);
   }
@@ -283,7 +334,7 @@ export function appendCapabilityReleaseRecord(
  *
  * Reuses the artifact-release path-selection idea: from the FULL DONE-time
  * changed-path list, select only capability-declaring paths under `docs/**`
- * or `experiments/**`, EXCLUDING `.lattice/**`, `docs/story/**`,
+ * or `experiments/**`, EXCLUDING `.proof-or-stop/**`, `docs/story/**`,
  * `packages/main/src/**`, and root manifests/locks (the exact same conservative
  * filter as {@link selectArtifactReleasePathsV1}). If no capability-declaring
  * path survives, returns `null` — there is NO capability release and the caller

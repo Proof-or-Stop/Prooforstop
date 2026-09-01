@@ -26,12 +26,12 @@ function resolveBrowserExecutorModule() {
 }
 
 function createTempProject(serverPort) {
-  const dir = mkdtempSync(join(tmpdir(), 'lattice-browser-smoke-'));
+  const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-browser-smoke-'));
   mkdirSync(join(dir, 'tests', 'screenshots'), { recursive: true });
   writeFileSync(join(dir, 'index.html'), [
     '<!doctype html>',
     '<html>',
-    '<head><meta charset="utf-8"><title>Lattice Browser Screenshot Smoke</title></head>',
+    '<head><meta charset="utf-8"><title>ProofOrStop Browser Screenshot Smoke</title></head>',
     '<body>',
     '  <canvas id="board" width="160" height="120"></canvas>',
     '  <script>',
@@ -41,7 +41,7 @@ function createTempProject(serverPort) {
     '    ctx.fillRect(0, 0, 160, 120);',
     '    ctx.fillStyle = "#0f172a";',
     '    ctx.font = "16px sans-serif";',
-    '    ctx.fillText("lattice screenshot", 12, 62);',
+    '    ctx.fillText("proof-or-stop screenshot", 12, 62);',
     '  </script>',
     '</body>',
     '</html>',

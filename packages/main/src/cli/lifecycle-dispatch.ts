@@ -107,7 +107,7 @@ export async function runStoryAdvanceInitCheckLifecycleDispatch(args: {
     // bootstrapping. Deferring the phase write must not also defer (or weaken)
     // the gate: dev_start only enforces the scope-anti-expansion freeze gate,
     // which is a STRICT SUBSET of the INIT_CHECK transition gate (it also
-    // requires a valid init-check.json — the lattice-review-story-init evidence).
+    // requires a valid init-check.json — the proof-or-stop-review-story-init evidence).
     // If we bootstrapped on dev_start's subset gate alone, a story with passing
     // scope-freeze but missing init-check could create a worktree (and the exact
     // failure diagnostic would regress from [missing_init_check] to a scope

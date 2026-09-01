@@ -3,7 +3,7 @@
  *
  * Signing utility functions for the TEST → DONE hard gate artifact delivery-check.json.
  *
- * Invoked when the lattice-review-delivery reviewer is spawned at the end of TEST,
+ * Invoked when the proof-or-stop-review-delivery reviewer is spawned at the end of TEST,
  * reverse-scans git diff to list docsPromises + real-machine transcript + closing self-check,
  * writes a signed JSON as the third key for DONE (first two: test-evidence PASS + all bugs fixed).
  *
@@ -34,7 +34,7 @@ import {
 /**
  * delivery_check_set handler factory.
  *
- * Invoked by the lattice-review-delivery subagent, writes delivery-check.json.
+ * Invoked by the proof-or-stop-review-delivery subagent, writes delivery-check.json.
  * Validation logic:
  * - When waiverReason is non-empty it must be ≥ 30 chars (enters _hash to prevent post-hoc tampering)
  * - closingSelfCheck.summary ≥ 10 chars
@@ -75,10 +75,10 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         data.storyFilesHash,
       );
       if (data._hash !== currentExpected) {
-        throw new Error('delivery-check.json _hash is invalid (file may have been tampered with), please re-run the lattice-review-delivery reviewer');
+        throw new Error('delivery-check.json _hash is invalid (file may have been tampered with), please re-run the proof-or-stop-review-delivery reviewer');
       }
       if (!data.materialHash) {
-        throw new Error('delivery-check.json is missing materialHash binding, please re-run the lattice-review-delivery reviewer');
+        throw new Error('delivery-check.json is missing materialHash binding, please re-run the proof-or-stop-review-delivery reviewer');
       }
 
       // 4) Set waiverReason

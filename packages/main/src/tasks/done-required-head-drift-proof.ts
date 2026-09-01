@@ -71,11 +71,11 @@ function git(cwd: string, args: string[]): string {
 
 function writeConfig(root: string): void {
   writeFileSync(
-    join(root, 'lattice.config.json'),
+    join(root, 'proof-or-stop.config.json'),
     JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.lattice/story/actives',
+      storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'light' },
       doneRequiredCommands: [
@@ -100,12 +100,12 @@ function hashes(root: string): HashSnapshot {
 }
 
 function createFixture(): { root: string; store: StoryStore } {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-head-drift-proof-'));
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-head-drift-proof-'));
   writeConfig(root);
   writeFileSync(join(root, 'README.md'), '# DONE-required head drift proof\n', 'utf8');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['add', 'README.md', 'lattice.config.json']);
+  git(root, ['add', 'README.md', 'proof-or-stop.config.json']);
   git(root, ['commit', '-m', 'base']);
 
   const store = new StoryStore(root);
@@ -174,7 +174,7 @@ async function runRound(round: number): Promise<RoundResult> {
     assert.equal(immediate.ok, true, `round ${round}: freshly written evidence must evaluate ok: ${immediate.reasons.join(', ')}`);
     assert.equal(immediate.blocking, false, `round ${round}: freshly written evidence must not block`);
 
-    git(root, ['add', '.lattice/story/actives']);
+    git(root, ['add', '.proof-or-stop/story/actives']);
     git(root, ['commit', '-m', 'metadata evidence commit']);
     const afterMetadataCommit = hashes(root);
 

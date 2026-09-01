@@ -1,0 +1,86 @@
+{
+  "principles": [
+    "Current and future product identities are Proof-or-Stop only.",
+    "Past proof bytes are evidence, not branding copy, and remain unchanged where verification depends on exact bytes.",
+    "The allowlist is exact, reasoned, mutation-tested, and rejects stale or broadened entries.",
+    "RED precedes every production migration and GREEN must be a descendant commit proving the same acceptance target."
+  ],
+  "drivers": [
+    "Pre-public clean break explicitly requested by both maintainers.",
+    "Active bilingual compatibility creates ambiguity across packages, CLI, agents, env, paths, and docs.",
+    "Blind replacement can invalidate historical signatures and provenance.",
+    "Package tarballs and clean installs are the true external product boundary."
+  ],
+  "options": [
+    {
+      "name": "Clean break with exact historical allowlist",
+      "pros": [
+        "Meets categorical product identity",
+        "Removes permanent compatibility complexity",
+        "Allows strong zero-residue acceptance"
+      ],
+      "cons": [
+        "Large coordinated change",
+        "Requires exact frozen-byte classification and migration tests"
+      ]
+    },
+    {
+      "name": "Keep additive read-both compatibility",
+      "pros": [
+        "Lowest migration risk for old installs",
+        "Smaller source diff"
+      ],
+      "cons": [
+        "Contradicts operator instruction",
+        "Leaves active Lattice identities indefinitely"
+      ]
+    },
+    {
+      "name": "Blind global replacement",
+      "pros": [
+        "Fast mechanical execution",
+        "Superficially reaches zero textual residue"
+      ],
+      "cons": [
+        "Corrupts historical evidence and signatures",
+        "Breaks fixtures and provenance",
+        "Cannot provide trustworthy migration proof"
+      ]
+    }
+  ],
+  "chosen": "Clean break with exact historical allowlist",
+  "rationale": "Before public release, active compatibility has no customer value and directly contradicts the requested product experience. We will remove legacy package/bin/role/env/path/config/identifier surfaces, while freezing only exact historical or cryptographic bytes. The first DEV changes are the superseding decision and a committed failing acceptance harness; production edits follow only after RED is recorded.",
+  "preMortem": [
+    {
+      "scenario": "A broad replacement changes signature salts or historical story bytes",
+      "trigger": "Residue sweep reports zero because protected evidence was rewritten",
+      "consequence": "Persisted artifacts become unverifiable or audit history is falsified",
+      "mitigation": "Capture named pre-migration byte/digest/signature baselines; exact allowlist; assert unchanged after GREEN"
+    },
+    {
+      "scenario": "A deprecated bin or @lattice package survives in a packed artifact",
+      "trigger": "Source checks pass but clean install still resolves old identity",
+      "consequence": "Users see a bilingual product despite the cutover",
+      "mitigation": "Pack all packages, install tarballs in an empty temp project, assert canonical positives and legacy negatives"
+    },
+    {
+      "scenario": "Canonical source still writes legacy env/path/role/config names indirectly",
+      "trigger": "A resolver alias or generated template reintroduces Lattice on new writes",
+      "consequence": "Fresh projects and agents keep emitting retired identities",
+      "mitigation": "Test fresh generation and runtime writes, plus active-source residue scan and mutation proof"
+    },
+    {
+      "scenario": "The allowlist silently expands to hide new leaks",
+      "trigger": "A wildcard or stale exemption masks a new active occurrence",
+      "consequence": "Zero-residue claim becomes vacuous",
+      "mitigation": "Require exact path/token/reason entries, fail on stale entries, and mutation-test an injected active leak"
+    },
+    {
+      "scenario": "Package/lock/version identities drift across workspaces",
+      "trigger": "Manifests change without synchronized lockfiles or version constant",
+      "consequence": "Builds or registry installs resolve inconsistent packages",
+      "mitigation": "Mechanical manifest/lock assertions, build all packages, pack inspection, clean-install smoke, and synchronized patch bump"
+    }
+  ],
+  "timestamp": "2026-08-30T21:42:52.053Z"
+}

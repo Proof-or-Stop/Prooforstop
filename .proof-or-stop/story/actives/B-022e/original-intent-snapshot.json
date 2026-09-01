@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-022e",
+  "sourceText": "继续 B-022e；通过两个 INIT reviewer 后即可按 RED → GREEN → REVIEW → TEST → DONE 完成。补充：lattice-review-story-init 也需要修改为 proof-or-stop-review-story-init，包括 Agent 名字如果有叫 lattice 也需要修改为 Proof-or-Stop。",
+  "normalizedOutcome": "The repository and clean-installed product expose Proof-or-Stop identities only, including all renamed proof-or-stop-* Agent roles; legacy lattice/@lattice identities are absent from active runtime surfaces while exact historical proof bytes still verify.",
+  "acceptanceClaim": "The committed identity-cutover verifier, package clean-install transcript, canonical role-registry checks, and historical byte/digest/signature checks all pass at the final 0.3.268 HEAD, while lattice/@lattice and lattice-* role negative checks fail to resolve.",
+  "keyRequirementIds": [
+    "REQ-AGENT-ROLE-CUTOVER",
+    "REQ-HISTORICAL-INTEGRITY",
+    "REQ-IDENTITY-CUTOVER",
+    "REQ-RED-GREEN-CLOSEOUT"
+  ],
+  "requestHash": "sha256:08c866e1b2993f60dc8518c73ce0407f376255c42f52ff203056d04de5aa9329",
+  "createdAt": "2026-08-30T21:48:38.805Z",
+  "updatedAt": "2026-08-30T21:48:38.805Z"
+}

@@ -1,13 +1,11 @@
-import type { HandlerContext } from '../../../main/dist/handlers/context.js';
-import { scanTruth, generateNav } from '../../../main/dist/tasks/truth.js';
-import { analyzeTruth, truthToStory } from '../../../main/dist/tasks/truth-analyze.js';
-import { scan } from '../../../main/dist/tasks/extract.js';
+import type { HandlerContext } from '@proof-or-stop/core/extension-api';
+import { requireCoreRuntime } from '../core-runtime.js';
 import { join } from 'path';
 import { mkdirSync, writeFileSync, existsSync, readdirSync, readFileSync } from 'fs';
-import { loadConfig } from '../../../main/dist/core/config.js';
 
 export function createTruthHandlers(ctx: HandlerContext) {
   const { root } = ctx;
+  const { analyzeTruth, generateNav, loadConfig, scan, scanTruth, truthToStory } = requireCoreRuntime(ctx);
   return {
     // ── Source-of-truth tools ──────────────────────────────────
 

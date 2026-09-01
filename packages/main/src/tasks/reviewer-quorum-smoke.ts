@@ -38,17 +38,17 @@ console.log('\nTest 1: strict — all lanes covered + independent verifier');
     activeReviewers: ['concept', 'quality', 'test-coverage'],
     evidence: [
       {
-        ...passEntry('lattice-review-concept'),
+        ...passEntry('proof-or-stop-review-concept'),
         producer: { actor: 'agent-A', provider: 'anthropic', vendor: 'anthropic', model: 'claude-opus-4-7' },
         verifier: { actor: 'agent-B', provider: 'anthropic', vendor: 'anthropic', model: 'claude-sonnet-4-6' },
       },
       {
-        ...passEntry('lattice-review-quality'),
+        ...passEntry('proof-or-stop-review-quality'),
         producer: { actor: 'agent-A' },
         verifier: { actor: 'agent-B' },
       },
       {
-        ...passEntry('lattice-review-test-coverage'),
+        ...passEntry('proof-or-stop-review-test-coverage'),
         producer: { actor: 'agent-A' },
         verifier: { actor: 'agent-B' },
       },
@@ -68,15 +68,15 @@ console.log('\nTest 2: strict — missing lane => blocking');
   const result = evaluateReviewerQuorum({
     activeReviewers: ['concept', 'quality', 'test-coverage'],
     evidence: [
-      passEntry('lattice-review-concept'),
-      passEntry('lattice-review-quality'),
+      passEntry('proof-or-stop-review-concept'),
+      passEntry('proof-or-stop-review-quality'),
       // test-coverage missing
     ],
     profile: 'strict',
   });
   assert('ok is false', !result.ok);
-  assert('blocking contains missing_lane for test-coverage', result.blocking.some(m => m.includes('lattice-review-test-coverage')));
-  assert('missing_lane diagnostic exists', result.diagnostics.some(d => d.code === 'missing_lane' && d.lane === 'lattice-review-test-coverage' && d.severity === 'blocking'));
+  assert('blocking contains missing_lane for test-coverage', result.blocking.some(m => m.includes('proof-or-stop-review-test-coverage')));
+  assert('missing_lane diagnostic exists', result.diagnostics.some(d => d.code === 'missing_lane' && d.lane === 'proof-or-stop-review-test-coverage' && d.severity === 'blocking'));
 }
 
 // ── Test 3: balanced missing metadata => warning, ok ─────────────────────────
@@ -86,8 +86,8 @@ console.log('\nTest 3: balanced — missing verifier metadata => warning, ok');
   const result = evaluateReviewerQuorum({
     activeReviewers: ['concept', 'quality'],
     evidence: [
-      passEntry('lattice-review-concept'),  // no producer/verifier metadata
-      passEntry('lattice-review-quality'),
+      passEntry('proof-or-stop-review-concept'),  // no producer/verifier metadata
+      passEntry('proof-or-stop-review-quality'),
     ],
     profile: 'balanced',
     requireDifferentiatedVerifier: true,
@@ -105,7 +105,7 @@ console.log('\nTest 4: strict — same actor as producer and verifier => blockin
     activeReviewers: ['concept'],
     evidence: [
       {
-        ...passEntry('lattice-review-concept'),
+        ...passEntry('proof-or-stop-review-concept'),
         producer: { actor: 'agent-X', provider: 'anthropic', vendor: 'anthropic', model: 'claude-opus-4-7' },
         verifier: { actor: 'agent-X', provider: 'anthropic', vendor: 'anthropic', model: 'claude-opus-4-7' },
       },
@@ -124,9 +124,9 @@ console.log('\nTest 5: lane mapping — concept/quality/test-coverage short name
   const result = evaluateReviewerQuorum({
     activeReviewers: ['concept', 'quality', 'test-coverage'],
     evidence: [
-      passEntry('lattice-review-concept'),
-      passEntry('lattice-review-quality'),
-      passEntry('lattice-review-test-coverage'),
+      passEntry('proof-or-stop-review-concept'),
+      passEntry('proof-or-stop-review-quality'),
+      passEntry('proof-or-stop-review-test-coverage'),
     ],
     profile: 'strict',
   });
@@ -135,7 +135,7 @@ console.log('\nTest 5: lane mapping — concept/quality/test-coverage short name
   const result2 = evaluateReviewerQuorum({
     activeReviewers: ['concept'],
     evidence: [
-      { lane: 'lattice-review-concept', agent: 'concept', kind: 'pass', signatureValid: true },
+      { lane: 'proof-or-stop-review-concept', agent: 'concept', kind: 'pass', signatureValid: true },
     ],
     profile: 'strict',
   });
@@ -155,7 +155,7 @@ console.log('\nTest 5b: active reviewer source — computeActiveReviewers feeds 
   assert('computeActiveReviewers includes baseline test-coverage', active.includes('test-coverage'));
   const result = evaluateReviewerQuorum({
     activeReviewers: active,
-    evidence: active.map(name => passEntry(`lattice-review-${name}`)),
+    evidence: active.map(name => passEntry(`proof-or-stop-review-${name}`)),
     profile: 'strict',
   });
   assert('computed active reviewers satisfy quorum with matching lane evidence', result.ok, JSON.stringify(result.blocking));
@@ -181,11 +181,11 @@ console.log('\nTest 7: balanced — missing lane => warning, ok');
 {
   const result = evaluateReviewerQuorum({
     activeReviewers: ['concept', 'quality'],
-    evidence: [passEntry('lattice-review-concept')],
+    evidence: [passEntry('proof-or-stop-review-concept')],
     profile: 'balanced',
   });
   assert('ok is true', result.ok, JSON.stringify(result.blocking));
-  assert('warning for missing quality', result.warnings.some(w => w.includes('lattice-review-quality')));
+  assert('warning for missing quality', result.warnings.some(w => w.includes('proof-or-stop-review-quality')));
   assert('no blocking', result.blocking.length === 0);
 }
 
@@ -195,7 +195,7 @@ console.log('\nTest 8: strict — open finding entry => blocking dispute');
 {
   const result = evaluateReviewerQuorum({
     activeReviewers: ['concept'],
-    evidence: [findingEntry('lattice-review-concept')],
+    evidence: [findingEntry('proof-or-stop-review-concept')],
     profile: 'strict',
   });
   assert('ok is false', !result.ok);

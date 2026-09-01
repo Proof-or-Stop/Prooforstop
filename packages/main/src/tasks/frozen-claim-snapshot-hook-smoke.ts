@@ -66,18 +66,18 @@ const background = [
 ].join('\n\n');
 
 // Pin a stable session so every child CLI shares one session (owner-lease gate stability).
-const origSessionId = process.env.LATTICE_SESSION_ID;
-process.env.LATTICE_SESSION_ID = 'smoke-snapshot-hook';
+const origSessionId = process.env.PROOF_OR_STOP_SESSION_ID;
+process.env.PROOF_OR_STOP_SESSION_ID = 'smoke-snapshot-hook';
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-snapshot-hook-'));
+const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-snapshot-hook-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Proof-or-Stop Smoke']);
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -101,7 +101,7 @@ try {
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert.ok(storyId, 'story_create should return a story id');
 
-  const checklistPath = join(root, '.lattice/story/actives', storyId!, 'checklist.json');
+  const checklistPath = join(root, '.proof-or-stop/story/actives', storyId!, 'checklist.json');
   const readItem = (id: string): any => {
     const cl = JSON.parse(readFileSync(checklistPath, 'utf8'));
     return cl.items.find((i: any) => i.id === id);
@@ -156,9 +156,9 @@ try {
 } finally {
   rmSync(root, { recursive: true, force: true });
   if (origSessionId === undefined) {
-    delete process.env.LATTICE_SESSION_ID;
+    delete process.env.PROOF_OR_STOP_SESSION_ID;
   } else {
-    process.env.LATTICE_SESSION_ID = origSessionId;
+    process.env.PROOF_OR_STOP_SESSION_ID = origSessionId;
   }
 }
 

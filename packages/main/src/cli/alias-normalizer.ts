@@ -1,4 +1,4 @@
-import { PROOF_OR_STOP_BIN_NAMES } from '../core/lattice-brand.js';
+import { PROOF_OR_STOP_BIN_NAMES } from '../core/proof-or-stop-brand.js';
 
 export const NESTED_SPACE_ALIASES: Record<string, string> = {
   'host list': 'host_list',
@@ -43,11 +43,17 @@ export const NESTED_SPACE_ALIASES: Record<string, string> = {
   'handoff resume': 'handoff_resume',
   'handoff receipt submit': 'handoff_receipt_submit',
   'handoff worktree create': 'handoff_worktree_create',
-  'config doctor': 'lattice_config_doctor',
-  'config repair': 'lattice_config_repair',
+  'config doctor': 'proof_or_stop_config_doctor',
+  'config repair': 'proof_or_stop_config_repair',
   'codex verify': 'verify_codex',
   'codex doctor': 'codex_doctor',
   'rollout check': 'rollout_check',
+  'lab create': 'lab_create',
+  'lab run': 'lab_run',
+  'lab eval': 'lab_eval',
+  'lab compare': 'lab_compare',
+  'lab promote': 'lab_promote',
+  'lab help': 'lab_help',
   'baseline run': 'baseline_run',
   'baseline suite': 'baseline_suite',
   'baseline suite report': 'baseline_suite_report',
@@ -88,14 +94,13 @@ export interface AliasNormalizationResult {
   cmd: string | undefined;
   arg: string | undefined;
   canonicalAlias?: string;
+  displayAlias?: string;
   consumed?: 2 | 3 | 4;
   aliasStart: 0 | 1;
 }
 
 export function normalizeNestedSpaceAlias(argv: string[]): AliasNormalizationResult {
-  // B-cdf6 CHK-002: tolerate a pasted redundant bin token under EITHER name, so
-  // `proof-or-stop proof-or-stop host list` is forgiven exactly like the
-  // `lattice lattice host list` form the deprecated alias already accepted.
+  // Tolerate one pasted redundant canonical bin token.
   const aliasStart = PROOF_OR_STOP_BIN_NAMES.includes(argv[0]) ? 1 : 0;
   const candidates: Array<{ text: string; consumed: 2 | 3 | 4 }> = [
     { text: argv.slice(aliasStart, aliasStart + 4).join(' '), consumed: 4 },
@@ -122,6 +127,7 @@ export function normalizeNestedSpaceAlias(argv: string[]): AliasNormalizationRes
     cmd: canonicalAlias,
     arg: normalizedArgv[1],
     canonicalAlias,
+    displayAlias: match.text,
     consumed: match.consumed,
     aliasStart,
   };

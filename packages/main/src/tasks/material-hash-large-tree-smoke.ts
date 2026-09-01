@@ -59,9 +59,9 @@ try {
   git('config user.name smoke', base);
   git('config commit.gpgsign false', base);
 
-  // A lattice.config.json so the metadata-exclusion path (loadConfig) loads the
+  // A proof-or-stop.config.json so the metadata-exclusion path (loadConfig) loads the
   // same way the production code path does on a real project.
-  writeFileSync(join(base, 'lattice.config.json'), JSON.stringify({ storyDir: '.lattice/story/actives' }, null, 2));
+  writeFileSync(join(base, 'proof-or-stop.config.json'), JSON.stringify({ storyDir: '.proof-or-stop/story/actives' }, null, 2));
 
   // ls-tree -r emits one NUL-terminated record per file:
   //   <mode> <type> <objectid>\t<path>\0

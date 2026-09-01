@@ -30,7 +30,7 @@ const BUDGET_SAFETY_FACTOR = 3;
 
 function generate(dir, profile) {
   execFileSync(
-    'lattice',
+    'proof-or-stop',
     [
       'memory_playbook_baseline_generate',
       `--profile=${profile}`,
@@ -44,7 +44,7 @@ function generate(dir, profile) {
 
 function verify(dir) {
   const out = execFileSync(
-    'lattice',
+    'proof-or-stop',
     ['memory_playbook_baseline_verify', `--inputDir=${dir}`, '--json'],
     { encoding: 'utf8', maxBuffer: 1 << 28 },
   );

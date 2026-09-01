@@ -1,8 +1,8 @@
 /**
  * Shared helper for smokes that need a signing-eligible session identity.
  *
- * Roles that sign a topology receipt (`lattice-review-topology-critic`) or an exclusion approval
- * (`lattice-review-scope-plan`) must hold a `host-adapter` or `generated-token` session — see the
+ * Roles that sign a topology receipt (`proof-or-stop-review-topology-critic`) or an exclusion approval
+ * (`proof-or-stop-review-scope-plan`) must hold a `host-adapter` or `generated-token` session — see the
  * guard in `core/topology-critic-receipt.ts#deriveRoleProvenance`. A fixture that establishes
  * identity by writing the session id env var directly resolves to `explicit-env` and is refused,
  * because that value is mintable by whoever runs the command.
@@ -31,11 +31,10 @@ export const ADAPTER_SESSION_PROVIDER = 'claude-code' as const;
  */
 export function adapterSessionEnv(task: string, agent: string): Record<string, string | undefined> {
   return {
-    LATTICE_SESSION_ID: undefined,
     PROOF_OR_STOP_SESSION_ID: undefined,
-    LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: ADAPTER_SESSION_PROVIDER,
-    LATTICE_OWNER_SESSION_ADAPTER_TASK: task,
-    LATTICE_OWNER_SESSION_ADAPTER_AGENT: agent,
+    PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: ADAPTER_SESSION_PROVIDER,
+    PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: task,
+    PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: agent,
   };
 }
 

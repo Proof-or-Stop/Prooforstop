@@ -45,9 +45,9 @@ function printBootstrapFailure(error) {
   console.error('');
   console.error('Fallbacks:');
   console.error('  - Core-only local CLI: node packages/main/dist/cli.js <command>');
-  console.error('    Use this for current-worktree gate/status/validate checks while developing Lattice.');
+  console.error('    Use this for current-worktree gate/status/validate checks while developing ProofOrStop.');
   console.error('  - Global CLI (heartbeat-only, not current-worktree gate/status evidence):');
-  console.error('    LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief');
+  console.error('    PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief');
   console.error('    The global-fallback exemption is only for session_brief heartbeat; it is never worktree gate/status evidence.');
 
   if (error) {
@@ -60,7 +60,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 // A build is "in progress" only when a LIVE holder is heartbeating `<target>.lock`. Gate on lock
 // FRESHNESS, not mere existence: a build interrupted by Ctrl-C/SIGKILL/crash skips its finally-release
 // and leaves the `.lock` dir ORPHANED. The atomic swap already left dist complete in that case, so the
-// orphan must NOT block readers — otherwise every bin/lattice.js call would wait then fail until the
+// orphan must NOT block readers — otherwise every bin/proofOrStop.js call would wait then fail until the
 // next build reclaims it. A live holder heartbeats the mtime every `update` (10s); proper-lockfile
 // treats it stale past `stale` (30s), so an orphan ages out within `stale` and we ignore it. The
 // threshold and lock target are imported from the dependency-free build-lock-target.mjs (single source
@@ -129,7 +129,12 @@ async function importDistModules() {
 
 export async function runLocalBootstrap() {
   try {
-    const [{ runCli }, { register, utilsToolDefs }] = await importDistModules();
+    const [{ runCli }, {
+      register,
+      utilsAllowedPhases,
+      utilsOwnershipClasses,
+      utilsToolDefs,
+    }] = await importDistModules();
     let labRegister = null;
     let labToolDefs = [];
     if (existsSync(LAB_DIST)) {
@@ -137,14 +142,14 @@ export async function runLocalBootstrap() {
         const labModule = await import(pathToFileURL(LAB_DIST).href);
         labRegister = typeof labModule.register === 'function' ? labModule.register : null;
         if (typeof labModule.createLabToolDefs === 'function') {
-          const zodModule = await import(pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href);
+          const zodModule = await import('zod');
           labToolDefs = labModule.createLabToolDefs(zodModule.z);
         } else {
           labToolDefs = Array.isArray(labModule.labToolDefs) ? labModule.labToolDefs : [];
         }
       } catch (error) {
         const err = error instanceof Error ? error : new Error(String(error));
-        process.env.LATTICE_LAB_IMPORT_ERROR = err.message;
+        process.env.PROOF_OR_STOP_LAB_IMPORT_ERROR = err.message;
       }
     }
 
@@ -153,6 +158,28 @@ export async function runLocalBootstrap() {
       extraRegister: (registry, ctx) => {
         register(registry, ctx);
         if (typeof labRegister === 'function') labRegister(registry, ctx);
+      },
+      extraOwnershipClasses: {
+        ...utilsOwnershipClasses,
+        ...(typeof labRegister === 'function' ? {
+          lab_help: 'readOnly',
+          lab_create: 'mainSharedMutating',
+          lab_run: 'mainSharedMutating',
+          lab_eval: 'readOnly',
+          lab_compare: 'readOnly',
+          lab_promote: 'readOnly',
+        } : {}),
+      },
+      extraAllowedPhases: {
+        ...utilsAllowedPhases,
+        ...(typeof labRegister === 'function' ? {
+          lab_help: 'all',
+          lab_create: ['DEV'],
+          lab_run: ['DEV'],
+          lab_eval: ['DEV'],
+          lab_compare: 'all',
+          lab_promote: 'all',
+        } : {}),
       },
     });
   } catch (error) {

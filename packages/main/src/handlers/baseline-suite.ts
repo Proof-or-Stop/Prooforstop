@@ -9,7 +9,7 @@ import {
   buildBaselineSuiteReport as buildLegacyBaselineSuiteReport,
   renderBaselineSuiteText as renderLegacyBaselineSuiteText,
   type BaselineLayer,
-} from '../core/lattice-baseline.js';
+} from '../core/proof-or-stop-baseline.js';
 
 type BaselineSuiteReportArgs = {
   layer?: BaselineLayer | string;

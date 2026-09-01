@@ -94,8 +94,8 @@ const blocker = { severity: 'critical', desc: 'A recorded blocker that must not 
 const SHAPES = [
   {
     label: 'canonical pair',
-    match: (r) => r.length === 2 && r.some(e => e.agentId === 'lattice-review-story-init') && r.some(e => e.agentId === 'product-reviewer'),
-    record: { storyId: 'B-shape', checkedAt: AT, reviewRound: '', agentId: 'lattice-review-story-init', issues: [], agentResults: [entry('lattice-review-story-init'), entry('product-reviewer')] },
+    match: (r) => r.length === 2 && r.some(e => e.agentId === 'proof-or-stop-review-story-init') && r.some(e => e.agentId === 'product-reviewer'),
+    record: { storyId: 'B-shape', checkedAt: AT, reviewRound: '', agentId: 'proof-or-stop-review-story-init', issues: [], agentResults: [entry('proof-or-stop-review-story-init'), entry('product-reviewer')] },
   },
   {
     label: 'koala-* pair (pre-rename actor)',
@@ -103,9 +103,9 @@ const SHAPES = [
     record: { storyId: 'B-shape', checkedAt: AT, reviewRound: '', agentId: 'koala-review-story-init', issues: [], agentResults: [entry('koala-review-story-init'), entry('product-reviewer')] },
   },
   {
-    label: 'lattice-*@fallback pair',
-    match: (r) => r.some(e => e.agentId === 'lattice-review-story-init@fallback'),
-    record: { storyId: 'B-shape', checkedAt: AT, reviewRound: '', agentId: 'lattice-review-story-init@fallback', issues: [], agentResults: [entry('lattice-review-story-init@fallback'), entry('product-reviewer@fallback')], fallback: { mode: 'repair', reason: 'x'.repeat(30), attestedAt: AT } },
+    label: 'proof-or-stop-*@fallback pair',
+    match: (r) => r.some(e => e.agentId === 'proof-or-stop-review-story-init@fallback'),
+    record: { storyId: 'B-shape', checkedAt: AT, reviewRound: '', agentId: 'proof-or-stop-review-story-init@fallback', issues: [], agentResults: [entry('proof-or-stop-review-story-init@fallback'), entry('product-reviewer@fallback')], fallback: { mode: 'repair', reason: 'x'.repeat(30), attestedAt: AT } },
   },
   {
     label: 'koala-*@fallback pair',
@@ -115,12 +115,12 @@ const SHAPES = [
   {
     label: 'three-entry historical actor',
     match: (r) => r.length >= 3,
-    record: { storyId: 'B-shape', checkedAt: AT, reviewRound: '', agentId: 'codex-init-reviewer', issues: [], agentResults: [entry('codex-init-reviewer'), entry('lattice-review-story-init'), entry('product-reviewer')] },
+    record: { storyId: 'B-shape', checkedAt: AT, reviewRound: '', agentId: 'codex-init-reviewer', issues: [], agentResults: [entry('codex-init-reviewer'), entry('proof-or-stop-review-story-init'), entry('product-reviewer')] },
   },
   {
     label: 'no agentResults field (synthesized from top-level fields)',
     match: null,   // recognised by the ABSENCE of the field, checked separately
-    record: { storyId: 'B-shape', checkedAt: AT, reviewRound: '', agentId: 'lattice-review-story-init', issues: [blocker] },
+    record: { storyId: 'B-shape', checkedAt: AT, reviewRound: '', agentId: 'proof-or-stop-review-story-init', issues: [blocker] },
   },
 ];
 
@@ -177,8 +177,8 @@ add('S7', 'the documented shapes do not collide onto one digest',
     computeInitCheckVerdictHash(base) !== computeInitCheckVerdictHash(injected),
     `digestMoved=${computeInitCheckVerdictHash(base) !== computeInitCheckVerdictHash(injected)}`);
 
-  const recorded = { ...base, issues: [blocker], agentResults: [entry('lattice-review-story-init', [blocker]), entry('product-reviewer')] };
-  const erased = { ...recorded, issues: [], agentResults: [entry('lattice-review-story-init'), entry('product-reviewer')] };
+  const recorded = { ...base, issues: [blocker], agentResults: [entry('proof-or-stop-review-story-init', [blocker]), entry('product-reviewer')] };
+  const erased = { ...recorded, issues: [], agentResults: [entry('proof-or-stop-review-story-init'), entry('product-reviewer')] };
   add('D2', 'ERASING a recorded blocking issue moves the digest',
     computeInitCheckVerdictHash(recorded) !== computeInitCheckVerdictHash(erased),
     `digestMoved=${computeInitCheckVerdictHash(recorded) !== computeInitCheckVerdictHash(erased)}`);
@@ -208,9 +208,9 @@ add('S7', 'the documented shapes do not collide onto one digest',
 
 // ── L: the LIVE corpus, re-derived on this run (never copied from prose) ────────────
 {
-  let storyDir = '.lattice/story/actives';
+  let storyDir = '.proof-or-stop/story/actives';
   try {
-    const cfg = JSON.parse(readFileSync(join(REPO, 'lattice.config.json'), 'utf8'));
+    const cfg = JSON.parse(readFileSync(join(REPO, 'proof-or-stop.config.json'), 'utf8'));
     if (typeof cfg?.storyDir === 'string' && cfg.storyDir.length > 0) storyDir = cfg.storyDir;
   } catch { /* PROBE: fall back to the default layout below */ }
   const abs = join(REPO, storyDir);

@@ -3,7 +3,7 @@
  * trigger logic (B-9bd9 CHK-003).
  *
  * Responsibilities:
- *   - Read/write `<projectRoot>/.lattice/runtime/framework-audit/state.json` (fields see AuditState)
+ *   - Read/write `<projectRoot>/.proof-or-stop/runtime/framework-audit/state.json` (fields see AuditState)
  *   - Increment doneSinceLastAudit counter
  *   - Determine whether to trigger audit based on config (CHK-004's resolveAuditConfig)
  *   - semi-auto → only return prompt text (no agent spawn); full-auto → run audit handler directly in same process
@@ -26,7 +26,7 @@ import { dirname, join } from 'node:path';
 import { resolveAuditConfig, type AuditMode } from './audit-config.js';
 import { scanDeprecated } from './audit-scan.js';
 import { loadConfig } from './config.js';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import type { WorkflowProfile } from './types.js';
 
 /**
@@ -63,10 +63,10 @@ const INITIAL_STATE: AuditState = {
 
 /**
  * Location of state.json relative to projectRoot.
- * Mutable trigger state lives under ignored `.lattice/runtime/`, deliberately
+ * Mutable trigger state lives under ignored `.proof-or-stop/runtime/`, deliberately
  * not under a tracked path. Some repos previously tracked a legacy runtime
  * state path, so writing there made read/status verification appear dirty;
- * the runtime-only `.lattice/runtime/` location avoids that.
+ * the runtime-only `.proof-or-stop/runtime/` location avoids that.
  * Single source of truth: touchAuditState in audit.ts also imports this function to avoid double-hardcoding the path.
  */
 export function stateFilePath(projectRoot: string): string {

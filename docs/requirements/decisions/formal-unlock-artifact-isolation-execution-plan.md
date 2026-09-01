@@ -74,7 +74,7 @@ The separation is:
 
 | Root | Purpose | Contents |
 |---|---|---|
-| Selected formal PASS root (e.g. `.lattice/artifacts/baseline/layer2-engineering-unlock`) | Formal proof aggregation | Only clean, current-run, single-`suiteRunId`, correct-`claimTarget` final reports |
+| Selected formal PASS root (e.g. `.proof-or-stop/artifacts/baseline/layer2-engineering-unlock`) | Formal proof aggregation | Only clean, current-run, single-`suiteRunId`, correct-`claimTarget` final reports |
 | Negative-check root (smoke test fixtures) | Prove fail-closed behavior | Stale `materialHash`, mixed `suiteRunId`, wrong `claimTarget`, `localOnly=true`, Authority overclaim artifacts |
 
 The root invariant scans only the selected formal PASS root. Negative-check
@@ -121,9 +121,9 @@ Layer 5 / global Capability     = LOCKED (requires all lower layers)
 
 ## 7. Implementation Location
 
-The root invariant guard lives in `packages/main/src/core/lattice-baseline.ts`
+The root invariant guard lives in `packages/main/src/core/proof-or-stop-baseline.ts`
 inside the existing suite aggregation path. Negative coverage lives in
-`packages/main/src/tasks/lattice-baseline-smoke.ts`.
+`packages/main/src/tasks/proof-or-stop-baseline-smoke.ts`.
 
 ## 8. Relation to Existing Decision Documents
 

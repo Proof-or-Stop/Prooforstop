@@ -1,5 +1,5 @@
 /**
- * @lattice/lab 的注册入口。
+ * @proof-or-stop/lab 的注册入口。
  */
 import type { LabHandlerContext, LabRegistry } from './core/runtime-types.js';
 import { createLabHandlers } from './handlers/lab.js';

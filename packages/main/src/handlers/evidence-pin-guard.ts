@@ -82,7 +82,7 @@ export function createEvidencePinGuardHandlers(ctx: HandlerContext): Record<stri
         // 2. Recognize the evidence-write invocation (fail-open when it is not one).
         const parsed = parseEvidenceCommand(commandString);
         if (!parsed) {
-          return allowNoDecision('Not a lattice verification evidence-write command — proceeding (no-decision).');
+          return allowNoDecision('Not a proof-or-stop verification evidence-write command — proceeding (no-decision).');
         }
 
         // 3. Resolve the pin via the store (fail-open on any read/resolution gap).

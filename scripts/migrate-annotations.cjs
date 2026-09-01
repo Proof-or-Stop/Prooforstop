@@ -9,7 +9,7 @@
  *   1. extract: 扫描 scanRoot 下所有 @task 注释 → 写入 docs/metadata/task.json + flow.json
  *   2. clean: 删除源码中的 @task 注释块
  *
- * 需要项目有 lattice.config.json（读取 scanRoot）
+ * 需要项目有 proof-or-stop.config.json（读取 scanRoot）
  * 也可在其他项目中使用：拷贝此脚本，配置 scanRoot 即可
  */
 
@@ -29,7 +29,7 @@ if (!projectRoot) {
 // ── Config ──
 
 let scanRoot = 'src';
-const configPath = path.join(projectRoot, 'lattice.config.json');
+const configPath = path.join(projectRoot, 'proof-or-stop.config.json');
 if (fs.existsSync(configPath)) {
   try {
     const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));

@@ -162,16 +162,16 @@ function wrapExportsWithTrace(js: string, mod: TrackedModule): string {
     }
   );
 
-  // Append __lattice_modules registration at the end (used for call action)
+  // Append __proof_or_stop_modules registration at the end (used for call action)
   const moduleRegistrations = mod.functions.map(fn =>
-    `if(typeof ${fn}==='function')window.__lattice_modules['${mod.sourceFile}'].${fn}=${fn};`
+    `if(typeof ${fn}==='function')window.__proof_or_stop_modules['${mod.sourceFile}'].${fn}=${fn};`
   ).join('\n');
 
   const suffix = `
 ;if(typeof window!=='undefined'){
   window.__trace=window.__trace||[];
-  window.__lattice_modules=window.__lattice_modules||{};
-  window.__lattice_modules['${mod.sourceFile}']={};
+  window.__proof_or_stop_modules=window.__proof_or_stop_modules||{};
+  window.__proof_or_stop_modules['${mod.sourceFile}']={};
   ${moduleRegistrations}
 }
 `;
@@ -210,7 +210,7 @@ function startProxy(
         if (contentType.includes('text/html')) {
           // HTML: inject WS port + client.js
           let html = await resp.text();
-          const injection = `<script>window.__LATTICE_WS_PORT=${wsPort};${clientScript}</script>`;
+          const injection = `<script>window.__PROOF_OR_STOP_WS_PORT=${wsPort};${clientScript}</script>`;
           if (html.includes('</head>')) {
             html = html.replace('</head>', `${injection}</head>`);
           } else {
@@ -410,18 +410,18 @@ async function executeStep(
     }
 
     case 'call': {
-      // Call the function in __lattice_modules
+      // Call the function in __proof_or_stop_modules
       const fn = step.code || ''; // fn name
       const args = step.text ? JSON.parse(step.text) : []; // args as JSON array
       const code = `(() => {
-        const mods = window.__lattice_modules || {};
+        const mods = window.__proof_or_stop_modules || {};
         for (const [file, mod] of Object.entries(mods)) {
           if (typeof mod['${fn}'] === 'function') {
             const result = mod['${fn}'](...${JSON.stringify(args)});
             return JSON.parse(JSON.stringify(result));
           }
         }
-        return { __error: 'function ${fn} not found in __lattice_modules' };
+        return { __error: 'function ${fn} not found in __proof_or_stop_modules' };
       })()`;
       const r = await api(port, '/eval', { code });
       if (r.result?.__error) return { passed: false, error: r.result.__error };

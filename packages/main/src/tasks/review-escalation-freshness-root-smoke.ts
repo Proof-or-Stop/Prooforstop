@@ -267,12 +267,12 @@ function story(): StoryInfo {
   try {
     // metaRoot is deliberately NOT a git repo. The real repo is the 'repo' subdir.
     writeFileSync(
-      join(metaRoot, 'lattice.config.json'),
+      join(metaRoot, 'proof-or-stop.config.json'),
       JSON.stringify(
         {
           scanRoot: 'packages/main',
           rootDir: 'src',
-          storyDir: '.lattice/story/actives',
+          storyDir: '.proof-or-stop/story/actives',
           requirementsDir: 'docs/requirements',
           gitRoot: 'repo',
         },
@@ -371,12 +371,12 @@ function story(): StoryInfo {
     // gitRoot:'repo' drives resolveGitCwd's configured-git-root branch (the story
     // has NO worktree binding, so the resolver routes to the configured subdir).
     writeFileSync(
-      join(metaRoot, 'lattice.config.json'),
+      join(metaRoot, 'proof-or-stop.config.json'),
       JSON.stringify(
         {
           scanRoot: 'packages/main',
           rootDir: 'src',
-          storyDir: '.lattice/story/actives',
+          storyDir: '.proof-or-stop/story/actives',
           requirementsDir: 'docs/requirements',
           worktreeDir: '.worktrees',
           gitRoot: 'repo',
@@ -411,7 +411,7 @@ function story(): StoryInfo {
     git(gitRoot, ['commit', '-m', 'material code file']);
 
     // Minimal TEST-phase story with NO worktree binding -> resolveGitCwd uses the
-    // configured-git-root branch driven by lattice.config.json gitRoot.
+    // configured-git-root branch driven by proof-or-stop.config.json gitRoot.
     const store = new StoryStore(metaRoot);
     const now = '2026-06-24T00:00:00.000Z';
     const storeStory: StoryInfo = {
@@ -617,12 +617,12 @@ function story(): StoryInfo {
     // metaRoot is deliberately NOT a git repo. gitRoot:'repo' drives resolveGitCwd's
     // configured-git-root branch (the story has NO worktree binding).
     writeFileSync(
-      join(metaRoot, 'lattice.config.json'),
+      join(metaRoot, 'proof-or-stop.config.json'),
       JSON.stringify(
         {
           scanRoot: 'packages/main',
           rootDir: 'src',
-          storyDir: '.lattice/story/actives',
+          storyDir: '.proof-or-stop/story/actives',
           requirementsDir: 'docs/requirements',
           worktreeDir: '.worktrees',
           gitRoot: 'repo',
@@ -723,7 +723,7 @@ function story(): StoryInfo {
     });
     store.writeBugs(DONE_STORY_ID, { bugs: [] });
     // B-a7c5 CHK-003: canFinishGuard now ALSO requires a dev_memory_finish_decision
-    // record. This write lands under metaRoot (.lattice/dev-memory/), never
+    // record. This write lands under metaRoot (.proof-or-stop/dev-memory/), never
     // gitRoot, so it cannot perturb the wrapper-root materialHash computed above.
     createPlaybookRuntimeMemoryHandlers({ store, root: metaRoot, scanRoot: gitRoot })
       .dev_memory_finish_decision({ storyId: DONE_STORY_ID, decision: 'no-reusable-lesson', reason: 'review-escalation-freshness-root-smoke fixture; no lesson to capture' });
@@ -745,7 +745,7 @@ function story(): StoryInfo {
       headHash,
       materialHash,
       reviewRound: 'round-1',
-      agentId: 'lattice-review-delivery',
+      agentId: 'proof-or-stop-review-delivery',
       docsPromises,
       realMachineTests,
       closingSelfCheck,
@@ -756,9 +756,9 @@ function story(): StoryInfo {
     // The DONE-ready fixture must satisfy the same authoritative reviewer verdict
     // as REVIEW→TEST; otherwise it would rely on the historical DONE bypass.
     const reviewerAgents = [
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-test-coverage',
     ];
     const reviewRuns: ReviewRun[] = reviewerAgents.map((agent, index) => {
       const reviewRunId = `${DONE_STORY_ID}:RR-${String(index + 1).padStart(3, '0')}`;

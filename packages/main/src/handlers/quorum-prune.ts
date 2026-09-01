@@ -9,7 +9,7 @@ import {
   readLifecycleMetadataOutputHashes,
 } from '../core/auto-commit-metadata.js';
 import { REQUIRED_HOST_VERDICT_BINDING_FIELDS } from '../core/host-independence.js';
-import { LATTICE_DIR, normalizeRelPath } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR, normalizeRelPath } from '../core/proof-or-stop-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 
@@ -47,7 +47,7 @@ import { withMkdirLock } from '../core/mkdir-lock.js';
 //
 // B-3144 F-025 (verdict-cache deletion is path-contained): the losing rows' verdictIds come from a
 // committed log that this command must treat as untrusted input. A crafted id could otherwise
-// traverse out of `.lattice/autopilot-verdicts/<storyId>/` and delete an arbitrary repository file
+// traverse out of `.proof-or-stop/autopilot-verdicts/<storyId>/` and delete an arbitrary repository file
 // while the command reported success. Deletion therefore requires BOTH the canonical generated id
 // shape (core/verdicts.ts mints `verdict-<16 lowercase hex>`) AND a resolved path whose parent is
 // exactly the story verdict directory; anything failing either test is skipped and reported.
@@ -55,7 +55,7 @@ import { withMkdirLock } from '../core/mkdir-lock.js';
 // B-3144 F-026/F-027 (the rewrite is serialized and interruption-safe): the whole apply phase —
 // reading the source bytes, validating them, backing them up, rewriting, and committing — runs
 // while HOLDING the shared process-events append lock (core/process-events.ts's
-// `.lattice/locks/process-events/<story>-process-events-append.lock`), so no ordinary appender can
+// `.proof-or-stop/locks/process-events/<story>-process-events-append.lock`), so no ordinary appender can
 // interleave a row that the rewrite would silently overwrite or that a rollback would delete, and
 // the rewritten bytes are bound to the content read under that same lock. The rewrite itself is a
 // durable same-directory temp file plus an atomic rename, so an interruption mid-write leaves
@@ -237,7 +237,7 @@ function removeVerdictFiles(
   storyId: string,
   verdictIds: readonly string[],
 ): { removed: string[]; skipped: SkippedVerdictFile[] } {
-  const dir = resolve(join(root, LATTICE_DIR, 'autopilot-verdicts', storyId));
+  const dir = resolve(join(root, PROOF_OR_STOP_DIR, 'autopilot-verdicts', storyId));
   const removed: string[] = [];
   const skipped: SkippedVerdictFile[] = [];
   for (const verdictId of new Set(verdictIds)) {

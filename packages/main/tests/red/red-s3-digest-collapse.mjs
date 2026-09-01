@@ -15,7 +15,7 @@
  * main to see the classes this story moves.
  *
  *   node packages/main/tests/red/red-s3-digest-collapse.mjs
- *   LATTICE_DIST=/path/to/a/main/checkout/packages/main/dist node packages/main/tests/red/red-s3-digest-collapse.mjs
+ *   PROOF_OR_STOP_DIST=/path/to/a/main/checkout/packages/main/dist node packages/main/tests/red/red-s3-digest-collapse.mjs
  *
  * ── SCOPE, and what was REMOVED at the B-cc54 reconciliation ─────────────────
  *
@@ -93,7 +93,7 @@
  */
 import { strict as assert } from 'node:assert';
 
-const DIST = process.env.LATTICE_DIST || new URL('../../dist', import.meta.url).pathname;
+const DIST = process.env.PROOF_OR_STOP_DIST || new URL('../../dist', import.meta.url).pathname;
 const { gateFailureDigest } = await import(`${DIST}/core/convergence-breaker.js`);
 
 let failures = 0;
@@ -210,8 +210,8 @@ same(
 );
 same(
   'K2 machine-specific absolute paths still collapse',
-  'validation lock held at /Users/jek/Documents/Work/proofbound/.lattice/locks/validate',
-  'validation lock held at /private/var/folders/zz/T/lattice-abc/.lattice/locks/validate',
+  'validation lock held at /Users/jek/Documents/Work/proofbound/.proof-or-stop/locks/validate',
+  'validation lock held at /private/var/folders/zz/T/proof-or-stop-abc/.proof-or-stop/locks/validate',
 );
 same(
   'K3 hex ids and digests still collapse',

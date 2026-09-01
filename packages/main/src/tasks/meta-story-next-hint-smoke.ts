@@ -48,20 +48,20 @@ function write(root: string, path: string, content: string): void {
 function runProofOrStop(root: string, command: string): string {
   return execFileSync(process.execPath, [cliPath, command, '{}'], {
     cwd: root,
-    env: { ...process.env, LATTICE_PROJECT_ROOT: root },
+    env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root },
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
 }
 
-/** Minimal lattice project: git repo + config. resetConfigCache so the run
+/** Minimal proof-or-stop project: git repo + config. resetConfigCache so the run
  *  picks up this temp root's storyDir instead of a cached prior project. */
 function setupProject(prefix: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.lattice/story/actives',
+    storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   write(root, 'README.md', 'meta-story next-hint smoke\n');
@@ -104,7 +104,7 @@ function assertAuditGuidance(output: string, label: string): void {
  *  Covers CHK-001:happy:1, CHK-001:happy:2, CHK-002:happy:0, CHK-002:happy:1,
  *  CHK-002:adversarial:0. */
 function assertMetaContainerAloneGetsAuditHint(): void {
-  const root = setupProject('lattice-meta-hint-alone-');
+  const root = setupProject('proof-or-stop-meta-hint-alone-');
   try {
     ensureMetaStory(new StoryStore(root));
 
@@ -131,7 +131,7 @@ function assertMetaContainerAloneGetsAuditHint(): void {
  *  ordering. `next` (concise render path) focuses the normal story.
  *  Covers CHK-001:edge:2, CHK-001:adversarial:2 (concise), CHK-002:happy:2. */
 function assertMetaCoexistsWithNormalStories(): void {
-  const root = setupProject('lattice-meta-hint-coexist-');
+  const root = setupProject('proof-or-stop-meta-hint-coexist-');
   try {
     const store = new StoryStore(root);
     ensureMetaStory(store);
@@ -167,7 +167,7 @@ function assertMetaCoexistsWithNormalStories(): void {
  *  Covers CHK-001:edge:0, CHK-001:edge:1, CHK-002:edge:0, CHK-002:edge:1. */
 function assertBothMetaCriteriaDetectedIndependently(): void {
   // 3a: B-META- prefix, but phase is a normal lifecycle phase.
-  const rootA = setupProject('lattice-meta-hint-prefix-');
+  const rootA = setupProject('proof-or-stop-meta-hint-prefix-');
   try {
     writeStory(new StoryStore(rootA), 'B-META-prefix-only', 'INIT');
     const brief = runProofOrStop(rootA, 'session_brief');
@@ -180,7 +180,7 @@ function assertBothMetaCriteriaDetectedIndependently(): void {
   }
 
   // 3b: phase=META, but the id is not B-META- prefixed (forged-phase guard).
-  const rootB = setupProject('lattice-meta-hint-phase-');
+  const rootB = setupProject('proof-or-stop-meta-hint-phase-');
   try {
     writeStory(new StoryStore(rootB), 'B-phasemeta', 'META');
     const brief = runProofOrStop(rootB, 'session_brief');
@@ -201,7 +201,7 @@ function assertBothMetaCriteriaDetectedIndependently(): void {
  *  Covers CHK-001:happy:0, CHK-001:adversarial:1. */
 function assertComputeNextStepHandlesMetaOnBranch(): void {
   // 4a: real meta-story checked out on its own story branch.
-  const rootA = setupProject('lattice-meta-hint-branch-');
+  const rootA = setupProject('proof-or-stop-meta-hint-branch-');
   try {
     ensureMetaStory(new StoryStore(rootA));
     git(rootA, ['checkout', '-b', `story/${META_STORY_ID}`]);
@@ -215,7 +215,7 @@ function assertComputeNextStepHandlesMetaOnBranch(): void {
   }
 
   // 4b: forged phase=META on a normal (non-B-META-) story branch.
-  const rootB = setupProject('lattice-meta-hint-branch-forged-');
+  const rootB = setupProject('proof-or-stop-meta-hint-branch-forged-');
   try {
     writeStory(new StoryStore(rootB), 'B-1234', 'META');
     git(rootB, ['checkout', '-b', 'story/B-1234']);

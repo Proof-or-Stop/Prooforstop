@@ -95,15 +95,15 @@ import {
   resolveEffectiveOwnershipClass,
 } from '../cli-engine.js';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { buildCanonicalHostRuntimeEnv } from '../core/lattice-dispatch.js';
+import { buildCanonicalHostRuntimeEnv } from '../core/proof-or-stop-dispatch.js';
 
-const ownerSessionChildMode = process.env.LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE;
+const ownerSessionChildMode = process.env.PROOF_OR_STOP_OWNER_SESSION_SMOKE_CHILD_MODE;
 if (ownerSessionChildMode === 'identity') {
   const identity = resolveSessionIdentity(
     process.env,
     {
       hostname: 'child-host',
-      root: process.env.LATTICE_OWNER_SESSION_SMOKE_ROOT || process.cwd(),
+      root: process.env.PROOF_OR_STOP_OWNER_SESSION_SMOKE_ROOT || process.cwd(),
       ppid: process.ppid,
     },
   );
@@ -112,18 +112,18 @@ if (ownerSessionChildMode === 'identity') {
 }
 if (ownerSessionChildMode === 'token') {
   const token = readOrCreateOwnerSessionToken(
-    process.env.LATTICE_OWNER_SESSION_SMOKE_ROOT || process.cwd(),
-    process.env.LATTICE_OWNER_SESSION_SMOKE_PROVIDER || 'fake',
-    process.env.LATTICE_OWNER_SESSION_SMOKE_TASK || 'task',
-    process.env.LATTICE_OWNER_SESSION_SMOKE_ROLE || 'role',
-    process.env.LATTICE_OWNER_SESSION_SMOKE_BOUNDARY || 'boundary',
+    process.env.PROOF_OR_STOP_OWNER_SESSION_SMOKE_ROOT || process.cwd(),
+    process.env.PROOF_OR_STOP_OWNER_SESSION_SMOKE_PROVIDER || 'fake',
+    process.env.PROOF_OR_STOP_OWNER_SESSION_SMOKE_TASK || 'task',
+    process.env.PROOF_OR_STOP_OWNER_SESSION_SMOKE_ROLE || 'role',
+    process.env.PROOF_OR_STOP_OWNER_SESSION_SMOKE_BOUNDARY || 'boundary',
   );
   process.stdout.write(`${token}\n`);
   process.exit(0);
 }
 if (ownerSessionChildMode === 'lease-gate') {
-  const childRoot = process.env.LATTICE_OWNER_SESSION_SMOKE_ROOT || process.cwd();
-  const storyId = process.env.LATTICE_OWNER_SESSION_SMOKE_STORY || 'B-child-gate';
+  const childRoot = process.env.PROOF_OR_STOP_OWNER_SESSION_SMOKE_ROOT || process.cwd();
+  const storyId = process.env.PROOF_OR_STOP_OWNER_SESSION_SMOKE_STORY || 'B-child-gate';
   const store = new StoryStore(childRoot);
   const storyDir = store.storyDirPath(storyId);
   mkdirSync(storyDir, { recursive: true });
@@ -134,7 +134,7 @@ if (ownerSessionChildMode === 'lease-gate') {
       store,
       {
         storyId,
-        phase: process.env.LATTICE_OWNER_SESSION_SMOKE_PHASE || 'REVIEW',
+        phase: process.env.PROOF_OR_STOP_OWNER_SESSION_SMOKE_PHASE || 'REVIEW',
       },
       childRoot,
     );
@@ -146,7 +146,7 @@ if (ownerSessionChildMode === 'lease-gate') {
 }
 
 const projectRoot = join(new URL('../../../..', import.meta.url).pathname);
-const root = join(tmpdir(), `lattice-story-owner-lease-smoke-${process.pid}-${Date.now()}`);
+const root = join(tmpdir(), `proof-or-stop-story-owner-lease-smoke-${process.pid}-${Date.now()}`);
 mkdirSync(root, { recursive: true });
 
 try {
@@ -158,9 +158,9 @@ try {
     // B-62b8 RED: a validated task + agent/role adapter identity is stable
     // across fresh parent processes. Neither dimension is sufficient alone.
     const codexCompositeEnv = {
-      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
-      LATTICE_OWNER_SESSION_ADAPTER_TASK: 'task-red',
-      LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'task-red',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
     };
     const codexCompositeA = resolveSessionIdentity(codexCompositeEnv, { ...inA, ppid: 111 });
     const codexCompositeB = resolveSessionIdentity(codexCompositeEnv, { ...inA, ppid: 222 });
@@ -170,9 +170,9 @@ try {
     // 1a. REGRESSION GUARD for the ppid-bricking bug — a validated independent
     // task + role composite remains stable across fresh shells / Node parents.
     const claudeEnv = {
-      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'claude-code',
-      LATTICE_OWNER_SESSION_ADAPTER_TASK: 'claude-task-AAA',
-      LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'claude-code',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'claude-task-AAA',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
     };
     const r1 = resolveSessionIdentity(claudeEnv, { ...inA, ppid: 89439 });
     const r2 = resolveSessionIdentity(claudeEnv, { ...inA, ppid: 89466 });
@@ -185,29 +185,29 @@ try {
     assert.equal(r2.sessionSource, 'host-adapter', 'sessionSource stays host-adapter across ppid changes');
 
     // 1b. Task and role are independent isolation dimensions.
-    const rClaudeTaskB = resolveSessionIdentity({ ...claudeEnv, LATTICE_OWNER_SESSION_ADAPTER_TASK: 'claude-task-BBB' }, inA);
-    const rClaudeRoleB = resolveSessionIdentity({ ...claudeEnv, LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'reviewer' }, inA);
+    const rClaudeTaskB = resolveSessionIdentity({ ...claudeEnv, PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'claude-task-BBB' }, inA);
+    const rClaudeRoleB = resolveSessionIdentity({ ...claudeEnv, PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: 'reviewer' }, inA);
     assert.notEqual(r1.sessionId, rClaudeTaskB.sessionId, 'different task identities produce different session ids');
     assert.notEqual(r1.sessionId, rClaudeRoleB.sessionId, 'different role identities produce different session ids');
 
-    // 1c. LATTICE_SESSION_ID WINS over adapter inputs — it is the
+    // 1c. PROOF_OR_STOP_SESSION_ID WINS over adapter inputs — it is the
     // highest-priority canonical override; sessionSource = explicit-env.
     const rBoth = resolveSessionIdentity(
-      { LATTICE_SESSION_ID: '  lattice-override-1  ', ...claudeEnv },
+      { PROOF_OR_STOP_SESSION_ID: '  proof-or-stop-override-1  ', ...claudeEnv },
       inA,
     );
-    assert.equal(rBoth.sessionId, 'lattice-override-1', 'LATTICE_SESSION_ID wins over CLAUDE_CODE_SESSION_ID');
-    assert.equal(rBoth.sessionSource, 'explicit-env', 'sessionSource is explicit-env when LATTICE_SESSION_ID drives the id');
+    assert.equal(rBoth.sessionId, 'proof-or-stop-override-1', 'PROOF_OR_STOP_SESSION_ID wins over CLAUDE_CODE_SESSION_ID');
+    assert.equal(rBoth.sessionSource, 'explicit-env', 'sessionSource is explicit-env when PROOF_OR_STOP_SESSION_ID drives the id');
     // Empty / whitespace-only env values are treated as absent (fall through).
     const rEmptyOverride = resolveSessionIdentity(
-      { LATTICE_SESSION_ID: '   ', ...claudeEnv },
+      { PROOF_OR_STOP_SESSION_ID: '   ', ...claudeEnv },
       inA,
     );
-    assert.equal(rEmptyOverride.sessionSource, 'host-adapter', 'a whitespace-only LATTICE_SESSION_ID is treated as absent');
+    assert.equal(rEmptyOverride.sessionSource, 'host-adapter', 'a whitespace-only PROOF_OR_STOP_SESSION_ID is treated as absent');
 
     // One-dimensional or native-only inputs do not become owner identities.
     const rOneDimensional = resolveSessionIdentity(
-      { LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex', LATTICE_OWNER_SESSION_ADAPTER_TASK: 'task-only' },
+      { PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex', PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'task-only' },
       inA,
     );
     assert.equal(rOneDimensional.sessionSource, 'derived-ppid', 'task-only adapter input falls through safely');
@@ -217,16 +217,16 @@ try {
     const rCodexThreadA = resolveSessionIdentity({ CODEX_THREAD_ID: 'codex-thread-red' }, { ...inA, ppid: 111 });
     const rCodexThreadB = resolveSessionIdentity({ CODEX_THREAD_ID: 'codex-thread-red' }, { ...inA, ppid: 222 });
     const rCodexThreadOtherRole = resolveSessionIdentity(
-      { CODEX_THREAD_ID: 'codex-thread-red', LATTICE_AGENT: 'reviewer' },
+      { CODEX_THREAD_ID: 'codex-thread-red', PROOF_OR_STOP_AGENT: 'reviewer' },
       { ...inA, ppid: 333 },
     );
     assert.equal(rCodexThreadA.sessionId, rCodexThreadB.sessionId, 'CODEX_THREAD_ID plus main role is stable across ppid changes');
     assert.notEqual(rCodexThreadA.sessionId, rCodexThreadOtherRole.sessionId, 'direct Codex reviewer role remains isolated from main owner');
     const rCodexWrapperComposite = resolveSessionIdentity(
       {
-        LATTICE_ACTIVITY_SOURCE: 'codex',
-        LATTICE_ACTIVITY_SESSION: 'raw-codex-task-session',
-        LATTICE_AGENT: 'implementer',
+        PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+        PROOF_OR_STOP_ACTIVITY_SESSION: 'raw-codex-task-session',
+        PROOF_OR_STOP_AGENT: 'implementer',
       },
       inA,
     );
@@ -234,9 +234,9 @@ try {
     assert.equal(JSON.stringify(rCodexWrapperComposite).includes('raw-codex-task-session'), false, 'Codex wrapper raw task token never crosses the adapter boundary');
     const rUnknownProvider = resolveSessionIdentity(
       {
-        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'unvalidated-future-host',
-        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'task',
-        LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'agent',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'unvalidated-future-host',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'task',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: 'agent',
       },
       inA,
     );
@@ -244,10 +244,10 @@ try {
     assert.equal(rUnknownProvider.hostProvider, 'unknown', 'an explicit unvalidated provider never aliases to a supported host');
     const rConflictingAliases = resolveSessionIdentity(
       {
-        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
-        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'task',
-        LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
-        LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'reviewer',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'task',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: 'reviewer',
       },
       inA,
     );
@@ -257,9 +257,9 @@ try {
     // composite adapter contract without a generic-core provider exception.
     const rCodex = resolveSessionIdentity(
       {
-        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
-        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'codex-task-1',
-        LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'codex-task-1',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
       },
       inA,
     );
@@ -269,9 +269,9 @@ try {
 
     const rAntigravity = resolveSessionIdentity(
       {
-        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'antigravity',
-        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
-        LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'antigravity',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
       },
       inA,
     );
@@ -279,9 +279,9 @@ try {
 
     const rAgy = resolveSessionIdentity(
       {
-        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'agy',
-        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
-        LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'agy',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: 'implementer',
       },
       inA,
     );
@@ -290,9 +290,9 @@ try {
 
     const rFuture = resolveSessionIdentity(
       {
-        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'fake',
-        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'future-task-1',
-        LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'future-agent-1',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'fake',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'future-task-1',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: 'future-agent-1',
       },
       inA,
     );
@@ -301,11 +301,11 @@ try {
 
     const generatedInputs = { ...inA, root };
     const generatedEnv = {
-      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'antigravity',
-      LATTICE_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
-      LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
-      LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: 'ag-local-window-1',
-      LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'antigravity',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY: 'ag-local-window-1',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED: 'true',
     };
     const generatedA = resolveSessionIdentity(generatedEnv, generatedInputs, { now: () => '2026-06-20T12:00:00.000Z' });
     const generatedB = resolveSessionIdentity(generatedEnv, { ...generatedInputs, ppid: 99999 }, { now: () => '2026-06-20T12:05:00.000Z' });
@@ -314,21 +314,21 @@ try {
     assert.match(generatedA.sessionId, /^sess-[a-f0-9]{32}$/, 'generated token is opaque local runtime material');
     const generatedWithoutBoundary = resolveSessionIdentity(
       {
-        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'antigravity',
-        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
-        LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
-        LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'antigravity',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED: 'true',
       },
       generatedInputs,
     );
     assert.equal(generatedWithoutBoundary.sessionSource, 'derived-ppid', 'generated fallback without a durable adapter boundary is rejected');
     const generatedDifferentBoundary = resolveSessionIdentity(
       {
-        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'antigravity',
-        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
-        LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
-        LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: 'ag-local-window-2',
-        LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'antigravity',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY: 'ag-local-window-2',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED: 'true',
       },
       generatedInputs,
       { now: () => '2026-06-20T12:10:00.000Z' },
@@ -340,11 +340,11 @@ try {
     );
     const generatedDifferentProvider = resolveSessionIdentity(
       {
-        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
-        LATTICE_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
-        LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
-        LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: 'ag-local-window-1',
-        LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'ag-task-1',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: 'implementer',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY: 'ag-local-window-1',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED: 'true',
       },
       generatedInputs,
       { now: () => '2026-06-20T12:15:00.000Z' },
@@ -365,11 +365,11 @@ try {
       'generated token is scoped by project root: same provider/boundary in different roots must not collide',
     );
     const generatedDifferentTask = resolveSessionIdentity(
-      { ...generatedEnv, LATTICE_OWNER_SESSION_ADAPTER_TASK: 'ag-task-2' },
+      { ...generatedEnv, PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'ag-task-2' },
       generatedInputs,
     );
     const generatedDifferentRole = resolveSessionIdentity(
-      { ...generatedEnv, LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'reviewer' },
+      { ...generatedEnv, PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: 'reviewer' },
       generatedInputs,
     );
     assert.notEqual(generatedA.sessionId, generatedDifferentTask.sessionId, 'generated token lookup is task-scoped');
@@ -378,9 +378,9 @@ try {
     const rawSentinel = 'RAW-NATIVE-TOKEN-MUST-NOT-LEAK';
     const rawSafe = resolveSessionIdentity(
       {
-        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
-        LATTICE_OWNER_SESSION_ADAPTER_TASK: `${rawSentinel}-task`,
-        LATTICE_OWNER_SESSION_ADAPTER_AGENT: `${rawSentinel}-agent`,
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: `${rawSentinel}-task`,
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: `${rawSentinel}-agent`,
         CODEX_SESSION_ID: `${rawSentinel}-session`,
       },
       generatedInputs,
@@ -388,11 +388,11 @@ try {
     assert.equal(JSON.stringify(rawSafe).includes(rawSentinel), false, 'raw native task/session/agent material is absent from adapter output');
     const generatedRawSafe = resolveSessionIdentity(
       {
-        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'fake',
-        LATTICE_OWNER_SESSION_ADAPTER_TASK: `${rawSentinel}-generated-task`,
-        LATTICE_OWNER_SESSION_ADAPTER_AGENT: `${rawSentinel}-generated-agent`,
-        LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: `${rawSentinel}-generated-boundary`,
-        LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'fake',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: `${rawSentinel}-generated-task`,
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: `${rawSentinel}-generated-agent`,
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY: `${rawSentinel}-generated-boundary`,
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED: 'true',
       },
       generatedInputs,
     );
@@ -421,11 +421,11 @@ try {
     writeFileSync(join(fakeProviderDir!, fakeTokenFile!), '{partial', 'utf8');
     const repairedCorrupt = resolveSessionIdentity(
       {
-        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'fake',
-        LATTICE_OWNER_SESSION_ADAPTER_TASK: `${rawSentinel}-generated-task`,
-        LATTICE_OWNER_SESSION_ADAPTER_AGENT: `${rawSentinel}-generated-agent`,
-        LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: `${rawSentinel}-generated-boundary`,
-        LATTICE_OWNER_SESSION_ADAPTER_GENERATED: 'true',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'fake',
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: `${rawSentinel}-generated-task`,
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: `${rawSentinel}-generated-agent`,
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY: `${rawSentinel}-generated-boundary`,
+        PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED: 'true',
       },
       generatedInputs,
       { now: () => '2026-06-20T12:30:00.000Z' },
@@ -526,9 +526,9 @@ try {
 
     // Spawned provider children receive truthful task + role dimensions rather
     // than the parent owner's canonical id. Only an explicitly allowlisted
-    // external LATTICE_SESSION_ID is preserved.
-    const savedExplicit = process.env.LATTICE_SESSION_ID;
-    process.env.LATTICE_SESSION_ID = 'parent-owner-must-not-collapse-reviewer';
+    // external PROOF_OR_STOP_SESSION_ID is preserved.
+    const savedExplicit = process.env.PROOF_OR_STOP_SESSION_ID;
+    process.env.PROOF_OR_STOP_SESSION_ID = 'parent-owner-must-not-collapse-reviewer';
     const dispatchPolicy = {
       envAllowlist: [],
       envDenylist: [],
@@ -540,14 +540,14 @@ try {
       agentOrRoleIdentity: 'reviewer',
       adapterBoundary: 'dispatch-boundary-red',
     });
-    assert.equal(childEnv.LATTICE_SESSION_ID, undefined, 'spawned reviewer does not inherit the parent owner id accidentally');
-    assert.equal(childEnv.LATTICE_OWNER_SESSION_ADAPTER_TASK, 'dispatch:task-red', 'dispatch propagates its task identity');
-    assert.equal(childEnv.LATTICE_OWNER_SESSION_ADAPTER_AGENT, 'reviewer', 'dispatch propagates its role identity');
+    assert.equal(childEnv.PROOF_OR_STOP_SESSION_ID, undefined, 'spawned reviewer does not inherit the parent owner id accidentally');
+    assert.equal(childEnv.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK, 'dispatch:task-red', 'dispatch propagates its task identity');
+    assert.equal(childEnv.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT, 'reviewer', 'dispatch propagates its role identity');
     const childIdentity = resolveSessionIdentity(childEnv, { ...generatedInputs, ppid: 333 });
     assert.equal(childIdentity.sessionSource, 'host-adapter', 'bounded child dispatch resolves from its validated task + role composite');
     assert.notEqual(childIdentity.sessionId, 'parent-owner-must-not-collapse-reviewer', 'child role does not collapse to parent ownership');
     const explicitChildEnv = buildCanonicalHostRuntimeEnv(
-      { ...dispatchPolicy, envAllowlist: ['LATTICE_SESSION_ID'] },
+      { ...dispatchPolicy, envAllowlist: ['PROOF_OR_STOP_SESSION_ID'] },
       'claude-code',
       {
         taskIdentity: 'dispatch:task-red',
@@ -555,12 +555,12 @@ try {
         adapterBoundary: 'dispatch-boundary-red',
       },
     );
-    assert.equal(explicitChildEnv.LATTICE_SESSION_ID, 'parent-owner-must-not-collapse-reviewer', 'deliberately allowlisted external override is preserved');
+    assert.equal(explicitChildEnv.PROOF_OR_STOP_SESSION_ID, 'parent-owner-must-not-collapse-reviewer', 'deliberately allowlisted external override is preserved');
     const deniedExplicitChildEnv = buildCanonicalHostRuntimeEnv(
       {
         ...dispatchPolicy,
-        envAllowlist: ['LATTICE_SESSION_ID'],
-        envDenylist: ['LATTICE_SESSION_ID'],
+        envAllowlist: ['PROOF_OR_STOP_SESSION_ID'],
+        envDenylist: ['PROOF_OR_STOP_SESSION_ID'],
       },
       'codex',
       {
@@ -569,12 +569,12 @@ try {
         adapterBoundary: 'dispatch-boundary-red',
       },
     );
-    assert.equal(deniedExplicitChildEnv.LATTICE_SESSION_ID, undefined, 'denylist wins an allowlist conflict for LATTICE_SESSION_ID');
+    assert.equal(deniedExplicitChildEnv.PROOF_OR_STOP_SESSION_ID, undefined, 'denylist wins an allowlist conflict for PROOF_OR_STOP_SESSION_ID');
     const paddedDeniedExplicitChildEnv = buildCanonicalHostRuntimeEnv(
       {
         ...dispatchPolicy,
-        envAllowlist: [' LATTICE_SESSION_ID '],
-        envDenylist: ['  LATTICE_SESSION_ID  '],
+        envAllowlist: [' PROOF_OR_STOP_SESSION_ID '],
+        envDenylist: ['  PROOF_OR_STOP_SESSION_ID  '],
       },
       'codex',
       {
@@ -584,12 +584,12 @@ try {
       },
     );
     assert.equal(
-      paddedDeniedExplicitChildEnv.LATTICE_SESSION_ID,
+      paddedDeniedExplicitChildEnv.PROOF_OR_STOP_SESSION_ID,
       undefined,
       'canonical trim is shared by allow/deny names and a whitespace-padded deny still wins',
     );
-    if (savedExplicit === undefined) delete process.env.LATTICE_SESSION_ID;
-    else process.env.LATTICE_SESSION_ID = savedExplicit;
+    if (savedExplicit === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID;
+    else process.env.PROOF_OR_STOP_SESSION_ID = savedExplicit;
 
     // 1e. BOTH env vars absent → deriveLocalSessionId(hostname, root, ppid) is
     // the fallback; sessionSource = derived-ppid. Keep the derive stability /
@@ -610,18 +610,18 @@ try {
     assert.notEqual(idBase, deriveLocalSessionId('host-2', '/repo/.worktrees/B-c55d', 4242), 'a different hostname → a different derived id');
     const degradedLines = renderSessionIdentityDiagnostic(rDerived);
     assert.ok(degradedLines.some(line => line.includes('session identity degraded: derived-ppid')), 'derived-ppid diagnostics label the degradation');
-    assert.ok(degradedLines.some(line => line.includes('LATTICE_SESSION_ID') && line.includes('supported host adapter')), 'degraded diagnostics give actionable override/adapter guidance');
+    assert.ok(degradedLines.some(line => line.includes('PROOF_OR_STOP_SESSION_ID') && line.includes('supported host adapter')), 'degraded diagnostics give actionable override/adapter guidance');
 
     // 1f. The memoized public getter wraps the resolver and stays stable for the
-    // process. Set LATTICE_SESSION_ID so sections 2+ have a deterministic owner.
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    // process. Set PROOF_OR_STOP_SESSION_ID so sections 2+ have a deterministic owner.
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     delete process.env.CLAUDE_CODE_SESSION_ID;
     resetSessionIdForTest();
     assert.equal(getSessionId(), 'sess-alpha', 'getSessionId() wraps the resolver over real process.env');
     assert.equal(getSessionIdentity().sessionSource, 'explicit-env', 'getSessionIdentity() reports the resolved source');
-    process.env.LATTICE_SESSION_ID = 'changed-after';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'changed-after';
     assert.equal(getSessionId(), 'sess-alpha', 'getSessionId() stays memoized for the process lifetime');
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -629,16 +629,16 @@ try {
   // the lease write, then remains quiet for later mutations in this process.
   {
     const saved = {
-      LATTICE_SESSION_ID: process.env.LATTICE_SESSION_ID,
-      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER,
-      LATTICE_OWNER_SESSION_ADAPTER_TASK: process.env.LATTICE_OWNER_SESSION_ADAPTER_TASK,
-      LATTICE_OWNER_SESSION_ADAPTER_AGENT: process.env.LATTICE_OWNER_SESSION_ADAPTER_AGENT,
-      LATTICE_OWNER_SESSION_ADAPTER_ROLE: process.env.LATTICE_OWNER_SESSION_ADAPTER_ROLE,
-      LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY: process.env.LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY,
-      LATTICE_OWNER_SESSION_ADAPTER_GENERATED: process.env.LATTICE_OWNER_SESSION_ADAPTER_GENERATED,
-      LATTICE_ACTIVITY_SOURCE: process.env.LATTICE_ACTIVITY_SOURCE,
-      LATTICE_ACTIVITY_SESSION: process.env.LATTICE_ACTIVITY_SESSION,
-      LATTICE_AGENT: process.env.LATTICE_AGENT,
+      PROOF_OR_STOP_SESSION_ID: process.env.PROOF_OR_STOP_SESSION_ID,
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER,
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK,
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT,
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE,
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY: process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY,
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED: process.env.PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED,
+      PROOF_OR_STOP_ACTIVITY_SOURCE: process.env.PROOF_OR_STOP_ACTIVITY_SOURCE,
+      PROOF_OR_STOP_ACTIVITY_SESSION: process.env.PROOF_OR_STOP_ACTIVITY_SESSION,
+      PROOF_OR_STOP_AGENT: process.env.PROOF_OR_STOP_AGENT,
       CODEX_THREAD_ID: process.env.CODEX_THREAD_ID,
       CODEX_SESSION_ID: process.env.CODEX_SESSION_ID,
       OPENAI_SESSION_ID: process.env.OPENAI_SESSION_ID,
@@ -667,7 +667,7 @@ try {
     }
     assert.equal(warnings.length, 1, 'derived-ppid warning is emitted only for the first story mutation');
     assert.ok(warnings[0].includes('session identity degraded: derived-ppid'), 'pre-mutation warning names the degraded source');
-    assert.ok(warnings[0].includes('LATTICE_SESSION_ID') && warnings[0].includes('supported host adapter'), 'pre-mutation warning is actionable');
+    assert.ok(warnings[0].includes('PROOF_OR_STOP_SESSION_ID') && warnings[0].includes('supported host adapter'), 'pre-mutation warning is actionable');
   }
 
   // B-62b8 F-005: real child-process boundaries. Direct and shell-nested Node
@@ -678,16 +678,16 @@ try {
     const cleanChildEnv = (): NodeJS.ProcessEnv => {
       const env = { ...process.env };
       for (const name of [
-        'LATTICE_SESSION_ID',
-        'LATTICE_OWNER_SESSION_ADAPTER_PROVIDER',
-        'LATTICE_OWNER_SESSION_ADAPTER_TASK',
-        'LATTICE_OWNER_SESSION_ADAPTER_AGENT',
-        'LATTICE_OWNER_SESSION_ADAPTER_ROLE',
-        'LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY',
-        'LATTICE_OWNER_SESSION_ADAPTER_GENERATED',
-        'LATTICE_ACTIVITY_SOURCE',
-        'LATTICE_ACTIVITY_SESSION',
-        'LATTICE_AGENT',
+        'PROOF_OR_STOP_SESSION_ID',
+        'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER',
+        'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK',
+        'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT',
+        'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE',
+        'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_BOUNDARY',
+        'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_GENERATED',
+        'PROOF_OR_STOP_ACTIVITY_SOURCE',
+        'PROOF_OR_STOP_ACTIVITY_SESSION',
+        'PROOF_OR_STOP_AGENT',
         'CODEX_THREAD_ID',
         'CODEX_SESSION_ID',
         'OPENAI_SESSION_ID',
@@ -697,8 +697,8 @@ try {
         'ANTIGRAVITY_SESSION_ID',
         'AGY_SESSION_ID',
       ]) delete env[name];
-      env.LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE = 'identity';
-      env.LATTICE_OWNER_SESSION_SMOKE_ROOT = root;
+      env.PROOF_OR_STOP_OWNER_SESSION_SMOKE_CHILD_MODE = 'identity';
+      env.PROOF_OR_STOP_OWNER_SESSION_SMOKE_ROOT = root;
       return env;
     };
     const runChildIdentity = (env: NodeJS.ProcessEnv, nested: boolean): {
@@ -743,9 +743,9 @@ try {
         provider: 'fake',
         sentinel: 'RAW-FAKE-TASK-CHILD',
         env: {
-          LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'fake',
-          LATTICE_OWNER_SESSION_ADAPTER_TASK: 'RAW-FAKE-TASK-CHILD',
-          LATTICE_OWNER_SESSION_ADAPTER_AGENT: 'main',
+          PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'fake',
+          PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'RAW-FAKE-TASK-CHILD',
+          PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: 'main',
         },
       },
     ];
@@ -763,10 +763,10 @@ try {
     codexBase.CODEX_THREAD_ID = 'codex-child-task-a';
     const codexTaskA = runChildIdentity(codexBase, false).identity;
     const codexTaskB = runChildIdentity({ ...codexBase, CODEX_THREAD_ID: 'codex-child-task-b' }, true).identity;
-    const codexReviewer = runChildIdentity({ ...codexBase, LATTICE_AGENT: 'reviewer' }, true).identity;
+    const codexReviewer = runChildIdentity({ ...codexBase, PROOF_OR_STOP_AGENT: 'reviewer' }, true).identity;
     assert.notEqual(codexTaskA.sessionId, codexTaskB.sessionId, 'different spawned Codex tasks remain isolated');
     assert.notEqual(codexTaskA.sessionId, codexReviewer.sessionId, 'spawned Codex main and reviewer roles remain isolated');
-    const blankOverride = runChildIdentity({ ...codexBase, LATTICE_SESSION_ID: '   ' }, true).identity;
+    const blankOverride = runChildIdentity({ ...codexBase, PROOF_OR_STOP_SESSION_ID: '   ' }, true).identity;
     assert.equal(blankOverride.sessionId, codexTaskA.sessionId, 'blank explicit override falls through in a real child process');
 
     // Race two independent token creator processes for one scope. The scope
@@ -775,12 +775,12 @@ try {
     mkdirSync(raceRoot, { recursive: true });
     const raceEnv = {
       ...cleanChildEnv(),
-      LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE: 'token',
-      LATTICE_OWNER_SESSION_SMOKE_ROOT: raceRoot,
-      LATTICE_OWNER_SESSION_SMOKE_PROVIDER: 'fake',
-      LATTICE_OWNER_SESSION_SMOKE_TASK: 'race-task',
-      LATTICE_OWNER_SESSION_SMOKE_ROLE: 'race-role',
-      LATTICE_OWNER_SESSION_SMOKE_BOUNDARY: 'race-boundary',
+      PROOF_OR_STOP_OWNER_SESSION_SMOKE_CHILD_MODE: 'token',
+      PROOF_OR_STOP_OWNER_SESSION_SMOKE_ROOT: raceRoot,
+      PROOF_OR_STOP_OWNER_SESSION_SMOKE_PROVIDER: 'fake',
+      PROOF_OR_STOP_OWNER_SESSION_SMOKE_TASK: 'race-task',
+      PROOF_OR_STOP_OWNER_SESSION_SMOKE_ROLE: 'race-role',
+      PROOF_OR_STOP_OWNER_SESSION_SMOKE_BOUNDARY: 'race-boundary',
     };
     const spawnTokenChild = (): Promise<string> => new Promise((resolvePromise, rejectPromise) => {
       const child = spawn(process.execPath, [childFile], { env: raceEnv, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -803,13 +803,13 @@ try {
     const cliSentinel = 'RAW-CODEX-CLI-THREAD-SENTINEL';
     const cliEnv = {
       ...cleanChildEnv(),
-      LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE: undefined,
+      PROOF_OR_STOP_OWNER_SESSION_SMOKE_CHILD_MODE: undefined,
       CODEX_THREAD_ID: cliSentinel,
-      LATTICE_ACTIVITY_SOURCE: 'codex',
-      LATTICE_ACTIVITY_SESSION: cliSentinel,
-      LATTICE_ACTIVITY_RECORD_READONLY: '1',
+      PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex',
+      PROOF_OR_STOP_ACTIVITY_SESSION: cliSentinel,
+      PROOF_OR_STOP_ACTIVITY_RECORD_READONLY: '1',
     };
-    delete cliEnv.LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE;
+    delete cliEnv.PROOF_OR_STOP_OWNER_SESSION_SMOKE_CHILD_MODE;
     const briefDirect = spawnSync(process.execPath, ['bin/proof-or-stop.js', 'session_brief'], {
       cwd: projectRoot,
       env: cliEnv,
@@ -823,7 +823,7 @@ try {
     const briefSessionId = briefOutput.match(/session identity: (sess-[a-f0-9]+)/)?.[1];
     assert.ok(briefSessionId, 'real session_brief renders an opaque session id');
     const recentActivity = readActivityLogTail(projectRoot, 20);
-    assert.equal(JSON.stringify(recentActivity).includes(cliSentinel), false, 'activity events never persist raw LATTICE_ACTIVITY_SESSION');
+    assert.equal(JSON.stringify(recentActivity).includes(cliSentinel), false, 'activity events never persist raw PROOF_OR_STOP_ACTIVITY_SESSION');
     assert.ok(
       recentActivity.some(event => event.session === briefSessionId),
       'activity event persists the same opaque canonical id rendered by session_brief',
@@ -866,12 +866,12 @@ try {
       const phaseStory = `B-child-${phase.toLowerCase()}`;
       const compositeEnv = {
         ...cleanChildEnv(),
-        LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE: 'lease-gate',
-        LATTICE_OWNER_SESSION_SMOKE_ROOT: phaseRoot,
-        LATTICE_OWNER_SESSION_SMOKE_STORY: phaseStory,
-        LATTICE_OWNER_SESSION_SMOKE_PHASE: phase,
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_CHILD_MODE: 'lease-gate',
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_ROOT: phaseRoot,
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_STORY: phaseStory,
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_PHASE: phase,
         CODEX_THREAD_ID: `child-owner-${phase.toLowerCase()}`,
-        LATTICE_AGENT: 'main',
+        PROOF_OR_STOP_AGENT: 'main',
       };
       const acquired = runLeaseGateChild(compositeEnv, false);
       assert.equal(acquired.result.ok, true, `${phase}: first independent process acquires the owner lease`);
@@ -891,10 +891,10 @@ try {
 
       const degradedEnv = cleanChildEnv();
       Object.assign(degradedEnv, {
-        LATTICE_OWNER_SESSION_SMOKE_CHILD_MODE: 'lease-gate',
-        LATTICE_OWNER_SESSION_SMOKE_ROOT: phaseRoot,
-        LATTICE_OWNER_SESSION_SMOKE_STORY: phaseStory,
-        LATTICE_OWNER_SESSION_SMOKE_PHASE: phase,
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_CHILD_MODE: 'lease-gate',
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_ROOT: phaseRoot,
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_STORY: phaseStory,
+        PROOF_OR_STOP_OWNER_SESSION_SMOKE_PHASE: phase,
       });
       const degradedMutation = runLeaseGateChild(degradedEnv, false);
       assert.equal(degradedMutation.result.ok, false, `${phase}: derived-ppid foreign mutation remains blocked by the owner gate`);
@@ -922,7 +922,7 @@ try {
     });
     assert.equal(existsSync(leasePath), true, 'owner-lease.json written on acquire');
     assert.equal(lease.sessionId, 'sess-alpha', 'lease records the current session');
-    assert.equal(lease.sessionSource, 'explicit-env', 'lease records sessionSource (explicit-env for the LATTICE_SESSION_ID owner)');
+    assert.equal(lease.sessionSource, 'explicit-env', 'lease records sessionSource (explicit-env for the PROOF_OR_STOP_SESSION_ID owner)');
     assert.equal(lease.command, 'checklist_update', 'lease records the acquiring command');
     assert.equal(lease.cwd, '/tmp/worktree-acquire', 'lease records the owning cwd');
     assert.equal(lease.label, 'main-agent', 'lease records the optional label');
@@ -1006,7 +1006,7 @@ try {
     assert.equal(r2.lease.acquiredAt, '2026-05-19T12:00:00.000Z', 'refresh kept acquiredAt');
 
     // Foreign session → observed, NOT written (no silent steal).
-    process.env.LATTICE_SESSION_ID = 'sess-bravo';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-bravo';
     resetSessionIdForTest();
     const before = readFileSync(ownerLeasePath(storyDir), 'utf-8');
     const r3 = acquireOrRefreshOwnerLease(storyDir, {
@@ -1020,7 +1020,7 @@ try {
     assert.equal(isOwnedByCurrentSession(storyDir), false, 'a non-owner does not own the lease');
 
     // Restore the canonical owner session.
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -1078,7 +1078,7 @@ try {
   {
     // The lease path must be classified as a runtime artifact: volatile,
     // material-excluded, and carrying a `**/owner-lease.json` ignore pattern.
-    const sampleLeasePath = '.lattice/story/actives/B-c55d/owner-lease.json';
+    const sampleLeasePath = '.proof-or-stop/story/actives/B-c55d/owner-lease.json';
     const entry = findRuntimeArtifactEntry(sampleLeasePath);
     assert.notEqual(entry, undefined, 'owner-lease.json is a registered runtime artifact');
     assert.equal(entry!.id, 'runtime-story-owner-lease', 'owner-lease.json matches the owner-lease registry entry');
@@ -1171,7 +1171,7 @@ try {
     });
 
     // Act as a DIFFERENT session and take over.
-    process.env.LATTICE_SESSION_ID = 'sess-takeover';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-takeover';
     resetSessionIdForTest();
     // The takeover stamp is >30min after the stale heartbeat.
     const takeoverStamp = '2026-05-19T11:00:00.000Z';
@@ -1203,7 +1203,7 @@ try {
     assert.equal(ev.fromHeartbeatAt, staleHeartbeat, 'the event records the previous heartbeat');
     assert.equal(ev.fromWasStale, true, 'the event records the lease was stale at takeover');
 
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -1220,7 +1220,7 @@ try {
     });
     const leaseBefore = readFileSync(ownerLeasePath(storyDir), 'utf-8');
 
-    process.env.LATTICE_SESSION_ID = 'sess-takeover';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-takeover';
     resetSessionIdForTest();
     // The takeover attempt is only 5 minutes after the fresh heartbeat → active.
     const result = takeOverOwnerLease(storyDir, {
@@ -1240,7 +1240,7 @@ try {
       'a refused --takeover performs no lease write (the active lease is untouched)',
     );
 
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -1253,7 +1253,7 @@ try {
     const freshHeartbeat = '2026-05-19T12:00:00.000Z';
     acquireOwnerLease(storyDir, { command: 'checklist_update', now: () => freshHeartbeat });
 
-    process.env.LATTICE_SESSION_ID = 'sess-takeover';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-takeover';
     resetSessionIdForTest();
     const forceStamp = '2026-05-19T12:05:00.000Z'; // only 5min later — still active
     const result = takeOverOwnerLease(storyDir, {
@@ -1273,7 +1273,7 @@ try {
     assert.equal(events.length >= 1, true, 'a forceTakeover event was logged');
     assert.equal(events[0].fromWasStale, false, 'the forceTakeover event records the lease was active (not stale)');
 
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -1317,7 +1317,7 @@ try {
       command: 'checklist_update',
       now: () => '2026-05-19T08:00:00.000Z', // very old → stale
     });
-    process.env.LATTICE_SESSION_ID = 'sess-other';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-other';
     resetSessionIdForTest();
     const leaseBefore = readFileSync(ownerLeasePath(foreignDir), 'utf-8');
     const observed = acquireOrRefreshOwnerLease(foreignDir, { command: 'story_advance' });
@@ -1336,7 +1336,7 @@ try {
       'takeOverOwnerLease rejects an invalid kind (runtime enum re-validation)',
     );
 
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -1432,7 +1432,7 @@ try {
     // 14b. Lease owned by the CURRENT session, ACTIVE → isOwner:true, proceed.
     const ownDir = join(root, 'view-own');
     mkdirSync(ownDir, { recursive: true });
-    process.env.LATTICE_SESSION_ID = 'sess-me';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-me';
     resetSessionIdForTest();
     acquireOwnerLease(ownDir, { command: 'checklist_update', cwd: '/tmp/my-wt', now: () => heartbeat });
     const ownView = summarizeOwnerLease(ownDir, 'sess-me', baseMs + 5 * 60 * 1000);
@@ -1464,7 +1464,7 @@ try {
     assert.equal(foreignStaleView.stale, true, 'a >30min-old foreign lease is stale');
     assert.equal(foreignStaleView.recommendation, 'takeover-available', 'a foreign stale lease → recommendation:takeover-available');
 
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -1554,12 +1554,12 @@ try {
     // command-ownership-contract.ts case 5b.)
     const reviewerDir = join(root, 'reviewer-readonly');
     mkdirSync(reviewerDir, { recursive: true });
-    process.env.LATTICE_SESSION_ID = 'sess-owner';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-owner';
     resetSessionIdForTest();
     acquireOwnerLease(reviewerDir, { command: 'checklist_update', cwd: '/tmp/owner-wt' });
 
     // Act as a reviewer session (a DIFFERENT, non-owner session).
-    process.env.LATTICE_SESSION_ID = 'sess-reviewer';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-reviewer';
     resetSessionIdForTest();
     // A non-owner observation never throws and never mutates the lease.
     const leaseBefore = readFileSync(ownerLeasePath(reviewerDir), 'utf-8');
@@ -1574,7 +1574,7 @@ try {
       'a reviewer read-only inspection performs NO lease write',
     );
 
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -1607,7 +1607,7 @@ try {
     );
 
     // 18b. One ACTIVE lease (fresh heartbeat) + one STALE lease (>30min old).
-    process.env.LATTICE_SESSION_ID = 'sess-active-owner';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-active-owner';
     resetSessionIdForTest();
     const activeDir = makeStory('B-active-lease');
     acquireOwnerLease(activeDir, {
@@ -1616,7 +1616,7 @@ try {
       now: () => '2026-05-19T11:55:00.000Z', // 5min before the reference clock
     });
 
-    process.env.LATTICE_SESSION_ID = 'sess-dead-owner';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-dead-owner';
     resetSessionIdForTest();
     const staleDir = makeStory('B-stale-lease');
     acquireOwnerLease(staleDir, {
@@ -1625,7 +1625,7 @@ try {
       now: () => '2026-05-19T11:15:00.000Z', // 45min before the reference clock → stale
     });
 
-    process.env.LATTICE_SESSION_ID = 'sess-terminal-owner';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-terminal-owner';
     resetSessionIdForTest();
     const terminalDir = makeStory('B-terminal-lease', 'DONE');
     acquireOwnerLease(terminalDir, {
@@ -1672,7 +1672,7 @@ try {
     assert.ok(report.includes('--takeover'), 'the report points the operator at --takeover recovery');
     assert.ok(report.includes('DONE/DISCARDED stories do not need --takeover'), 'terminal stale summary avoids takeover guidance');
 
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -1688,7 +1688,7 @@ try {
     mkdirSync(storyDir, { recursive: true });
 
     // Session A acquires the lease by running an owner-gated command.
-    process.env.LATTICE_SESSION_ID = 'sess-A';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-A';
     resetSessionIdForTest();
     assert.doesNotThrow(
       () => enforceStoryOwnerLeaseGate('checklist_update', { storyId }, gateStore, null, gateRoot),
@@ -1697,7 +1697,7 @@ try {
     const leaseAfterA = readFileSync(ownerLeasePath(storyDir), 'utf-8');
 
     // Session B running a mutating command on the SAME story is rejected.
-    process.env.LATTICE_SESSION_ID = 'sess-B';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-B';
     resetSessionIdForTest();
     assert.throws(
       () => enforceStoryOwnerLeaseGate('checklist_update', { storyId }, gateStore, null, gateRoot),
@@ -1717,7 +1717,7 @@ try {
       'a rejected non-owner command leaves the owner lease untouched',
     );
 
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -1734,7 +1734,7 @@ try {
     mkdirSync(gateStore.storyDirPath(storyY), { recursive: true });
 
     // Session A owns story X.
-    process.env.LATTICE_SESSION_ID = 'sess-A';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-A';
     resetSessionIdForTest();
     assert.doesNotThrow(
       () => enforceStoryOwnerLeaseGate('checklist_update', { storyId: storyX }, gateStore, null, gateRoot),
@@ -1742,14 +1742,14 @@ try {
     );
 
     // Session B owns story Y — a DIFFERENT story → no contention, B proceeds.
-    process.env.LATTICE_SESSION_ID = 'sess-B';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-B';
     resetSessionIdForTest();
     assert.doesNotThrow(
       () => enforceStoryOwnerLeaseGate('checklist_update', { storyId: storyY }, gateStore, null, gateRoot),
       'session B acquires a DIFFERENT story Y — per-story leases never cross-contend',
     );
     // Session A can still re-run an owner-gated command on its own story X.
-    process.env.LATTICE_SESSION_ID = 'sess-A';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-A';
     resetSessionIdForTest();
     assert.doesNotThrow(
       () => enforceStoryOwnerLeaseGate('understanding_set', { storyId: storyX }, gateStore, null, gateRoot),
@@ -1761,7 +1761,7 @@ try {
     assert.equal(leaseX.sessionId, 'sess-A', 'story X is owned by session A');
     assert.equal(leaseY.sessionId, 'sess-B', 'story Y is owned by session B');
 
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -1777,7 +1777,7 @@ try {
     mkdirSync(storyDir, { recursive: true });
 
     // Session A owns the story with an OLD (stale) heartbeat.
-    process.env.LATTICE_SESSION_ID = 'sess-A';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-A';
     resetSessionIdForTest();
     acquireOwnerLease(storyDir, {
       command: 'checklist_update',
@@ -1786,7 +1786,7 @@ try {
     });
 
     // Session B WITHOUT a flag is rejected even though the lease is stale.
-    process.env.LATTICE_SESSION_ID = 'sess-B';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-B';
     resetSessionIdForTest();
     assert.throws(
       () => enforceStoryOwnerLeaseGate('story_advance', { storyId }, gateStore, null, gateRoot),
@@ -1805,7 +1805,7 @@ try {
       .filter((e) => e.tool === 'story-owner-lease-takeover' && e.kind === 'takeover');
     assert.equal(takeoverEvents.length >= 1, true, 'a story-owner-lease-takeover event was recorded for the stale takeover');
 
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -1821,13 +1821,13 @@ try {
     mkdirSync(storyDir, { recursive: true });
 
     // Session A owns the story with a FRESH heartbeat (active, not stale).
-    process.env.LATTICE_SESSION_ID = 'sess-A';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-A';
     resetSessionIdForTest();
     enforceStoryOwnerLeaseGate('checklist_update', { storyId }, gateStore, null, gateRoot);
     const leaseBefore = readFileSync(ownerLeasePath(storyDir), 'utf-8');
 
     // Session B with plain --takeover is REJECTED — the lease is active.
-    process.env.LATTICE_SESSION_ID = 'sess-B';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-B';
     resetSessionIdForTest();
     assert.throws(
       () => enforceStoryOwnerLeaseGate('story_advance', { storyId, takeover: true }, gateStore, null, gateRoot),
@@ -1851,7 +1851,7 @@ try {
       .filter((e) => e.tool === 'story-owner-lease-takeover' && e.kind === 'forceTakeover');
     assert.equal(forceEvents.length >= 1, true, 'a forceTakeover event was recorded for the active takeover');
 
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -1866,12 +1866,12 @@ try {
     mkdirSync(storyDir, { recursive: true });
 
     // Session "sess-owner" owns the story with an ACTIVE heartbeat.
-    process.env.LATTICE_SESSION_ID = 'sess-owner';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-owner';
     resetSessionIdForTest();
     acquireOwnerLease(storyDir, { command: 'checklist_update', cwd: '/tmp/owner-wt' });
 
     // A non-owner session inspecting the story sees a read-only recommendation.
-    process.env.LATTICE_SESSION_ID = 'sess-bystander';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-bystander';
     resetSessionIdForTest();
     const foreignView = summarizeOwnerLease(storyDir, getSessionId());
     assert.equal(foreignView.isCurrentSessionOwner, false, 'the bystander session is correctly NOT the owner');
@@ -1883,7 +1883,7 @@ try {
     const sameCwdLines = renderOwnershipBlock(sameCwdView).join('\n');
     assert.ok(sameCwdLines.includes('same worktree'), 'session_brief adds same-worktree guidance when owner cwd equals current cwd');
 
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -1900,13 +1900,13 @@ try {
     mkdirSync(storyDir, { recursive: true });
 
     // The main agent (sess-author) owns the story.
-    process.env.LATTICE_SESSION_ID = 'sess-author';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-author';
     resetSessionIdForTest();
     enforceStoryOwnerLeaseGate('checklist_update', { storyId }, revStore, null, revRoot);
     const leaseBefore = readFileSync(ownerLeasePath(storyDir), 'utf-8');
 
     // A reviewer runs as a DIFFERENT, non-owner session.
-    process.env.LATTICE_SESSION_ID = 'sess-reviewer';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-reviewer';
     resetSessionIdForTest();
 
     // 24a. Reviewer read-only commands on the foreign-owned story all pass.
@@ -1939,7 +1939,7 @@ try {
       'reviewer read-only + reviewerWrite commands never rewrite the author owner lease',
     );
 
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
@@ -1964,7 +1964,7 @@ try {
     assert.notEqual(repoRoot, '', 'the smoke runs inside a git repo (needed for the F-008 check)');
 
     // git check-ignore must report owner-lease.json as ignored at a story path.
-    const sampleLeaseRel = '.lattice/story/actives/B-c55d/owner-lease.json';
+    const sampleLeaseRel = '.proof-or-stop/story/actives/B-c55d/owner-lease.json';
     let checkIgnoreCode = 1;
     try {
       execFileSync('git', ['check-ignore', '-q', sampleLeaseRel], {
@@ -1979,7 +1979,7 @@ try {
     assert.equal(
       checkIgnoreCode,
       0,
-      'git check-ignore confirms .lattice/story/actives/<id>/owner-lease.json is gitignored — it never produces a dirty write before DONE (F-008-class prevention)',
+      'git check-ignore confirms .proof-or-stop/story/actives/<id>/owner-lease.json is gitignored — it never produces a dirty write before DONE (F-008-class prevention)',
     );
 
     // The runtime-artifact registry carries the matching glob — the .gitignore
@@ -1992,13 +1992,13 @@ try {
 
     // A real owner-lease.json written into the live tree does NOT appear in
     // `git status --porcelain` (it is ignored, so it is invisible to status).
-    const liveStoryDir = join(repoRoot, '.lattice', 'story', 'actives', 'B-c55d');
+    const liveStoryDir = join(repoRoot, '.proof-or-stop', 'story', 'actives', 'B-c55d');
     if (existsSync(liveStoryDir)) {
       const leaseFile = join(liveStoryDir, OWNER_LEASE_FILE);
       const preExisted = existsSync(leaseFile);
       const savedContent = preExisted ? readFileSync(leaseFile, 'utf-8') : null;
       try {
-        process.env.LATTICE_SESSION_ID = 'sess-f008-probe';
+        process.env.PROOF_OR_STOP_SESSION_ID = 'sess-f008-probe';
         resetSessionIdForTest();
         acquireOwnerLease(liveStoryDir, { command: 'checklist_update', cwd: liveStoryDir });
         const porcelain = execFileSync('git', ['status', '--porcelain'], {
@@ -2026,7 +2026,7 @@ try {
         } else if (existsSync(leaseFile)) {
           rmSync(leaseFile, { force: true });
         }
-        process.env.LATTICE_SESSION_ID = 'sess-alpha';
+        process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
         resetSessionIdForTest();
       }
     }
@@ -2038,7 +2038,7 @@ try {
     // `--storyId=../../outside` for ANY storyScopedMutating command must be
     // REJECTED by `enforceStoryOwnerLeaseGate` BEFORE it derives a filesystem
     // path from the id — otherwise the gate would write
-    // `<root>/.lattice/outside/owner-lease.json` OUTSIDE the story tree, ahead
+    // `<root>/.proof-or-stop/outside/owner-lease.json` OUTSIDE the story tree, ahead
     // of any handler-level guard. The fix validates the id against the
     // canonical Proof-or-Stop story-id shape (anchored, `[A-Za-z0-9_-]` only, so it
     // can never contain `/`, `\`, or `..`) and throws on a malformed id.
@@ -2049,11 +2049,11 @@ try {
     // The escape target the unsanitized id would have resolved to. Pre-create
     // its PARENT so a write here would actually land (proving the gate, not a
     // missing-dir accident, is what stops the traversal).
-    const escapeDir = join(gateRoot, '.lattice', 'outside');
+    const escapeDir = join(gateRoot, '.proof-or-stop', 'outside');
     mkdirSync(escapeDir, { recursive: true });
     const escapedLease = ownerLeasePath(escapeDir);
 
-    process.env.LATTICE_SESSION_ID = 'sess-attacker';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-attacker';
     resetSessionIdForTest();
 
     // Drive the gate via the real storyScopedMutating commands with a
@@ -2101,13 +2101,13 @@ try {
       'the legitimate story still acquires its owner lease inside the story tree',
     );
 
-    process.env.LATTICE_SESSION_ID = 'sess-alpha';
+    process.env.PROOF_OR_STOP_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
   }
 
   console.log(
     '✓ story-owner-lease smoke passed (owner-session facade: ppid-bricking regression ' +
-    'guard / distinct host-adapter ids / LATTICE_SESSION_ID wins / codex+claude+antigravity matrix / ' +
+    'guard / distinct host-adapter ids / PROOF_OR_STOP_SESSION_ID wins / codex+claude+antigravity matrix / ' +
     'generated-token fallback / derive fallback + sessionSource / ' +
     'acquire schema incl. sessionSource / heartbeat refresh / release idempotent / ' +
     'acquire-or-refresh acquired+refreshed+foreign / malformed → null + legacy-lease compat / ' +
@@ -2126,6 +2126,6 @@ try {
   );
 } finally {
   rmSync(root, { recursive: true, force: true });
-  delete process.env.LATTICE_SESSION_ID;
+  delete process.env.PROOF_OR_STOP_SESSION_ID;
   resetSessionIdForTest();
 }

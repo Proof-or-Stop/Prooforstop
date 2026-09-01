@@ -46,7 +46,7 @@ Same model, same tools, same task, same injection; only control differs.
 | **A2 naive-retry** | on automated fail blindly re-invoke, up to **R=3** | — | — | — |
 | **A2′ compute-matched naive** | identical to A2 but bounded by a **token + wall-clock budget** equal to A4's per-task median (measured in pilot). Concrete tolerance band: **±20% of A4's per-task median tokens AND ±20% wall-clock**; if the two budgets conflict the **token budget binds first**; each run logs pass/fail against these constants. Hard-truncation cap at the upper bound. **Compute parity is matched on spend, not call count** | — | — | — |
 | **A3 review-only** | A2, then **exactly one** review pass using the SAME review mechanism AND the **same structured context snapshot** A4's reviewer receives; findings reported, not iterated | one pass (= A4's reviewer, context-equalized) | — | — |
-| **A4 Lattice-Reflection-Loop** (treatment) | full Proof-or-Stop lifecycle: plan→execute→review→bounded reflection→evidence gates→DONE | yes | yes | yes |
+| **A4 Proof-or-Stop-Reflection-Loop** (treatment) | full Proof-or-Stop lifecycle: plan→execute→review→bounded reflection→evidence gates→DONE | yes | yes | yes |
 
 - **Compute parity (fixes round-1 cross-host finding).** A2′ matches A4 on **total
   tokens + wall-clock** (optionally tool-call-mix), not call count; every run records

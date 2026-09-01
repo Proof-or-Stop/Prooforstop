@@ -30,7 +30,7 @@ const RECEIPT_METADATA_ALLOWLIST = new Set([
   'prompt-envelopes.json', 'review-runs.json', 'review-passes.json', 'delivery-check.json', 'stall-adjudication.json', 'scope-contract.json',
 ]);
 export function receiptHeadIsAdmissible({ ancestor, materialEqual, changedPaths }) {
-  const prefix = '.lattice/story/actives/B-9812/';
+  const prefix = '.proof-or-stop/story/actives/B-9812/';
   return ancestor && materialEqual && changedPaths.every(path => path.startsWith(prefix) && RECEIPT_METADATA_ALLOWLIST.has(path.slice(prefix.length)));
 }
 function assertReceiptHead(receiptHead, receiptMaterial, currentMaterial) {
@@ -51,16 +51,16 @@ const smokeOutput = execFileSync(process.execPath, ['packages/main/dist/tasks/fu
 assert.match(smokeOutput, /full-suite-runner-smoke: PASS \((\d+) assertions\)/);
 const smokeAssertions = Number(smokeOutput.match(/PASS \((\d+) assertions\)/)?.[1]);
 assert.ok(smokeAssertions >= 44);
-assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/checklist.json'] }), true, 'metadata-only descendant is admissible');
-assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/index.json', '.lattice/story/actives/B-9812/process-metrics.json'] }), true, 'normal REVIEW lifecycle metadata descendant is admissible');
-assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/prompt-envelopes.json', '.lattice/story/actives/B-9812/review-runs.json', '.lattice/story/actives/B-9812/review-passes.json'] }), true, 'actual reviewer dispatch and pass metadata descendant is admissible');
-assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/delivery-check.json'] }), true, 'actual delivery approval metadata descendant is admissible');
-assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/stall-adjudication.json', '.lattice/story/actives/B-9812/scope-contract.json'] }), true, 'actual convergence and scope metadata descendant is admissible');
-assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/test-evidence.json'] }), true, 'actual DONE-required command evidence descendant is admissible');
-assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/gate-failure-counts.json'] }), true, 'actual lifecycle gate-attempt metadata descendant is admissible');
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.proof-or-stop/story/actives/B-9812/checklist.json'] }), true, 'metadata-only descendant is admissible');
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.proof-or-stop/story/actives/B-9812/index.json', '.proof-or-stop/story/actives/B-9812/process-metrics.json'] }), true, 'normal REVIEW lifecycle metadata descendant is admissible');
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.proof-or-stop/story/actives/B-9812/prompt-envelopes.json', '.proof-or-stop/story/actives/B-9812/review-runs.json', '.proof-or-stop/story/actives/B-9812/review-passes.json'] }), true, 'actual reviewer dispatch and pass metadata descendant is admissible');
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.proof-or-stop/story/actives/B-9812/delivery-check.json'] }), true, 'actual delivery approval metadata descendant is admissible');
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.proof-or-stop/story/actives/B-9812/stall-adjudication.json', '.proof-or-stop/story/actives/B-9812/scope-contract.json'] }), true, 'actual convergence and scope metadata descendant is admissible');
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.proof-or-stop/story/actives/B-9812/test-evidence.json'] }), true, 'actual DONE-required command evidence descendant is admissible');
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.proof-or-stop/story/actives/B-9812/gate-failure-counts.json'] }), true, 'actual lifecycle gate-attempt metadata descendant is admissible');
 assert.equal(receiptHeadIsAdmissible({ ancestor: false, materialEqual: true, changedPaths: [] }), false, 'non-ancestor receipt is rejected');
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['packages/main/src/tasks/full-suite-runner.ts'] }), false, 'source diff is rejected even with matching material claim');
-assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/unapproved.json'] }), false, 'metadata path outside strict allowlist is rejected');
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.proof-or-stop/story/actives/B-9812/unapproved.json'] }), false, 'metadata path outside strict allowlist is rejected');
 const guardOutput = execFileSync(process.execPath, ['packages/main/dist/tasks/review-incremental-context-smoke.js', '--guard-map-only'], { cwd: root, encoding: 'utf8' });
 assert.match(guardOutput, /INCREMENTAL_GUARD_CLASSES=review-run-identity,mixed-envelope-selection,pass-finding-write-serialization,signed-result-admissibility,lane-no-overwrite,real-review-gate/);
 
@@ -147,7 +147,7 @@ const inventoriesEqual = (left, right) => left.every(leftResult => {
 });
 const serialParallelInventoriesEqual = receiptCheck(Boolean(serial && parallel[0] && inventoriesEqual(serial.results, parallel[0].results)), 'serial/parallel per-member assertion or mutation inventory differs');
 
-const doneReceiptPath = process.env.B9812_DONE_RECEIPT ?? '.lattice/story/actives/B-9812/done-required-evidence.json';
+const doneReceiptPath = process.env.B9812_DONE_RECEIPT ?? '.proof-or-stop/story/actives/B-9812/done-required-evidence.json';
 const doneReceiptText = existsSync(doneReceiptPath) ? readTextReceipt(doneReceiptPath) : '';
 const doneReceipt = doneReceiptText ? JSON.parse(doneReceiptText) : null;
 const currentMaterialForDone = execFileSync(process.execPath, ['--input-type=module', '-e', "import{currentMaterialHash}from'./packages/main/dist/core/evidence-freshness.js';process.stdout.write(currentMaterialHash(process.cwd())??'')"], { cwd: root, encoding: 'utf8' });
@@ -251,7 +251,7 @@ const proof = {
   cohortEquivalent: cohortSemanticEqual && normalizedOne.length === 12,
   cohortIntegrity: acceptancePassed && /semanticInventoryDigest/.test(cohortSource) && /copied cohort runner is byte-identical/.test(acceptanceSource) && /tempCohort = clone\(control\)/.test(acceptanceSource),
   cohortIsolation: acceptancePassed && cohortSemanticEqual && /withProductionCaseSlot/.test(cohortSource) && /evidenceGitCwd/.test(cohortSource) && /controlRestored/.test(cohortSource),
-  incrementalMap: /INCREMENTAL_GUARD_CLASS_MAP/.test(incrementalSource) && /LATTICE_INCREMENTAL_STRESS === '1' \? 20 : 1/.test(incrementalSource) && /INCREMENTAL_GUARD_CLASSES/.test(guardOutput),
+  incrementalMap: /INCREMENTAL_GUARD_CLASS_MAP/.test(incrementalSource) && /PROOF_OR_STOP_INCREMENTAL_STRESS === '1' \? 20 : 1/.test(incrementalSource) && /INCREMENTAL_GUARD_CLASSES/.test(guardOutput),
   threeRuns: parallel.length === 3 && parallel.every(run => run.receiptValid && run.overallStatus === 'PASS' && run.durationMs < 300_000),
   auditableReports: parallel.length === 3 && parallel.every(run => run.criticalPath && run.processLaunchCount === EXPECTED_MEMBERS && run.results.every(result => result.lockWaitMs >= 0)),
   doneRequired: doneReceiptValid,

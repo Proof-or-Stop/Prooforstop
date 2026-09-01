@@ -4,7 +4,7 @@
  * Pure function module: `resolveAuditConfig(profile, projectRoot)`.
  *
  * Priority (high → low):
- *   1. Fields in `<projectRoot>/.lattice/audit-config.json` (per-field override;
+ *   1. Fields in `<projectRoot>/.proof-or-stop/audit-config.json` (per-field override;
  *      the legacy per-project audit-config read fallback was removed in B-a4e3)
  *   2. Profile defaults: auditTriggerWindow tiered as light=10 / balanced=5 / strict=3
  *      (requireClaudeMdDiff and mode have no profile differences, use hardcoded defaults)
@@ -20,7 +20,7 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import type { WorkflowProfile } from './types.js';
 import { VALID_PARALLEL_MODES } from './parallel-decomposition.js';
 import type { ParallelGateConfig, ParallelGateMode } from './parallel-decomposition.js';
@@ -187,7 +187,7 @@ function readParallelGateFields(raw: unknown, profileDefault: ParallelGateConfig
  * Compute audit configuration.
  *
  * @param profile      current workflow profile (already resolved by upstream resolveProfile)
- * @param projectRoot  project root path (base for reading .lattice/audit-config.json)
+ * @param projectRoot  project root path (base for reading .proof-or-stop/audit-config.json)
  */
 export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string): AuditConfig {
   // 1. First compute profile defaults (only triggerWindow is tiered)
@@ -257,7 +257,7 @@ export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string
 }
 
 /**
- * Read `.lattice/audit-config.json`.
+ * Read `.proof-or-stop/audit-config.json`.
  *   - File does not exist → return null (silent)
  *   - JSON parse failure → warn once + return null
  */

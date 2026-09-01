@@ -1,15 +1,11 @@
-import type { HandlerContext } from '../../../main/dist/handlers/context.js';
-import { scan, filterTasks, toMarkdown } from '../../../main/dist/tasks/extract.js';
-import { validate } from '../../../main/dist/tasks/validate.js';
-import { checkCoverage } from '../../../main/dist/tasks/coverage.js';
-import { locateTasks } from '../../../main/dist/tasks/locate.js';
-import type { CoverageResult, LocateResult } from '../../../main/dist/tasks/types.js';
+import type { CoverageResult, HandlerContext, LocateResult } from '@proof-or-stop/core/extension-api';
+import { requireCoreRuntime } from '../core-runtime.js';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { loadConfig } from '../../../main/dist/core/config.js';
 
 export function createAuxHandlers(ctx: HandlerContext) {
   const { store, scanRoot } = ctx;
+  const { checkCoverage, filterTasks, loadConfig, locateTasks, scan, toMarkdown, validate } = requireCoreRuntime(ctx);
   return {
     // ── Aux helper tools: scan / query / analyze ─────────────────────
 

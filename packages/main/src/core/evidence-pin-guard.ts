@@ -53,12 +53,12 @@ export interface EvidencePinGuardResult {
 // ── Command-string parsing (pure) ──
 
 /**
- * A shell command is only considered when it looks like a Lattice CLI call —
+ * A shell command is only considered when it looks like a ProofOrStop CLI call —
  * this keeps the guard from matching unrelated shell text that merely mentions
  * the subcommand token (e.g. `echo verification_evidence_add`).
  */
-function hasLatticeMarker(commandString: string): boolean {
-  return /(?:^|[\s"'/=])(?:lattice(?:\.js)?|cli\.js)(?:[\s"']|$)/.test(commandString);
+function hasProofOrStopMarker(commandString: string): boolean {
+  return /(?:^|[\s"'/=])(?:proofOrStop(?:\.js)?|cli\.js)(?:[\s"']|$)/.test(commandString);
 }
 
 /** Extract the first balanced-looking JSON object argument, if present. */
@@ -98,13 +98,13 @@ function pickString(value: unknown): string | undefined {
 
 /**
  * Parse a shell command string into a recognized evidence-write invocation, or
- * null when the string is not a Lattice evidence-write command. Handles both the
+ * null when the string is not a ProofOrStop evidence-write command. Handles both the
  * JSON-blob arg form (`proof-or-stop verification_evidence_add '{"storyId":...}'`) and
  * the `--key=value` / `--key value` flag form.
  */
 export function parseEvidenceCommand(commandString: string): ParsedEvidenceInvocation | null {
   if (typeof commandString !== 'string' || commandString.trim().length === 0) return null;
-  if (!hasLatticeMarker(commandString)) return null;
+  if (!hasProofOrStopMarker(commandString)) return null;
 
   const hasAdd = /(?:^|[\s"'/=])verification_evidence_add(?:[\s"']|$)/.test(commandString);
   const hasRun = /(?:^|[\s"'/=])verification_run(?:[\s"']|$)/.test(commandString);

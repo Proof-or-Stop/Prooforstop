@@ -31,7 +31,7 @@ type PrerequisiteStatus = 'PASS' | 'MISSING' | 'STALE' | 'BLOCKED' | 'ERROR';
 interface PrerequisiteRow {
   id: string;
   status: PrerequisiteStatus;
-  /** The exact `lattice …` command that resolves a MISSING/STALE/BLOCKED row (no fix on PASS / ERROR). */
+  /** The exact `proofOrStop …` command that resolves a MISSING/STALE/BLOCKED row (no fix on PASS / ERROR). */
   fix?: string;
   /** Human-readable detail (the throw message on ERROR, or a short note on the non-PASS state). */
   detail?: string;
@@ -125,7 +125,7 @@ function initCheckRow(
 ): PrerequisiteRow {
   const id = 'init-check';
   const fix =
-    `run the two INIT reviewers (lattice-review-story-init + product-reviewer) then ` +
+    `run the two INIT reviewers (proof-or-stop-review-story-init + product-reviewer) then ` +
     `proof-or-stop init_check_set --storyId=${storyId}`;
   if (!initCheck) {
     return { id, status: 'MISSING', fix, detail: 'init-check.json is missing (no INIT reviewer has persisted yet)' };

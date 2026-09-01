@@ -168,7 +168,7 @@
  *   (default)   repro-first: exit 1 while either gate is RED or any D row is
  *               not REFUSED, 0 when both gates are GREEN and every D row is
  *               REFUSED, 2 when a control/premise is BROKEN. This is the mode
- *               registered in `lattice.config.json`.
+ *               registered in `proof-or-stop.config.json`.
  *   --attest    identical measurement, identical rows, but exit 0 whenever the
  *               measurement RAN CLEANLY (all controls/premises OK), so it can be
  *               pinned as a tool-executed `verification_evidence_add` command,
@@ -1155,7 +1155,7 @@ if (verdict === 'BROKEN') {
   lines.push('  one), and every unbacked withdrawal is still refused by both.');
 }
 console.log(lines.join('\n'));
-// NOT process.exit(): on a PIPE (which is how `lattice validate` and the
+// NOT process.exit(): on a PIPE (which is how `proof-or-stop validate` and the
 // verification_evidence_add receipt runner both capture this) console.log is an
 // ASYNC write, and process.exit() abandons whatever has not flushed yet. That
 // silently truncated the tail of this report once it passed ~9 KB — the D45 row

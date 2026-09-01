@@ -118,7 +118,7 @@ function synthRunDir({ base, fixtureDir, fixtureId, arm, payload, runJson = {}, 
     experimentId: EXPERIMENT_ID,
     arm,
     hostId: 'selfcheck-host',
-    storeRoot: `/synthetic/isolated/${fixtureId}-${arm}/.lattice/learning`,
+    storeRoot: `/synthetic/isolated/${fixtureId}-${arm}/.proof-or-stop/learning`,
     // Cover BOTH documented timing paths (fixed input timestamps — no clock):
     ...(arm === 'control'
       ? { startedAt: '2026-07-03T09:00:00.000Z', endedAt: '2026-07-03T09:03:00.000Z' }
@@ -233,12 +233,12 @@ try {
     const row = manifest.find((r) => r.trapClass === 'clean');
     const fixtureDir = join(corpus, row.fixtureId);
     const base = tmp('ablation-score-void-');
-    const prod = '/synthetic/prod-repo/.lattice/learning';
+    const prod = '/synthetic/prod-repo/.proof-or-stop/learning';
     const exact = synthRunDir({ base, fixtureDir, fixtureId: row.fixtureId, arm: 'treatment', payload: 'reference-good', runJson: { storeRoot: prod } });
     const rExact = await scoreArmRun({ fixtureDir, runDir: exact, productionLearningRoot: prod });
     const inside = synthRunDir({ base, fixtureDir, fixtureId: `${row.fixtureId}-sub`, arm: 'treatment', payload: 'reference-good', runJson: { storeRoot: `${prod}/finding-signals` } });
     const rInside = await scoreArmRun({ fixtureDir, runDir: inside, productionLearningRoot: prod });
-    const isolated = synthRunDir({ base, fixtureDir, fixtureId: `${row.fixtureId}-iso`, arm: 'treatment', payload: 'reference-good', runJson: { storeRoot: '/synthetic/elsewhere/.lattice/learning' } });
+    const isolated = synthRunDir({ base, fixtureDir, fixtureId: `${row.fixtureId}-iso`, arm: 'treatment', payload: 'reference-good', runJson: { storeRoot: '/synthetic/elsewhere/.proof-or-stop/learning' } });
     const rIsolated = await scoreArmRun({ fixtureDir, runDir: isolated, productionLearningRoot: prod });
     check('(d) storeRoot equal to the production learning root -> voided:true with a store-isolation reason',
       rExact.voided === true && /store isolation/.test(rExact.voidReason ?? ''), JSON.stringify(rExact.voidReason));
@@ -247,7 +247,7 @@ try {
     // default derivation (no override): the exported repo-root-based default
     const dflt = synthRunDir({ base, fixtureDir, fixtureId: `${row.fixtureId}-dflt`, arm: 'treatment', payload: 'reference-good', runJson: { storeRoot: defaultProductionLearningRoot() } });
     const rDflt = await scoreArmRun({ fixtureDir, runDir: dflt });
-    check('(d) default productionLearningRoot derivation voids a run pointed at <repoRoot>/.lattice/learning',
+    check('(d) default productionLearningRoot derivation voids a run pointed at <repoRoot>/.proof-or-stop/learning',
       rDflt.voided === true, JSON.stringify(rDflt.storeRoot));
   }
 
@@ -277,7 +277,7 @@ try {
     mkdirSync(noWorkspaceDir, { recursive: true });
     writeFileSync(join(noWorkspaceDir, 'run.json'), JSON.stringify({
       experimentId: EXPERIMENT_ID, arm: 'treatment', hostId: 'selfcheck-host',
-      storeRoot: '/synthetic/isolated/no-workspace/.lattice/learning',
+      storeRoot: '/synthetic/isolated/no-workspace/.proof-or-stop/learning',
       timeToDoneMs: 120000, commandCount: 7, doneReached: true, validationPass: true,
     }, null, 2) + '\n');
     const noWorkspace = cli([`--fixture=${fixtureDir}`, `--run=${noWorkspaceDir}`]);
