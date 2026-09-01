@@ -697,6 +697,31 @@
         "scanEscalationReason": "Targeted identity re-review: raw retired-role matches outside active roots were bounded to exact frozen or migration contexts; no broader unrelated docs audit was performed."
       },
       "_hash": "858f7646a69cf40e33ddb622a8b81e552c222f4db6cc2352d8ab5082b5053f11"
+    },
+    {
+      "id": "B-022e:RP-025",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round13 quality review found no new implementation-quality blocker: af344e88ec correctly bounds historical acceptance_matrix provenance without restoring a retired executable, recursively scans decoded JSON keys and values, detects mixed-case retired identities, and mutation-tests wrong and extra policy paths; 2429d66 restores truthful historical documentation/comment boundaries. Focused provenance, direct positive/negative matrix, identity self-test, and full identity verifier checks passed. F-031 remains an independent assurance lifecycle blocker and is not waived or represented as host proof by this lane.",
+      "createdAt": "2026-09-01T00:18:17.150Z",
+      "reviewRound": "2026-09-01T00:13:36.641Z",
+      "reviewRunId": "B-022e:RR-057",
+      "envelopeId": "bb9039347e20e677cc6c66613dcede33b175e11b89c93e19e034784280bef281",
+      "writerSessionId": "sess-9b987d5deb03c30b237a44651f4e6400",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/tests/acceptance-topology-provenance.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/artifact-release.ts",
+          "packages/main/src/core/capability-release.ts",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": "Round13 was explicitly bounded to af344e88ec historical-parser, decoded-ledger, case-insensitive residue, exact policy-path mutations, and 2429d66 history/comment fixes; related Story context and evidence were consumed through canonical story_get rather than direct metadata edits."
+      },
+      "_hash": "0fed91b40f18763065bb52127c0aa33e64be7e88189288ab9a00bf48d289a033"
     }
   ]
 }
