@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-fe8f:F-001",
+      "desc": "doc-promise-undelivered: packages/main/src/handlers/finding-runtime-evidence.ts:1-12 claims a Finding-owned two-command runtime-evidence handler facade, but line 7 aliases createFindingLedgerHandlers wholesale; that factory also returns finding_ledger_query, while the facade itself is consumed only by the immutable RED test and is not wired by packages/main/src/registry.ts or exported by packages/main/src/index.ts/package exports. The acknowledged expansion therefore does not establish the promised narrow/public runtime command boundary and can leak Ledger Query responsibility if later registered. Replace the alias with a narrow wrapper that returns exactly finding_runtime_evidence_run and finding_runtime_evidence_verify and wire/export the intended boundary, or remove the public-boundary promise/expansion with proof that the direct registered ledger handler is the canonical contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-09-01T13:21:14.399Z",
+      "reviewRound": "2026-09-01T13:16:53.377Z",
+      "reviewRunId": "B-fe8f:RR-003",
+      "_hash": "7fed7fe035faa19023e3e750366a1ab65b47b9ae771bd47884d875aa5a5d504b",
+      "signatureTag": "missing|unknown|promise-undelivered-packages",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
+      "ledgerCommitReceiptId": "lrc_mtip46ga_164g_214745e421594c278e475bc4ecfd90c7"
+    }
+  ]
+}
