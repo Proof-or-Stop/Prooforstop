@@ -1146,6 +1146,26 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-engine",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-043",
+      "desc": "Current `proof-or-stop evidence_inspect --storyId=B-022e --format=json` reports freshness.status=stale with staleRefs=[CHK-007:pack-boundary-transcript:0] because its storyFilesHash no longer matches the current story-owned state after c2d51f9780 changed the nested Lab clean-install/pack boundary. The 29 standard happy/edge/adversarial intent rows are fresh and the configured 120-command validation is PASS, but this separate manual transcript explicitly supplements CHK-003/004/005/007 clean-tarball and canonical-role claims and remains inadmissible. WHY: the exact packed boundary changed in this fix, so an older transcript cannot prove the final nested `lab help` tarball behavior. Re-capture the canonical live_smoke_transcript/pack-boundary command at the final storyFilesHash and rebind CHK-007:pack-boundary-transcript:0 before the next coverage pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-01T08:49:04.142Z",
+      "reviewRound": "2026-09-01T08:42:04.267Z",
+      "reviewRunId": "B-022e:RR-076",
+      "_hash": "cb10a3b7b9cdc6430817b7cb4c899ec7277bd62267dc0986275c8ba6bf964193",
+      "files": [
+        ".proof-or-stop/story/actives/B-022e/checklist.json",
+        ".proof-or-stop/story/actives/B-022e/evidence/live-smoke-transcript.json",
+        "scripts/verify-proof-or-stop-pack-boundary.mjs"
+      ],
+      "signatureTag": "missing|json|current-proof-stop",
+      "signatureTagSource": "auto"
     }
   ]
 }
