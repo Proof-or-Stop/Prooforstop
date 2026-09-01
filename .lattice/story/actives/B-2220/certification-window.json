@@ -36,6 +36,30 @@
         "blockerCode": "pre_cert_window_invalidated"
       },
       "_hash": "26a14785297ca7d7fbdf4fd106365502d976af54353dcea1e1954f02a3d75106"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-2220:CW-002",
+      "storyId": "B-2220",
+      "state": "ADMITTED",
+      "createdAt": "2026-09-01T00:18:27.964Z",
+      "updatedAt": "2026-09-01T00:18:27.964Z",
+      "frozen": {
+        "headHash": "547b1ffd6e96c031e35bf063cde82b6a993dccec",
+        "materialHash": "0e04c5d8f45c8d35607bd48ef36a14a12e19400bd3f904152a201599509f4817",
+        "storyFilesHash": "6ab6bae5ef24b15fc2c4c3ecb70b8a1c3b78c04a0e3ecfe4272171f1a47ebc10",
+        "expectedMainSha": "3206ccdd458ae43ab91e1ddca23a9d17c33f6224",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-2220:RIE-002",
+        "receiptId": "B-2220:RIE-002:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-2220:PRECERT-002",
+      "_hash": "5a453f0b252d7ff83e375f0b6a649b11b7b703b23c0ea6dd4ef3994dfc69a8b2"
     }
   ],
   "receipts": [
@@ -58,6 +82,26 @@
       "inventoryReceiptId": "B-2220:RIE-001:RCP-001",
       "createdAt": "2026-08-31T23:52:55.103Z",
       "_hash": "3569d5e9497f377772e55b329742833405f349a7a859f3fddcef2f5f95f104a6"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-2220:PRECERT-002",
+      "windowId": "B-2220:CW-002",
+      "storyId": "B-2220",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "547b1ffd6e96c031e35bf063cde82b6a993dccec",
+        "materialHash": "0e04c5d8f45c8d35607bd48ef36a14a12e19400bd3f904152a201599509f4817",
+        "storyFilesHash": "6ab6bae5ef24b15fc2c4c3ecb70b8a1c3b78c04a0e3ecfe4272171f1a47ebc10",
+        "expectedMainSha": "3206ccdd458ae43ab91e1ddca23a9d17c33f6224",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-2220:RIE-002",
+      "inventoryReceiptId": "B-2220:RIE-002:RCP-001",
+      "createdAt": "2026-09-01T00:18:27.964Z",
+      "_hash": "62ca21b04f71ba13cf19be9d428b744e2037cac81b561cd4b043a2b80f231ef6"
     }
   ]
 }
