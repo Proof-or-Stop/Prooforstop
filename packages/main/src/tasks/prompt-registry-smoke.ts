@@ -565,7 +565,7 @@ function assertOwnerAndImplementerTriageGuidance(): void {
   const ownerGuide = readFileSync(join(projectRoot, 'AGENTS.md'), 'utf8');
   for (const phrase of [
     'Every Finding reported only in reviewer prose must be redispatched for structured registration',
-    'introduced or worsened by the Story',
+    'introduced or worsened by the current Story',
     'directly blocks acceptance or the core user result',
     'critical or high',
     'known or uncertain protected-surface impact',
@@ -574,12 +574,14 @@ function assertOwnerAndImplementerTriageGuidance(): void {
     'future official `defer_with_proof` disposition',
     'including a medium Finding in a policy round where medium is blocking',
     '`not_reproduced_under_current_witness` requires fresh target-bound negative command and runtime receipts',
+    'structured evidence proves that it is not applicable to the current Story',
+    'Critical or high Findings must never be left without a traceable owner',
     'the Dynamic Finding System execution plan is future authority',
     'The current compatibility CLI does not implement a signed `FindingDeferralDisposition` or `defer_with_proof`',
     'never fabricate an assessment, disposition, owner, route, signature, freshness binding, expiry, lineage, receipt, or manifest action',
-    '`finding_dismiss` and gap or backlog routes are temporary compatibility accounting',
-    'prove neither applicability nor `out_of_scope`',
-    'deferral, repair, or resolution',
+    'Current `finding_dismiss`, gap, and backlog handling is temporary compatibility accounting for a round or profile',
+    'proves neither applicability nor `out_of_scope`',
+    'is not proof of repair or resolution, nor proof of deferral',
     'Prompt text alone does not mechanically enforce this discipline',
   ]) {
     assert.ok(ownerGuide.includes(phrase), `Story Owner guidance keeps triage phrase: ${phrase}`);
@@ -590,6 +592,16 @@ function assertOwnerAndImplementerTriageGuidance(): void {
   const ownerTriageSlice = ownerTriageLines.join('\n');
   assert.equal(ownerTriageLines.length, 4, 'all four Story Owner triage rules are isolated for language audit');
   assert.doesNotMatch(ownerTriageSlice, /[\u3400-\u9fff]/u, 'the added Story Owner triage slice is English-only');
+  assert.match(
+    ownerTriageSlice,
+    /structured evidence[\s\S]*not applicable[\s\S]*traceable owner or route[\s\S]*does not block the current gate/iu,
+    'Story Owner routing requires applicability, ownership, and non-blocking proof',
+  );
+  assert.match(
+    ownerTriageSlice,
+    /Critical or high Findings[\s\S]*never be left without a traceable owner/iu,
+    'Story Owner routing never leaves critical or high Findings unowned',
+  );
 
   const claudeGuide = readFileSync(join(projectRoot, 'CLAUDE.md'), 'utf8');
   const claudeTriageLines = claudeGuide
@@ -599,10 +611,10 @@ function assertOwnerAndImplementerTriageGuidance(): void {
   assert.doesNotMatch(claudeTriageLines.join('\n'), /[\u3400-\u9fff]/u, 'the Claude Story Owner triage slice is English-only');
   for (const [file, lines] of [['AGENTS.md', ownerTriageLines], ['CLAUDE.md', claudeTriageLines]] as const) {
     const compatibilityLine = lines.find(line => line.includes('**Compatibility boundary and dismissal**')) ?? '';
-    assert.match(compatibilityLine, /`finding_dismiss` and gap or backlog routes are temporary compatibility accounting;/u, `${file} keeps bounded compatibility accounting`);
-    assert.match(compatibilityLine, /they prove neither applicability nor `out_of_scope`, deferral, repair, or resolution\./u, `${file} keeps each non-proof conclusion once`);
+    assert.match(compatibilityLine, /Current `finding_dismiss`, gap, and backlog handling is temporary compatibility accounting for a round or profile;/u, `${file} keeps bounded compatibility accounting`);
+    assert.match(compatibilityLine, /it proves neither applicability nor `out_of_scope`, and it is not proof of repair or resolution, nor proof of deferral\./u, `${file} keeps each non-proof conclusion once`);
     assert.match(compatibilityLine, /Prompt text alone does not mechanically enforce this discipline\./u, `${file} keeps the prompt-enforcement limitation once`);
-    for (const term of ['applicability', '`out_of_scope`', 'repair', 'resolution'] as const) {
+    for (const term of ['`finding_dismiss`', 'applicability', '`out_of_scope`', 'repair', 'resolution'] as const) {
       assert.equal(occurrenceCount(compatibilityLine, term), 1, `${file} states the ${term} compatibility conclusion once`);
     }
     assert.equal(occurrenceCount(compatibilityLine, 'mechanically enforce'), 1, `${file} states the prompt-enforcement limitation once`);
