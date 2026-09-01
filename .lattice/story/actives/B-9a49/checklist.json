@@ -1700,7 +1700,29 @@
             }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:registry-reconciliation",
+          "kind": "logic_test",
+          "command": "npm run test:proofstory-acceptance-basis-smoke",
+          "result": "pass",
+          "note": "Focused smoke proves authoritative registry reconciliation and signed-basis path retention.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d5fbe7b86ad10243ef032eba9604100c84855fc2799b6058080e9efce4d8d55f",
+            "outputTail": "\n> lattice@0.3.268 test:proofstory-acceptance-basis-smoke\n> npm --prefix packages/main run test:proofstory-acceptance-basis-smoke\n\n\n> @proof-or-stop/core@0.3.268 test:proofstory-acceptance-basis-smoke\n> node dist/tasks/proofstory-acceptance-basis-smoke.js\n\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-01T00:14:35.920Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "c55128fca7ed1c40cb45c2da1b3284b320d2abc7",
+          "materialHash": "3786022164651f05bf1b336fc748ea02cdafb1d221e565d275c72096291d8b52",
+          "storyFilesHash": "95bdeaa39aaecd30d5501589ad5c2686200f6f50de26060303499c61a4904129",
+          "timestamp": "2026-09-01T00:14:36.086Z"
+        }
+      ]
     }
   ],
   "auditLog": [
