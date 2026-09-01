@@ -1442,6 +1442,25 @@
       "resolvedAt": "2026-09-01T12:55:03.740Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-055",
+      "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:589-778 — the new REVIEWER_REQUESTED_FULL regression proves later cross-lane reviewer metadata is accepted and rejects direct envelope eligibilityDigest tamper plus phase/title/checklist task mutations, but it never mutates a real product file or the signed scope contract while re-verifying the same requested-full run through verifyReviewRunPromptEnvelope and collectReviewerEvidenceState. This is a high-severity adversarial coverage gap because the production fix intentionally stops dynamically comparing three eligibility fields; a future accidental expansion that also stops comparing changedFilesDigest/impactedFilesDigest or taskSemanticDigest/scope policy could satisfy every new assertion while admitting product- or scope-stale reviewer passes at quorum. Add direct requested-full inverse cases that change committed story-owned material and scope policy independently, assert both the verifier and shared current-pass/quorum reader fail closed with the expected surviving binding field, then restore and prove acceptance returns.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-01T14:45:54.191Z",
+      "reviewRound": "2026-09-01T14:34:26.976Z",
+      "reviewRunId": "B-022e:RR-111",
+      "_hash": "fc5fefb849d707e832ad522300a7a50af91817b944e44185807b8d5d6b0c596c",
+      "files": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
