@@ -7244,9 +7244,12 @@ function assertParentRoadmapTotalityRuntime() {
   for (const token of ['only TEST as equivalent', 'mandatory REVIEW-to-TEST transition', 'DEV, DONE, DISCARDED', 'malformed or unknown phases remain distinct', 'checklist', 'scope mutations']) {
     assert(incrementalLevel?.rationale.includes(token), `incremental review eligibility rationale missing lifecycle semantic boundary: ${token}`);
   }
+  for (const token of ['reviewer explicitly requests full context', 'discarded incremental candidate', 'later reviewer metadata does not become a dynamic gate fact', 'Material freshness', 'model-relevant TaskContext remain authoritatively recomputed']) {
+    assert(incrementalLevel?.rationale.includes(token), `incremental review eligibility rationale missing requested-full metadata boundary: ${token}`);
+  }
   assert(incrementalLevel?.gateConsumer.includes('DONE/done_prepare') && incrementalLevel?.gateConsumer.includes('collectReviewerEvidenceState'), 'incremental review eligibility must identify the shared DONE/done_prepare evidence oracle');
   const incrementalSmoke = read('packages/main/src/tasks/review-incremental-context-smoke.ts');
-  for (const token of ['REVIEW-TO-TEST TASK SNAPSHOT', 'only REVIEW/TEST are equivalent', 'DEV/DONE/DISCARDED/unknown', 'title/checklist mutations fail closed', 'DONE oracle agrees']) {
+  for (const token of ['REVIEW-TO-TEST TASK SNAPSHOT', 'only REVIEW/TEST are equivalent', 'DEV/DONE/DISCARDED/unknown', 'title/checklist mutations fail closed', 'DONE oracle agrees', 'later different-lane reviewer metadata must not invalidate requested-full quality B', 'shared quorum/current-pass reader accepts quality B', 'requested-full eligibility fields remain immutable envelope-integrity facts']) {
     assert(incrementalSmoke.includes(token), `incremental review smoke missing lifecycle task-context proof token: ${token}`);
   }
   assert(

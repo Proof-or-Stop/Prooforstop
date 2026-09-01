@@ -439,6 +439,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-review-cutoff-verifier-'));
   const storyId = 'B-cutoff-verifier';
   const role = 'proof-or-stop-review-quality';
+  const laterLane = 'proof-or-stop-review-docs';
   const round = '2026-07-20T00:00:00.000Z';
   const runCli = (command: string, payload: Record<string, unknown>, actor: string): void => {
     execFileSync(process.execPath, [
@@ -472,7 +473,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       flows: { defaults: {}, patterns: [] },
       promptEnvelope: {
         version: 'proofbound.prompt-envelope-rollout.v1',
-        roles: { [role]: 'full-envelope' },
+        roles: { [role]: 'full-envelope', [laterLane]: 'full-envelope' },
       },
     }, null, 2) + '\n');
     write(root, 'src/cutoff.ts', 'export const cutoff = true;\n');
@@ -520,12 +521,32 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     }, role);
     const passA = store.readReviewPasses(storyId).passes.find(pass => pass.reviewRunId === runA.reviewRunId)!;
 
-    runCli('review_run_start', { storyId, agent: role }, role);
+    const mutableReviewerFinding = signedFinding(
+      storyId,
+      `${storyId}:F-METADATA-STABILITY`,
+      laterLane,
+      'medium',
+      new Date(Date.now() - 60_000).toISOString(),
+      'open',
+      round,
+      runA.reviewRunId,
+    );
+    store.writeFindings(storyId, { findings: [mutableReviewerFinding] });
+    git(root, ['add', '.proof-or-stop/story']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed reviewer metadata before requested-full quality run']);
+
+    const fullContextReason = 'Cross-lane metadata stability regression requires a full-context reviewer snapshot.';
+    runCli('review_run_start', {
+      storyId,
+      agent: role,
+      reviewerEscalationReason: fullContextReason,
+    }, role);
     const runB = store.readReviewRuns(storyId).runs.at(-1)!;
     const envelopeB = store.readPromptEnvelopes(storyId).envelopes.find(
       envelope => envelope.envelopeId === runB.envelopeId,
     )!;
-    assert.equal(envelopeB.contextMode, 'incremental', 'production B must use the incremental envelope path');
+    assert.equal(envelopeB.contextMode, 'full', 'production B must honor the reviewer-requested full-context path');
+    assert.equal(envelopeB.selectionReason, 'REVIEWER_REQUESTED_FULL');
     assert.equal(envelopeB.priorPassRef, passA.id, 'production B must bind the A-before-B pass');
     assert.deepEqual(
       verifyReviewRunPromptEnvelope(store, runB),
@@ -540,6 +561,60 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
     }, role);
     const passB = store.readReviewPasses(storyId).passes.find(pass => pass.reviewRunId === runB.reviewRunId)!;
+
+    runCli('dispatch', { storyId, agentType: laterLane }, 'main');
+    runCli('review_run_start', {
+      storyId,
+      agent: laterLane,
+      reviewerEscalationReason: fullContextReason,
+    }, laterLane);
+    const laterLaneRun = store.readReviewRuns(storyId).runs.at(-1)!;
+    runCli('review_pass_set', {
+      storyId,
+      agent: laterLane,
+      reviewRunId: laterLaneRun.reviewRunId,
+      note: 'The later docs lane found no blocker after quality B had already passed.',
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
+    }, laterLane);
+    store.writeFindings(storyId, {
+      findings: [{
+        ...mutableReviewerFinding,
+        status: 'resolved',
+        resolvedAt: new Date().toISOString(),
+        resolvedReason: 'Later reviewer metadata resolved this nonblocking finding.',
+        resolutionType: 'fixed',
+      }],
+    });
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'later different-lane reviewer metadata must not invalidate requested-full quality B',
+    );
+    const afterDifferentLane = collectReviewerEvidenceState(store, storyId, root);
+    assert.ok(
+      afterDifferentLane.valid.some(evidence => evidence.id === passB.id),
+      'the shared quorum/current-pass reader accepts quality B after the later docs metadata commit',
+    );
+    const envelopeData = store.readPromptEnvelopes(storyId);
+    const runBEnvelopeIndex = envelopeData.envelopes.findIndex(envelope => envelope.envelopeId === runB.envelopeId);
+    assert.ok(runBEnvelopeIndex >= 0);
+    const tamperedEnvelopes = [...envelopeData.envelopes];
+    tamperedEnvelopes[runBEnvelopeIndex] = {
+      ...tamperedEnvelopes[runBEnvelopeIndex],
+      eligibilityDigest: 'f'.repeat(64),
+    };
+    store.writePromptEnvelopes(storyId, { envelopes: tamperedEnvelopes });
+    assert.equal(
+      verifyReviewRunPromptEnvelope(store, runB).ok,
+      false,
+      'requested-full eligibility fields remain immutable envelope-integrity facts',
+    );
+    store.writePromptEnvelopes(storyId, envelopeData);
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'restoring the signed requested-full envelope restores current-pass admission',
+    );
 
     runCli('review_run_start', { storyId, agent: role }, role);
     const runC = store.readReviewRuns(storyId).runs.at(-1)!;
@@ -686,9 +761,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     store.writeStory(storyId, { ...testPhaseStory, title: `${testPhaseStory.title} mutated` });
     const titleMutation = verifyReviewRunPromptEnvelope(store, runB);
     assert.equal(titleMutation.ok, false, 'a real Story title mutation must invalidate the bound REVIEW envelope');
-    for (const field of ['eligibilityDigest', 'eligibilityReasonCodes', 'reviewBasisDigest', 'taskSemanticDigest']) {
-      assert.match(titleMutation.reason ?? '', new RegExp(field), `title mutation must report ${field} drift`);
-    }
+    assert.match(titleMutation.reason ?? '', /taskSemanticDigest/, 'title mutation must report model-relevant task drift');
     store.writeStory(storyId, testPhaseStory);
 
     const originalChecklist = store.readChecklist(storyId);
