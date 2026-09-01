@@ -18418,6 +18418,65 @@
       "resolvedAt": "2026-09-01T10:02:11.031Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5a15:F-337",
+      "desc": "certification-window.ts:121 models 'test' as terminal ('test' appears in no other domain's dependency list), but the test domain is a REAL upstream input of the source domain, so a test-only change leaves certification-source falsely FRESH. This is the SAME under-invalidation false-fresh class as F-336/F-337, in the one direction those two fixes did not probe. MECHANICAL PROOF: CERTIFICATION_DOMAIN_PATH_RULES classifies packages/main/src/tasks/ as 'test' and packages/main/src/{core,handlers}/ as 'source'. 7 source-domain files hold compile-time ESM imports of test-domain modules (10 distinct modules): handlers/gap.ts:17 imports ../tasks/gap-analyze.js; handlers/truth.ts:19-21 imports ../tasks/truth.js, truth-analyze.js, extract.js; handlers/test-auto.ts:16-19 imports browser-executor.js, profiler.js, trace-store.js, trace-diff.js; handlers/test-runner-core.ts:13 profiler.js; handlers/bug.ts:4 bug-report.js; handlers/task.ts:2 coverage.js; handlers/test-story.ts:17-18 trace-store.js, trace-diff.js. These are shipped production code, not test scaffolding: registry.ts:37 (the CLI command registry) imports createGapHandlers from ./handlers/gap.js, and packages/main/dist/tasks/gap-analyze.js + dist/handlers/gap.js both exist, confirming tsc compiles the edge into the shipped build. CONSEQUENCE: editing only packages/main/src/tasks/gap-analyze.ts yields declared stale closure ['test'] (probed against the committed CERTIFICATION_DOMAIN_DEPENDENCIES), so certification-source is reported FRESH while a module it compiles from changed - causalRerunComplete can then admit the gate on source evidence earned against the OLD tasks code. Exactly the F-337 defect with source/test swapped. NOT A ONE-LINE FIX - adding 'test' to source's dependencies creates the cycle source -> test -> integration -> source (probed; the committed graph is otherwise acyclic), so this needs a design decision: either split src/tasks/ into the library modules that source imports (currently source domain material) versus the *-smoke.ts executables, or break the test -> integration edge differently. Filing rather than treating as terminal-by-assertion, because causal-evidence.test.mjs:1252 now asserts productionClosureFor('test') deepEqual ['test'] with the comment 'a test-only change must not invalidate any other production domain' - that expectation FREEZES this gap in place, the same way the pre-F-336/F-337 expectations froze theirs.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-01T10:11:27.844Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-794",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/handlers/bug.ts",
+          "packages/main/src/handlers/gap.ts",
+          "packages/main/src/handlers/task.ts",
+          "packages/main/src/handlers/test-auto.ts",
+          "packages/main/src/handlers/test-runner-core.ts",
+          "packages/main/src/handlers/test-story.ts",
+          "packages/main/src/handlers/truth.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ddbdfc17633ff27afb5d1246815963c558c34c8789abe3ca00f6f8b280128b08"
+      },
+      "readDiagnostics": [],
+      "_hash": "ef13bfdd6cd9b476549ef970c10b8dc979b4fd7893aa9c79c9fc8aa680e65f95",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/tests/causal-evidence.test.mjs"
+      ],
+      "signatureTag": "causal-domain-under-invalidation",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
