@@ -17,31 +17,55 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';
 import { PROOF_OR_STOP_ADAPTER_DIR } from './brand-paths.js';
+import {
+  canonicalAgentRoleId,
+  canonicalizeAgentRoleText,
+  legacyAgentRoleIds,
+  legacyizeAgentRoleText,
+} from './agent-role-identity.js';
+import {
+  LEGACY_LATTICE_MANAGED_END,
+  LEGACY_LATTICE_MANAGED_START,
+  PROOF_OR_STOP_MANAGED_END,
+  PROOF_OR_STOP_MANAGED_START,
+} from './managed-markers.js';
 
-export const PROMPT_REGISTRY_VERSION = 'lattice.prompt-registry.v1';
+export const PROMPT_REGISTRY_VERSION = 'proof-or-stop.prompt-registry.v1' as const;
+export const PROMPT_REGISTRY_VERSION_LEGACY = 'lattice.prompt-registry.v1' as const;
+export type PromptRegistrySchemaVersion = typeof PROMPT_REGISTRY_VERSION | typeof PROMPT_REGISTRY_VERSION_LEGACY;
+
+/** Readers accept the historical manifest schema; writers use only the canonical schema. */
+export function isPromptRegistrySchemaVersion(value: unknown): value is PromptRegistrySchemaVersion {
+  return value === PROMPT_REGISTRY_VERSION || value === PROMPT_REGISTRY_VERSION_LEGACY;
+}
+
+export function canonicalPromptRegistrySchemaVersion(value: unknown): typeof PROMPT_REGISTRY_VERSION | null {
+  return isPromptRegistrySchemaVersion(value) ? PROMPT_REGISTRY_VERSION : null;
+}
 export const PROMPT_REGISTRY_SOURCE = '@proof-or-stop/core/templates/agents';
 export const SUPPORTED_PROMPT_HOSTS = ['claude', 'codex'] as const;
-export const MODULAR_ROLE_BODY_MARKER = '<!-- proofbound:modular-role-body:v1 -->';
+export const MODULAR_ROLE_BODY_MARKER = '<!-- proof-or-stop:modular-role-body:v1 -->';
+export const MODULAR_ROLE_BODY_MARKER_LEGACY = '<!-- proofbound:modular-role-body:v1 -->';
 export const MODULAR_REVIEWER_ROLE_IDS = [
-  'lattice-review-behavior',
-  'lattice-review-concept',
-  'lattice-review-docs',
-  'lattice-review-quality',
-  'lattice-review-test-coverage',
-  'lattice-review-topology-critic',
+  'proof-or-stop-review-behavior',
+  'proof-or-stop-review-concept',
+  'proof-or-stop-review-docs',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-test-coverage',
+  'proof-or-stop-review-topology-critic',
 ] as const;
 export type ModularReviewerRoleId = typeof MODULAR_REVIEWER_ROLE_IDS[number];
 /** Five active REVIEW-lane bootstrap roles; topology-critic stays a modular body. */
 export const ACTIVE_MODULAR_REVIEWER_ROLE_IDS = Object.freeze(
-  MODULAR_REVIEWER_ROLE_IDS.filter(id => id !== 'lattice-review-topology-critic'),
+  MODULAR_REVIEWER_ROLE_IDS.filter(id => id !== 'proof-or-stop-review-topology-critic'),
 );
 /** Story 6 roles use the same trusted story-dispatch envelope, but are not REVIEW lanes. */
 export const MODULAR_COMPLEX_ROLE_IDS = [
-  'lattice-review-story-init',
-  'lattice-review-scope-plan',
-  'lattice-implementer',
-  'lattice-review-delivery',
-  'lattice-evaluator',
+  'proof-or-stop-review-story-init',
+  'proof-or-stop-review-scope-plan',
+  'proof-or-stop-implementer',
+  'proof-or-stop-review-delivery',
+  'proof-or-stop-evaluator',
 ] as const;
 export type ModularComplexRoleId = typeof MODULAR_COMPLEX_ROLE_IDS[number];
 
@@ -66,7 +90,7 @@ export type ModularComplexRoleId = typeof MODULAR_COMPLEX_ROLE_IDS[number];
  * slice byte-identical to the HEAD slice, i.e. the drift is brand-only with no
  * semantic edit. The assertion is preserved, never deleted or loosened.
  */
-const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, string>> = Object.freeze({
+const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object.freeze({
   'lattice-review-behavior': '45efbfe90d7705408ed95f0111b2108b5e39fc9397aeb7d99eda600db2ea3fe0',
   'lattice-review-concept': '846023d241693435c995900e5869b13e838795718143f2fab14e7a8f7f23eb5d',
   'lattice-review-docs': '7aafa18c26dd713586f416dfc4a3b9676a88438f858c32374af9a978300dd43e',
@@ -78,15 +102,16 @@ const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, st
 });
 
 /** B-cdf6 CHK-005 + CHK-003 follow-up: re-approved for the same reason as LEGACY_REVIEWER_TEMPLATE_SHA256 above. */
-const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<ModularComplexRoleId, string>> = Object.freeze({
+const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object.freeze({
   'lattice-review-story-init': 'd63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6',
   'lattice-review-scope-plan': '9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07',
-  'lattice-implementer': '0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41',
+  'lattice-implementer': '00b0181fafb0f6f5c93f0d945063d3b0732fa695ea88cae1c63e2b8767353829',
   'lattice-review-delivery': '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
   'lattice-evaluator': 'dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97',
 });
 
-const STORY_INIT_LEGACY_TAIL_MARKER = '<!-- proofbound:story-init-legacy-tail:v1 -->';
+const STORY_INIT_LEGACY_TAIL_MARKER = '<!-- proof-or-stop:story-init-legacy-tail:v1 -->';
+const STORY_INIT_LEGACY_TAIL_MARKER_LEGACY = '<!-- proofbound:story-init-legacy-tail:v1 -->';
 // Frozen gzip -n payload of the pre-Story-6 `## 4. Procedure` through EOF.
 // B-cdf6 CHK-003: re-encoded after the `lattice` -> `proof-or-stop` bin rename.
 // This payload is injected into the LIVE story-init reviewer body (default mode
@@ -113,7 +138,7 @@ Execution rules:
 - Gates consume structured facts: signatures, hashes, verificationEvidence, review pass, init/scope/delivery check, and validate evidence. Do not let gates infer process facts from ordinary text like "passed / no problem".
 - When changing reviewer prompts, CLI schema, handlers, or gates, run \`npm run test:process-fact-contract\` to confirm the prompt has not drifted and the process fact inventory still proves the hard fallback exists.
 `;
-export const LOAD_BEARING_LATTICE_PROMPT_SLICE = `<!-- lattice:start -->
+export const LOAD_BEARING_LATTICE_PROMPT_SLICE = `<!-- proof-or-stop:start -->
 # Proof-or-Stop Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -207,7 +232,7 @@ failure, form one evidence-backed hypothesis, isolate with the smallest
 reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
-<!-- lattice:end -->`;
+<!-- proof-or-stop:end -->`;
 
 export type PromptHost = typeof SUPPORTED_PROMPT_HOSTS[number];
 
@@ -236,6 +261,24 @@ export interface PromptRegistryManifest {
   materialHash: string;
 }
 
+/** Normalize a persisted manifest for read/compare paths without rewriting its bytes. */
+export function normalizePromptRegistryManifest(value: unknown): PromptRegistryManifest | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const candidate = value as Record<string, unknown>;
+  const schemaVersion = canonicalPromptRegistrySchemaVersion(candidate.schemaVersion);
+  if (!schemaVersion
+    || candidate.source !== PROMPT_REGISTRY_SOURCE
+    || typeof candidate.agentCount !== 'number'
+    || !Number.isInteger(candidate.agentCount)
+    || typeof candidate.materialHash !== 'string') return null;
+  return {
+    schemaVersion,
+    source: PROMPT_REGISTRY_SOURCE,
+    agentCount: candidate.agentCount,
+    materialHash: candidate.materialHash,
+  };
+}
+
 function packageRoot(): string {
   return join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 }
@@ -255,16 +298,44 @@ function sha256(content: string): string {
   return createHash('sha256').update(content).digest('hex');
 }
 
+/**
+ * Canonicalize role IDs embedded in prompt assets without rewriting ordinary
+ * process vocabulary. `verification-intent` is both a historical role alias
+ * and the name of the verification workflow, so free-form prompt prose must
+ * retain that spelling; structured role fields are canonicalized by their
+ * owning registries.
+ */
+function canonicalizePromptRoleText(text: string): string {
+  const protectedTokens: string[] = [];
+  const protectedText = text.replace(
+    /(^|[^A-Za-z0-9_-])(verification-intent)(?=$|@|[^A-Za-z0-9_-])/g,
+    (match, prefix: string, _alias: string, offset: number, source: string) => {
+      const before = source.slice(0, offset);
+      const isStructuredRoleValue = /(?:^|[\s{[(,])(?:role|roleId|agent|agentId|agentType|lane|canonicalType|alias|name)\s*["'`]?\s*[:=]\s*["'`]*$/i.test(before)
+        || /(?:--(?:agent|role|lane)(?:=|\s+))$/i.test(before);
+      if (isStructuredRoleValue) return match;
+      const token = `\u0000proof-or-stop-prompt-vocabulary-${protectedTokens.length}\u0000`;
+      protectedTokens.push(token);
+      return `${prefix}${token}`;
+    },
+  );
+  let result = canonicalizeAgentRoleText(protectedText);
+  for (const token of protectedTokens) {
+    result = result.replace(token, 'verification-intent');
+  }
+  return result;
+}
+
 export function isModularReviewerRoleId(roleId: string): roleId is ModularReviewerRoleId {
-  return (MODULAR_REVIEWER_ROLE_IDS as readonly string[]).includes(roleId);
+  return (MODULAR_REVIEWER_ROLE_IDS as readonly string[]).includes(canonicalAgentRoleId(roleId));
 }
 
 export function isActiveModularReviewerRoleId(roleId: string): boolean {
-  return (ACTIVE_MODULAR_REVIEWER_ROLE_IDS as readonly string[]).includes(roleId);
+  return (ACTIVE_MODULAR_REVIEWER_ROLE_IDS as readonly string[]).includes(canonicalAgentRoleId(roleId));
 }
 
 export function isModularComplexRoleId(roleId: string): roleId is ModularComplexRoleId {
-  return (MODULAR_COMPLEX_ROLE_IDS as readonly string[]).includes(roleId);
+  return (MODULAR_COMPLEX_ROLE_IDS as readonly string[]).includes(canonicalAgentRoleId(roleId));
 }
 
 export function isModularRoleId(roleId: string): boolean {
@@ -278,32 +349,51 @@ export function isModularRoleId(roleId: string): boolean {
  */
 export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string {
   const modular = readPromptTemplate(entry);
-  if (!isModularRoleId(entry.agentId)) return modular;
-  if (!modular.includes(MODULAR_ROLE_BODY_MARKER)) {
-    throw new Error(`modular reviewer prompt ${entry.agentId} is missing ${MODULAR_ROLE_BODY_MARKER}`);
+  const canonicalRole = canonicalAgentRoleId(entry.agentId);
+  const legacyRole = legacyAgentRoleIds(canonicalRole)[0] ?? canonicalRole;
+  if (!isModularRoleId(canonicalRole)) return canonicalizePromptRoleText(modular);
+  const modularMarker = modular.includes(MODULAR_ROLE_BODY_MARKER)
+    ? MODULAR_ROLE_BODY_MARKER
+    : modular.includes(MODULAR_ROLE_BODY_MARKER_LEGACY)
+      ? MODULAR_ROLE_BODY_MARKER_LEGACY
+      : null;
+  if (!modularMarker) {
+    throw new Error(`modular reviewer prompt ${canonicalRole} is missing ${MODULAR_ROLE_BODY_MARKER}`);
   }
   let restored = modular.replace(
-    MODULAR_ROLE_BODY_MARKER,
-    entry.agentId === 'lattice-review-test-coverage'
+    modularMarker,
+    canonicalRole === 'proof-or-stop-review-test-coverage'
       ? TEST_COVERAGE_LEGACY_PROCESS_CONTRACT
       : LOAD_BEARING_LATTICE_PROMPT_SLICE,
   );
-  if (entry.agentId === 'lattice-review-story-init') {
-    if (!restored.includes(STORY_INIT_LEGACY_TAIL_MARKER)) {
+  if (canonicalRole === 'proof-or-stop-review-story-init') {
+    const tailMarker = restored.includes(STORY_INIT_LEGACY_TAIL_MARKER)
+      ? STORY_INIT_LEGACY_TAIL_MARKER
+      : restored.includes(STORY_INIT_LEGACY_TAIL_MARKER_LEGACY)
+        ? STORY_INIT_LEGACY_TAIL_MARKER_LEGACY
+        : null;
+    if (!tailMarker) {
       throw new Error(`modular story-init prompt is missing ${STORY_INIT_LEGACY_TAIL_MARKER}`);
     }
-    restored = restored.replace(STORY_INIT_LEGACY_TAIL_MARKER, STORY_INIT_LEGACY_TAIL.trimEnd());
+    restored = restored.replace(tailMarker, STORY_INIT_LEGACY_TAIL.trimEnd());
   }
-  const actualDigest = sha256(restored);
-  const expectedDigest = isModularReviewerRoleId(entry.agentId)
-    ? LEGACY_REVIEWER_TEMPLATE_SHA256[entry.agentId]
-    : LEGACY_COMPLEX_TEMPLATE_SHA256[entry.agentId as ModularComplexRoleId];
+  // Template assets are now canonical, but these digests deliberately pin the
+  // historical prompt bytes. Project the reconstructed canonical body back to
+  // the old marker and role vocabularies only for this compatibility check and
+  // returned historical body; new prompt writers remain canonical.
+  const historical = restored
+    .replace(PROOF_OR_STOP_MANAGED_START, LEGACY_LATTICE_MANAGED_START)
+    .replace(PROOF_OR_STOP_MANAGED_END, LEGACY_LATTICE_MANAGED_END);
+  const actualDigest = sha256(legacyizeAgentRoleText(historical));
+  const expectedDigest = isModularReviewerRoleId(canonicalRole)
+    ? LEGACY_REVIEWER_TEMPLATE_SHA256[legacyRole]
+    : LEGACY_COMPLEX_TEMPLATE_SHA256[legacyRole];
   if (actualDigest !== expectedDigest) {
     throw new Error(
-      `legacy reviewer prompt reconstruction drift for ${entry.agentId}: expected ${expectedDigest}, got ${actualDigest}`,
+      `legacy reviewer prompt reconstruction drift for ${canonicalRole}: expected ${expectedDigest}, got ${actualDigest}`,
     );
   }
-  return restored;
+  return canonicalizePromptRoleText(historical);
 }
 
 export function resolvePromptTemplateBody(
@@ -312,8 +402,17 @@ export function resolvePromptTemplateBody(
 ): string {
   if (mode === 'legacy-full-context') return restoreLegacyPromptTemplate(entry);
   const source = readPromptTemplate(entry);
-  if (!isModularRoleId(entry.agentId)) return source;
-  return source;
+  return canonicalizePromptRoleText(source);
+}
+
+/**
+ * Historical reconstruction remains legacy-byte compatible, but every newly
+ * rendered host asset uses the canonical managed marker pair.
+ */
+function canonicalizeRenderedManagedMarkers(content: string): string {
+  return content
+    .replace(LEGACY_LATTICE_MANAGED_START, PROOF_OR_STOP_MANAGED_START)
+    .replace(LEGACY_LATTICE_MANAGED_END, PROOF_OR_STOP_MANAGED_END);
 }
 
 export function renderCodexPromptContent(content: string): string {
@@ -332,16 +431,22 @@ export function renderPromptForHost(content: string, host: PromptHost): string {
 export function readPromptRegistry(templateDir = defaultPromptTemplateDir()): PromptRegistrySnapshot {
   const agents = listPromptTemplateFiles(templateDir).map((file): PromptRegistryEntry => {
     const sourcePath = join(templateDir, file);
+    const agentId = canonicalAgentRoleId(file.replace(/\.md$/, ''));
     const content = readFileSync(sourcePath, 'utf8');
     return {
-      agentId: file.replace(/\.md$/, ''),
-      file,
+      agentId,
+      // New host assets are materialized under the canonical filename. The
+      // source template may retain its historical filename for one release;
+      // readers use the alias map in agent-asset-resolution.ts to accept both.
+      file: `${agentId}.md`,
       relPath: relative(packageRoot(), sourcePath).split('\\').join('/'),
       sourcePath,
       templateHash: sha256(content),
       bytes: Buffer.byteLength(content),
     };
   });
+  const duplicate = agents.find((entry, index) => agents.findIndex(candidate => candidate.agentId === entry.agentId) !== index);
+  if (duplicate) throw new Error(`duplicate canonical prompt role "${duplicate.agentId}" in ${templateDir}`);
 
   const hash = createHash('sha256');
   hash.update(`${PROMPT_REGISTRY_VERSION}\n`);
@@ -419,9 +524,14 @@ export function renderReviewerRunBootstrap(frontmatter: string, role: string): s
   return `---\n${frontmatter}\n---\n${buildReviewerRunBootstrapBody(role)}\n`;
 }
 
-export function renderReviewerRunBootstrapForTemplate(raw: string, file: string): string {
+export function renderReviewerRunBootstrapForTemplate(raw: string, file: string, role?: string): string {
   const { frontmatter, name } = extractTemplateFrontmatter(raw, file);
-  return renderReviewerRunBootstrap(frontmatter, name);
+  const canonicalRole = canonicalAgentRoleId(role || name);
+  const canonicalFrontmatter = frontmatter.replace(
+    /^name:\s*.+$/m,
+    `name: ${canonicalRole}`,
+  );
+  return renderReviewerRunBootstrap(canonicalFrontmatter, canonicalRole);
 }
 
 export function renderPromptEntryForHost(
@@ -431,11 +541,11 @@ export function renderPromptEntryForHost(
     ? 'legacy-full-context'
     : 'full-envelope',
 ): string {
-  const selectedTemplate = isModularComplexRoleId(entry.agentId)
+  const selectedTemplate = canonicalizeRenderedManagedMarkers(isModularComplexRoleId(entry.agentId)
     ? resolvePromptTemplateBody(entry, mode)
-    : readPromptTemplate(entry);
+    : canonicalizePromptRoleText(readPromptTemplate(entry)));
   const hostTemplate = renderPromptForHost(selectedTemplate, host);
   return isActiveModularReviewerRoleId(entry.agentId)
-    ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file)
+    ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file, canonicalAgentRoleId(entry.agentId))
     : hostTemplate;
 }

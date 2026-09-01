@@ -703,7 +703,7 @@ export function computeNextStep(c: NextStepCtx): string {
             .filter(e => e.verdict === 'pending')
             .map(e => e.name)
             .join(', ') || 'reviewer evidence';
-          return `REVIEW phase, Waiting for reviewer evidence: ${pending}. Next: proof-or-stop reviewer_list --storyId=${sid} to see which lattice-review-* reviewers should run; once all pass, run proof-or-stop story_advance --storyId=${sid} --phase=TEST`;
+          return `REVIEW phase, Waiting for reviewer evidence: ${pending}. Next: proof-or-stop reviewer_list --storyId=${sid} to see which proof-or-stop-review-* reviewers should run; once all pass, run proof-or-stop story_advance --storyId=${sid} --phase=TEST`;
         }
         return `REVIEW phase, All reviewer gates passed. Next: proof-or-stop story_advance --storyId=${sid} --phase=TEST to enter formal verification`;
       }
@@ -1374,8 +1374,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
             stall = renderAntiStall({
               storyId,
               title: `REVIEW waiting for ${pending}`,
-              retry: `proof-or-stop reviewer_list '{"storyId":"${storyId}"}' then run the pending lattice-review-* reviewers`,
-              fix: `proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"lattice-review-<name>"}' first, then use the returned reviewRunId in proof-or-stop review_pass_set '{"storyId":"${storyId}","reviewRunId":"<reviewRunId from proof-or-stop review_run_start>","agent":"lattice-review-<name>","note":"..."}' when a reviewer found no blocker`,
+              retry: `proof-or-stop reviewer_list '{"storyId":"${storyId}"}' then run the pending proof-or-stop-review-* reviewers`,
+              fix: `proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"proof-or-stop-review-<name>"}' first, then use the returned reviewRunId in proof-or-stop review_pass_set '{"storyId":"${storyId}","reviewRunId":"<reviewRunId from proof-or-stop review_run_start>","agent":"proof-or-stop-review-<name>","note":"..."}' when a reviewer found no blocker`,
             });
           }
         } else {

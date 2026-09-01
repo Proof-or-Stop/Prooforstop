@@ -7,19 +7,19 @@
   "storyDir": ".proof-or-stop/story/actives",
   "requirementsDir": "docs/requirements",
   "promptEnvelope": {
-    "version": "proofbound.prompt-envelope-rollout.v1",
+    "version": "proof-or-stop.prompt-envelope-rollout.v1",
     "roles": {
-      "lattice-review-behavior": "full-envelope",
-      "lattice-review-concept": "full-envelope",
-      "lattice-review-docs": "full-envelope",
-      "lattice-review-quality": "full-envelope",
-      "lattice-review-test-coverage": "full-envelope",
-      "lattice-review-topology-critic": "full-envelope",
-      "lattice-review-story-init": "legacy-full-context",
-      "lattice-review-scope-plan": "legacy-full-context",
-      "lattice-implementer": "legacy-full-context",
-      "lattice-review-delivery": "legacy-full-context",
-      "lattice-evaluator": "legacy-full-context"
+      "proof-or-stop-review-behavior": "full-envelope",
+      "proof-or-stop-review-concept": "full-envelope",
+      "proof-or-stop-review-docs": "full-envelope",
+      "proof-or-stop-review-quality": "full-envelope",
+      "proof-or-stop-review-test-coverage": "full-envelope",
+      "proof-or-stop-review-topology-critic": "full-envelope",
+      "proof-or-stop-review-story-init": "legacy-full-context",
+      "proof-or-stop-review-scope-plan": "legacy-full-context",
+      "proof-or-stop-implementer": "legacy-full-context",
+      "proof-or-stop-review-delivery": "legacy-full-context",
+      "proof-or-stop-evaluator": "legacy-full-context"
     }
   },
   "candidateSpecRouting": {

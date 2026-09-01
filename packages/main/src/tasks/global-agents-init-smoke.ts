@@ -117,7 +117,7 @@ function listProjectAgentMd(root: string): string[] {
         assert.match(content, /thin pointer/, `${basename} shim body must declare it is a thin pointer`);
       }
       // No role body content (load-bearing slice / role-specific prose) leaked
-      assert.doesNotMatch(content, /<!-- lattice:start -->/, `${basename} shim must NOT contain the role body slice`);
+      assert.doesNotMatch(content, /<!-- proof-or-stop:start -->/, `${basename} shim must NOT contain the role body slice`);
     }
   } finally {
     rmSync(home, { recursive: true, force: true });

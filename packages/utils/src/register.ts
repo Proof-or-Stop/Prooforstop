@@ -1,5 +1,5 @@
 /**
- * Registration entry point for @lattice/utils.
+ * Registration entry point for @proof-or-stop/utils.
  * A bootstrap script calls register(registry, ctx) to inject all auxiliary
  * handlers into the main package's Registry.
  */

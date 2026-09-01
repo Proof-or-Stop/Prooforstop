@@ -8,11 +8,13 @@ import { dirname, join } from 'node:path';
 import {
   CLOSEOUT_ARTIFACT_POLICIES,
   CLOSEOUT_WRITE_RECEIPTS_PATH,
+  CLOSEOUT_WRITE_RECEIPT_SCHEMA_LEGACY,
   assertCanonicalCloseoutWrite,
   appendCloseoutWriteReceipt,
   buildCloseoutWriteReceipt,
   classifyCurrentCloseoutArtifactForReviewRetention,
   computeCompositeScopeDigest,
+  computeCloseoutWriteReceiptIntegrity,
   evaluateMetadataOnlyReviewRetention,
   latestCausallyValidCloseoutReceipt,
   readCloseoutWriteReceipts,
@@ -902,6 +904,49 @@ try {
     wrapperStore.storyDirPath(wrapperStoryId), wrapperStoryId, 'summary.json',
     { projectRoot: wrapperRepo, metadataRoot: wrapper },
   ), 'wrapper-root canonical command must still emit coherent causal telemetry');
+
+  // F-118: a canonical writer must continue the chain after an exact legacy
+  // lattice closeout receipt, while emitting the canonical schema for the new
+  // receipt. This uses only the isolated wrapper fixture's temporary state.
+  const wrapperReceiptPath = join(wrapperStore.storyDirPath(wrapperStoryId), CLOSEOUT_WRITE_RECEIPTS_PATH);
+  const firstWrapperReceipt = readCloseoutWriteReceipts(wrapperStore.storyDirPath(wrapperStoryId)).at(-1)!;
+  const { integrityHash: _legacyIntegrityHash, ...legacyReceiptPayload } = {
+    ...firstWrapperReceipt,
+    schemaVersion: CLOSEOUT_WRITE_RECEIPT_SCHEMA_LEGACY,
+  };
+  const legacyWrapperReceipt = {
+    ...legacyReceiptPayload,
+    integrityHash: computeCloseoutWriteReceiptIntegrity(legacyReceiptPayload),
+  };
+  writeFileSync(wrapperReceiptPath, `${JSON.stringify(legacyWrapperReceipt)}\n`, 'utf8');
+  writeFileSync(wrapperStore.storyFilePath(wrapperStoryId, 'summary.json'), '{"round":2}\n', 'utf8');
+  assert.match(autoCommitStoryMetadata(wrapper, wrapperStoryId, 'summary_set', { closeoutArtifactPaths: ['summary.json'] }), /metadata auto-committed/);
+  const chainedWrapperReceipt = readCloseoutWriteReceipts(wrapperStore.storyDirPath(wrapperStoryId)).at(-1)!;
+  assert.equal(chainedWrapperReceipt.schemaVersion, 'proof-or-stop.closeout_write_receipt.v3');
+  assert.equal(chainedWrapperReceipt.sequence, legacyWrapperReceipt.sequence + 1, 'canonical receipt continues after legacy receipt');
+  assert.equal(chainedWrapperReceipt.previousIntegrityHash, legacyWrapperReceipt.integrityHash, 'canonical receipt links to legacy predecessor');
+
+  // F-121: an unsupported schema for the same artifact must not be ignored by
+  // either the trust reader or the auto-commit receipt predecessor selector.
+  const supportedWrapperLedger = readFileSync(wrapperReceiptPath, 'utf8');
+  const supportedWrapperHead = currentGitHead(wrapperRepo)!;
+  const unsupportedWrapperReceipt = {
+    ...chainedWrapperReceipt,
+    schemaVersion: 'proof-or-stop.closeout_write_receipt.v999',
+  };
+  writeFileSync(wrapperReceiptPath, `${supportedWrapperLedger}${JSON.stringify(unsupportedWrapperReceipt)}\n`, 'utf8');
+  assert.equal(
+    latestCausallyValidCloseoutReceipt(wrapperStore.storyDirPath(wrapperStoryId), wrapperStoryId, 'summary.json'),
+    null,
+    'unsupported receipt schemas for an artifact must fail the trusted chain closed',
+  );
+  writeFileSync(wrapperStore.storyFilePath(wrapperStoryId, 'summary.json'), '{"round":3}\n', 'utf8');
+  const refusedUnsupportedAppend = autoCommitStoryMetadata(wrapper, wrapperStoryId, 'summary_set', { closeoutArtifactPaths: ['summary.json'] });
+  assert.match(refusedUnsupportedAppend, /local causal closeout receipt was not issued: unsupported closeout receipt schema/);
+  const afterRefusal = readCloseoutWriteReceipts(wrapperStore.storyDirPath(wrapperStoryId));
+  assert.equal(afterRefusal.filter(receipt => receipt.artifactPath === 'summary.json').length, 3, 'refusal must not append a receipt after an unsupported schema');
+  git(wrapperRepo, ['reset', '--hard', supportedWrapperHead]);
+
   const canonicalRetention = evaluateReviewRunMetadataRetention(
     wrapperStore, wrapperStore.readStory(wrapperStoryId), preCloseoutRun, wrapperRepo,
     currentScopeContextForStory(wrapperStore, wrapperStoryId, wrapperRepo),

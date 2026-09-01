@@ -63,8 +63,14 @@ try {
   const result = handler!({ storyId: story.storyId, itemIds: ['CHK-001'] }) as {
     prompt: string;
     summary: { missingIntentItems: string[] };
+    commandExamples: string[];
   };
-  assert.match(result.prompt, /You are the test-intent agent/);
+  assert.match(result.prompt, /You are the proof-or-stop-verification-intent agent/);
+  assert.match(result.prompt, /write verificationIntent/);
+  assert.doesNotMatch(result.prompt, /write testIntent/);
+  assert.equal(result.commandExamples.length, 1);
+  assert.match(result.commandExamples[0], /"verificationIntent"/);
+  assert.doesNotMatch(result.commandExamples[0], /testIntent/);
   assert.deepEqual(result.summary.missingIntentItems, ['CHK-001']);
 
   assert.throws(

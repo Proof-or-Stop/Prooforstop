@@ -23,6 +23,53 @@ const artifactFactNamePattern = /^artifact:[a-z0-9_.-]+(?:\/[a-z0-9_.-]+)*$/;
 const CODEX_AGENTS_DIR = ['.proof-or-stop-codex/agents', '.lattice-codex/agents']
   .find((rel) => existsSync(rel)) ?? '.proof-or-stop-codex/agents';
 
+// Role assets are canonical on disk after the rename. Keep the old spelling as
+// a read-only fallback so this contract can still inspect an older checkout;
+// never use the fallback to define the process-fact contract itself.
+const LEGACY_ROLE_ALIASES = Object.freeze({
+  'proof-or-stop-evaluator': ['lattice-evaluator'],
+  'proof-or-stop-evaluator-cli': ['lattice-evaluator-cli'],
+  'proof-or-stop-implementer': ['lattice-implementer'],
+  'proof-or-stop-review-behavior': ['lattice-review-behavior'],
+  'proof-or-stop-review-channel': ['lattice-review-channel'],
+  'proof-or-stop-review-concept': ['lattice-review-concept'],
+  'proof-or-stop-review-delivery': ['lattice-review-delivery'],
+  'proof-or-stop-review-docs': ['lattice-review-docs'],
+  'proof-or-stop-review-quality': ['lattice-review-quality'],
+  'proof-or-stop-review-scope-plan': ['lattice-review-scope-plan'],
+  'proof-or-stop-review-story-init': ['lattice-review-story-init'],
+  'proof-or-stop-review-test-coverage': ['lattice-review-test-coverage'],
+  'proof-or-stop-review-topology-critic': ['lattice-review-topology-critic'],
+  'proof-or-stop-product-reviewer': ['product-reviewer'],
+  'proof-or-stop-test-case-reviewer': ['test-case-reviewer'],
+  'proof-or-stop-test-intent': ['verification-intent', 'test-intent'],
+});
+const LEGACY_ROLE_TO_CANONICAL = new Map(
+  Object.entries(LEGACY_ROLE_ALIASES).flatMap(([canonical, aliases]) =>
+    aliases.map(alias => [alias, canonical])),
+);
+
+function canonicalRoleId(roleId) {
+  const name = String(roleId).replace(/\.md$/, '');
+  return LEGACY_ROLE_TO_CANONICAL.get(name) ?? name;
+}
+
+function rolePromptPath(directory, roleId) {
+  const canonical = canonicalRoleId(roleId);
+  const candidates = [
+    `${directory}/${canonical}.md`,
+    ...(LEGACY_ROLE_ALIASES[canonical] ?? []).map(alias => `${directory}/${alias}.md`),
+  ];
+  return candidates.find(relPath => existsSync(join(root, relPath))) ?? candidates[0];
+}
+
+function reviewerLaneEntry(registry, roleId) {
+  const canonical = canonicalRoleId(roleId);
+  return [canonical, ...(LEGACY_ROLE_ALIASES[canonical] ?? [])]
+    .map(name => registry.get(`reviewer-lane:${name}`))
+    .find(Boolean);
+}
+
 const promptDirs = [
   'packages/main/templates/agents',
   '.claude/agents',
@@ -32,29 +79,29 @@ const promptDirs = [
 const currentCategories = new Set(['happy', 'edge', 'adversarial', 'missing']);
 const legacyCategories = new Set(['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary']);
 const reviewPassReviewerPrompts = new Set([
-  'lattice-evaluator.md',
-  'lattice-review-behavior.md',
-  'lattice-review-channel.md',
-  'lattice-review-concept.md',
-  'lattice-review-delivery.md',
-  'lattice-review-docs.md',
-  'lattice-review-quality.md',
-  'lattice-review-scope-plan.md',
-  'lattice-review-story-init.md',
-  'lattice-review-test-coverage.md',
+  'proof-or-stop-evaluator.md',
+  'proof-or-stop-review-behavior.md',
+  'proof-or-stop-review-channel.md',
+  'proof-or-stop-review-concept.md',
+  'proof-or-stop-review-delivery.md',
+  'proof-or-stop-review-docs.md',
+  'proof-or-stop-review-quality.md',
+  'proof-or-stop-review-scope-plan.md',
+  'proof-or-stop-review-story-init.md',
+  'proof-or-stop-review-test-coverage.md',
 ]);
 const requiredReviewerRunIdPromptFiles = new Set([
-  'lattice-evaluator.md',
-  'lattice-review-delivery.md',
-  'lattice-review-scope-plan.md',
-  'lattice-review-story-init.md',
+  'proof-or-stop-evaluator.md',
+  'proof-or-stop-review-delivery.md',
+  'proof-or-stop-review-scope-plan.md',
+  'proof-or-stop-review-story-init.md',
 ]);
 const modularReviewerBootstrapFiles = new Set([
-  'lattice-review-behavior.md',
-  'lattice-review-concept.md',
-  'lattice-review-docs.md',
-  'lattice-review-quality.md',
-  'lattice-review-test-coverage.md',
+  'proof-or-stop-review-behavior.md',
+  'proof-or-stop-review-concept.md',
+  'proof-or-stop-review-docs.md',
+  'proof-or-stop-review-quality.md',
+  'proof-or-stop-review-test-coverage.md',
 ]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
@@ -92,9 +139,13 @@ const activeLifecycleDocCurrentTerms = [
 ];
 const legacyCommandDocContextPattern = /\blegacy\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|destructive/i;
 const legacyAliasDocContextPattern = /\blegacy\b|\balias\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|别名|destructive/i;
-const coverageReviewerLaneName = 'lattice-review-test-coverage';
+const coverageReviewerLaneName = 'proof-or-stop-review-test-coverage';
+const coverageReviewerLaneNames = [coverageReviewerLaneName, 'lattice-review-test-coverage'];
 const coverageReviewerLaneContextPattern = /reviewer|agent|lane|review\s+lane|coverage\s+reviewer|审查员|审查\s*lane|审查\s*通道|覆盖审查/i;
 const coverageReviewerCliCommandPatterns = [
+  { label: 'CLI invocation', pattern: /\bproof-or-stop\s+proof-or-stop-review-test-coverage\b/i },
+  { label: 'tool table row', pattern: /^\s*\|\s*`?proof-or-stop-review-test-coverage`?\s*\|/ },
+  { label: 'tool bullet', pattern: /^\s*[-*]\s*`?proof-or-stop-review-test-coverage`?\s*(?:[:：-]|$)/ },
   { label: 'CLI invocation', pattern: /\blattice\s+lattice-review-test-coverage\b/i },
   { label: 'tool table row', pattern: /^\s*\|\s*`?lattice-review-test-coverage`?\s*\|/ },
   { label: 'tool bullet', pattern: /^\s*[-*]\s*`?lattice-review-test-coverage`?\s*(?:[:：-]|$)/ },
@@ -220,16 +271,16 @@ const requiredRuntimeFactSemantics = {
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
 };
 const requiredReviewerLanes = [
-  'lattice-review-story-init',
-  'product-reviewer',
-  'lattice-review-scope-plan',
-  'lattice-review-topology-critic',
-  'lattice-review-concept',
-  'lattice-review-quality',
-  'lattice-review-test-coverage',
-  'lattice-review-behavior',
-  'lattice-review-docs',
-  'lattice-review-delivery',
+  'proof-or-stop-review-story-init',
+  'proof-or-stop-product-reviewer',
+  'proof-or-stop-review-scope-plan',
+  'proof-or-stop-review-topology-critic',
+  'proof-or-stop-review-concept',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-test-coverage',
+  'proof-or-stop-review-behavior',
+  'proof-or-stop-review-docs',
+  'proof-or-stop-review-delivery',
 ];
 const requiredArtifactFacts = [
   { name: 'artifact:index.json', path: 'index.json', signed: false },
@@ -608,14 +659,15 @@ function read(relPath) {
   if (!existsSync(absPath)) return '';
   let text = readFileSync(absPath, 'utf8');
   const mutation = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION;
-  if (mutation === 'drop-acceptance-basis-prompt' && relPath.endsWith('lattice-implementer.md')) {
+  const roleId = canonicalRoleId(basename(relPath));
+  if (mutation === 'drop-acceptance-basis-prompt' && roleId === 'proof-or-stop-implementer') {
     // B-cc10: accept either brand so the mutation actually drops the live prompt line.
     text = text.replace(/^Acceptance-basis boundary: only `(?:proof-or-stop|lattice) acceptance_basis_generate`.*$/m, '');
   }
   if (mutation === 'drop-acceptance-basis-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
     text = text.replace(/acceptance_basis_generate/g, 'basis_generate_removed');
   }
-  if (mutation === 'drop-acceptance-topology-prompt' && relPath.endsWith('lattice-implementer.md')) {
+  if (mutation === 'drop-acceptance-topology-prompt' && roleId === 'proof-or-stop-implementer') {
     text = text.replace(/^Acceptance-topology boundary:.*$/m, '');
   }
   if (mutation === 'drop-acceptance-topology-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
@@ -627,7 +679,7 @@ function read(relPath) {
   if (mutation === 'invert-acceptance-topology-polarity' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
     text = text.replace('if (topology.blocking)', 'if (!topology.blocking)');
   }
-  if (mutation === 'drop-topology-critic-prompt' && relPath.endsWith('lattice-review-topology-critic.md')) {
+  if (mutation === 'drop-topology-critic-prompt' && roleId === 'proof-or-stop-review-topology-critic') {
     text = text.replace(/^- A pass is forbidden when the basis.*$/m, '');
   }
   if (mutation === 'drop-topology-critic-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
@@ -657,7 +709,16 @@ function read(relPath) {
   if (mutation === 'allow-arbitrary-pre-review-command' && relPath === 'packages/main/src/core/pre-review-check.ts') {
     text = text.replace('transcript.actual?.command !== PRE_REVIEW_LIVE_PROOF_COMMAND', "typeof transcript.actual?.command !== 'string'");
   }
-  if (mutation === 'drop-acceptance-rollout-prompt' && /\/agents\/(?:lattice-implementer|test-case-reviewer|lattice-review-(?:topology-critic|concept|quality|test-coverage|docs|delivery))\.md$/.test(relPath)) {
+  if (mutation === 'drop-acceptance-rollout-prompt' && new Set([
+    'proof-or-stop-implementer',
+    'proof-or-stop-test-case-reviewer',
+    'proof-or-stop-review-topology-critic',
+    'proof-or-stop-review-concept',
+    'proof-or-stop-review-quality',
+    'proof-or-stop-review-test-coverage',
+    'proof-or-stop-review-docs',
+    'proof-or-stop-review-delivery',
+  ]).has(roleId)) {
     text = text.replace(/acceptance_rollout_check/g, 'rollout_check_removed');
   }
   if (mutation === 'drop-acceptance-rollout-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
@@ -1406,9 +1467,9 @@ function assertProofStoryProgressiveBoundary() {
   const transitionOrchestratorText = read('packages/main/src/handlers/transition-orchestrator.ts');
   const acceptanceWriterPolicy = commandPolicyEntries.get('acceptance_basis_generate');
   const acceptancePromptPaths = [
-    'packages/main/templates/agents/lattice-implementer.md',
-    '.claude/agents/lattice-implementer.md',
-    `${CODEX_AGENTS_DIR}/lattice-implementer.md`,
+    rolePromptPath('packages/main/templates/agents', 'proof-or-stop-implementer'),
+    rolePromptPath('.claude/agents', 'proof-or-stop-implementer'),
+    rolePromptPath(CODEX_AGENTS_DIR, 'proof-or-stop-implementer'),
   ];
   const acceptanceRequiredSemantics = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-contract'
     ? requiredProcessFactSemantics.acceptance_basis_generate.filter(item => item !== 'workspace-binding')
@@ -1509,14 +1570,13 @@ function assertProofStoryProgressiveBoundary() {
   const preReviewScenarioText = read('packages/main/src/tasks/proofstory-pre-review-check-smoke.ts');
   const acceptancePlanText = read('docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md');
   const rolloutPromptNames = [
-    'lattice-implementer',
-    'test-case-reviewer',
-    'lattice-review-topology-critic',
-    'lattice-review-concept',
-    'lattice-review-quality',
-    'lattice-review-test-coverage',
-    'lattice-review-docs',
-    'lattice-review-delivery',
+    'proof-or-stop-implementer',
+    'proof-or-stop-review-topology-critic',
+    'proof-or-stop-review-concept',
+    'proof-or-stop-review-quality',
+    'proof-or-stop-review-test-coverage',
+    'proof-or-stop-review-docs',
+    'proof-or-stop-review-delivery',
   ];
   // B-4043 F-014: the acceptance-rollout role guidance is sourced from the
   // canonical package templates (the REAL delivery path — review_run_start /
@@ -1526,16 +1586,16 @@ function assertProofStoryProgressiveBoundary() {
   // the tokens in the template source, and prove the guidance does not depend
   // on the bootstrap-only modular-reviewer shims.
   const rolloutPromptTemplates = rolloutPromptNames.map(
-    name => `packages/main/templates/agents/${name}.md`,
+    name => rolePromptPath('packages/main/templates/agents', name),
   );
   // Modular reviewer roles render as a body-free review_run_start bootstrap in
   // the host shim; their guidance must live in the template and reach them via
   // review_run_start, never via the shim.
   const rolloutBootstrapOnlyReviewerNames = [
-    'lattice-review-concept',
-    'lattice-review-quality',
-    'lattice-review-test-coverage',
-    'lattice-review-docs',
+    'proof-or-stop-review-concept',
+    'proof-or-stop-review-quality',
+    'proof-or-stop-review-test-coverage',
+    'proof-or-stop-review-docs',
   ];
   const rolloutPromptTokens = [
     'acceptance_topology_check',
@@ -1588,8 +1648,17 @@ function assertProofStoryProgressiveBoundary() {
       && acceptanceRolloutSmokeText.includes('--issuer-mutations')
       && acceptanceRolloutSmokeText.includes('restoration commit is missing or malformed')
       && acceptanceRolloutSmokeText.includes('restoration commit must be later than mutation commit')
-      && preReviewScenarioText.includes('Array.from({ length: 5 }')
-      && preReviewScenarioText.includes('Array.from({ length: 17 }')
+      // F-339: the registered scenario catalog includes assertion-specific
+      // package-identity/bin-alias controls in addition to the original
+      // rollout catalog. The process-fact guard must track both the catalog
+      // cardinality and the real migration operations, or a stale guard could
+      // silently accept an unrelated semantic projection.
+      && preReviewScenarioText.includes('Array.from({ length: 7 }')
+      && preReviewScenarioText.includes('Array.from({ length: 21 }')
+      && preReviewScenarioText.includes("['A-POS-6', 'positive', 'package-identity:sibling-package-graph'")
+      && preReviewScenarioText.includes("['A-POS-7', 'positive', 'bin-alias:canonical-only'")
+      && preReviewScenarioText.includes("['A-MUT-19', 'mutation', 'package-identity:mixed-graph'")
+      && preReviewScenarioText.includes("['A-MUT-21', 'mutation', 'bin-alias:removed-alias'")
       && preReviewScenarioText.includes("['A-TRANSCRIPT-1', 'transcript']")
       && preReviewScenarioText.includes('LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE')
       && preReviewScenarioText.includes('scenario execution refuses to spawn the expensive registered cohort runner')
@@ -1610,15 +1679,15 @@ function assertProofStoryProgressiveBoundary() {
       && rolloutPromptTemplates.every(templatePath =>
         rolloutPromptTokens.every(token => read(templatePath).toLowerCase().includes(token)))
       && rolloutBootstrapOnlyReviewerNames.every(name =>
-        !read(`.claude/agents/${name}.md`).toLowerCase().includes('acceptance_rollout_check')
-        && !read(`${CODEX_AGENTS_DIR}/${name}.md`).toLowerCase().includes('acceptance_rollout_check')),
+        !read(rolePromptPath('.claude/agents', name)).toLowerCase().includes('acceptance_rollout_check')
+        && !read(rolePromptPath(CODEX_AGENTS_DIR, name)).toLowerCase().includes('acceptance_rollout_check')),
     'acceptance rollout contract must keep verifier-derived frozen membership, >=3 matched pairs per arm, all thresholds, signed current receipt, genuine full-3x2, real lifecycle consumer, mode-invariant rollback, and canonical template-sourced role guidance (not regenerable host shims)',
   );
   const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
-  const topologyCriticTemplatePath = 'packages/main/templates/agents/lattice-review-topology-critic.md';
+  const topologyCriticTemplatePath = rolePromptPath('packages/main/templates/agents', 'proof-or-stop-review-topology-critic');
   const topologyCriticHostPaths = [
-    '.claude/agents/lattice-review-topology-critic.md',
-    `${CODEX_AGENTS_DIR}/lattice-review-topology-critic.md`,
+    rolePromptPath('.claude/agents', 'proof-or-stop-review-topology-critic'),
+    rolePromptPath(CODEX_AGENTS_DIR, 'proof-or-stop-review-topology-critic'),
   ];
   const topologyCriticPolicy = commandPolicyEntries.get('topology_critic_receipt_set');
   assert(
@@ -1645,10 +1714,10 @@ function assertProofStoryProgressiveBoundary() {
       && topologyCriticPolicy.gateEvidence !== true
       && activityPolicyText.includes("'topology_critic_receipt_check'")
       && read(topologyCriticTemplatePath).startsWith('---\n')
-      && read(topologyCriticTemplatePath).includes('<!-- proofbound:modular-role-body:v1 -->')
+      && read(topologyCriticTemplatePath).includes('<!-- proof-or-stop:modular-role-body:v1 -->')
       && read(topologyCriticTemplatePath).includes('- A pass is forbidden when the basis')
       && topologyCriticHostPaths.every(path => read(path).startsWith('---\n')
-        && read(path).includes('<!-- proofbound:modular-role-body:v1 -->')
+        && read(path).includes('<!-- proof-or-stop:modular-role-body:v1 -->')
         && read(path).includes('- A pass is forbidden when the basis')
         && !read(path).includes('review_run_start')),
     'topology critic contract must bind role prompt, production producer/read-only verifier, required registered dispatch events, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and explicitly no Wave 2A lifecycle admission gate',
@@ -1841,9 +1910,9 @@ function assertCloseoutTrustBoundary() {
     assert(!contractText.includes('transcript-diff.md presence'), `${contractPath}: active delivery context contract must not name legacy transcript-diff.md presence`);
   }
   for (const promptPath of [
-    'packages/main/templates/agents/product-reviewer.md',
-    `${CODEX_AGENTS_DIR}/product-reviewer.md`,
-    '.claude/agents/product-reviewer.md',
+    rolePromptPath('packages/main/templates/agents', 'product-reviewer'),
+    rolePromptPath(CODEX_AGENTS_DIR, 'product-reviewer'),
+    rolePromptPath('.claude/agents', 'product-reviewer'),
   ]) {
     const promptText = read(promptPath);
     assert(promptText.includes(`docs/story/actives/<storyId>/${canonicalTranscriptPath}`), `${promptPath}: product-reviewer must consume the canonical live-smoke transcript`);
@@ -1914,11 +1983,12 @@ function assertCloseoutTrustBoundary() {
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     // B-45a0 F-419: lockstep with the reviewed closeout-trust policy that
     // permits only receipt-bound verification_evidence_refresh_stale writes.
-    'ac47b87069f5d0f0e7dff1ad2f3ac7896a6a08e57cd7e0c18ae9a5da6159b431',
+    'bd6f5790b3c33daebfbb04bd184bb210c0589b3acdfb9d7a1c02f7262985bf99',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
     // B-45a0 F-421: lockstep with the closeout smoke's canonical-writer and
-    // noncanonical-writer retention regression checks.
-    '0b65e0467efb6eee0dfe36d306743303cb8b8859fd50a5b4f0bea5de3887c7d3',
+    // noncanonical-writer retention regression checks, and with B-1e1f's
+    // persistSyntheticAdmittedWindowForTest (see B-cdf6:F-057 coupling note).
+    '32bd2e64768f6a866822ceaf54dd6a8c8ca61dff00f4028e251d000f1d2771cf',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
     //
@@ -1932,7 +2002,7 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-    'dd11e51a1c4a87b78a9bd5fed12d46fb9eb32c900ca311b9b809d843b553fa79',
+    '96b246fba1b363f9388ee4c641aa4840497886c98d57636cdd3750e9a09da75b',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -2034,16 +2104,16 @@ function assertCloseoutTrustBoundary() {
     '4b92b436fb13a06cf2dfd2079c6b0dec787ef8807cd54f8b6db24c1002a0e61a',
     "'packages/main/src/handlers/fixture-executors.ts'",
     'acaa12e34e6e9b3304d176b9cbb65d9edfcdfa3ec9fc7db57a14d83411f026c7',
-    '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659',
+    '194106a85a463a660100ab1006b2515dfdc56032cbe0c34fc7eadb3fcacf71b6',
     'bin/bootstrap-runner.js and packages/main/src/handlers/graph.ts are each pinned in BOTH the benign-loader and dynamic-code exemption maps, making nine exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
-    '34f3b6ba8d8e2f8150e0b2fce0c8d2813f7638998a1697a429a13a934a8f7659',
+    '194106a85a463a660100ab1006b2515dfdc56032cbe0c34fc7eadb3fcacf71b6',
     'c8906ce79242cd30e4519990a69fc7b2b6725a29b12699b9ad32d703b4e0b6d1',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
     'PACKAGE_ALIAS_EDGE_INVENTORY',
     'package-imports-self-exports-edge-inventory-sha256-v1',
-    'b7d92d8213ef6059411003d7b0f3228cb05cac03692bb3604f98070f04d4a923',
+    '884e04286b0e30ad3a40addbe110c2593eb214746bda8a2d7b656ec76a7b7f75',
     'resolvePackageAlias',
     'unresolved package import/self-reference alias',
     'package imports alias',
@@ -2622,7 +2692,7 @@ function assertCloseoutTrustBoundary() {
     'baseline project Program must construct exactly once per guard scan',
     'overlay Program builds must remain bounded at one',
     'synthetic LanguageService must construct exactly once per guard scan',
-    'synthetic LanguageService roots must remain bounded at 32',
+    'synthetic LanguageService roots must remain bounded at 36',
     'synthetic LanguageService Program requests must remain bounded at 320',
     'LanguageService getProgram must preserve object identity without a version change',
     'distinct LanguageService Program identities across controlled version changes must remain bounded at 128',
@@ -3422,8 +3492,8 @@ function assertReopenAuditLockRejectionRationaleContract() {
 }
 
 function isReviewerPrompt(relPath, text) {
-  const name = basename(relPath);
-  return name.startsWith('lattice-review-') || requiredReviewerRunIdPromptFiles.has(name) || text.includes('review_pass_set');
+  const name = `${canonicalRoleId(basename(relPath))}.md`;
+  return name.startsWith('proof-or-stop-review-') || requiredReviewerRunIdPromptFiles.has(name) || text.includes('review_pass_set');
 }
 
 function scanBraceState(line, state) {
@@ -3492,11 +3562,12 @@ function commandBlocks(text, command) {
 }
 
 function requiresReviewPassProtocol(label) {
-  return reviewPassReviewerPrompts.has(basename(label)) || label.startsWith('synthetic-');
+  const name = `${canonicalRoleId(basename(label))}.md`;
+  return reviewPassReviewerPrompts.has(name) || label.startsWith('synthetic-');
 }
 
 function requiresNoFindingReviewPassProtocol(label) {
-  return basename(label) !== 'lattice-evaluator.md' && requiresReviewPassProtocol(label);
+  return canonicalRoleId(basename(label)) !== 'proof-or-stop-evaluator' && requiresReviewPassProtocol(label);
 }
 
 function hasHardCodedReviewRunIdExample(block) {
@@ -3651,7 +3722,7 @@ function promptSemanticTokens(text) {
   for (const match of text.matchAll(/\bkoala\s+([a-z_][a-z0-9_]*)\b/g)) {
     tokens.add(`cmd:${match[1]}`);
   }
-  for (const match of text.matchAll(/(?:^|[\s`"'(])((?:\.koala|\.lattice-codex|\.claude|docs|packages|bin)\/[A-Za-z0-9._/@:-]+(?:\/[A-Za-z0-9._/@:-]+)*)/g)) {
+  for (const match of text.matchAll(/(?:^|[\s`"'(])((?:\.koala|\.lattice-codex|\.proof-or-stop-codex|\.claude|docs|packages|bin)\/[A-Za-z0-9._/@:-]+(?:\/[A-Za-z0-9._/@:-]+)*)/g)) {
     tokens.add(`path:${match[1].replace(/[),.;:]+$/, '')}`);
   }
   for (const name of ['review_run_start', 'finding_add', 'review_pass_set', 'init_check_set', 'scope_check_save', 'delivery_check_set', 'verification_evidence_add', 'verification_evidence_batch_add']) {
@@ -3682,14 +3753,14 @@ async function comparePromptSemantics(promptMap) {
     .sort();
 
   for (const templateRel of templateFiles) {
-    const name = basename(templateRel);
+    const name = `${canonicalRoleId(basename(templateRel))}.md`;
     const entry = registryByFile.get(name);
     if (!entry) {
       fail(`${templateRel} is missing from the canonical prompt registry`);
       continue;
     }
     for (const mirrorDir of mirrorDirs) {
-      const mirrorRel = `${mirrorDir}/${name}`;
+      const mirrorRel = rolePromptPath(mirrorDir, name);
       if (!promptMap.has(mirrorRel)) {
         warn(`${mirrorRel} missing; no semantic drift comparison available`);
         continue;
@@ -3779,12 +3850,13 @@ function scanActiveLifecycleDocText(text, label) {
       }
     }
 
-    if (!line.includes(coverageReviewerLaneName)) continue;
+    const coverageReviewerLane = coverageReviewerLaneNames.find(name => line.includes(name));
+    if (!coverageReviewerLane) continue;
 
     const lineNo = index + 1;
     for (const { label: claimLabel, pattern } of coverageReviewerCliCommandPatterns) {
       if (pattern.test(line)) {
-        issues.push(`${label}:${lineNo} ${coverageReviewerLaneName} must not be documented as a CLI/tool command (${claimLabel})`);
+        issues.push(`${label}:${lineNo} ${coverageReviewerLane} must not be documented as a CLI/tool command (${claimLabel})`);
       }
     }
 
@@ -3792,7 +3864,7 @@ function scanActiveLifecycleDocText(text, label) {
       .slice(Math.max(0, index - 1), Math.min(lines.length, index + 2))
       .join('\n');
     if (!coverageReviewerLaneContextPattern.test(context)) {
-      issues.push(`${label}:${lineNo} ${coverageReviewerLaneName} must be described as a reviewer agent/lane`);
+      issues.push(`${label}:${lineNo} ${coverageReviewerLane} must be described as a reviewer agent/lane`);
     }
   }
 
@@ -3866,13 +3938,13 @@ function assertSyntheticAdversarialChecks() {
   );
   const missingFindingReviewRunId = 'lattice finding_add \'{"storyId":"B-x","desc":"real issue","severity":"medium","category":"missing","agent":"lattice-review-quality"}\'';
   assert(
-    scanPromptText(missingFindingReviewRunId, 'packages/main/templates/agents/lattice-review-story-init.md')
+    scanPromptText(missingFindingReviewRunId, 'packages/main/templates/agents/proof-or-stop-review-story-init.md')
       .some(issue => issue.includes('finding_add example must include reviewRunId')),
     'synthetic reviewer finding_add JSON example without reviewRunId should fail',
   );
   const missingPassReviewRunId = 'lattice review_pass_set \'{"storyId":"B-x","agent":"lattice-review-quality","note":"quality review passed: checked changed files and found no blocker."}\'';
   assert(
-    scanPromptText(missingPassReviewRunId, 'packages/main/templates/agents/lattice-evaluator.md')
+    scanPromptText(missingPassReviewRunId, 'packages/main/templates/agents/proof-or-stop-evaluator.md')
       .some(issue => issue.includes('review_pass_set example must include reviewRunId')),
     'synthetic reviewer review_pass_set JSON example without reviewRunId should fail',
   );
@@ -4294,7 +4366,7 @@ function assertReviewInventoryRemediationContract() {
   const reviewRunPath = 'packages/main/src/core/review-run.ts';
   const reviewRunText = read(reviewRunPath);
   assert(
-    /args\.lane\s*===\s*'lattice-review-topology-critic'\s*\?\s*'topology-critic-review'\s*:\s*'story-review'/.test(reviewRunText),
+    /canonicalLane\s*===\s*'proof-or-stop-review-topology-critic'\s*\?\s*'topology-critic-review'\s*:\s*'story-review'/.test(reviewRunText),
     `${reviewRunPath}: ReviewRun verification must consume the topology critic dispatch target kind`,
   );
 
@@ -6368,7 +6440,7 @@ function assertPromptEvidenceBoundaries(promptMap) {
         `${relPath}: fresh-worker guidance must name dispatch/process-event/commit evidence as the observable boundary`,
       );
     }
-    if (text.includes('delivery-check.json') || name === 'product-reviewer.md') {
+    if (text.includes('delivery-check.json') || canonicalRoleId(name) === 'proof-or-stop-product-reviewer') {
       assert(
         text.includes('transcript/delivery evidence is required; prompt-only user-value claims are not enough'),
         `${relPath}: delivery/product guidance must reject prompt-only user-value claims`,
@@ -6785,22 +6857,23 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
   }
 
   for (const lane of requiredReviewerLanes) {
-    const entry = registry.get(`reviewer-lane:${lane}`);
+    const entry = reviewerLaneEntry(registry, lane);
     assert(entry, `${processFactRegistryPath}: reviewer lane missing from PROCESS_FACT_REGISTRY: lane=${lane}`);
     if (!entry) continue;
     assert(entry.kind === 'reviewer-lane', `${processFactRegistryPath}: reviewer lane ${lane} must have kind reviewer-lane`);
-    assert(entry.reviewerLane === lane, `${processFactRegistryPath}: reviewer lane drift for lane=${lane}`);
+    assert(canonicalRoleId(entry.reviewerLane) === lane, `${processFactRegistryPath}: reviewer lane drift for lane=${lane}`);
     assert(entry.consumerGate, `${processFactRegistryPath}: reviewer lane ${lane} must name consumer gate`);
     assert(entry.artifact, `${processFactRegistryPath}: reviewer lane ${lane} must name produced/consumed artifact`);
   }
 
   const promptReviewerLanes = listMarkdown('packages/main/templates/agents')
-    .map(relPath => basename(relPath, '.md'))
-    .filter(name => (name.startsWith('lattice-review-') || name === 'product-reviewer')
-      && name !== 'lattice-review-channel');
+    .map(relPath => canonicalRoleId(basename(relPath, '.md')))
+    .filter((name, index, names) => (name.startsWith('proof-or-stop-review-') || name === 'proof-or-stop-product-reviewer')
+      && name !== 'proof-or-stop-review-channel'
+      && names.indexOf(name) === index);
   for (const lane of promptReviewerLanes) {
     assert(
-      registry.has(`reviewer-lane:${lane}`),
+      reviewerLaneEntry(registry, lane),
       `${processFactRegistryPath}: reviewer lane prompt missing registry fact: lane=${lane}`,
     );
   }
@@ -8329,9 +8402,10 @@ for (const dir of promptDirs) {
 }
 for (const dir of promptDirs) {
   for (const fileName of requiredReviewerRunIdPromptFiles) {
+    const promptPath = rolePromptPath(dir, fileName);
     assert(
-      promptMap.has(`${dir}/${fileName}`),
-      `${dir}/${fileName}: reviewer-facing prompt must be included in prompt drift scan`,
+      promptMap.has(promptPath),
+      `${promptPath}: reviewer-facing prompt must be included in prompt drift scan`,
     );
   }
 }

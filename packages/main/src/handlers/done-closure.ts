@@ -8,6 +8,7 @@ import type { StoryInfo } from '../core/types.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPackSummary, type MemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import { redactMemoryPackForControlArm } from '../core/runtime-memory-arm-gate.js';
+import { DONE_CLOSURE_SCHEMA } from '../core/artifact-schema.js';
 import type { HandlerContext } from './context.js';
 
 type DoneClosureStatus = 'notRequired' | 'required' | 'passed' | 'blocked';
@@ -32,7 +33,7 @@ export interface DoneClosureBlocker {
 }
 
 export interface DoneClosureRunbook {
-  schemaVersion: 'lattice.done_closure.v1';
+  schemaVersion: typeof DONE_CLOSURE_SCHEMA;
   storyId: string;
   phase: StoryInfo['phase'];
   canAttemptDone: boolean;
@@ -201,7 +202,7 @@ export function buildDoneClosureRunbook(ctx: HandlerContext, storyId: string): D
   });
 
   return {
-    schemaVersion: 'lattice.done_closure.v1',
+    schemaVersion: DONE_CLOSURE_SCHEMA,
     storyId,
     phase: story.phase,
     canAttemptDone: story.phase === 'TEST' && blockingRows.length === 0,

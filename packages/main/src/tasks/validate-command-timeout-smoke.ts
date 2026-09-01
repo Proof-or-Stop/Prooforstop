@@ -44,7 +44,7 @@
  * a temp dir, since H-002 is a claim ABOUT this repo's actual source, not a synthesized
  * fixture. Every other section's mkdtempSync tmp dir is removed via rmSync in a per-section
  * try/finally (B-16df F-001) so repeated `lattice validate` runs don't leak stray tmpdirs.
- * Registered in lattice.config.json validate.commands for ongoing regression protection.
+ * Registered in proof-or-stop.config.json validate.commands for ongoing regression protection.
  *
  * Run: node packages/main/dist/tasks/validate-command-timeout-smoke.js
  */
@@ -71,7 +71,7 @@ import type { ValidationCommand, ValidationPlan } from '../core/validation-types
  * (NOT process.cwd(), which a caller could invoke this smoke from anywhere) to locate the
  * repo-root marker file and read checklist.ts's own source text. Section 12 no longer runs
  * `git diff` (see BUG-B16DF-BYTEPIN in section 12); the only two reads through REPO_ROOT are
- * now existsSync on lattice.config.json (section 12) and readFileSync on
+ * now existsSync on proof-or-stop.config.json (section 12) and readFileSync on
  * packages/main/src/handlers/checklist.ts (section 13).
  */
 const REPO_ROOT = join(new URL(import.meta.url).pathname, '../../../../..');
@@ -405,7 +405,7 @@ void (async () => {
     //     to that story's own scope contract (allowedModify / protectedFiles) and to its diff
     //     review, both of which are evaluated per story against that story's declared
     //     boundary -- not to a suite command every later story is forced to satisfy.
-    check('REPO_ROOT resolved to the actual repo root (lattice.config.json present there)', existsSync(join(REPO_ROOT, 'lattice.config.json')));
+    check('REPO_ROOT resolved to the actual repo root (proof-or-stop.config.json present there)', existsSync(join(REPO_ROOT, 'proof-or-stop.config.json')));
 
     // 13. B-16df F-004 (H-002): all 4 real runSingleAllowlistedCommand call sites in
     //     checklist.ts must route through the ONE shared resolvePinnedCommandTimeoutMs

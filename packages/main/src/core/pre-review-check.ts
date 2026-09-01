@@ -24,6 +24,8 @@ import { evaluateLiveSmokeTranscriptValue } from './live-smoke-transcript-eviden
 import {
   canonicalPreReviewAssertionSourceRef,
   decodePreReviewCaseRecords,
+  preReviewCaseRequiresSemanticBinding,
+  preReviewCaseSemanticMatches,
   preReviewExecutableProvenanceIsCurrent,
 } from './pre-review-live-proof.js';
 import { readBrandEnv } from './brand-env.js';
@@ -201,6 +203,12 @@ export function loadVerifiedPreReviewExecutableProof(input: {
     return expected?.[0] === record[1]
       && canonicalPreReviewAssertionSourceRef(expected[1]) === record[9];
   });
+  const semanticBindings = records.every(record =>
+    preReviewCaseSemanticMatches(
+      record,
+      record[9],
+      preReviewCaseRequiresSemanticBinding(record[9]),
+    ));
   const distinctMutationTargets = new Set(mutations.map(record => `${record[2]}\0${record[3]}`)).size === mutations.length;
   const outcomesBite = records.every(record => record[5] === record[6] && record[7] === true);
   const transcriptEvents = records.filter(record => record[1] === 'transcript').every(record => {
@@ -208,8 +216,8 @@ export function loadVerifiedPreReviewExecutableProof(input: {
     const consumer = record[8].find(event => event[0] === 'consumer-verified')?.[1];
     return Number.isInteger(producer) && Number.isInteger(consumer) && (producer as number) < (consumer as number);
   });
-  if (!validRecords || !exactIds || !exactKindsAndSources || !distinctMutationTargets || !outcomesBite || !transcriptEvents
-    || candidate.commandDigests[0] !== digest({ schemaVersion: 'proofstory.pre_review_case_aggregate.v1', storyId: input.storyId, caseRecords: records })) return reject(`proof case records/root invalid shape=${validRecords} ids=${exactIds} distinct=${distinctMutationTargets} outcomes=${outcomesBite} transcript=${transcriptEvents}`);
+  if (!validRecords || !exactIds || !exactKindsAndSources || !semanticBindings || !distinctMutationTargets || !outcomesBite || !transcriptEvents
+    || candidate.commandDigests[0] !== digest({ schemaVersion: 'proofstory.pre_review_case_aggregate.v1', storyId: input.storyId, caseRecords: records })) return reject(`proof case records/root invalid shape=${validRecords} ids=${exactIds} semantics=${semanticBindings} distinct=${distinctMutationTargets} outcomes=${outcomesBite} transcript=${transcriptEvents}`);
   const recordById = new Map(records.map(record => [record[0], record]));
   const verifiedBindingProofs = input.contract?.acceptanceBindings.filter(binding => binding.verificationTopology).map(binding => {
     const topology = binding.verificationTopology!;

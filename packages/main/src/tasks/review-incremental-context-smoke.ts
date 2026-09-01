@@ -58,7 +58,10 @@ import { fileURLToPath } from 'node:url';
 
 import {
   classifyIncrementalBindingReasons,
+  FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_FINDINGS,
+  FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS,
   fixtureCaseClosure,
+  incrementalReviewBasisOverflowReasonCodes,
   reviewIncrementalContext,
 } from '../core/review-incremental-context.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
@@ -69,6 +72,7 @@ import {
   computePromptEnvelopeId,
   fullTaskSemanticDigest,
 } from '../core/prompt-envelope.js';
+import { canonicalAgentRoleId, legacyAgentRoleIds } from '../core/agent-role-identity.js';
 import {
   promptRoleContract,
   resolvePromptRoleBody,
@@ -81,6 +85,8 @@ import {
   classifyEvidenceFreshness,
   currentGitHead,
 } from '../core/evidence-freshness.js';
+import { changedFilesBetweenRenameAware, isMaterialExcludedPath } from '../core/evidence-freshness.js';
+import { FULL_TASK_CONTEXT_LIMITS, validateIncrementalReviewBasis } from '../core/prompt-contracts.js';
 import {
   collectReviewerEvidenceState,
   snapshotPromptEnvelopes,
@@ -348,15 +354,17 @@ function buildIncrementalRepo(): { root: string; baseSha: string; headSha: strin
 }
 
 function trustedReviewEvidence(storyId: string, role: string, runId: string, startedAt: string, passAt: string, boundHeadHash: string) {
-  const rollout = { version: 'proofbound.prompt-envelope-rollout.v1', roles: { [role]: 'full-envelope' } };
-  const roleBody = resolvePromptRoleBody(role, rollout).body;
-  const dispatchPrompt = `As ${role}, review story ${storyId} in full.`;
-  const host = reviewerHostRenderIdentity(process.cwd(), role, 'codex', 'full-envelope');
+  const canonicalRole = canonicalAgentRoleId(role);
+  const legacyRole = legacyAgentRoleIds(canonicalRole)[0] ?? canonicalRole;
+  const rollout = { version: 'proofbound.prompt-envelope-rollout.v1', roles: { [legacyRole]: 'full-envelope' } };
+  const roleBody = resolvePromptRoleBody(legacyRole, rollout).body;
+  const dispatchPrompt = `As ${legacyRole}, review story ${storyId} in full.`;
+  const host = reviewerHostRenderIdentity(process.cwd(), legacyRole, 'codex', 'full-envelope');
   const headHash = boundHeadHash;
   const materialHash = 'b'.repeat(64);
   const storyFilesHash = 'c'.repeat(64);
   const envelopeResult = assembleFullPromptEnvelope({
-    roleContract: promptRoleContract(role),
+    roleContract: promptRoleContract(canonicalRole),
     runtimeContract: BASELINE_RUNTIME_CONTRACT,
     rolePrompt: roleBody,
     taskContext: {
@@ -366,15 +374,16 @@ function trustedReviewEvidence(storyId: string, role: string, runId: string, sta
         verificationIntent: { happy: [{ id: 'CHK-001:happy:0', desc: 'Cutoff is respected.', type: 'logic' }], edge: [], adversarial: [] } }],
       headHash, materialHash, storyFilesHash,
     },
-    dispatchKind: 'review-run', reviewRunId: runId, reviewRound: 'round-1', lane: role,
+    dispatchKind: 'review-run', reviewRunId: runId, reviewRound: 'round-1', lane: legacyRole,
     dispatchPrompt, hostRenderIdentityDigest: host.identityDigest, createdAt: startedAt,
   });
-  const run: ReviewRun = { reviewRunId: runId, storyId, agent: role, lane: role, reviewRound: 'round-1', startedAt,
+  assert.equal(envelopeResult.envelope.lane, canonicalRole, 'legacy reviewer lane is canonicalized in the envelope');
+  const run: ReviewRun = { reviewRunId: runId, storyId, agent: canonicalRole, lane: canonicalRole, reviewRound: 'round-1', startedAt,
     headHash, materialHash, storyFilesHash, promptHash: envelopeResult.envelope.assembledPromptDigest,
     envelopeId: envelopeResult.envelope.envelopeId, assembledPrompt: envelopeResult.prompt };
-  run._hash = signReviewRun(storyId, runId, role, role, 'round-1', startedAt, headHash, materialHash,
+  run._hash = signReviewRun(storyId, runId, canonicalRole, canonicalRole, 'round-1', startedAt, headHash, materialHash,
     run.promptHash, undefined, undefined, storyFilesHash, run.envelopeId);
-  const pass = signedPass(storyId, `${runId}:PASS`, role, passAt, 'round-1');
+  const pass = signedPass(storyId, `${runId}:PASS`, canonicalRole, passAt, 'round-1');
   pass.reviewRunId = runId;
   pass.envelopeId = run.envelopeId;
   pass.writerSessionId = `${runId}-session`;
@@ -386,7 +395,7 @@ function trustedReviewEvidence(storyId: string, role: string, runId: string, sta
 
 function runTemporalCutoffRegression(root: string): void {
   const storyId = 'B-f675';
-  const role = 'lattice-review-quality';
+  const role = canonicalAgentRoleId('lattice-review-quality');
   const story = reviewStory(storyId, 2, 'round-1');
   const boundHeadHash = currentGitHead(root)!;
   const a = trustedReviewEvidence(storyId, role, 'RR-A', ts(5), ts(6), boundHeadHash);
@@ -412,7 +421,7 @@ function runTemporalCutoffRegression(root: string): void {
 function runProductionVerifierTemporalCutoffRegression(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-review-cutoff-verifier-'));
   const storyId = 'B-cutoff-verifier';
-  const role = 'lattice-review-quality';
+  const role = canonicalAgentRoleId('lattice-review-quality');
   const round = '2026-07-20T00:00:00.000Z';
   const runCli = (command: string, payload: Record<string, unknown>, actor: string): void => {
     execFileSync(process.execPath, [
@@ -429,6 +438,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
         LATTICE_ACTIVITY_SOURCE: 'codex',
         LATTICE_AGENT: actor,
         LATTICE_SESSION_ID: `cutoff-${actor}`,
+        PROOF_OR_STOP_AGENT: actor,
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -1191,6 +1201,193 @@ function runIncrementalCases(): void {
   }
 }
 
+/**
+ * The material path count the incremental branch measures between a bound
+ * headHash and HEAD, computed with the same production helpers that branch uses.
+ */
+function materialDiffPathCount(root: string, baseSha: string): number {
+  return changedFilesBetweenRenameAware(root, baseSha, 'HEAD')
+    .filter(path => !isMaterialExcludedPath(path, root)).length;
+}
+
+/**
+ * (f) BOUNDED-PATHS DEGRADATION — the branch that fires when a prior DOES
+ * resolve but sits too far behind HEAD to diff incrementally.
+ *
+ * Distinct from cases (b) and (e): here the prior pass is trusted AND its bound
+ * headHash resolves, so neither of the isFirstPass sub-cases applies. What
+ * disqualifies it is only distance — the prior-to-HEAD diff does not fit the
+ * bounded path lists the review-basis contract accepts.
+ *
+ * Fixture (one repo, two priors, no magic numbers — every count is derived from
+ * FULL_TASK_CONTEXT_LIMITS.pathsPerList):
+ *   C0 main   seed: `cap` bulk files + the story file
+ *   C1 main   modifies bulk file 0                     <- the AT-CAP prior binds here
+ *   C2 main   modifies bulk files 1..cap-1             <- `main` stays here
+ *   C3 story  modifies the story file                  <- HEAD
+ * so diff(C1..HEAD) = (cap-1) bulk + 1 story = EXACTLY cap, diff(C0..HEAD) =
+ * cap bulk + 1 story = cap+1, and the full story diff against main is the one
+ * story file. The two priors differ ONLY in the commit they are bound to, so
+ * the boundary is the only variable between the two observations.
+ *
+ * The boundary is pinned to the contract, not to the literal 512: at the cap an
+ * incremental basis is emitted and finalize already ran it through
+ * validateIncrementalReviewBasis, and that same basis with ONE more path is
+ * asserted to be rejected by that validator — i.e. the guard's `>` fires exactly
+ * where prompt-contracts' bounded-path rule starts rejecting.
+ *
+ * Note on contextMode at the cap: it is 'full' on BOTH sides here, because
+ * ordinary `src/**` paths independently classify FULL_PRIVATE_IMPLEMENTATION_V1.
+ * That is why "did the guard fire" is asserted through the guard's own signals —
+ * its reason code, whether a review basis was emitted, and which diff was
+ * served — rather than through contextMode, which cannot discriminate.
+ */
+function runBoundedPathsDegradationCase(): void {
+  const cap = FULL_TASK_CONTEXT_LIMITS.pathsPerList;
+  const bounded = FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS;
+  const storyId = 'B-bounded-paths';
+  const role = canonicalAgentRoleId('lattice-review-quality');
+  const storyFile = 'src/story.ts';
+  const bulkFile = (index: number) => `src/bulk/f${String(index).padStart(5, '0')}.ts`;
+  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-bounded-paths-'));
+  try {
+    write(root, '.gitignore', '.lattice/activity.jsonl\n');
+    write(root, storyFile, 'export const story = 0;\n');
+    for (let index = 0; index < cap; index += 1) write(root, bulkFile(index), `export const bulk${index} = 0;\n`);
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed bounded-paths base']);
+    const overCapBaseSha = currentGitHead(root)!;
+    write(root, bulkFile(0), 'export const bulk0 = 1;\n');
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'main advances by one bulk path']);
+    const atCapBaseSha = currentGitHead(root)!;
+    for (let index = 1; index < cap; index += 1) write(root, bulkFile(index), `export const bulk${index} = 1;\n`);
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'main advances by remaining bulk paths']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, storyFile, 'export const story = 1;\n');
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'story material change ahead of main']);
+
+    const story = reviewStory(storyId, 2, ts(1));
+    const atEvidence = trustedReviewEvidence(storyId, role, 'RR-AT-CAP', ts(5), ts(6), atCapBaseSha);
+    const overEvidence = trustedReviewEvidence(storyId, role, 'RR-OVER-CAP', ts(5), ts(6), overCapBaseSha);
+    const storeFor = (evidence: ReturnType<typeof trustedReviewEvidence>) => buildFixtureStore({
+      story,
+      runs: [evidence.run],
+      passes: [evidence.pass],
+      promptEnvelopes: [evidence.envelope],
+    });
+    const atCap = reviewIncrementalContext(storeFor(atEvidence), root, storyId, role);
+    assert.equal(atCap.changedFiles.length, cap, 'exactly the bounded path cap remains incremental');
+    assert.equal(atCap.isFirstPass, false, 'the at-cap prior remains trusted');
+    assert.ok(atCap.reviewBasis, 'the at-cap context emits an incremental basis');
+    validateIncrementalReviewBasis(atCap.reviewBasis!);
+    assert.throws(() => validateIncrementalReviewBasis({
+      ...atCap.reviewBasis!,
+      changedFiles: [...atCap.reviewBasis!.changedFiles, 'src/one-path-over-the-cap.ts'],
+    }), /IncrementalReviewBasis\.changedFiles exceeds/);
+    assert.equal(materialDiffPathCount(root, overCapBaseSha), cap + 1, 'the over-cap fixture is one path over the bound');
+    const overCap = reviewIncrementalContext(storeFor(overEvidence), root, storyId, role);
+    assert.ok(overCap.eligibilityReasonCodes.includes(bounded), 'one path over the cap degrades the incremental context');
+    assert.equal(overCap.reviewBasis, null, 'the degraded context suppresses the incremental basis');
+    assert.deepEqual(overCap.changedFiles, ['src/story.ts'], 'degraded context serves the story net diff');
+    console.log(`${MARKER} BOUNDED-PATHS DEGRADATION: cap=${cap} stays incremental; cap+1 degrades to the story diff`);
+  } finally {
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+/**
+ * F-419 regressions: every bounded basis overflow must choose the authoritative
+ * full story context, and must retain a trusted prior only as audit metadata.
+ */
+function runBasisOverflowFallbackRegressions(): void {
+  const cap = FULL_TASK_CONTEXT_LIMITS.pathsPerList;
+  const findingCap = FULL_TASK_CONTEXT_LIMITS.verificationIntentsPerLane;
+  const role = canonicalAgentRoleId('lattice-review-quality');
+  const storyId = 'B-basis-overflow';
+  const { root, baseSha } = buildIncrementalRepo();
+  try {
+    const prior = trustedReviewEvidence(storyId, role, 'RR-BASIS-OVERFLOW', ts(5), ts(6), baseSha);
+    const overflowImpact = classifyImpact({
+      changedFiles: Array.from({ length: cap + 1 }, (_, index) => `src/impact/f${index}.ts`),
+      declaredTestFiles: [],
+      testIntentRefsByFile: {},
+    });
+    assert.equal(overflowImpact.impactedFiles.length, cap + 1, 'synthetic impact projection exceeds the bounded path cap');
+    assert.deepEqual(
+      incrementalReviewBasisOverflowReasonCodes({
+        changedFiles: ['src/feature.ts'],
+        impactedFiles: overflowImpact.impactedFiles,
+        authoritativeReferences: ['src/feature.ts'],
+        findingDeltas: [],
+        unresolvedFindings: [],
+      }),
+      [FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS],
+      'impact.impactedFiles overflow carries the stable full-context path reason',
+    );
+
+    const relatedDocs = Array.from({ length: cap + 1 }, (_, index) => `docs/related-${index}.md`);
+    const referenceStore = buildFixtureStore({
+      story: reviewStory(storyId, 2, 'round-1'),
+      runs: [prior.run],
+      passes: [prior.pass],
+      promptEnvelopes: [prior.envelope],
+      checklistItems: [{
+        id: 'CHK-REFS',
+        title: 'bounded references',
+        status: 'done',
+        relatedDocs,
+        files: { modify: ['src/feature.ts'], create: [], test: [] },
+        verificationIntent: { happy: [], edge: [], adversarial: [] },
+      }],
+    });
+    const references = reviewIncrementalContext(referenceStore, root, storyId, role);
+    assert.equal(references.contextMode, 'full', 'authoritativeReferences overflow forces full context');
+    assert.equal(references.reviewBasis, null, 'authoritativeReferences overflow never emits an invalid basis');
+    assert.ok(
+      references.eligibilityReasonCodes.includes(FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_PATHS),
+      'authoritativeReferences overflow carries the stable full-context reason',
+    );
+    assert.equal(references.priorPassRef, prior.pass.id, 'full fallback preserves trusted prior audit identity');
+
+    const unresolvedFindings = Array.from({ length: findingCap + 1 }, (_, index) =>
+      signedFinding(
+        storyId,
+        `${storyId}:F-${String(index).padStart(3, '0')}`,
+        role,
+        'high',
+        ts(7),
+        'open',
+        'round-1',
+        prior.run.reviewRunId,
+      ));
+    const findingStore = buildFixtureStore({
+      story: reviewStory(storyId, 2, 'round-1'),
+      findings: unresolvedFindings,
+      runs: [prior.run],
+      passes: [prior.pass],
+      promptEnvelopes: [prior.envelope],
+    });
+    const findings = reviewIncrementalContext(findingStore, root, storyId, role);
+    assert.equal(findings.contextMode, 'full', '257 unresolved findings force full context without throwing');
+    assert.equal(findings.reviewBasis, null, '257 unresolved findings never enter an invalid basis');
+    assert.ok(
+      findings.eligibilityReasonCodes.includes(FULL_INCREMENTAL_BASIS_EXCEEDS_BOUNDED_FINDINGS),
+      '257 unresolved findings carry the stable full-context reason',
+    );
+    assert.equal(findings.priorPassRef, prior.pass.id, 'finding overflow preserves trusted prior audit identity');
+    console.log(`${MARKER} BASIS OVERFLOW: impact paths, authoritative references, and ${findingCap + 1} unresolved findings fail closed to full context`);
+  } finally {
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function runWrapperRootRoutingCase(): void {
   const metadataRoot = mkdtempSync(join(tmpdir(), 'lattice-incremental-wrapper-'));
   const gitRoot = join(metadataRoot, 'repo');
@@ -1873,10 +2070,12 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     'lattice-review-quality',
     'lattice-review-test-coverage',
   ];
-  const rolloutModes = Object.fromEntries(roles.map((role, index) => [
+  const canonicalRoles = roles.map(role => canonicalAgentRoleId(role));
+  const rolloutModes = Object.fromEntries(canonicalRoles.map((role, index) => [
     role,
     (mask & (1 << index)) === 0 ? 'legacy-full-context' : 'full-envelope',
   ]));
+  const rolloutModeFor = (role: string) => rolloutModes[canonicalAgentRoleId(role)];
   const round = '2026-07-19T00:00:00.000Z';
   const shellCommand = (command: string, payload: Record<string, unknown>, role: string) => [
     `LATTICE_AGENT=${JSON.stringify(role)}`,
@@ -1966,7 +2165,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     const runs = store.readReviewRuns(storyId).runs;
     const reviewRunIdentity = runs.length === roles.length && new Set(runs.map(run => run.reviewRunId)).size === roles.length;
     if (!mutation) assert.equal(reviewRunIdentity, true, 'concurrent review_run_start preserves every lane and unique IDs');
-    const fullRoles = roles.filter(role => rolloutModes[role] === 'full-envelope');
+    const fullRoles = roles.filter(role => rolloutModeFor(role) === 'full-envelope');
     if (mutation === 'mixed-envelope-selection') {
       const data = store.readPromptEnvelopes(storyId); data.envelopes = data.envelopes.slice(1); store.writePromptEnvelopes(storyId, data);
     }
@@ -1977,14 +2176,14 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     );
     let mixedEnvelopeSelection = store.readPromptEnvelopes(storyId).envelopes.length === fullRoles.length;
     for (const run of runs) {
-      const full = rolloutModes[run.lane] === 'full-envelope';
+      const full = rolloutModeFor(run.lane) === 'full-envelope';
       mixedEnvelopeSelection = mixedEnvelopeSelection && Boolean(run.envelopeId) === full && Boolean(run.assembledPrompt) === full;
       if (!mutation) assert.equal(Boolean(run.envelopeId), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} binds its selected rollout representation`);
       if (!mutation) assert.equal(Boolean(run.assembledPrompt), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} stores assembled prompt only in full mode`);
     }
 
     const evidenceCommands = roles.map((role, index) => {
-      const reviewRunId = runs.find(run => run.lane === role)!.reviewRunId;
+      const reviewRunId = runs.find(run => canonicalAgentRoleId(run.lane) === canonicalAgentRoleId(role))!.reviewRunId;
       return index % 2 === 0
         ? shellCommand('review_pass_set', {
           storyId,
@@ -2018,10 +2217,10 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
     if (!mutation) assert.equal(signedResultAdmissibility, true, `collector accepts every current signed result under mixed mask ${mask} iteration ${iteration}`);
     const observedAgents = [...new Set(evidence.valid.map(item => item.agent))].sort();
     if (mutation === 'lane-no-overwrite') observedAgents.pop();
-    const laneNoOverwrite = JSON.stringify(observedAgents) === JSON.stringify([...roles].sort());
+    const laneNoOverwrite = JSON.stringify(observedAgents) === JSON.stringify([...canonicalRoles].sort());
     if (!mutation) assert.deepEqual(
       observedAgents,
-      [...roles].sort(),
+      [...canonicalRoles].sort(),
       `collector counts every reviewer lane once without overwrite under mixed mask ${mask} iteration ${iteration}`,
     );
     let realGateMutationTrace: GuardObservation['mutationTrace'];
@@ -2138,6 +2337,7 @@ function run(): void {
   runLargeFixtureReadFailureCase();
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
+  runBasisOverflowFallbackRegressions();
   runWrapperRootRoutingCase();
   runEmptyReviewerEvidenceSnapshotCase();
   const cutoffStarted = performance.now();
@@ -2221,6 +2421,9 @@ if (isDirectRun) {
     runProductionVerifierTemporalCutoffRegression();
     runEmptyReviewerEvidenceSnapshotCase();
     console.log(`${MARKER} CACHE SNAPSHOT: collector read bound and verifier semantics PASS`);
+  } else if (process.argv.includes('--bounded-paths-only')) {
+    runBoundedPathsDegradationCase();
+    runBasisOverflowFallbackRegressions();
   } else if (process.argv.includes('--guard-map-only')) {
     runIncrementalGuardClassMatrix();
   } else if (process.argv.includes('--schedule-mutation-only')) {

@@ -43,12 +43,17 @@ import {
   verifyPostRemediationReviewSelection,
   type PostRemediationReviewSelection,
 } from '../core/review-incremental-context.js';
+import { canonicalAgentRoleId, legacyAgentRoleIds } from '../core/agent-role-identity.js';
 import { readBrandEnv } from '../core/brand-env.js';
 
 
 export interface ActiveReviewer {
   /** reviewer short name: concept / quality / test-coverage / behavior / docs / channel */
   name: string;
+  /** canonical proof-or-stop reviewer role used for dispatch and evidence */
+  lane: string;
+  /** historical lattice spelling(s) accepted by readers for this lane */
+  legacyAliases: readonly string[];
   /** why enabled: baseline / "riskSignal: <cats>" / "touchpoints .md" / forced */
   reason: string;
   /** whether forcibly attached via forceReviewer */
@@ -72,12 +77,27 @@ const BEHAVIOR_TRIGGERS = ['state machine', 'guard', 'gate'];
 const REVIEWER_ORDER: readonly string[] = ['concept', 'quality', 'test-coverage', 'behavior', 'docs', 'channel'];
 
 function reviewerLaneShortName(lane: string): string {
-  return lane.replace(/^lattice-review-/, '');
+  return canonicalAgentRoleId(lane).replace(/^proof-or-stop-review-/, '');
+}
+
+function reviewerLaneForName(name: string): string {
+  return canonicalAgentRoleId(`proof-or-stop-review-${name}`);
+}
+
+function activeReviewer(name: string, reason: string, forced = false): ActiveReviewer {
+  const lane = reviewerLaneForName(name);
+  return {
+    name,
+    lane,
+    legacyAliases: [...legacyAgentRoleIds(lane)],
+    reason,
+    ...(forced ? { forced: true } : {}),
+  };
 }
 
 function supportedForceReviewerNames(): string {
   return REVIEW_RUN_LANES
-    .filter(lane => lane !== 'lattice-review-topology-critic' && isPromptRoleEligibleForReviewEvidence(lane))
+    .filter(lane => canonicalAgentRoleId(lane) !== 'proof-or-stop-review-topology-critic' && isPromptRoleEligibleForReviewEvidence(lane))
     .map((lane) => `${reviewerLaneShortName(lane)} (${lane})`)
     .join(', ');
 }
@@ -85,11 +105,11 @@ function supportedForceReviewerNames(): string {
 export function normalizeForceReviewerName(value: string): string {
   const raw = String(value).trim();
   if (!raw) return '';
-  if (raw === 'lattice-review-topology-critic' || raw === 'topology-critic') {
+  if (canonicalAgentRoleId(raw) === 'proof-or-stop-review-topology-critic' || raw === 'topology-critic') {
     throw new Error('reviewer_list: topology-critic is independent critic authority, not a required inventory lane');
   }
   if (isReviewRunLane(raw) && isPromptRoleEligibleForReviewEvidence(raw)) return reviewerLaneShortName(raw);
-  const lane = `lattice-review-${raw}`;
+  const lane = `proof-or-stop-review-${raw}`;
   if (isReviewRunLane(lane) && isPromptRoleEligibleForReviewEvidence(lane)) return raw;
   throw new Error(
     `reviewer_list: forceReviewer "${raw}" is not supported by review_run_start. Supported reviewers: ${supportedForceReviewerNames()}`,
@@ -129,9 +149,9 @@ export function computeActiveReviewers(
   // BASELINE: concept + quality + test-coverage are always enabled.
   // test-coverage is the old TEST_CASE_REVIEW responsibility folded into REVIEW:
   // it checks verificationIntent -> verificationEvidence coverage instead of owning a lifecycle phase.
-  map.set('concept', { name: 'concept', reason: 'baseline' });
-  map.set('quality', { name: 'quality', reason: 'baseline' });
-  map.set('test-coverage', { name: 'test-coverage', reason: 'baseline' });
+  map.set('concept', activeReviewer('concept', 'baseline'));
+  map.set('quality', activeReviewer('quality', 'baseline'));
+  map.set('test-coverage', activeReviewer('test-coverage', 'baseline'));
 
   // behavior: riskSignals ∩ {state machine, guard, gate} is non-empty
   // Flatten all matched categories (matching both gate+guard → "riskSignal: gate, guard")
@@ -141,15 +161,12 @@ export function computeActiveReviewers(
     .filter(c => !dismissed.has(c));
   const hitTriggers = BEHAVIOR_TRIGGERS.filter(t => activeCategories.includes(t));
   if (hitTriggers.length > 0) {
-    map.set('behavior', {
-      name: 'behavior',
-      reason: `riskSignal: ${hitTriggers.join(', ')}`,
-    });
+    map.set('behavior', activeReviewer('behavior', `riskSignal: ${hitTriggers.join(', ')}`));
   }
 
   // docs: touchpoints contain .md files
   if (touchpoints && touchpoints.some(t => typeof t === 'string' && t.endsWith('.md'))) {
-    map.set('docs', { name: 'docs', reason: 'touchpoints .md' });
+    map.set('docs', activeReviewer('docs', 'touchpoints .md'));
   }
 
   // channel LLM reviewer has been retired; normal-channel mechanical constraints are handled by the
@@ -182,9 +199,15 @@ export function computeActiveReviewers(
     .map(event => String(event.reviewer ?? '').trim())
     .filter(name => name.length > 0);
   for (const f of [...persistedForced, ...(forced ?? [])]) {
-    const name = String(f).trim();
+    let name = '';
+    try {
+      name = normalizeForceReviewerName(String(f));
+    } catch {
+      // Malformed persisted events are inert; they must not crash every roster consumer.
+      continue;
+    }
     if (!name) continue;
-    map.set(name, { name, reason: 'forced', forced: true });
+    map.set(name, activeReviewer(name, 'forced', true));
   }
 
   // F-002: fixed baseline-first order rather than alphabetical. Supported forced names that are not auto-enabled are appended at the end.
@@ -203,11 +226,15 @@ export function computeActiveReviewers(
   return ordered;
 }
 
-/** Text output single-line format: `Active reviewers: concept, quality, behavior (riskSignal: gate)` */
+/** Text output includes canonical role IDs and the compatible historical alias. */
 export function renderActiveReviewersText(reviewers: ActiveReviewer[]): string {
-  const parts = reviewers.map(r =>
-    r.reason === 'baseline' ? r.name : `${r.name} (${r.reason})`,
-  );
+  const parts = reviewers.map(r => {
+    const aliases = r.legacyAliases.length > 0
+      ? ` (legacy alias: ${r.legacyAliases.join(', ')})`
+      : '';
+    const reason = r.reason === 'baseline' ? '' : `; ${r.reason}`;
+    return `${r.lane}${aliases}${reason}`;
+  });
   return `Active reviewers: ${parts.join(', ')}`;
 }
 
@@ -231,14 +258,14 @@ export function computeFinalReviewRoster(
 }
 
 export function renderFinalReviewRoster(roster: FinalReviewRoster, storyId: string): string {
-  const lanes = roster.requiredReviewers.map(row => `lattice-review-${row.name}`);
+  const lanes = roster.requiredReviewers.map(row => row.lane);
   const reason = roster.selection.selection === 'dependency-closure'
     ? `dependency-closure (${roster.selection.reason}: ${roster.selection.reasonDetail})`
     : `full-set (${roster.selection.reason}: ${roster.selection.reasonDetail})`;
   return [
     `Final-review lanes: ${lanes.join(', ')}`,
     `Selection: ${reason}`,
-    `Next: lattice dispatch '{"storyId":"${storyId}","agentType":"${lanes[0]}"}'`,
+    `Next: proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"${lanes[0]}"}'`,
   ].join('\n');
 }
 
@@ -308,11 +335,13 @@ export function createReviewerListHandlers(ctx: HandlerContext) {
         return JSON.stringify({
           reviewers: reviewers.map(r => ({
             name: r.name,
+            lane: r.lane,
+            legacyAliases: [...r.legacyAliases],
             reason: r.reason,
             ...(r.forced ? { forced: true } : {}),
           })),
           finalReview: {
-            lanes: finalReviewRoster.requiredReviewers.map(row => `lattice-review-${row.name}`),
+            lanes: finalReviewRoster.requiredReviewers.map(row => row.lane),
             selection: finalReviewRoster.selection,
           },
         });

@@ -16,6 +16,7 @@ import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, curr
 import { closeoutArtifactPolicyFor, readCloseoutWriteReceipts } from '../core/closeout-trust.js';
 import { verifyReviewRun } from '../core/review-run.js';
 import { verifyReviewPass } from '../core/finding-verify.js';
+import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 import type { ProcessEvent } from '../core/types.js';
 import { formatValidationProgressEvent } from '../core/validation-executor.js';
 import { buildVerificationCoverage } from '../core/verification.js';
@@ -54,6 +55,7 @@ import {
 } from '../core/done-prepare-validation-reuse.js';
 import { CliWatchdogTimeoutError, donePreparePhaseBudget, doneRequiredDerivedBudget, timeoutLayerFromReason, type TimeoutBudgetSource } from '../core/done-required-timeout-budget.js';
 import { readBrandEnv } from '../core/brand-env.js';
+import { DONE_PREPARE_SCHEMA } from '../core/artifact-schema.js';
 import {
   buildReviewEscalationGuidance,
   buildReviewAssuranceFloorGuidance,
@@ -188,7 +190,7 @@ interface CloseoutPhase {
 }
 
 export interface DonePrepareJsonResult {
-  schemaVersion: 'lattice.done_prepare.v1';
+  schemaVersion: typeof DONE_PREPARE_SCHEMA;
   storyId: string;
   status: 'pass' | 'blocked' | 'unknown';
   transcript: string;
@@ -1086,7 +1088,7 @@ export function donePrepareJsonResult(storyId: string, transcript: string): Done
     /convergence: metadataRollbacks=(\d+) reviewerReattestations=(\d+) postTestReviewerReattestations=(\d+) humanConfirmations=(\d+) unchangedSuiteExecutions=(\d+)(?: reviewWindowSuiteExecutions=(\d+))? successfulCloseout=(\d+)/,
   );
   return {
-    schemaVersion: 'lattice.done_prepare.v1',
+    schemaVersion: DONE_PREPARE_SCHEMA,
     storyId,
     status,
     transcript,
@@ -1558,7 +1560,7 @@ export function collectDonePrepareConvergenceFacts(
         return false;
       }
       const run = pass.reviewRunId ? runsById.get(pass.reviewRunId) : undefined;
-      return Boolean(run && pass.agent === run.agent);
+      return Boolean(run && agentRoleIdsEqual(pass.agent, run.agent));
     })
     .sort((left, right) => (
       left.createdAt.localeCompare(right.createdAt)

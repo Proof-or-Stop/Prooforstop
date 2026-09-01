@@ -1,0 +1,41 @@
+{
+  "task": "Migrate the remaining lattice identity surfaces to proof-or-stop while preserving compatibility at historical evidence, installed managed-block, old package, and old schema read boundaries.",
+  "outcome": "The user sees reviewer_list show proof-or-stop-review-* canonical lanes, proof-or-stop --version show Proof-or-Stop, npm pkg get name return proof-or-stop, @proof-or-stop/utils and @proof-or-stop/lab resolve, init --upgrade write proof-or-stop markers while reading old lattice markers, new evidence and push-approval schemas use proof-or-stop.* while old lattice.* remains verifiable, and packages/main no longer installs the lattice bin alias.",
+  "facts": [
+    "B-5a88 checklist explicitly requires canonical proof-or-stop writes and lattice dual-read compatibility for CHK-001 through CHK-007.",
+    "packages/main/src/core/lattice-brand.ts already has proof-or-stop brand aliases, but role registry, markers, artifact schemas, package metadata, and sibling package identities still contain lattice residue.",
+    "Historical story and evidence signatures may depend on old schemas, salts, or paths; archived Story JSON must not be rewritten directly.",
+    "Pre-push remote-push approval consumption, review-lane classification, init-check required agents, quorum, and package self-host detection are cross-file choke points.",
+    "Unrelated dirty files already exist in the workspace, so development and commits must include only B-5a88 paths."
+  ],
+  "constraints": [
+    "Follow the frozen-evidence principle: keep historical reads compatible and use only proof-or-stop forms for new persistent writes.",
+    "Managed-block readers must read both lattice and proof-or-stop markers; writers and init --upgrade must write only the new markers.",
+    "New review_run_start, finding_add, review_pass_set, and init_check_set writes must use canonical role IDs; old lattice role IDs must still participate in gates through normalize/read paths.",
+    "Remote push approval must retain one-shot consumption semantics while hook and CLI accept both schemas.",
+    "Synchronize root and sibling package.json files, lockfiles, dependency references, and exact-name consumers; remove the packages/main lattice bin alias.",
+    "Do not modify docs/story, tests/fixtures, archived evidence, or CHANGELOG; do not push remotely or perform destructive cleanup."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/reviewer-quorum.ts",
+    "packages/main/src/core/init-check-gate.ts",
+    "packages/main/src/core/release-push-approval.ts",
+    "packages/main/src/core/artifact-contract.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/claude-md-sync.ts",
+    "packages/main/src/init-assets.ts",
+    ".githooks/pre-push",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/package-lock.json",
+    "packages/utils/package.json",
+    "packages/utils/package-lock.json",
+    "packages/lab/package.json",
+    "packages/lab/package-lock.json",
+    "packages/main/templates/agents/"
+  ],
+  "timestamp": "2026-08-21T00:45:31.845Z"
+}

@@ -623,7 +623,7 @@ function assertDispatchPromptsPinImplementerCommitAuthor(): void {
       scanRoot: join(root, 'packages/main'),
     });
     store.writeStory(storyId, { ...store.readStory(storyId), phase: 'DEV' });
-    const expectedAuthor = /git commit --author="lattice-implementer <lattice-implementer@noreply\.local>"/;
+    const expectedAuthor = /git commit --author="proof-or-stop-implementer <proof-or-stop-implementer@noreply\.local>"/;
 
     const itemPrompt = dispatch.dispatch({ storyId, itemId: 'CHK-001' }).prompt;
     assert.match(itemPrompt, expectedAuthor);
@@ -2426,7 +2426,10 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
       scanRoot: join(root, 'packages/main'),
     }).story_advance({ storyId, phase: 'REVIEW' });
 
-    assert.match(output, /Active reviewers: concept, quality, test-coverage/);
+    assert.match(
+      output,
+      /Active reviewers: proof-or-stop-review-concept \(legacy alias: lattice-review-concept\), proof-or-stop-review-quality \(legacy alias: lattice-review-quality\), proof-or-stop-review-test-coverage \(legacy alias: lattice-review-test-coverage\)/,
+    );
     assert.doesNotMatch(output, /lattice-review-channel/);
     assert.doesNotMatch(output, /channel \(normal channel\)/);
   } finally {
@@ -2577,7 +2580,7 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     assert.match(testBrief, /lattice_metadata_changes/);
     assert.match(testBrief, /Working tree dirty/);
     assert.match(testBrief, /delivery_check_set/);
-    assert.match(testBrief, /agentId=lattice-review-delivery/);
+    assert.match(testBrief, /agentId=proof-or-stop-review-delivery/);
     assert.match(testBrief, /main agent must not self-sign/);
     assert.match(testBrief, /summary_set/);
     // B-4b22: lattice_metadata-only pollution passes via dirty-gate-policy, so
@@ -3047,7 +3050,7 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     assert.match(byId.get('git-working-tree')?.hint ?? '', /packages\/main\/tests\/output\/bl21_lacz_ecoli_minicell\/prodenovo_viewer\.json/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /side-effect-free by default|side-effect-free|LATTICE_WRITE/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /delivery_check_set/);
-    assert.match(byId.get('delivery-check')?.hint ?? '', /agentId=lattice-review-delivery/);
+    assert.match(byId.get('delivery-check')?.hint ?? '', /agentId=proof-or-stop-review-delivery/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /main agent must not self-sign/);
     assert.equal(byId.get('delivery-check')?.source, 'delivery-check.json');
     assert.equal(byId.get('story-summary')?.status, 'fail');
@@ -3096,7 +3099,7 @@ function assertDoneClosureProjectionSeparatesAuthority(): void {
     }, storyId);
     const byId = new Map(runbook.blockers.map(row => [row.id, row]));
 
-    assert.equal(runbook.schemaVersion, 'lattice.done_closure.v1');
+    assert.equal(runbook.schemaVersion, 'proof-or-stop.done_closure.v1');
     assert.equal(runbook.phase, 'TEST');
     assert.equal(runbook.canAttemptDone, false, 'TEST PASS with missing closure artifacts must not be DONE-ready');
     assert.equal(byId.get('test-evidence')?.status, 'pass');
@@ -4483,7 +4486,7 @@ function assertDoneOracleSameSource(): void {
     assert.equal(hashMismatchRow?.status, 'fail', 'delivery-check hash mismatch must fail');
     assert.equal(hashMismatchRow?.detail, 'delivery-check.json _hash mismatch');
     assert.equal(hashMismatchRow?.source, 'delivery-check.json._hash');
-    assert.match(hashMismatchRow?.hint ?? '', /Re-run the lattice-review-delivery reviewer to generate a new delivery-check\.json/);
+    assert.match(hashMismatchRow?.hint ?? '', /Re-run the proof-or-stop-review-delivery reviewer to generate a new delivery-check\.json/);
 
     const docsPromises = [{
       docPath: 'docs/requirements/decisions/flow-stability-smoke.md',
@@ -4512,7 +4515,7 @@ function assertDoneOracleSameSource(): void {
     assert.equal(unverifiedDocsRow?.detail, '1 docsPromise entries are unverified and not waived');
     assert.equal(unverifiedDocsRow?.source, 'delivery-check.json.docsPromises');
     assert.match(unverifiedDocsRow?.hint ?? '', /Use delivery_waiver_add to write a waiver/);
-    assert.match(unverifiedDocsRow?.hint ?? '', /re-run the lattice-review-delivery reviewer to add verification evidence/);
+    assert.match(unverifiedDocsRow?.hint ?? '', /re-run the proof-or-stop-review-delivery reviewer to add verification evidence/);
   } finally {
     rmSync(root, { recursive: true, force: true });
     resetConfigCache();

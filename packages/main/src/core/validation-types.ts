@@ -1,4 +1,8 @@
 import type { ResourceClaim } from './keyed-scheduler.js';
+import type {
+  DoneRequiredCommandSpecSchema,
+  DoneRequiredEvidenceSchema,
+} from './artifact-schema.js';
 
 export type ValidationStatus = 'pass' | 'fail' | 'warn';
 export type ValidationFailureKind = 'validation_failure' | 'infra_failure';
@@ -259,7 +263,7 @@ export type DoneRequiredEvidenceStatus = 'PASS' | 'FAIL';
 
 export interface DoneRequiredCommandSpecEnvelope {
   /** v2 digests a repo-relative logical cwd; v1 (legacy) digested an absolute cwd. */
-  schema: 'lattice.command-spec.v1' | 'lattice.command-spec.v2';
+  schema: DoneRequiredCommandSpecSchema;
   digest: string;
   command: string;
   args: string[];
@@ -303,7 +307,7 @@ export interface DoneRequiredCommandReceipt {
 }
 
 export interface DoneRequiredEvidenceData {
-  schema: 'lattice.done-required-evidence';
+  schema: DoneRequiredEvidenceSchema;
   version: 1;
   storyId: string;
   status: DoneRequiredEvidenceStatus;

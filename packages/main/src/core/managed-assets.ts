@@ -49,7 +49,7 @@ import {
   renderProofOrStopBootstrapScript,
   renderProofOrStopCodexAdapterManifest,
   renderProofOrStopCodexWrapperScript,
-  renderLatticeProjectConfig,
+  renderProofOrStopProjectConfig,
   type InitAssetMode,
   type InitProfile,
 } from '../init-assets.js';
@@ -66,8 +66,16 @@ import {
   readPromptRegistry,
   renderPromptEntryForHost,
 } from './prompt-registry.js';
+import { canonicalAgentRoleId, legacyAgentRoleIds } from './agent-role-identity.js';
 import { loadConfig } from './config.js';
 import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
+import {
+  containsManagedMarker,
+  extractManagedBlock,
+  hasManagedBlock,
+  inspectManagedBlock,
+  replaceManagedBlock,
+} from './managed-markers.js';
 
 export type ManagedAssetStatus =
   | 'OK'
@@ -203,7 +211,6 @@ interface ManagedAssetPathInfo {
 // reappeared on every CLI invocation and repeatedly tripped the half-done
 // detector. Route it through the resolver like every other state path.
 const MANIFEST_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/managed-assets.json`;
-const INIT_DOC_SECTION_RE = /<!--\s*lattice:start\s*-->[\s\S]*?<!--\s*lattice:end\s*-->/;
 
 function packageRoot(): string {
   return join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -348,13 +355,11 @@ function removeLegacyScopePretoolHookIfGenerated(root: string, host: 'claude' | 
 }
 
 function extractManagedSection(content: string): string {
-  const match = content.match(INIT_DOC_SECTION_RE);
-  if (!match) return normalizeContent(content);
-  return match[0];
+  return extractManagedBlock(content, 'document');
 }
 
 function hasManagedMarkers(content: string): boolean {
-  return INIT_DOC_SECTION_RE.test(content);
+  return hasManagedBlock(content, 'document');
 }
 
 function safeJsonParse(text: string): unknown {
@@ -401,7 +406,7 @@ function collectApplyWarnings(root: string): string[] {
 
 function isManagedPrompt(actual: string, file: string): boolean {
   const base = file.replace(/\.md$/, '');
-  return actual.includes('<!-- lattice:start -->')
+  return containsManagedMarker(actual, 'document')
     || actual.includes(`name: ${base}`)
     || actual.includes('name: lattice-');
 }
@@ -744,7 +749,7 @@ export function listManagedAssetDefinitions(
         // init writes the canonical manifest name inside the canonical state dir.
         `${PROOF_OR_STOP_STATE_DIR}:${PROOF_OR_STOP_MANIFEST_FILENAME}`,
         `${PROOF_OR_STOP_STATE_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}`,
-        renderLatticeProjectConfig(),
+        renderProofOrStopProjectConfig(),
         actual => actual.includes('"assetMode"') && actual.includes('global-thin'),
         false,
         actual => {
@@ -753,7 +758,8 @@ export function listManagedAssetDefinitions(
             return Boolean(
               parsed && typeof parsed === 'object' && !Array.isArray(parsed)
               && (parsed as Record<string, unknown>)['assetMode'] === 'global-thin'
-              && (parsed as Record<string, unknown>)['latticeVersion'] === 1,
+              && ((parsed as Record<string, unknown>)['proofOrStopVersion'] === 1
+                || (parsed as Record<string, unknown>)['latticeVersion'] === 1),
             );
           } catch { return false; }
         },
@@ -909,7 +915,7 @@ export function listManagedAssetDefinitions(
       wholeFile(
         `${PROOF_OR_STOP_ADAPTER_DIR}:README.md`,
         `${PROOF_OR_STOP_ADAPTER_DIR}/README.md`,
-        renderCodexReadmeTemplate(assetMode, 'lattice'),
+        renderCodexReadmeTemplate(assetMode, 'proof-or-stop'),
         actual => actual.includes('Codex + Proof-or-Stop'),
       ),
       wholeFile(
@@ -948,7 +954,7 @@ export function listManagedAssetDefinitions(
       // for all 17 roles.
       const registryEntries = readPromptRegistry(templates).agents;
       for (const file of files) {
-        const roleId = file.replace(/\.md$/, '');
+        const roleId = canonicalAgentRoleId(file.replace(/\.md$/, ''));
         const entry = registryEntries.find(candidate => candidate.agentId === roleId);
         defs.push(wholeFile(
           `${PROOF_OR_STOP_ADAPTER_DIR}/agents:${file}`,
@@ -987,7 +993,7 @@ export function listManagedAssetDefinitions(
       // byte-identical to the hand-rolled output for all 17 roles on both hosts.
       const registryEntries = readPromptRegistry(templates).agents;
       for (const file of expected) {
-        const roleId = file.replace(/\.md$/, '');
+        const roleId = canonicalAgentRoleId(file.replace(/\.md$/, ''));
         const entry = registryEntries.find(candidate => candidate.agentId === roleId);
         defs.push(wholeFile(
           `.claude/agents:${file}`,
@@ -1135,10 +1141,14 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
   if (def.kind === 'managed-block') {
     const desiredSection = extractManagedSection(expected ?? '');
     const manifestUnchanged = Boolean(manifestEntry?.contentHash && manifestEntry.contentHash === actualHash);
-    if (!hasManagedMarkers(actual)) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash: sha256(desiredSection), actualHash, reason: 'file exists without Proof-or-Stop managed markers', action: 'fix manually: add markers or merge the managed section' };
+    const inspection = inspectManagedBlock(actual, 'document');
+    if (inspection.status !== 'valid') {
+      const reason = inspection.status === 'missing'
+        ? 'file exists without Proof-or-Stop managed markers'
+        : `managed block markers are malformed: ${inspection.reason}`;
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash: sha256(desiredSection), actualHash, reason, action: 'fix manually: add one complete, non-nested managed block before syncing' };
     }
-    const actualSection = actual.match(INIT_DOC_SECTION_RE)?.[0] ?? '';
+    const actualSection = inspection.block.text;
     if (sha256(actualSection) === sha256(desiredSection)) {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches template', action: 'none' };
     }
@@ -1202,7 +1212,9 @@ function applyDefinition(root: string, def: ManagedAssetDefinition, item: Manage
     if (actual === null) {
       writeFileSync(full, expected);
     } else {
-      writeFileSync(full, actual.replace(INIT_DOC_SECTION_RE, extractManagedSection(expected)));
+      const updated = replaceManagedBlock(actual, extractManagedSection(expected), 'document');
+      if (updated === null) return false;
+      writeFileSync(full, updated);
     }
     return true;
   }
@@ -1453,9 +1465,9 @@ export const AGENT_ASSET_MODE_RUNTIME_OWNED = 'runtime-owned' as const;
 export interface ProjectLocalAgentScan {
   /** Absolute project .claude/agents dir scanned. */
   agentsDir: string;
-  /** The managed template basename set used for the exact-match comparison. */
+  /** The canonical and exact legacy-alias basename set used for comparison. */
   managedBasenames: string[];
-  /** Project-local *.md files whose basename exactly matches a managed template. */
+  /** Project-local *.md files whose basename exactly matches a managed role or alias. */
   managedFiles: string[];
   /** Project-local *.md files NOT in the managed set (user-authored — preserved). */
   userFiles: string[];
@@ -1465,9 +1477,11 @@ export interface ProjectLocalAgentScan {
  * Scan a project's `.claude/agents` for project-local managed agent files.
  *
  * "Managed" = basename exactly matches one of the running CLI package's
- * `templates/agents/*.md`. This is the precise set the explicit `--upgrade`
- * migration is allowed to delete; everything else is user-authored and
- * preserved. Returns empty sets when the dir or template source is absent.
+ * `templates/agents/*.md`, or an exact legacy alias for one of those canonical
+ * roles from the shared role identity mapping. This is the precise set the
+ * explicit `--upgrade` migration is allowed to delete; everything else is
+ * user-authored and preserved. Returns empty sets when the dir or template
+ * source is absent.
  */
 export function scanProjectLocalManagedAgents(
   projectRoot: string,
@@ -1475,7 +1489,10 @@ export function scanProjectLocalManagedAgents(
 ): ProjectLocalAgentScan {
   const agentsDir = join(projectRoot, '.claude', 'agents');
   const managedBasenames = templateDir && existsSync(templateDir)
-    ? listManagedAgentBasenames(templateDir)
+    ? [...new Set(listManagedAgentBasenames(templateDir).flatMap((file) => {
+      const roleId = canonicalAgentRoleId(file.replace(/\.md$/, ''));
+      return [file, ...legacyAgentRoleIds(roleId).map(alias => `${alias}.md`)];
+    }))].sort((a, b) => a.localeCompare(b))
     : [];
   const managedSet = new Set(managedBasenames);
   const managedFiles: string[] = [];
@@ -1504,9 +1521,10 @@ export interface MigrateProjectLocalAgentsResult {
 }
 
 /**
- * Migrate (delete) ONLY the exact managed agent basenames from a project's
- * `.claude/agents`. NEVER wildcard-deletes; user-authored files are preserved.
- * Removes the dir only if it becomes empty. Idempotent: no managed files → no-op.
+ * Migrate (delete) ONLY the exact managed agent or known legacy-alias basenames
+ * from a project's `.claude/agents`. NEVER wildcard-deletes; user-authored
+ * files are preserved. Removes the dir only if it becomes empty. Idempotent:
+ * no managed files → no-op.
  *
  * This is the explicit `--upgrade` migration. Callers must ensure the global
  * single source is ready first (see syncGlobalAgents).

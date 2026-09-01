@@ -411,6 +411,9 @@ try {
     /Verification evidence recorded/,
   );
   assert.equal(store.readChecklist(storyId).items[0].verificationEvidence?.[0]?.note, 'Result: warning threshold test passed with expected fallback.', 'false-positive control persists ordinary evidence through the real CLI');
+  // B-ec67 F-008: checklist_update may re-persist an already-audited non-mechanical
+  // row. It strips caller-supplied provenance, then carries the trusted on-disk
+  // mechanical:false/reason pair forward; changing the incoming row must not upgrade it.
   const audited = store.readChecklist(storyId).items[0].verificationEvidence![0];
   assert.match(
     run(writerCliRoot, 'checklist_update', {
@@ -443,6 +446,7 @@ try {
   // B-ec67 F-007: checklist_update no longer accepts executable-intent evidence (it does
   // not execute pinned commands); a non-matrix row is now refused with the F-007 code
   // (NOT the matrix-projection code), directing callers to verification_evidence_add.
+  const beforeUnenforcedExecutableEvidence = JSON.stringify(store.readChecklist(storyId));
   assert.match(
     run(writerCliRoot, 'checklist_update', {
       storyId,
@@ -450,7 +454,29 @@ try {
       verificationEvidence: [{ intentRef: 'INT-001', kind: 'logic_test', command: 'rg acceptance_matrix packages/main/src/core/command-policy.ts', result: 'pass', note: 'Registry source assertion passed.' }],
     }, true, 'main-agent'),
     /checklist_update_executable_evidence_unenforced/,
+    'checklist_update must refuse a fresh executable evidence row instead of pretending to execute it',
   );
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), beforeUnenforcedExecutableEvidence, 'refused executable evidence leaves the audited checklist row unchanged');
+
+  const freshChecklist = store.readChecklist(storyId);
+  freshChecklist.items.push({
+    ...checklist(false).items[0],
+    id: 'CHK-FRESH',
+    title: 'Fresh executable evidence guard',
+    verificationIntent: { happy: [{ id: 'INT-FRESH', desc: 'fresh executable evidence requires enforcement', type: 'logic', priority: 'must' }], edge: [], adversarial: [] },
+    verificationEvidence: [],
+  });
+  store.writeChecklist(storyId, freshChecklist);
+  const freshChecklistBeforeRefusal = JSON.stringify(store.readChecklist(storyId));
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-FRESH',
+      verificationEvidence: [{ intentRef: 'INT-FRESH', kind: 'logic_test', command: 'rg acceptance_matrix packages/main/src/core/command-policy.ts', result: 'pass', note: 'Registry source assertion passed.' }],
+    }, true, 'main-agent'),
+    /checklist_update_executable_evidence_unenforced/,
+  );
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), freshChecklistBeforeRefusal, 'fresh executable evidence without trusted provenance remains refused atomically');
   assert.match(
     run(writerCliRoot, 'verification_evidence_add', {
       storyId,

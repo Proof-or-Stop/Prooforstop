@@ -59,6 +59,7 @@ import {
 import { renderAgentLivenessGuidance } from './agent-liveness-policy.js';
 import { reviewInventoryRemediationGate } from './review-inventory-epoch.js';
 import { readDevMemoryFinishDecision } from './playbook-runtime-memory.js';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -230,11 +231,12 @@ function initPreflightGuidance(storyId: string): string {
 
 function renderMissingInitReviewerDispatches(storyId: string, missingAgents: string[]): string {
   const dispatches = missingAgents.map(agentId => {
-    if (agentId === 'lattice-review-story-init') {
-      return `   Agent({ subagent_type: "lattice-review-story-init", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}'\` })`;
+    const canonicalAgentId = canonicalAgentRoleId(agentId);
+    if (canonicalAgentId === 'proof-or-stop-review-story-init') {
+      return `   Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}'\` })`;
     }
-    if (agentId === 'product-reviewer') {
-      return `   Agent({ subagent_type: "product-reviewer", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"product-reviewer"}'\` })`;
+    if (canonicalAgentId === 'proof-or-stop-product-reviewer') {
+      return `   Agent({ subagent_type: "proof-or-stop-product-reviewer", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-product-reviewer"}'\` })`;
     }
     throw new Error(`unsupported required INIT reviewer: ${agentId}`);
   });
@@ -861,7 +863,7 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
       return { ok: false, code: 'review_evidence_invalid', message: evidenceState.invalid.slice(0, 5).map(issue => issue.message).join('; ') };
     }
     if (evidenceState.valid.length === 0) {
-      return { ok: false, code: 'review_evidence_missing', message: 'no valid current-round lattice-review-* finding or pass' };
+      return { ok: false, code: 'review_evidence_missing', message: 'no valid current-round proof-or-stop-review-* finding or pass' };
     }
 
     // Check for reviewer-produced finding if policy requires it
@@ -1232,15 +1234,15 @@ export function getGuardFailureReason(
         `${initPreflightGuidance(storyId)}\n` +
         `Missing required reviewer records: ${REQUIRED_INIT_CHECK_AGENTS.join(', ')}\n` +
         `→ Preferred: spawn an independent reviewer\n` +
-        `   Agent({ subagent_type: "lattice-review-story-init", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}'\` })\n` +
-        `   and have product-reviewer call init_check_set as well.\n` +
+        `   Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}'\` })\n` +
+        `   and have proof-or-stop-product-reviewer call init_check_set as well.\n` +
         `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
         `   proof-or-stop init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
     }
     const expected = recomputeInitCheckHash(storyId, store, projectRoot ?? process.cwd());
     if (initCheck._hash !== expected) {
-      return `Cannot enter INIT_CHECK: init-check.json _hash mismatch (background/title/description/checklist were modified); please re-run the lattice-review-story-init agent. [init_check_tampered]`;
+      return `Cannot enter INIT_CHECK: init-check.json _hash mismatch (background/title/description/checklist were modified); please re-run the proof-or-stop-review-story-init agent. [init_check_tampered]`;
     }
     const missingAgents = missingRequiredInitCheckAgents(initCheck);
     if (missingAgents.length > 0) {
@@ -1294,11 +1296,11 @@ export function getGuardFailureReason(
         const inventory = reviewInventoryRemediationGate(store, storyId, story.currentReviewRound);
         if (!inventory.ok) {
           return `Cannot enter remediation DEV: ${inventory.reason}. ` +
-            `Next: ${inventory.nextCommand ?? `lattice review_inventory_status --storyId=${storyId}`}`;
+            `Next: ${inventory.nextCommand ?? `proof-or-stop review_inventory_status --storyId=${storyId}`}`;
         }
       } catch (error) {
         return `Cannot enter remediation DEV: inventory evidence is unreadable or invalid (${error instanceof Error ? error.message : String(error)}). ` +
-          `Next: lattice review_inventory_status --storyId=${storyId}`;
+          `Next: proof-or-stop review_inventory_status --storyId=${storyId}`;
       }
     }
     let tookExpressChannel = false;
@@ -1469,17 +1471,17 @@ export function getGuardFailureReason(
     );
     const deliveryCheck = deliveryCheckFreshness.deliveryCheck;
     if (!deliveryCheck) {
-      return `Cannot enter DONE: missing delivery-check.json (requires lattice-review-delivery reviewer signature). [missing_delivery_check] → Run story_advance DEV to rework and fill in`;
+      return `Cannot enter DONE: missing delivery-check.json (requires proof-or-stop-review-delivery reviewer signature). [missing_delivery_check] → Run story_advance DEV to rework and fill in`;
     }
     const liveSmokeTranscript = evaluateOptionalLiveSmokeTranscript(store, storyId);
     if (!liveSmokeTranscript.ok) {
       return `Cannot enter DONE: ${liveSmokeTranscript.reason}. [live_smoke_transcript_failed] → Re-run proof-or-stop live_smoke_transcript with a passing command and --write`;
     }
     if (deliveryCheckFreshness.code === 'delivery_check_tampered') {
-      return `Cannot enter DONE: delivery-check.json _hash mismatch (content has been tampered with); please re-run lattice-review-delivery reviewer. [delivery_check_tampered] → Run story_advance DEV to rework and fill in`;
+      return `Cannot enter DONE: delivery-check.json _hash mismatch (content has been tampered with); please re-run proof-or-stop-review-delivery reviewer. [delivery_check_tampered] → Run story_advance DEV to rework and fill in`;
     }
     if (deliveryCheckFreshness.code === 'stale_delivery_check') {
-      return `Cannot enter DONE: ${deliveryCheckFreshness.reason}; please re-run lattice-review-delivery reviewer. [stale_delivery_check] → Run story_advance DEV to rework and fill in`;
+      return `Cannot enter DONE: ${deliveryCheckFreshness.reason}; please re-run proof-or-stop-review-delivery reviewer. [stale_delivery_check] → Run story_advance DEV to rework and fill in`;
     }
 
     // every docsPromise must be verified or waived

@@ -21,8 +21,10 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   renderCodexAgentContent,
+  renderCodexEvidencePretoolHookScript,
   renderProofOrStopBootstrapScript,
   renderProofOrStopCodexAdapterManifest,
+  renderCodexPretoolScopeHookScript,
   renderProofOrStopCodexWrapperScript,
 } from '../init-assets.js';
 import { runCodexAdapterChecks, renderCodexAdapterChecks } from '../core/codex-adapter-checks.js';
@@ -37,6 +39,11 @@ import { renderReviewerRunBootstrapForTemplate } from '../core/global-agents.js'
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const repoRoot = join(packageRoot, '..', '..');
 
+const renderedScopeHook = renderCodexPretoolScopeHookScript();
+const renderedEvidenceHook = renderCodexEvidencePretoolHookScript();
+assert.match(renderedScopeHook, /@proof-or-stop', 'core', 'dist', 'cli\.js'/, 'generated scope hook must resolve the canonical core package');
+assert.match(renderedEvidenceHook, /@proof-or-stop', 'core', 'dist', 'cli\.js'/, 'generated evidence hook must resolve the canonical core package');
+
 function writeText(root: string, relPath: string, content: string): void {
   const full = join(root, relPath);
   mkdirSync(dirname(full), { recursive: true });
@@ -45,8 +52,8 @@ function writeText(root: string, relPath: string, content: string): void {
 
 function makeRoot(name: string): string {
   const root = mkdtempSync(join(tmpdir(), `lattice-${name}-`));
-  writeText(root, 'bin/lattice.js', renderProofOrStopBootstrapScript(packageRoot));
-  writeText(root, 'bin/lattice-codex.js', renderProofOrStopCodexWrapperScript());
+  writeText(root, 'bin/proof-or-stop.js', renderProofOrStopBootstrapScript(packageRoot));
+  writeText(root, 'bin/proof-or-stop-codex.js', renderProofOrStopCodexWrapperScript());
   seedCodexNativeHooks(root);
   return root;
 }
@@ -61,7 +68,7 @@ function seedLegacyPrompts(root: string): void {
   const registry = readPromptRegistry();
   for (const entry of registry.agents) {
     writeText(root, `.claude/agents/${entry.file}`, renderPromptEntryForHost(entry, 'claude'));
-    writeText(root, `.lattice-codex/agents/${entry.file}`, renderPromptEntryForHost(entry, 'codex'));
+    writeText(root, `.proof-or-stop-codex/agents/${entry.file}`, renderPromptEntryForHost(entry, 'codex'));
   }
 }
 
@@ -77,7 +84,7 @@ function assertOk(result: ReturnType<typeof runCodexAdapterChecks>): void {
 
 const mirrorRoot = makeRoot('codex-mirror');
 try {
-  writeText(mirrorRoot, '.lattice-codex/lattice.json', renderProofOrStopCodexAdapterManifest());
+  writeText(mirrorRoot, '.proof-or-stop-codex/proof-or-stop.json', renderProofOrStopCodexAdapterManifest());
   seedLegacyPrompts(mirrorRoot);
   const mirror = runCodexAdapterChecks(mirrorRoot, { executeHeartbeats: false });
   assertOk(mirror);
@@ -90,18 +97,18 @@ try {
 
 const jointlyDriftedHostRoot = makeRoot('codex-joint-host-drift');
 try {
-  writeText(jointlyDriftedHostRoot, '.lattice-codex/lattice.json', renderProofOrStopCodexAdapterManifest());
+  writeText(jointlyDriftedHostRoot, '.proof-or-stop-codex/proof-or-stop.json', renderProofOrStopCodexAdapterManifest());
   seedLegacyPrompts(jointlyDriftedHostRoot);
-  const file = 'lattice-review-quality.md';
+  const file = 'proof-or-stop-review-quality.md';
   const drift = '\n<!-- jointly drifted host asset -->\n';
-  for (const relPath of [`.claude/agents/${file}`, `.lattice-codex/agents/${file}`]) {
+  for (const relPath of [`.claude/agents/${file}`, `.proof-or-stop-codex/agents/${file}`]) {
     const path = join(jointlyDriftedHostRoot, relPath);
     writeText(jointlyDriftedHostRoot, relPath, readFileSync(path, 'utf8') + drift);
   }
   const result = runCodexAdapterChecks(jointlyDriftedHostRoot, { executeHeartbeats: false });
   assert.equal(result.ok, false, 'joint Claude/Codex drift cannot evade the package render identity');
   assert.equal(checkById(result, 'agents-mirror').status, 'fail');
-  assert.match(checkById(result, 'agents-mirror').detail, /package\/Claude drift lattice-review-quality\.md/);
+  assert.match(checkById(result, 'agents-mirror').detail, /package\/Claude drift proof-or-stop-review-quality\.md/);
 } finally {
   rmSync(jointlyDriftedHostRoot, { recursive: true, force: true });
 }
@@ -123,13 +130,15 @@ try {
 
 const thinRoot = makeRoot('codex-thin');
 try {
-  writeText(thinRoot, '.lattice-codex/lattice.json', renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }));
+  const canonicalManifest = JSON.parse(renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }));
+  assert.equal(canonicalManifest.promptRegistry.schemaVersion, 'proof-or-stop.prompt-registry.v1', 'new manifests emit the canonical prompt-registry schema');
+  writeText(thinRoot, '.proof-or-stop-codex/proof-or-stop.json', `${JSON.stringify(canonicalManifest, null, 2)}\n`);
   const thin = runCodexAdapterChecks(thinRoot, { executeHeartbeats: false });
   assertOk(thin);
   assert.equal(checkById(thin, 'manifest').status, 'pass');
   assert.equal(checkById(thin, 'prompt-registry').status, 'pass');
   assert.equal(thin.checks.some(check => check.id === 'agents-mirror'), false);
-  const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'lattice-review-quality')!;
+  const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'proof-or-stop-review-quality')!;
   const actualCodexRegistryPrompt = renderPromptEntryForHost(entry, 'codex');
   assert.match(actualCodexRegistryPrompt, /review_run_start/, 'registry mode returns the reviewer bootstrap');
   assert.doesNotMatch(actualCodexRegistryPrompt, /proofbound:modular-role-body:v1/, 'registry mode never preloads the role body');
@@ -139,6 +148,15 @@ try {
   assert.equal(identity.hostRenderDigest.length, 64);
   assert.equal(identity.bootstrapDigest?.length, 64, 'registry mode binds the same body-free review bootstrap');
   assert.notEqual(identity.bootstrapDigest, identity.selectedRoleBodyDigest);
+
+  const legacyManifest = { ...canonicalManifest, promptRegistry: {
+    ...canonicalManifest.promptRegistry,
+    schemaVersion: 'lattice.prompt-registry.v1',
+  } };
+  writeText(thinRoot, '.proof-or-stop-codex/proof-or-stop.json', `${JSON.stringify(legacyManifest, null, 2)}\n`);
+  const legacy = runCodexAdapterChecks(thinRoot, { executeHeartbeats: false });
+  assertOk(legacy);
+  assert.equal(checkById(legacy, 'manifest').status, 'pass', 'legacy prompt-registry schema remains readable');
 } finally {
   rmSync(thinRoot, { recursive: true, force: true });
 }
@@ -146,9 +164,9 @@ try {
 const globalThinRoot = makeRoot('global-thin-host-render');
 try {
   writeText(globalThinRoot, '.lattice/lattice.json', `${JSON.stringify({ assetMode: 'global-thin' }, null, 2)}\n`);
-  const codexIdentity = reviewerHostRenderIdentity(globalThinRoot, 'lattice-review-quality', 'codex');
-  const claudeIdentity = reviewerHostRenderIdentity(globalThinRoot, 'lattice-review-quality', 'claude');
-  const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'lattice-review-quality')!;
+  const codexIdentity = reviewerHostRenderIdentity(globalThinRoot, 'proof-or-stop-review-quality', 'codex');
+  const claudeIdentity = reviewerHostRenderIdentity(globalThinRoot, 'proof-or-stop-review-quality', 'claude');
+  const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'proof-or-stop-review-quality')!;
   assert.match(renderPromptEntryForHost(entry, 'codex'), /review_run_start/);
   assert.match(renderPromptEntryForHost(entry, 'claude'), /review_run_start/);
   assert.equal(codexIdentity.source, 'package-registry');
@@ -163,10 +181,10 @@ try {
 const fullCodexOnlyRoot = makeRoot('full-codex-only-host-render');
 try {
   writeText(fullCodexOnlyRoot, '.lattice/lattice.json', `${JSON.stringify({ assetMode: 'full' }, null, 2)}\n`);
-  const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'lattice-review-quality')!;
+  const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'proof-or-stop-review-quality')!;
   const packagePrompt = readPromptTemplate(entry);
   const codexBootstrap = renderReviewerRunBootstrapForTemplate(renderCodexAgentContent(packagePrompt), entry.file);
-  writeText(fullCodexOnlyRoot, `.lattice-codex/agents/${entry.file}`, codexBootstrap);
+  writeText(fullCodexOnlyRoot, `.proof-or-stop-codex/agents/${entry.file}`, codexBootstrap);
   const identity = reviewerHostRenderIdentity(fullCodexOnlyRoot, entry.agentId, 'codex');
   assert.equal(identity.source, 'full-asset');
   assert.equal(identity.bootstrapDigest?.length, 64);
@@ -191,7 +209,7 @@ try {
   );
   writeText(
     fullCodexOnlyRoot,
-    `.lattice-codex/agents/${entry.file}`,
+    `.proof-or-stop-codex/agents/${entry.file}`,
     `${codexBootstrap}\n<!-- codex-only drift -->\n`,
   );
   assert.throws(
@@ -205,7 +223,7 @@ try {
 const fullClaudeOnlyRoot = makeRoot('full-claude-only-host-render');
 try {
   writeText(fullClaudeOnlyRoot, '.lattice/lattice.json', `${JSON.stringify({ assetMode: 'full' }, null, 2)}\n`);
-  const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'lattice-review-quality')!;
+  const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'proof-or-stop-review-quality')!;
   const packagePrompt = readPromptTemplate(entry);
   writeText(
     fullClaudeOnlyRoot,
@@ -229,7 +247,7 @@ const driftRoot = makeRoot('codex-registry-drift');
 try {
   const manifest = JSON.parse(renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }));
   manifest.recommendedEntrypoints[0].command = 'node bin/changed.js';
-  writeText(driftRoot, '.lattice-codex/lattice.json', `${JSON.stringify(manifest, null, 2)}\n`);
+  writeText(driftRoot, '.proof-or-stop-codex/proof-or-stop.json', `${JSON.stringify(manifest, null, 2)}\n`);
   const drift = runCodexAdapterChecks(driftRoot, { executeHeartbeats: false });
   assert.equal(drift.ok, false, 'registry manifest static drift must be a hard failure');
   assert.equal(checkById(drift, 'manifest').status, 'fail');
@@ -243,7 +261,7 @@ const tamperedRoot = makeRoot('codex-tampered');
 try {
   const manifest = JSON.parse(renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }));
   manifest.promptRegistry.materialHash = 'tampered';
-  writeText(tamperedRoot, '.lattice-codex/lattice.json', `${JSON.stringify(manifest, null, 2)}\n`);
+  writeText(tamperedRoot, '.proof-or-stop-codex/proof-or-stop.json', `${JSON.stringify(manifest, null, 2)}\n`);
   const tampered = runCodexAdapterChecks(tamperedRoot, { executeHeartbeats: false });
   assert.equal(tampered.ok, false, 'tampered registry manifest must be a hard failure');
   assert.equal(checkById(tampered, 'manifest').status, 'fail');

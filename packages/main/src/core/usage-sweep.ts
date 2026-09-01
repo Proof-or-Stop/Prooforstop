@@ -41,6 +41,7 @@ import {
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { createInterface } from 'node:readline';
 import { deriveAdapterOwnerSessionId } from './owner-session-adapters.js';
+import { USAGE_SWEEP_SCHEMA } from './artifact-schema.js';
 
 // ── Local usage shapes (intentionally NOT imported from core/usage-ledger) ───
 
@@ -496,7 +497,7 @@ export interface SweepPerStoryRollup extends SweepBucket {
 }
 
 export interface SweepReport {
-  schemaVersion: 'lattice.usage_sweep.v1';
+  schemaVersion: typeof USAGE_SWEEP_SCHEMA;
   label: 'NON-AUTHORITATIVE ESTIMATE';
   since: string | null;
   sinceMs: number | null;
@@ -641,7 +642,7 @@ export function buildSweepReport(
   });
 
   return {
-    schemaVersion: 'lattice.usage_sweep.v1',
+    schemaVersion: USAGE_SWEEP_SCHEMA,
     label: 'NON-AUTHORITATIVE ESTIMATE',
     since: options.since ?? null,
     sinceMs: options.sinceMs ?? null,

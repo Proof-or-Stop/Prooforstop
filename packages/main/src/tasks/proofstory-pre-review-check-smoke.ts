@@ -26,6 +26,9 @@ import {
   decodePreReviewCaseRecords,
   encodePreReviewCaseRecords,
   preReviewCaseAggregateDigest,
+  preReviewCaseSemanticBindingForSourceRef,
+  preReviewCaseSemanticMatches,
+  REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS,
 } from '../core/pre-review-live-proof.js';
 import {
   currentAcceptanceRolloutBinding,
@@ -60,12 +63,49 @@ const actualScenarioEvents: Array<[string, number]> = [];
 const scenarioSourceRefs = new Map<string, string>();
 type ScenarioCaseKind = PreReviewCaseRecordV1[1];
 const registeredScenarioKinds = new Map<string, ScenarioCaseKind>([
-  ...Array.from({ length: 5 }, (_, index) => [`A-POS-${index + 1}`, 'positive'] as const),
-  ...Array.from({ length: 17 }, (_, index) => [`A-MUT-${index + 1}`, 'mutation'] as const),
+  ...Array.from({ length: 7 }, (_, index) => [`A-POS-${index + 1}`, 'positive'] as const),
+  ...Array.from({ length: 21 }, (_, index) => [`A-MUT-${index + 1}`, 'mutation'] as const),
   ['A-TRANSCRIPT-1', 'transcript'] as const,
 ]);
 const activeScenarioAssertions = new Map<string, { kind: ScenarioCaseKind; sourceRef: string }>();
+const activeScenarioKinds = new Map<string, ScenarioCaseKind>();
 const activeScenarioStoryId = scenarioMode ? (activeStoryArgId || process.env.LATTICE_ACTIVE_STORY_ID) : undefined;
+
+type JsonObject = Record<string, unknown>;
+
+function readRepositoryJson(relativePath: string): JsonObject {
+  return JSON.parse(readFileSync(join(repositoryRoot, relativePath), 'utf8')) as JsonObject;
+}
+
+function objectValue(value: unknown): JsonObject {
+  return value && typeof value === 'object' ? value as JsonObject : {};
+}
+
+function siblingPackageGraphPass(input: {
+  core: JsonObject;
+  utils: JsonObject;
+  lab: JsonObject;
+  utilsLock: JsonObject;
+  labLock: JsonObject;
+}): boolean {
+  const coreDependencies = objectValue(input.core.dependencies);
+  const utilsDependencies = objectValue(input.utils.dependencies);
+  const labDependencies = objectValue(input.lab.dependencies);
+  const utilsLockPackages = objectValue(input.utilsLock.packages);
+  const labLockPackages = objectValue(input.labLock.packages);
+  return input.utils.name === '@proof-or-stop/utils'
+    && input.lab.name === '@proof-or-stop/lab'
+    && coreDependencies['@proof-or-stop/lab'] === '0.3.65'
+    && utilsDependencies['@proof-or-stop/core'] === '0.3.65'
+    && labDependencies['@proof-or-stop/core'] === '0.3.65'
+    && objectValue(utilsLockPackages['']).name === '@proof-or-stop/utils'
+    && objectValue(labLockPackages['']).name === '@proof-or-stop/lab';
+}
+
+function canonicalMainBinPass(packageJson: JsonObject): boolean {
+  const bin = objectValue(packageJson.bin);
+  return Object.keys(bin).length === 1 && bin['proof-or-stop'] === 'dist/cli.js';
+}
 
 function isCanonicalRolloutSmokePass(output: string): boolean {
   return output.trim().split(/\r?\n/).at(-1)?.trim() === CANONICAL_ROLLOUT_SMOKE_PASS;
@@ -121,15 +161,9 @@ if (scenarioMode) {
     ];
     for (const { assertion, kind } of assertions) {
       if (scenarioSourceRefs.has(assertion.id)) throw new Error(`duplicate active topology assertion ID: ${assertion.id}`);
-      const registeredKind = registeredScenarioKinds.get(assertion.id);
-      // The original Wave 4 fixture used the stable A-* catalog. Production
-      // contracts may instead derive assertion IDs from the current intent
-      // inventory (for example positive-1 / mutation-1 / transcript-1).
-      // Keep the legacy catalog strict for its own tests, but let the live
-      // runner bind any verifier-issued ID to the exact active kind below.
-      if (registeredKind && registeredKind !== kind) throw new Error(`active topology assertion kind mismatch for ${assertion.id}: expected ${registeredKind}, got ${kind}`);
       const sourceRef = canonicalPreReviewAssertionSourceRef(assertion.sourceRef);
       scenarioSourceRefs.set(assertion.id, sourceRef);
+      activeScenarioKinds.set(assertion.id, kind);
       activeScenarioAssertions.set(assertion.id, { kind, sourceRef });
     }
   }
@@ -161,14 +195,13 @@ function recordExecutedCase(unboundRecord: ExecutedCaseWithoutSourceRef): void {
 }
 
 const rolloutPromptNames = [
-  'lattice-implementer',
-  'test-case-reviewer',
-  'lattice-review-topology-critic',
-  'lattice-review-concept',
-  'lattice-review-quality',
-  'lattice-review-test-coverage',
-  'lattice-review-docs',
-  'lattice-review-delivery',
+  'proof-or-stop-implementer',
+  'proof-or-stop-review-topology-critic',
+  'proof-or-stop-review-concept',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-test-coverage',
+  'proof-or-stop-review-docs',
+  'proof-or-stop-review-delivery',
 ];
 const rolloutPromptTokens = [
   'acceptance_topology_check',
@@ -194,11 +227,7 @@ function rolloutPromptGuidancePass(overrides = new Map<string, string>()): boole
     const templatePath = `packages/main/templates/agents/${name}.md`;
     const template = overrides.get(templatePath) ?? readFileSync(join(repositoryRoot, templatePath), 'utf8');
     const tokensPresent = rolloutPromptTokens.every(token => template.toLowerCase().includes(token));
-    // `.proof-or-stop-codex` is the canonical adapter directory; retain the
-    // deprecated `.lattice-codex` fallback for older fixture repositories.
-    const canonicalCodexPath = `.proof-or-stop-codex/agents/${name}.md`;
-    const deprecatedCodexPath = `.lattice-codex/agents/${name}.md`;
-    const codexPath = existsSync(join(repositoryRoot, canonicalCodexPath)) ? canonicalCodexPath : deprecatedCodexPath;
+    const codexPath = `.proof-or-stop-codex/agents/${name}.md`;
     const claudePath = `.claude/agents/${name}.md`;
     const codex = overrides.get(codexPath) ?? readFileSync(join(repositoryRoot, codexPath), 'utf8');
     const claude = overrides.get(claudePath) ?? readFileSync(join(repositoryRoot, claudePath), 'utf8');
@@ -209,17 +238,22 @@ function rolloutPromptGuidancePass(overrides = new Map<string, string>()): boole
 function selectActiveScenarioRecords(
   expected: ReadonlyMap<string, { kind: ScenarioCaseKind; sourceRef: string }>,
   records: readonly PreReviewCaseRecordV1[],
-  allowDynamicIds = false,
+  knownKinds: ReadonlyMap<string, ScenarioCaseKind> = registeredScenarioKinds,
+  requireExactRecordSet = false,
 ): PreReviewCaseRecordV1[] {
   for (const [id, assertion] of expected) {
-    const registeredKind = registeredScenarioKinds.get(id);
-    if (!registeredKind && !allowDynamicIds) throw new Error(`unknown active topology assertion ID: ${id}`);
-    if (registeredKind && registeredKind !== assertion.kind) throw new Error(`active topology assertion kind mismatch for ${id}`);
+    const registeredKind = knownKinds.get(id);
+    if (!registeredKind) throw new Error(`unknown active topology assertion ID: ${id}`);
+    if (registeredKind !== assertion.kind) throw new Error(`active topology assertion kind mismatch for ${id}`);
   }
   const byId = new Map<string, PreReviewCaseRecordV1>();
   for (const record of records) {
     if (byId.has(record[0])) throw new Error(`executed scenario ledger contains duplicate assertion ID: ${record[0]}`);
     byId.set(record[0], record);
+  }
+  if (requireExactRecordSet) {
+    const extraIds = [...byId.keys()].filter(id => !expected.has(id));
+    if (extraIds.length > 0) throw new Error(`executed scenario ledger contains extra assertion IDs: ${extraIds.sort().join(', ')}`);
   }
   return [...expected].map(([id, assertion]) => {
     const record = byId.get(id);
@@ -231,16 +265,15 @@ function selectActiveScenarioRecords(
 }
 
 /**
- * Execute every assertion that the live production topology declares.
+ * Execute every assertion the live production topology declares.
  *
- * The historical A-* catalog above is retained for the fixture's focused
+ * B-45a0: the historical A-* catalog is retained for the fixture's focused
  * regression checks, but it is not an evidence source for a production
- * topology.  A production contract can contain arbitrary assertion IDs (the
- * current story has 15 positive, 30 mutation, and 45 transcript rows), so a
- * missing ID must be executed through the canonical verifier instead of being
- * filled from a template.  Each loop below performs a real command invocation
+ * topology. A production contract can contain arbitrary assertion IDs, so a
+ * missing ID is executed through the canonical verifier instead of being
+ * filled from a template. Each loop below performs a real command invocation
  * and records that invocation's result under the exact verifier-issued ID and
- * sourceRef.  If a command does not produce the expected fail-closed result,
+ * sourceRef. If a command does not produce the expected fail-closed result,
  * the scenario aborts and no aggregate proof is emitted.
  */
 function executeActiveScenarioWitnesses(
@@ -395,15 +428,68 @@ function executeActiveScenarioWitnesses(
   assert.match(finalControl.output, /status=pass/, `active topology witness final control was not PASS: ${finalControl.output}`);
 }
 
+/**
+ * The canonical scenario body executes a finite set of real operations. An active
+ * story may expose a different topology, so the runner may use only an explicit
+ * verifier-owned semantic binding to select a canonical result. A kind/index
+ * projection is deliberately forbidden: an active assertion must identify the
+ * canonical target, mutation kind, and operation that actually ran.
+ */
+function adaptCanonicalScenarioRecordsToActiveTopology(
+  expected: ReadonlyMap<string, { kind: ScenarioCaseKind; sourceRef: string }>,
+  canonicalRecords: readonly PreReviewCaseRecordV1[],
+): PreReviewCaseRecordV1[] {
+  const canonicalById = new Map(canonicalRecords.map(record => [record[0], record]));
+  const adapted = [...expected].map(([id, assertion]) => {
+    const exact = canonicalById.get(id);
+    if (exact && exact[1] === assertion.kind && exact[9] === assertion.sourceRef
+      && preReviewCaseSemanticMatches(exact, assertion.sourceRef, false)) return exact;
+
+    const binding = preReviewCaseSemanticBindingForSourceRef(assertion.sourceRef, assertion.kind);
+    if (!binding) {
+      throw new Error(`active topology assertion ${id} has no verified semantic canonical-case binding for ${assertion.sourceRef}`);
+    }
+    const template = canonicalById.get(binding.canonicalCaseId);
+    if (!template || template[1] !== assertion.kind || !preReviewCaseSemanticMatches(template, assertion.sourceRef, true)) {
+      throw new Error(`active topology assertion ${id} semantic canonical-case binding does not match an executed ${assertion.kind} result`);
+    }
+    const record = structuredClone(template);
+    record[0] = id;
+    record[1] = assertion.kind;
+    record[9] = assertion.sourceRef;
+    return record;
+  });
+
+  const knownKinds = new Map(activeScenarioKinds);
+  for (const [id, assertion] of expected) knownKinds.set(id, assertion.kind);
+  return selectActiveScenarioRecords(expected, adapted, knownKinds, true);
+}
+
 function loadFrozenAcceptanceRolloutCohortForScenarios(): AcceptanceRolloutCohortInputV1 {
   const frozenPath = cohortArgPath || process.env.LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE;
-  if (!frozenPath) {
+  const persistedReport = !frozenPath && activeScenarioStoryId
+    ? new StoryStore(repositoryRoot).readAcceptanceRolloutReport(activeScenarioStoryId)
+    : null;
+  if (!frozenPath && !persistedReport) {
     throw new Error(
-      '--proof-scenarios requires --cohort=<path> or LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE; ' +
+      '--proof-scenarios requires --cohort=<path>, LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE, or a persisted verifier-owned acceptance rollout report; ' +
       'scenario execution refuses to spawn the expensive registered cohort runner',
     );
   }
-  const cohort = JSON.parse(readFileSync(resolve(frozenPath), 'utf8')) as AcceptanceRolloutCohortInputV1;
+  const cohort = (persistedReport
+    ? {
+      schemaVersion: 'proofstory.acceptance_rollout_cohort_input.v1' as const,
+      generatedBy: 'runProofStoryAcceptanceRolloutCohort' as const,
+      evaluationWindow: persistedReport.report.evaluationWindow,
+      eligibilityRuleVersion: persistedReport.report.eligibilityRuleVersion,
+      thresholdVersion: persistedReport.report.thresholdVersion,
+      registeredSeedIds: persistedReport.report.registeredSeedIds,
+      sourceRecords: persistedReport.report.sourceRecords,
+      sourceInventoryDigest: persistedReport.report.sourceInventoryDigest,
+      runnerPath: 'scripts/run-proofstory-acceptance-rollout-cohort.mjs' as const,
+      runnerDigest: persistedReport.report.binding.runnerDigest,
+    }
+    : JSON.parse(readFileSync(resolve(frozenPath!), 'utf8'))) as AcceptanceRolloutCohortInputV1;
   if (cohort.schemaVersion !== 'proofstory.acceptance_rollout_cohort_input.v1'
     || cohort.generatedBy !== 'runProofStoryAcceptanceRolloutCohort'
     || cohort.runnerPath !== 'scripts/run-proofstory-acceptance-rollout-cohort.mjs') {
@@ -455,14 +541,18 @@ function git(root: string, args: string[]): string {
  * interactive shell that already exports one and fails under `proof-or-stop validate`, whose child
  * environment has none, with 'unsupported session host provider "absent"'.
  */
-function cli(root: string, command: string, args: Record<string, unknown>, allowFail = false, agent = 'lattice-implementer', sessionTask = 'sess-pre-review-smoke'): string {
+function cli(root: string, command: string, args: Record<string, unknown>, allowFail = false, agent = 'proof-or-stop-implementer', sessionTask = 'sess-pre-review-smoke'): string {
   try {
     return execFileSync(process.execPath, [latticeBin, '--root', root, command, JSON.stringify(args)], {
       cwd: root,
       env: {
         ...process.env,
+        // The registered rollout producer marks its outer process as the
+        // verifier. Nested fixture CLI calls must resolve their own adapter
+        // actor from the explicit session envelope instead of inheriting that
+        // non-dispatch actor marker.
+        PROOF_OR_STOP_AGENT: undefined,
         LATTICE_AGENT: agent,
-        PROOF_OR_STOP_AGENT: agent,
         ...adapterSessionEnv(sessionTask, agent),
       },
       encoding: 'utf8',
@@ -725,6 +815,79 @@ assert.throws(
   /active topology assertion kind mismatch for A-POS-5/,
   'known assertion ID cannot be rebound to a different kind',
 );
+const arbitraryActiveAssertions = new Map<string, { kind: ScenarioCaseKind; sourceRef: string }>([
+  ['A-CHK-002-edge-1', { kind: 'positive', sourceRef: 'intent:CHK-002:edge:1' }],
+  ['A-CHK-001-happy-0', { kind: 'positive', sourceRef: 'intent:CHK-001:happy:0' }],
+  ['M-CHK-003-adversarial-0', { kind: 'mutation', sourceRef: 'intent:CHK-003:adversarial:0' }],
+  ['T-ACC-001', { kind: 'transcript', sourceRef: 'acceptance-binding:ACC-001' }],
+]);
+assert.throws(
+  () => adaptCanonicalScenarioRecordsToActiveTopology(arbitraryActiveAssertions, expandedRecords),
+  /no verified semantic canonical-case binding/,
+  'an active topology with no verifier-owned semantic binding cannot borrow canonical records by kind',
+);
+
+const activeSemanticContract = structuredClone(expandedContract);
+const activeSemanticAssertion = activeSemanticContract.acceptanceBindings[0].verificationTopology!.positiveAssertionRefs[0]!;
+activeSemanticAssertion.sourceRef = { refKind: 'existing', canonicalSourceRef: 'intent:CHK-001:happy:0' };
+const activeSemanticRecord = structuredClone(expandedRecords[0]);
+activeSemanticRecord[2] = 'role-guidance:codex-claude-mirrors';
+activeSemanticRecord[3] = 'prompt-contract';
+activeSemanticRecord[4] = 'execute exact role guidance token and mirror contract over all Codex/Claude role pairs';
+activeSemanticRecord[9] = 'intent:CHK-001:happy:0';
+assert.doesNotThrow(
+  () => assemblePreReviewCaseRecords(activeSemanticContract, [activeSemanticRecord, ...expandedRecords.slice(1)]),
+  'a registered active assertion accepts only its bound canonical semantic case',
+);
+const mismatchedActiveRecord = structuredClone(activeSemanticRecord);
+mismatchedActiveRecord[2] = 'rollout:verified-cohort-receipt';
+mismatchedActiveRecord[3] = 'rollout-receipt-verification';
+mismatchedActiveRecord[4] = 'load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner';
+assert.throws(
+  () => assemblePreReviewCaseRecords(activeSemanticContract, [mismatchedActiveRecord, ...expandedRecords.slice(1)]),
+  /semantic contract mismatch for A-POS-1/,
+  'a semantically mismatched active clone is rejected before proof assembly',
+);
+assert.throws(
+  () => decodePreReviewCaseRecords(encodePreReviewCaseRecords([mismatchedActiveRecord])),
+  /decoded record semantic contract mismatch for A-POS-1/,
+  'the encoded proof boundary rejects the same active semantic clone',
+);
+
+const migrationActiveAssertions = new Map<string, { kind: ScenarioCaseKind; sourceRef: string }>([
+  ['A-CHK-006-happy-0', { kind: 'positive', sourceRef: 'intent:CHK-006:happy:0' }],
+  ['A-CHK-007-happy-0', { kind: 'positive', sourceRef: 'intent:CHK-007:happy:0' }],
+]);
+const migrationCanonicalRecords: PreReviewCaseRecordV1[] = [
+  ['A-POS-6', 'positive', 'package-identity:sibling-package-graph', 'package-identity-migration', 'execute the sibling package identity migration test against current package metadata, lockfiles, and dependency graph', 'PASS', 'PASS', true, [['producer-evaluated', 0], ['consumer-verified', 1]], 'intent:A-POS-6'],
+  ['A-POS-7', 'positive', 'bin-alias:canonical-only', 'npm-bin-migration', 'execute the current residue and npm-bin verifier against the package metadata with only proof-or-stop published', 'PASS', 'PASS', true, [['producer-evaluated', 2], ['consumer-verified', 3]], 'intent:A-POS-7'],
+];
+const migrationActiveRecords = adaptCanonicalScenarioRecordsToActiveTopology(migrationActiveAssertions, migrationCanonicalRecords);
+assert.deepEqual(
+  migrationActiveRecords.map(record => [record[2], record[3]]),
+  [
+    ['package-identity:sibling-package-graph', 'package-identity-migration'],
+    ['bin-alias:canonical-only', 'npm-bin-migration'],
+  ],
+  'CHK-006 and CHK-007 active assertions select their own executed canonical operations',
+);
+const swappedMigrationCanonicalRecords = structuredClone(migrationCanonicalRecords);
+const swappedMigrationSix = swappedMigrationCanonicalRecords[0]!;
+const swappedMigrationSeven = swappedMigrationCanonicalRecords[1]!;
+[swappedMigrationSix[2], swappedMigrationSix[3], swappedMigrationSix[4]] = [swappedMigrationSeven[2], swappedMigrationSeven[3], swappedMigrationSeven[4]];
+[swappedMigrationSeven[2], swappedMigrationSeven[3], swappedMigrationSeven[4]] = ['package-identity:sibling-package-graph', 'package-identity-migration', 'execute the sibling package identity migration test against current package metadata, lockfiles, and dependency graph'];
+assert.throws(
+  () => adaptCanonicalScenarioRecordsToActiveTopology(migrationActiveAssertions, swappedMigrationCanonicalRecords),
+  /semantic canonical-case binding does not match/,
+  'swapping CHK-006 and CHK-007 canonical semantics fails closed before proof assembly',
+);
+assert.equal(preReviewCaseSemanticBindingForSourceRef('intent:CHK-006:happy:0')?.canonicalCaseId, 'A-POS-6');
+assert.equal(preReviewCaseSemanticBindingForSourceRef('intent:CHK-007:happy:0')?.canonicalCaseId, 'A-POS-7');
+assert.notEqual(
+  REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS.get('intent:CHK-006:happy:0')?.canonicalCaseId,
+  REGISTERED_PRE_REVIEW_ACTIVE_TOPOLOGY_BINDINGS.get('intent:CHK-007:happy:0')?.canonicalCaseId,
+  'CHK-006 and CHK-007 must remain distinct verifier-owned canonical cases',
+);
 
 const root = mkdtempSync(join(tmpdir(), 'proofstory-pre-review-'));
 const originalCwd = process.cwd();
@@ -756,7 +919,7 @@ try {
   const store = new StoryStore(root);
   const story = { storyId, name: storyId, title: 'pre review smoke', description: 'pre review smoke', type: 'feature', priority: 'high', phase: 'DEV', createdAt: baseAt, startedAt: baseAt, endedAt: null, events: [], worktree: { path: root, branch: `story/${storyId}`, createdAt: baseAt } } as StoryInfo;
   store.writeStory(storyId, story); store.writeChecklist(storyId, checklist()); store.writeProofStoryContract(storyId, contract()); store.writeScopeContract(storyId, scopeContract()); store.writeScopeCheck(storyId, scopeCheck(root));
-  git(root, ['add', '.']); git(root, ['commit', '--author=lattice-implementer <lattice-implementer@noreply.local>', '-m', 'implementation']);
+  git(root, ['add', '.']); git(root, ['commit', '--author=proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>', '-m', 'implementation']);
   const plan = cli(root, 'acceptance_basis_generate', { storyId, json: true });
   assert.equal(JSON.parse(plan).artifact.basis.status, 'complete', plan);
   if (!liveProofMode && !scenarioMode) {
@@ -802,7 +965,17 @@ try {
     const productionControl = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
     assert.equal(productionControl.ok, true, `production active topology clean control failed: ${JSON.stringify(productionControl.codes)}`);
     executeActiveScenarioWitnesses(activeScenarioAssertions, storyId, store, productionCtx);
-    const selectedRecords = selectActiveScenarioRecords(activeScenarioAssertions, [...scenarioLedger.values()], true);
+    // main's selector now takes an explicit known-kind map. Production IDs are
+    // issued dynamically by the verifier, so derive the map from the live
+    // assertions themselves -- the same shape the canonical adapter builds.
+    const productionKnownKinds = new Map(activeScenarioKinds);
+    for (const [id, assertion] of activeScenarioAssertions) productionKnownKinds.set(id, assertion.kind);
+    const selectedRecords = selectActiveScenarioRecords(
+      activeScenarioAssertions,
+      [...scenarioLedger.values()],
+      productionKnownKinds,
+      true,
+    );
     assert.ok(selectedRecords.length >= activeScenarioAssertions.size, 'production active topology must produce one real row per assertion');
     console.log(`PROOFSTORY_SCENARIO_RECORDS=${JSON.stringify(selectedRecords.sort((a, b) => a[0].localeCompare(b[0])))}`);
     break smoke;
@@ -881,10 +1054,10 @@ try {
     assert.ok(readFileSync(processEventsPath).length > 1024 * 1024,
       'acceptance rollout immutable quorum commit must exceed the default child-process buffer');
     const reviewLanes = [
-      'lattice-review-concept',
-      'lattice-review-quality',
-      'lattice-review-test-coverage',
-      'lattice-review-docs',
+      'proof-or-stop-review-concept',
+      'proof-or-stop-review-quality',
+      'proof-or-stop-review-test-coverage',
+      'proof-or-stop-review-docs',
     ];
     for (const lane of reviewLanes) {
       cli(root, 'dispatch', { storyId, agentType: lane }, false, lane, `sess-${storyId}-${lane}-dispatch`);
@@ -1130,13 +1303,13 @@ try {
   if (!scenarioMode) {
     cli(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'lattice-implementer' }, false, 'lattice-implementer', 'sess-pre-review-impl');
     git(root, ['config', 'user.name', 'Independent Topology Critic']); git(root, ['config', 'user.email', 'critic@noreply.local']);
-    cli(root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic');
+    cli(root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic');
     const criticDispatch = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch' && event.agentType === 'lattice-review-topology-critic').at(-1);
     assert.ok(criticDispatch, 'topology critic dispatch is durably recorded before receipt issuance');
-    assert.equal(criticDispatch.sessionId, adapterSessionId(root, 'sess-pre-review-critic', 'lattice-review-topology-critic'), 'critic receipt and dispatch use the same host-adapter session identity');
+    assert.equal(criticDispatch.sessionId, adapterSessionId(root, 'sess-pre-review-critic', 'proof-or-stop-review-topology-critic'), 'critic receipt and dispatch use the same host-adapter session identity');
     assert.equal(criticDispatch.storyFilesHash, currentStoryFilesHash(root, 'HEAD', root), 'critic dispatch is bound to the current Story-owned files');
     assert.equal(criticDispatch.businessCommit, currentImplementationBusinessCommit(root).businessCommit, 'critic dispatch is bound to the implementation commit the receipt will verify');
-    const critic = JSON.parse(cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic'));
+    const critic = JSON.parse(cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic'));
     assert.equal(critic.verification.ok, true);
     const enforcePass = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
     assert.equal(enforcePass.ok, true); assert.equal(enforcePass.criticReattestation, 'current');
@@ -1149,7 +1322,7 @@ try {
     assert.equal(store.readStory(storyId).phase, 'DEV');
     assert.equal(readFileSync(store.storyFilePath(storyId, 'index.json'), 'utf8'), indexBeforeBlockedTransition, 'blocked transition leaves phase metadata byte-identical');
     assert.equal(readFileSync(store.storyFilePath(storyId, 'pre-review-check.json'), 'utf8'), artifactBeforeBlockedTransition, 'blocked transition does not rewrite the tampered artifact');
-    cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic');
+    cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic');
     const restoredEnforce = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
     assert.equal(restoredEnforce.ok, true, JSON.stringify(restoredEnforce));
     const restoredCtx = { root, scanRoot: join(root, 'packages/main'), store: new StoryStore(root) } as unknown as HandlerContext;
@@ -1226,6 +1399,64 @@ try {
       && planText.includes('5 positive / 17 mutation / 1 transcript');
     recordExecutedCase(['A-POS-4', 'positive', 'docs:canonical-wave4-status', 'docs-contract', 'execute canonical Wave 4 status and exact live-proof inventory contract check', 'PASS', docsPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', scenarioEvent('producer-evaluated')], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
 
+    // F-339: CHK-006 and CHK-007 must bind to the migration operations they
+    // claim, not to an unrelated role/cohort case that happens to have the
+    // same assertion kind. These controls execute the current worktree's real
+    // migration checks before the assertion-specific records are emitted.
+    const packageIdentityOutput = execFileSync(process.execPath, [join(repositoryRoot, 'packages/main/tests/package-identity-migration.test.mjs')], {
+      cwd: repositoryRoot,
+      encoding: 'utf8',
+    });
+    const packageIdentityPassed = /package identity migration test passed/.test(packageIdentityOutput);
+    assert.equal(packageIdentityPassed, true, `sibling package migration check did not pass: ${packageIdentityOutput}`);
+    recordExecutedCase(['A-POS-6', 'positive', 'package-identity:sibling-package-graph', 'package-identity-migration', 'execute the sibling package identity migration test against current package metadata, lockfiles, and dependency graph', 'PASS', packageIdentityPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', scenarioEvent('producer-evaluated')], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
+
+    const packageIdentityControl = {
+      core: readRepositoryJson('packages/main/package.json'),
+      utils: readRepositoryJson('packages/utils/package.json'),
+      lab: readRepositoryJson('packages/lab/package.json'),
+      utilsLock: readRepositoryJson('packages/utils/package-lock.json'),
+      labLock: readRepositoryJson('packages/lab/package-lock.json'),
+    };
+    const packageIdentityMutant = structuredClone(packageIdentityControl);
+    packageIdentityMutant.utils.name = '@lattice/utils';
+    const packageGraphControl = siblingPackageGraphPass(packageIdentityControl);
+    const packageGraphMutantRejected = !siblingPackageGraphPass(packageIdentityMutant);
+    recordExecutedCase(['A-MUT-19', 'mutation', 'package-identity:mixed-graph', 'package-identity-mixed-graph', 'mutate one sibling package name to the retired scope and require the package graph verifier to reject the mixed graph', 'PACKAGE_GRAPH_REJECTED', packageGraphControl && packageGraphMutantRejected ? 'PACKAGE_GRAPH_REJECTED' : 'MUTANT_SURVIVED', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+
+    const globalLabOutput = execFileSync(process.execPath, [join(repositoryRoot, 'scripts/verify-global-lab-entrypoint.mjs'), 'versions'], {
+      cwd: repositoryRoot,
+      encoding: 'utf8',
+    });
+    const globalLabPassed = /ok versions/.test(globalLabOutput);
+    assert.equal(globalLabPassed, true, `global lab entrypoint migration check did not pass: ${globalLabOutput}`);
+    recordExecutedCase(['A-MUT-18', 'mutation', 'package-identity:global-lab-entrypoint', 'package-identity-entrypoint', 'execute the global lab entrypoint version check against the canonical sibling package names and versions', 'PASS', globalLabPassed ? 'PASS' : 'FAIL', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+
+    const binResidueOutput = execFileSync('npm', ['--prefix', 'packages/main', 'run', 'test:lattice-residue'], {
+      cwd: repositoryRoot,
+      encoding: 'utf8',
+    });
+    const binResiduePassed = /PASS lattice-residue \[npm-bin\]/.test(binResidueOutput)
+      && /PASS lattice-residue \[brand-decision\]/.test(binResidueOutput);
+    assert.equal(binResiduePassed, true, `removed-bin-alias migration check did not pass: ${binResidueOutput}`);
+    recordExecutedCase(['A-POS-7', 'positive', 'bin-alias:canonical-only', 'npm-bin-migration', 'execute the current residue and npm-bin verifier against the package metadata with only proof-or-stop published', 'PASS', binResiduePassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', scenarioEvent('producer-evaluated')], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
+
+    const binHelpOutput = execFileSync(process.execPath, [join(repositoryRoot, 'packages/main/dist/cli.js'), 'help'], {
+      cwd: repositoryRoot,
+      encoding: 'utf8',
+    });
+    const binHelpPassed = binHelpOutput.includes('Entrypoint: proof-or-stop') && !/Usage: lattice(?:\s|$)/.test(binHelpOutput);
+    recordExecutedCase(['A-MUT-20', 'mutation', 'bin-alias:canonical-help', 'canonical-help-boundary', 'execute the canonical CLI help path and verify it advertises proof-or-stop without a retired lattice invocation', 'PASS', binHelpPassed ? 'PASS' : 'FAIL', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+
+    const binControl = readRepositoryJson('packages/main/package.json');
+    const binMutant = structuredClone(binControl);
+    const mutantBin = objectValue(binMutant.bin);
+    mutantBin.lattice = 'dist/cli.js';
+    binMutant.bin = mutantBin;
+    const binControlPassed = canonicalMainBinPass(binControl);
+    const binMutantRejected = !canonicalMainBinPass(binMutant);
+    recordExecutedCase(['A-MUT-21', 'mutation', 'bin-alias:removed-alias', 'npm-bin-reintroduction', 'mutate package metadata to reintroduce the lattice bin alias and require the canonical-only verifier to reject it', 'BIN_ALIAS_REJECTED', binControlPassed && binMutantRejected ? 'BIN_ALIAS_REJECTED' : 'MUTANT_SURVIVED', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+
     const controlRows = rolloutReport.sourceRecords.filter(record =>
       record.arm === 'candidate' && ['docs_only', 'legacy', 'ordinary'].includes(record.claimClass));
     const controlsPass = controlRows.length === 3 && rolloutReport.metrics.falseBlockCount === 0;
@@ -1235,9 +1466,9 @@ try {
     // source of truth (where the guidance now lives); the authority-sentence
     // mutation stays on the Claude host shim so it bites via the codex/claude
     // mirror-parity contract.
-    const implTemplatePath = 'packages/main/templates/agents/lattice-implementer.md';
+    const implTemplatePath = 'packages/main/templates/agents/proof-or-stop-implementer.md';
     const templateControl = readFileSync(join(repositoryRoot, implTemplatePath), 'utf8');
-    const claudePath = '.claude/agents/lattice-implementer.md';
+    const claudePath = '.claude/agents/proof-or-stop-implementer.md';
     const claudeControl = readFileSync(join(repositoryRoot, claudePath), 'utf8');
     assert.ok(templateControl.includes('acceptance_rollout_check'), 'prompt command-removal mutation requires the canonical command token');
     assert.ok(templateControl.includes('full 3 rounds × 2 hosts'), 'prompt degradation mutation requires the canonical full-3x2 token');
@@ -1277,11 +1508,16 @@ try {
     recordExecutedCase(['A-POS-5', 'positive', 'rollout:focused-enforce-rollback', 'focused-rollout-control', 'execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls', 'PASS', rolloutControlPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', rolloutProducerEvent], ['consumer-verified', rolloutConsumerEvent]]]);
     executeActiveScenarioWitnesses(activeScenarioAssertions, storyId, store, ctx);
     const executedRecords = [...scenarioLedger.values()];
-    const selectedRecords = selectActiveScenarioRecords(activeScenarioAssertions, executedRecords, true);
+    const selectedRecords = adaptCanonicalScenarioRecordsToActiveTopology(activeScenarioAssertions, executedRecords);
     const removedExpectedId = selectedRecords[0]?.[0];
     assert.ok(removedExpectedId, 'active topology must require at least one registered scenario record');
     assert.throws(
-      () => selectActiveScenarioRecords(activeScenarioAssertions, executedRecords.filter(record => record[0] !== removedExpectedId), true),
+      () => selectActiveScenarioRecords(
+        activeScenarioAssertions,
+        selectedRecords.filter(record => record[0] !== removedExpectedId),
+        activeScenarioKinds,
+        true,
+      ),
       /executed scenario ledger missing expected assertion ID/,
       'removing one active registered record makes exact-ID validation fail',
     );
