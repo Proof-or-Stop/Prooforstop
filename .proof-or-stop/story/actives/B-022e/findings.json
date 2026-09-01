@@ -1429,7 +1429,7 @@
       "desc": "doc-promise-undelivered: CHK-008:happy:0 in the current signed reviewer context promises that package.json, package-lock.json, and the main/Lab/Utils manifests all agree on 0.3.268, but packages/lab/package.json:3 and packages/lab/package-lock.json:3,9 remain 0.3.65, packages/main/package.json:31 depends on Lab 0.3.65, and scripts/verify-global-lab-entrypoint.mjs:25-28 plus scripts/verify-proof-or-stop-pack-boundary.mjs:31-35 explicitly freeze that divergent Lab version as PASS. The independent clean-pack transcript reports root/core/utils=0.3.268 and lab=0.3.65. WHY: the verifier can claim GREEN while an exact active in-scope lifecycle/version promise is mechanically false. Either synchronize Lab and its locks/dependency to 0.3.268, or truthfully narrow the active checklist verification promise through the authorized lifecycle path; do not leave tests encoding the contradiction.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-01T12:43:28.132Z",
@@ -1437,7 +1437,11 @@
       "reviewRunId": "B-022e:RR-096",
       "_hash": "ace3eed2ca73795aae30d17043918f2618f499a5bb69f895aded55931900d889",
       "signatureTag": "missing|unknown|promise-undelivered-happy",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved through the authorized PLAN lifecycle. CHK-008:happy:0 and the CHK-008 plan now truthfully bind root/Core/Utils to 0.3.268, Lab to its independent 0.3.65 line with Core ^0.3.65, and Utils to Core ^0.3.268. The pinned version-bump verifier was re-executed and passed 86 assertions; OQ-SCOPE-001 was resolved; canonical scope-plan re-review reported 10 covered, 2 excluded, zero gaps/drift/orphans/open questions at commit fb19b2a.",
+      "resolvedAt": "2026-09-01T12:55:03.740Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
