@@ -1,0 +1,25 @@
+{
+  "task": "Update the B-3434 artifact-growth decision document and its executable document contract so neither presents the writer-owned boundary as required unfinished work.",
+  "outcome": "Opening the decision document shows the writer-owned-boundary proposal is declined as not currently justified, B-3434 remains accepted, and the validation-evidence smoke accepts that current decision while rejecting removal or reversal of it.",
+  "facts": [
+    "B-3434 is DONE and accepted",
+    "The existing decision document named an unassigned follow-up and called itself a work order",
+    "The proposed boundary guarantees only that one serialized byte string is both measured and written",
+    "The proposal does not guarantee semantic input consistency",
+    "No real production input is currently known to trigger the synthetic divergence paths",
+    "packages/main/src/tasks/validation-evidence-buffer-smoke.ts currently enforces the superseded follow-up posture and removed heading"
+  ],
+  "constraints": [
+    "Modify only docs/requirements/decisions/validation-evidence-artifact-growth.md and its executable contract packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+    "Preserve historical findings, transcripts, and B-3434 accepted status",
+    "Do not change production runtime behavior",
+    "Do not claim the known limitations are fixed",
+    "The smoke must validate the declined current posture rather than require an active follow-up"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+    "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+  ],
+  "timestamp": "2026-08-30T23:18:47.397Z"
+}

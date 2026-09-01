@@ -1,0 +1,207 @@
+{
+  "storyId": "B-2220",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+    "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/**",
+    "packages/main/src/handlers/**",
+    "packages/main/dist/**",
+    ".lattice/story/actives/B-3434/**"
+  ],
+  "explicitExcludes": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    "packages/main/tests/fixtures/**"
+  ],
+  "scopeChangeReason": "B-2220:F-003 proved the existing validation-evidence smoke is the executable contract for this decision document and still enforces the superseded active follow-up. Scope expands only to that smoke task; production runtime and B-3434 history remain protected.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "B-2220:F-003 proved this smoke is the executable contract for the edited decision document; its assertion and comments must change from requiring an active follow-up to validating the human-declined posture.",
+      "timestamp": "2026-08-30T23:36:34.956Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6ff31ddb26647a83a3e6af84af52c6f3498cb1c8",
+      "materialHash": "82123503ea45bf355aad85f6a3f1a67263c333a7f99aad88a8063e7aa692b3d5",
+      "hunkDigest": "4a04a4aed1799918416600258f01f66524f1f9297a6540f9b3d96a83090c39c1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-005 requires the in-scope smoke contract to replace stale deferred wording and its narrow phrase blacklist with an exact SHA-256 binding to the independently reviewed decision document.",
+      "timestamp": "2026-08-30T23:43:55.832Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4cb27e944de0bb21f6ff0effe77c5520bce53f0b",
+      "materialHash": "63ec3b21168ab0c49bc04769102feb0ac7275a0c3a4bc6457135688eab4921ed",
+      "hunkDigests": [
+        "fdf6469452aa57e575ca7917c34d676a2637047a984682d7df0d256f3b2dbe57",
+        "bd730551dc7b1039d3c918b389d5aa0a3e0bb20abab48f3653bed3fa305e09f1",
+        "99281ddb8adfd691ecd7235c517fdbb36d4a0be0f6fcaa2ff9877e9e78121c50"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-006 requires narrowing the in-scope smoke documentation and assertion message to check-time plain-data facts while explicitly retaining the inherited Object.prototype.toJSON limitation.",
+      "timestamp": "2026-08-30T23:50:46.956Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "8dfbd5536fbb7e28923a800c16e3603c7cafa284",
+      "materialHash": "e7c653ed8363a985924648df82d831580af169961c08a94bc62320525d1a2b58",
+      "hunkDigests": [
+        "54ca6c2de022c72f5805e34cd2cbd9ca66b9b1f90dcc5e8499cf70a7b7ad4fd5",
+        "66edc638c3c7fe38d1886d621f7bac0ca3c065308f297472f61c576623d40a41"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Duplicate F-007/F-008/F-009 require narrowing all remaining section 10c later-serialization claims to own-value snapshotting under an unchanged shared prototype, while retaining the inherited toJSON limitation.",
+      "timestamp": "2026-08-30T23:58:48.751Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "7b2ee6240d91da6692189a7ea9b81e32eae511d6",
+      "materialHash": "75f4327ee0b880e75b9906090bcb71f45c75f9fddd50a5c5d72ad135e3061152",
+      "hunkDigests": [
+        "83950d47b6555471c372a54f15b1d64df4e9f5bad7767b021aa8bee2666c2247",
+        "d27975454012de15c1ab024d3e52cd505c0b3ea3b3417e73f4ed9141e263b0e3"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The executable smoke wording and assertion diagnostics must match the approved decision: they verify a check-time candidate measurement and must not imply the declined writer-owned byte-identity guarantee. No production behavior changes.",
+      "timestamp": "2026-08-31T00:08:16.915Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "101513dc32a6212b0d8718b716efdf6615a73a58",
+      "materialHash": "6dfa3576ec4b3d23626d04e3cb87842be3a9348c3758dd127fdafe7dccf53b2e",
+      "hunkDigests": [
+        "53b57a3c89c175613b1364580d2897c7d128f49420a003cb0cc9b2286f04cafb",
+        "6e297bc8953931924698f1f64256feae055566f1f82913483364ea7d6d9c3608",
+        "66e85e051b0b61a611685af5d160bda36901e3b3c9aee50d1582ba93bcf8cb54"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The reviewed digest must change with the in-scope decision-document measurement correction so the B-2220 acceptance smoke continues to bind the exact decision.",
+      "timestamp": "2026-08-31T23:15:22.487Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a09effae42bcfeed3b2f7ea204a5b8cd7f50214d",
+      "materialHash": "632d314bb1bb8282e40f0adf29868f71a632f42738d94abde26e7720fdad6e09",
+      "hunkDigest": "ff5ea2dee9c8e0f9d1345a8a707b5af7a06624d5fabbd0489177ba088b4cfe5d"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-017 requires the in-scope executable smoke digest to bind the fully corrected decision measurement table.",
+      "timestamp": "2026-09-01T00:32:17.518Z",
+      "paths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "aaf12649591c54839b727ddd023c50a27e565404",
+      "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+      "hunkDigest": "778545c775b3ab59ccc1ee6fe2fb218b7dd029c146b5eaf0b7586d18375e9d41"
+    }
+  ],
+  "createdAt": "2026-08-30T22:57:42.914Z",
+  "updatedAt": "2026-09-01T00:32:17.518Z",
+  "fileRules": [
+    {
+      "path": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:happy:2",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1"
+      ]
+    },
+    {
+      "path": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:2",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1"
+      ]
+    }
+  ],
+  "protectedAnchors": [],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "docs/requirements/decisions/validation-evidence-artifact-growth.md": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+    "packages/main/src/**": "packages/main/src/**",
+    "packages/main/dist/**": "packages/main/dist/**",
+    ".lattice/story/actives/B-3434/**": ".lattice/story/actives/B-3434/**",
+    "docs/story/**": "docs/story/**",
+    "tests/fixtures/**": "tests/fixtures/**",
+    "packages/main/tests/fixtures/**": "packages/main/tests/fixtures/**",
+    "packages/main/src/tasks/validation-evidence-buffer-smoke.ts": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+    "packages/main/src/core/**": "packages/main/src/core/**",
+    "packages/main/src/handlers/**": "packages/main/src/handlers/**"
+  },
+  "anchorParserVersion": "typescript-5.9-ast-v1",
+  "anchorArtifactVersion": "lattice.scope-anchor.v1",
+  "astAnchorMode": "enforce"
+}

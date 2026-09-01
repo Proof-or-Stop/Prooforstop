@@ -1,0 +1,92 @@
+{
+  "storyId": "B-2220",
+  "checkedAt": "2026-09-01T00:31:12.783Z",
+  "features": [
+    {
+      "feature": "The decision record declines the active writer-owned canonical-boundary follow-up while preserving B-3434 acceptance.",
+      "covered_by": "CHK-001:happy:0; CHK-001:happy:1",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2220/understanding.json; docs/requirements/decisions/validation-evidence-artifact-growth.md"
+    },
+    {
+      "feature": "Known limitations, current smoke measurements, transcripts, and historical findings remain accurate audit context without active work-order semantics.",
+      "covered_by": "CHK-001:happy:1; CHK-001:happy:2; CHK-001:adversarial:1",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2220/checklist.json; docs/requirements/decisions/validation-evidence-artifact-growth.md"
+    },
+    {
+      "feature": "The decision distinguishes byte identity from input consistency, semantic consistency, and evidence truth.",
+      "covered_by": "CHK-001:edge:0",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+    },
+    {
+      "feature": "The decision provides evidence-based reconsideration triggers and requires a new human-approved story.",
+      "covered_by": "CHK-001:edge:1",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+    },
+    {
+      "feature": "The executable smoke accepts the declined/no-active-follow-up disposition and binds the exact reviewed decision digest.",
+      "covered_by": "CHK-001:happy:2; CHK-001:adversarial:0; CHK-001:adversarial:1",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/tasks/validation-evidence-buffer-smoke.ts; .lattice/story/actives/B-2220/checklist.json"
+    },
+    {
+      "feature": "F-017 repair is limited to correcting four stale smoke measurements in the decision table and updating the exact decision digest in the executable smoke.",
+      "covered_by": "CHK-001:happy:1; CHK-001:happy:2; CHK-001:adversarial:1",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/validation-evidence-artifact-growth.md; packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+    },
+    {
+      "feature": "Implementation changes are limited to the decision document and its executable smoke contract.",
+      "covered_by": "B-2220 scope contract allowedModify and CHK-001 files.modify",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-2220/scope-contract.json; .lattice/story/actives/B-2220/checklist.json"
+    },
+    {
+      "feature": "Production runtime changes in packages/main/src/core, packages/main/src/handlers, or packages/main/dist.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Protected by the enforced scope contract; F-017 requires no production runtime change.",
+      "source": ".lattice/story/actives/B-2220/scope-contract.json"
+    },
+    {
+      "feature": "Changes to B-3434 story metadata or history.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Protected by .lattice/story/actives/B-3434/**; F-017 changes only B-2220 decision measurements and digest.",
+      "source": ".lattice/story/actives/B-2220/scope-contract.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-2220/background.md",
+      ".lattice/story/actives/B-2220/checklist.json",
+      ".lattice/story/actives/B-2220/scope-contract.json",
+      ".lattice/story/actives/B-2220/understanding.json",
+      "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 9,
+    "covered": 7,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "2026-09-01T00:24:10.518Z",
+  "_hash": "abc4c1fe57c061eac996cd35c73a05b0ecd7e2b53746e1fe50f31610958cbfb3",
+  "openQuestions": []
+}

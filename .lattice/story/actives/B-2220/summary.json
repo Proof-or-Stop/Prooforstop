@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2220",
+  "changes": "Updated the B-3434 artifact-growth decision record to decline an active writer-owned canonical-boundary follow-up while preserving B-3434 acceptance, known limitations, and evidence-based reconsideration triggers; the compiled smoke binds that reviewed decision and its current seven-value measurement table.",
+  "usage": "Open docs/requirements/decisions/validation-evidence-artifact-growth.md or run the build-bound validation-evidence-buffer-smoke command to inspect the decision and its executable contract.",
+  "expectedOutcome": "The decision states that the writer-owned canonical boundary is not currently justified, no follow-up story is planned or owned, B-3434 remains accepted, and reconsideration needs new risk evidence plus human approval.",
+  "actualTranscript": "The final build-bound smoke exited 0, matched all seven current measured values, and printed validation-evidence-buffer-smoke: PASS plus no writer-owned-boundary follow-up is currently active.",
+  "outcomeDiff": "No difference: the observed decision and executable smoke match the expected user-visible outcome.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "B-3434 known byte-identity limitations remain documented; this Story deliberately does not add a writer-owned canonical serialization boundary or claim input, semantic, or evidence-truth consistency.",
+  "pitfalls": "A main merge first made dist build binding stale. Subsequent review found the decision's copied measurements had drifted and its exact-digest verificationIntent still referenced the prior digest; the complete seven-value table and both digest pins were corrected and independently re-reviewed. Future edits must rerun the compiled smoke and update every bound digest rather than trusting copied figures.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 197254
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 26567
+    },
+    "PLAN": {
+      "count": 7,
+      "durationMs": 2148790
+    },
+    "DEV": {
+      "count": 18,
+      "durationMs": 1675820
+    },
+    "REVIEW": {
+      "count": 12,
+      "durationMs": 86220814
+    },
+    "TEST": {
+      "count": 3,
+      "durationMs": 3810669
+    }
+  },
+  "totalDurationMs": 94080413,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-31T23:52:46.377Z",
+  "updatedAt": "2026-09-01T00:52:21.649Z"
+}

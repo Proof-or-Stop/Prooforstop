@@ -1,0 +1,1252 @@
+{
+  "passes": [
+    {
+      "id": "B-2220:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Docs review passed: 0 exported symbols and 0 symbol-anchored paragraphs because this is a pure-doc diff; fallback compared the complete 141-line decision record. Chronology and supersession are explicit, B-3434 remains accepted, limitations remain unresolved known boundaries, and all proposal language is historical or conditional, so no blocker was found.",
+      "createdAt": "2026-08-30T23:05:04.476Z",
+      "reviewRound": "2026-08-30T23:02:35.178Z",
+      "reviewRunId": "B-2220:RR-003",
+      "envelopeId": "d44ae723b0b8fb8a674eb90c0ab9bee16614ecd56d29d48191bcb223aa09edb4",
+      "writerSessionId": "sess-dac90d0ad8078a8e779be05132295b96",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/checklist.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "ceb09409dcd35aff2ca2e743c3921da09d9ab47f2461ae1bc49c65c7939bce6c"
+    },
+    {
+      "id": "B-2220:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-retirement review PASS. Read the full B-2220 background, checklist, and revised decision document; triaged the full main...HEAD file set and inspected the complete product diff. The active work-order posture is removed from the decision doc, all remaining proposal language is explicitly historical or conditional, and B-3434 measurements/transcripts/F-033/F-035/F-036/F-037 remain intact. Repository residue consists only of B-2220 negative-check literals and immutable B-3434 historical audit records, which the new decision explicitly supersedes rather than rewrites. The revised text correctly limits the proposal to byte identity and explicitly disclaims input consistency, semantic consistency, and evidence truth. No promised-but-undelivered behavior was added.",
+      "createdAt": "2026-08-30T23:05:49.541Z",
+      "reviewRound": "2026-08-30T23:02:35.178Z",
+      "reviewRunId": "B-2220:RR-002",
+      "envelopeId": "bccb4316f42c5c5c942332d6517c855b41a4017b2b1034dc4a63d32afc036fc7",
+      "writerSessionId": "sess-7768c0f4c83cb0573bf17bf93f89ccb5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/acceptance-basis.json",
+          ".lattice/story/actives/B-2220/dev-memory-preflight-ack.json",
+          ".lattice/story/actives/B-2220/index.json",
+          ".lattice/story/actives/B-2220/intent-collision.json",
+          ".lattice/story/actives/B-2220/original-intent-snapshot.json",
+          ".lattice/story/actives/B-2220/pre-review-check.json",
+          ".lattice/story/actives/B-2220/process-events.jsonl",
+          ".lattice/story/actives/B-2220/process-metrics.json",
+          ".lattice/story/actives/B-2220/proofstory.json",
+          ".lattice/story/actives/B-2220/review.json",
+          ".lattice/story/actives/B-2220/scope-check.json",
+          ".lattice/story/actives/B-2220/scope-contract.json",
+          ".lattice/story/actives/B-2220/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "a360761b2626c403f769d6b820c183980766c571d86f02ad1d291c6ac9907ad1"
+    },
+    {
+      "id": "B-2220:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review found no blockers. B-2220:F-001 is fixed at line 43: both internal references exactly resolve to existing headings. The full decision document is coherent, contains no active follow-up work order, preserves B-3434 acceptance, transcripts, finding identifiers, row-guard counts, and historical performance measurements, and git diff --check passes.",
+      "createdAt": "2026-08-30T23:16:11.552Z",
+      "reviewRound": "2026-08-30T23:14:26.406Z",
+      "reviewRunId": "B-2220:RR-005",
+      "envelopeId": "1578f9f7694971dc87b3d8b2163b57ff1fbcf028a853a770fdf043d9c23c3360",
+      "writerSessionId": "sess-352bf663f3e65e1a5eac6db82af3626b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "8951045c637de82d22831755edf639bf955b4dd14cf4c92d8fb7d8e15682cdc4"
+    },
+    {
+      "id": "B-2220:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Pure-doc review: 0 exported symbols extracted; 1 decision document read and compared in full. Current disposition explicitly declines the follow-up, B-3434 history and known limitations remain bounded as historical evidence, all quoted heading references resolve, and the only follow-up/work-order language is negative, superseded, or conditioned on a new human-approved story. Targeted source checks in store.ts, validation-executor.ts, and verifier.ts found no promised-but-undelivered behavior.",
+      "createdAt": "2026-08-30T23:16:56.077Z",
+      "reviewRound": "2026-08-30T23:14:26.406Z",
+      "reviewRunId": "B-2220:RR-007",
+      "envelopeId": "f0d37e7e4076c3dc8203135575af3643e82a79c78d0443331bc7ecb1943315f4",
+      "writerSessionId": "sess-61fe54e7bda980977a4771177c1357bf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "bc212a9fb60f1426c90365478ebf38e78b68fe0c9235170c485b40b8e9869641"
+    },
+    {
+      "id": "B-2220:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "F-003 re-audit PASS: the decision doc declines the writer-owned canonical boundary and requires a new human-approved story for reconsideration. validation-evidence-buffer-smoke.ts no longer calls it the repair or a mandatory follow-up/work list; line 227 is conditional byte-identity analysis, lines 690-749 require the declined/no-active-follow-up record and reject the three superseded mandates. Repository source scan found no related mandatory residue; the only other canonical-boundary modal hit concerns an unrelated durable terminal-event boundary.",
+      "createdAt": "2026-08-30T23:40:08.143Z",
+      "reviewRound": "2026-08-30T23:37:17.497Z",
+      "reviewRunId": "B-2220:RR-010",
+      "envelopeId": "21f0711f0b55875955a8b56fa0afb87b49aa5526c719c5e96cf9d8b62090b5aa",
+      "writerSessionId": "sess-2233222d493596fbbca660081c442cf4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "F-003 required a repository-wide source/docs semantic residue scan for mandatory writer-owned-boundary language."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "91c08d3a4b9fc8fa0da118806cba9b28c93b234b530de5632ac3e8300d3ca41b"
+    },
+    {
+      "id": "B-2220:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Extracted 0 changed exported symbols and therefore compared 0 symbol-anchored paragraphs. Fallback review covered all 10 headed sections of the decision document, the full smoke contract, and CLAUDE.md. The decision is currently declined, B-3434 history and three fenced transcripts remain preserved, reopening is conditional on evidence plus human approval, no active work order remains, and the build-bound compiled smoke passed with no promised-but-undelivered behavior.",
+      "createdAt": "2026-08-30T23:41:07.193Z",
+      "reviewRound": "2026-08-30T23:37:17.497Z",
+      "reviewRunId": "B-2220:RR-012",
+      "envelopeId": "a91c435203a30ef3f2f43bf4d535d26a5cad834795407773d2976b49e05c5f47",
+      "writerSessionId": "sess-4931fa23e7a4b17636b3761535c772d7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "714b68e5dd83edecccea815d8586414bb326c71c599285d53f7d11d13e318b14"
+    },
+    {
+      "id": "B-2220:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: 7/7 must intents have exact pinned verifier coverage, all seven commands passed, F-002/F-004 false-green regressions were re-audited, the mandatory-later-task paraphrase changed the exact decision digest and was rejected, and happy:2 verifies the source/dist build binding before importing the complete compiled smoke. No waiver or coverage blocker.",
+      "createdAt": "2026-08-30T23:41:49.219Z",
+      "reviewRound": "2026-08-30T23:37:17.497Z",
+      "reviewRunId": "B-2220:RR-013",
+      "envelopeId": "7744e838edef7f12daf0b629059c51c18b6a170c237c6b6d91a1d522155fc101",
+      "writerSessionId": "sess-b45d1a20047466a852020f35b32e5d2e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "scripts/full-suite-build-binding.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "a4d8411a89fb4822f047c2bbdfd44314448f09cf40d3be0cea8d0a1d6149c6b2"
+    },
+    {
+      "id": "B-2220:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Final F-005 re-review clean: the smoke no longer calls the boundary deferred, the three-phrase blacklist and its overclaim are removed, SHA-256 02bb788f...83b75d exactly binds the independently reviewed decision, the specified paraphrased mandate changes the digest and is rejected, git diff --check passes, and build-binding plus the complete compiled validation-evidence smoke exits 0 with validation-evidence-buffer-smoke: PASS.",
+      "createdAt": "2026-08-30T23:47:19.310Z",
+      "reviewRound": "2026-08-30T23:44:16.271Z",
+      "reviewRunId": "B-2220:RR-014",
+      "envelopeId": "aee1ee5b980c6f35d992f33977c376d8c1fdbc40a3bb09880f75927ce9b5eb17",
+      "writerSessionId": "sess-cefb267c4be123ec5ea78e95963412ad",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "dec2dc7551f6c4a790c2894c457bf0fd9343463d4f43c22e57b9ebe86ff7ab0c"
+    },
+    {
+      "id": "B-2220:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept cleanup is complete: the byte-identity limitation remains explicit, the current writer-owned-boundary follow-up is declined, all proposal language is historical or human-triggered, and the build-bound smoke passes with no mandatory-repair residue.",
+      "createdAt": "2026-08-30T23:47:24.759Z",
+      "reviewRound": "2026-08-30T23:44:16.271Z",
+      "reviewRunId": "B-2220:RR-015",
+      "envelopeId": "16d2372175e524648562b5178fefd160fbad7b6561bba8e4798c30cc9d2f7aad",
+      "writerSessionId": "sess-0191c2326971a9aac79fa0658847daa6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "f4d980eed078fcdd7bbfe2de695bc60d229ac6f634e300fe9779988a9dce8bd2"
+    },
+    {
+      "id": "B-2220:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final test-coverage review passed: ran all seven pinned intents (7/7 pass, 0 must gaps, 0 waivers), including build binding and baseline validation-evidence smoke. In a detached disposable worktree, adding the paraphrased active mandate 'This optimization remains mandatory and will continue in a later task.' changed the decision digest from 02bb788f...83b75d to 6d1e3df4...f8afa; the standalone exact-digest verifier rejected it with exit 42 and the compiled smoke rejected the same digest with exit 1. Disposable worktree was removed and the story worktree remained clean.",
+      "createdAt": "2026-08-30T23:48:51.739Z",
+      "reviewRound": "2026-08-30T23:44:16.271Z",
+      "reviewRunId": "B-2220:RR-016",
+      "envelopeId": "820835750279fdcfc5708eadeb0b4a90216a016026a02f56a37f11be5e2c8ac1",
+      "writerSessionId": "sess-bf18156096c31d2900251c1ecdc263a5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/plan.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "scripts/full-suite-build-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "cae09df1656d6a8a377d5ad0b6e2fd13e827e53d8dff91f06724fba88be9c796"
+    },
+    {
+      "id": "B-2220:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Closure test-coverage PASS: 7/7 current intents independently re-executed, 0 must gaps, 0 waivers. All six docs checks pass; the required paraphrased mandate mutation changes the exact decision digest from 02bb788f...83b75d to e80b2ae2...92ca. Build binding and the complete compiled validation-evidence-buffer smoke exit 0 with its PASS selector. F-006 changed comments plus one assertion failure message only: 126 executable assertion predicates before/after have identical SHA-256 09e19d6f...de1f7, so executable proof was not weakened.",
+      "createdAt": "2026-08-30T23:56:01.097Z",
+      "reviewRound": "2026-08-30T23:51:06.818Z",
+      "reviewRunId": "B-2220:RR-020",
+      "envelopeId": "fe698524426c8afabd5186a7978de5ee3b90a878bb094867232a474c712af0e5",
+      "writerSessionId": "sess-a63a0e98d16210f6e40f11de022115d8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "scripts/full-suite-build-binding.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "700b5fb2f81b0e737134b23507340c532c2d17f232ebfee41fa9e053d712dcd7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1adf41c3be385f7db49bdae906cd27652910da812949e0e5f560f720775413b4"
+    },
+    {
+      "id": "B-2220:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no blocker. F-005 is closed by exact SHA-256 binding plus declined/no-follow-up wording; F-006/F-007 are closed because comments, assertion messages, and PASS text now limit the claim to check-time own-value snapshotting and explicitly retain later Object.prototype.toJSON mutation. Full-file mandate/deferred scan found only clearly historical deferral references, no active work order. Build binding and the complete compiled smoke passed.",
+      "createdAt": "2026-08-31T00:04:05.860Z",
+      "reviewRound": "2026-08-30T23:59:32.312Z",
+      "reviewRunId": "B-2220:RR-022",
+      "envelopeId": "577275ffc34e63bd7519222955107adeb52358a2bc6ef8d416de99a933e036d2",
+      "writerSessionId": "sess-2e1e847a55fb5d4ff890cedb3970d681",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/acceptance-basis.json",
+          ".lattice/story/actives/B-2220/dev-memory-preflight-ack.json",
+          ".lattice/story/actives/B-2220/findings.json",
+          ".lattice/story/actives/B-2220/index.json",
+          ".lattice/story/actives/B-2220/intent-collision.json",
+          ".lattice/story/actives/B-2220/original-intent-snapshot.json",
+          ".lattice/story/actives/B-2220/pre-review-check.json",
+          ".lattice/story/actives/B-2220/process-events.jsonl",
+          ".lattice/story/actives/B-2220/process-metrics.json",
+          ".lattice/story/actives/B-2220/prompt-envelopes.json",
+          ".lattice/story/actives/B-2220/proofstory.json",
+          ".lattice/story/actives/B-2220/review-passes.json",
+          ".lattice/story/actives/B-2220/review-runs.json",
+          ".lattice/story/actives/B-2220/review.json",
+          ".lattice/story/actives/B-2220/scope-check.json",
+          ".lattice/story/actives/B-2220/scope-contract.json",
+          ".lattice/story/actives/B-2220/stall-adjudication.json",
+          ".lattice/story/actives/B-2220/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "7010922e14a50c33a83312cca74994babc5873dbb95c8bc73fce4a12cf971db9"
+    },
+    {
+      "id": "B-2220:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: independently executed all 7 must intents with no gaps or waivers. Six document checks passed; SHA-256 is 02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d and matches the smoke pin; an in-memory paraphrased active-mandate mutation produced 61cda25d4e3303aef287a72e9dc9a3b8f8461d35d93d5164652db6d52e1f978c and was rejected by that pin. Build binding succeeded and the full compiled validation-evidence-buffer-smoke completed with validation-evidence-buffer-smoke: PASS.",
+      "createdAt": "2026-08-31T00:04:39.484Z",
+      "reviewRound": "2026-08-30T23:59:32.312Z",
+      "reviewRunId": "B-2220:RR-023",
+      "envelopeId": "82b290667ce60377cab01500ba256a4d1f8d6d2dd8a7b562c74c92e8a7e108ce",
+      "writerSessionId": "sess-6928f41b93cb8967f5dbd0c32cd93147",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "cdd05cdbff5058276d5e347723c239d99a20e4df3b7813eca7423e08b729d9df"
+    },
+    {
+      "id": "B-2220:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Docs review PASS: Step 1 extracted 1 changed local symbol (rationaleDigest); Step 2 found 0 README/CLAUDE/docs reference paragraphs for that symbol, so fallback review read the full 141-line decision record and full 748-line smoke source, comparing the decision/disposition, retained-evidence, retained-limitations, historical-proposal/reopen, snapshot-limitation, and executable decision-contract paragraphs. B-3434 remains accepted; the writer-owned boundary is declined for now; no active owner/work order remains; reopen requires listed evidence triggers plus a new human-approved story. Exact SHA-256 02bb788f...83b75d matches and the build-bound compiled smoke passed.",
+      "createdAt": "2026-08-31T00:04:58.726Z",
+      "reviewRound": "2026-08-30T23:59:32.312Z",
+      "reviewRunId": "B-2220:RR-025",
+      "envelopeId": "1428b7539501baf3dae45fbd99b4b578d501071bfb1a6d989d10e08ac7ff32fa",
+      "writerSessionId": "sess-f5249dffe0b7825d61d6e87b79603faa",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "65951b859842fd831bf3782e8ac2e69b9050b595c3b4b1fc9ba917ede667574d"
+    },
+    {
+      "id": "B-2220:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Full concept audit of committed HEAD: read the entire decision record and all 749 lines of validation-evidence-buffer-smoke.ts; F-010 language is now consistently candidate/check-time only, StoryStore/disk byte identity remains explicitly unguaranteed, section 10c retains inherited-prototype risk, repository residue scan found no active writer-boundary follow-up, and the compiled smoke passed.",
+      "createdAt": "2026-08-31T00:13:25.816Z",
+      "reviewRound": "2026-08-31T00:10:59.937Z",
+      "reviewRunId": "B-2220:RR-028",
+      "envelopeId": "5276c2a0091a2fb4474e59f36053fb1a38750baf613541ee052643351eb254a9",
+      "writerSessionId": "sess-8e78648f278d7dbb4b820d41451a0a7f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "48620337000ef8691ed1e2681bdccdaa8aa90cebd7fee366f0ea22f8255c508f"
+    },
+    {
+      "id": "B-2220:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Final quality review found no blocker. Commit 101513dc32 is an ancestor of current HEAD and closes F-010 coherently across the full smoke: top-level scope, helper diagnostics, sections 5-10b assertions/comments, and PASS output now describe check-time candidate measurement; lines 20-23 explicitly deny any guarantee that StoryStore later writes the same bytes, and sections 10c/13 preserve prototype and byte-identity limitations. The decision document remains at reviewed SHA-256 02bb788f...83b75d, declines the follow-up, and contains deferred wording only in explicitly historical or negated contexts. Build binding and complete compiled smoke passed.",
+      "createdAt": "2026-08-31T00:13:33.039Z",
+      "reviewRound": "2026-08-31T00:10:59.937Z",
+      "reviewRunId": "B-2220:RR-027",
+      "envelopeId": "e9f538f07cd2a9736f2f192cfe1ed3f4b5f932ca10d5d02abbd7ad42617e266f",
+      "writerSessionId": "sess-2e1e847a55fb5d4ff890cedb3970d681",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/acceptance-basis.json",
+          ".lattice/story/actives/B-2220/dev-memory-preflight-ack.json",
+          ".lattice/story/actives/B-2220/findings.json",
+          ".lattice/story/actives/B-2220/index.json",
+          ".lattice/story/actives/B-2220/intent-collision.json",
+          ".lattice/story/actives/B-2220/original-intent-snapshot.json",
+          ".lattice/story/actives/B-2220/pre-review-check.json",
+          ".lattice/story/actives/B-2220/process-events.jsonl",
+          ".lattice/story/actives/B-2220/process-metrics.json",
+          ".lattice/story/actives/B-2220/prompt-envelopes.json",
+          ".lattice/story/actives/B-2220/proofstory.json",
+          ".lattice/story/actives/B-2220/review-passes.json",
+          ".lattice/story/actives/B-2220/review-runs.json",
+          ".lattice/story/actives/B-2220/review.json",
+          ".lattice/story/actives/B-2220/scope-check.json",
+          ".lattice/story/actives/B-2220/scope-contract.json",
+          ".lattice/story/actives/B-2220/stall-adjudication.json",
+          ".lattice/story/actives/B-2220/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "7dbd2fe69bdd5e68eddede48a426040c8ff863c8a066cd31b0bbce4fc756c191"
+    },
+    {
+      "id": "B-2220:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Final docs review PASS after F-010 fix 101513dc32. Step 1 extracted 1 changed local symbol (rationaleDigest); Step 2 found 0 README/CLAUDE/docs reference paragraphs, so fallback compared the full decision document and full smoke source, including the F-010 patch and candidate/check-time, writer/disk limitation, disposition, retained-history, and reopen paragraphs. Source now explicitly limits fileBytes to the returned candidate at check time and says later StoryStore bytes are not guaranteed; the four stale file-bound phrases are absent. Decision still declines the follow-up, keeps B-3434 accepted, preserves limitations/evidence, and requires explicit risk triggers plus a new human-approved story. Exact decision digest matches and build-bound compiled smoke passed.",
+      "createdAt": "2026-08-31T00:14:01.664Z",
+      "reviewRound": "2026-08-31T00:10:59.937Z",
+      "reviewRunId": "B-2220:RR-026",
+      "envelopeId": "9b3a830b651d4c5f5f36b1561e45f4835cd21404fc4a953b6d0a1b9ebf10951b",
+      "writerSessionId": "sess-f5249dffe0b7825d61d6e87b79603faa",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "75a2333575bf60896b6ac93343a886cba974d3ba229f85a2539d8abed3af659f"
+    },
+    {
+      "id": "B-2220:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final test-coverage review passed at current HEAD with F-010 fix 101513dc32 included. Checklist reports 7 intents and 7 passing evidence records, 0 failures, 0 waivers. Independently reran six document intents; exact SHA-256 02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d matches the smoke pin, and a paraphrased active-mandate mutation changes the digest and is rejected. Build binding plus full compiled smoke exited 0. Runtime output contains the narrowed candidate/check-time statements and omits all three former false actual-file guarantee statements identified by F-010.",
+      "createdAt": "2026-08-31T00:14:02.867Z",
+      "reviewRound": "2026-08-31T00:10:59.937Z",
+      "reviewRunId": "B-2220:RR-029",
+      "envelopeId": "873df381fca67b57a214e2a0cc43a6932f689402c29837e335d5a96c9d37a078",
+      "writerSessionId": "sess-6928f41b93cb8967f5dbd0c32cd93147",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "3f5d6837f030b3fe18deca9a51e80ec9ed1bf19698b800deeb837e7d6126ac78"
+    },
+    {
+      "id": "B-2220:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed the post-main-merge story-owned diff and full changed decision/smoke files. The unassigned B-3434 writer-owned-boundary work-order posture is fully retired; remaining references are explicitly historical or negative, no active follow-up mandate remains, and no Dynamic Finding behavior is changed or promised.",
+      "createdAt": "2026-08-31T22:31:09.894Z",
+      "reviewRound": "2026-08-31T00:10:59.937Z",
+      "reviewRunId": "B-2220:RR-033",
+      "envelopeId": "aa58b9f0bc6c51fd15a4b71290bb78f2be5e1d113e2de3ac53fc788ae5f68746",
+      "writerSessionId": "sess-779894440bca138e3c361370ff0e2252",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/acceptance-basis.json",
+          ".lattice/story/actives/B-2220/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-2220/dev-memory-preflight-ack.json",
+          ".lattice/story/actives/B-2220/findings.json",
+          ".lattice/story/actives/B-2220/index.json",
+          ".lattice/story/actives/B-2220/intent-collision.json",
+          ".lattice/story/actives/B-2220/original-intent-snapshot.json",
+          ".lattice/story/actives/B-2220/pre-review-check.json",
+          ".lattice/story/actives/B-2220/process-events.jsonl",
+          ".lattice/story/actives/B-2220/process-metrics.json",
+          ".lattice/story/actives/B-2220/prompt-envelopes.json",
+          ".lattice/story/actives/B-2220/proofstory.json",
+          ".lattice/story/actives/B-2220/review-passes.json",
+          ".lattice/story/actives/B-2220/review-runs.json",
+          ".lattice/story/actives/B-2220/review.json",
+          ".lattice/story/actives/B-2220/scope-check.json",
+          ".lattice/story/actives/B-2220/scope-contract.json",
+          ".lattice/story/actives/B-2220/stall-adjudication.json",
+          ".lattice/story/actives/B-2220/test-evidence.json",
+          ".lattice/story/actives/B-2220/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "117a0a37f9084a78d294c4b288a3c2d98be28baec8934334438e7262da996316"
+    },
+    {
+      "id": "B-2220:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "1 changed symbol extracted (rationaleDigest), 0 symbol-anchored documentation paragraphs; fallback review read the full related decision record and full changed smoke source. They consistently retire the active B-3434 follow-up, retain limitations as historical/conditional context, and do not alter Dynamic Finding behavior. Direct compiled smoke passed; no docs-code blocker.",
+      "createdAt": "2026-08-31T22:33:27.587Z",
+      "reviewRound": "2026-08-31T00:10:59.937Z",
+      "reviewRunId": "B-2220:RR-030",
+      "envelopeId": "1890db30385512456be584473c4d6b53e63aedddc88fe81dc05c7ce41c8e2efe",
+      "writerSessionId": "sess-4aacbe64b7ca9ea99a4eb7c3818dc150",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/checklist.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 3100
+        },
+        "digest": "8899f08f657f224802808e6c4fd33783fa76cf9cc6316af17354f4e176ffb8fe"
+      },
+      "readDiagnostics": [],
+      "_hash": "79a9ff483c4d2e648df6990411bd90d058495b4710cadcabc4e7aa67b565324d"
+    },
+    {
+      "id": "B-2220:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed after current main merge: 7 intents have 7 passing evidence records, 0 gaps, and 0 waivers. All six document intent commands and the compiled smoke pass now. CHK-001:happy:2 remains story-fresh because storyFilesHash eb45a53 is unchanged and the story source, compiled smoke, and binding manifest are unchanged since its passing build-bound receipt; the current global binding wrapper mismatch is unrelated merged source-only drift. The story-owned diff is limited to the decision record and smoke, retires the active B-3434 follow-up posture, and does not touch or broaden Dynamic Finding product behavior.",
+      "createdAt": "2026-08-31T22:34:37.768Z",
+      "reviewRound": "2026-08-31T00:10:59.937Z",
+      "reviewRunId": "B-2220:RR-031",
+      "envelopeId": "fb8c663ebdcf4448cff1587160b9101da48e74973c51373d09489f7bb3f0fcae",
+      "writerSessionId": "sess-0d64495f901e27c428c603cee721f30f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "525ae1a4e82c452380a27a186eabff05cd7a88a00e602cc12b5ab06d34a83ccd"
+    },
+    {
+      "id": "B-2220:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Round 8 re-review found no quality blocker in the two changed product files. Independently confirmed current main 7889cf4 is merged via 5e8401e, CHK-001:happy:2 build binding plus compiled smoke exits 0 with validation-evidence-buffer-smoke: PASS, decision digest is 02bb788f1f1d40fdfcfa0bb499ea6f7a4de9f88d131d3b9c6696c65eec83b75d, dae9be1 records the refreshed receipt, and f3958cd resolves F-011. The reported done_prepare/gap_log framework behavior is outside this changed-files-only reviewer contract and was not filed as a B-2220 finding.",
+      "createdAt": "2026-08-31T22:40:08.797Z",
+      "reviewRound": "2026-08-31T22:36:50.515Z",
+      "reviewRunId": "B-2220:RR-036",
+      "envelopeId": "6d811346400266bd82c25af57910051393134da3955b2ec5eb4c3a7678c23c58",
+      "writerSessionId": "sess-b3821f7d5c8ec95ab19fcc3f8e47b021",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/checklist.json"
+        ],
+        "scanEscalationReason": "plan.md is absent; review_run_start supplied the full task/checklist/scope context and checklist_get supplied current evidence."
+      },
+      "_hash": "973c99c123bcbdabdc1a360208a74fdd39d7874cb2373bb7928e86be2e919d0e"
+    },
+    {
+      "id": "B-2220:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 7/7 verification intents covered, 0 must-gaps, 0 waivers. Independently verified current main is merged, receipt commit dae9be1 records a fresh CHK-001:happy:2 PASS, resolution commit f3958cd closes F-011, all six document selectors pass, and the exact pinned build-binding plus compiled smoke exits 0 with validation-evidence-buffer-smoke: PASS.",
+      "createdAt": "2026-08-31T22:40:43.676Z",
+      "reviewRound": "2026-08-31T22:36:50.515Z",
+      "reviewRunId": "B-2220:RR-037",
+      "envelopeId": "d672e469d67e3a53147406f450a542d972c254b3b5461daf87f336b94c001d94",
+      "writerSessionId": "sess-e790a0ab6c0fdfb4d349d2ee0914e3e5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "The dispatch-listed .lattice/story/actives/B-2220/plan.md is absent; review_run_start supplied the full trusted task context, and every extant required or changed file was read fully."
+      },
+      "_hash": "de790df40727dc1ce1d61fa0460567ae20dc72943b747f154fa42509e7ea9d99"
+    },
+    {
+      "id": "B-2220:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Round 8 concept re-review passed: read the full B-2220 background, checklist, changed decision record, and changed compiled-smoke source; triaged the complete main...HEAD file set; independently confirmed current main is merged, F-011 receipt commit dae9be1 and resolution commit f3958cd, and reran the exact pinned build-binding plus compiled smoke command successfully. Active unassigned/work-order/follow-up mandates are absent from the product surface; remaining writer-owned-boundary references are explicitly declined, historical, conditional, or negative assertions. No concept-cleanup blocker found; the separate docs-lane F-012 is not duplicated here.",
+      "createdAt": "2026-08-31T22:41:32.688Z",
+      "reviewRound": "2026-08-31T22:36:50.515Z",
+      "reviewRunId": "B-2220:RR-034",
+      "envelopeId": "ae3c40f1cfae8f07128271e7bdbfc8f8dcd3f864bacec51a546a2b6461955581",
+      "writerSessionId": "sess-f5f2583f2921afaced06fc0292700026",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/acceptance-basis.json",
+          ".lattice/story/actives/B-2220/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-2220/dev-memory-preflight-ack.json",
+          ".lattice/story/actives/B-2220/findings.json",
+          ".lattice/story/actives/B-2220/index.json",
+          ".lattice/story/actives/B-2220/intent-collision.json",
+          ".lattice/story/actives/B-2220/original-intent-snapshot.json",
+          ".lattice/story/actives/B-2220/pre-review-check.json",
+          ".lattice/story/actives/B-2220/process-events.jsonl",
+          ".lattice/story/actives/B-2220/process-metrics.json",
+          ".lattice/story/actives/B-2220/prompt-envelopes.json",
+          ".lattice/story/actives/B-2220/proofstory.json",
+          ".lattice/story/actives/B-2220/review-passes.json",
+          ".lattice/story/actives/B-2220/review-runs.json",
+          ".lattice/story/actives/B-2220/review.json",
+          ".lattice/story/actives/B-2220/scope-check.json",
+          ".lattice/story/actives/B-2220/scope-contract.json",
+          ".lattice/story/actives/B-2220/stall-adjudication.json",
+          ".lattice/story/actives/B-2220/test-evidence.json",
+          ".lattice/story/actives/B-2220/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "3ee68a4090f41b96288a3529b9a630b3fecc5d49410e8eb30a23f8dd7284d90b"
+    },
+    {
+      "id": "B-2220:RP-025",
+      "agent": "lattice-review-docs",
+      "note": "Round 10 docs review passed: 1 changed symbol (rationaleDigest), 1 full related decision document compared, and no README/CLAUDE/docs symbol reference existed for that local constant. All 7 acceptance commands passed, including exact digest fbd665df...d11d52 and build-bound compiled smoke. The document states no planned/owned follow-up, preserves B-3434 acceptance, limits the historical proposal to byte identity, and requires evidence triggers plus a new human-approved story before reconsideration. No promised-but-undelivered current behavior was found.",
+      "createdAt": "2026-08-31T23:24:51.891Z",
+      "reviewRound": "2026-08-31T23:22:30.466Z",
+      "reviewRunId": "B-2220:RR-043",
+      "envelopeId": "bd1cf314eda06ed58a900261955a0d7399a329617e3283cb4d5b2b7ce9ec6235",
+      "writerSessionId": "sess-7fc94e97a39e2b2a191bbff5ca267c68",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "6d82dae2141abbf5a0b7c4e657ca0bcda05fc7292b4795dac1c606719cbeca56"
+    },
+    {
+      "id": "B-2220:RP-026",
+      "agent": "lattice-review-quality",
+      "note": "Round 10 quality review found no blocker: decision digest is fresh, all six duplicated measurements match the compiled smoke, source/dist build binding passes, full smoke passes, and the changed files introduce no dead code, unsafe type workaround, swallowed error, I/O boundary violation, or undelivered documentation promise.",
+      "createdAt": "2026-08-31T23:24:53.068Z",
+      "reviewRound": "2026-08-31T23:22:30.466Z",
+      "reviewRunId": "B-2220:RR-045",
+      "envelopeId": "5a63ba49614b2e8fb4bc13cec3ec2262bf44bd9474507a81562b3e583cb0a0aa",
+      "writerSessionId": "sess-0663890cf215126ec99752f50d4194b9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "1bee415dceeefb9c1d8d94e2cbf1363eb5802a52528fd12bd9204f0a30cd990d"
+    },
+    {
+      "id": "B-2220:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 10 test coverage passed: executed all 7 verificationIntent commands unchanged with 7/7 PASS; each intent has matching current-story evidence, with 0 gaps and 0 waivers; build-binding smoke and exact decision digest both passed.",
+      "createdAt": "2026-08-31T23:24:58.644Z",
+      "reviewRound": "2026-08-31T23:22:30.466Z",
+      "reviewRunId": "B-2220:RR-042",
+      "envelopeId": "22793daf085e5e9b13690c9c6a5e6955793872bea528390094603472a26b6c61",
+      "writerSessionId": "sess-4b977e97aa7782e9beadd0fc82f7cfc7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": 4096
+        },
+        "digest": "025332c6d67ef2612b56b4a26f4e61ac8d81c146bb61c52b483b47cb96a607ea"
+      },
+      "readDiagnostics": [],
+      "_hash": "b68c49cdacb3ca17cad9465207dc1921d44698c7d6779acf5dd62046ac32188f"
+    },
+    {
+      "id": "B-2220:RP-028",
+      "agent": "lattice-review-concept",
+      "note": "Round 10 concept review passed: the B-3434 writer-owned-boundary proposal is retained only as historical audit context; all active owner/work-order/mandatory-follow-up language is removed, B-3434 remains accepted, exact CHK-001:adversarial:1 digest and all seven intent commands pass, and no promised-but-undelivered behavior was introduced.",
+      "createdAt": "2026-08-31T23:25:18.250Z",
+      "reviewRound": "2026-08-31T23:22:30.466Z",
+      "reviewRunId": "B-2220:RR-044",
+      "envelopeId": "35172a011be3334b32e5f72242296eb2e8bd71ea4fb5ecaed2a6396fb2bafcee",
+      "writerSessionId": "sess-f63576a25264988b7aada709e41669b2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "715629b11176cf79b5a2a946f831173b91d7ff5511e770e3ab288fc26cb0df71"
+    },
+    {
+      "id": "B-2220:RP-029",
+      "agent": "lattice-review-docs",
+      "note": "Round 11 Prompt Envelope re-attestation: 1 exported symbol extracted (rationaleDigest), 0 direct documentation symbol-reference paragraphs found; fallback compared 2 bounded documentation/code sections (the full related decision document and smoke section 13). The decision has no planned or owned follow-up, B-3434 remains accepted, all 7 verification intents and build-bound compiled smoke passed, and the 4-promise delivery row remains pass with unchanged storyFilesHash.",
+      "createdAt": "2026-09-01T00:26:35.890Z",
+      "reviewRound": "2026-09-01T00:24:10.518Z",
+      "reviewRunId": "B-2220:RR-046",
+      "envelopeId": "b973e9372af725fd2d50610c60c56519208787532566a62f9df149a126cd00ed",
+      "writerSessionId": "sess-4296685e5704daba13ff649e3a2dd22d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "e197e665fd87f6df9f3a0f9d1a5a0be8e4decc5acb7feb38d62192823e999d35"
+    },
+    {
+      "id": "B-2220:RP-030",
+      "agent": "lattice-review-concept",
+      "note": "Round 11 main-merge Prompt Envelope re-attestation passed. Merge ef3007f163 changed neither story-owned decision document nor smoke; storyFilesHash remains 6ab6bae5ef24b15fc2c4c3ecb70b8a1c3b78c04a0e3ecfe4272171f1a47ebc10. B-3434 is DONE with 5/5 checklist items. All seven pinned verification intents pass, including exact decision digest and build-bound compiled smoke. Repository-wide concept scans found no current B-3434 owner, active work order, or mandatory follow-up. Historical B-3434 closeout metadata is retained audit history and is explicitly superseded by the later canonical decision. Reopen remains conditional on new risk evidence plus a new human-approved story. No promised-but-undelivered part found.",
+      "createdAt": "2026-09-01T00:27:11.306Z",
+      "reviewRound": "2026-09-01T00:24:10.518Z",
+      "reviewRunId": "B-2220:RR-047",
+      "envelopeId": "6008e2f443b9cc664c070b14de810fe04d0c418c5396112d3bfa90e99cc40307",
+      "writerSessionId": "sess-bec764c5b836aa4f52551fd5eba0ecfe",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "6b51309935b103a849ad0086eb3dc58a887b26a1b84be7be0d529584cc005d6c"
+    },
+    {
+      "id": "B-2220:RP-031",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 11 main-merge Prompt Envelope re-attestation passed: executed all 7 stored verificationIntent commands unchanged with 7/7 PASS, found 0 gaps and 0 waivers, verified build binding and compiled smoke, and confirmed canonical evidence inspection reports current validation evidence fresh for material 0e04c5d8.",
+      "createdAt": "2026-09-01T00:27:19.491Z",
+      "reviewRound": "2026-09-01T00:24:10.518Z",
+      "reviewRunId": "B-2220:RR-049",
+      "envelopeId": "bfce3b8feaab9b3c4ddbf0cce88f88e63343f2e9d3fba6143f7625f86beb6f67",
+      "writerSessionId": "sess-0ebbc917850513020ba8c17cf9a4e095",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2220/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "b7043657707d68642553a89037fc0fc518ce0da08c638c95bcc0845ed26a39fd"
+    },
+    {
+      "id": "B-2220:RP-032",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 12 test coverage review passed: independently executed all 7 verificationIntent commands with 7/7 PASS, 0 gaps, 0 waivers; happy:2 build-binding plus full compiled smoke passed and adversarial:1 matched digest 6041dbff24cba1df2c2a838d949df8d87a7eaf04a979525681456f5d994e614e.",
+      "createdAt": "2026-09-01T00:34:22.615Z",
+      "reviewRound": "2026-09-01T00:32:22.241Z",
+      "reviewRunId": "B-2220:RR-050",
+      "envelopeId": "e388f5f8bc545b97764925b64e881e0f6db3e4e33876e35e761c234a392725b3",
+      "writerSessionId": "sess-8c0ea484827c182c849f80edfe291c0c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "783e3d366eaa46f4e468d7a9b855c14ca30fda6582bc7b353fab1d57945265e2"
+    },
+    {
+      "id": "B-2220:RP-033",
+      "agent": "lattice-review-docs",
+      "note": "Round 12 docs review: 1 extracted changed symbol (rationaleDigest), 0 symbol-referencing documentation paragraphs; fallback found no package README, so the full related decision document was compared against the changed smoke digest assertion and live compiled output. All 7 verification intents pass. Every measured-numbers row matches smoke output, SHA-256 6041dbff... is exact, no planned/owned follow-up remains, B-3434 is DONE 5/5 with acceptanceVerdict=accepted, and no promised-but-undelivered behavior was found.",
+      "createdAt": "2026-09-01T00:35:29.423Z",
+      "reviewRound": "2026-09-01T00:32:22.241Z",
+      "reviewRunId": "B-2220:RR-051",
+      "envelopeId": "f65b94785b28f21633a575a853ff7a2c2bd54e133699176352d66f5f784b01d8",
+      "writerSessionId": "sess-a51b51d8803edba2a8e7d8f6379eb028",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "fd03120705eb98eb7d69ea224224d77066bac43b9c75d2ae6c8f341d618af728"
+    },
+    {
+      "id": "B-2220:RP-034",
+      "agent": "lattice-review-quality",
+      "note": "Round 12 quality review found no blocker. Read the complete decision record and executable smoke plus signed story context. Mechanically compared all seven measured-number rows against a fresh build-bound compiled smoke: 7/7 PASS; SHA-256 and source pin equal 6041dbff24cba1df2c2a838d949df8d87a7eaf04a979525681456f5d994e614e; all known superseded digests and stale measured values have zero residual matches; build binding, final smoke selector, git diff check, dead-code/type-safety/error-handling review, and promised-but-undelivered self-check all pass. The dispatched plan.md path is absent; no plan content was claimed read, and the signed full task context supplies the candidate scope.",
+      "createdAt": "2026-09-01T00:35:50.493Z",
+      "reviewRound": "2026-09-01T00:32:22.241Z",
+      "reviewRunId": "B-2220:RR-053",
+      "envelopeId": "7c478b067da372345926d5311febd88e9cadb9de07e87cfeee11cdfc71bdf288",
+      "writerSessionId": "sess-9819287f82f262d962529c703ebfcfa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2220/background.md",
+          ".lattice/story/actives/B-2220/checklist.json",
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "00823f356ac8f4b33e69a3aca7d9159e542420512659f1476fb19c59640aad2d"
+    },
+    {
+      "id": "B-2220:RP-035",
+      "agent": "lattice-review-concept",
+      "note": "Round 12 concept review found no blocker: B-3434 is DONE with 5/5 checklist; the reviewed decision declines an active writer-owned-boundary follow-up without claiming the byte-identity guarantee shipped, explicitly rejects input/semantic consistency and evidence-truth guarantees, and requires evidence-based triggers plus new human approval to reopen. All 7 verificationIntent commands, exact decision digest, stale-active-mandate scan, build binding, and compiled smoke passed. Historical B-3434 audit text is retained and explicitly superseded, not an active mandate.",
+      "createdAt": "2026-09-01T00:36:12.377Z",
+      "reviewRound": "2026-09-01T00:32:22.241Z",
+      "reviewRunId": "B-2220:RR-052",
+      "envelopeId": "ff786277dab65ee3696bfd10ff8b399eb11cfb295d824e826a1d10b3d922bb6b",
+      "writerSessionId": "sess-adb14383b5e26bbfc9de541ab7155007",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": "Concept deletion review required repository-wide residual-reference scans after the decision document replaced an active work-order posture with a historical proposal."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "954fd6289f4e73f131f3be50ec24d0912afed8c9c014a07df5a8cb474a88dc82"
+    }
+  ]
+}
