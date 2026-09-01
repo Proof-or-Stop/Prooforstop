@@ -1078,7 +1078,7 @@
       "desc": "doc-promise-undelivered: docs/CLI.md:1095-1097 and lab_help now call nested lab create/run/eval/compare/promote/help canonical, but the canonical nested help path loses its spelling after alias normalization. Direct probes of all six `node bin/proof-or-stop.js lab <subcommand> --help` forms exited 0 yet rendered headings/usages such as `proof-or-stop lab_create` and `Usage: proof-or-stop lab_compare --config=value`; even `lab help --help` advertises only `proof-or-stop lab_help`. cli-engine.ts normalizes to the flat registry name before printToolHelp and preserves no display alias. Thus execution routing is real, but the product help surface still teaches the compatibility spelling as primary, contradicting the new canonical-command promise. Preserve a canonical display invocation through help rendering and assert exact nested headings/usages for all six subcommands, while testing flat commands separately as compatibility.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-01T08:46:37.533Z",
@@ -1093,7 +1093,11 @@
         "scripts/verify-global-lab-entrypoint.mjs"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in cade1bf954: nested lab help preserves canonical nested command display and Usage while flat compatibility retains flat display; verify-global-lab-entrypoint passes all six checks.",
+      "resolvedAt": "2026-09-01T09:36:25.226Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-022e:F-040",
