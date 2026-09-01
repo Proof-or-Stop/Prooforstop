@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "e0f829feaca5ff756db5effee2e473411219fbe187fb5ba38a7c6baa23e20645",
+  "committedLedgerDigest": "9c5c5e5b3b6bb1d4f3b144e344a43ed94c942f8e202ccd299b21787bae9db67f",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -108,6 +108,31 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-01T16:02:29.945Z"
+    },
+    {
+      "recordId": "lr_mtiuz1as_5lc_3a2267533ce845628d2806ea5c5bb092",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:53257ee6-2821-4c02-a34e-9a33317156f9",
+      "payload": {
+        "id": "B-fe8f:F-005",
+        "desc": "packages/main/src/handlers/transition-orchestrator.ts:131-155 — the new dependency gate releases a prerequisite solely when dependency.phase === DONE; it never proves the dependency branch is merged into local main/current baseline. packages/main/src/core/partial-done-recovery.ts:123-151 explicitly models the real failure state phase=DONE while story/<id> is not an ancestor of main, so phase alone is not the accepted DONE-and-merged contract. The smoke fixture compounds this by directly writeStory(... phase:DONE) and calling the dependency released, which cannot prove merged-state behavior. A partial-DONE dependency can therefore authorize dependent DEV before its APIs exist on main. Fail closed on both canonical DONE and a mechanical merge/ancestry (or equivalent signed merged-capability) proof, and mutate the merge fact independently in the dependency regression.",
+        "severity": "high",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "lattice-review-concept",
+        "createdAt": "2026-09-01T16:05:12.124Z",
+        "reviewRound": "2026-09-01T15:58:09.955Z",
+        "reviewRunId": "B-fe8f:RR-007",
+        "_hash": "ccb5991df82dbdba6a1e9451cccd1c6ce68abe00fa46b1c2181b3f621bc87b3f",
+        "signatureTag": "missing|unknown|packages-main-handlers",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "35ed2b4e737059258d4d8fd9b8a93472316599f614117a049964794dd831ccdf",
+      "priorDigest": "e0f829feaca5ff756db5effee2e473411219fbe187fb5ba38a7c6baa23e20645",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-01T16:05:12.148Z"
     }
   ],
   "receipts": [
@@ -223,6 +248,48 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "3206771cc36395c147368fce2c9c2f6d7043e2b56328ecae1cd6f8ba3d077cec",
         "signature": "JhSyeOaJMQ4u0GstcD51MtLMtuUTt3k4MGAAnn3ek2g48Ij8dydR1mPSVQJwUabM4megNzATsJ0NPUiqqNHTDA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtiuz1as_5lc_a7c02937bf5d42738794538c2a50efb1",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:53257ee6-2821-4c02-a34e-9a33317156f9",
+      "requestDigest": "1c664be4f181c0e0bb2e3d167207c0ab1a299d91b2300b7da09e9edb8c781b1f",
+      "recordIds": [
+        "lr_mtiuz1as_5lc_3a2267533ce845628d2806ea5c5bb092"
+      ],
+      "priorLedgerDigest": "e0f829feaca5ff756db5effee2e473411219fbe187fb5ba38a7c6baa23e20645",
+      "committedLedgerDigest": "9c5c5e5b3b6bb1d4f3b144e344a43ed94c942f8e202ccd299b21787bae9db67f",
+      "writerSessionId": "sess-44dbae6b48f70764ad737d701f61e5c0",
+      "writerFenceToken": "38a86af5-d87e-4ccd-9bc0-1bb1edc765cf",
+      "committedAt": "2026-09-01T16:05:12.148Z",
+      "replayed": false,
+      "exactRequestDigest": "222e53ab717930f8b67568c9b824c425c40057f42b0db216af67a149f945b00c",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtiuz1as_5lc_a7c02937bf5d42738794538c2a50efb1",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding_add:53257ee6-2821-4c02-a34e-9a33317156f9",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtiuz1as_5lc_3a2267533ce845628d2806ea5c5bb092"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "e0f829feaca5ff756db5effee2e473411219fbe187fb5ba38a7c6baa23e20645",
+        "committedLedgerDigest": "9c5c5e5b3b6bb1d4f3b144e344a43ed94c942f8e202ccd299b21787bae9db67f",
+        "replayed": false,
+        "committedAt": "2026-09-01T16:05:12.148Z",
+        "writerSessionId": "sess-44dbae6b48f70764ad737d701f61e5c0",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "38a86af5-d87e-4ccd-9bc0-1bb1edc765cf",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "67f2ec929e2be88a477d4429ada8b6608838943d8f05014f828e5c606a76bca1",
+        "signature": "41YLLC55C5U0yga/+GJh8afDgjxjBZBcjzFvTjbpiRA3YHuS+006b5/lXToAgVPD42EaJR1B2KGsZhRK1mxxAA=="
       }
     }
   ]

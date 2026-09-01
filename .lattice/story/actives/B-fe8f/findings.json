@@ -72,6 +72,23 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtiuvk55_1e94_e404e8912edc420d9ac44da4ebae99fe",
       "ledgerCommitReceiptId": "lrc_mtiuvk55_1e94_00fad2d8f5234a4d860d772bf6a628d0"
+    },
+    {
+      "id": "B-fe8f:F-005",
+      "desc": "packages/main/src/handlers/transition-orchestrator.ts:131-155 — the new dependency gate releases a prerequisite solely when dependency.phase === DONE; it never proves the dependency branch is merged into local main/current baseline. packages/main/src/core/partial-done-recovery.ts:123-151 explicitly models the real failure state phase=DONE while story/<id> is not an ancestor of main, so phase alone is not the accepted DONE-and-merged contract. The smoke fixture compounds this by directly writeStory(... phase:DONE) and calling the dependency released, which cannot prove merged-state behavior. A partial-DONE dependency can therefore authorize dependent DEV before its APIs exist on main. Fail closed on both canonical DONE and a mechanical merge/ancestry (or equivalent signed merged-capability) proof, and mutate the merge fact independently in the dependency regression.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-09-01T16:05:12.124Z",
+      "reviewRound": "2026-09-01T15:58:09.955Z",
+      "reviewRunId": "B-fe8f:RR-007",
+      "_hash": "ccb5991df82dbdba6a1e9451cccd1c6ce68abe00fa46b1c2181b3f621bc87b3f",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtiuz1as_5lc_3a2267533ce845628d2806ea5c5bb092",
+      "ledgerCommitReceiptId": "lrc_mtiuz1as_5lc_a7c02937bf5d42738794538c2a50efb1"
     }
   ]
 }
