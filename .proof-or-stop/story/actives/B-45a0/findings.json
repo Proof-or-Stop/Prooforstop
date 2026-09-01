@@ -25341,7 +25341,7 @@
       "desc": "acceptance_topology_check --storyId=B-45a0 --json returns a single acceptance-binding row whose checklistRefs/verificationIntentRefs/plannedPathDeclarationRefs/evidenceRefs enumerate only CHK-001..CHK-013. CHK-014 (Bind Wave 4 acceptance gates to executable current-head evidence) is entirely absent from that row, despite appearing in the underlying acceptance-basis.json scopeRefs (7 occurrences, scope-declared only, never bound to a topology row, verification intent, or evidence ref). The command still reports top-level status=pass/structuralPass=true/blocking=false and nextAction=\"Structural topology is complete for PLAN\". CHK-014 is exactly the checklist item that closes the Wave 4 acceptance-gate coverage gap this review is meant to verify, so its absence from producer/consumer closure is a discovery/closure gap in the acceptance topology itself, not a legitimate exclusion (excludedPathRefs=[] in the same basis, so no exclusion was ever declared or approved).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-09-01T14:55:54.693Z",
@@ -25368,7 +25368,11 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|ts|acceptance-topology-check",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "CHK-014 is now fully bound into the acceptance topology closure: commits 9cad32d0b2 and the follow-up mapping commit add CHK-014 to acceptanceBindings[0].checklistRefs, its five verification intents (happy:0/1/2, edge:0, adversarial:0) to verificationIntentRefs, and map them into the positive (positive-16..18), mutation (mutation-31..32), and transcript (transcript-46..50) assertion groups. After acceptance_basis_generate, acceptance_topology_check reports Status: pass, Structural pass: yes with zero AT_* diagnostics (previously five AT_INTENT_UNCOVERED for CHK-014), and the acceptance matrix binding row now enumerates CHK-001..CHK-014.",
+      "resolvedAt": "2026-09-01T15:42:32.916Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
