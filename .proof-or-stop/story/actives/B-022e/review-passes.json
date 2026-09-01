@@ -3113,6 +3113,37 @@
       },
       "readDiagnostics": [],
       "_hash": "87b4003247aa2de3075ea12cb3136b88cbee7f9bef8a6887f47e58af499d4160"
+    },
+    {
+      "id": "B-022e:RP-078",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 32 test-coverage re-sign using only the current-worktree local CLI passed: 29 verification intents remain covered by 29 unique passing evidence bindings with no missing, failing, waived, or duplicate intentRef; current routine validation covers 120 configured commands, and the exclusive root suite completed 59/59. Direct coverage remains present for global-core-realpath, migration-contract/core-package-rename, and gitroot-cwd/scope-contract. The earlier concurrent 0/59 is not attributed to product behavior. No Authority, Wave4 rollout, production, or DONE-readiness claim is made.",
+      "createdAt": "2026-09-01T20:43:01.378Z",
+      "reviewRound": "2026-09-01T20:22:08.642Z",
+      "reviewRunId": "B-022e:RR-149",
+      "envelopeId": "2cd4b2d3101c0d287f3ebb6c1c29858860b7f4ccf6d84382536c5c02d9f855a3",
+      "writerSessionId": "sess-c31b7ef7e8115fc1beb570b22221317c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json",
+          "scripts/proof-or-stop-identity-current-legacy-contexts.json",
+          "scripts/verify-core-package-rename.mjs",
+          "scripts/verify-migration-contract.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": "REVIEWER_REQUESTED_FULL: current-worktree local CLI re-sign of all Round 32 intent/evidence and direct-test mappings; incremental eligibility was not used."
+      },
+      "_hash": "b47a46efa2ed2027cf7200f3fd79b4aa894dcb326e39ac5e28580ccc8dd249c9"
     }
   ]
 }
