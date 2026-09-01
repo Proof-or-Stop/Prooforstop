@@ -476,10 +476,10 @@ function runFindingProjectionRegression(root: string): void {
     .find((finding) => finding.id === `${storyId}:F-004`)!;
   assert.equal(
     rereadTerminal.status,
-    'resolved',
-    'the append-only finding record must not overwrite a later compatibility terminal state',
+    'open',
+    'unsigned mirror bytes must not close a ledger-backed Finding',
   );
-  console.log('finding.lifecycle_projection: PASS terminal=resolved resurrected=0');
+  console.log('finding.lifecycle_unsigned_mirror: PASS terminal=open authority=none');
 
   assert.equal(REVIEW_RETENTION_PROTOCOL_METADATA_PATHS.has('finding-ledger.json'), true);
   const second = handlers.finding_add({ ...args, desc: 'second same-round finding', idempotencyKey: 'finding-add:same-round-2' });
@@ -528,11 +528,95 @@ function runFindingProjectionRegression(root: string): void {
   const terminalProjection = store.readFindings(storyId);
   assert.equal(terminalProjection.findings.find((finding) => finding.id === `${storyId}:F-004`)?.status, 'resolved');
   assert.equal(terminalProjection.findings.find((finding) => finding.id === `${storyId}:F-005`)?.status, 'dismissed');
+  console.log('finding.lifecycle_projection: PASS terminal=resolved resurrected=0');
   const lifecycleLedger = store.readFindingLedger<JsonValue>(storyId);
   assert.equal(lifecycleLedger.records.filter((record) => record.recordType === 'finding_lifecycle_transition').length, 2);
   assert.equal(lifecycleLedger.receipts.filter((receipt) => receipt.operation === 'append_finding_lifecycle_transition').length, 2);
   assert.equal(queryFindingLedger(lifecycleLedger, storyId, findingLedgerSignerFromWorkspace(root)).signedRows, true);
   console.log('finding.lifecycle_transition: PASS appendOnly=true resolveReplay=stable dismissReplay=stable terminalRows=2 resurrected=0');
+
+  const authorityStoryId = 'B-LIFECYCLE-AUTHORITY';
+  store.writeStory(authorityStoryId, runtimeStory(authorityStoryId));
+  const authorityHandlers = createFindingHandlers({ root, scanRoot: root, store });
+  assert.match(authorityHandlers.finding_add({
+    storyId: authorityStoryId,
+    desc: 'lifecycle authority carrier regression',
+    severity: 'high',
+    category: 'adversarial',
+    agent: 'main',
+    idempotencyKey: 'finding-add:lifecycle-authority',
+  }), /Finding B-LIFECYCLE-AUTHORITY:F-001 created/);
+  const authorityOpenMirror = structuredClone(store.readFindings(authorityStoryId));
+  const priorAuthorityAgent = process.env.PROOF_OR_STOP_AGENT;
+  process.env.PROOF_OR_STOP_AGENT = 'lattice-implementer';
+  try {
+    assert.match(authorityHandlers.finding_resolve({
+      storyId: authorityStoryId,
+      findingId: `${authorityStoryId}:F-001`,
+      resolution: 'signed lifecycle authority regression',
+      resolutionType: 'fixed',
+      resolveEvidenceStrength: 'strong',
+    }), /resolved/);
+  } finally {
+    if (priorAuthorityAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = priorAuthorityAgent;
+  }
+  store.writeFindings(authorityStoryId, authorityOpenMirror);
+  const authorityLedgerPath = store.findingLedgerPath(authorityStoryId);
+  const validAuthorityLedger = store.readFindingLedger<JsonValue>(authorityStoryId);
+  const authorityTransition = validAuthorityLedger.records.find((record) => (
+    record.recordType === 'finding_lifecycle_transition'
+  ))!;
+  assert.equal(store.readFindings(authorityStoryId).findings[0]?.status, 'resolved');
+
+  const writeAuthorityCandidate = (candidate: typeof validAuthorityLedger): void => {
+    writeFileSync(authorityLedgerPath, `${JSON.stringify(candidate, null, 2)}\n`);
+  };
+  const expectAuthorityRefusal = (candidate: typeof validAuthorityLedger): void => {
+    writeAuthorityCandidate(candidate);
+    assert.equal(store.readFindings(authorityStoryId).findings[0]?.status, 'open');
+    assert.throws(() => queryFindingLedger(
+      store.readFindingLedger<JsonValue>(authorityStoryId),
+      authorityStoryId,
+      findingLedgerSignerFromWorkspace(root),
+    ));
+  };
+
+  const unsignedAuthority = structuredClone(validAuthorityLedger) as typeof validAuthorityLedger & {
+    receipts: Array<Record<string, unknown>>;
+  };
+  const unsignedCarrier = unsignedAuthority.receipts.find((receipt) => (
+    (receipt.recordIds as string[]).includes(authorityTransition.recordId)
+  ))!;
+  delete (unsignedCarrier as unknown as Record<string, unknown>).findingLedgerReceipt;
+  expectAuthorityRefusal(unsignedAuthority);
+
+  const badSignatureAuthority = structuredClone(validAuthorityLedger) as typeof validAuthorityLedger & {
+    receipts: Array<Record<string, unknown>>;
+  };
+  const badSignatureCarrier = badSignatureAuthority.receipts.find((receipt) => (
+    (receipt.recordIds as string[]).includes(authorityTransition.recordId)
+  ))!;
+  ((badSignatureCarrier as unknown as Record<string, unknown>).findingLedgerReceipt as Record<string, unknown>)
+    .signature = 'bad-signature';
+  expectAuthorityRefusal(badSignatureAuthority);
+
+  const tamperedAuthority = structuredClone(validAuthorityLedger);
+  const tamperedTransition = tamperedAuthority.records.find((record) => (
+    record.recordId === authorityTransition.recordId
+  ))!;
+  tamperedTransition.payload = {
+    ...(tamperedTransition.payload as Record<string, JsonValue>),
+    reason: 'tampered transition reason',
+  };
+  tamperedTransition.payloadHash = canonicalHash(tamperedTransition.payload);
+  tamperedAuthority.committedLedgerDigest = canonicalHash(tamperedAuthority.records);
+  tamperedAuthority.receipts.at(-1)!.committedLedgerDigest = tamperedAuthority.committedLedgerDigest;
+  expectAuthorityRefusal(tamperedAuthority);
+
+  writeAuthorityCandidate(validAuthorityLedger);
+  assert.equal(store.readFindings(authorityStoryId).findings[0]?.status, 'resolved');
+  console.log('finding.lifecycle_transition_authority: PASS unsigned=open badSignature=open tampered=open signed=resolved exactCas=true');
   sparseProjectionRegressionCompleted = true;
   console.log('lifecycle.finding_ledger_retention: PASS consecutiveFindings=2 authority=none');
 }
@@ -1454,6 +1538,32 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
     }), /unsupported_storage/);
     assert.equal(existsSync(join(swapOutside, `${swapDigest}.blob`)), false);
     console.log('runtime.blob_store_symlink_swap: PASS deterministicInterleaving=reject outsideWrites=0');
+    const lateSwapRoot = join(scratch, 'blob-late-swap-project');
+    const lateSwapOutside = join(scratch, 'blob-late-swap-outside');
+    mkdirSync(lateSwapRoot, { recursive: true });
+    mkdirSync(lateSwapOutside, { recursive: true });
+    const lateSwapBytes = Buffer.from('deterministic-late-symlink-swap\n');
+    const lateSwapDigest = createHash('sha256').update(lateSwapBytes).digest('hex');
+    const lateSwapDir = join(lateSwapRoot, '.proof-or-stop', 'evidence', 'runtime-blobs', 'sha256');
+    const lateSwapDisplacedDir = `${lateSwapDir}.displaced`;
+    let lateOutsideWrites = 0;
+    assert.throws(() => writeRuntimeEvidenceBlob(lateSwapRoot, {
+      blobId: `runtime-${lateSwapDigest}`,
+      contentDigest: lateSwapDigest,
+      contentType: 'stdout',
+      redactionPolicyDigest: canonicalDigest({ policy: 'blob-late-swap-smoke' }),
+    }, lateSwapBytes, RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY, {
+      beforeOpen: () => {
+        renameSync(lateSwapDir, lateSwapDisplacedDir);
+        symlinkSync(lateSwapOutside, lateSwapDir);
+      },
+      beforePublish: () => {
+        lateOutsideWrites = readdirSync(lateSwapOutside).length;
+      },
+    }), /unsupported_storage/);
+    assert.equal(lateOutsideWrites, 0, 'late directory swap must not create even a temporary outside blob');
+    assert.equal(readdirSync(lateSwapOutside).length, 0);
+    console.log('runtime.blob_store_late_symlink_swap: PASS afterFinalCheck=true outsideWrites=0');
     const buildBusy = runRuntimeCli(repositoryRoot, root, 'finding_runtime_evidence_run', {
       ...runArgs, idempotencyKey: 'runtime-build-busy', buildInProgress: true,
     }, signingEnv);

@@ -1,12 +1,13 @@
 /**
  * Schema-neutral, fenced append ledger primitives.
  *
- * This module deliberately knows nothing about Finding semantics.  Callers
- * supply an opaque payload and decide how it is interpreted after a durable
- * append has been acknowledged.
+ * Durable records remain payload-schema-neutral: callers decide how an opaque
+ * payload is interpreted. This layer also owns the signed commit-receipt and
+ * registered local trust primitives needed by core projections.
  */
 
-import { randomBytes, randomUUID, createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { randomBytes, randomUUID, createHash, createPublicKey } from "node:crypto";
 import {
   closeSync,
   existsSync,
@@ -20,12 +21,107 @@ import {
   writeFileSync,
 } from "node:fs";
 import * as path from "node:path";
+import {
+  canonicalDigest,
+  exportPublicKeyRaw,
+  importPrivateKeyRaw,
+  signCanonical,
+  verifyCanonical,
+} from "./authority-signing.js";
+import type { FindingLedgerOperation, FindingLedgerReceipt } from "./types.js";
 
 export type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
 
 export const FINDING_LEDGER_SCHEMA_EPOCH = 1;
 export const FINDING_LEDGER_MINIMUM_WRITER_CAPABILITY = "finding-ledger-writer-v1";
 export const FINDING_LEDGER_LOCAL_FS_CAPABILITY = "canonical-local-fs-v1";
+export const FINDING_LEDGER_KEY_FRESHNESS_POLICY_DIGEST = canonicalDigest({
+  version: 1,
+  registry: "git-common-dir-current-key",
+  rotation: "replacement-invalidates-prior-current-key",
+});
+
+const FINDING_LEDGER_KEY_FILE = "proof-or-stop-finding-ledger-v1.key";
+
+export interface FindingLedgerSigner {
+  privateKey: string;
+  publicKey: string;
+  keyId: string;
+  trustRootDigest: string;
+  keyFreshnessPolicyDigest: string;
+}
+
+export interface FindingLedgerReceiptTrust extends Omit<FindingLedgerSigner, "privateKey"> {
+  algorithm: "ed25519";
+}
+
+function gitCommonDir(workspaceRoot: string): string {
+  const raw = execFileSync("git", ["rev-parse", "--git-common-dir"], {
+    cwd: workspaceRoot,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
+  return path.isAbsolute(raw) ? raw : path.resolve(workspaceRoot, raw);
+}
+
+function findingLedgerKeyPath(workspaceRoot: string): string {
+  return path.join(gitCommonDir(workspaceRoot), FINDING_LEDGER_KEY_FILE);
+}
+
+function trustFromPrivateKey(privateKey: string): FindingLedgerReceiptTrust {
+  const publicKey = exportPublicKeyRaw(createPublicKey(importPrivateKeyRaw(privateKey)));
+  return {
+    publicKey,
+    keyId: `finding-ledger-${canonicalDigest({ publicKey }).slice(0, 24)}`,
+    algorithm: "ed25519",
+    trustRootDigest: canonicalDigest({ profile: "finding-ledger-local-trust-root-v1", publicKey }),
+    keyFreshnessPolicyDigest: FINDING_LEDGER_KEY_FRESHNESS_POLICY_DIGEST,
+  };
+}
+
+/** Current registered trust without creating or rotating key material on a read path. */
+export function currentFindingLedgerTrustFromWorkspace(
+  workspaceRoot: string,
+): FindingLedgerReceiptTrust | undefined {
+  const keyPath = findingLedgerKeyPath(workspaceRoot);
+  if (!existsSync(keyPath)) return undefined;
+  try {
+    const privateKey = readFileSync(keyPath, "utf8").trim();
+    if (!privateKey) return undefined;
+    return trustFromPrivateKey(privateKey);
+  } catch {
+    return undefined;
+  }
+}
+
+/** Registered local non-authority signer shared by every worktree of one repo. */
+export function findingLedgerSignerFromWorkspace(workspaceRoot: string): FindingLedgerSigner {
+  const keyPath = findingLedgerKeyPath(workspaceRoot);
+  if (!existsSync(keyPath)) {
+    mkdirSync(path.dirname(keyPath), { recursive: true });
+    try {
+      writeFileSync(keyPath, `${randomBytes(32).toString("base64")}\n`, {
+        encoding: "utf8", mode: 0o600, flag: "wx",
+      });
+    } catch (error) {
+      if (!existsSync(keyPath)) throw error;
+    }
+  }
+  const privateKey = readFileSync(keyPath, "utf8").trim();
+  const trust = trustFromPrivateKey(privateKey);
+  return {
+    privateKey,
+    publicKey: trust.publicKey,
+    keyId: trust.keyId,
+    trustRootDigest: trust.trustRootDigest,
+    keyFreshnessPolicyDigest: trust.keyFreshnessPolicyDigest,
+  };
+}
+
+export function findingLedgerTrustFromWorkspace(workspaceRoot: string): FindingLedgerReceiptTrust {
+  const { privateKey: _privateKey, ...trust } = findingLedgerSignerFromWorkspace(workspaceRoot);
+  return { ...trust, algorithm: "ed25519" };
+}
 
 export interface LedgerRecord<T = JsonValue> {
   recordId: string;
@@ -150,6 +246,90 @@ export function canonicalJson(value: unknown): string {
 
 export function canonicalHash(value: unknown): string {
   return createHash("sha256").update(canonicalJson(value), "utf8").digest("hex");
+}
+
+function unsignedFindingLedgerReceipt(
+  receipt: FindingLedgerReceipt,
+): Omit<FindingLedgerReceipt, "receiptHash" | "signature"> {
+  const { receiptHash: _hash, signature: _signature, ...unsigned } = receipt;
+  return unsigned;
+}
+
+const FINDING_LEDGER_RECEIPT_KEYS = [
+  "schemaVersion", "ledgerSchemaEpoch", "minimumWriterCapability", "receiptId", "storyId",
+  "idempotencyKey", "operation", "recordIds", "casBindings", "priorLedgerDigest",
+  "committedLedgerDigest", "replayed", "committedAt", "writerSessionId", "writerLeaseId",
+  "writerFenceToken", "keyId", "algorithm", "trustRootDigest", "keyFreshnessPolicyDigest",
+  "receiptHash", "signature",
+].sort();
+const FINDING_LEDGER_CAS_KEYS = [
+  "recordType", "expectedRecordId", "expectedRecordHash", "observedChainHeadId",
+  "observedChainHeadHash", "predicateDigest",
+].sort();
+const FINDING_LEDGER_OPERATIONS = new Set<FindingLedgerOperation>([
+  "append_finding", "append_finding_lifecycle_transition",
+  "append_legacy_identity_binding", "append_detector_signal",
+  "append_candidate_route", "append_candidate", "append_assessment_proposal",
+  "append_assessment", "append_mandatory_repair", "append_deferral_expiry_policy",
+  "append_deferral", "append_route_receipt", "append_progress_baseline_set",
+  "append_material_drift_reattestation", "append_runtime_receipt",
+  "append_canonical_defect_supersession", "append_canonical_defect",
+  "append_supersession", "apply_manifest",
+]);
+
+function hasExactKeys(value: object, expected: string[]): boolean {
+  return JSON.stringify(Object.keys(value).sort()) === JSON.stringify(expected);
+}
+
+export function signFindingLedgerReceipt(
+  receipt: Omit<FindingLedgerReceipt, "receiptHash" | "signature">,
+  signer: FindingLedgerSigner,
+): FindingLedgerReceipt {
+  if (!signer.privateKey.trim()) throw new Error("signer.privateKey must be a non-empty string");
+  const receiptHash = canonicalHash(receipt);
+  return {
+    ...receipt,
+    receiptHash,
+    signature: signCanonical({ ...receipt, receiptHash }, signer.privateKey),
+  };
+}
+
+export function verifyFindingLedgerReceipt(
+  receipt: FindingLedgerReceipt,
+  trust: string | FindingLedgerReceiptTrust,
+): boolean {
+  try {
+    if (!hasExactKeys(receipt, FINDING_LEDGER_RECEIPT_KEYS)
+      || !receipt.casBindings.every((binding) => hasExactKeys(binding, FINDING_LEDGER_CAS_KEYS))) return false;
+    const publicKey = typeof trust === "string" ? trust : trust.publicKey;
+    if (typeof trust !== "string" && (
+      receipt.keyId !== trust.keyId
+      || receipt.algorithm !== trust.algorithm
+      || receipt.trustRootDigest !== trust.trustRootDigest
+      || receipt.keyFreshnessPolicyDigest !== trust.keyFreshnessPolicyDigest
+    )) return false;
+    if (receipt.schemaVersion !== 1 || receipt.ledgerSchemaEpoch !== FINDING_LEDGER_SCHEMA_EPOCH
+      || receipt.minimumWriterCapability !== FINDING_LEDGER_MINIMUM_WRITER_CAPABILITY
+      || receipt.algorithm !== "ed25519"
+      || !FINDING_LEDGER_OPERATIONS.has(receipt.operation)
+      || !receipt.recordIds.length
+      || new Set(receipt.recordIds).size !== receipt.recordIds.length
+      || [
+        receipt.receiptId, receipt.storyId, receipt.idempotencyKey, receipt.priorLedgerDigest,
+        receipt.committedLedgerDigest, receipt.committedAt, receipt.writerSessionId,
+        receipt.writerLeaseId, receipt.writerFenceToken, receipt.keyId, receipt.trustRootDigest,
+        receipt.keyFreshnessPolicyDigest, receipt.receiptHash, receipt.signature,
+      ].some((value) => typeof value !== "string" || !value.trim())
+      || receipt.casBindings.some((binding) => Object.values(binding).some((value) => !value.trim()))
+      || receipt.receiptHash !== canonicalHash(unsignedFindingLedgerReceipt(receipt))) return false;
+    return verifyCanonical(
+      { ...unsignedFindingLedgerReceipt(receipt), receiptHash: receipt.receiptHash },
+      receipt.signature,
+      publicKey,
+    );
+  } catch {
+    return false;
+  }
 }
 
 /** IDs contain no array-length/ordinal component and remain unique across writers. */

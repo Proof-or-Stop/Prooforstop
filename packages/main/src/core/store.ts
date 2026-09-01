@@ -14,6 +14,7 @@ import type {
   ProofStoryContractData, IntentCollisionData, ScopeShrinkageDecisionData,
   RedEvidenceData, ProofStorySpikeData, ProofStorySlicePlanData, ProofStoryParentLedgerRollupData,
   AcceptanceBasisArtifactV1,
+  FindingLedgerReceipt,
   FindingLifecycleTransition,
   PreReviewCheckArtifactV1,
   AcceptanceRolloutArtifactV1,
@@ -48,13 +49,18 @@ import {
 } from './review-inventory-epoch.js';
 import {
   appendLedgerTransaction,
+  canonicalHash,
+  currentFindingLedgerTrustFromWorkspace,
   readLedger,
+  verifyFindingLedgerReceipt,
   writeLedgerAtomic,
   type AppendLedgerOptions,
   type AppendPlan,
   type AppendRequest,
+  type FindingLedgerReceiptTrust,
   type LedgerEnvelope,
   type LedgerFence,
+  type LedgerRecord,
 } from './finding-ledger.js';
 
 type JsonCandidate<T> = {
@@ -63,6 +69,72 @@ type JsonCandidate<T> = {
 };
 
 type LegacyReceiptRefDocument = Record<string, unknown>;
+
+type SignedLedgerCommitReceipt = LedgerEnvelope<unknown>['receipts'][number] & {
+  exactRequestDigest?: string;
+  findingLedgerReceipt?: FindingLedgerReceipt;
+};
+
+function isTrustedFindingLifecycleTransition(
+  ledger: LedgerEnvelope<unknown>,
+  storyId: string,
+  record: LedgerRecord<unknown>,
+  transition: FindingLifecycleTransition,
+  trust: FindingLedgerReceiptTrust | undefined,
+): boolean {
+  if (!trust) return false;
+  const recordIndex = ledger.records.findIndex((candidate) => candidate.recordId === record.recordId);
+  const sourceIndex = ledger.records.findIndex((candidate) => candidate.recordId === transition.findingRecordId);
+  if (recordIndex <= 0 || sourceIndex < 0 || sourceIndex >= recordIndex) return false;
+  const carriers = (ledger.receipts as SignedLedgerCommitReceipt[])
+    .filter((candidate) => candidate.recordIds.includes(record.recordId));
+  if (carriers.length !== 1) return false;
+  const carrier = carriers[0]!;
+  const signed = carrier.findingLedgerReceipt;
+  if (!signed || !verifyFindingLedgerReceipt(signed, trust)
+    || carrier.operation !== 'append_finding_lifecycle_transition'
+    || signed.operation !== 'append_finding_lifecycle_transition'
+    || signed.storyId !== storyId
+    || signed.receiptId !== carrier.receiptId
+    || signed.idempotencyKey !== carrier.idempotencyKey
+    || signed.recordIds.length !== 1
+    || signed.recordIds[0] !== record.recordId
+    || carrier.recordIds.length !== 1
+    || carrier.recordIds[0] !== record.recordId
+    || signed.priorLedgerDigest !== carrier.priorLedgerDigest
+    || signed.committedLedgerDigest !== carrier.committedLedgerDigest
+    || signed.committedAt !== carrier.committedAt
+    || signed.writerSessionId !== carrier.writerSessionId
+    || signed.writerFenceToken !== carrier.writerFenceToken
+    || signed.replayed !== false
+    || carrier.replayed !== false
+    || typeof carrier.exactRequestDigest !== 'string'
+    || !/^[0-9a-f]{64}$/.test(carrier.exactRequestDigest)) return false;
+
+  const recordsBefore = ledger.records.slice(0, recordIndex);
+  const recordsThrough = ledger.records.slice(0, recordIndex + 1);
+  const expectedPriorDigest = canonicalHash(recordsBefore);
+  const expectedCommittedDigest = canonicalHash(recordsThrough);
+  if (record.priorDigest !== expectedPriorDigest
+    || signed.priorLedgerDigest !== expectedPriorDigest
+    || signed.committedLedgerDigest !== expectedCommittedDigest) return false;
+
+  const source = ledger.records[sourceIndex]!;
+  const priorHead = ledger.records[recordIndex - 1]!;
+  const expectedPredicateDigest = canonicalHash({
+    schemaVersion: 1,
+    predicate: 'finding-open-without-terminal-transition',
+    findingId: transition.findingId,
+    findingRecordId: transition.findingRecordId,
+  });
+  return signed.casBindings.length === 1
+    && signed.casBindings[0]!.recordType === source.recordType
+    && signed.casBindings[0]!.expectedRecordId === source.recordId
+    && signed.casBindings[0]!.expectedRecordHash === canonicalHash(source)
+    && signed.casBindings[0]!.observedChainHeadId === priorHead.recordId
+    && signed.casBindings[0]!.observedChainHeadHash === canonicalHash(priorHead)
+    && signed.casBindings[0]!.predicateDigest === expectedPredicateDigest;
+}
 
 class StoryArtifactMissingError extends Error {
   constructor(message: string) {
@@ -484,6 +556,9 @@ export class StoryStore {
     const ledgerPath = this.findingLedgerPath(storyId);
     if (!existsSync(ledgerPath)) return data;
     const ledger = readLedger<unknown>(ledgerPath);
+    const lifecycleTrust = ledger.records.some((record) => record.recordType === 'finding_lifecycle_transition')
+      ? currentFindingLedgerTrustFromWorkspace(this.projectRootValue)
+      : undefined;
     for (const record of ledger.records) {
       if (record.recordType !== 'finding' || !record.payload || typeof record.payload !== 'object') continue;
       const payload = record.payload as FindingData['findings'][number];
@@ -497,25 +572,11 @@ export class StoryStore {
       const index = data.findings.findIndex((finding) => finding.id === payload.id);
       if (index < 0) data.findings.push(projected);
       else if (data.findings[index]?.recordId === record.recordId) {
-        const compatibility = data.findings[index]!;
-        // Before lifecycle transitions existed, resolve/dismiss was persisted in
-        // findings.json only. Preserve that bounded terminal compatibility fact
-        // instead of resurrecting the immutable original `open` row. New writes
-        // are authoritative lifecycle records and are folded below.
-        data.findings[index] = compatibility.status === 'open'
-          ? projected
-          : {
-              ...projected,
-              status: compatibility.status,
-              ...(compatibility.resolvedReason ? { resolvedReason: compatibility.resolvedReason } : {}),
-              ...(compatibility.resolvedAt ? { resolvedAt: compatibility.resolvedAt } : {}),
-              ...(compatibility.resolutionType ? { resolutionType: compatibility.resolutionType } : {}),
-              ...(compatibility.resolveEvidenceStrength ? { resolveEvidenceStrength: compatibility.resolveEvidenceStrength } : {}),
-              ...(compatibility.dismissReason ? { dismissReason: compatibility.dismissReason } : {}),
-              ...(compatibility.dismissedAt ? { dismissedAt: compatibility.dismissedAt } : {}),
-              ...(compatibility.dismissReasonType ? { dismissReasonType: compatibility.dismissReasonType } : {}),
-              ...(compatibility.dismissEvidenceStrength ? { dismissEvidenceStrength: compatibility.dismissEvidenceStrength } : {}),
-            };
+        // A ledger-backed Finding can become terminal only through a trusted,
+        // append-only lifecycle receipt folded below. Truly legacy mirror-only
+        // findings (no recordId match) remain readable for compatibility, but
+        // unsigned mirror bytes cannot close a signed Finding.
+        data.findings[index] = projected;
       }
     }
     for (const record of ledger.records) {
@@ -527,6 +588,13 @@ export class StoryStore {
         || typeof transition.findingRecordId !== 'string'
         || transition.fromStatus !== 'open'
         || !['resolved', 'dismissed'].includes(transition.toStatus)) continue;
+      if (!isTrustedFindingLifecycleTransition(
+        ledger,
+        storyId,
+        record,
+        transition,
+        lifecycleTrust,
+      )) continue;
       const finding = data.findings.find((candidate) => (
         candidate.id === transition.findingId
         && candidate.recordId === transition.findingRecordId

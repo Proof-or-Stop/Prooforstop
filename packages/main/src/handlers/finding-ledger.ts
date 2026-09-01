@@ -9,8 +9,11 @@ import {
   canonicalHash, canonicalJson, planAppend, readLedger,
   validateEnvelope,
   FINDING_LEDGER_SCHEMA_EPOCH, FINDING_LEDGER_MINIMUM_WRITER_CAPABILITY,
-  FINDING_LEDGER_LOCAL_FS_CAPABILITY,
+  FINDING_LEDGER_LOCAL_FS_CAPABILITY, FINDING_LEDGER_KEY_FRESHNESS_POLICY_DIGEST,
+  findingLedgerSignerFromWorkspace, findingLedgerTrustFromWorkspace,
+  signFindingLedgerReceipt, verifyFindingLedgerReceipt,
   type AppendLedgerOptions, type AppendPlan, type AppendRequest,
+  type FindingLedgerReceiptTrust, type FindingLedgerSigner,
   type JsonValue, type LedgerCommitReceipt, type LedgerEnvelope, type LedgerFence,
   type LedgerRecord,
 } from '../core/finding-ledger.js';
@@ -49,28 +52,21 @@ import type {
 } from '../core/types.js';
 
 export type { FindingLedgerCasBinding, FindingLedgerOperation, FindingLedgerReceipt } from '../core/types.js';
+export {
+  FINDING_LEDGER_KEY_FRESHNESS_POLICY_DIGEST,
+  findingLedgerSignerFromWorkspace,
+  findingLedgerTrustFromWorkspace,
+  signFindingLedgerReceipt,
+  verifyFindingLedgerReceipt,
+} from '../core/finding-ledger.js';
 
-export interface LedgerSigner {
-  privateKey: string;
-  publicKey: string;
-  keyId: string;
-  trustRootDigest: string;
-  keyFreshnessPolicyDigest: string;
-}
-export interface LedgerReceiptTrust extends Omit<LedgerSigner, 'privateKey'> {
-  algorithm: 'ed25519';
-}
+export type LedgerSigner = FindingLedgerSigner;
+export type LedgerReceiptTrust = FindingLedgerReceiptTrust;
 
-const FINDING_LEDGER_KEY_FILE = 'proof-or-stop-finding-ledger-v1.key';
 const require = createRequire(import.meta.url);
 const properLockfile = require('proper-lockfile') as {
   checkSync(file: string, options: { stale: number; update: number }): boolean;
 };
-export const FINDING_LEDGER_KEY_FRESHNESS_POLICY_DIGEST = canonicalDigest({
-  version: 1,
-  registry: 'git-common-dir-current-key',
-  rotation: 'replacement-invalidates-prior-current-key',
-});
 
 function gitCommonDir(workspaceRoot: string): string {
   const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], {
@@ -79,36 +75,6 @@ function gitCommonDir(workspaceRoot: string): string {
     stdio: ['ignore', 'pipe', 'pipe'],
   }).trim();
   return isAbsolute(raw) ? raw : resolve(workspaceRoot, raw);
-}
-
-/** Registered local non-authority signer shared by every worktree of one repo. */
-export function findingLedgerSignerFromWorkspace(workspaceRoot: string): LedgerSigner {
-  const keyPath = join(gitCommonDir(workspaceRoot), FINDING_LEDGER_KEY_FILE);
-  if (!existsSync(keyPath)) {
-    mkdirSync(dirname(keyPath), { recursive: true });
-    try {
-      writeFileSync(keyPath, `${randomBytes(32).toString('base64')}\n`, {
-        encoding: 'utf8', mode: 0o600, flag: 'wx',
-      });
-    } catch (error) {
-      if (!existsSync(keyPath)) throw error;
-    }
-  }
-  const privateKey = readFileSync(keyPath, 'utf8').trim();
-  const publicKey = exportPublicKeyRaw(createPublicKey(importPrivateKeyRaw(privateKey)));
-  const keyId = `finding-ledger-${canonicalDigest({ publicKey }).slice(0, 24)}`;
-  return {
-    privateKey,
-    publicKey,
-    keyId,
-    trustRootDigest: canonicalDigest({ profile: 'finding-ledger-local-trust-root-v1', publicKey }),
-    keyFreshnessPolicyDigest: FINDING_LEDGER_KEY_FRESHNESS_POLICY_DIGEST,
-  };
-}
-
-export function findingLedgerTrustFromWorkspace(workspaceRoot: string): LedgerReceiptTrust {
-  const { privateKey: _privateKey, ...trust } = findingLedgerSignerFromWorkspace(workspaceRoot);
-  return { ...trust, algorithm: 'ed25519' };
 }
 export interface LedgerExactCasSnapshot<T extends JsonValue = JsonValue> {
   ledger: LedgerEnvelope<T>;
@@ -126,77 +92,12 @@ export interface LedgerAppendOptions<T extends JsonValue = JsonValue> {
   commitOptions?: AppendLedgerOptions;
 }
 
-function unsignedReceipt(receipt: FindingLedgerReceipt): Omit<FindingLedgerReceipt, 'receiptHash' | 'signature'> {
-  const { receiptHash: _hash, signature: _signature, ...unsigned } = receipt;
-  return unsigned;
-}
-function receiptHash(receipt: FindingLedgerReceipt): string { return canonicalHash(unsignedReceipt(receipt)); }
 function assertText(value: unknown, name: string): asserts value is string {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`${name} must be a non-empty string`);
 }
 
-export function signFindingLedgerReceipt(receipt: Omit<FindingLedgerReceipt, 'receiptHash' | 'signature'>, signer: LedgerSigner): FindingLedgerReceipt {
-  assertText(signer.privateKey, 'signer.privateKey');
-  const hash = canonicalHash(receipt);
-  return { ...receipt, receiptHash: hash, signature: signCanonical({ ...receipt, receiptHash: hash }, signer.privateKey) };
-}
-
-const RECEIPT_KEYS = [
-  'schemaVersion', 'ledgerSchemaEpoch', 'minimumWriterCapability', 'receiptId', 'storyId',
-  'idempotencyKey', 'operation', 'recordIds', 'casBindings', 'priorLedgerDigest',
-  'committedLedgerDigest', 'replayed', 'committedAt', 'writerSessionId', 'writerLeaseId',
-  'writerFenceToken', 'keyId', 'algorithm', 'trustRootDigest', 'keyFreshnessPolicyDigest',
-  'receiptHash', 'signature',
-].sort();
-const CAS_KEYS = [
-  'recordType', 'expectedRecordId', 'expectedRecordHash', 'observedChainHeadId',
-  'observedChainHeadHash', 'predicateDigest',
-].sort();
-const LEDGER_OPERATIONS = new Set<FindingLedgerOperation>([
-  'append_finding', 'append_finding_lifecycle_transition',
-  'append_legacy_identity_binding', 'append_detector_signal',
-  'append_candidate_route', 'append_candidate', 'append_assessment_proposal',
-  'append_assessment', 'append_mandatory_repair', 'append_deferral_expiry_policy',
-  'append_deferral', 'append_route_receipt', 'append_progress_baseline_set',
-  'append_material_drift_reattestation', 'append_runtime_receipt',
-  'append_canonical_defect_supersession', 'append_canonical_defect',
-  'append_supersession', 'apply_manifest',
-]);
-
 function exactKeys(value: object, expected: string[]): boolean {
   return JSON.stringify(Object.keys(value).sort()) === JSON.stringify(expected);
-}
-
-export function verifyFindingLedgerReceipt(
-  receipt: FindingLedgerReceipt,
-  trust: string | LedgerReceiptTrust,
-): boolean {
-  try {
-    if (!exactKeys(receipt, RECEIPT_KEYS)
-      || !receipt.casBindings.every((binding) => exactKeys(binding, CAS_KEYS))) return false;
-    const publicKey = typeof trust === 'string' ? trust : trust.publicKey;
-    if (typeof trust !== 'string' && (
-      receipt.keyId !== trust.keyId
-      || receipt.algorithm !== trust.algorithm
-      || receipt.trustRootDigest !== trust.trustRootDigest
-      || receipt.keyFreshnessPolicyDigest !== trust.keyFreshnessPolicyDigest
-    )) return false;
-    if (receipt.schemaVersion !== 1 || receipt.ledgerSchemaEpoch !== FINDING_LEDGER_SCHEMA_EPOCH
-      || receipt.minimumWriterCapability !== FINDING_LEDGER_MINIMUM_WRITER_CAPABILITY
-      || receipt.algorithm !== 'ed25519'
-      || !LEDGER_OPERATIONS.has(receipt.operation)
-      || !receipt.recordIds.length
-      || new Set(receipt.recordIds).size !== receipt.recordIds.length
-      || [
-        receipt.receiptId, receipt.storyId, receipt.idempotencyKey, receipt.priorLedgerDigest,
-        receipt.committedLedgerDigest, receipt.committedAt, receipt.writerSessionId,
-        receipt.writerLeaseId, receipt.writerFenceToken, receipt.keyId, receipt.trustRootDigest,
-        receipt.keyFreshnessPolicyDigest, receipt.receiptHash, receipt.signature,
-      ].some((value) => typeof value !== 'string' || !value.trim())
-      || receipt.casBindings.some((binding) => Object.values(binding).some((value) => !value.trim()))
-      || receipt.receiptHash !== receiptHash(receipt)) return false;
-    return verifyCanonical({ ...unsignedReceipt(receipt), receiptHash: receipt.receiptHash }, receipt.signature, publicKey);
-  } catch { return false; }
 }
 
 type PersistedCommitReceipt = LedgerCommitReceipt & {
