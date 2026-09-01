@@ -31,7 +31,12 @@ import {
 import type { AcceptanceRolloutCohortInputV1 } from '../core/types.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, PreReviewCaseRecordV1, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
-import { STATE_DIR_NAMES } from '../core/brand-paths.js';
+import {
+  ADAPTER_DIR_NAMES,
+  DEPRECATED_ADAPTER_DIR,
+  PROOF_OR_STOP_ADAPTER_DIR,
+  STATE_DIR_NAMES,
+} from '../core/brand-paths.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '..', '..', '..');
@@ -152,6 +157,61 @@ const rolloutPromptTokens = [
   'rollback',
 ];
 
+type CodexAgentPromptAsset = {
+  relativePath: string;
+  content: string;
+};
+
+function readCodexAgentPromptAsset(root: string, name: string): CodexAgentPromptAsset {
+  const relativePaths = ADAPTER_DIR_NAMES.map(dir => `${dir}/agents/${name}.md`);
+  for (const relativePath of relativePaths) {
+    try {
+      return {
+        relativePath,
+        content: readFileSync(join(root, relativePath), 'utf8'),
+      };
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') continue;
+      throw error;
+    }
+  }
+  throw new Error(`Codex agent prompt assets missing for "${name}"; checked: ${relativePaths.join(', ')}`);
+}
+
+function assertCodexAgentPromptAssetResolution(): void {
+  const fixtureRoot = mkdtempSync(join(tmpdir(), 'proofstory-codex-agent-root-'));
+  const name = 'lattice-implementer';
+  const canonicalPath = `${PROOF_OR_STOP_ADAPTER_DIR}/agents/${name}.md`;
+  const deprecatedPath = `${DEPRECATED_ADAPTER_DIR}/agents/${name}.md`;
+  try {
+    write(fixtureRoot, deprecatedPath, 'deprecated prompt');
+    write(fixtureRoot, canonicalPath, 'canonical prompt');
+    assert.deepEqual(
+      readCodexAgentPromptAsset(fixtureRoot, name),
+      { relativePath: canonicalPath, content: 'canonical prompt' },
+      'canonical Codex agent prompt assets take precedence over the deprecated tree',
+    );
+
+    rmSync(join(fixtureRoot, PROOF_OR_STOP_ADAPTER_DIR), { recursive: true, force: true });
+    assert.deepEqual(
+      readCodexAgentPromptAsset(fixtureRoot, name),
+      { relativePath: deprecatedPath, content: 'deprecated prompt' },
+      'deprecated Codex agent prompt assets remain a read fallback',
+    );
+
+    rmSync(join(fixtureRoot, DEPRECATED_ADAPTER_DIR), { recursive: true, force: true });
+    assert.throws(
+      () => readCodexAgentPromptAsset(fixtureRoot, name),
+      error => error instanceof Error
+        && error.message.includes('Codex agent prompt assets missing')
+        && ADAPTER_DIR_NAMES.every(dir => error.message.includes(`${dir}/agents/${name}.md`)),
+      'missing canonical and deprecated Codex agent prompt assets fail closed with every checked path',
+    );
+  } finally {
+    rmSync(fixtureRoot, { recursive: true, force: true });
+  }
+}
+
 // B-4043 F-014: the role guidance is sourced from the canonical package
 // templates (the REAL delivery path — review_run_start / agent_prompt resolve
 // each role body from templates/agents), NOT from the regenerable host shims.
@@ -164,9 +224,10 @@ function rolloutPromptGuidancePass(overrides = new Map<string, string>()): boole
     const templatePath = `packages/main/templates/agents/${name}.md`;
     const template = overrides.get(templatePath) ?? readFileSync(join(repositoryRoot, templatePath), 'utf8');
     const tokensPresent = rolloutPromptTokens.every(token => template.toLowerCase().includes(token));
-    const codexPath = `.lattice-codex/agents/${name}.md`;
+    const codexAsset = readCodexAgentPromptAsset(repositoryRoot, name);
+    const codexPath = codexAsset.relativePath;
     const claudePath = `.claude/agents/${name}.md`;
-    const codex = overrides.get(codexPath) ?? readFileSync(join(repositoryRoot, codexPath), 'utf8');
+    const codex = overrides.get(codexPath) ?? codexAsset.content;
     const claude = overrides.get(claudePath) ?? readFileSync(join(repositoryRoot, claudePath), 'utf8');
     return tokensPresent && lastParagraph(codex) === lastParagraph(claude);
   });
@@ -239,6 +300,8 @@ function write(root: string, rel: string, content: string): void {
   mkdirSync(dirname(join(root, rel)), { recursive: true });
   writeFileSync(join(root, rel), content, 'utf8');
 }
+
+assertCodexAgentPromptAssetResolution();
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 }
