@@ -6235,9 +6235,9 @@
       "epochId": "B-5a15:RI-056",
       "storyId": "B-5a15",
       "reviewRound": "2026-08-31T20:13:27.698Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-01T10:56:32.511Z",
-      "updatedAt": "2026-09-01T10:56:32.511Z",
+      "updatedAt": "2026-09-01T11:34:06.224Z",
       "cutoff": {
         "headHash": "1f73977ed69d38280621c586e1b80aa47c6bcfd5",
         "materialHash": "a1e2422dd089cea253dc89a168867841c774c7389547ba9be08b70fac7559237",
@@ -6255,7 +6255,10 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "1c0e1a3844b46dcd1b1e6cc463bf1f1265a5220e005591995f9061bd1f43e5a6"
+      "cancelledAt": "2026-09-01T11:34:06.224Z",
+      "cancelReason": "RI-056 invalidated by the F-342 coverage commit; concept and quality both recorded PASS, test-coverage finding fixed and dispositioned. All 16 non-DEV-gated findings are now closed and no source work remains.",
+      "terminalRunSequenceBoundary": 809,
+      "_hash": "9e7c91dbd4971ac4b7fc140ab954c8273126137f3be3a30c625fc1aba38ae614"
     }
   ],
   "receipts": [
