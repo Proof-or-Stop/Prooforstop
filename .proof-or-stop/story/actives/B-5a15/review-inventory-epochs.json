@@ -6342,9 +6342,9 @@
       "epochId": "B-5a15:RI-058",
       "storyId": "B-5a15",
       "reviewRound": "2026-09-01T13:31:42.515Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-09-01T13:33:22.210Z",
-      "updatedAt": "2026-09-01T13:58:10.496Z",
+      "updatedAt": "2026-09-01T18:33:41.837Z",
       "cutoff": {
         "headHash": "c1c55ead15a08601d8565f215da9e62d10efa967",
         "materialHash": "baf3b78a5761d16e4017e14de41a2e1c729b5a9e881f1e72e3d79adf6c4cdd9c",
@@ -6410,7 +6410,10 @@
       ],
       "baselineFindingIds": [],
       "receiptId": "B-5a15:RI-058:RCP-001",
-      "_hash": "1c05d92b6c66d8327283c420c15eb99c4a7d0c05bb0ed5cbb219a71f0651f3e5"
+      "cancelledAt": "2026-09-01T18:33:41.837Z",
+      "cancelReason": "RI-058 receipt bound to a superseded acceptance subject after the human breaker-resume and lease transfer; remediation DEV refuses it. Minting a fresh epoch at the current subject so the proofstory contract declaration fix can land.",
+      "terminalRunSequenceBoundary": 826,
+      "_hash": "ade80d5b0ff46005a56d5c365d115693540fb411ef11ba533e6159884020f869"
     }
   ],
   "receipts": [
@@ -7465,7 +7468,9 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-09-01T13:58:10.496Z",
-      "_hash": "268eeeb754c3a5f0c8157850e0aa51947cfd3c71c0a35627aefbf9c5fa4ce17e"
+      "invalidatedAt": "2026-09-01T18:33:41.837Z",
+      "invalidationReason": "RI-058 receipt bound to a superseded acceptance subject after the human breaker-resume and lease transfer; remediation DEV refuses it. Minting a fresh epoch at the current subject so the proofstory contract declaration fix can land.",
+      "_hash": "f348b4bc184d9c14d84f9c00fc4e93ca01711dc7ea93138112d41b55e44209bc"
     }
   ],
   "criticReceipts": [
