@@ -559,7 +559,7 @@
       "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:100 assembled-prompt-authority-gap (high): the current signed Round 8 prompt RR-034 still delivers obsolete `stale_or_not_reproduced` requirements through Task Context from checklist/story metadata (confirmed by `checklist_get --json` and `story_get --json`, including CHK-001 happy/adversarial intents and evidence notes), even though the new proposal says that retired vocabulary must not appear in delivered Agent guidance and the terminal REVIEW contract requires `not_reproduced_under_current_witness`. The focused registry and full-context envelope smokes still PASS because they validate the terminal role body/contract occurrence but do not reject contradictory authority vocabulary in Task Context or the complete assembled prompt. Update Story metadata through supported CLI/replan paths to current verdict/disposition semantics, then add an envelope-level assertion that rejects retired or contradictory triage authority anywhere in the full assembled reviewer prompt (including Task Context) without weakening existing one-contract/non-REVIEW isolation checks.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-09-01T10:57:07.065Z",
@@ -570,7 +570,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by current Story metadata migration and assembled-envelope validation. The actual StoryStore contains exactly 60 current intents with no retired authority alias delivered as a rule; all five modular REVIEW roles assemble in both supported paths. Independently verified by RR-045, RR-046, RR-047, and RR-048.",
+      "resolvedAt": "2026-09-01T15:14:25.699Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-026",
