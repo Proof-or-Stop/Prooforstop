@@ -79,10 +79,34 @@
       "phase": "DEV",
       "headHash": "af9bcbadd680bb20100499ba9a0aee757cabd521",
       "materialHash": "4f22df9a2ed47bf591efcd66bec84a392f2244a1be508454b3ec1bbae82a8fc0"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The Dynamic Finding decision document is the exact documentation-only authority migration accepted by SEP-B-9a49-001. prompt-envelope.ts is the smallest REVIEW-only Agent-envelope enforcement point required by verified blocker F-025 and the dedicated full Task Context RED/GREEN intent; it rejects contradictory Story/checklist/verificationIntent authority text before digesting and does not change Finding runtime schema, handlers, predicates, process facts, or lifecycle gates.",
+      "timestamp": "2026-09-01T11:47:09.498Z",
+      "paths": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "packages/main/src/core/prompt-envelope.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "packages/main/src/core/prompt-envelope.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "a7cf6d7d95bcfff0c23f14d9f80cf9071cdd3ca5",
+      "materialHash": "52b4489c2aa881737dc0c422ee1b7f0f75f33f763d8f5bf58d38ae263af6858a",
+      "anchors": [
+        "FindingApplicabilityAssessment.verdict",
+        "FindingDeferralDisposition",
+        "assertReviewTaskContextAuthority",
+        "buildPromptEnvelope"
+      ]
     }
   ],
   "createdAt": "2026-08-31T14:19:20.690Z",
-  "updatedAt": "2026-09-01T10:25:08.372Z",
+  "updatedAt": "2026-09-01T11:47:09.498Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -122,6 +146,8 @@
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+    "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts"
   }
 }
