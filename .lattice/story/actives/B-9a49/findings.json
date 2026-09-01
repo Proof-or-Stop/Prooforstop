@@ -895,7 +895,7 @@
       "desc": "Pre-round floor semantics remain partially collapsed after F-037. The authoritative Dynamic Finding plan orders deferralLineageFloorBlocks before assessmentIntegrityFloorBlocks and mandatoryRepairFloorBlocks (lines 1841-1873), allows exact strong superseding non-applicability/disproven proof to release only the lineage floor (lines 1920-1925), but separately requires exhausted or invalid deferral lineage to create a mandatory-repair obligation (lines 1966-1978) that, once active, only fresh signed closure_proven evidence can clear (lines 1980-1985). Current prompt-registry.ts line 65, proposal lines 163-177, AGENTS.md line 573, and CLAUDE.md line 784 say invalid claimed lineage is released by strong superseding proof or repair closure without stating that invalid/exhausted lineage also establishes the downstream mandatory-repair floor and that superseding proof does not clear that active obligation. This can teach Agents that strong non-applicability/disproven proof unblocks the whole Finding after invalid lineage, contrary to the authority. Current prompt smokes assert refusal of lineage release without exact proof but do not test simultaneous mandatory-repair classification or closure-only clearing, so they can remain green under this drift. Remediation: explicitly distinguish release of the first lineage floor from mandatory-repair classification; state that invalid/exhausted lineage also enters mandatory repair, that exact strong superseding proof releases only the first floor, and that an active mandatory-repair obligation requires closure_proven; add negative/positive prompt mutations for this interaction.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-09-01T23:25:48.066Z",
@@ -911,7 +911,11 @@
         "CLAUDE.md"
       ],
       "signatureTag": "adversarial|md|round-floor-semantics",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in c3a5137534dca5c41f62ee8a1f0cdfb0ce1920b5. The canonical reviewer contract, English proposal, byte-identical AGENTS.md/CLAUDE.md mirrors, registry smoke, approval manifest, and generated baselines now preserve the Dynamic Finding dual-floor rule: strong superseding nonapplicable/disproven proof releases only the invalid claimed-deferral-lineage floor, while the downstream mandatory-repair classification remains active until fresh signed MandatoryRepairClassification(state='closure_proven') evidence clears it. Added a digest-refreshed interaction mutation and expanded the authority mutation inventory from 16 to 17. Build, focused/full registry, full-context, measurement, prompt-baseline, process/runtime-fact, English, owner-mirror, and protected-runtime-diff checks passed; protected Dynamic Finding runtime files remain unchanged.",
+      "resolvedAt": "2026-09-01T23:48:10.232Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
