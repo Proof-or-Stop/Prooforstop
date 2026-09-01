@@ -18625,6 +18625,53 @@
       ],
       "signatureTag": "guard-parameter-rendered-inert-by-correlated-precondition",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-341",
+      "desc": "quality-cleanup: handlers/checklist.ts:2657 verification_run splits its roots inconsistently. It computes preflightFacts against gitCwd while passing cwd: runCwd at :2658, so probeCausalPreflightFacts:426-427 compares an expected worktree derived from authoritativeCwd (gitCwd) against an actual worktree from probeGitTopLevel(input.cwd) (runCwd). When --cwd names a different git toplevel these disagree and causal-evidence.ts:897 raises worktree_mismatch, hard-refusing a legitimate run at checklist.ts:1113. Secondary inconsistency: :2694 commits via commitCanonicalCausalEvidence(gitCwd) while the receipt identity at :1095 was built from runCwd, so the commit snapshot hashes and the receipt materialHash are computed against different trees. Contrast verification_evidence_add:2369-2371, where cwd, the preflight authoritative root and the commit root are all gitCwd -- that call site is internally consistent and this one was not updated to match. Blast radius is bounded and fail-CLOSED: the mismatch can only reject a legitimate run, never admit stale or unexecuted evidence and never yield a false gate PASS, and --cwd is documented as resolving relative paths against the story git root (same-toplevel subdirectories, which do not diverge). Recommended follow-up: thread ONE root -- either pass runCwd as authoritativeCwd and as the commit root, or reject up front a --cwd whose git toplevel differs from gitCwd with an explicit diagnostic rather than an opaque worktree_mismatch.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Divergence requires a --cwd naming a DIFFERENT git toplevel (nested repo or submodule); I did not construct such a fixture, and any ordinary subdirectory of the same worktree yields the same git rev-parse --show-toplevel, so the common path is unaffected.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-01T10:46:52.022Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-803",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "77c15fdad01764f31baadc9bc32e54adb9527770789c7d1e724663311f7c6a0f",
+      "files": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "authoritative-vs-run-cwd-split-in-preflight-probe",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
