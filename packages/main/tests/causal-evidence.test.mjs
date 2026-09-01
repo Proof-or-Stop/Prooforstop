@@ -1223,6 +1223,50 @@ test('CHK-003: dependency domains shadow-compare closure and CertificationWindow
     'each of the six dependency domains has a distinct invalidation boundary and only the declared dependent closure is stale',
   );
 
+  // B-5a15 F-325 regression: the loop above builds its OWN linear node graph, so it
+  // validates the closure ALGORITHM but says nothing about the graph the PRODUCTION
+  // certification path actually declares. buildCertificationDecision previously chained
+  // the domains by array declaration order, so a test-only change invalidated four
+  // unrelated domains and this suite stayed green. Assert the real production edges.
+  const productionClosureFor = domain => {
+    const inputIds = CAUSAL_DEPENDENCY_DOMAINS.map(item => `certification:${item}`);
+    const identity = (mutated) => ({
+      headHash: 'h1',
+      materialHash: 'm1',
+      storyFilesHash: 's1',
+      causalInputHashes: Object.fromEntries(inputIds.map(id => [
+        id,
+        mutated && id === `certification:${domain}` ? 'new' : 'old',
+      ])),
+    });
+    const decision = buildCertificationDecision('B-f325-regression', identity(true), {
+      ...identity(false),
+      expectedMainSha: 'h1',
+      verifierIdentity: undefined,
+      testIdentity: undefined,
+    });
+    return (decision?.affectedNodeIds ?? [])
+      .map(id => id.replace('certification-', ''))
+      .sort();
+  };
+  assert.deepEqual(productionClosureFor('test'), ['test'],
+    'a test-only change must not invalidate any other production domain');
+  assert.deepEqual(productionClosureFor('review-subject'), ['review-subject'],
+    'a docs-only change must not invalidate any compiled domain');
+  assert.deepEqual(productionClosureFor('integration'), ['integration'],
+    'integration entrypoints are terminal in the production graph');
+  assert.deepEqual(productionClosureFor('manifest-semantic'), ['integration', 'manifest-semantic'],
+    'host adapter manifests invalidate only the integration entrypoints that consume them');
+  assert.deepEqual(productionClosureFor('source'), ['integration', 'source', 'test'],
+    'source invalidates what compiles or runs against it, and must NOT invalidate build-input');
+  assert.deepEqual(productionClosureFor('build-input'), ['build-input', 'integration', 'manifest-semantic', 'source', 'test'],
+    'build inputs invalidate every compiled domain but not the terminal review subject');
+  assert.equal(
+    new Set(CAUSAL_DEPENDENCY_DOMAINS.map(domain => productionClosureFor(domain).join(','))).size,
+    CAUSAL_DEPENDENCY_DOMAINS.length,
+    'every production domain keeps a distinct invalidation boundary',
+  );
+
   const incompleteDependency = evaluateCausalDependencies({
     nodes: [{ id: 'incomplete-node', domain: 'source', inputIds: ['unknown-input'], recordedInputHashes: {} }],
     currentInputHashes: {},
@@ -1547,13 +1591,13 @@ test('B-5a15 F-314: production domain inputs invalidate only the declared transi
     const decision = buildCertificationDecision(current.storyId, current, frozen);
     assert.ok(decision);
     assert.deepEqual(decision.changedInputIds, ['certification:test']);
-    assert.deepEqual(decision.affectedNodeIds, [
-      'certification-build-input',
-      'certification-integration',
-      'certification-manifest-semantic',
-      'certification-review-subject',
-      'certification-test',
-    ]);
+    // B-5a15 F-325: this previously expected FIVE nodes for a test-only change --
+    // build-input, integration, manifest-semantic, review-subject and test -- which
+    // contradicted this very test's own title. The old production graph chained the
+    // domains by array declaration order, so changing a test file was treated as
+    // invalidating lockfiles and docs. With real causal edges, a test-only change
+    // invalidates only the test domain: nothing is built or derived from tests.
+    assert.deepEqual(decision.affectedNodeIds, ['certification-test']);
     assert.equal(decision.affectedNodeIds.includes('certification-source'), false);
     assert.equal(decision.causalDecision, 'rerun');
     assert.equal(decision.gateAdmissible, false);
@@ -2346,10 +2390,45 @@ test('CHK-005: metrics are zero-safe and tamper-resistant canonical-ledger proje
     evidenceTargetWritable: true,
     causalDecision: strictMetricDecision,
   };
-  assert.equal(evaluateCertificationWindowAdmit({ ...metricGateFacts, openBlockingFindingIds: ['F-open'] }).admit, false);
-  assert.equal(evaluateCertificationWindowAdmit({ ...metricGateFacts, missingRequiredIntents: 1, causalDecision: undefined }).admit, false);
-  assert.equal(evaluateCertificationWindowAdmit({ ...metricGateFacts, dirtyNonRuntimePaths: ['packages/main/src/example.ts'], causalDecision: undefined }).admit, false);
-  assert.equal(evaluateCertificationWindowAdmit({ ...metricGateFacts, causalDecision: strictMetricDecision }).admit, false);
+  // B-5a15 F-333: these four refusals previously asserted only `admit === false` against a
+  // fixture that ALREADY refused (inventory: null -> pre_cert_inventory_not_finalized), so
+  // three of the four branches were never reached and the assertions were vacuous -- a
+  // regression deleting the findings, coverage or dirty-tree checks would have stayed green.
+  // Fixed by (a) a POSITIVE CONTROL proving the unmutated fixture is admitted, and (b)
+  // asserting the SPECIFIC blockerCode each mutation is supposed to produce.
+  const admittableGateFacts = {
+    ...metricGateFacts,
+    // Shape per inventoryLineageRefusal (certification-window.ts:447-468): a receipt whose
+    // cutoff is on the CURRENT materialHash/storyFilesHash lineage for this story.
+    inventory: {
+      epoch: {
+        storyId: 'B-causal-test',
+        cutoff: { materialHash: 'm1', storyFilesHash: 's1' },
+      },
+      receipt: {
+        storyId: 'B-causal-test',
+        cutoff: { materialHash: 'm1', storyFilesHash: 's1' },
+      },
+    },
+    causalDecision: undefined,
+  };
+  const control = evaluateCertificationWindowAdmit(admittableGateFacts);
+  assert.equal(control.admit, true,
+    `positive control must be admitted or the refusals below prove nothing: ${JSON.stringify(control)}`);
+
+  const refusal = (overrides) => evaluateCertificationWindowAdmit({ ...admittableGateFacts, ...overrides });
+  const openFindings = refusal({ openBlockingFindingIds: ['F-open'] });
+  assert.equal(openFindings.admit, false);
+  assert.equal(openFindings.blockerCode, 'pre_cert_blocking_findings_open');
+  const missingIntents = refusal({ missingRequiredIntents: 1 });
+  assert.equal(missingIntents.admit, false);
+  assert.equal(missingIntents.blockerCode, 'pre_cert_coverage_missing');
+  const dirtyTree = refusal({ dirtyNonRuntimePaths: ['packages/main/src/example.ts'] });
+  assert.equal(dirtyTree.admit, false);
+  assert.equal(dirtyTree.blockerCode, 'pre_cert_dirty_tree');
+  const strictDrift = refusal({ causalDecision: strictMetricDecision });
+  assert.equal(strictDrift.admit, false);
+  assert.equal(strictDrift.blockerCode, 'pre_cert_causal_freshness_required');
   emitIntentMarker(
     'CHK-005:adversarial:2',
     'metrics PASS cannot bypass open findings missing coverage dirty tree or strict whole-tree causal drift',

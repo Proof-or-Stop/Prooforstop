@@ -474,7 +474,13 @@ function changedStoryFilesBetween(gitCwd: string, fromHead: string, toHead = 'HE
       add(cols[cols.length - 1], status.startsWith('D'));
     }
   }
-  return [...files.values()].sort((a, b) => a.path.localeCompare(b.path));
+  // B-5a15 F-334: BYTE order, never localeCompare. This ordering is authoritative
+  // for storyFilesHash, which binds review passes, causal receipts, delivery/init/scope
+  // checks and the DONE gate. localeCompare folds case, treats '-'/'_' as punctuation,
+  // and is ICU/locale dependent -- LC_ALL=sv_SE and en_US sort the same paths
+  // differently -- so two machines could derive a different storyFilesHash for an
+  // identical tree and spuriously invalidate every signed artifact.
+  return [...files.values()].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
 }
 
 export interface StoryFileHashEntry {
@@ -502,7 +508,9 @@ export function currentStoryFileHashEntries(
         path: entry.path,
         ...(entry.deleted ? {} : { objectId: objectIds.get(entry.path) }),
       }))
-      .sort((left, right) => left.path.localeCompare(right.path));
+      // B-5a15 F-334: byte order, matching currentStoryFilesHash's hash material.
+      // See the ordering note on changedStoryFilesBetween above.
+      .sort((left, right) => (left.path < right.path ? -1 : left.path > right.path ? 1 : 0));
   } catch {
     return undefined;
   }
