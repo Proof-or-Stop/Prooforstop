@@ -9,6 +9,7 @@ const fs = require('node:fs');
 const Module = require('node:module');
 const childProcess = require('node:child_process');
 const path = require('node:path');
+const util = require('node:util');
 const traceFile = process.env.PROOF_OR_STOP_RUNTIME_TRACE_FILE;
 if (!traceFile) return;
 
@@ -123,11 +124,38 @@ Module._load = function wrappedModuleLoad(request, parent, isMain) {
 for (const name of ['spawn', 'spawnSync', 'exec', 'execSync', 'execFile', 'execFileSync', 'fork']) {
   const original = childProcess[name];
   if (typeof original !== 'function') continue;
-  childProcess[name] = function wrappedChildProcess(command, args, ...rest) {
+  const recordSpawn = (command, args) => {
     add(trace.spawnedPaths, typeof command === 'string' ? command : undefined);
     if (Array.isArray(args)) for (const arg of args) add(trace.spawnedPaths, typeof arg === 'string' ? arg : undefined);
+  };
+  const wrapped = function wrappedChildProcess(command, args, ...rest) {
+    recordSpawn(command, args);
     return original.call(this, command, args, ...rest);
   };
+  // The wrapper must be transparent to util.promisify: exec/execFile carry a
+  // util.promisify.custom symbol property so promisify resolves {stdout,
+  // stderr}; a bare wrapper drops it and traced descendants silently get the
+  // generic fallback, which resolves the bare stdout string. Copy the
+  // original's own property descriptors onto the wrapper (function length /
+  // name are configurable, so defineProperties succeeds) — EXCEPT the custom
+  // promisify symbol, which is re-defined below with a tracing shim because
+  // the copied descriptor's function closes over the original and would let
+  // promisified spawns escape the trace.
+  const descriptors = Object.getOwnPropertyDescriptors(original);
+  const customDescriptor = descriptors[util.promisify.custom];
+  delete descriptors[util.promisify.custom];
+  Object.defineProperties(wrapped, descriptors);
+  if (customDescriptor && typeof customDescriptor.value === 'function') {
+    const originalCustom = customDescriptor.value;
+    Object.defineProperty(wrapped, util.promisify.custom, {
+      ...customDescriptor,
+      value: function tracedPromisifiedChildProcess(command, args, ...rest) {
+        recordSpawn(command, args);
+        return originalCustom.call(this, command, args, ...rest);
+      },
+    });
+  }
+  childProcess[name] = wrapped;
 }
 process.on('exit', () => {
   try {
