@@ -2,20 +2,19 @@
   "storyId": "B-022e",
   "expected": "The verifier prints `PASS identity-cutover policy: every active legacy identity is classified; frozen evidence allowlist is exact and current` before production migration begins.",
   "actual": {
-    "command": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
+    "command": "node bin/proof-or-stop.js --version",
     "exitCode": 0,
-    "stdout": "PASS identity-cutover\nPASS identity-cutover policy: every active legacy identity is classified; frozen evidence allowlist is exact and current\nPASS active prose/assets: Proof-or-Stop only\nPASS frozen history: unchanged\nPASS unchanged: 13 signature salts at 249 exact source rows\nPASS unchanged: 163 exact current-doc legacy token/context rows\nPASS unchanged: 35 named historical/provenance byte baselines\nPASS unchanged: 45 exact concept-cleanup provenance/fixture rows\nPASS unchanged: 374 exact persisted-schema rows\nPASS canonical identities\nPASS proof-or-stop packed clean-install boundary\nPASS packages: proof-or-stop, @proof-or-stop/core, @proof-or-stop/lab, @proof-or-stop/utils; no @lattice or file: dependencies\nPASS packed package/bin/role identities\nPASS roles: proof-or-stop-review-story-init and complete proof-or-stop-* registry\n",
-    "stderr": "[pack-boundary] packing product artifact root\n[pack-boundary] packing product artifact core\n[pack-boundary] packing product artifact lab\n[pack-boundary] packing product artifact utils\n[pack-boundary] offline dependency cache hit dc5a3960f515\n[pack-boundary] installing exactly 4 product tarballs with npm --offline\n[pack-boundary] checking canonical and retired role lookup boundary\n"
+    "stdout": "Proof-or-Stop 0.3.270\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-09-01T09:17:03.697Z",
+  "capturedAtIso": "2026-09-01T18:28:29.142Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "3551059049f4227048185a54e4c49625d1ceb2af",
-  "materialHash": "33eccbeaaafc59f7e834398677a19db2168e8ff57e83fb94c60271049a141ce5"
+  "headHash": "fc8f10e4dc8027a8d4a99375bc7d2db241db273b",
+  "materialHash": "eb62f8756c0a127e36e6bc812123bee97c617107df5fd29ad899f2f6d3d229a2"
 }
