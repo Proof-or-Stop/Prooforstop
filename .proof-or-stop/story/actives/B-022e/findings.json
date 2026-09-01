@@ -1243,6 +1243,26 @@
       "_hash": "8e5f99cc13e017089b952adb9fd31bf5fd50a6910cd5be497a7b6f5ac2f8a60c",
       "signatureTag": "missing|unknown|quality-regression-scripts",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-022e:F-047",
+      "desc": "evidence_inspect current-final-state: CHK-007:pack-boundary-transcript:0 is still stale after F-043 was marked resolved. The live transcript evidence row is bound to storyFilesHash a4155df61f8988b1b6729157dfc8399b5276c4f1782426ab3f5114fe415da258, while current storyFilesHash is 4e45db57769e79fef8270714b8b43e47c0ff5f1082323bb6a7f784262cf91cbe; `node bin/proof-or-stop.js evidence_inspect --storyId=B-022e --format=json` reports overall freshness.status=stale and staleRefs=[CHK-007:pack-boundary-transcript:0]. The 29 standard intent rows are fresh/pass and the focused Lab lifecycle tests pass, but the promised present-fresh packed-boundary transcript is not currently admissible. WHY: F-043 specifically requires recapture/rebinding at the final storyFilesHash, and marking it resolved without a fresh row leaves the exact clean-tarball/nested-Lab supplement unproven at closeout.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-01T09:41:28.854Z",
+      "reviewRound": "2026-09-01T09:35:56.599Z",
+      "reviewRunId": "B-022e:RR-081",
+      "_hash": "a8ddc851ffff00b5bdd54ee12dcf15a0d2eb3ec8eac89929890c526fc948f019",
+      "files": [
+        ".proof-or-stop/story/actives/B-022e/checklist.json",
+        ".proof-or-stop/story/actives/B-022e/evidence/live-smoke-transcript.json",
+        "scripts/verify-proof-or-stop-pack-boundary.mjs"
+      ],
+      "signatureTag": "missing|json|evidence-inspect-current",
+      "signatureTagSource": "auto"
     }
   ]
 }
