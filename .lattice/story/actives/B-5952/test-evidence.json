@@ -1,0 +1,2259 @@
+{
+  "command": "proof-or-stop validate --story=B-5952 --json",
+  "output": "{\"provider\":\"lattice-verifier-reused\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0\",\"details\":[\"disposition=reused existingEvidenceBasis=fresh lineage=trusted-story-metadata-descendant\",\"identityDigest=11a8e124aa18c3a7969465d671b33fed94c002623758905d89c305a80cd025de\",\"commandExecutions=0\",\"Verification intent coverage: 13/13 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test — After the source-of-truth ceiling is changed and packages/main is rebuilt, node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exits 0 and emits its PASS line with dynamicBindingBuilds/builds=804 (synthetic=419, repo=385). The source names and documents a finite ceiling strictly above 804 but no greater than 850, so the current inventory is explicitly accepted with fixed small headroom rather than by deleting or weakening the assertion.\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via integration_test — A clean packages/main rebuild succeeds, the generated dist smoke remains bound to source, and node scripts/verify-core-package-rename.mjs passes, proving every historical @lattice/core mention in the allowed one-line decision-document repair is paired with canonical @proof-or-stop/core. The diff changes only that migration annotation and does not change Dynamic Finding or B-3434 decision semantics.\",\"  ✓ CHK-001:edge:finite-bound-actual [edge/must/logic] covered via logic_test — The rebuilt committed smoke must execute the real assertDynamicBindingBuildBudget self-characterization before its PASS line: the configured ceiling is accepted, ceiling+1 throws with the observed/ceiling diagnostic, the measured build count throws when checked against measured-1, and any ceiling above the absolute hard cap 850 is rejected. Evidence must be an execution receipt from the actual smoke or equivalent exported guard call; standalone arithmetic, constant comparison, or source-text grep is insufficient.\",\"  ✓ CHK-001:edge:1 [edge/must/cli] covered via integration_test — Two clean rebuild-and-smoke runs at unchanged HEAD are deterministic: source and dist remain bound, the targeted command remains PASS, and the measured current inventory does not gain unexplained headroom through cache or order variance. Any justified inventory-count drift must update the documented baseline and evidence instead of silently widening the ceiling.\",\"  ✓ CHK-001:edge:canonical-root-validate-timeout [edge/must/cli] covered via integration_test — From a clean checkout whose repository marker is canonical proof-or-stop.config.json, node packages/main/dist/tasks/validate-command-timeout-smoke.js discovers the real repository root and exits 0; its temporary fixtures that intentionally provide only legacy lattice.config.json still resolve configured timeout overrides and retain their existing assertions. WHY: proves canonical root migration without breaking legacy fixture compatibility.\",\"  ✓ CHK-001:edge:canonical-root-blob-ceiling [edge/must/cli] covered via integration_test — From the same clean canonical checkout with proof-or-stop.config.json and no repository-root lattice.config.json, node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs locates the repository root, executes the real blob-buffer classification suite, and exits 0 with its PASS line instead of failing root discovery. WHY: pins canonical root discovery on the standalone RED regression.\",\"  ✓ CHK-001:edge:missing-lattice-envelope-snapshot [edge/must/cli] covered via integration_test — The isolated legacy lattice.config.json fixture explicitly sets storyDir=.lattice/story/actives, StoryStore creates a non-empty .lattice tree before snapshot, the aggregate before/after manifest remains meaningful, and node packages/main/dist/tasks/red-evidence-envelope-smoke.js exits 0 with its OK line.\",\"  ✓ CHK-001:edge:missing-lattice-readonly-snapshot [edge/must/cli] covered via integration_test — The isolated legacy lattice.config.json fixture explicitly sets storyDir=.lattice/story/actives, its non-empty aggregate .lattice manifest is compared, canonical registered smoke resolution plus legacy config compatibility remain exercised, and node packages/main/tests/red/red-w2d-command-readonly.mjs exits 0 with PASS.\",\"  ✓ CHK-001:edge:canonical-root-init-signature [edge/must/cli] covered via integration_test — From a clean checkout containing canonical proof-or-stop.config.json but no repository-root lattice.config.json, node packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs reads its current validation registration, reaches the GREEN signature-domain verdict, and exits 0; the isolated repositories it creates with legacy lattice.config.json continue to bootstrap and exercise the same CLI flow. WHY: canonical registration lookup must not invalidate legacy test projects.\",\"  ✓ CHK-001:adversarial:guard-mutants [adversarial/must/logic] covered via logic_test — An isolated executable mutation harness must prove the guard is causal: mutate the real comparator to an unbounded form and separately replace the ceiling with sentinel 900, rebuild or execute the mutated artifact, and require each mutant run to fail the characterization while the unmodified control passes. The harness must assert that each substitution occurred and must reject a no-op mutation; arithmetic-only checks and source-text presence checks are insufficient.\",\"  ✓ CHK-001:adversarial:binding-scope-mutants [adversarial/must/logic] covered via logic_test — An isolated mutation removes the canonical @proof-or-stop/core pairing from the repaired historical @lattice/core sentence and must make scripts/verify-core-package-rename.mjs fail; exact bytes are then restored and the same verifier must pass. This proves the one-line exception is constrained by the repository package-rename contract rather than allowing a stranded legacy package name.\",\"  ✓ CHK-001:adversarial:causal-baseline-map [adversarial/must/logic] covered via logic_test — A reproducible detached-worktree comparison must build exact baseline 0abf3d859dada2286870025b7093715d261855d4 and current HEAD, emit both complete normalized repository binding maps, and fail unless 796→804 is solely 377→385 repository entries with synthetic 419 unchanged, exactly the eight expected +1 files, no removals, and no duplicate count.\",\"  ✓ CHK-001:adversarial:heartbeat-timeout-classification [adversarial/must/cli] covered via integration_test — A fake global fallback heartbeat killed by its armed budget is reported as a hard failure with [heartbeat_command_timeout], the effective timeout budget, and the override remedy, never as generic heartbeat command failed; a prompt non-zero fallback remains the generic failure class and is never relabelled timeout. node packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js must exit 0 with the bounded-and-attributed PASS line. WHY: timeout handling must diagnose timing separately without granting broken fallbacks amnesty.\"],\"warnings\":[],\"timestamp\":\"2026-08-31T22:22:33.678Z\",\"commands\":[],\"disposition\":\"reused\",\"commandExecutions\":0,\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":13,\"reason\":\"verificationIntent entries present (13)\"},\"verificationCoverage\":{\"total\":13,\"required\":13,\"covered\":13,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"After the source-of-truth ceiling is changed and packages/main is rebuilt, node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exits 0 and emits its PASS line with dynamicBindingBuilds/builds=804 (synthetic=419, repo=385). The source names and documents a finite ceiling strictly above 804 but no greater than 850, so the current inventory is explicitly accepted with fixed small headroom rather than by deleting or weakening the assertion.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"command\":\"node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js\",\"result\":\"pass\",\"note\":\"Fresh current-candidate tool-owned receipt after F-020 acceptance repair.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"1c4c42527981ee85ff91881293f097280d74dbe635a3c06448f2fbdb2d83b635\",\"outputTail\":\"retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-31T14:53:06.109Z\",\"timeoutMs\":270000},\"headHash\":\"31773a72e909d0e50f42df11a2bc70845ebb119b\",\"materialHash\":\"3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1\",\"storyFilesHash\":\"da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902\",\"timestamp\":\"2026-08-31T14:53:06.274Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A clean packages/main rebuild succeeds, the generated dist smoke remains bound to source, and node scripts/verify-core-package-rename.mjs passes, proving every historical @lattice/core mention in the allowed one-line decision-document repair is paired with canonical @proof-or-stop/core. The diff changes only that migration annotation and does not change Dynamic Finding or B-3434 decision semantics.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"integration_test\",\"command\":\"node -e \\\"const cp=require(\\\\\\\"child_process\\\\\\\");const run=(file,args)=>{const r=cp.spawnSync(file,args,{encoding:\\\\\\\"utf8\\\\\\\",maxBuffer:52428800});process.stdout.write(r.stdout||\\\\\\\"\\\\\\\");process.stderr.write(r.stderr||\\\\\\\"\\\\\\\");if(r.status!==0)process.exit(r.status??1)};run(\\\\\\\"npm\\\\\\\",[\\\\\\\"--prefix\\\\\\\",\\\\\\\"packages/main\\\\\\\",\\\\\\\"run\\\\\\\",\\\\\\\"build\\\\\\\"]);run(process.execPath,[\\\\\\\"scripts/verify-core-package-rename.mjs\\\\\\\"]);\\\"\",\"result\":\"pass\",\"note\":\"F-020 positive proof: single argv wrapper performs a clean packages/main build and the existing root core-package rename verifier.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"34f013ee393bb7130e5e7bc248a2a4044e01efc8e2dba2a209c9c9d9fbc4a4e4\",\"outputTail\":\"\\n> @proof-or-stop/core@0.3.267 build\\n> node ../../scripts/build-main-with-binding.mjs\\n\\ncorePackageName=@proof-or-stop/core\\nok core package uses the canonical renamed name\\ncliEngineExists=true\\nok core build emitted dist/cli-engine.js (exit code alone is insufficient)\\nutilsDependsOn=@proof-or-stop/core\\nok packages/utils depends on @proof-or-stop/core\\nok packages/utils no longer references the deprecated core name\\nlabDependsOn=@proof-or-stop/core\\nok packages/lab depends on @proof-or-stop/core\\nok packages/lab no longer references the deprecated core name\\nutilsDistExists=true\\nok packages/utils built against the renamed core (cross-package resolution intact)\\nrootPackageName=lattice\\noq2BoundaryHeld=true\\nok ROOT package name stays \\\"lattice\\\" (OQ-2 exclusion) while core is renamed\\ndeprecatedCoreNameWithoutCanonical=0\\nok every @lattice/core mention sits beside the canonical name (read-both), none stranded\\n\\ncore package rename verified\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-31T14:51:59.159Z\",\"timeoutMs\":270000},\"headHash\":\"af8fb4091503838a45c95d6c04cc35680a9d1d96\",\"materialHash\":\"3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1\",\"storyFilesHash\":\"da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902\",\"timestamp\":\"2026-08-31T14:51:59.297Z\"}},{\"intentRef\":\"CHK-001:edge:finite-bound-actual\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The rebuilt committed smoke must execute the real assertDynamicBindingBuildBudget self-characterization before its PASS line: the configured ceiling is accepted, ceiling+1 throws with the observed/ceiling diagnostic, the measured build count throws when checked against measured-1, and any ceiling above the absolute hard cap 850 is rejected. Evidence must be an execution receipt from the actual smoke or equivalent exported guard call; standalone arithmetic, constant comparison, or source-text grep is insufficient.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:finite-bound-actual\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js\",\"result\":\"pass\",\"note\":\"Fresh current-candidate tool-owned receipt after F-020 acceptance repair.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"1c4c42527981ee85ff91881293f097280d74dbe635a3c06448f2fbdb2d83b635\",\"outputTail\":\"retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-31T14:53:37.903Z\",\"timeoutMs\":270000},\"headHash\":\"615c612f00c2f034de0a3a6130ea904a86ecf56a\",\"materialHash\":\"3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1\",\"storyFilesHash\":\"da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902\",\"timestamp\":\"2026-08-31T14:53:38.027Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Two clean rebuild-and-smoke runs at unchanged HEAD are deterministic: source and dist remain bound, the targeted command remains PASS, and the measured current inventory does not gain unexplained headroom through cache or order variance. Any justified inventory-count drift must update the documented baseline and evidence instead of silently widening the ceiling.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"integration_test\",\"command\":\"node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js\",\"result\":\"pass\",\"note\":\"Fresh current-candidate tool-owned receipt after F-020 acceptance repair.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"1c4c42527981ee85ff91881293f097280d74dbe635a3c06448f2fbdb2d83b635\",\"outputTail\":\"retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-31T14:54:09.965Z\",\"timeoutMs\":270000},\"headHash\":\"81f71091b2d0e25c0dce9fc836216dd2a890e96f\",\"materialHash\":\"3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1\",\"storyFilesHash\":\"da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902\",\"timestamp\":\"2026-08-31T14:54:10.089Z\"}},{\"intentRef\":\"CHK-001:edge:canonical-root-validate-timeout\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"From a clean checkout whose repository marker is canonical proof-or-stop.config.json, node packages/main/dist/tasks/validate-command-timeout-smoke.js discovers the real repository root and exits 0; its temporary fixtures that intentionally provide only legacy lattice.config.json still resolve configured timeout overrides and retain their existing assertions. WHY: proves canonical root migration without breaking legacy fixture compatibility.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:canonical-root-validate-timeout\",\"kind\":\"integration_test\",\"command\":\"node packages/main/dist/tasks/validate-command-timeout-smoke.js\",\"result\":\"pass\",\"note\":\"Fresh current-candidate tool-owned receipt after F-020 acceptance repair.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"4f776573168ff02989ef3df98a81b89b66c69a5a4d625ad45d5d697355a8537f\",\"outputTail\":\"⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\\nvalidate-command-timeout smoke passed: 46 assertions\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-31T14:54:17.413Z\",\"timeoutMs\":270000},\"headHash\":\"186e63fee9e6aa189aae52bbcaa4d592f1a8983e\",\"materialHash\":\"3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1\",\"storyFilesHash\":\"da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902\",\"timestamp\":\"2026-08-31T14:54:17.537Z\"}},{\"intentRef\":\"CHK-001:edge:canonical-root-blob-ceiling\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"From the same clean canonical checkout with proof-or-stop.config.json and no repository-root lattice.config.json, node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs locates the repository root, executes the real blob-buffer classification suite, and exits 0 with its PASS line instead of failing root discovery. WHY: pins canonical root discovery on the standalone RED regression.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:canonical-root-blob-ceiling\",\"kind\":\"integration_test\",\"command\":\"node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs\",\"result\":\"pass\",\"note\":\"Fresh current-candidate tool-owned receipt after F-020 acceptance repair.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"403f6a253e26515251fb6e7ff5fe77f1d6741faaf60c87f9ecfed66ae5926253\",\"outputTail\":\"✓ fixture blob survives the git pipeline above 1,048,576 bytes\\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\\n✓ an unreadable blob during the commit path never reports \\\"verified metadata changed\\\"\\n✓ a genuine post-verification change still reports \\\"verified metadata changed\\\"\\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33570816 bytes were captured before the ceiling and discarded\\n    commit reason chars: 231\\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/b3434-silent-hook-nAndfm/no-hooks/pre-commit\\n✓ a hook that exits non-zero with both streams empty still reports its exit status\\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\\n\\nred-b3434-blob-buffer-ceiling: PASS\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-31T14:54:23.782Z\",\"timeoutMs\":180000},\"headHash\":\"3da8487347abd99cb6eca0a3bfd2221c73ba6500\",\"materialHash\":\"3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1\",\"storyFilesHash\":\"da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902\",\"timestamp\":\"2026-08-31T14:54:23.909Z\"}},{\"intentRef\":\"CHK-001:edge:missing-lattice-envelope-snapshot\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The isolated legacy lattice.config.json fixture explicitly sets storyDir=.lattice/story/actives, StoryStore creates a non-empty .lattice tree before snapshot, the aggregate before/after manifest remains meaningful, and node packages/main/dist/tasks/red-evidence-envelope-smoke.js exits 0 with its OK line.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:missing-lattice-envelope-snapshot\",\"kind\":\"integration_test\",\"command\":\"node packages/main/dist/tasks/red-evidence-envelope-smoke.js\",\"result\":\"pass\",\"note\":\"Fresh current-candidate tool-owned receipt after F-020 acceptance repair.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"fbccb675fbc470608135345d271340e02ba5a2e5ff399a2a47002f870a40a5ea\",\"outputTail\":\"⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\\nred-evidence-envelope-smoke: OK — total-bits entropy (8 differential rows) + byte measurement, rule 2 AND-not-OR (both single-floor directions), rule 1 blocklist (8/8) + rule 3 all tagged R1-2, assertionDigest scope proven in BOTH directions, 33 tagged rejection fixtures covering R1-1/R1-2/R1-3/R1-5/R1-6 with R1-2 and R1-3 never collapsed, tag routing pinned BY CODE for the §1.3 rule-1 triple (empty + blocklisted R1-2 vs trimmed R1-3), matcher COUNT and §1.3 specificity independently reported, the count bound proven policy-resolved by a two-policy differential (8 vs 3), candidate policyDigest/assertionDigest optional-but-checked in all four cells, the ADMISSIBLE success transcript (assertionDigest + matched binding + policyDigest), a byte-identical .lattice tree with no gate verdict change — byte-identical here meaning NET across the batch of DIRECT handler invocations (one snapshot before the batch, one after, not per-invocation), over a manifest of file paths and content hashes only (empty directories, file modes and symlink identity are not recorded), and with the CLI entrypoint not exercised — and all three registry contracts pass.\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-31T14:54:46.784Z\",\"timeoutMs\":180000},\"headHash\":\"df5708ad50f2df28b9e0ccc1424f887135eb3eb1\",\"materialHash\":\"3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1\",\"storyFilesHash\":\"da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902\",\"timestamp\":\"2026-08-31T14:54:46.907Z\"}},{\"intentRef\":\"CHK-001:edge:missing-lattice-readonly-snapshot\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The isolated legacy lattice.config.json fixture explicitly sets storyDir=.lattice/story/actives, its non-empty aggregate .lattice manifest is compared, canonical registered smoke resolution plus legacy config compatibility remain exercised, and node packages/main/tests/red/red-w2d-command-readonly.mjs exits 0 with PASS.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:missing-lattice-readonly-snapshot\",\"kind\":\"integration_test\",\"command\":\"node packages/main/tests/red/red-w2d-command-readonly.mjs\",\"result\":\"pass\",\"note\":\"Fresh current-candidate tool-owned receipt after F-020 acceptance repair.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"85854bb9817e027a16f883f50e3c27054a08a255c142895577a1b7da824c9fa9\",\"outputTail\":\"⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\\nred-w2d-command-readonly: PASS\\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 3914ms\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-31T14:54:52.273Z\",\"timeoutMs\":180000},\"headHash\":\"bf4ac7cc8138bd64b2388843590e68ce81924eb1\",\"materialHash\":\"3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1\",\"storyFilesHash\":\"da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902\",\"timestamp\":\"2026-08-31T14:54:52.396Z\"}},{\"intentRef\":\"CHK-001:edge:canonical-root-init-signature\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"From a clean checkout containing canonical proof-or-stop.config.json but no repository-root lattice.config.json, node packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs reads its current validation registration, reaches the GREEN signature-domain verdict, and exits 0; the isolated repositories it creates with legacy lattice.config.json continue to bootstrap and exercise the same CLI flow. WHY: canonical registration lookup must not invalidate legacy test projects.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:canonical-root-init-signature\",\"kind\":\"integration_test\",\"command\":\"node packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs\",\"result\":\"pass\",\"note\":\"Fresh current-candidate tool-owned receipt after F-020 acceptance repair.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"56eb31f60f346f9a1f13282ce6c058497cab88d39e3eaffa412254f81415da55\",\"outputTail\":\"mputation responded to the injection=true\\n  B2  [GREEN     ] the tampered file is still signature-VALID (recomputed matches what is stored)\\n      observed: stored hash still verifies after the edit=false\\n  B3  [GREEN     ] the gate ACCEPTS hand-injected reviewer coverage, with zero init_check_set calls for it\\n      observed: advanced=false phase=INIT outDigest=f2298a68f7ed\\n  C1  [CONTROL-OK] GATE CONTROL: a genuinely recorded blocking-severity issue refuses the advance\\n      observed: advanced=false phase=INIT blocker=true severityUsed=critical outDigest=c777ee8935c3\\n  C2  [GREEN     ] erasing a recorded blocking-severity issue leaves the file signature-VALID\\n      observed: stored hash still verifies after the erasure=false\\n  C3  [GREEN     ] the gate ADVANCES after that blocker was erased by hand\\n      observed: advanced=false phase=INIT outDigest=1fa048e807c3\\n  E0  [CONTROL-OK] CARRY-FORWARD FLOOR: an UNTOUCHED predecessor record survives the next legal call verbatim, still signed, and the gate advances\\n      observed: predecessorStampCaptured=true survivedVerbatim=true signedAfter=true advanced=true phase=INIT_CHECK\\n  E1  [CONTROL-OK] PRECONDITION: before any laundering call the injected record is signature-INVALID and the gate refuses it\\n      observed: signatureRejectsTheInjection=true gateRefuses=true\\n  E2  [CONTROL-OK] the record that legal call wrote is itself validly signed, whatever it contains\\n      observed: signatureValidAfterTheLegalCall=true (without this, a green E3 could just mean the write broke)\\n  E3  [GREEN     ] the hand-injected reviewer record is carried into that newly signed record — one legal call LAUNDERS it into a valid signature\\n      observed: injectedRecordSurvivedByItsHandWrittenTimestampMarker=false underAValidSignature=true\\n  E4  [GREEN     ] the gate ACCEPTS that laundered coverage: tampering survived by waiting for one legitimate call\\n      observed: advanced=false phase=INIT outDigest=e0d54c3eaca8\\n  F1  [CONTROL-OK] PRECONDITION: the recorded blocking issue blocks, and hand-erasing it leaves the file signature-INVALID\\n      observed: blockedWhileRecorded=true blocker=true signatureRejectsTheErasure=true flaggerStampCaptured=true severityUsed=critical\\n  F2  [CONTROL-OK] the record that legal call wrote is itself validly signed, whatever it contains\\n      observed: signatureValidAfterTheLegalCall=true (without this, a green F3 could just mean the write broke)\\n  F3  [GREEN     ] the hand-erased verdict is carried into that newly signed record — the recorded blocker is laundered away under a valid signature\\n      observed: erasedVerdictSurvivedByItsOriginalTimestampMarker=false productSeesNoBlockingIssue=true underAValidSignature=true\\n  F4  [GREEN     ] the gate ADVANCES: a genuinely recorded blocker was removed by tampering plus one legitimate call\\n      observed: advanced=false phase=INIT outDigest=1ed8c789b95e\\n  G1  [CONTROL-OK] READ vs TRUST: a record that does NOT verify still RENDERS through story_get, verbatim, while the gate refuses to act on it\\n      observed: signatureRejectsIt=true storyGetStillRendersIt=true rendersTheUnverifiedContentVerbatim=true gateRefuses=true tamperBlocker=true\\n  H1  [CONTROL-OK] SCOPE BOUND: this is a checksum over public inputs, NOT a secret-keyed MAC — an editor who also RE-SIGNS is accepted, so what this story buys is tamper-evidence, never reviewer trustworthiness\\n      observed: refusedBeforeReSigning=true verifiesAfterReSigning=true gateAdvancesOnTheReSignedRecord=true phase=INIT_CHECK\\n\\n  0 RED / 0 BROKEN / 24 rows\\n  registration in project config: readable=true found=true optional=false → waiverWithdrawn=true (a surviving waiver is reported while the defect stands and becomes FATAL once every row is GREEN)\\n\\n  GREEN: both verdict fields are inside the signature domain, and the carry-forward\\n  refuses to re-sign a record that does not verify — while an untouched predecessor\\n  is still carried forward (E0) and an unverifiable record still RENDERS (G1).\\n\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-31T14:55:30.225Z\",\"timeoutMs\":600000},\"headHash\":\"9d10abab311a84723d17cd69b2e7a4b90bd8637b\",\"materialHash\":\"3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1\",\"storyFilesHash\":\"da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902\",\"timestamp\":\"2026-08-31T14:55:30.373Z\"}},{\"intentRef\":\"CHK-001:adversarial:guard-mutants\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"An isolated executable mutation harness must prove the guard is causal: mutate the real comparator to an unbounded form and separately replace the ceiling with sentinel 900, rebuild or execute the mutated artifact, and require each mutant run to fail the characterization while the unmodified control passes. The harness must assert that each substitution occurred and must reject a no-op mutation; arithmetic-only checks and source-text presence checks are insufficient.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:guard-mutants\",\"kind\":\"logic_test\",\"command\":\"node -e \\\"const fs=require('fs'),cp=require('child_process');const p='packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js';const original=fs.readFileSync(p,'utf8');const run=()=>cp.spawnSync(process.execPath,[p],{encoding:'utf8',maxBuffer:20*1024*1024});let unboundedRejected=false,sentinelRejected=false;try{const unbounded=original.replace('actualBuilds <= ceiling,','true,');if(unbounded===original)throw new Error('unbounded substitution did not apply');fs.writeFileSync(p,unbounded);unboundedRejected=run().status!==0;const sentinel=original.replace('const DYNAMIC_BINDING_BUILD_CEILING = 808;','const DYNAMIC_BINDING_BUILD_CEILING = 900;');if(sentinel===original)throw new Error('sentinel substitution did not apply');fs.writeFileSync(p,sentinel);const result=run();sentinelRejected=result.status!==0&&(result.stderr+result.stdout).includes('finite integer between 1 and 850');}finally{fs.writeFileSync(p,original);}const restored=fs.readFileSync(p,'utf8')===original;const control=run();if(!unboundedRejected||!sentinelRejected||!restored||control.status!==0||!control.stdout.includes('PASS builds=804'))throw new Error(JSON.stringify({unboundedRejected,sentinelRejected,restored,control:control.status}));console.log('actual-guard-mutants PASS unboundedRejected=true sentinelRejected=true restored=true control=804');\\\"\",\"result\":\"pass\",\"note\":\"Fresh current-candidate tool-owned receipt after F-020 acceptance repair.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"724b65f25eb55b5a1ba5949d57061b52f08f382b37e00e250deed0af845016f6\",\"outputTail\":\"actual-guard-mutants PASS unboundedRejected=true sentinelRejected=true restored=true control=804\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-31T14:57:05.400Z\",\"timeoutMs\":270000},\"headHash\":\"1ebdae382c118b1f8aff17d8168a5a539bdb38de\",\"materialHash\":\"3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1\",\"storyFilesHash\":\"da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902\",\"timestamp\":\"2026-08-31T14:57:05.577Z\"}},{\"intentRef\":\"CHK-001:adversarial:binding-scope-mutants\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"An isolated mutation removes the canonical @proof-or-stop/core pairing from the repaired historical @lattice/core sentence and must make scripts/verify-core-package-rename.mjs fail; exact bytes are then restored and the same verifier must pass. This proves the one-line exception is constrained by the repository package-rename contract rather than allowing a stranded legacy package name.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:binding-scope-mutants\",\"kind\":\"logic_test\",\"command\":\"node -e \\\"const fs=require('fs'),cp=require('child_process');const p='docs/requirements/decisions/dynamic-finding-system-execution-plan.md',o=fs.readFileSync(p,'utf8'),from='enumerated `@lattice/core` (later replaced by `@proof-or-stop/core`)\\\\nspecifically.',to='enumerated `@lattice/core`\\\\nspecifically.';const m=o.replace(from,to);if(m===o)throw new Error('mutation did not apply');let rejected=false;try{fs.writeFileSync(p,m);rejected=cp.spawnSync(process.execPath,['scripts/verify-core-package-rename.mjs'],{encoding:'utf8',maxBuffer:20*1024*1024}).status!==0;}finally{fs.writeFileSync(p,o);}const restored=fs.readFileSync(p,'utf8')===o,control=cp.spawnSync(process.execPath,['scripts/verify-core-package-rename.mjs'],{encoding:'utf8',maxBuffer:20*1024*1024});if(!rejected||!restored||control.status!==0)throw new Error(JSON.stringify({rejected,restored,control:control.status}));console.log('core-package-rename-mutation PASS mutantRejected=true restored=true control=pass');\\\"\",\"result\":\"pass\",\"note\":\"F-020 fail-closed proof: removing the canonical package-name pairing must fail the repository verifier, then exact-byte restoration must pass.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"91c5f74a1cb8df7034f1003d2cfa8aa963a3c3c3884710ed681e6d18258831f8\",\"outputTail\":\"core-package-rename-mutation PASS mutantRejected=true restored=true control=pass\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-31T14:52:10.972Z\",\"timeoutMs\":270000},\"headHash\":\"2a520d8be0aecd4d410ed56f5ab2de59b0cf5e1e\",\"materialHash\":\"3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1\",\"storyFilesHash\":\"da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902\",\"timestamp\":\"2026-08-31T14:52:11.121Z\"}},{\"intentRef\":\"CHK-001:adversarial:causal-baseline-map\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A reproducible detached-worktree comparison must build exact baseline 0abf3d859dada2286870025b7093715d261855d4 and current HEAD, emit both complete normalized repository binding maps, and fail unless 796→804 is solely 377→385 repository entries with synthetic 419 unchanged, exactly the eight expected +1 files, no removals, and no duplicate count.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:causal-baseline-map\",\"kind\":\"logic_test\",\"command\":\"node -e \\\"const fs=require('fs'),cp=require('child_process'),path=require('path'),os=require('os'),crypto=require('crypto');const repo=process.cwd(),base='0abf3d859dada2286870025b7093715d261855d4',git='/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback/git';const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'b5952-causal-'));const wt=path.join(tmp,'base');const run=(file,args,opts={})=>{const r=cp.spawnSync(file,args,{cwd:opts.cwd||repo,encoding:'utf8',maxBuffer:100*1024*1024,timeout:opts.timeout||300000,env:process.env});if(r.status!==0)throw new Error(file+' failed '+r.status+' '+String(r.stderr).slice(-2000));return r.stdout};const mapFor=root=>{const p=path.join(root,'packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js'),q=path.join(path.dirname(p),'.b5952-map-'+process.pid+'.js'),s=fs.readFileSync(p,'utf8'),i=s.lastIndexOf('process.stdout.write');if(i<0)throw new Error('map marker missing');fs.writeFileSync(q,s.slice(0,i)+'process.stdout.write(\\\\\\\"B5952_MAP=\\\\\\\"+JSON.stringify([...typeProgramInstrumentation.dynamicBindingBuildFiles.entries()].sort())+\\\\\\\"\\\\\\\\\\\\\\\\n\\\\\\\");\\\\\\\\n'+s.slice(i));try{const out=run(process.execPath,[q],{cwd:root}),line=out.split('\\\\\\\\n').find(v=>v.startsWith('B5952_MAP='));if(!line)throw new Error('map output missing');return JSON.parse(line.slice(10));}finally{fs.rmSync(q,{force:true})}};const norm=p=>{for(const mark of ['/packages/','/bin/']){const i=p.lastIndexOf(mark);if(i>=0)return p.slice(i+1)}return p};try{run(git,['worktree','add','--detach',wt,base],{timeout:60000});fs.symlinkSync(fs.realpathSync(path.join(repo,'node_modules')),path.join(wt,'node_modules'),'dir');run(process.execPath,['scripts/build-main-with-binding.mjs'],{cwd:wt,timeout:300000});const rawA=mapFor(wt),rawB=mapFor(repo),syntheticA=rawA.filter(([p])=>p.includes('dynamic-code-control-')),syntheticB=rawB.filter(([p])=>p.includes('dynamic-code-control-')),a=rawA.filter(([p])=>!p.includes('dynamic-code-control-')).map(([p,n])=>[norm(p),n]).sort((x,y)=>x[0].localeCompare(y[0])),b=rawB.filter(([p])=>!p.includes('dynamic-code-control-')).map(([p,n])=>[norm(p),n]).sort((x,y)=>x[0].localeCompare(y[0])),am=new Map(a),bm=new Map(b),added=b.filter(([p,n])=>!am.has(p)||am.get(p)!==n),removed=a.filter(([p,n])=>!bm.has(p)||bm.get(p)!==n),dupes=[...a,...b].filter(([,n])=>n!==1),digest=x=>crypto.createHash('sha256').update(JSON.stringify(x)).digest('hex'),expected=['packages/main/src/core/brand-paths.ts','packages/main/src/core/certification-window.ts','packages/main/src/core/review-inventory-epoch.ts','packages/main/src/handlers/certification-window.ts','packages/main/src/tasks/adapter-session-env.ts','packages/main/src/tasks/brand-path-resolver-smoke.ts','packages/main/src/tasks/certification-window-smoke.ts','packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts'],result={baselineCommit:run(git,['rev-parse',base]).trim(),currentCommit:run(git,['rev-parse','HEAD']).trim(),baselineBuilds:rawA.reduce((n,v)=>n+v[1],0),currentBuilds:rawB.reduce((n,v)=>n+v[1],0),baselineSynthetic:syntheticA.length,currentSynthetic:syntheticB.length,baselineRepo:a.length,currentRepo:b.length,baselineRepoMapSha256:digest(a),currentRepoMapSha256:digest(b),added,removed,duplicateCounts:dupes,expectedAddedExact:JSON.stringify(added.map(v=>v[0]))===JSON.stringify(expected)};if(result.baselineBuilds!==796||result.currentBuilds!==804||result.baselineSynthetic!==419||result.currentSynthetic!==419||result.baselineRepo!==377||result.currentRepo!==385||added.length!==8||removed.length!==0||dupes.length!==0||!result.expectedAddedExact)throw new Error('causal mismatch '+JSON.stringify(result));console.log('B5952_CAUSAL_MAP '+JSON.stringify(result));console.log('B5952_CAUSAL PASS baseline=796 current=804 synthetic=419/419 repo=377/385 delta=8 exactAdded=true removed=0 duplicateCounts=0');}finally{try{run(git,['worktree','remove','--force',wt],{timeout:60000})}catch{}fs.rmSync(tmp,{recursive:true,force:true})}\\\"\",\"result\":\"pass\",\"note\":\"Fresh detached baseline/current causal map receipt after F-020 acceptance repair.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"79c9bea810dc33e831e22d2df64de47e317291cb46b1aa1811e94e2a51a8c12d\",\"outputTail\":\"B5952_CAUSAL_MAP {\\\"baselineCommit\\\":\\\"0abf3d859dada2286870025b7093715d261855d4\\\",\\\"currentCommit\\\":\\\"882a5530a27f9cdaef747af04efdfb8c7bd6f866\\\",\\\"baselineBuilds\\\":796,\\\"currentBuilds\\\":804,\\\"baselineSynthetic\\\":419,\\\"currentSynthetic\\\":419,\\\"baselineRepo\\\":377,\\\"currentRepo\\\":385,\\\"baselineRepoMapSha256\\\":\\\"591bef628309b659ea34d68240772e3b3bb76d35ab0dd39d2489fa35539ea627\\\",\\\"currentRepoMapSha256\\\":\\\"61c8d77e3ce0dc5110cc36d2049e4d8897f9c36311785a94f378015a9f3dd23b\\\",\\\"added\\\":[[\\\"packages/main/src/core/brand-paths.ts\\\",1],[\\\"packages/main/src/core/certification-window.ts\\\",1],[\\\"packages/main/src/core/review-inventory-epoch.ts\\\",1],[\\\"packages/main/src/handlers/certification-window.ts\\\",1],[\\\"packages/main/src/tasks/adapter-session-env.ts\\\",1],[\\\"packages/main/src/tasks/brand-path-resolver-smoke.ts\\\",1],[\\\"packages/main/src/tasks/certification-window-smoke.ts\\\",1],[\\\"packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts\\\",1]],\\\"removed\\\":[],\\\"duplicateCounts\\\":[],\\\"expectedAddedExact\\\":true}\\nB5952_CAUSAL PASS baseline=796 current=804 synthetic=419/419 repo=377/385 delta=8 exactAdded=true removed=0 duplicateCounts=0\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-31T14:58:37.930Z\",\"timeoutMs\":270000},\"headHash\":\"882a5530a27f9cdaef747af04efdfb8c7bd6f866\",\"materialHash\":\"3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1\",\"storyFilesHash\":\"da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902\",\"timestamp\":\"2026-08-31T14:58:38.056Z\"}},{\"intentRef\":\"CHK-001:adversarial:heartbeat-timeout-classification\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A fake global fallback heartbeat killed by its armed budget is reported as a hard failure with [heartbeat_command_timeout], the effective timeout budget, and the override remedy, never as generic heartbeat command failed; a prompt non-zero fallback remains the generic failure class and is never relabelled timeout. node packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js must exit 0 with the bounded-and-attributed PASS line. WHY: timeout handling must diagnose timing separately without granting broken fallbacks amnesty.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:heartbeat-timeout-classification\",\"kind\":\"integration_test\",\"command\":\"node packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js\",\"result\":\"pass\",\"note\":\"Fresh current-candidate tool-owned receipt after F-020 acceptance repair.\",\"mechanical\":true,\"receipt\":{\"exitCode\":0,\"outputDigest\":\"8ebd15289a27b88fc026c12fdbe23268966fc9e757de9856e88974a8be217eac\",\"outputTail\":\"✓ codex heartbeat timeout smoke passed: timeout reported distinctly; broken fallback still fails; override bounded + attributed\\n\",\"selectorMatched\":true,\"executedAt\":\"2026-08-31T14:57:09.148Z\",\"timeoutMs\":270000},\"headHash\":\"ab8f837b50ea717e018f455c10753fd0cab924d7\",\"materialHash\":\"3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1\",\"storyFilesHash\":\"da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902\",\"timestamp\":\"2026-08-31T14:57:09.275Z\"}}]},\"reuse\":{\"lineage\":\"trusted-story-metadata-descendant\",\"existingEvidenceBasis\":\"fresh\",\"refusalReasons\":[],\"identityDigest\":\"11a8e124aa18c3a7969465d671b33fed94c002623758905d89c305a80cd025de\"}}",
+  "result": "PASS",
+  "timestamp": "2026-08-31T22:22:33.949Z",
+  "headHash": "073c980fd2aeee066edf53fb45c94dd708611a70",
+  "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+  "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+  "verificationCoverage": {
+    "total": 13,
+    "required": 13,
+    "covered": 13,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "After the source-of-truth ceiling is changed and packages/main is rebuilt, node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exits 0 and emits its PASS line with dynamicBindingBuilds/builds=804 (synthetic=419, repo=385). The source names and documents a finite ceiling strictly above 804 but no greater than 850, so the current inventory is explicitly accepted with fixed small headroom rather than by deleting or weakening the assertion.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1c4c42527981ee85ff91881293f097280d74dbe635a3c06448f2fbdb2d83b635",
+            "outputTail": "retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:53:06.109Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "31773a72e909d0e50f42df11a2bc70845ebb119b",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:53:06.274Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "A clean packages/main rebuild succeeds, the generated dist smoke remains bound to source, and node scripts/verify-core-package-rename.mjs passes, proving every historical @lattice/core mention in the allowed one-line decision-document repair is paired with canonical @proof-or-stop/core. The diff changes only that migration annotation and does not change Dynamic Finding or B-3434 decision semantics.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "command": "node -e \"const cp=require(\\\"child_process\\\");const run=(file,args)=>{const r=cp.spawnSync(file,args,{encoding:\\\"utf8\\\",maxBuffer:52428800});process.stdout.write(r.stdout||\\\"\\\");process.stderr.write(r.stderr||\\\"\\\");if(r.status!==0)process.exit(r.status??1)};run(\\\"npm\\\",[\\\"--prefix\\\",\\\"packages/main\\\",\\\"run\\\",\\\"build\\\"]);run(process.execPath,[\\\"scripts/verify-core-package-rename.mjs\\\"]);\"",
+          "result": "pass",
+          "note": "F-020 positive proof: single argv wrapper performs a clean packages/main build and the existing root core-package rename verifier.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34f013ee393bb7130e5e7bc248a2a4044e01efc8e2dba2a209c9c9d9fbc4a4e4",
+            "outputTail": "\n> @proof-or-stop/core@0.3.267 build\n> node ../../scripts/build-main-with-binding.mjs\n\ncorePackageName=@proof-or-stop/core\nok core package uses the canonical renamed name\ncliEngineExists=true\nok core build emitted dist/cli-engine.js (exit code alone is insufficient)\nutilsDependsOn=@proof-or-stop/core\nok packages/utils depends on @proof-or-stop/core\nok packages/utils no longer references the deprecated core name\nlabDependsOn=@proof-or-stop/core\nok packages/lab depends on @proof-or-stop/core\nok packages/lab no longer references the deprecated core name\nutilsDistExists=true\nok packages/utils built against the renamed core (cross-package resolution intact)\nrootPackageName=lattice\noq2BoundaryHeld=true\nok ROOT package name stays \"lattice\" (OQ-2 exclusion) while core is renamed\ndeprecatedCoreNameWithoutCanonical=0\nok every @lattice/core mention sits beside the canonical name (read-both), none stranded\n\ncore package rename verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:51:59.159Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "af8fb4091503838a45c95d6c04cc35680a9d1d96",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:51:59.297Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:finite-bound-actual",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The rebuilt committed smoke must execute the real assertDynamicBindingBuildBudget self-characterization before its PASS line: the configured ceiling is accepted, ceiling+1 throws with the observed/ceiling diagnostic, the measured build count throws when checked against measured-1, and any ceiling above the absolute hard cap 850 is rejected. Evidence must be an execution receipt from the actual smoke or equivalent exported guard call; standalone arithmetic, constant comparison, or source-text grep is insufficient.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:finite-bound-actual",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1c4c42527981ee85ff91881293f097280d74dbe635a3c06448f2fbdb2d83b635",
+            "outputTail": "retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:53:37.903Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "615c612f00c2f034de0a3a6130ea904a86ecf56a",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:53:38.027Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Two clean rebuild-and-smoke runs at unchanged HEAD are deterministic: source and dist remain bound, the targeted command remains PASS, and the measured current inventory does not gain unexplained headroom through cache or order variance. Any justified inventory-count drift must update the documented baseline and evidence instead of silently widening the ceiling.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1c4c42527981ee85ff91881293f097280d74dbe635a3c06448f2fbdb2d83b635",
+            "outputTail": "retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:54:09.965Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "81f71091b2d0e25c0dce9fc836216dd2a890e96f",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:54:10.089Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:canonical-root-validate-timeout",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "From a clean checkout whose repository marker is canonical proof-or-stop.config.json, node packages/main/dist/tasks/validate-command-timeout-smoke.js discovers the real repository root and exits 0; its temporary fixtures that intentionally provide only legacy lattice.config.json still resolve configured timeout overrides and retain their existing assertions. WHY: proves canonical root migration without breaking legacy fixture compatibility.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:canonical-root-validate-timeout",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4f776573168ff02989ef3df98a81b89b66c69a5a4d625ad45d5d697355a8537f",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nvalidate-command-timeout smoke passed: 46 assertions\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:54:17.413Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "186e63fee9e6aa189aae52bbcaa4d592f1a8983e",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:54:17.537Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:canonical-root-blob-ceiling",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "From the same clean canonical checkout with proof-or-stop.config.json and no repository-root lattice.config.json, node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs locates the repository root, executes the real blob-buffer classification suite, and exits 0 with its PASS line instead of failing root discovery. WHY: pins canonical root discovery on the standalone RED regression.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:canonical-root-blob-ceiling",
+          "kind": "integration_test",
+          "command": "node packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+          "result": "pass",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "403f6a253e26515251fb6e7ff5fe77f1d6741faaf60c87f9ecfed66ae5926253",
+            "outputTail": "✓ fixture blob survives the git pipeline above 1,048,576 bytes\n✓ commitImmutableMetadataTree commits a 1,400,000-byte staged blob\n✓ commitImmutableMetadataTree commits a 1,048,577-byte staged blob (one byte past the old default)\n✓ isolatedBlobHash, isolatedGit and treeBlobHash each pass maxBuffer to execFileSync\n✓ isolatedBlobHash and treeBlobHash return the correct sha256 for a readable blob\n✓ an absent blob and an unreadable blob are distinct, diagnostic, and never compare equal\n✓ an unreadable blob during the commit path never reports \"verified metadata changed\"\n✓ a genuine post-verification change still reports \"verified metadata changed\"\n    over-ceiling read: ceiling=33554432 blob=34554432 errorChars=118\n    over-ceiling error: ENOBUFS: output exceeded the 33554432-byte read ceiling; 33570816 bytes were captured before the ceiling and discarded\n    commit reason chars: 231\n✓ a read above the ceiling reports the ceiling and the captured size, never blob content\n✓ the pre-fix helper returns null for the same fixture that the shipped helper reads\n    silent-hook reason: git pre-commit hook failed: exit 7: Command failed: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/b3434-silent-hook-nAndfm/no-hooks/pre-commit\n✓ a hook that exits non-zero with both streams empty still reports its exit status\n    talking-hook reason: git pre-commit hook failed: failing pre-commit\n✓ a hook that prints its reason is reported verbatim, without an exit-status prefix\n\nred-b3434-blob-buffer-ceiling: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:54:23.782Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "3da8487347abd99cb6eca0a3bfd2221c73ba6500",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:54:23.909Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:missing-lattice-envelope-snapshot",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The isolated legacy lattice.config.json fixture explicitly sets storyDir=.lattice/story/actives, StoryStore creates a non-empty .lattice tree before snapshot, the aggregate before/after manifest remains meaningful, and node packages/main/dist/tasks/red-evidence-envelope-smoke.js exits 0 with its OK line.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:missing-lattice-envelope-snapshot",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+          "result": "pass",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fbccb675fbc470608135345d271340e02ba5a2e5ff399a2a47002f870a40a5ea",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nred-evidence-envelope-smoke: OK — total-bits entropy (8 differential rows) + byte measurement, rule 2 AND-not-OR (both single-floor directions), rule 1 blocklist (8/8) + rule 3 all tagged R1-2, assertionDigest scope proven in BOTH directions, 33 tagged rejection fixtures covering R1-1/R1-2/R1-3/R1-5/R1-6 with R1-2 and R1-3 never collapsed, tag routing pinned BY CODE for the §1.3 rule-1 triple (empty + blocklisted R1-2 vs trimmed R1-3), matcher COUNT and §1.3 specificity independently reported, the count bound proven policy-resolved by a two-policy differential (8 vs 3), candidate policyDigest/assertionDigest optional-but-checked in all four cells, the ADMISSIBLE success transcript (assertionDigest + matched binding + policyDigest), a byte-identical .lattice tree with no gate verdict change — byte-identical here meaning NET across the batch of DIRECT handler invocations (one snapshot before the batch, one after, not per-invocation), over a manifest of file paths and content hashes only (empty directories, file modes and symlink identity are not recorded), and with the CLI entrypoint not exercised — and all three registry contracts pass.\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:54:46.784Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "df5708ad50f2df28b9e0ccc1424f887135eb3eb1",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:54:46.907Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:missing-lattice-readonly-snapshot",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The isolated legacy lattice.config.json fixture explicitly sets storyDir=.lattice/story/actives, its non-empty aggregate .lattice manifest is compared, canonical registered smoke resolution plus legacy config compatibility remain exercised, and node packages/main/tests/red/red-w2d-command-readonly.mjs exits 0 with PASS.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:missing-lattice-readonly-snapshot",
+          "kind": "integration_test",
+          "command": "node packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "result": "pass",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "85854bb9817e027a16f883f50e3c27054a08a255c142895577a1b7da824c9fa9",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nred-w2d-command-readonly: PASS\n  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler\n  success output: assertionDigest sha256:60f9d33cddb2b692b9ba243ffa33038b0c089b0654afeb559f01ad1daa383515 / binding M1 npm-script@1 npm-script:test:x / policyDigest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767\n  inadmissible: tagged R1-2 rejection, success output absent; .lattice manifest of file paths and content hashes NET identical across the batch of 8 DIRECT handler invocations (aggregate before/after, not per-invocation; no empty directories, file modes or symlink identity recorded; the CLI wrapper is not exercised here)\n  spawn set observed across those invocations: execFileSync git rev-parse + execFileSync git worktree + execSync git rev-parse + spawnSync git rev-parse + spawnSync git show (32 calls) — read-only git, no runner/harness/shell\n  validate pipeline: packages/main/dist/tasks/red-evidence-envelope-smoke.js resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in 3914ms\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:54:52.273Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "bf4ac7cc8138bd64b2388843590e68ce81924eb1",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:54:52.396Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:canonical-root-init-signature",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "From a clean checkout containing canonical proof-or-stop.config.json but no repository-root lattice.config.json, node packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs reads its current validation registration, reaches the GREEN signature-domain verdict, and exits 0; the isolated repositories it creates with legacy lattice.config.json continue to bootstrap and exercise the same CLI flow. WHY: canonical registration lookup must not invalidate legacy test projects.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:canonical-root-init-signature",
+          "kind": "integration_test",
+          "command": "node packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+          "result": "pass",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "56eb31f60f346f9a1f13282ce6c058497cab88d39e3eaffa412254f81415da55",
+            "outputTail": "mputation responded to the injection=true\n  B2  [GREEN     ] the tampered file is still signature-VALID (recomputed matches what is stored)\n      observed: stored hash still verifies after the edit=false\n  B3  [GREEN     ] the gate ACCEPTS hand-injected reviewer coverage, with zero init_check_set calls for it\n      observed: advanced=false phase=INIT outDigest=f2298a68f7ed\n  C1  [CONTROL-OK] GATE CONTROL: a genuinely recorded blocking-severity issue refuses the advance\n      observed: advanced=false phase=INIT blocker=true severityUsed=critical outDigest=c777ee8935c3\n  C2  [GREEN     ] erasing a recorded blocking-severity issue leaves the file signature-VALID\n      observed: stored hash still verifies after the erasure=false\n  C3  [GREEN     ] the gate ADVANCES after that blocker was erased by hand\n      observed: advanced=false phase=INIT outDigest=1fa048e807c3\n  E0  [CONTROL-OK] CARRY-FORWARD FLOOR: an UNTOUCHED predecessor record survives the next legal call verbatim, still signed, and the gate advances\n      observed: predecessorStampCaptured=true survivedVerbatim=true signedAfter=true advanced=true phase=INIT_CHECK\n  E1  [CONTROL-OK] PRECONDITION: before any laundering call the injected record is signature-INVALID and the gate refuses it\n      observed: signatureRejectsTheInjection=true gateRefuses=true\n  E2  [CONTROL-OK] the record that legal call wrote is itself validly signed, whatever it contains\n      observed: signatureValidAfterTheLegalCall=true (without this, a green E3 could just mean the write broke)\n  E3  [GREEN     ] the hand-injected reviewer record is carried into that newly signed record — one legal call LAUNDERS it into a valid signature\n      observed: injectedRecordSurvivedByItsHandWrittenTimestampMarker=false underAValidSignature=true\n  E4  [GREEN     ] the gate ACCEPTS that laundered coverage: tampering survived by waiting for one legitimate call\n      observed: advanced=false phase=INIT outDigest=e0d54c3eaca8\n  F1  [CONTROL-OK] PRECONDITION: the recorded blocking issue blocks, and hand-erasing it leaves the file signature-INVALID\n      observed: blockedWhileRecorded=true blocker=true signatureRejectsTheErasure=true flaggerStampCaptured=true severityUsed=critical\n  F2  [CONTROL-OK] the record that legal call wrote is itself validly signed, whatever it contains\n      observed: signatureValidAfterTheLegalCall=true (without this, a green F3 could just mean the write broke)\n  F3  [GREEN     ] the hand-erased verdict is carried into that newly signed record — the recorded blocker is laundered away under a valid signature\n      observed: erasedVerdictSurvivedByItsOriginalTimestampMarker=false productSeesNoBlockingIssue=true underAValidSignature=true\n  F4  [GREEN     ] the gate ADVANCES: a genuinely recorded blocker was removed by tampering plus one legitimate call\n      observed: advanced=false phase=INIT outDigest=1ed8c789b95e\n  G1  [CONTROL-OK] READ vs TRUST: a record that does NOT verify still RENDERS through story_get, verbatim, while the gate refuses to act on it\n      observed: signatureRejectsIt=true storyGetStillRendersIt=true rendersTheUnverifiedContentVerbatim=true gateRefuses=true tamperBlocker=true\n  H1  [CONTROL-OK] SCOPE BOUND: this is a checksum over public inputs, NOT a secret-keyed MAC — an editor who also RE-SIGNS is accepted, so what this story buys is tamper-evidence, never reviewer trustworthiness\n      observed: refusedBeforeReSigning=true verifiesAfterReSigning=true gateAdvancesOnTheReSignedRecord=true phase=INIT_CHECK\n\n  0 RED / 0 BROKEN / 24 rows\n  registration in project config: readable=true found=true optional=false → waiverWithdrawn=true (a surviving waiver is reported while the defect stands and becomes FATAL once every row is GREEN)\n\n  GREEN: both verdict fields are inside the signature domain, and the carry-forward\n  refuses to re-sign a record that does not verify — while an untouched predecessor\n  is still carried forward (E0) and an unverifiable record still RENDERS (G1).\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:55:30.225Z",
+            "timeoutMs": 600000
+          },
+          "headHash": "9d10abab311a84723d17cd69b2e7a4b90bd8637b",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:55:30.373Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:guard-mutants",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "An isolated executable mutation harness must prove the guard is causal: mutate the real comparator to an unbounded form and separately replace the ceiling with sentinel 900, rebuild or execute the mutated artifact, and require each mutant run to fail the characterization while the unmodified control passes. The harness must assert that each substitution occurred and must reject a no-op mutation; arithmetic-only checks and source-text presence checks are insufficient.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:guard-mutants",
+          "kind": "logic_test",
+          "command": "node -e \"const fs=require('fs'),cp=require('child_process');const p='packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js';const original=fs.readFileSync(p,'utf8');const run=()=>cp.spawnSync(process.execPath,[p],{encoding:'utf8',maxBuffer:20*1024*1024});let unboundedRejected=false,sentinelRejected=false;try{const unbounded=original.replace('actualBuilds <= ceiling,','true,');if(unbounded===original)throw new Error('unbounded substitution did not apply');fs.writeFileSync(p,unbounded);unboundedRejected=run().status!==0;const sentinel=original.replace('const DYNAMIC_BINDING_BUILD_CEILING = 808;','const DYNAMIC_BINDING_BUILD_CEILING = 900;');if(sentinel===original)throw new Error('sentinel substitution did not apply');fs.writeFileSync(p,sentinel);const result=run();sentinelRejected=result.status!==0&&(result.stderr+result.stdout).includes('finite integer between 1 and 850');}finally{fs.writeFileSync(p,original);}const restored=fs.readFileSync(p,'utf8')===original;const control=run();if(!unboundedRejected||!sentinelRejected||!restored||control.status!==0||!control.stdout.includes('PASS builds=804'))throw new Error(JSON.stringify({unboundedRejected,sentinelRejected,restored,control:control.status}));console.log('actual-guard-mutants PASS unboundedRejected=true sentinelRejected=true restored=true control=804');\"",
+          "result": "pass",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "724b65f25eb55b5a1ba5949d57061b52f08f382b37e00e250deed0af845016f6",
+            "outputTail": "actual-guard-mutants PASS unboundedRejected=true sentinelRejected=true restored=true control=804\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:57:05.400Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "1ebdae382c118b1f8aff17d8168a5a539bdb38de",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:57:05.577Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:binding-scope-mutants",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "An isolated mutation removes the canonical @proof-or-stop/core pairing from the repaired historical @lattice/core sentence and must make scripts/verify-core-package-rename.mjs fail; exact bytes are then restored and the same verifier must pass. This proves the one-line exception is constrained by the repository package-rename contract rather than allowing a stranded legacy package name.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:binding-scope-mutants",
+          "kind": "logic_test",
+          "command": "node -e \"const fs=require('fs'),cp=require('child_process');const p='docs/requirements/decisions/dynamic-finding-system-execution-plan.md',o=fs.readFileSync(p,'utf8'),from='enumerated `@lattice/core` (later replaced by `@proof-or-stop/core`)\\nspecifically.',to='enumerated `@lattice/core`\\nspecifically.';const m=o.replace(from,to);if(m===o)throw new Error('mutation did not apply');let rejected=false;try{fs.writeFileSync(p,m);rejected=cp.spawnSync(process.execPath,['scripts/verify-core-package-rename.mjs'],{encoding:'utf8',maxBuffer:20*1024*1024}).status!==0;}finally{fs.writeFileSync(p,o);}const restored=fs.readFileSync(p,'utf8')===o,control=cp.spawnSync(process.execPath,['scripts/verify-core-package-rename.mjs'],{encoding:'utf8',maxBuffer:20*1024*1024});if(!rejected||!restored||control.status!==0)throw new Error(JSON.stringify({rejected,restored,control:control.status}));console.log('core-package-rename-mutation PASS mutantRejected=true restored=true control=pass');\"",
+          "result": "pass",
+          "note": "F-020 fail-closed proof: removing the canonical package-name pairing must fail the repository verifier, then exact-byte restoration must pass.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "91c5f74a1cb8df7034f1003d2cfa8aa963a3c3c3884710ed681e6d18258831f8",
+            "outputTail": "core-package-rename-mutation PASS mutantRejected=true restored=true control=pass\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:52:10.972Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "2a520d8be0aecd4d410ed56f5ab2de59b0cf5e1e",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:52:11.121Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:causal-baseline-map",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "A reproducible detached-worktree comparison must build exact baseline 0abf3d859dada2286870025b7093715d261855d4 and current HEAD, emit both complete normalized repository binding maps, and fail unless 796→804 is solely 377→385 repository entries with synthetic 419 unchanged, exactly the eight expected +1 files, no removals, and no duplicate count.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:causal-baseline-map",
+          "kind": "logic_test",
+          "command": "node -e \"const fs=require('fs'),cp=require('child_process'),path=require('path'),os=require('os'),crypto=require('crypto');const repo=process.cwd(),base='0abf3d859dada2286870025b7093715d261855d4',git='/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback/git';const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'b5952-causal-'));const wt=path.join(tmp,'base');const run=(file,args,opts={})=>{const r=cp.spawnSync(file,args,{cwd:opts.cwd||repo,encoding:'utf8',maxBuffer:100*1024*1024,timeout:opts.timeout||300000,env:process.env});if(r.status!==0)throw new Error(file+' failed '+r.status+' '+String(r.stderr).slice(-2000));return r.stdout};const mapFor=root=>{const p=path.join(root,'packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js'),q=path.join(path.dirname(p),'.b5952-map-'+process.pid+'.js'),s=fs.readFileSync(p,'utf8'),i=s.lastIndexOf('process.stdout.write');if(i<0)throw new Error('map marker missing');fs.writeFileSync(q,s.slice(0,i)+'process.stdout.write(\\\"B5952_MAP=\\\"+JSON.stringify([...typeProgramInstrumentation.dynamicBindingBuildFiles.entries()].sort())+\\\"\\\\\\\\n\\\");\\\\n'+s.slice(i));try{const out=run(process.execPath,[q],{cwd:root}),line=out.split('\\\\n').find(v=>v.startsWith('B5952_MAP='));if(!line)throw new Error('map output missing');return JSON.parse(line.slice(10));}finally{fs.rmSync(q,{force:true})}};const norm=p=>{for(const mark of ['/packages/','/bin/']){const i=p.lastIndexOf(mark);if(i>=0)return p.slice(i+1)}return p};try{run(git,['worktree','add','--detach',wt,base],{timeout:60000});fs.symlinkSync(fs.realpathSync(path.join(repo,'node_modules')),path.join(wt,'node_modules'),'dir');run(process.execPath,['scripts/build-main-with-binding.mjs'],{cwd:wt,timeout:300000});const rawA=mapFor(wt),rawB=mapFor(repo),syntheticA=rawA.filter(([p])=>p.includes('dynamic-code-control-')),syntheticB=rawB.filter(([p])=>p.includes('dynamic-code-control-')),a=rawA.filter(([p])=>!p.includes('dynamic-code-control-')).map(([p,n])=>[norm(p),n]).sort((x,y)=>x[0].localeCompare(y[0])),b=rawB.filter(([p])=>!p.includes('dynamic-code-control-')).map(([p,n])=>[norm(p),n]).sort((x,y)=>x[0].localeCompare(y[0])),am=new Map(a),bm=new Map(b),added=b.filter(([p,n])=>!am.has(p)||am.get(p)!==n),removed=a.filter(([p,n])=>!bm.has(p)||bm.get(p)!==n),dupes=[...a,...b].filter(([,n])=>n!==1),digest=x=>crypto.createHash('sha256').update(JSON.stringify(x)).digest('hex'),expected=['packages/main/src/core/brand-paths.ts','packages/main/src/core/certification-window.ts','packages/main/src/core/review-inventory-epoch.ts','packages/main/src/handlers/certification-window.ts','packages/main/src/tasks/adapter-session-env.ts','packages/main/src/tasks/brand-path-resolver-smoke.ts','packages/main/src/tasks/certification-window-smoke.ts','packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts'],result={baselineCommit:run(git,['rev-parse',base]).trim(),currentCommit:run(git,['rev-parse','HEAD']).trim(),baselineBuilds:rawA.reduce((n,v)=>n+v[1],0),currentBuilds:rawB.reduce((n,v)=>n+v[1],0),baselineSynthetic:syntheticA.length,currentSynthetic:syntheticB.length,baselineRepo:a.length,currentRepo:b.length,baselineRepoMapSha256:digest(a),currentRepoMapSha256:digest(b),added,removed,duplicateCounts:dupes,expectedAddedExact:JSON.stringify(added.map(v=>v[0]))===JSON.stringify(expected)};if(result.baselineBuilds!==796||result.currentBuilds!==804||result.baselineSynthetic!==419||result.currentSynthetic!==419||result.baselineRepo!==377||result.currentRepo!==385||added.length!==8||removed.length!==0||dupes.length!==0||!result.expectedAddedExact)throw new Error('causal mismatch '+JSON.stringify(result));console.log('B5952_CAUSAL_MAP '+JSON.stringify(result));console.log('B5952_CAUSAL PASS baseline=796 current=804 synthetic=419/419 repo=377/385 delta=8 exactAdded=true removed=0 duplicateCounts=0');}finally{try{run(git,['worktree','remove','--force',wt],{timeout:60000})}catch{}fs.rmSync(tmp,{recursive:true,force:true})}\"",
+          "result": "pass",
+          "note": "Fresh detached baseline/current causal map receipt after F-020 acceptance repair.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "79c9bea810dc33e831e22d2df64de47e317291cb46b1aa1811e94e2a51a8c12d",
+            "outputTail": "B5952_CAUSAL_MAP {\"baselineCommit\":\"0abf3d859dada2286870025b7093715d261855d4\",\"currentCommit\":\"882a5530a27f9cdaef747af04efdfb8c7bd6f866\",\"baselineBuilds\":796,\"currentBuilds\":804,\"baselineSynthetic\":419,\"currentSynthetic\":419,\"baselineRepo\":377,\"currentRepo\":385,\"baselineRepoMapSha256\":\"591bef628309b659ea34d68240772e3b3bb76d35ab0dd39d2489fa35539ea627\",\"currentRepoMapSha256\":\"61c8d77e3ce0dc5110cc36d2049e4d8897f9c36311785a94f378015a9f3dd23b\",\"added\":[[\"packages/main/src/core/brand-paths.ts\",1],[\"packages/main/src/core/certification-window.ts\",1],[\"packages/main/src/core/review-inventory-epoch.ts\",1],[\"packages/main/src/handlers/certification-window.ts\",1],[\"packages/main/src/tasks/adapter-session-env.ts\",1],[\"packages/main/src/tasks/brand-path-resolver-smoke.ts\",1],[\"packages/main/src/tasks/certification-window-smoke.ts\",1],[\"packages/main/src/tasks/signing-guard-mutation-proof-smoke.ts\",1]],\"removed\":[],\"duplicateCounts\":[],\"expectedAddedExact\":true}\nB5952_CAUSAL PASS baseline=796 current=804 synthetic=419/419 repo=377/385 delta=8 exactAdded=true removed=0 duplicateCounts=0\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:58:37.930Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "882a5530a27f9cdaef747af04efdfb8c7bd6f866",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:58:38.056Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:heartbeat-timeout-classification",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "A fake global fallback heartbeat killed by its armed budget is reported as a hard failure with [heartbeat_command_timeout], the effective timeout budget, and the override remedy, never as generic heartbeat command failed; a prompt non-zero fallback remains the generic failure class and is never relabelled timeout. node packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js must exit 0 with the bounded-and-attributed PASS line. WHY: timeout handling must diagnose timing separately without granting broken fallbacks amnesty.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:heartbeat-timeout-classification",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+          "result": "pass",
+          "note": "Fresh current-candidate tool-owned receipt after F-020 acceptance repair.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8ebd15289a27b88fc026c12fdbe23268966fc9e757de9856e88974a8be217eac",
+            "outputTail": "✓ codex heartbeat timeout smoke passed: timeout reported distinctly; broken fallback still fails; override bounded + attributed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-31T14:57:09.148Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "ab8f837b50ea717e018f455c10753fd0cab924d7",
+          "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+          "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+          "timestamp": "2026-08-31T14:57:09.275Z"
+        }
+      }
+    ]
+  },
+  "commandExecution": {
+    "schema": "lattice.routine-validation-command-execution",
+    "version": 1,
+    "status": "PASS",
+    "complete": true,
+    "commandCount": 120,
+    "requiredFailureCount": 0,
+    "optionalFailureCount": 0
+  },
+  "disposition": "reused",
+  "routineValidationIdentity": {
+    "schema": "lattice.routine-validation-identity",
+    "version": 1,
+    "source": {
+      "kind": "configured",
+      "inputDigest": "b75647c10f98d268c5f10edc5f9945815277eb7276e51664ddbf584a74d15b13",
+      "entrypointDigest": null
+    },
+    "commands": [
+      {
+        "label": "configured validate.commands[0]",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 290000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[1]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[2]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[3]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/production-test-seam-guard.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[4]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-list-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[5]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/command-catalog-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[6]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-pass-discard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[7]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[8]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/verification-run-and-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[9]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[10]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[11]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[12]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[13]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validation-evidence-buffer-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[14]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[15]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[16]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[17]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[18]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[19]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-validation-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[20]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[21]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/test-suite-utils-autobuild-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[22]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[23]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-head-drift-proof.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[24]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[25]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/version-bump-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[26]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[27]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[28]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[29]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[30]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[31]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[32]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[33]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[34]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[35]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[36]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[37]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-preflight-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[38]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/english-early-check-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[39]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/quorum-submit-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 1200000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[40]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[41]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[42]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-registry-contract.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[43]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[44]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[45]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[46]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[47]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[48]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[49]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[50]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[51]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[52]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[53]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-repeat-block-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 120000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[54]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[55]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/withdrawn-disposition-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[56]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-policy-canon-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[57]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-target-binding-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[58]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[59]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-chain-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[60]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[61]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-migration-scan.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[62]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[63]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[64]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[65]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[66]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[67]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[68]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-doc-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[69]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[70]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[71]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[72]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[73]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[74]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[75]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[76]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[77]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-lock-liveness.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[78]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-content-binding.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[79]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-reader-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[80]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-bootstrap-depfree.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[81]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[82]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[83]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-s3-differential-probe.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[84]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[85]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2a-canon-differential.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[86]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[87]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2b-binding-store.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[88]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[89]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[90]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[91]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-gate-guard.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[92]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-head-consistency.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[93]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[94]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[95]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[96]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[97]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[98]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/frozen-claim-drift-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[99]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[100]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "--issuer-mutations"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[101]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[102]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[103]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-f88e-downgrade-non-regression.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[104]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[105]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-B-7dff-sequential-validate-plan.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "b0afa7933831c042e534382bac123b71ab2d98111aecac487524f296361d2340",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[106]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/validate-plan-scheduling.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[107]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[108]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-parallel-equivalence-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[109]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/validate-pollution-attribution.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "B-45a5 standing regression guard (was CHK-001's RED artifact): three clauses, all mandatory. (1) Both REVIEW-path gates must keep EXCLUDING an item-level withdrawal authorized by a confirmed decision. (2) Both must keep biting on everything that is NOT withdrawn, including an item that merely shares an authored verificationIntent id alias with a withdrawn one. (3) Both must keep REFUSING every UNBACKED withdrawal: a status flipped by hand with no decisionRef, a dangling decisionRef, a decisionRef naming a real decision that does not list the item, or a decision overwritten to decision=rejected / userConfirmed=false. Clause 3 is the safety-critical one: without it the withdrawal mechanism is forgeable by hand-editing a JSON status field. Exits 1 if any clause regresses, 2 if a control/premise breaks. CHK-003 removed the pre-fix optional flag, so this is now mandatory",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b45a5-withdrawal-gates.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[111]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/red-evidence-envelope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[112]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[113]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[114]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[115]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[116]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-w2d-command-readonly.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "B-8df9 REGRESSION: the INIT_CHECK verdict fields (agentResults + issues) stay inside the signature domain (waiver withdrawn in CHK-002; a regression now fails validate)",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 600000,
+        "optional": false,
+        "focus": [
+          "b8df9-init-check-signature"
+        ],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 300000,
+        "optional": false,
+        "focus": [
+          "b8df9-init-check-signature"
+        ],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[119]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-5952",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "c3485aa900e2ee8c456e753af1660882c26d033e9592710fc1a9127fb7a2568b",
+        "executableDigest": "902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253",
+        "shellExecutableDigest": null
+      }
+    ],
+    "invocation": {
+      "full": null,
+      "focus": null,
+      "profile": "strict"
+    },
+    "verificationPolicyDigest": "331203bf57bf6e8dd36445df81ae01e40df3a9457b3100f28bdd542a699d75e5",
+    "runtime": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "node": "v26.8.1"
+    },
+    "digest": "11a8e124aa18c3a7969465d671b33fed94c002623758905d89c305a80cd025de"
+  }
+}

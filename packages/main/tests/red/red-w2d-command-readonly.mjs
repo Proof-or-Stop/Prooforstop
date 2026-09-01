@@ -214,7 +214,10 @@ try {
   // A config carrying the MINIMAL red-evidence policy block: pinnedPath only,
   // so the resolved snapshot is the frozen default and its digest is the W2a
   // pinned literal.
-  writeFileSync(join(root, 'lattice.config.json'), `${JSON.stringify({ redEvidence: { pinnedPath: ['/usr/bin'] } }, null, 2)}\n`);
+  writeFileSync(join(root, 'lattice.config.json'), `${JSON.stringify({
+    storyDir: '.lattice/story/actives',
+    redEvidence: { pinnedPath: ['/usr/bin'] },
+  }, null, 2)}\n`);
 
   const storyId = 'B-w2d1';
   const store = new StoryStore(root);

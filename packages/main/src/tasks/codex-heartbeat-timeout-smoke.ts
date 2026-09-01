@@ -225,8 +225,9 @@ const previousPath = process.env.PATH;
 const previousHome = process.env.HOME;
 const createdDirs: string[] = [];
 try {
-  // login-shell discovery (`sh -lc`) ignores PATH prepend, so HOME must be isolated
-  // or a real global shim (~/.local/bin/proof-or-stop) wins.
+  // HOME is isolated as a second line of defence against a real user-local shim.
+  // The production PATH probe intentionally uses a non-login shell so this fixture's
+  // fake CLI remains the command under test.
   const isolatedHome = mkdtempSync(join(tmpdir(), 'codex-heartbeat-isolated-home-'));
   createdDirs.push(isolatedHome);
   process.env.HOME = isolatedHome;

@@ -1,0 +1,177 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5952:CW-001",
+      "storyId": "B-5952",
+      "state": "BLOCKED",
+      "createdAt": "2026-08-31T13:12:21.028Z",
+      "updatedAt": "2026-08-31T13:12:21.028Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "2d0dc6c09151ff60f7bf0307dc31521b151037f6d5364976929fa794718e0dcf"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5952:CW-002",
+      "storyId": "B-5952",
+      "state": "CANCELLED",
+      "createdAt": "2026-08-31T13:12:49.024Z",
+      "updatedAt": "2026-08-31T13:24:31.071Z",
+      "frozen": {
+        "headHash": "54cd842b644cfa787267c8e75e3070747de6c787",
+        "materialHash": "63292a573bf3271dcc1f220f9f9172c03919d79772485d71e28d8b5f05fe8e82",
+        "storyFilesHash": "65166487f29740c1f2342fc9ec7c73b09faac4f702cfa4ec1e27c2a3714785eb",
+        "expectedMainSha": "04f0f97dbae74f9a4ccaeaf2c0fc362164b8ef15",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-5952:RIE-001",
+        "receiptId": "B-5952:RIE-001:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "cancelledAt": "2026-08-31T13:24:31.071Z",
+      "cancelReason": "DONE-required run failed while main changed twice during the admitted window; reset TEST anchor before one bounded retry",
+      "_hash": "a1769172f146eea2853aa25301be60bb38f6175ac4f0f83bff8a2e8a8d5a7e91"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5952:CW-003",
+      "storyId": "B-5952",
+      "state": "BLOCKED",
+      "createdAt": "2026-08-31T19:41:34.340Z",
+      "updatedAt": "2026-08-31T19:41:34.340Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "d04c263b2b88e9a7b803b245ccb075e038042424c9d6993c0bdd4ac9a9b6ce09"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5952:CW-004",
+      "storyId": "B-5952",
+      "state": "CANCELLED",
+      "createdAt": "2026-08-31T19:41:59.752Z",
+      "updatedAt": "2026-08-31T20:08:04.901Z",
+      "frozen": {
+        "headHash": "db78cb176ffafb34ce8eadba0a52356e53d46163",
+        "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+        "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+        "expectedMainSha": "8d9576e6492e308617392b8ffea2b1a60781d2f9",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-5952:RIE-002",
+        "receiptId": "B-5952:RIE-002:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "cancelledAt": "2026-08-31T20:08:04.901Z",
+      "cancelReason": "DONE-required root suite failed; return to DEV to add read-only receipt diagnostics and fix the recorded failing member",
+      "_hash": "c8a2b2f608ec5fe70219cf5223bf429b1d7916b78d66e51d160b5c5b72d6ceb7"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5952:CW-005",
+      "storyId": "B-5952",
+      "state": "BLOCKED",
+      "createdAt": "2026-08-31T21:19:48.477Z",
+      "updatedAt": "2026-08-31T21:19:48.477Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "20d5c7b823d8b13376a03b20cbedad65e61011797595d6091826363277b88fe1"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5952:CW-006",
+      "storyId": "B-5952",
+      "state": "RUNNING",
+      "createdAt": "2026-08-31T21:20:05.059Z",
+      "updatedAt": "2026-08-31T21:20:13.511Z",
+      "frozen": {
+        "headHash": "c34d092fc74705c0c0f5dc117f1d46e0b70345f1",
+        "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+        "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+        "expectedMainSha": "fe1288860f0afd02b582860e0a229e188c64072c",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-5952:RIE-003",
+        "receiptId": "B-5952:RIE-003:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-5952:PRECERT-003",
+      "_hash": "2226e720a4b4065a15145aca3a7d88c5924811bebcff9d3c8f7628eb98f8b8cc"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-5952:PRECERT-001",
+      "windowId": "B-5952:CW-002",
+      "storyId": "B-5952",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "54cd842b644cfa787267c8e75e3070747de6c787",
+        "materialHash": "63292a573bf3271dcc1f220f9f9172c03919d79772485d71e28d8b5f05fe8e82",
+        "storyFilesHash": "65166487f29740c1f2342fc9ec7c73b09faac4f702cfa4ec1e27c2a3714785eb",
+        "expectedMainSha": "04f0f97dbae74f9a4ccaeaf2c0fc362164b8ef15",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-5952:RIE-001",
+      "inventoryReceiptId": "B-5952:RIE-001:RCP-001",
+      "createdAt": "2026-08-31T13:12:49.024Z",
+      "_hash": "e3d220f2b33f371a16983b7e993cd7b7092ac5eff169559f04b642a270d2411d"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-5952:PRECERT-002",
+      "windowId": "B-5952:CW-004",
+      "storyId": "B-5952",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "db78cb176ffafb34ce8eadba0a52356e53d46163",
+        "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+        "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+        "expectedMainSha": "8d9576e6492e308617392b8ffea2b1a60781d2f9",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-5952:RIE-002",
+      "inventoryReceiptId": "B-5952:RIE-002:RCP-001",
+      "createdAt": "2026-08-31T19:41:59.752Z",
+      "_hash": "0d8b720c45bdbd1634805e240c7b776ebb6cf28005f7d1b56f90bb7507d0ec77"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-5952:PRECERT-003",
+      "windowId": "B-5952:CW-006",
+      "storyId": "B-5952",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "c34d092fc74705c0c0f5dc117f1d46e0b70345f1",
+        "materialHash": "3754272f4edf9545d13eb49ba4717e83567bfd141b2a9bf00c3346c8258097b1",
+        "storyFilesHash": "da09395a148b60ece9dc12decd9b1709d3d89631242d39f2d63667949eaf3902",
+        "expectedMainSha": "fe1288860f0afd02b582860e0a229e188c64072c",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-5952:RIE-003",
+      "inventoryReceiptId": "B-5952:RIE-003:RCP-001",
+      "createdAt": "2026-08-31T21:20:05.059Z",
+      "_hash": "c2d01cf601936e3e3aeb4c833c0532f2d3cbec2a60478bdb6d0b5cbd6f019ef9"
+    }
+  ]
+}

@@ -578,16 +578,16 @@ function assertDynamicFindingAuthorityProjection(): void {
   for (const phrase of [
     '`not_reproduced_under_current_witness`',
     'interface FindingDeferralDisposition',
-    "action: 'defer_with_proof'",
-    'Deferral is a disposition after `applicable`, never an applicability verdict.',
-    'critical or high severity',
-    'introduced or worsened by the current Story',
-    'direct acceptance,',
-    'known or uncertain protected-surface impact',
-    'lifecycle or gate evidence that would become misleading',
-    'exhausted, or otherwise invalid disposition lineage',
+    "assessmentDispositionPlan: 'defer_with_proof'",
+    'Deferral is a disposition after `applicable`, not another applicability verdict.',
+    'critical/high or any known/uncertain protected-surface case can never choose',
+    'A regression introduced or worsened by the Story cannot be deferred.',
+    'acceptanceImpact: {',
+    'protectedSurfaceImpact: {',
+    'must be reproduced, root-caused, fixed,',
+    'exhausted/invalid deferral lineage',
     'the current CLI implements neither the future legacy',
-    'The current CLI implements no signed deferral command or artifact',
+    '`FindingDeferralDisposition` / `defer_with_proof` path',
   ]) {
     assert.ok(normalizedPlan.includes(phrase), `the Dynamic Finding authority plan keeps target-state phrase: ${phrase}`);
   }

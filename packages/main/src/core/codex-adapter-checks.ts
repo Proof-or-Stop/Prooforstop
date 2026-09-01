@@ -813,7 +813,9 @@ function pathContains(parent: string, child: string): boolean {
 function resolveGlobalCliCommandPath(root: string): string | null {
   for (const bin of [PROOF_OR_STOP_PRIMARY_BIN, PROOF_OR_STOP_DEPRECATED_BIN]) {
     const command = process.platform === 'win32' ? 'where' : 'sh';
-    const args = process.platform === 'win32' ? [bin] : ['-lc', `command -v ${bin}`];
+    // A login shell may rebuild PATH and silently bypass a caller-provided shim. This
+    // probe is specifically about the current process environment, so preserve PATH.
+    const args = process.platform === 'win32' ? [bin] : ['-c', `command -v ${bin}`];
     try {
       const out = execFileSync(command, args, {
         cwd: root,

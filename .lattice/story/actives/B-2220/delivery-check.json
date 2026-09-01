@@ -1,0 +1,31 @@
+{
+  "storyId": "B-2220",
+  "checkedAt": "2026-09-01T01:04:00.393Z",
+  "headHash": "f3fa6d63a22c0fe4aaaecda4d4ceab89fe3e1669",
+  "materialHash": "728d38a3eac4fa16f1a0fc779e6ff56ecd7141f83d4004326677db0b1b94b2cb",
+  "storyFilesHash": "fef3c0698fda4f30d482c1da92cf3cb4c9ea3a5bde2f888c446751b402dc9a9c",
+  "reviewRound": "2026-09-01T00:32:22.241Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "promise": "Decision declines an active writer-owned canonical-boundary follow-up while B-3434 remains accepted and reconsideration requires new risk evidence plus human approval.",
+      "status": "verified",
+      "verifiedBy": "Independent delivery review of current diff and build-bound smoke.",
+      "evidence": "Current decision text and validation-evidence-buffer-smoke PASS confirm the promise."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Build-bound validation-evidence-buffer-smoke exited 0 and printed PASS; routine validation 120/120 and DONE-required build plus root npm test also passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All delivery promises are verified on current material; known B-3434 limitations remain explicit and no active follow-up is planned."
+  },
+  "_hash": "1737a7ab6f854378e57af598817444acbc27209c11520bff22d240e4e112c9b7"
+}

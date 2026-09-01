@@ -1,0 +1,72 @@
+{
+  "storyId": "B-5952",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+    "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+    "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/dist/core/codex-adapter-checks.js",
+    "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+    "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+    "packages/main/tests/red/red-w2d-command-readonly.mjs",
+    "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/handlers/**",
+    "packages/main/src/cli/**"
+  ],
+  "scopeChangeReason": "DONE-required verification exposed one exact main-baseline blocker in the protected decision document: an unpaired historical @lattice/core token. Re-plan allows only that document for the one-line canonical replacement annotation; Dynamic Finding and B-3434 decision semantics remain unchanged.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Exact one-line DONE blocker repair: pair the historical @lattice/core token with its canonical @proof-or-stop/core replacement so verify-core-package-rename passes; no Dynamic Finding or B-3434 decision semantics change.",
+      "timestamp": "2026-08-31T13:52:17.198Z",
+      "paths": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "70dc39feba94fcc23690d901a149db98260b3e2d",
+      "materialHash": "63292a573bf3271dcc1f220f9f9172c03919d79772485d71e28d8b5f05fe8e82"
+    }
+  ],
+  "createdAt": "2026-08-31T02:41:54.893Z",
+  "updatedAt": "2026-08-31T13:55:25.459Z",
+  "fileRules": [],
+  "protectedAnchors": [],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js": "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+    "packages/main/src/handlers/**": "packages/main/src/handlers/**",
+    "packages/main/src/core/**": "packages/main/src/core/**",
+    "packages/main/src/cli/**": "packages/main/src/cli/**",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts": "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/dist/tasks/validate-command-timeout-smoke.js": "packages/main/dist/tasks/validate-command-timeout-smoke.js",
+    "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts": "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+    "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js": "packages/main/dist/tasks/codex-heartbeat-timeout-smoke.js",
+    "packages/main/src/core/codex-adapter-checks.ts": "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/dist/core/codex-adapter-checks.js": "packages/main/dist/core/codex-adapter-checks.js",
+    "packages/main/src/tasks/red-evidence-envelope-smoke.ts": "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+    "packages/main/dist/tasks/red-evidence-envelope-smoke.js": "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
+    "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs": "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs",
+    "packages/main/tests/red/red-w2d-command-readonly.mjs": "packages/main/tests/red/red-w2d-command-readonly.mjs",
+    "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs": "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+  }
+}

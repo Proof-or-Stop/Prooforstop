@@ -1,0 +1,52 @@
+{
+  "storyId": "B-5952",
+  "changes": "Updated the retired-authority vocabulary guard source and rebuilt dist so the current measured inventory of 804 builds is accepted by a finite ceiling of 808, with an immutable absolute cap of 850 and executable guard characterizations.",
+  "usage": "Run node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; it must exit zero and print the PASS transcript with builds=804.",
+  "expectedOutcome": "The main baseline smoke accepts the causally explained current inventory while still rejecting unbounded or excessively widened budgets.",
+  "actualTranscript": "retired authority vocabulary guard PASS builds=804 cacheHits=2 fullAnalysis=1282 astCandidates=501 reachability=34",
+  "outcomeDiff": "No user-visible difference from the expected outcome.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Wave 4 acceptance-rollout diagnostics remain observe-only and outside this narrowly scoped main-baseline repair; no production behavior was changed.",
+  "pitfalls": "The original 800 ceiling failed on clean main. Review required a detached baseline map, real comparator and ceiling mutation checks, exact protected-path scope checks, and rejecting unrelated observe-only Wave 4 prompt requirements. Long REVIEW-to-TEST validation also exceeded the flat transition watchdog after queueing; reuse current stored evidence or run standalone validation before retrying the gate.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 190964
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 46989
+    },
+    "PLAN": {
+      "count": 6,
+      "durationMs": 2056674
+    },
+    "DEV": {
+      "count": 10,
+      "durationMs": 16511259
+    },
+    "REVIEW": {
+      "count": 5,
+      "durationMs": 3914444
+    }
+  },
+  "totalDurationMs": 22720776,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-31T08:50:11.251Z",
+  "updatedAt": "2026-08-31T08:50:11.251Z"
+}
