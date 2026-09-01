@@ -1,9 +1,9 @@
 {
   "storyId": "B-022e",
   "action": "override_budget",
-  "reason": "Round 20 found packed Utils runtime coupling. Commit c45cc496c7 removes monorepo-relative runtime imports, adds a public Core extension API, upgrades the four-tarball consumer to real import and dispatch, refreshes 29 receipts, and passes fresh 120-command validation. Authorize one final scoped re-review round.",
-  "reviewRound": "2026-09-01T11:28:34.514Z",
-  "approvedBy": "main-agent",
-  "recordedAt": "2026-09-01T12:04:10.671Z",
-  "_hash": "35e2b95da95bf97b16d4190fd3afe9682c079a006a9fa8c3294679bf310c8475"
+  "reason": "用户已明确要求继续 B-022e 直到 DONE；本次只授权在 critical F-056 已修复并有完整 verifier 证据后创建下一轮复审，不豁免任何 finding 或 gate。",
+  "reviewRound": "2026-09-01T17:24:42.015Z",
+  "approvedBy": "stall-adjudication",
+  "recordedAt": "2026-09-01T17:45:53.637Z",
+  "_hash": "7745a1537ac1b35c70d44b7695be6b5fcf3afb51f8614498d5183bed1c27e0ec"
 }
