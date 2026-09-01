@@ -17925,6 +17925,78 @@
       ],
       "signatureTag": "missing|json|finding-hygiene-risk",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-329",
+      "desc": "packages/main/tests/causal-evidence.test.mjs (verificationEvidence for CHK-004:happy:2 and CHK-004:happy:3, checklist.json): both should-priority intents carry evidence with result=pass and mechanical=false, with nonMechanicalReason explicitly stating the receipt was invalidated by verification_evidence_refresh_stale and the pinned command node --test packages/main/tests/causal-evidence.test.mjs was NOT re-run (evidence headHash=735f159f, stamped 2026-08-31T20:02:05Z, stale vs current HEAD 1f22cf4). Re-running that exact pinned command at current HEAD reproduces a live, reproducible failure of the F-247 and F-249-series tests: pre_review_check_read returns status=fail with codes including PR_ARTIFACT_TAMPERED, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, none of which match either test's recognized bootstrap/fail-closed code allowlist, so the test throws AssertionError rather than passing. Commit 3c0b62c1d3 (fix: scope pre-review semantic bindings to the canonical cases they describe, which changed packages/main/src/core/pre-review-live-proof.ts isCanonicalPreReviewCaseId scoping consumed by this same check) claims in its message '34 positive assertions, 16 mutations all biting' but added zero test coverage, and the committed pre-review-check.json artifact (129d1206, 2026-09-01T04:13:09) predates that commit (13:43:12), so the artifact is stale relative to the code it is meant to certify. The should-priority evidence rows should not read result=pass while self-admitting non-mechanical/non-current status; this is the same underlying defect already tracked by open findings B-5a15:F-003/F-004/F-005/F-006 from the acceptance-chain angle, but is flagged here specifically as a verificationEvidence integrity gap: a should-intent's evidence record must not assert pass when it is simultaneously non-mechanical and reproducibly failing on live re-run of its own pinned command.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-01T05:56:13.394Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-779",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_triage",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "message": "readManifest.filesTriagedByName self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/story-files-hash-material-drift.md"
+        }
+      ],
+      "_hash": "5a7ff42d2994560d566fb8bb3f76d996e2f125c732459a531156cbd35ad0385e",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        ".proof-or-stop/story/actives/B-5a15/checklist.json"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
     }
   ]
 }
