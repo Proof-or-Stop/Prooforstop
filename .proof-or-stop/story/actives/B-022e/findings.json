@@ -1300,6 +1300,25 @@
       "resolvedAt": "2026-09-01T10:26:30.090Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-049",
+      "desc": "packages/main/src/cli/extension-admission.ts:42-45 — WHY: generic extension admission does not reject an extraTools-only collision with a MAIN_TOOLS/core command when the extension omits ownership and phase metadata. externalToolNames filters story_get out before collisions is computed solely from ownership/lifecycle names, so both declaration and handler validation accept the duplicate ToolDef and the merged help/catalog can contain an undeclared core-name collision. Verified repro at HEAD 5637a15: importing MAIN_TOOLS, passing extraTools:[MAIN_TOOLS.find(name=story_get)] with empty ownership/phases, then validating unchanged core handlers prints {accepted:true,admitted:[]}. scripts/verify-global-lab-entrypoint.mjs:291-296 only covers the easier collision that also supplies metadata, so this inverse is untested. Reject any intersection extraTools ∩ MAIN_TOOLS before filtering and add a metadata-omitted mutation case.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-01T10:33:34.477Z",
+      "reviewRound": "2026-09-01T10:25:38.607Z",
+      "reviewRunId": "B-022e:RR-087",
+      "_hash": "1da8eb139cb7c578d221a7008ad228e1d930f24ed0993b87e81a04c4bc55168c",
+      "files": [
+        "packages/main/src/cli/extension-admission.ts",
+        "scripts/verify-global-lab-entrypoint.mjs"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-extension",
+      "signatureTagSource": "auto"
     }
   ]
 }
