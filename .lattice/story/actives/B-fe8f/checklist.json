@@ -486,6 +486,24 @@
               "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "runtime.execution_not_semantics: PASS lifecycleDelta=0"
             }
+          },
+          {
+            "desc": "The real registered finding_runtime_evidence_run CLI handler executes the declared build/run adapter, persists its content-addressed blobs and appends the resulting runtime receipt through the Story 3 ledger rather than a test-only helper.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "runtime.real_cli_run_adapter: PASS command=finding_runtime_evidence_run persisted=true"
+            }
+          },
+          {
+            "desc": "The real registered finding_runtime_evidence_verify CLI handler reloads and verifies the persisted receipt, blobs, source/artifact bindings and trust state through the production adapter.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "runtime.real_cli_verify_adapter: PASS command=finding_runtime_evidence_verify verified=true"
+            }
           }
         ],
         "edge": [
@@ -515,6 +533,15 @@
               "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "runtime.trust_storage_boundary: PASS emittedInvalidReceipts=0"
             }
+          },
+          {
+            "desc": "Replaying append_runtime_receipt with the same idempotency key returns the original runtime-record and FindingLedgerReceipt IDs with byte-identical receipt content and zero additional rows.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "runtime.append_runtime_receipt_replay: PASS newRows=0 sameRecordId=true sameReceiptId=true bytesUnchanged=true"
+            }
           }
         ],
         "adversarial": [
@@ -543,6 +570,15 @@
             "verification": {
               "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "runtime.toctou_mutation: PASS receiptsIssued=0"
+            }
+          },
+          {
+            "desc": "Killing append_runtime_receipt between prepare and commit then retrying yields exactly one complete runtime record plus one non-recursive ledger receipt with the original IDs, or none before retry; no half-visible record or duplicate survives.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "runtime.append_runtime_receipt_crash: PASS rows=1 halfVisible=0 duplicates=0 recoveredSameIds=true"
             }
           }
         ]
