@@ -619,7 +619,7 @@
       "desc": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md:72-83 WHY: the executable Agent proposal says there are four independent axes but combines Disposition and gate impact into one axis; the delivered contract at packages/main/src/core/prompt-registry.ts:50 likewise lists four axes while omitting disposition. The authoritative Dynamic Finding plan models FindingDeferralDisposition as a separate signed record/input and computes final gate impact from both applicabilityBlocks and dispositionBlocks. Combining/omitting these axes weakens the requested independent severity/applicability/disposition/gate model and can teach that the signed disposition and computed gate result are one fact. State disposition separately from gate impact in both proposal and canonical contract, with gate impact remaining machine-computed. severity=medium",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-09-01T11:54:41.375Z",
@@ -627,7 +627,11 @@
       "reviewRunId": "B-9a49:RR-036",
       "_hash": "c0ddaa4eefbf2a751a8ebcbd7e71817964d8c11538576e15a568d5af7d291344",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in the proposal and canonical contract: observation plus evidenceState, severity, applicability, and disposition are four independent inputs; gate impact is separately machine-derived. RR-045 through RR-048 independently confirmed alignment with the Dynamic Finding authority.",
+      "resolvedAt": "2026-09-01T15:14:29.482Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9a49:F-029",
