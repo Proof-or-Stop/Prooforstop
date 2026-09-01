@@ -12416,6 +12416,62 @@
       },
       "readDiagnostics": [],
       "_hash": "5361d4a0ecf680e90e9c392cd2f6fc3306a8a456514106d5ba46e7786c3381ca"
+    },
+    {
+      "id": "B-5a15:RP-253",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept-residue saturation pass over the RI-054 cutoff. This story is purely ADDITIVE: git diff main...HEAD --name-status -M shows 9 added files and ZERO deletes/renames; diff-wide scans found zero removed exported symbols and zero removed quoted concept literals, so there is no deleted/replaced concept to leave residue. The only non-additive symbol churn is a re-signature (checker param added) of sameFileCallableReachable / hasSameFileIncomingCall in core/acceptance-discovery-adapters.ts -- both definitions and all callers are live, no dangling references. The nine module-scope symbols dropped from the old lexical scanner (MAX_SAME_FILE_CALL_REACHABILITY_DEPTH, sameFileCallableBody, sameFileCallableCallNames, sameFileCallableCalls, isCallableDeclaration, executedRecords, sameSemantics and peers) grep to 0 residual references across src/tests/scripts/docs/bin excluding dist. Verified the annotation added by 799f37b998 is factually ACCURATE, not a rationalization: exactly 7 source-domain files hold compile-time imports of exactly 10 test-domain modules (counted distinct), handlers/gap.ts:17 imports ../tasks/gap-analyze.js and registry.ts:206 registers createGapHandlers into the shipped CLI, CERTIFICATION_DOMAIN_PATH_RULES classifies packages/main/src/tasks/ as domain test while source is /^packages\\/main\\/src\\/(?!tasks\\/)/, and CERTIFICATION_DOMAIN_DEPENDENCIES already declares test -> ['build-input','source','integration'] so the naive source<-test edge would genuinely cycle source -> test -> source. The assertion message and the certification-window.ts:95-118 header comment agree with the declared edge map, so the deferred gap is tracked rather than silently frozen. Two remaining 'declaration order' strings (causal-evidence.test.mjs:1229 and :1615) are historical prose describing the SUPERSEDED pre-F-325 chaining and are correctly past-tense, not live residue. npm run test:lattice-residue is green on all five checks (koala, brand-prose, brand-exec, npm-bin, brand-decision). Closing self-check on doc-promise-undelivered: CHK-002 userSees names a literal token receiptPersistedBeforeCanonicalImport that appears nowhere in code, but the promise is delivered in substance and mechanically -- causal-evidence.test.mjs asserts storeEvents deepEqual ['receipt-persist','canonical-import','canonical-import'] plus commandReruns=0 and a stable receiptHash, and all 9 CHK-002 intents emit markers -- so this is userSees wording variance owned by the test-coverage/delivery lanes, not a concept deletion defect and not blocking for this lane. Note: proof-or-stop validate --concept could not self-report (git diff main...HEAD spawnSync ENOBUFS on the 1.5M-line diff); I performed the equivalent scan manually against a file-redirected diff. No new concept finding this round. Already-dispositioned findings were not re-filed, and the accepted localeCompare item at causal-evidence.ts:1096 was left alone.",
+      "createdAt": "2026-09-01T10:25:55.175Z",
+      "reviewRound": "2026-08-31T20:13:27.698Z",
+      "reviewRunId": "B-5a15:RR-796",
+      "envelopeId": "6313ad6361bb96f19e4270e3f5ff97ec1195d83eb158d04864f4e5b932e5e873",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/gap.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ddbdfc17633ff27afb5d1246815963c558c34c8789abe3ca00f6f8b280128b08"
+      },
+      "readDiagnostics": [],
+      "_hash": "e76feb80784c5ff4914d523c950e9a28839965807efe68b3a72870173d2680e2"
     }
   ]
 }
