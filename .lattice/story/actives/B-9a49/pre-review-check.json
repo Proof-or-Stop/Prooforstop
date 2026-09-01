@@ -2,15 +2,15 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-9a49",
   "mode": "observe",
-  "cutoffAt": "2026-09-01T12:33:35.869Z",
-  "planBasisDigest": "sha256:b5554509887fe6f09f42db09b1b58e553ce31510ce0cc47f420626f852b8266a",
+  "cutoffAt": "2026-09-01T13:25:05.223Z",
+  "planBasisDigest": "sha256:836ddb5f2643f7030c522ab467813105e11c8bb9c688e1a419cfd8ca882c4a59",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-9a49",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:b5554509887fe6f09f42db09b1b58e553ce31510ce0cc47f420626f852b8266a",
+      "priorPlanBasisDigest": "sha256:836ddb5f2643f7030c522ab467813105e11c8bb9c688e1a419cfd8ca882c4a59",
       "status": "complete",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
@@ -341,8 +341,8 @@
             "source-file:packages/main/src/handlers/proofstory.ts:sha256:06fa735b5348452cfb65d75c2fe5221693294e8d0f584f401b98e4e7924fd330",
             "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:b43f5c91e74c8849588abb53ead643cd16ba0a200c8b907a467408c3d7657698",
             "source-file:packages/main/src/tasks/prompt-contract-measurement-smoke.ts:sha256:339bbce6335040bb11859c8f046bcdb7f439731cd4c54019af04481742137e6d",
-            "source-file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:sha256:d71ad7a8ff3a5ab7a049c6c182d5ca8c57af50a61e30324c94529a1ac97aa697",
-            "source-file:packages/main/src/tasks/prompt-registry-smoke.ts:sha256:8fbd24fcab188decce5c9f19efd017fcdae3eaa39cd82d328123a40c04a2a330",
+            "source-file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:sha256:23461db9c9cb51b112b04c66e8dea9e6c0a46c3d2ded7b17c2e943ceb8dcc680",
+            "source-file:packages/main/src/tasks/prompt-registry-smoke.ts:sha256:6d0dde8265610e788a4747e592cb2199efeef7af803532ae6f8c304fd01fbc80",
             "source-file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:sha256:0dd8407f0e00ffc99a9da467f3cf15ae566b1f15532358c720dba50fa1561f54",
             "source-file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:sha256:86718cc1f95a149191e53beec722ea36cfe7dabc94c111be015d394b2a114040",
             "source-file:packages/main/templates/agents/lattice-implementer.md:sha256:903d66af797996f6a522614591cfac00c9fdd78655f3c9a1b6e043941f44760d",
@@ -392,7 +392,7 @@
               "scope:file:scripts/verify-runtime-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:99ede2dc32e6724d620ed433a175b4b4d84811451c9f9e9290397dddf87cb7a6"
+          "resultDigest": "sha256:0cf4b862f0ab9633066f778b4c28b258d0fbd631f8a168d07ee567b6d9700fab"
         }
       ],
       "scopeRefs": [
@@ -535,470 +535,470 @@
         "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
         "inventoryDirectoryDigest": "sha256:400a8ec4c3ede1c2824a78ab4a3c82cfcbaa858525eb25e26009b5712e9ac443",
         "inventoryDirectoryCount": 21,
-        "sourceSnapshotDigest": "sha256:1a9119b0184e23bf59001989a810c82bdae90d18e20c424e4e071755dc488368",
+        "sourceSnapshotDigest": "sha256:bd10d1ebb934464607cf43bf55fc5a709a75d07d1f1fbd9c137cdb9c5cd6739b",
         "sourceSnapshotCount": 836,
         "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
         "status": "complete",
         "issues": [],
-        "sealDigest": "sha256:e467868d019eee422b78aa632e830fc3ac0bdb9c4c39ee3f106a83c81ab231e4"
+        "sealDigest": "sha256:006c44262db9e4dcc0e0698da85a90407a7bf854e0256dbafafa2734683b6fbb"
       },
       "binding": {
-        "headHash": "15ec304ef35c474571f1f86de0c40d546d0d3c99",
-        "materialHash": "02d0502a0767fbf0fbc2e72e1532d6c3f304aa1e18a5855dc47c1e870b6616a5",
-        "storyFilesHash": "d1fffa53c77104f774ac02db592c663f98d8a7e69ffb43299dc48424b28268e6",
+        "headHash": "78a839e5e0d28b997f017ac1d5e90ed89d21aac0",
+        "materialHash": "e481c45fcb7d882054dff3b2a352932f9d73cdc8835d1fc556a2d49394fda049",
+        "storyFilesHash": "a8149a55219726559284e5fcd4ac641926b349d8741c7b8291a088d11b1a3f68",
         "scopeCheckDigest": "sha256:d3c7009df0d3bd7d12a0492984381607e5138d1addb49ab735f4bc3e16a288f1",
         "scopeContractDigest": "sha256:a92ff5895bbd570eb734a08f7b74a62fda418e91bf6797b964c35179847d5d14",
-        "closureFilesHash": "sha256:6b8d65142c7064f3b390f424e4eb67a982349c3db68b64631c1c19b4844bc1b2"
+        "closureFilesHash": "sha256:45cd08127752e40f4b7db95954b4e7f4620d0b256ff41566d51192e156fbdc80"
       },
-      "receiptRef": "receipt:coverage-basis:B-9a49:pre_review:4594cd08b390f1bb",
-      "basisDigest": "sha256:93995f2d08e4945ec719f2c86575279554c37366f23c88949c1c9277a0924f58"
+      "receiptRef": "receipt:coverage-basis:B-9a49:pre_review:8be799c4d86101ac",
+      "basisDigest": "sha256:a89c6cfc5b41d182c694ae8038ffc596880b655b9ed77db19a27249e31b577a4"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-      "receiptRef": "receipt:coverage-basis:B-9a49:pre_review:4594cd08b390f1bb",
+      "receiptRef": "receipt:coverage-basis:B-9a49:pre_review:8be799c4d86101ac",
       "issuer": "acceptance-coverage-basis-verifier",
       "issuerKeyId": "sha256:f4ff36c006003589257466d51b93dbde761b171216fe5d18f8b33a5c0f6167eb",
       "signerPublicKey": "tjxYGaesOrQdcymh+37gs6yiu4zRFO+t/N+Zc0kMV78=",
       "storyId": "B-9a49",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:93995f2d08e4945ec719f2c86575279554c37366f23c88949c1c9277a0924f58",
+      "basisDigest": "sha256:a89c6cfc5b41d182c694ae8038ffc596880b655b9ed77db19a27249e31b577a4",
       "topologyDigest": "sha256:0aa9649124cc2e93b52f80fd4b9548d4ae25fe385e2f1bdf11869f419b2f4377",
       "scopeCheckDigest": "sha256:d3c7009df0d3bd7d12a0492984381607e5138d1addb49ab735f4bc3e16a288f1",
       "scopeContractDigest": "sha256:a92ff5895bbd570eb734a08f7b74a62fda418e91bf6797b964c35179847d5d14",
-      "headHash": "15ec304ef35c474571f1f86de0c40d546d0d3c99",
-      "materialHash": "02d0502a0767fbf0fbc2e72e1532d6c3f304aa1e18a5855dc47c1e870b6616a5",
-      "storyFilesHash": "d1fffa53c77104f774ac02db592c663f98d8a7e69ffb43299dc48424b28268e6",
-      "closureFilesHash": "sha256:6b8d65142c7064f3b390f424e4eb67a982349c3db68b64631c1c19b4844bc1b2",
-      "sealDigest": "sha256:e467868d019eee422b78aa632e830fc3ac0bdb9c4c39ee3f106a83c81ab231e4",
+      "headHash": "78a839e5e0d28b997f017ac1d5e90ed89d21aac0",
+      "materialHash": "e481c45fcb7d882054dff3b2a352932f9d73cdc8835d1fc556a2d49394fda049",
+      "storyFilesHash": "a8149a55219726559284e5fcd4ac641926b349d8741c7b8291a088d11b1a3f68",
+      "closureFilesHash": "sha256:45cd08127752e40f4b7db95954b4e7f4620d0b256ff41566d51192e156fbdc80",
+      "sealDigest": "sha256:006c44262db9e4dcc0e0698da85a90407a7bf854e0256dbafafa2734683b6fbb",
       "workspaceIdentityDigest": "sha256:3c272d3fc758dd2eee341466fe2227f41cb850aac474e0c66ae874e8ed690c41",
-      "signature": "fOSdrjNeSyqCw17XMbeLwKuMPfwSDFlonxFQo4q0P6WNbBg+8tEM8cCl5gMaHE7ILgF/f8MAWDBpfloF8tfyCA=="
+      "signature": "FZ2keAXQrxMJiUsv/6bVz/UEniY05Avvhd2IFEMD34J2EN2qEN0Xp9+8iyETQ1V369BIeZEmug6U1qEeGRtlDw=="
     }
   },
   "topologyDigest": "sha256:0aa9649124cc2e93b52f80fd4b9548d4ae25fe385e2f1bdf11869f419b2f4377",
   "scopeCheckDigest": "sha256:d3c7009df0d3bd7d12a0492984381607e5138d1addb49ab735f4bc3e16a288f1",
   "scopeContractDigest": "sha256:a92ff5895bbd570eb734a08f7b74a62fda418e91bf6797b964c35179847d5d14",
-  "storyFilesHash": "d1fffa53c77104f774ac02db592c663f98d8a7e69ffb43299dc48424b28268e6",
-  "closureFilesHash": "sha256:6b8d65142c7064f3b390f424e4eb67a982349c3db68b64631c1c19b4844bc1b2",
+  "storyFilesHash": "a8149a55219726559284e5fcd4ac641926b349d8741c7b8291a088d11b1a3f68",
+  "closureFilesHash": "sha256:45cd08127752e40f4b7db95954b4e7f4620d0b256ff41566d51192e156fbdc80",
   "evidenceRefs": [
     {
       "intentRef": "CHK-001:adversarial:0",
       "itemId": "CHK-001",
       "evidenceIndex": 7,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:a6c82f142f96fa8b09227f91117f62b768b0b18218475e88fd8bc985a4db0246"
+      "evidenceDigest": "sha256:0ea7b9abbc53a08d4cbb92badf547231b21bdf6f37012b5d0dfaf088d63eca54"
     },
     {
       "intentRef": "CHK-001:adversarial:1",
       "itemId": "CHK-001",
       "evidenceIndex": 8,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:a0609f0ba2cb824917af25f0537b440c7ec5f0685f2f9ac77e1344216a7a3cc1"
+      "evidenceDigest": "sha256:ac4e11ca842669aafef605c3027b1cadc28af79bcd641a8e6c0a7cf5ab62cfdc"
     },
     {
       "intentRef": "CHK-001:adversarial:2",
       "itemId": "CHK-001",
       "evidenceIndex": 9,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:81c6cf78b95417fee35fb3c9a14edd451ed294cfb65b680d5ac261bd71c8ff41"
+      "evidenceDigest": "sha256:ac53e484be889e3b046de6328cbfdd538a3c048b4fdf80846dd2768dca4990a3"
     },
     {
       "intentRef": "CHK-001:adversarial:3",
       "itemId": "CHK-001",
       "evidenceIndex": 10,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:6b319b7708fdddda546a44115da707d30e6a74be9783f30d77dfe3c1e52a479b"
+      "evidenceDigest": "sha256:57f21d8cbcc5749990a644120f53dd29e8595ec60df01a69f8d32021dee0afdd"
     },
     {
       "intentRef": "CHK-001:adversarial:4",
       "itemId": "CHK-001",
       "evidenceIndex": 11,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:5366354545f1b07ca8381605757f7d44b1bccb7ccc950a024dcba86fa8e67ec4"
+      "evidenceDigest": "sha256:56997aa0dbb9fd003ffa517d14e24e973334484a5cd757afd71ee196915fd848"
     },
     {
       "intentRef": "CHK-001:adversarial:5",
       "itemId": "CHK-001",
       "evidenceIndex": 12,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:d721459a62b69c95d46291c8b1813186f95f8ca05354ad9c72530972f4e99998"
+      "evidenceDigest": "sha256:93296a42c743c9775c5aa7f4f166235fc0904dda4bc54eeb901a9a008f2d9cc4"
     },
     {
       "intentRef": "CHK-001:edge:0",
       "itemId": "CHK-001",
       "evidenceIndex": 3,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:a56baa71e6cc55d86daed0a2e1c2506c822efae6ed31c6d4ac50847c2479b1a7"
+      "evidenceDigest": "sha256:ccf135a1360757e1225b4c9ca9092d02465ed42a0b191b8613be936e9217e853"
     },
     {
       "intentRef": "CHK-001:edge:1",
       "itemId": "CHK-001",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:89ad2ad1321b88634ae65965030a09638137feeb87fbc35481056dc7ddccb3a7"
+      "evidenceDigest": "sha256:51c1a99aa40f1a8a76e9bfd431a0fa264fa4edfdf44d17bb8b9a0b6870ab8bf5"
     },
     {
       "intentRef": "CHK-001:edge:2",
       "itemId": "CHK-001",
       "evidenceIndex": 5,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:fdc37b9ebec4543c818b415ba072b70a6b1ac62e02c3ab9fbf7ef62fce64da23"
+      "evidenceDigest": "sha256:178443897b45949bace8dce9577dff5ce3a072f259329c753761804d89c819bb"
     },
     {
       "intentRef": "CHK-001:edge:3",
       "itemId": "CHK-001",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:48545daf21db3c89986b1257ead5b88678523441d106b66ba5ca4027b4a731f8"
+      "evidenceDigest": "sha256:1f2cedf67780df4c7c1909db7a585b9147fe951ed0036f25ab6c26f0c727a003"
     },
     {
       "intentRef": "CHK-001:happy:0",
       "itemId": "CHK-001",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:33be35a91fb69946fccead8d5df0d87e6510d213e850c70ccdce1418f8d24fa9"
+      "evidenceDigest": "sha256:2efb594a5632a4ee65ebc115dd563940dff87693ea98b5be414be3d11577c4e7"
     },
     {
       "intentRef": "CHK-001:happy:1",
       "itemId": "CHK-001",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:bd4abd9d52f08302f256c15f4f58aae606efcda25099f00015aef4875ebd7171"
+      "evidenceDigest": "sha256:d19884192752163f0e8740f0e8ddccf23cf1acaa1501db914b83dd572625ad6a"
     },
     {
       "intentRef": "CHK-001:happy:2",
       "itemId": "CHK-001",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:7260b42e7ed7dda9e65948f957af695366f166c1019564199379105f60cdaa1e"
+      "evidenceDigest": "sha256:fbad20cea687a4fb892d0319403cd51e9d041aa4baf056c554792188e604a937"
     },
     {
       "intentRef": "CHK-002:adversarial:0",
       "itemId": "CHK-002",
       "evidenceIndex": 5,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:974393edd45ac17e36c8b23e9a9ad97c48fbd6c601a5494732b89f0ce6acc46e"
+      "evidenceDigest": "sha256:be996f66e5d056ec8a1ff34ede37dbdbcd99fc3832286d487b7c9966c2cff92f"
     },
     {
       "intentRef": "CHK-002:adversarial:1",
       "itemId": "CHK-002",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:f3cd233247a0c3d06c82df6dde777b2d7b2a34d51e8e6d110f91d1c9411c0d65"
+      "evidenceDigest": "sha256:55b01b3c2c159ccb394a9800bcec05975cdf40485f4fc14001c6f5b6ffd71912"
     },
     {
       "intentRef": "CHK-002:adversarial:2",
       "itemId": "CHK-002",
       "evidenceIndex": 7,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:5c1d96f29ff9450045fab07984a0c73e0bb6ebe7b938d55b86ab80464701fa1e"
+      "evidenceDigest": "sha256:7e0249f872cbb791b8602b765f9b1d11599da28dc1bc8b75c41618e0b5806c84"
     },
     {
       "intentRef": "CHK-002:adversarial:3",
       "itemId": "CHK-002",
       "evidenceIndex": 8,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:ddc91f332551b979b0ab9f9fa9887e45cbda02c6a4363e1be73451d636af6cc6"
+      "evidenceDigest": "sha256:6907ab7cd200c92aa205ca3e7b26d881fc11f2ab9ed94c9138de915050c9d15d"
     },
     {
       "intentRef": "CHK-002:adversarial:4",
       "itemId": "CHK-002",
       "evidenceIndex": 9,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:42823ce134167cc244b2d147669423f402087d6a9e33c9b348e7db24b80c1bab"
+      "evidenceDigest": "sha256:5f290231f4a3d410e02dcc1544ea06d3a25557fc6fb03bbf8fc51790e1f9e22f"
     },
     {
       "intentRef": "CHK-002:edge:0",
       "itemId": "CHK-002",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:fba36e8141272fbf2e5fba09e2a1f4fa87257db1ba9beefc734326c792b063d8"
+      "evidenceDigest": "sha256:7d625b84a0fabd7e9146ee63fe8b83a43bc528e1f9ae8e359c05898134be023a"
     },
     {
       "intentRef": "CHK-002:edge:1",
       "itemId": "CHK-002",
       "evidenceIndex": 3,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:28c5551d984b61282d34344041edfe5ba116dea0a0e11552fb4283aec8afd219"
+      "evidenceDigest": "sha256:076b45dfd32582162200bab6d252fb9dfbe2d04453ff359a1a168a48f571f5d2"
     },
     {
       "intentRef": "CHK-002:edge:2",
       "itemId": "CHK-002",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:d3ea5568972f13f28f7ee0eb61cd92c0b0a9093750b6f606aa303f7c641788e5"
+      "evidenceDigest": "sha256:fce378ed5e26738cde4c7b7b0310751dacf6ab5ae400763cd1c52b384abc3f6f"
     },
     {
       "intentRef": "CHK-002:happy:0",
       "itemId": "CHK-002",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:7e650b66aa1d694642cc53cd2605602f0aae55458c2eef22c9444bec097e05d7"
+      "evidenceDigest": "sha256:1e64c5db2ad54a9d36f97c31816dd99f526db879f1998bda713ec2ed7aa5b75e"
     },
     {
       "intentRef": "CHK-002:happy:1",
       "itemId": "CHK-002",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:b058cad60d649d0cd194babe7b16e36303d962d9038e0c5069e295fcfcbc0bd4"
+      "evidenceDigest": "sha256:873e20b5f06fbc4c3f58d8db657c21fdf43c3a360dff5925149a53f69d1d4eb1"
     },
     {
       "intentRef": "CHK-003:adversarial:no-authority-dataflow",
       "itemId": "CHK-003",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:8c1f0b6cd815a9dbb07a12c1422ddc3e4552e2472d858a62d3325be541c223b8"
+      "evidenceDigest": "sha256:780d8eb2501f27027ee53f45f22ae0198335a550a4d4a7e770d77ee3e00f5222"
     },
     {
       "intentRef": "CHK-003:adversarial:no-dynamic-schema-expansion",
       "itemId": "CHK-003",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:8e1fa8fd5bf6a6950d6d7343c18ed8f83d9d20b2dbfdebe1e0321937c5e09f9a"
+      "evidenceDigest": "sha256:b0999e71024d5c17b99f5862343551fbb4efc623c294eb7114863865e4a78b10"
     },
     {
       "intentRef": "CHK-003:adversarial:runtime-matrix-invariant",
       "itemId": "CHK-003",
       "evidenceIndex": 5,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:381fa8ff61353f7caa5852dcf0ffa6a4e4f26fc91e6cfc0e59328bda7ac6b6ec"
+      "evidenceDigest": "sha256:b640fa16f8d8d4c68087a7b4313b9122eedbe880063ae44e5b3c8a14275a2bcd"
     },
     {
       "intentRef": "CHK-003:edge:dynamic-runtime-unchanged",
       "itemId": "CHK-003",
       "evidenceIndex": 3,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:f329d30e43e5c27768341e6dff11128bbccf5d1f649ac7407acda71f144df326"
+      "evidenceDigest": "sha256:7f41ad74bbfde36f2e99a7aa125671228f478852d6832425fed11b1651e86d33"
     },
     {
       "intentRef": "CHK-003:edge:metadata-cannot-satisfy-gate",
       "itemId": "CHK-003",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:380a0deb9409b80a2922df223a0272841812c888e109b9fad1a92760bc557fd1"
+      "evidenceDigest": "sha256:0994957e126f7cb0b80b1652d78f5e92aeec1a5c2ff83939690cd36201735c6c"
     },
     {
       "intentRef": "CHK-003:happy:declarative-rendering",
       "itemId": "CHK-003",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:120f04af45cb1d7184a4c24b10c919166713b3d3466ce1c399f77e4e338113ff"
+      "evidenceDigest": "sha256:71affd1c11040f8ee88f7df0a84ba879a368eec292f55cce434e3fbf486f58bf"
     },
     {
       "intentRef": "CHK-003:happy:review-only-registration",
       "itemId": "CHK-003",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:31eb7d8a76fb07b4cf722ae7b9aaa696a1b3cc245ae2c7a3388524e48f50521c"
+      "evidenceDigest": "sha256:821a55be5ea4413d880e66d92e04b4f9596b144bba9dfcd13a3280c751b591e1"
     },
     {
       "intentRef": "CHK-004:adversarial:authority-boundary-and-local-cli",
       "itemId": "CHK-004",
       "evidenceIndex": 14,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:d60e1e32abfa0165b2120b0c2f7506e0d80104cb25ef51d3d285c79f836f692a"
+      "evidenceDigest": "sha256:663eeb99463b639dea0be8da53f397aa3f3ab8099327d8f3d13d4e94064cd045"
     },
     {
       "intentRef": "CHK-004:adversarial:delivery-leak-or-duplication",
       "itemId": "CHK-004",
       "evidenceIndex": 11,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:a0d69800a5ecf42017abbc453e7b1a9a97ce48db7e3e7b8be7c9ebc2ec10fd01"
+      "evidenceDigest": "sha256:8d7cc5ebd4ae4358063fb89562f821ce7d4bb9cf3fc18195e07cea3632c36221"
     },
     {
       "intentRef": "CHK-004:adversarial:false-red",
       "itemId": "CHK-004",
       "evidenceIndex": 9,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:aabb03daee56b548189bc0042970ebe7dd90cd7ac407b1dd5780544739caf4b4"
+      "evidenceDigest": "sha256:efc2002508ab12775a2e0896d7e5d1a9df06b6bb5b397243e289ae8359d6b4a7"
     },
     {
       "intentRef": "CHK-004:adversarial:semantic-collapse",
       "itemId": "CHK-004",
       "evidenceIndex": 12,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:057b14a642ca03a961205e94f261b631bee3346f150d95003541fa75058bd05e"
+      "evidenceDigest": "sha256:c4da8db491be2aa5ba2b96415712fc1e03b89683aa2f04abbb9c602fcf1eb967"
     },
     {
       "intentRef": "CHK-004:adversarial:stale-envelope-replay",
       "itemId": "CHK-004",
       "evidenceIndex": 13,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:a002b24c672395514e5f02836e2ba0513f2906969b01dd2504fcd212cd329971"
+      "evidenceDigest": "sha256:1019ec193ec3bf28e729550967ff763fde5107b1a1bd1ccbbf6d12b2fcfaccb8"
     },
     {
       "intentRef": "CHK-004:adversarial:task-context-authority-injection",
       "itemId": "CHK-004",
       "evidenceIndex": 15,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:d8ac101410b9bb2fc8b78a168a60226e4372f884b9deabb5bb61b46baadde359"
+      "evidenceDigest": "sha256:24cb9cdc0f42bcd8d1a8d41c3e58d8473f2b58074c8450b00c2a1459ee1e92d4"
     },
     {
       "intentRef": "CHK-004:adversarial:test-weakening",
       "itemId": "CHK-004",
       "evidenceIndex": 10,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:dda70ac0850c9dd6ae2f6ee3a6f28d07429f76eb32ab02637a26cf4eb63a58d3"
+      "evidenceDigest": "sha256:31d535fbbe1c2dc6f47e6104c285f3be3d13a3c81ede71656bb2f93a7d8ef1f3"
     },
     {
       "intentRef": "CHK-004:edge:compatibility-and-outcomes",
       "itemId": "CHK-004",
       "evidenceIndex": 5,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:ccafd53286208ff68dee742a7529f7cafcd1ee14d2ab32687cb21a23df04633d"
+      "evidenceDigest": "sha256:cb8f28cc06192711a989612dde9aac53e51fdbd39e89ae5b4166f956afd59ac7"
     },
     {
       "intentRef": "CHK-004:edge:english-only-slices",
       "itemId": "CHK-004",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:6b0fed68c0eb89e876204b4742711df6b004f9d14ea3ce862d976816b356903a"
+      "evidenceDigest": "sha256:f97f087845186fb540661ace22172b99c8061e680f67451d0d50e03b48edcebd"
     },
     {
       "intentRef": "CHK-004:edge:inflight-envelope-redispatch",
       "itemId": "CHK-004",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:247063464efd47bf880cead81832eb2faf2a447a5f4ed399f98e8128d2f7f6bd"
+      "evidenceDigest": "sha256:d2c103bee05d2acc803bc047bc50ef6274dfd151e7ac6ba31aaa0f52a988e0e4"
     },
     {
       "intentRef": "CHK-004:edge:pin-diff-allowlist",
       "itemId": "CHK-004",
       "evidenceIndex": 7,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:bb41536af2355ffffeaed4ad45fc7a744053eafdacbe30b3845c74946cac0911"
+      "evidenceDigest": "sha256:dbfda78c14e6f6662821482014d7aed77eeb12500632d8f56e4a5501592cb6bf"
     },
     {
       "intentRef": "CHK-004:edge:version-and-local-artifacts",
       "itemId": "CHK-004",
       "evidenceIndex": 8,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:3518860f50acc428a251b2236707e3513bcc67f6c07e9d5d1d9a5f6e7adb525c"
+      "evidenceDigest": "sha256:893a12f6a182545ae4d8ee28106d3748d3035d05352e731b36a23451bac15010"
     },
     {
       "intentRef": "CHK-004:happy:delivery-matrix",
       "itemId": "CHK-004",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:67f58800d5b66791964f2c2eeeb761664318d68e1f087ee6d6201045ffc0951f"
+      "evidenceDigest": "sha256:d777d528131057e368c6c10f3d81c0ce084bc70f1d4a2075728195e322d0bdec"
     },
     {
       "intentRef": "CHK-004:happy:digest-baselines",
       "itemId": "CHK-004",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:03937616c9b08805223468587b5ba2646777527b20a7121e5d267943872f6c3c"
+      "evidenceDigest": "sha256:8395fbe76132b8b4e1a6a106d61ecca4ce3c8bd9fae3e9096d7659320adaed86"
     },
     {
       "intentRef": "CHK-004:happy:red-green-same-contract",
       "itemId": "CHK-004",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:56eeff553f2ed4c6e36bae61784f85aca5ff1c3c4454a791bb60319ba313c119"
+      "evidenceDigest": "sha256:e1a5849fef022d6a21a035f01d983a01016b3336fa5ef5a73bfb610d40773d2a"
     },
     {
       "intentRef": "CHK-004:happy:release-verification",
       "itemId": "CHK-004",
       "evidenceIndex": 3,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:565f3af1749c2d8b349cf4e35422d6ff14f5306b8c02d2c42a22c42f62b72f66"
+      "evidenceDigest": "sha256:d02165096dc245d74981c01278ffdf365c27ff884a3cdf1122c95e51dae3c20e"
     },
     {
       "intentRef": "CHK-005:adversarial:caller-consumer-alias",
       "itemId": "CHK-005",
       "evidenceIndex": 5,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:21eaa623d78449ef5132ee8e3412e5d1d150d7fe0a5c78ce84652b6c53137902"
+      "evidenceDigest": "sha256:0fb4e88f5cbc93d1800113211879ce5dc98900e61040c966e2855a79cce322f0"
     },
     {
       "intentRef": "CHK-005:adversarial:commandref-masking",
       "itemId": "CHK-005",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:dcd1085ced8d137d94fd908086e9e9dfd30370b6b62b8c01b147191765988966"
+      "evidenceDigest": "sha256:d2bb67b4c3a91f0ce55d1fef6ad13e14cc2d932d78aa1edae100877c9eb0211b"
     },
     {
       "intentRef": "CHK-005:adversarial:fabricated-planned-path",
       "itemId": "CHK-005",
       "evidenceIndex": 7,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:b38d3b612c5715b24371fa89790cbba384eec0bdd6e879b1696c30340026353e"
+      "evidenceDigest": "sha256:77b3011048562163b2efc6541c1ae135bd0fdcccd83f522e73454e20dba1c855"
     },
     {
       "intentRef": "CHK-005:adversarial:structural-validation-weakening",
       "itemId": "CHK-005",
       "evidenceIndex": 8,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:c69df652f9b3c9d88efa4b35632384f9ddd23ee80c00d015ee711eefde9ce44c"
+      "evidenceDigest": "sha256:c7450ba15c4b5096b82152a18841921209cef2e819cfb8fab38594b1478f8bc8"
     },
     {
       "intentRef": "CHK-005:adversarial:unknown-or-unrelated-facts",
       "itemId": "CHK-005",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:94238f4e79070b9e34fcc117670738ee68e58b6c34727993b8b68cd5e7754ea6"
+      "evidenceDigest": "sha256:1ff34736b118ca019b0285fea6676c819d3b6faf2868c84beae3e2360d6e8e1d"
     },
     {
       "intentRef": "CHK-005:edge:gate-consumer-exactness",
       "itemId": "CHK-005",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:d4753f3ef64f4a743495f01ff5223a90b989629166540b2963762d2896c4d1a1"
+      "evidenceDigest": "sha256:17b3856050974ceb6fc7053e301dfd43aa28850f983e4bce6acf34300ac11c41"
     },
     {
       "intentRef": "CHK-005:edge:source-dist-build",
       "itemId": "CHK-005",
       "evidenceIndex": 3,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:4a9b5d9d8731ca1b09f597d523385d33cc57f86e4d9fd9f8d79217a975473ec7"
+      "evidenceDigest": "sha256:9a2a8a7871857ed58d3c4634ffa8a1d6c8ef52c7c2f2af86ae8f7e900178681e"
     },
     {
       "intentRef": "CHK-005:happy:live-pre-review-proof",
       "itemId": "CHK-005",
       "evidenceIndex": 9,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:c7b1ab32f3be1a70b4987994a4b8a3e0e46a52dbccdd97103976f01aee1c37dd"
+      "evidenceDigest": "sha256:5a47aedc58f031f4c3a46defc4d32ec421c40bf29b047554b04fb17140337ac1"
     },
     {
       "intentRef": "CHK-005:happy:registry-reconciliation",
       "itemId": "CHK-005",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:042c96a3b4a6ae9ba8f994bc28a7ae9bae58cf05a3614cbf6a036773e1ac7057"
+      "evidenceDigest": "sha256:29556788f2ca853ca1ea44f179374da417d4d83fed70c3bd79bb0da180447f02"
     },
     {
       "intentRef": "CHK-005:happy:signed-rollout-full-3x2",
       "itemId": "CHK-005",
       "evidenceIndex": 10,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:349a75a8c549c705bb122373324a54d3ab4b3119795edbec48e03b4149002b1a"
+      "evidenceDigest": "sha256:8091dc0cdafb04d7ffebfd7d262acc13cdf2546dd0c5a2317929529f4e968595"
     },
     {
       "intentRef": "CHK-005:happy:story-topology-pass",
       "itemId": "CHK-005",
       "evidenceIndex": 1,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:99e122efda1b9d25253378ce404648862074f7ff8393d7898ba80af314a7916c"
+      "evidenceDigest": "sha256:cf61de2d987244515ada65c2cfad3793c495a3465983ce937842f0aa3e21a74a"
     },
     {
       "intentRef": "CHK-006:adversarial:missing-assets-fail-closed",
       "itemId": "CHK-006",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:6e8f0b69e08d7ec157e7a208a135133e1efcd31657726f2799d268e33d15a6ba"
+      "evidenceDigest": "sha256:a632fbf3d6c84a8d73fbcd1b61278073654622d6fa656c77c3cdb4a7dd3abe18"
     },
     {
       "intentRef": "CHK-006:edge:legacy-read-fallback",
       "itemId": "CHK-006",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:95cc58bbce5dfb00ca6efd2359efb7ea8e1e5cff39d284c1ba50fb807977d5e7"
+      "evidenceDigest": "sha256:676023e58ecf99ed75e54a4b19637031f336a394772d42eb7f0e82d276fd7c00"
     },
     {
       "intentRef": "CHK-006:happy:canonical-adapter-root",
       "itemId": "CHK-006",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:fa8d56891386243f5b5d424c29ec18ebd440bdb50f2e534dc3493207e94af088"
+      "evidenceDigest": "sha256:41a36b5894da7bf6c230ecb22a4c8646b7e5b588898ea4053d6a4cba7298a410"
     }
   ],
   "executableProof": {
@@ -1007,7 +1007,7 @@
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
     "commandDigests": [
-      "sha256:1f4b39d2975e705290bd6561b4d13ee271c5db7ce694087e4c0293339ab8f556"
+      "sha256:1228ec7eb8455b9e812a35dddbf00f6c7ef37bf50acbc65a411a23fc848dd108"
     ],
     "caseRecordsEncoding": "gzip-base64",
     "caseRecords": "H4sIAAAAAAACE5WSW2vbQBCF/8qiZy04xUmp3tTYEJGLjeRQijBhvBrZS9a7Yi9q9e87a0uOH9pAX6RBZzR7zjdb10nO16uK3yZp0hknveyRSmuUMsFnrRHBYcNRt8YK5PH7DsQ7tUzS2MqF0Z5qUvA3iuCRjR3sB/TI5mxsZO5o3pH9kv7AxrEpm+amDHTDDtJ5YwfeWXRoe/DSaDbOd3TAOq+qy8vbgGldJ501TRBoOfagAnhskvT22zatE/rThSMpPVrZyijczbbbNJHao/bZ/cMjn83m2QG6bsgsZdpbRM0dHPEcC4RP4qScP79u+JzOPgZ/skUlBH8wVvoha6RF4Xk0T6iwUzBc6x+fzo2siinjAxm5N+0JSkQkIDhQjJpQdj5GLd/y183Dqiw2P9+Kl3zxXFRV8f1p+bk2sZncckqoTgBmMU4jYa+N81Jws4uko3IzIouwybENlPHLX2hBQzgdWAkq+4i4M0E3QLujPXJlBCgulBzhbcr8pbovi/WG35Bx4qqdsOeE2NNwl122OC1tkmjYnuyoC3XhAyGa+pnUPZ12uild5NagI4zaaEkemJItikEoZFdzV+ViWS4X19Vnl+nuH3fp6/9fpe0fSjDG4HgDAAA=",
@@ -1050,7 +1050,7 @@
   },
   "codes": [],
   "status": "pass",
-  "issuedAt": "2026-09-01T12:33:35.869Z",
+  "issuedAt": "2026-09-01T13:25:05.223Z",
   "signerPublicKey": "/X1ZTyM6s6k0Jhbm8ZjD1OjkCoDjf/fslfz1nOrPs2A=",
-  "signature": "ERD7qVP0z2p0WhHbdmWvmK2YEWXcLuy9nYEgf3l0I8TqzBJw5AJHGcbM7VeMbjYyeyG4Wn45sWiocDq05iRPAw=="
+  "signature": "YuV5gBHKfi2uejOQ4+MwQ1aPob3i9Vb5PoCI22xJxWHU7ebluWRTE422k+JZI9U1ufp4i17LWmSBtn/0sPkRBg=="
 }
