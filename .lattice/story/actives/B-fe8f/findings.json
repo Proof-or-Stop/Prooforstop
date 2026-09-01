@@ -22,7 +22,7 @@
       "desc": "packages/main/src/handlers/finding.ts:569 display-ID allocation still uses findings.length + 1, so a sparse legacy set such as F-001/F-003 allocates F-003 again; lines 632-634 then find the old row by display ID and neither replace nor append when recordId differs, silently hiding the newly durable ledger record from readFindings. This preserves the historical ID-reuse/vanishing-row failure despite globally unique recordIds.",
       "severity": "high",
       "category": "adversarial",
-      "status": "resolved",
+      "status": "open",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-09-01T13:26:18.128Z",
@@ -32,11 +32,29 @@
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtipaotb_kg0_53fa6b7f7c484625a1ac9bd14a0c9440",
-      "ledgerCommitReceiptId": "lrc_mtipaotb_kg0_5cd6d3a815d74e1cb82e487be305c03f",
-      "resolvedReason": "Fixed by cea6f401 and 167ce947: display IDs scan the maximum historical suffix instead of array length, durable record IDs are collision-free, and fresh sparse-history selector green.finding_projection_sparse_ids proves legacy F-001/F-003 allocate F-004 without hiding the new ledger row.",
-      "resolvedAt": "2026-09-01T15:58:40.127Z",
-      "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong"
+      "ledgerCommitReceiptId": "lrc_mtipaotb_kg0_5cd6d3a815d74e1cb82e487be305c03f"
+    },
+    {
+      "id": "B-fe8f:F-003",
+      "desc": "packages/main/src/core/store.ts:486-499 overwrites a matching findings.json row with the original append-only ledger finding payload whenever recordId matches. finding_resolve only updates findings.json at handlers/finding.ts:821-843 and appends no ledger status mutation. At HEAD 591642d, commits e93c480 and 591642d are finding_resolve metadata commits, yet proof-or-stop finding_list --storyId=B-fe8f --json still returns F-001 and F-002 status=open. Thus resolution/dismissal is reverted on read, making user output and lifecycle consumers observe stale open state and invalidating exactly-once historical correction. Add append-only status-transition records/current projection plus a regression that resolves and rereads a ledger-backed Finding.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-09-01T16:00:31.146Z",
+      "reviewRound": "2026-09-01T15:58:09.955Z",
+      "reviewRunId": "B-fe8f:RR-006",
+      "_hash": "98c6ed3a97a7fb7d0ae16403db4a1ff611cb59325b6ce54ae900cdb03cc9b014",
+      "files": [
+        "packages/main/src/core/store.ts",
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtiut0hu_8tw_c65885b440e44dc6a41950ee53806eef",
+      "ledgerCommitReceiptId": "lrc_mtiut0hu_8tw_9944e2b00d1f4144a891ca2d8e46482a"
     }
   ]
 }
