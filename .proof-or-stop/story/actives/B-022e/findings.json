@@ -1323,6 +1323,29 @@
       "resolvedAt": "2026-09-01T10:59:20.153Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-022e:F-050",
+      "desc": "quality-regression: packages/utils/src/index.ts:1-10 publicly exports `utilsToolDefs` and documents `await runCli({ extraTools: utilsToolDefs })`, while packages/utils/src/tool-defs.ts:9-62 describes that catalog as directly merged with mainToolDefs. After 45681d65df, that advertised call is rejected before registration because utilsToolDefs still contains eight MAIN_TOOLS names (aux_doc_list, convergence_check, gap_analyze, truth_analyze, truth_extract, truth_nav, truth_scan, truth_to_story); an executable import of the built public exports followed by validateExternalCommandDeclarations({mainTools:MAIN_TOOLS,extraTools:utilsToolDefs,...}) fails `External command admission rejected core command collision: ...`. bin/bootstrap-runner.js:132-154 hides the mismatch only for the repository bootstrap by constructing a private externalUtilsToolDefs projection, so verify-global-lab-entrypoint remains green while an @proof-or-stop/utils consumer following the shipped dist/index.js and index.d.ts recipe fails. WHY: the strict registration boundary and the public extension catalog now disagree; align the exported Utils catalog/API (including required ownership/phase metadata) or remove/replace the invalid public recipe, and add a clean-import/public-bootstrap regression so the bootstrap-only filter cannot mask it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-01T11:02:02.929Z",
+      "reviewRound": "2026-09-01T10:59:04.100Z",
+      "reviewRunId": "B-022e:RR-089",
+      "_hash": "a539c925138ddebb0f3d4e40bb82a3583d4a94df7680b8f45f166d7299593a82",
+      "files": [
+        "packages/utils/src/index.ts",
+        "packages/utils/src/tool-defs.ts",
+        "packages/utils/package.json",
+        "bin/bootstrap-runner.js",
+        "packages/main/src/cli/extension-admission.ts",
+        "scripts/verify-global-lab-entrypoint.mjs"
+      ],
+      "signatureTag": "missing|ts|quality-regression-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
