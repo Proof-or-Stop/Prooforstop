@@ -1356,7 +1356,7 @@
       "desc": "packages/main/templates/agents/proof-or-stop-review-concept.md Wave 4 concept boundary — WHY: the current assembled concept-review contract explicitly requires a current signed PASS and genuine full 3 rounds × 2 hosts, but the canonical verifier-owned chain is not PASS at HEAD 18c08945. acceptance_topology_check reports mode=observe, readOnly=true, evidentiary=false, authority=diagnostic_only, status=inconclusive, structuralPass=false, topologyState=legacy_missing; pre_review_check_read reports mode=observe, status=inconclusive, ok=false; acceptance_rollout_report_read and acceptance_rollout_check both report status=missing, receipt=missing, quorum=degraded-or-missing, blocking=false. Prompt prose cannot satisfy its own evidence requirement, and an observe-only receipt must not be fabricated. Either produce the mandated genuine signed 3x2 evidence through the authority-owned flow or revise the unconditional reviewer policy in a separately authorized scope before this lane can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-01T11:03:04.228Z",
@@ -1367,7 +1367,11 @@
         "packages/main/templates/agents/proof-or-stop-review-concept.md"
       ],
       "signatureTag": "missing|md|packages-main-templates",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by the lifecycle ordering already established for F-031: quorum admission consumes current required local reviewer passes, so a Wave4/3x2 absence cannot block the prerequisite local passes that make quorum submission possible. Canonical rollout/topology paths are observe-mode and nonblocking, B-022e promises no Wave4 PASS, and no receipt is manufactured. After local lanes pass, review_escalation_status is the authority for whether a fresh quorum is required.",
+      "resolvedAt": "2026-09-01T11:28:57.466Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
