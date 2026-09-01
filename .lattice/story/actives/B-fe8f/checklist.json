@@ -378,6 +378,95 @@
         "test": [
           "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A stable execution produces a verifiable RuntimeEvidenceReceipt binding storyId, source HEAD/material, build policy and command digests, canonical execution command, timestamps, exit/output digests, toolchain, producer and trust/key fields to content-addressed command, stdout, stderr, environment and artifact-manifest blobs.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "runtime.content_addressed_receipt: PASS blobs=complete signature=valid"
+            }
+          },
+          {
+            "desc": "The build-execution adapter refuses build-in-progress state and accepts only artifacts whose digest, sourceHead, realpath policy and build identity remain stable before, during and after execution.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "runtime.artifact_stability: PASS pre=true during=true post=true"
+            }
+          },
+          {
+            "desc": "Receipt verification proves which bytes ran and their freshness while preserving the boundary that it does not itself assert semantic correctness, applicability, lifecycle pass or unblock authority.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "runtime.execution_not_semantics: PASS lifecycleDelta=0"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Wrong source HEAD/material, build or execution command, environment policy, toolchain, output digest, or artifact bytes before, during or after execution is rejected with a distinct deterministic reason code.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "runtime.freshness_matrix: PASS acceptedStale=0"
+            }
+          },
+          {
+            "desc": "The environment blob contains only canonical redacted allowlisted values plus excluded-name and policy digests; secrets and excluded raw values never appear in receipts, blobs, queries or diagnostics.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "runtime.environment_privacy: PASS leakedValues=0"
+            }
+          },
+          {
+            "desc": "Unsupported storage assumptions, unknown/revoked/expired signing keys, unsupported algorithms or trust roots, and build-in-progress state fail closed before a gate-eligible receipt is emitted.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "runtime.trust_storage_boundary: PASS emittedInvalidReceipts=0"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Tampering with or substituting any content-addressed command/output/environment/artifact blob, receipt field, receiptHash or signature fails verification even if caller-supplied labels and exit status are unchanged.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "runtime.tamper_matrix: PASS acceptedMutations=0"
+            }
+          },
+          {
+            "desc": "Symlink swaps, path traversal, realpath aliasing and artifact-manifest rebinding outside the declared policy are refused without exposing the protected physical storage path.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "runtime.realpath_policy: PASS escapes=0 pathsExposed=0"
+            }
+          },
+          {
+            "desc": "A time-of-check/time-of-use mutation followed by byte restoration is still detected by the during-run and post-run stability checks and cannot yield a current receipt.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "runtime.toctou_mutation: PASS receiptsIssued=0"
+            }
+          }
+        ]
       }
     },
     {
