@@ -770,6 +770,33 @@
               "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
               "selector": "green.story3_matrix: PASS"
             }
+          },
+          {
+            "desc": "The official red_green_relation_evaluate command proves the recorded baseline still fails, current GREEN passes, and the original assertion/pattern digest is unchanged; relation substitution or assertion weakening is not accepted.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "green.red_green_relation_evaluate: PASS baselineFails=true currentPasses=true assertionUnchanged=true"
+            }
+          },
+          {
+            "desc": "The merged-state lifecycle matrix confirms B-03b7 releases only after B-fe8f is DONE and merged, while B-e6d9 releases only after both prerequisites are DONE and merged.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "green.lifecycle_dependency_gate: PASS B-03b7=release_after_B-fe8f B-e6d9=release_after_B-fe8f+B-03b7"
+            }
+          },
+          {
+            "desc": "The patch version increments exactly once and root package.json, packages/main/package.json, package-lock.json, packages/main/src/core/lattice-brand.ts LATTICE_CLI_VERSION, local CLI output and installed proof-or-stop --version are synchronized after merge preparation.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run build && node bin/proof-or-stop.js --version && proof-or-stop --version && node packages/main/dist/tasks/finding-ledger-runtime-smoke.js",
+              "selector": "green.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=true"
+            }
           }
         ],
         "edge": [
