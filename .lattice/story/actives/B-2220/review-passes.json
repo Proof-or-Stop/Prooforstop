@@ -1113,6 +1113,39 @@
       },
       "readDiagnostics": [],
       "_hash": "b7043657707d68642553a89037fc0fc518ce0da08c638c95bcc0845ed26a39fd"
+    },
+    {
+      "id": "B-2220:RP-032",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 12 test coverage review passed: independently executed all 7 verificationIntent commands with 7/7 PASS, 0 gaps, 0 waivers; happy:2 build-binding plus full compiled smoke passed and adversarial:1 matched digest 6041dbff24cba1df2c2a838d949df8d87a7eaf04a979525681456f5d994e614e.",
+      "createdAt": "2026-09-01T00:34:22.615Z",
+      "reviewRound": "2026-09-01T00:32:22.241Z",
+      "reviewRunId": "B-2220:RR-050",
+      "envelopeId": "e388f5f8bc545b97764925b64e881e0f6db3e4e33876e35e761c234a392725b3",
+      "writerSessionId": "sess-8c0ea484827c182c849f80edfe291c0c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/validation-evidence-artifact-growth.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b0eb370ae46841f42517b83a2bce18686b1faf20b55e7702fd8255a0ae041627"
+      },
+      "readDiagnostics": [],
+      "_hash": "783e3d366eaa46f4e468d7a9b855c14ca30fda6582bc7b353fab1d57945265e2"
     }
   ]
 }
