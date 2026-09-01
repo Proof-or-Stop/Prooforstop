@@ -3144,6 +3144,75 @@
         "scanEscalationReason": "REVIEWER_REQUESTED_FULL: current-worktree local CLI re-sign of all Round 32 intent/evidence and direct-test mappings; incremental eligibility was not used."
       },
       "_hash": "b47a46efa2ed2027cf7200f3fd79b4aa894dcb326e39ac5e28580ccc8dd249c9"
+    },
+    {
+      "id": "B-022e:RP-079",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Round 32 current-worktree-local-CLI docs re-sign, requested-full/full-context. Reused the completed full docs audit: 1672 changed symbol tokens and 10 focused documentation/executable-diagnostic paragraphs were reviewed. Migration diagnostics truthfully distinguish retired .lattice/@lattice/core from canonical .proof-or-stop/@proof-or-stop/core; proof-or-stop-review-story-init, canonical StoryStore/sourcePointers, plan_get/plan_set, package versions/floors, and Wave 4 non-Authority limits remain consistent. The projectRoot-to-gitCwd parameter rename is internal and needs no doc update. No doc-code drift, undelivered promise, or blocker. This pass was minted only through node bin/proof-or-stop.js in the B-022e worktree, with no global CLI and no build/npm test rerun.",
+      "createdAt": "2026-09-01T20:44:17.498Z",
+      "reviewRound": "2026-09-01T20:22:08.642Z",
+      "reviewRunId": "B-022e:RR-150",
+      "envelopeId": "b3a76d6251e6a6abff4366a8edbe79d1d2fe39a172ff3bb1e3e70fef1b43607b",
+      "writerSessionId": "sess-c460ad9a5bf1138237803db4c9d4aff7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-022e/background.md",
+          ".proof-or-stop/story/actives/B-022e/checklist.json",
+          ".proof-or-stop/story/actives/B-022e/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "README.md",
+          "scripts/verify-migration-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+          "packages/utils/package.json",
+          "scripts/proof-or-stop-identity-current-legacy-contexts.json",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": "Round 32 explicitly requested a current-worktree-local-CLI full-context docs re-sign after reviewer metadata drift."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "70f231b1fa66b072a69785e3bc0f0e40926aca49531a85f039724b83fabcaa90"
+      },
+      "readDiagnostics": [],
+      "_hash": "0fb0aacafbb98be11724cdc3c5028bf61c68c6dec5111bd170927d928a1c1a5a"
     }
   ]
 }
