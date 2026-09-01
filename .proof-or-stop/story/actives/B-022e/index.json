@@ -4,7 +4,7 @@
   "title": "Complete the Proof-or-Stop identity cutover across packages, CLI, and active runtime surfaces",
   "description": "Complete a clean, intentionally incompatible cutover from active Lattice identities: every current command starts with proof-or-stop; @lattice/lab and @lattice/utils become @proof-or-stop/*; active source, config, verifiers, prompts, and documentation expose no Lattice identity. Preserve historical stories, legacy migration inputs, compatibility fixtures, changelog records, and provenance/hash-bound bytes through an explicit historical allowlist.",
   "type": "refactor",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -22,7 +22,7 @@
   ],
   "createdAt": "2026-08-30T21:29:11.585Z",
   "startedAt": "2026-08-30T21:29:11.585Z",
-  "endedAt": null,
+  "endedAt": "2026-09-01T21:02:06.600Z",
   "events": [
     {
       "phase": "INIT",
@@ -743,12 +743,16 @@
       "user": "Harmonynet",
       "sessionId": "sess-c460ad9a5bf1138237803db4c9d4aff7",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-09-01T21:02:06.600Z",
+      "branch": "story/B-022e",
+      "user": "Harmonynet",
+      "sessionId": "sess-c460ad9a5bf1138237803db4c9d4aff7",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-022e",
-    "branch": "story/B-022e",
-    "createdAt": "2026-08-30T21:41:01.408Z"
-  },
   "currentReviewRound": "2026-09-01T20:45:42.374Z"
 }
