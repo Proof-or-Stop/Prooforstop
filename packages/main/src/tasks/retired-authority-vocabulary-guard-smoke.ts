@@ -426,7 +426,10 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-022e final re-attestation: Lab ownership-class wiring changed the
   // enclosing file, while runCli's `file://${initPath}` loader and producer are
   // unchanged; the exact structural pin remains mutation-sensitive.
-  ['packages/main/src/cli-engine.ts', 'b7f71c8c28ce724f8cf9552d9e665e5177c4c92e31226ea8cef3678ff3ebcfd2'],
+  // B-022e delivery follow-up: extension phase admission/read-only handling
+  // changed elsewhere in runCli; the initPath producer and import() call are
+  // byte-identical, so this remains an exact whole-source re-attestation.
+  ['packages/main/src/cli-engine.ts', '69bf311f5944faa25068745d3ea7c1f6828d9c04d94e7f116ac7fe450dc077db'],
   // B-022e post-merge re-attestation: runtime identity/path tokens changed;
   // startCircuitServe's filePath producer and import(`file://${filePath}`)
   // call shape remain unchanged.
@@ -457,11 +460,16 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // B-022e re-attestation: the zod loader became the bounded literal import('zod'),
   // while MAIN_DIST, UTILS_DIST, and LAB_DIST remain the same path-derived loaders.
   // Ownership metadata and identity text add no executable-code construction sink.
-  ['bin/bootstrap-runner.js', '09f3a0a52a4e50818da742a5dbe69d1b9f108c10d171547ded64507e94020e5c'],
+  // B-022e delivery follow-up: nested Lab routing adds only ownership/phase
+  // metadata inside the existing runCli options object. The three approved
+  // non-literal import call sites, arguments, and path producers are unchanged.
+  ['bin/bootstrap-runner.js', '9ce76bc29c20fcccabd1010f764e8b9af23e14a1482e6c4161765399f9dd1935'],
   // B-022e: main's standalone entrypoint loads the canonical Lab package first,
   // then one repository-relative build fallback. The exact-file pin covers both
   // the loader producer and the dynamically imported Lab namespace calls.
-  ['packages/main/src/cli.ts', '3d72a08a73de4add9b833e95eb52f3fcb3307e98f0fd8dc35b07fec8e99db2d0'],
+  // B-022e delivery follow-up: nested Lab routing adds only ownership/phase
+  // metadata; workspaceLabSpecifier and its import() call remain unchanged.
+  ['packages/main/src/cli.ts', '654b7c2d65b538fb9636fab2d15368e8e4d5c0105c047151dcac11078d2b076a'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
 const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
@@ -1571,10 +1579,12 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-022e re-attestation: there are now three approved non-literal dist loaders.
   // The former path-derived zod loader is the literal package import('zod'), so it
   // leaves this exception set instead of receiving a broader allowance.
-  ['bin/bootstrap-runner.js', '09f3a0a52a4e50818da742a5dbe69d1b9f108c10d171547ded64507e94020e5c'],
+  // B-022e delivery follow-up: the same audited metadata-only executable drift
+  // moves this coupled whole-source pin without changing any loader provenance.
+  ['bin/bootstrap-runner.js', '9ce76bc29c20fcccabd1010f764e8b9af23e14a1482e6c4161765399f9dd1935'],
   ['bin/proof-or-stop-codex.js', '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506'],
   // Same exact-file review boundary as the dynamic-module-call exemption above.
-  ['packages/main/src/cli.ts', '3d72a08a73de4add9b833e95eb52f3fcb3307e98f0fd8dc35b07fec8e99db2d0'],
+  ['packages/main/src/cli.ts', '654b7c2d65b538fb9636fab2d15368e8e4d5c0105c047151dcac11078d2b076a'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {

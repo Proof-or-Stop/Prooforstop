@@ -1910,7 +1910,7 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-    'b7f71c8c28ce724f8cf9552d9e665e5177c4c92e31226ea8cef3678ff3ebcfd2',
+    '69bf311f5944faa25068745d3ea7c1f6828d9c04d94e7f116ac7fe450dc077db',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -2012,11 +2012,11 @@ function assertCloseoutTrustBoundary() {
     '9d09bfd90b67cfa559095b82c8a7012871f0b4d0d38f7ec68941c4f5d0b5e772',
     "'packages/main/src/handlers/fixture-executors.ts'",
     'efac815e5c27ce69c10c038846f53d99631617a75b97e0ee649844202f203822',
-    '09f3a0a52a4e50818da742a5dbe69d1b9f108c10d171547ded64507e94020e5c',
-    '3d72a08a73de4add9b833e95eb52f3fcb3307e98f0fd8dc35b07fec8e99db2d0',
+    '9ce76bc29c20fcccabd1010f764e8b9af23e14a1482e6c4161765399f9dd1935',
+    '654b7c2d65b538fb9636fab2d15368e8e4d5c0105c047151dcac11078d2b076a',
     'bootstrap-runner.js and cli.ts are pinned in both exact exemption maps, making nine whole-source entries; no broad pattern exemptions are allowed',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
-    '09f3a0a52a4e50818da742a5dbe69d1b9f108c10d171547ded64507e94020e5c',
+    '9ce76bc29c20fcccabd1010f764e8b9af23e14a1482e6c4161765399f9dd1935',
     '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506',
     'runDirectCli',
     'workspaceLabSpecifier',
