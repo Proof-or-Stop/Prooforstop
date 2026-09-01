@@ -769,9 +769,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-01T09:53:59.955Z",
-      "endTime": null,
+      "endTime": "2026-09-01T10:14:55.240Z",
       "userSees": "The terminal prints \"ledger.receipt_contract: PASS signedFields=complete\", \"ledger.exact_record_cas: PASS committed=true\", and \"ledger.stale_cas: PASS semanticWrites=0\".",
       "excludes": [
         "The schema-neutral handler does not interpret route profiles, assessment verdicts or gate meaning."
@@ -1231,7 +1231,14 @@
           "storyFilesHash": "85d5647fc62176c78c2e78cf33c78c57c4c984ab2dc76f913ffa17f319ddc6f7",
           "timestamp": "2026-09-01T10:14:37.264Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "fbf96af4b631ac39e9d2c801d4db14f51d4a036a65673ae03291f9a0ea02c446",
+        "storyFilesHash": "85d5647fc62176c78c2e78cf33c78c57c4c984ab2dc76f913ffa17f319ddc6f7",
+        "headHash": "db8e7b9c4810e994d504ca3ca663b9912e894467",
+        "attestedAt": "2026-09-01T10:14:55.468Z",
+        "materialHash": "75293348a1df504c6c76e75558c4a9980580f04875c85ef17a6288df3b717c53"
+      }
     },
     {
       "id": "CHK-004",
@@ -1735,6 +1742,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin exact-record CAS and signed ledger receipt consumers after CHK-002 foundation has nine passing mechanical receipts."
+    },
+    {
+      "timestamp": "2026-09-01T10:14:55.240Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Independent commit 5af15c5c59 passed build, all 14 tool-executed CHK-003 intents, and all prior ledger foundation selectors."
     }
   ]
 }
