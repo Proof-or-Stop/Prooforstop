@@ -722,6 +722,65 @@
         "scanEscalationReason": "Round13 was explicitly bounded to af344e88ec historical-parser, decoded-ledger, case-insensitive residue, exact policy-path mutations, and 2429d66 history/comment fixes; related Story context and evidence were consumed through canonical story_get rather than direct metadata edits."
       },
       "_hash": "0fed91b40f18763065bb52127c0aa33e64be7e88189288ab9a00bf48d289a033"
+    },
+    {
+      "id": "B-022e:RP-026",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 13 concept re-review found no new implementation blocker. af344e88ec recursively scans decoded JSON object keys and string values, rejects Unicode-escaped retired identities, makes the shared retired-token matcher genuinely case-insensitive while preserving exact case-sensitive allowlist pins, and retains bin/lattice.js solely as bounded historical non-evidentiary provenance with no executable alias. Identity self-test, full identity verifier with offline four-tarball boundary, acceptance-topology provenance test, residue scans, and git diff check passed. Existing F-031 remains separately open as a lifecycle assurance artifact requirement and is neither resolved nor represented by this code-fix pass.",
+      "createdAt": "2026-09-01T00:18:32.498Z",
+      "reviewRound": "2026-09-01T00:13:36.641Z",
+      "reviewRunId": "B-022e:RR-056",
+      "envelopeId": "a6f450562bb59b0c81a0760f4c673ac322ad8b4c12da730e2075ded1cff10f31",
+      "writerSessionId": "sess-3059244a900e44f8884f27875329589d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "packages/main/tests/acceptance-topology-provenance.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/templates/agents/proof-or-stop-review-story-init.md",
+          "README.md",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": "Story-level identity cutover concept re-review required the full canonical policy plus focused inspection of af344e88ec, exact retired-role residue scans, historical provenance parsing, append-only suffix validation, and all checklist related-doc names."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "2dc5cf68c7155cd4e750efef63241dd9019257b18fea428f70418405f295da2c"
+      },
+      "readDiagnostics": [],
+      "_hash": "fd964aae4c4f07036a1e6b60330a4b905dbc98f4fec71377037519002d02bb99"
     }
   ]
 }
