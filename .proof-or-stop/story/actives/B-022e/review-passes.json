@@ -957,6 +957,27 @@
       },
       "readDiagnostics": [],
       "_hash": "126ff5c3847bcdb9d00631f4566e27247a53be8275c5ef2354e14ca8aa1085f7"
+    },
+    {
+      "id": "B-022e:RP-032",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round15 FULL-ID quality review found no blocker. Commit f7bf366 changes only the cutover decision prose and its exact verifier provenance pin: the document blob d67a7a7a8b99dcf98f420bf1f68367a66eb41623 and SHA-256 05a5d3fe0a1fd904d60e51bfe07cbd84081739a0932779f69dcb7b7f2a9614c0 match the committed constants. Git independently proves f245fd is a one-path policy-only commit, precedes RED introduction 6d32db, and RED precedes f7bf366. No production code, test logic, executable alias, dead code, type behavior, or misleading runtime promise changed. Identity mutation self-test and full identity/pack-boundary verifier pass.",
+      "createdAt": "2026-09-01T01:20:03.338Z",
+      "reviewRound": "2026-09-01T01:11:43.385Z",
+      "reviewRunId": "B-022e:RR-071",
+      "envelopeId": "420c63e15e2681400a4eb3f4bd542a830497793d80fc5641a9cbff2cc443d72e",
+      "writerSessionId": "sess-9b987d5deb03c30b237a44651f4e6400",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+        ],
+        "filesTriagedByName": [
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": "Round15 was explicitly bounded to f7bf366; the complete changed decision was read and the only executable-file delta was independently checked as a three-field exact provenance-pin update, then exercised by both identity self-test and full verifier."
+      },
+      "_hash": "b7115d4dcad8451586dfc576e059b15b2572306c3582007fa428732d8772091d"
     }
   ]
 }
