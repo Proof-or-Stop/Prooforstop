@@ -1200,7 +1200,7 @@
       "desc": "quality-security: packages/main/src/cli-engine.ts:863 accepts any key present in extraOwnershipClasses + extraAllowedPhases as an extension command without proving the key belongs to extraTools or is disjoint from MAIN_TOOLS. A targeted REVIEW harness showed normal red_evidence_create is rejected by its PLAN-only lifecycle policy, but the same core command supplied in those two maps bypasses the phase gate and reaches argument validation. Independently, lines 1246 and 1389 trust the raw external readOnly row rather than the core-first effective ownership resolver, so the same core-name collision suppresses pre/post hooks and Codex process events even though ownership-gate.ts correctly retains the core mutating policy. This is a fail-closed admission and audit bypass; validate exact extraTools membership, reject core-name collisions, and derive hook/event behavior only from that validated declaration.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-01T08:50:13.863Z",
@@ -1208,7 +1208,11 @@
       "reviewRunId": "B-022e:RR-073",
       "_hash": "b5bc2634c7599b718ba5986b4a22109b71bfa9468b86e79eb7069bfec5972042",
       "signatureTag": "adversarial|unknown|quality-security-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in cade1bf954: hook/process-event ownership uses core-first resolveEffectiveOwnershipClass; raw external readOnly metadata cannot override a core command, and collision/read-only mutation tests fail closed.",
+      "resolvedAt": "2026-09-01T09:36:30.560Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
