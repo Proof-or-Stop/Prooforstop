@@ -219,6 +219,29 @@
         }
       ],
       "_hash": "8c770fe622e5bc129b1dfcc96577cd94cb815dcbedeb48670f0f5377881a6d0e"
+    },
+    {
+      "timestamp": "2026-09-01T17:17:18.215Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "8 checklist items; please check for missing combined scenarios (e.g., what happens when Inventory active Lattice identities, freeze historical evidence, and adopt the superseding clean-break policy + Commit RED regression tests for every active legacy identity class and frozen-history boundary are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 3 high-risk signal(s): Data Migration/Destructive, Validation Framework, Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-022e\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "broad glob in write-set: bin/** (narrow the contract)"
+        }
+      ],
+      "_hash": "aa13f3de95422d5279bc7578282ddb23f20e492e0a3198584b8cd68f3c44210e"
     }
   ]
 }
