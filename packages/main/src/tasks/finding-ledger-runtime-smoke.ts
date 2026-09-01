@@ -361,6 +361,8 @@ async function runStory3DependencyFixture(root: string): Promise<void> {
   console.log('green.lifecycle_dependency_gate: PASS B-03b7=release_after_B-fe8f B-e6d9=release_after_B-fe8f+B-03b7');
 }
 
+let sparseProjectionRegressionCompleted = false;
+
 function runFindingProjectionRegression(root: string): void {
   const store = new StoryStore(root);
   const storyId = 'B-SPARSE';
@@ -423,6 +425,7 @@ function runFindingProjectionRegression(root: string): void {
   assert.match(second, /Finding B-SPARSE:F-005 created/);
   assert.equal(store.readFindingLedger<JsonValue>(storyId).records.filter((record) => record.recordType === 'finding').length, 2);
   assert.equal(store.readFindings(storyId).findings.some((finding) => finding.id === 'B-SPARSE:F-005'), true);
+  sparseProjectionRegressionCompleted = true;
   console.log('lifecycle.finding_ledger_retention: PASS consecutiveFindings=2 authority=none');
 }
 
@@ -456,20 +459,25 @@ function assertRedGreenRelation(repositoryRoot: string): void {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   });
-  if (current.status === 0) {
-    assert.match(current.stdout, /gaps=0/);
-    assert.match(current.stdout, /red\.relation_evaluate: PASS baselineFails=true/);
-    assert.match(current.stdout, /red\.genuine_contract_failure:none \(GREEN:/);
-  } else {
-    // REVIEW F-002 deliberately supersedes the immutable RED's pre-GREEN
-    // allocator sentinel. Prove this is the sole expected incompatibility:
-    // the accepted GREEN commit retained that baseline, while the current
-    // sparse-history regression mechanically exercises the safer allocator.
-    const acceptedGreenFindingSource = git(repositoryRoot, ['show', 'HEAD:packages/main/src/handlers/finding.ts']);
-    assert.match(acceptedGreenFindingSource, /const nextNum = data\.findings\.length \+ 1;/);
-    assert.match(current.stderr, /pre-GREEN Finding ID baseline changed without the accepted allocator/);
-    assert.doesNotMatch(current.stderr, /accepted RED assertion bytes changed/);
-  }
+  // REVIEW F-002 deliberately supersedes the immutable RED's pre-GREEN
+  // length-based allocator sentinel. The RED bytes remain fixed evidence, so
+  // running that artifact must now stop at exactly the obsolete sentinel while
+  // the GREEN relation independently proves the replacement is live.
+  assert.notEqual(current.status, 0, 'immutable RED unexpectedly accepted the superseded length-based allocator sentinel');
+  assert.match(current.stderr, /pre-GREEN Finding ID baseline changed without the accepted allocator/);
+  assert.doesNotMatch(current.stderr, /accepted RED assertion bytes changed/);
+  const productionFindingHandler = readFileSync(
+    join(repositoryRoot, 'packages', 'main', 'src', 'handlers', 'finding.ts'),
+    'utf8',
+  );
+  assert.doesNotMatch(productionFindingHandler, /const nextNum = data\.findings\.length \+ 1;/);
+  assert.match(productionFindingHandler, /const historicalDisplayIds = \[/);
+  assert.match(productionFindingHandler, /historicalDisplayIds\.reduce\(\(max, candidate\) =>/);
+  assert.equal(
+    sparseProjectionRegressionCompleted,
+    true,
+    'sparse F-001/F-003 -> F-004 projection regression did not execute before RED/GREEN evaluation',
+  );
   console.log('green.red_green_relation_evaluate: PASS baselineFails=true coreContractsPass=true immutableBlob=true sparseAllocatorSupersedesBaseline=true');
 }
 
