@@ -13122,6 +13122,52 @@
         "scanEscalationReason": null
       },
       "_hash": "32fdaaf92be39a9f488d1118a5ca231f5b8602706119860fd8225b4d1d23c0f1"
+    },
+    {
+      "id": "B-5a15:RP-273",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Completeness critic for review-inventory epoch B-5a15:RI-059 wave 1 (cutoff materialHash baf3b78a5761 / storyFilesHash 0b5fe162). No coverage gap. Independently verified: (1) all four commits since the cutoff head 4d87764b62 touch only reviewer auto-commit story metadata under .proof-or-stop/story/actives/B-5a15 - zero source files - so the material lineage the epoch binds is intact despite HEAD moving; (2) recomputed the wave raw-finding set with the handler rule (findings bound to candidate runs past initialRunSequenceBoundary 826 at the cutoff hashes, plus signed baseline) and it is genuinely empty - lanes concept RR-827, quality RR-829/830, test-coverage RR-828 all carry terminals with zero findings, baselineFindingIds is [], and open findings F-343/F-344 are main-agent authored with no reviewRunId so they are not lane raw findings; (3) scope-contract declares 17 unique in-scope files, 16 changed in main...HEAD and all covered by the three lanes; (4) of the 42 changed non-story-metadata files, the 26 outside the signed scope contract all appear among the 66 acknowledgement paths - zero unacknowledged; (5) acceptance_rollout_report verdict=pass with falsePassCount 0, mislabeled3x1Count 0, matchedPairCount 6 (genuine 3 rounds x 2 hosts, not degraded 3x1), diagnostics [], receipt bound to the exact cutoff materialHash and storyFilesHash; (6) PR_ARTIFACT_TAMPERED is a verified false alarm - I recomputed the trusted workspace key and confirmed signerPublicKey matches and verifyCanonical succeeds over the artifact own bytes with storyId and storyFilesHash matching the cutoff, so only the recompute-against-moved-HEAD leg at pre-review-check.ts:415 can fire, which is staleness not byte tampering. Known tracked remediation work (AT_COVERAGE_BASIS_PARTIAL, 10x AT_UNMAPPED_SCOPE_REF, suite baseline 19 pass / 2 fail, certification-window-smoke pre-existing failure, causal-evidence.ts:1096 localeCompare) is scheduled for the DEV pass that consumes this receipt and is not a gap in review coverage. Dispositioned findings F-325..F-344 not re-filed. No decisions-doc files were read, so the mechanical read log carries no decisions entries.",
+      "createdAt": "2026-09-01T19:08:27.842Z",
+      "reviewRound": "2026-09-01T13:31:42.515Z",
+      "reviewRunId": "B-5a15:RR-833",
+      "envelopeId": "0bc1935cf14ae3cce0b930473c9b84027ee40e2c67fe146f3158dda123597fd6",
+      "writerSessionId": "sess-7bbaadb06fb0a9416987e7e33d0a6a1e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-5a15/findings.json",
+          ".proof-or-stop/story/actives/B-5a15/owner-lease.json",
+          ".proof-or-stop/story/actives/B-5a15/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json",
+          ".proof-or-stop/story/actives/B-5a15/review-runs.json",
+          ".proof-or-stop/story/actives/B-5a15/scope-contract.json",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-5a15/process-events.jsonl",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/authority-signing.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1e96a09cd0004cfc250156eb9c9799cd8fd29386cd3f6af1ae74cf3268fd3bdc"
     }
   ]
 }
